@@ -6,7 +6,7 @@
   "scripts": {
     "build:app": "",
     "build:web": "",
-    "dev": "",
+    "dev": "npx electron ./electron-main.js",
     "dev:install": "",
     "dev:install:clean": "",
     "debug": "",

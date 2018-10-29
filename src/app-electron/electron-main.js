@@ -7,53 +7,6 @@ const url = require('url');
 
 log(`MEME/ELECTRON-MAIN PROCESS STARTED (${__filename})`);
 
-// webpack will be used to compile and serve the app
-// first make it work in development mode
-// which can be detected from the environment
-const webpack = require('webpack');
-const WebpackDevServer = require('webpack-dev-server');
-const memeConfig = require('../../config/webpack.memeweb.config.js');
-const wdsConfig = require('../../config/wds.webapp.config.js');
-
-log(`- starting webpack compiler programmatically`);
-
-// run webpack!
-const compiler = webpack(memeConfig, (err, stats) => {
-  // error handling
-  if (err) {
-    log('\n*** WEBPACK ERROR ***');
-    console.error(err.stack || err);
-    if (err.details) {
-      console.error(err.details);
-    }
-    return;
-  }
-  const info = stats.toJson();
-
-  if (stats.hasErrors()) {
-    log('\n*** LAST WEBPACK STAT ERROR ***');
-    console.log(info.errors.pop());
-    return;
-  }
-
-  if (stats.hasWarnings()) {
-    log('\n*** LAST WEBPACK STAT WARNINGS ***');
-    console.log(info.warnings.pop());
-    return;
-  }
-
-  // got this far? let's start the server
-  const server = new WebpackDevServer(compiler, wdsConfig);
-  const serverOptions = {
-    contentBase: path.resolve(__dirname, '../dist/webapp'),
-    port: 8080
-  };
-  log(`- running webapp-dev server programmatically from ${serverOptions.contentBase}`);
-  log(`  on port ${serverOptions.port}`);
-  server.listen(serverOptions.port);
-  console.log(`\n\nDUMPING SERVER`, server);
-});
-
 // log(JSON.stringify(compiler.options));
 
 // Keep a global reference of the window object, if you don't, the window will

@@ -4,11 +4,8 @@
   "description": "Boilerplate for LAN webapps served by an Electron host",
   "main": "main.js",
   "scripts": {
-    "build:app": "",
-    "build:web": "",
-    "dev": "npx electron ./src/app-electron/electron-main.js --debug",
-    "dev:install": "",
-    "dev:install:clean": "",
+    "dev": "webpack-dev-server --hot --host 0.0.0.0 --config=./config/webpack.web.config.js --mode development",
+    "electron": "npx electron ./src/app-electron/electron-main.js --debug",
     "debug": "",
     "clean": "",
     "clean:runtime": "",

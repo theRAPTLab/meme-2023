@@ -1,28 +1,8 @@
 /*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  MEMEWEB CONFIGURATION for WEBPACK
+  WEBAPP CONFIGURATION for WEBPACK
   This is intended to build the web application purely with webpack,
   no electron support
-
-  .. without electron
-  .. using webpack-dev-server
-
-  NOTE: webpack-dev-server is a memory-resident server, so it doesn't write dist/
-  files. You need to use a separate build task to generate dist/* files.
-
-
-    const { spawn } = require('child_process');
-    ,
-    before: app => {
-      spawn('electron', [path.resolve(__dirname, '../src/app-electron/electron-main.js')], {
-        shell: true,
-        env: process.env,
-        stdio: 'inherit'
-      })
-        .on('close', code => process.exit(0))
-        .on('error', spawnError => console.error(spawnError));
-    } // before
-
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 const path = require('path');
@@ -30,6 +10,7 @@ const webpack = require('webpack');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const WriteFilePlugin = require('write-file-webpack-plugin');
 
 console.log(`- importing config ${__filename}`);
 
@@ -68,6 +49,9 @@ module.exports = {
     // this plugin adds the script tag to load webpacked assets to template
     // and outputs it to dist/
     // e.g. <script type="text/javascript" src="main.js"></script>
+    new WriteFilePlugin({
+      test: /^(.(?!.*\.hot-update.js$|.*\.hot-update.json))*$/ // don't write hot-update and json files
+    }),
     new HtmlWebpackPlugin({
       template: 'web-index.html',
       filename: './index.html'
@@ -80,6 +64,8 @@ module.exports = {
   // 'devServer' options are used to configure webpack-dev-server
   devServer: {
     contentBase: path.resolve(__dirname, '../src/app-web/'),
+    watchContentBase: true,
+    // writeToDisk: true, // will write files, but also HOT module files
     port: 3000,
     stats: {
       colors: true,

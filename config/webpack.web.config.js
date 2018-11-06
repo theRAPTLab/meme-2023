@@ -6,71 +6,54 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 const path = require('path');
-const webpack = require('webpack');
+const merge = require('webpack-merge');
 
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
-
-console.log(`- importing config ${__filename}`);
+const baseConfig = require('./base.config');
+const wdsConfig = require('./wds.web.config');
 
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard
-module.exports = {
-  // 'context' used to resolve base path of entry points and loaders (as defined below)
-  context: path.resolve(__dirname, '../src/app-web'),
-  // 'entry' lists where to start scanning dependency graph for a bundle
-  // the load is injected into meme-index.html and output as index.html
-  // by HtmlWebpackPlugin in 'plugins'
-  entry: './web-main.js',
-  // 'output' establishes naming conventions and where bundles are written
-  output: {
-    filename: 'web.bundle.js'
-  },
-  // 'module' defines what loaders are used to process what types of files
-  module: {
-    rules: [
-      {
-        test: /\.js$/, // filetype that this rule applies to
-        exclude: /node_modules/, // regex to ignore files with this path
-        use: {
-          loader: 'babel-loader' // webpack plugin to use babel for transpiling
-        }
+const webConfiguration = env => {
+  return merge([
+    // config webapp files
+    {
+      target: 'web',
+      mode: 'development',
+      // define base path for input filenames
+      context: path.resolve(__dirname, '../src/app-web'),
+      // start bundling from this js file
+      entry: ['./web-main.js', 'webpack-hot-middleware/client'],
+      // bundle file name
+      output: {
+        filename: 'web.bundle.js',
+        publicPath: ''
       },
-      {
-        test: /\.scss$/,
-        // read from right to left, which is order of conversion
-        use: ['style-loader', 'css-loader', 'sass-loader']
-      }
-    ]
-  },
-  // 'plugins' tap into webpack lifecycle to modify tool chain
-  plugins: [
-    // this plugin adds the script tag to load webpacked assets to template
-    // and outputs it to dist/
-    // e.g. <script type="text/javascript" src="main.js"></script>
-    new WriteFilePlugin({
-      test: /^(.(?!.*\.hot-update.js$|.*\.hot-update.json))*$/ // don't write hot-update and json files
-    }),
-    new HtmlWebpackPlugin({
-      template: 'web-index.html',
-      filename: './index.html'
-    }),
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('development')
-    }),
-    new CopyWebpackPlugin()
-  ],
-  // 'devServer' options are used to configure webpack-dev-server
-  devServer: {
-    contentBase: path.resolve(__dirname, '../src/app-web/'),
-    watchContentBase: true,
-    // writeToDisk: true, // will write files, but also HOT module files
-    port: 3000,
-    stats: {
-      colors: true,
-      chunks: false,
-      children: false
-    }
-  }
+      // apply these additional plugins
+      plugins: [
+        new HtmlWebpackPlugin({
+          template: 'web-index.html',
+          filename: './index.html'
+        }),
+        new webpack.DefinePlugin({
+          'process.env.NODE_ENV': JSON.stringify('development')
+        }),
+        new WriteFilePlugin({
+          test: /^(.(?!.*\.hot-update.js$|.*\.hot-update.json))*$/ // don't write hot-update and json files
+        }),
+        new CopyWebpackPlugin(),
+        new webpack.HotModuleReplacementPlugin()
+      ]
+    },
+    // config webpack-dev-server when run from CLI
+    // these options don't all work for the API middleware version
+    wdsConfig
+  ]);
 };
+
+// return merged configurations
+// since we are returning function webpack will pass the current environment
+module.exports = env => merge(baseConfig(env), webConfiguration(env));

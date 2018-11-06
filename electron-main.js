@@ -1,11 +1,24 @@
-// debugging convenienece
-const log = console.log.bind(console);
+/*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
+
+  ELECTRON MAIN PROCESS
+
+\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
+
+// import appserver
 // Import parts of electron to use
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const url = require('url');
 
-log(`MEME/ELECTRON-MAIN PROCESS STARTED (${__filename})`);
+const PR = '[ElectronMain]';
+
+console.log(`${PR} STARTED ${path.basename(__filename)}`);
+
+// load webserver
+const URSERVER = require('./src/ur/appserver');
+
+// our modules
+// const UR = require('../ur');
 
 // log(JSON.stringify(compiler.options));
 
@@ -63,13 +76,15 @@ function createWindow() {
 
   indexPath = url.format({
     protocol: 'file:',
-    pathname: path.join(__dirname, 'electron-index.html'),
+    pathname: path.join(__dirname, 'dist/electron-index.html'),
     slashes: true
   });
+  console.log(`${PR} LOADING ${indexPath} into MAINWINDOW`);
   mainWindow.loadURL(indexPath);
 
   // Don't show until we are ready and loaded
   mainWindow.once('ready-to-show', () => {
+    console.log(`${PR} SHOWING MAINWINDOW`);
     mainWindow.show();
 
     // Open the DevTools automatically if developing
@@ -83,6 +98,7 @@ function createWindow() {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
+    console.log(`${PR} CLOSING\n\n`);
     mainWindow = null;
   });
 }

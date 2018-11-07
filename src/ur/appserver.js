@@ -39,7 +39,11 @@ app.use(
     publicPath: webConfig.output.publicPath
   })
 );
+// enable hot middleware with compiler instance
 app.use(require('webpack-hot-middleware')(compiler));
+// theoreticically changes to this should cause a hot reload?
+// ONLY with webapp, not with appserver changes!
+
 /// serve everything else out of public as static files
 const PATH_DIST = path.resolve(__dirname, '../../dist');
 app.use('/', express.static(PATH_DIST));

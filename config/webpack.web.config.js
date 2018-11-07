@@ -26,12 +26,13 @@ const webConfiguration = env => {
       // define base path for input filenames
       context: path.resolve(__dirname, '../src/app-web'),
       // start bundling from this js file
-      entry: ['./web-main.js', 'webpack-hot-middleware/client'],
+      entry: ['./web-main.js', 'webpack-hot-middleware/client?reload=true'],
       // bundle file name
       output: {
         filename: 'web.bundle.js',
         publicPath: ''
       },
+      devtool: '#source-map',
       // apply these additional plugins
       plugins: [
         new HtmlWebpackPlugin({

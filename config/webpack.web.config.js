@@ -26,18 +26,18 @@ const webConfiguration = env => {
       // define base path for input filenames
       context: path.resolve(__dirname, '../src/app-web'),
       // start bundling from this js file
-      entry: ['./web-main.js', 'webpack-hot-middleware/client?reload=true'],
+      entry: ['./web-index.js', 'webpack-hot-middleware/client?reload=true'],
       // bundle file name
       output: {
-        filename: 'web.bundle.js',
-        publicPath: ''
+        filename: 'web/web-bundle.js',
+        publicPath: 'web'
       },
       devtool: '#source-map',
       // apply these additional plugins
       plugins: [
         new HtmlWebpackPlugin({
           template: 'web-index.html',
-          filename: './index.html'
+          filename: path.join(__dirname, '../dist/web', 'index.html')
         }),
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('development')
@@ -51,7 +51,7 @@ const webConfiguration = env => {
     },
     // config webpack-dev-server when run from CLI
     // these options don't all work for the API middleware version
-    wdsConfig
+    wdsConfig(env)
   ]);
 };
 

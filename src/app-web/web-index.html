@@ -1,27 +1,26 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <base href="/" />
+    <title>MEME TESTING WEB</title>
+  </head>
 
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <base href="/">
-  <title>MEME TESTING</title>
-</head>
-
-<body>
-  <p><strong>Web Application Index</strong>
-    <br>
-    source @ <code>app-web/web-index.html</code>, compiled to <code>dist/index.html</code>
-  </p>
-  <p>Files are for the web application. Electron sources are in <code>src/app-electron</code>.
+  <body>
+    <p>
+      <strong>Web Application Index</strong> <br />
+      source @ <code>app-web/web-index.html</code>, compiled to <code>dist/index.html</code>
+    </p>
+    <p>Files are for the web application. Electron sources are in <code>src/app-electron</code>.</p>
     <ul>
       <li>Edit any file in <code>src/app-web</code> to force a full page reload</li>
       <li>compile/watch handled by <code>webpack-dev-server</code></li>
-      <li>files are written to disk using <code>WriteFilePlugin</code> with filtering options to keep hot-reload
-        modules from being written. These files can then be used as input for electron.
+      <li>
+        files are written to disk using <code>WriteFilePlugin</code> with filtering options to keep
+        hot-reload modules from being written. These files can then be used as input for electron.
       </li>
     </ul>
     <div id="app"></div>
-</body>
-<!--webpack inserts script loader via HtmlWebpackPlugin-->
-
+  </body>
+  <!-- webpack inserts script loader via HtmlWebpackPlugin -->
 </html>

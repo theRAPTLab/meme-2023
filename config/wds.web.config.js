@@ -14,11 +14,10 @@ const wdsConfiguration = env => {
   return merge([
     {
       devServer: {
-        contentBase: path.resolve(__dirname, '../src/app-web/'),
+        contentBase: path.resolve(__dirname, '../dist/web/'),
         watchContentBase: true,
         // writeToDisk: true, // will write files, but also HOT module files
-        port: 3000,
-        stats: 'errors-only'
+        port: 3000
       }
     }
   ]);

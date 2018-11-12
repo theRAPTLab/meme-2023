@@ -18,6 +18,17 @@ const wdsConfig = require('./wds.web.config');
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard
 const webConfiguration = env => {
+  const { MODE } = env;
+
+  let entryFiles = ['./web-index.js']; // eslint-disable-line
+  // handle special cases of our MODE
+  switch (MODE) {
+    case 'webonly':
+      entryFiles.push('webpack-hot-middleware/client?reload=true');
+      break;
+    default:
+  }
+
   return merge([
     // config webapp files
     {
@@ -26,7 +37,7 @@ const webConfiguration = env => {
       // define base path for input filenames
       context: path.resolve(__dirname, '../src/app-web'),
       // start bundling from this js file
-      entry: ['./web-index.js', 'webpack-hot-middleware/client?reload=true'],
+      entry: entryFiles,
       // bundle file name
       output: {
         filename: 'web/web-bundle.js',

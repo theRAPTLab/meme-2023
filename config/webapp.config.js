@@ -13,11 +13,12 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const baseConfig = require('./base.config');
-const wdsConfig = require('./wds.web.config');
+const wdsConfig = require('./webapp-wds.config');
 
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard
 const webConfiguration = env => {
+  // passed via npm script -env.MODE='string'
   const { MODE } = env;
 
   let entryFiles = ['./web-index.js']; // eslint-disable-line
@@ -27,10 +28,16 @@ const webConfiguration = env => {
     case 'wds':
       // don't load webpack-hot-middleware
       break;
-    default:
+    case 'electron':
+      console.log('*** WEBAPP.CONFIG', 'RUNNING FROM ELECTRON');
+      // in web-index.js, using module.hot.decline() requires reload=true set here
       entryFiles.push('webpack-hot-middleware/client?reload=true');
+      break;
+    default:
+    // do nothing
   }
 
+  // return webConfiguration
   return merge([
     // config webapp files
     {
@@ -42,8 +49,10 @@ const webConfiguration = env => {
       entry: entryFiles,
       // bundle file name
       output: {
-        filename: 'web/web-bundle.js',
-        publicPath: 'web'
+        path: path.resolve(__dirname, '../dist/web'),
+        filename: 'web-bundle.js',
+        pathinfo: false // this speeds up compilation (https://webpack.js.org/guides/build-performance/#output-without-path-info)
+        // publicPath: 'web',
       },
       devtool: '#source-map',
       // apply these additional plugins
@@ -56,7 +65,7 @@ const webConfiguration = env => {
           'process.env.NODE_ENV': JSON.stringify('development')
         }),
         new WriteFilePlugin({
-          test: /^(.(?!.*\.hot-update.js$|.*\.hot-update.json))*$/ // don't write hot-update and json files
+          test: /^(.(?!.*\.hot-update.js$|.*\.hot-update.*))*$/ // don't write hot-updates at all, just bundles
         }),
         new CopyWebpackPlugin(),
         new webpack.HotModuleReplacementPlugin()
@@ -66,8 +75,8 @@ const webConfiguration = env => {
     // these options don't all work for the API middleware version
     wdsConfig(env)
   ]);
-};
+}; // const webConfiguration
 
 // return merged configurations
-// since we are returning function webpack will pass the current environment
+// webpack will pass the current environment since we are returning function
 module.exports = env => merge(baseConfig(env), webConfiguration(env));

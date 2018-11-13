@@ -15,7 +15,7 @@ const PR = '[ElectronMain]';
 console.log(`${PR} STARTED ${path.basename(__filename)}`);
 
 // load webserver
-const URSERVER = require('./src/ur/appserver');
+const URSERVER = require('./main-appserver');
 
 // our modules
 // const UR = require('../ur');
@@ -26,17 +26,6 @@ const URSERVER = require('./src/ur/appserver');
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
-// Keep a reference for dev mode
-let dev = false;
-
-if (
-  process.defaultApp ||
-  /[\\/]electron-prebuilt[\\/]/.test(process.execPath) ||
-  /[\\/]electron[\\/]/.test(process.execPath)
-) {
-  dev = true;
-}
-
 // Temporary fix broken high-dpi scale factor on Windows (125% scaling)
 // info: https://github.com/electron/electron/issues/9691
 if (process.platform === 'win32') {
@@ -46,51 +35,33 @@ if (process.platform === 'win32') {
 
 function createWindow() {
   // Create the browser window.
+  console.log(`${PR} creating mainwindow with electron-preload.js`);
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
     show: false,
     webPreferences: {
-      nodeIntegration: false,
-      preload: path.join(__dirname, 'electron-preload.js')
+      nodeIntegration: true,
+      webSecurity: false,
+      preload: path.join(__dirname, 'main-preload.js')
     }
   });
 
   // and load the index.html of the app.
-  let indexPath;
-
-  if (dev && process.argv.indexOf('--noDevServer') === -1) {
-    indexPath = url.format({
-      protocol: 'http:',
-      host: 'localhost:8080',
-      pathname: 'electron-index.html',
-      slashes: true
-    });
-  } else {
-    indexPath = url.format({
-      protocol: 'file:',
-      pathname: path.join(__dirname, 'dist', 'electron-index.html'),
-      slashes: true
-    });
-  }
-
-  indexPath = url.format({
+  const indexPath = url.format({
     protocol: 'file:',
-    pathname: path.join(__dirname, 'dist/electron-index.html'),
+    pathname: path.join(__dirname, '../dist/electron/', 'renderer.html'),
     slashes: true
   });
+
   console.log(`${PR} LOADING ${indexPath} into MAINWINDOW`);
-  mainWindow.loadURL(indexPath);
+  mainWindow.loadFile(indexPath);
 
   // Don't show until we are ready and loaded
   mainWindow.once('ready-to-show', () => {
     console.log(`${PR} SHOWING MAINWINDOW`);
     mainWindow.show();
-
-    // Open the DevTools automatically if developing
-    if (dev) {
-      mainWindow.webContents.openDevTools();
-    }
+    mainWindow.webContents.openDevTools();
   });
 
   // Emitted when the window is closed.

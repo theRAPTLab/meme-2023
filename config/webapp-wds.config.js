@@ -17,7 +17,8 @@ const wdsConfiguration = env => {
         contentBase: path.resolve(__dirname, '../dist/web/'),
         watchContentBase: true,
         // writeToDisk: true, // will write files, but also HOT module files
-        port: 3000
+        port: 3000,
+        stats: 'errors-only' // quiets webpack-dev-server compilation output
       }
     }
   ]);

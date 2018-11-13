@@ -3,8 +3,10 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <base href="/" />
     <title>Electron Index!</title>
+    <script>
+      let { remote } = require('electron');
+    </script>
   </head>
 
   <body>
@@ -25,5 +27,8 @@
     <pre>scripts</pre>
     section.
     <div id="app"></div>
+    <script type="text/javascript">
+      require('./renderer-bundle');
+    </script>
   </body>
 </html>

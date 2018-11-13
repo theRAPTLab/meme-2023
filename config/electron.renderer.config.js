@@ -45,10 +45,6 @@ const electronRendererConfig = env => {
         publicPath: path.resolve(__dirname)
       },
       plugins: [
-        new HtmlWebpackPlugin({
-          template: 'electron-index.html',
-          filename: path.join(__dirname, '../dist/electron', 'renderer.html')
-        }),
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('development')
         }),
@@ -58,6 +54,11 @@ const electronRendererConfig = env => {
             from: path.resolve(__dirname, '../src/app-electron/static'),
             to: path.resolve(__dirname, '../dist/electron/static'),
             ignore: ['.*']
+          },
+          {
+            from: path.resolve(__dirname, '../run'),
+            to: path.resolve(__dirname, '../dist/electron'),
+            ignore: 'test*'
           }
         ])
       ],

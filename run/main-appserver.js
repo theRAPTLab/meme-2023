@@ -1,8 +1,14 @@
 /*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
   see https://stackoverflow.com/a/48273411
-
   this appserver is ported from netcreatex
+
+  main-appserver is launched from the electron main process.
+  It currently also manages the live-reload of the web app through webpack-dev-middleware
+  The live-reload for the electron app is handled by npm script running webpack
+
+  Each configuration for webpack and serving the packed files has some weirdnesses in it
+  that aren't well documented or consistent. BEWARE.
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 
@@ -11,6 +17,7 @@
 const webpack = require('webpack');
 const express = require('express'); //your original BE server
 const middleware = require('webpack-dev-middleware'); //webpack hot reloading middleware
+const hot = require('webpack-hot-middleware');
 const path = require('path');
 const IP = require('ip');
 const cookiep = require('cookie-parser');
@@ -21,44 +28,45 @@ const PR = '  [AppServer]';
 const DP = '***';
 const GIT = 'GIT';
 
-console.log(`${PR} STARTED ${path.basename(__filename)}`);
+function Start() {
+  console.log(`${PR} STARTED ${path.basename(__filename)}`);
 
-// THIS IS WEBPACK STUFF
-//
-// note we need the object, not a function, when using webpack API
-const env = { MODE: 'electron' };
-const webConfig = require('../config/webapp.config')(env);
+  // THIS IS WEBPACK STUFF
+  //
+  // note we need the object, not a function, when using webpack API
+  const env = { MODE: 'electron' };
+  const webConfig = require('../../config/webapp.config')(env);
 
-console.log(`${PR} setting up webpack`);
-const compiler = webpack(webConfig);
+  console.log(`${PR} setting up webpack`);
+  const compiler = webpack(webConfig);
 
-// tap into webpack compiler lifecycle
-compiler.hooks.done.tap('DetectCompileDone', stats => {
-  console.log('*** tapped done compilation so do something');
-});
+  // tap into webpack compiler lifecycle
+  compiler.hooks.done.tap('DetectCompileDone', stats => {
+    console.log('*** tapped done compilation so do something');
+  });
 
-console.log(`${PR} setting up webpack-middleware`);
-// webpack middleware to enable file serving
-const instance = middleware(compiler, {
-  // stats: 'errors-only',
-  publicPath: webConfig.output.publicPath,
-  stats: 'errors-only' // quiet webpack middleware output
-});
-app.use(instance);
-// enable hot middleware with compiler instance
-app.use(require('webpack-hot-middleware')(compiler));
-// theoreticically changes to this should cause a hot reload?
-// ONLY with webapp, not with appserver changes!
+  console.log(`${PR} setting up webpack-middleware`);
+  // webpack middleware to enable file serving
+  const instance = middleware(compiler, {
+    // stats: 'errors-only',
+    publicPath: webConfig.output.publicPath,
+    stats: 'errors-only' // quiet webpack middleware output
+  });
+  app.use(instance);
+  // enable hot middleware with compiler instance
+  app.use(hot(compiler));
+  // theoreticically changes to this should cause a hot reload?
+  // ONLY with webapp, not with appserver changes!
 
-/// serve everything else out of public as static files
-const PATH_DIST = path.resolve(__dirname, '../../dist/web');
-app.use('/', express.static(PATH_DIST));
-app.listen(3000, () => console.log(`${PR} listening to port 3000`));
+  /// serve everything else out of public as static files
+  const PATH_DIST = path.resolve(__dirname, '../../dist/web');
+  app.use('/', express.static(PATH_DIST));
+  app.listen(3000, () => console.log(`${PR} listening to port 3000`));
+}
 
 // THIS IS ALL UNISYS/UR STUFF TO BE PORTED AND ACTIVATED
 //
 //
-
 let UKEY_IDX = 0;
 const USRV_START = new Date(Date.now()).toISOString();
 
@@ -67,7 +75,7 @@ const USRV_START = new Date(Date.now()).toISOString();
 /// declare paths used by Express configuration
 const PATH_TEMPLATE = path.resolve(__dirname, '/app/assets');
 
-function run() {
+function Run() {
   const unetOptions = { port: 3000 }; // was UNISYS.InitializeNetwork();
   console.log(PR, 'Created Network', unetOptions);
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -128,7 +136,7 @@ function run() {
 /// BRUNCH CUSTOM SERVER START FUNCTION ///////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ the brunch build tool will call this exported function to start the server
-/*/ function listen() {
+/*/ function Listen() {
   return (config, callback) => {
     // start app listener
     app
@@ -180,3 +188,5 @@ function run() {
 }
 
 console.log(`${PR} UR/APPSERVER INITALIZE COMPLETE`);
+
+module.exports = { Start, Run, Listen };

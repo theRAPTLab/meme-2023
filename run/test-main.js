@@ -14,15 +14,6 @@ const PR = '[ElectronMain]';
 
 console.log(`${PR} STARTED ${path.basename(__filename)}`);
 
-// load webserver
-const URSERVER = require('./main-appserver');
-URSERVER.Start();
-
-// our modules
-// const UR = require('../ur');
-
-// log(JSON.stringify(compiler.options));
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -42,7 +33,7 @@ function createWindow() {
     height: 768,
     show: false,
     webPreferences: {
-      nodeIntegration: true,
+      nodeIntegration: false,
       preload: path.join(__dirname, 'main-preload.js')
     }
   });
@@ -50,7 +41,7 @@ function createWindow() {
   // and load the index.html of the app.
   const indexPath = url.format({
     protocol: 'file:',
-    pathname: path.resolve(__dirname, '../electron/main-index.html'),
+    pathname: path.resolve(__dirname, 'test.html'),
     slashes: true
   });
 

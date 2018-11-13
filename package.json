@@ -8,8 +8,8 @@
   },
   "main": "main.js",
   "scripts": {
-    "dev": "webpack-dev-server  --mode development --inline --hot --host 0.0.0.0 --config=./config/webpack.web.config.js --env.process.env.NODE_ENV='development'",
-    "electron": "webpack --mode development --config ./config/webpack.electron.config.js && npx electron ./electron-main.js",
+    "dev": "webpack-dev-server  --mode development --inline --hot --host 0.0.0.0 --config=./config/webpack.web.config.js --env.process.env.NODE_ENV='development' --env.MODE='wds'",
+    "electron": "webpack --mode development --config ./config/webpack.electron.config.js && npx electron ./dist/electron-main.js",
     "electron-maybe": "npm run build && npx electron ./src/app-electron/electron-main.js --debug",
     "debug": "",
     "clean": "",

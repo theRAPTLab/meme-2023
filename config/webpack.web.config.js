@@ -21,12 +21,14 @@ const webConfiguration = env => {
   const { MODE } = env;
 
   let entryFiles = ['./web-index.js']; // eslint-disable-line
+
   // handle special cases of our MODE
   switch (MODE) {
-    case 'webonly':
-      entryFiles.push('webpack-hot-middleware/client?reload=true');
+    case 'wds':
+      // don't load webpack-hot-middleware
       break;
     default:
+      entryFiles.push('webpack-hot-middleware/client?reload=true');
   }
 
   return merge([

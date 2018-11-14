@@ -25,7 +25,7 @@ const PR = '  [AppServer]';
 const DP = '***';
 const GIT = 'GIT';
 
-const configWebApp = require('../../config/webpack.webapp.config');
+const configWebApp = require('../config/webpack.webapp.config');
 
 function Start() {
   console.log(`${PR} STARTED ${path.basename(__filename)}`);
@@ -39,7 +39,7 @@ function Start() {
   console.log(`${PR} setting up webpack`);
   const compiler = webpack(webConfig);
 
-  // tap into webpack compiler lifecycle
+  // eslint-disable-next-line
   compiler.hooks.done.tap('DetectCompileDone', stats => {
     console.log('*** tapped done compilation so do something');
   });
@@ -125,7 +125,8 @@ function Run() {
   });
   /// serve everything else out of public as static files
   /// our app uses ejs templates
-  app.use('/', express.static(PATH_PUBLIC));
+  const PUBLIC_PATH = path.join(__dirname, 'static');
+  app.use('/', express.static(PUBLIC_PATH));
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /*/ additional route: /action (placeholder)
 /*/ app.use('/action', (req, res) => {

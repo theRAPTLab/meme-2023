@@ -21,17 +21,23 @@ const webConfiguration = env => {
   // passed via npm script -env.MODE='string'
   const { MODE } = env;
 
-  let entryFiles = ['./web-index.js']; // eslint-disable-line
-
+  let entryFiles;
+  let outputDir;
+  let wdsOptions;
   // handle special cases of our MODE
   switch (MODE) {
     case 'wds':
       // don't load webpack-hot-middleware
+      entryFiles = ['./web-index.js'];
+      outputDir = path.resolve(__dirname, '../../dist/web');
+      wdsOptions = wdsConfig(env);
       break;
     case 'electron':
       console.log('*** WEBAPP.CONFIG', 'RUNNING FROM ELECTRON');
       // in web-index.js, using module.hot.decline() requires reload=true set here
-      entryFiles.push('webpack-hot-middleware/client?reload=true');
+      entryFiles = ['./web-index.js', 'webpack-hot-middleware/client?reload=true'];
+      outputDir = path.resolve(__dirname, '../../dist/web');
+      wdsOptions = {};
       break;
     default:
     // do nothing
@@ -44,12 +50,12 @@ const webConfiguration = env => {
       target: 'web',
       mode: 'development',
       // define base path for input filenames
-      context: path.resolve(__dirname, '../src/app-web'),
+      context: path.resolve(__dirname, '../../src/app-web'),
       // start bundling from this js file
       entry: entryFiles,
       // bundle file name
       output: {
-        path: path.resolve(__dirname, '../dist/web'),
+        path: outputDir,
         filename: 'web-bundle.js',
         pathinfo: false // this speeds up compilation (https://webpack.js.org/guides/build-performance/#output-without-path-info)
         // publicPath: 'web',
@@ -59,7 +65,7 @@ const webConfiguration = env => {
       plugins: [
         new HtmlWebpackPlugin({
           template: 'web-index.html',
-          filename: path.join(__dirname, '../dist/web', 'index.html')
+          filename: path.join(outputDir, 'index.html')
         }),
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('development')
@@ -73,7 +79,7 @@ const webConfiguration = env => {
     },
     // config webpack-dev-server when run from CLI
     // these options don't all work for the API middleware version
-    wdsConfig(env)
+    wdsOptions
   ]);
 }; // const webConfiguration
 

@@ -20,9 +20,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 /// CONSTANTS ///////////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DIR_SOURCE = path.join(__dirname, '../src/app-console/');
-const DIR_OUTPUT = path.join(__dirname, '../dist/console/');
-const DIR_PUBLIC_CONTEXT = path.join(__dirname);
+const DIR_CONFIG = path.join(__dirname, '../config/');
+const DIR_SOURCE = path.join(__dirname, '../app-console/');
+const DIR_OUTPUT = path.join(__dirname, '../../dist/');
 const BASE_NAME = 'console';
 const ENTRY_MODULE = `${BASE_NAME}.js`;
 const ENTRY_HTML = `${BASE_NAME}.html`;
@@ -56,7 +56,7 @@ const electronRendererConfig = env => {
       context: DIR_SOURCE,
       entry: [`./${ENTRY_MODULE}`], // leading ./ is required
       output: {
-        path: DIR_OUTPUT,
+        path: `${DIR_OUTPUT}/console`,
         // is this necessary?
         // publicPath: DIR_PUBLIC_CONTEXT,
         filename: FILE_BUNDLE
@@ -72,8 +72,12 @@ const electronRendererConfig = env => {
         new CopyWebpackPlugin([
           {
             from: DIR_SOURCE,
-            to: DIR_OUTPUT,
+            to: `${DIR_OUTPUT}/console`,
             ignore: ['.*', 'console.*'] // these are built by webpack
+          },
+          {
+            from: `${DIR_CONFIG}/*`,
+            to: `${DIR_OUTPUT}/config`
           }
         ]),
         new webpack.HotModuleReplacementPlugin({})

@@ -17,7 +17,7 @@ const PR = '[ElectronMain]';
 console.log(`${PR} STARTED ${path.basename(__filename)}`);
 
 // load webserver
-const URSERVER = require('./ur-server');
+const URSERVER = require('./ur-server'); // eslint-disable-line
 URSERVER.Start();
 
 // our modules

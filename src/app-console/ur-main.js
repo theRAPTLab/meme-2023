@@ -2,6 +2,8 @@
 
   ELECTRON MAIN PROCESS
 
+  copied as-is from src/app-console
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 
 // import appserver
@@ -15,7 +17,7 @@ const PR = '[ElectronMain]';
 console.log(`${PR} STARTED ${path.basename(__filename)}`);
 
 // load webserver
-const URSERVER = require('./main-appserver');
+const URSERVER = require('./ur-server');
 URSERVER.Start();
 
 // our modules
@@ -42,15 +44,15 @@ function createWindow() {
     height: 768,
     show: false,
     webPreferences: {
-      nodeIntegration: true,
-      preload: path.join(__dirname, 'main-preload.js')
+      nodeIntegration: false, // 'true' enables nodejs features
+      preload: path.join(__dirname, 'console-preload.js') // path.join is required
     }
   });
 
   // and load the index.html of the app.
   const indexPath = url.format({
     protocol: 'file:',
-    pathname: path.resolve(__dirname, '../electron/main-index.html'),
+    pathname: path.resolve(__dirname, './console.html'),
     slashes: true
   });
 

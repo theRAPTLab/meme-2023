@@ -1,14 +1,11 @@
 /*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  see https://stackoverflow.com/a/48273411
-  this appserver is ported from netcreatex
+  copied as-is from src/app-console
 
-  main-appserver is launched from the electron main process.
+  ur-server is launched from the ur-main.js Electron mainprocess
+
   It currently also manages the live-reload of the web app through webpack-dev-middleware
   The live-reload for the electron app is handled by npm script running webpack
-
-  Each configuration for webpack and serving the packed files has some weirdnesses in it
-  that aren't well documented or consistent. BEWARE.
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 
@@ -28,6 +25,8 @@ const PR = '  [AppServer]';
 const DP = '***';
 const GIT = 'GIT';
 
+const configWebApp = require('../../config/webpack.webapp.config');
+
 function Start() {
   console.log(`${PR} STARTED ${path.basename(__filename)}`);
 
@@ -35,7 +34,7 @@ function Start() {
   //
   // note we need the object, not a function, when using webpack API
   const env = { MODE: 'electron' };
-  const webConfig = require('../../config/webapp.config')(env);
+  const webConfig = configWebApp(env);
 
   console.log(`${PR} setting up webpack`);
   const compiler = webpack(webConfig);

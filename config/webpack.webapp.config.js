@@ -12,8 +12,8 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
-const baseConfig = require('./base.config');
-const wdsConfig = require('./webapp-wds.config');
+const baseConfig = require('./webpack.base.config');
+const wdsConfig = require('./wds.config');
 
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard

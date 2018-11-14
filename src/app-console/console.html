@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<!-- source is transformed by webpack -->
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Electron Index!</title>
+    <script type="text/javascript">
+      // can access node globals defined in console-preload.js here
+    </script>
+  </head>
+
+  <body>
+    <h2>console.html</h2>
+    <div id="app-console"></div>
+    <script type="text/javascript">
+      /*/
+      HtmlWebpackPlugin will insert another script tag below to load 'bundle.console.js'
+      This effectively runs console.js, which is the RENDER ENTRYPOINT for ELECTRON
+      client-side javascript.
+      /*/
+    </script>
+  </body>
+</html>

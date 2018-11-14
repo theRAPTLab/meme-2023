@@ -7,7 +7,7 @@
 const PR = '[WebIndexJS]';
 const UR = require('../ur/client');
 
-console.log(`web-index.js loaded!`);
+console.log(`web-index.js loaded`);
 if (module.hot) {
   console.log(`${PR} hot.status is '${module.hot.status()}'`);
   // use this for webpack-dev-server

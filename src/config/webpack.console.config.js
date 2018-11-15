@@ -23,10 +23,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const DIR_CONFIG = path.join(__dirname, '../config/');
 const DIR_SOURCE = path.join(__dirname, '../app-console/');
 const DIR_OUTPUT = path.join(__dirname, '../../dist/');
-const BASE_NAME = 'console';
-const ENTRY_MODULE = `${BASE_NAME}.js`;
-const ENTRY_HTML = `${BASE_NAME}.html`;
-const FILE_BUNDLE = `bundle.${ENTRY_MODULE}`;
+const ENTRY_MODULE = 'console.js';
+const FILE_BUNDLE = 'console.bundle.js';
+const ENTRY_HTML = 'console.html';
 
 /// CONSOLE RENDERER CONFIGURATION //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -73,7 +72,14 @@ const electronRendererConfig = env => {
           {
             from: DIR_SOURCE,
             to: `${DIR_OUTPUT}/console`,
-            ignore: ['.*', 'console.*'] // these are built by webpack
+            // ignore console.html and console.js (built by webpack)
+            // ignore console.package.json (renamed to dist/package.json)
+            ignore: ['.*', 'console.*']
+          },
+          {
+            from: `${DIR_SOURCE}/console.package.json`,
+            to: `${DIR_OUTPUT}/package.json`,
+            toType: 'file'
           },
           {
             from: `${DIR_CONFIG}/*`,

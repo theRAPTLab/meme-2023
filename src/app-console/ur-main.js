@@ -63,8 +63,7 @@ function createWindow() {
     // load webserver
     const URSERVER = require('./ur-server'); // eslint-disable-line
     console.log('DIRNAME', __dirname);
-    const isPackaged = __dirname.includes('/Contents/Resources/app/console');
-    URSERVER.Start(isPackaged);
+    URSERVER.Start({ isPackaged: __dirname.includes('/Contents/Resources/app/console') });
   });
 
   // Emitted when the window is closed.

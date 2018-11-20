@@ -27,7 +27,8 @@ const GIT = 'GIT';
 
 const configWebApp = require('../config/webpack.webapp.config');
 
-function Start(isPackaged) {
+function Start(options) {
+  const { isPackaged } = options;
   console.log(`${PR} STARTED ${path.basename(__filename)}`);
   let PATH_BUILT;
   if (isPackaged) {

@@ -6,7 +6,7 @@ This file is loaded into the Electron MainWindow by console.html.
 It is executing in an Electron (Chrome) Render Process.
 
 The source files are in src/app-console and are transformed by webpack into
-the dist/console directory. See config/webpack.console.config.js invoked from
+the built/console directory. See config/webpack.console.config.js invoked from
 package.json scripts
 
 NOTE: The MainWindow runs without Node integration turned on for security.

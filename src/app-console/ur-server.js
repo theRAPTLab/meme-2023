@@ -27,39 +27,42 @@ const GIT = 'GIT';
 
 const configWebApp = require('../config/webpack.webapp.config');
 
-function Start() {
+function Start(isPackaged) {
   console.log(`${PR} STARTED ${path.basename(__filename)}`);
+  let PATH_BUILT;
+  if (isPackaged) {
+    PATH_BUILT = path.resolve(__dirname, '../web');
+  } else {
+    // THIS IS WEBPACK STUFF
+    //
+    // note we need the object, not a function, when using webpack API
+    const env = { HMR_MODE: 'electron' };
+    const webConfig = configWebApp(env);
 
-  // THIS IS WEBPACK STUFF
-  //
-  // note we need the object, not a function, when using webpack API
-  const env = { MODE: 'electron' };
-  const webConfig = configWebApp(env);
+    console.log(`${PR} setting up webpack`);
+    const compiler = webpack(webConfig);
 
-  console.log(`${PR} setting up webpack`);
-  const compiler = webpack(webConfig);
+    // eslint-disable-next-line
+    compiler.hooks.done.tap('DetectCompileDone', stats => {
+      console.log('*** tapped done compilation so do something');
+    });
 
-  // eslint-disable-next-line
-  compiler.hooks.done.tap('DetectCompileDone', stats => {
-    console.log('*** tapped done compilation so do something');
-  });
-
-  console.log(`${PR} setting up webpack-middleware`);
-  // webpack middleware to enable file serving
-  const instance = middleware(compiler, {
-    // stats: 'errors-only',
-    publicPath: webConfig.output.publicPath,
-    stats: 'errors-only' // quiet webpack middleware output
-  });
-  app.use(instance);
-  // enable hot middleware with compiler instance
-  app.use(hot(compiler));
-  // theoreticically changes to this should cause a hot reload?
-  // ONLY with webapp, not with appserver changes!
-
+    console.log(`${PR} setting up webpack-middleware`);
+    // webpack middleware to enable file serving
+    const instance = middleware(compiler, {
+      // stats: 'errors-only',
+      publicPath: webConfig.output.publicPath,
+      stats: 'errors-only' // quiet webpack middleware output
+    });
+    app.use(instance);
+    // enable hot middleware with compiler instance
+    app.use(hot(compiler));
+    // theoreticically changes to this should cause a hot reload?
+    // ONLY with webapp, not with appserver changes!
+    PATH_BUILT = path.resolve(__dirname, '../../built/web');
+  }
   /// serve everything else out of public as static files
-  const PATH_DIST = path.resolve(__dirname, '../../dist/web');
-  app.use('/', express.static(PATH_DIST));
+  app.use('/', express.static(PATH_BUILT));
   app.listen(3000, () => console.log(`${PR} listening to port 3000`));
 }
 

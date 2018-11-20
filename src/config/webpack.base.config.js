@@ -5,7 +5,7 @@ const path = require('path');
 const defaultInclude = path.resolve(__dirname, 'src');
 
 module.exports = env => {
-  const { MODE } = env; // eslint-disable-line
+  const { HMR_MODE } = env; // eslint-disable-line
   return merge([
     {
       module: {

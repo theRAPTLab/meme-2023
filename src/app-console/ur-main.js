@@ -16,10 +16,6 @@ const PR = '[ElectronMain]';
 
 console.log(`${PR} STARTED ${path.basename(__filename)}`);
 
-// load webserver
-const URSERVER = require('./ur-server'); // eslint-disable-line
-URSERVER.Start();
-
 // our modules
 // const UR = require('../ur');
 
@@ -64,6 +60,11 @@ function createWindow() {
     console.log(`${PR} SHOWING MAINWINDOW`);
     mainWindow.show();
     mainWindow.webContents.openDevTools();
+    // load webserver
+    const URSERVER = require('./ur-server'); // eslint-disable-line
+    console.log('DIRNAME', __dirname);
+    const isPackaged = __dirname.includes('/Contents/Resources/app/console');
+    URSERVER.Start(isPackaged);
   });
 
   // Emitted when the window is closed.

@@ -8,12 +8,12 @@
   },
   "main": "main.js",
   "scripts": {
-    "dev": "webpack-dev-server  --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.MODE='wds'",
-    "electron": "webpack --mode development --config ./src/config/webpack.console.config.js --env.MODE='electron' && npx electron ./dist/console/ur-main",
+    "dev": "webpack-dev-server  --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'",
+    "electron": "webpack --mode development --config ./src/config/webpack.console.config.js --env.HMR_MODE='electron' && npx electron ./built/console/ur-main",
+    "package": "webpack --mode production --config ./src/config/webpack.dist.config.js --env.HMR_MODE='none' && npx asar p built dist/app.asar",
     "debug": "",
     "clean": "",
     "clean:runtime": "",
-    "package": "",
     "test": ""
   },
   "keywords": [],
@@ -48,6 +48,7 @@
     "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
+    "asar": "^0.14.5",
     "babel-loader": "^8.0.4",
     "css-loader": "^1.0.0",
     "eslint": "^5.7.0",

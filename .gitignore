@@ -19,6 +19,7 @@ npm-debug.log
 
 # Ignore generated files in output folder
 /dist
+/built
 
 # Numerous always-ignore extensions
 *~

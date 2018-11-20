@@ -18,25 +18,25 @@ const wdsConfig = require('./wds.config');
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard
 const webConfiguration = env => {
-  // passed via npm script -env.MODE='string'
-  const { MODE } = env;
+  // passed via npm script -env.HMR_MODE='string'
+  const { HMR_MODE } = env;
 
   let entryFiles;
   let outputDir;
   let wdsOptions;
-  // handle special cases of our MODE
-  switch (MODE) {
+  // handle special cases of our HMR_MODE
+  switch (HMR_MODE) {
     case 'wds':
       // don't load webpack-hot-middleware
       entryFiles = ['./web-index.js'];
-      outputDir = path.resolve(__dirname, '../../dist/web');
+      outputDir = path.resolve(__dirname, '../../built/web');
       wdsOptions = wdsConfig(env);
       break;
     case 'electron':
       console.log('*** WEBAPP.CONFIG', 'RUNNING FROM ELECTRON');
       // in web-index.js, using module.hot.decline() requires reload=true set here
       entryFiles = ['./web-index.js', 'webpack-hot-middleware/client?reload=true'];
-      outputDir = path.resolve(__dirname, '../../dist/web');
+      outputDir = path.resolve(__dirname, '../../built/web');
       wdsOptions = {};
       break;
     default:

@@ -11,12 +11,12 @@ const merge = require('webpack-merge');
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard
 const wdsConfiguration = env => {
-  const { MODE } = env; // eslint-disable-line
+  const { HMR_MODE } = env; // eslint-disable-line
 
   return merge([
     {
       devServer: {
-        contentBase: path.resolve(__dirname, '../../dist/web/'),
+        contentBase: path.resolve(__dirname, '../../built/web/'),
         watchContentBase: true,
         // writeToDisk: true, // will write files, but also HOT module files
         port: 3000,

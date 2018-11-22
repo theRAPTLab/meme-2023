@@ -1,5 +1,5 @@
 {
-  "name": "ur-desktop",
+  "name": "ur",
   "version": "1.0.0",
   "description": "An UR Desktop App built with Electron",
   "main": "console/ur-main.js",

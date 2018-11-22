@@ -12,9 +12,9 @@
 /// LIBRARIES ///////////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const webpack = require('webpack');
-const express = require('express'); //your original BE server
 const middleware = require('webpack-dev-middleware'); //webpack hot reloading middleware
 const hot = require('webpack-hot-middleware');
+const express = require('express'); //your original BE server
 const path = require('path');
 const IP = require('ip');
 const cookiep = require('cookie-parser');
@@ -30,7 +30,9 @@ const configWebApp = require('../config/webpack.webapp.config');
 function Start(options) {
   const { isPackaged } = options;
   console.log(`${PR} STARTED ${path.basename(__filename)}`);
+
   let PATH_BUILT;
+
   if (isPackaged) {
     PATH_BUILT = path.resolve(__dirname, '../web');
   } else {
@@ -63,6 +65,7 @@ function Start(options) {
     PATH_BUILT = path.resolve(__dirname, '../../built/web');
   }
   /// serve everything else out of public as static files
+  console.log(`${PR} PATH_BUILT ${PATH_BUILT}`);
   app.use('/', express.static(PATH_BUILT));
   app.listen(3000, () => console.log(`${PR} listening to port 3000`));
 }

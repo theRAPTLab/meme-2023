@@ -10,8 +10,8 @@
   "scripts": {
     "dev": "webpack-dev-server  --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'",
     "electron": "webpack --mode development --config ./src/config/webpack.console.config.js --env.HMR_MODE='electron' && npx electron ./built/console/ur-main",
-    "package": "webpack --mode production --config ./src/config/webpack.dist.config.js --env.HMR_MODE='none' && npx asar p built dist/app.asar",
-    "debug": "",
+    "package": "rm -fr ./dist ./built && webpack --mode production --config ./src/config/webpack.dist.config.js --env.HMR_MODE='none' && cd built && npm install && npx electron-packager . --out ../dist --overwrite",
+    "mactest": "./dist/ur-darwin-x64/ur.app/Contents/MacOS/ur",
     "clean": "",
     "clean:runtime": "",
     "test": ""
@@ -49,6 +49,7 @@
     "@babel/preset-env": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
     "asar": "^0.14.5",
+    "electron-packager": "^12.2.0",
     "babel-loader": "^8.0.4",
     "css-loader": "^1.0.0",
     "eslint": "^5.7.0",

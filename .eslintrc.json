@@ -19,6 +19,10 @@
     "no-console": "off",
     "no-debugger": "warn",
     "no-alert": "warn",
-    "spaced-comment": "off"
+    "spaced-comment": "off",
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "no-unused-vars": "warn",
+    "arrow-body-style": "off",
+    "react/destructuring-assignment": "off"
   }
 }

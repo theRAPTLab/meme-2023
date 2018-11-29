@@ -2,7 +2,7 @@ const merge = require('webpack-merge');
 const path = require('path');
 
 // Any directories you will be adding code/files into, need to be added to this array so webpack will pick them up
-const defaultInclude = path.resolve(__dirname, 'src');
+const defaultInclude = [path.join(__dirname, '../src')];
 
 module.exports = env => {
   const { HMR_MODE } = env; // eslint-disable-line
@@ -21,8 +21,7 @@ module.exports = env => {
           },
           {
             test: /\.jsx?$/,
-            use: [{ loader: 'babel-loader' }],
-            include: defaultInclude
+            use: [{ loader: 'babel-loader' }]
           },
           {
             test: /\.(jpe?g|png|gif)$/,
@@ -35,6 +34,10 @@ module.exports = env => {
             include: defaultInclude
           }
         ]
+      },
+      // require() can now understand .jsx files
+      resolve: {
+        extensions: ['.js', '.jsx']
       }
     }
   ]); // merge array

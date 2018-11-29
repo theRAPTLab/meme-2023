@@ -6,6 +6,14 @@
 
 const PR = '[WebIndexJS]';
 
+/// SYSTEM-WIDE LANGUAGE EXTENSIONS ///////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// These are loaded in init to make sure they are available globally!
+/// You do not need to copy these extensions to your own module files
+require('babel-polyfill'); // enables regenerators for async/await
+
+const System = require('./boot/system');
+
 console.log(`web-index.js loaded`);
 
 if (module.hot) {
@@ -27,3 +35,5 @@ if (module.hot) {
 } else {
   console.log(`${PR} HMR support not compiled into module`);
 }
+
+System.Init();

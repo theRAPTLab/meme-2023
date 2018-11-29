@@ -3,6 +3,7 @@
   The MEME webapp is served directly from src/app-urweb
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
+import 'bootstrap/dist/css/bootstrap.css';
 
 const PR = '[WebIndexJS]';
 
@@ -12,7 +13,7 @@ const PR = '[WebIndexJS]';
 /// You do not need to copy these extensions to your own module files
 require('babel-polyfill'); // enables regenerators for async/await
 
-const System = require('./boot/system');
+const System = require('./boot/system-init');
 
 console.log(`web-index.js loaded`);
 

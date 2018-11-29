@@ -10,7 +10,8 @@ const DBG = true;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const React = require('react');
 const ReactDOM = require('react-dom');
-const AppShell = require('./appshell');
+const { BrowserRouter, HashRouter, withRouter } = require('react-router-dom');
+const AppShell = require('./AppShell');
 
 /// SYSTEM MODULES ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -51,14 +52,30 @@ function Init() {
       'color:blue',
       'color:auto'
     );
+    ReactDOM.render(
+      <HashRouter hashType="slash">
+        <AppShell />
+      </HashRouter>,
+      document.getElementById('app-container'),
+      () => {
+        console.log('%cINIT %cReactDOM.render() complete', 'color:blue', 'color:auto');
+      }
+    );
+
     // SetLifecycleScope();
     (async () => {
       // await UNISYS.JoinNet(); // UNISYS socket connection (that is all)
       // await UNISYS.EnterApp(); // TEST_CONF, INITIALIZE, LOADASSETS, CONFIGURE
       // await RenderApp(); // compose React view
-      ReactDOM.render(<AppShell />, document.querySelector('#app-container'), () => {
-        console.log('%cINIT %cReactDOM.render() complete', 'color:blue', 'color:auto');
-      });
+      // ReactDOM.render(
+      //   <HashRouter hashType="slash">
+      //     <AppShell />
+      //   </HashRouter>,
+      //   () => {
+      //     document.querySelector('#app-container'),
+      //       console.log('%cINIT %cReactDOM.render() complete', 'color:blue', 'color:auto');
+      //   }
+      // );
       // await UNISYS.SetupDOM(); // DOM_READY
       // await UNISYS.SetupRun(); // RESET, START, APP_READY, RUN
       console.log('%cINIT %cUNISYS Lifecycle Initialization Complete', 'color:blue', 'color:auto');

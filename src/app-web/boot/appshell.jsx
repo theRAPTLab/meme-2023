@@ -10,7 +10,7 @@ const RRNavLink = require('react-router-dom').NavLink;
 //
 const { renderRoutes } = require('react-router-config');
 //
-const AppDefault = require('../view/AppDefault');
+const AppDefault = require('./AppDefault');
 
 function NoMatch(props) {
   let hash = props.location.pathname.substring(1);
@@ -21,7 +21,7 @@ function NoMatch(props) {
   );
 }
 
-let Routes = [
+const Routes = [
   {
     path: '/',
     exact: true,
@@ -50,31 +50,29 @@ class AppShell extends React.Component {
     if (this.state.hasError) return <p>ERROR IN APPSHELL.JSX (see console)</p>;
 
     return (
-      <BrowserRouter hashType="slash">
-        <div style={{ display: 'flex', flexFlow: 'column nowrap', width: '100%', height: '100vh' }}>
-          <Navbar fixed="top" light expand="md" style={{ backgroundColor: '#f0f0f0' }}>
-            <NavbarBrand href="#">MEME BOIILERPLATE</NavbarBrand>
-            <NavbarToggler onClick={this.toggle} />
-            <Collapse isOpen={this.state.isOpen} navbar>
-              {/*/ (1) add navigation links here /*/}
-              <Nav className="ml-auto" navbar>
-                <UncontrolledDropdown direction="right" nav>
-                  <DropdownToggle>Extras</DropdownToggle>
-                  <DropdownMenu>
-                    <DropdownItem>
-                      <NavLink to="/" tag={RRNavLink} replace>
-                        Home
-                      </NavLink>
-                    </DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledDropdown>
-              </Nav>
-            </Collapse>
-          </Navbar>
-          <div style={{ height: '3.5em' }}>{/*/ add space underneath the fixed navbar /*/}</div>
-          {renderRoutes(Routes)}
-        </div>
-      </BrowserRouter>
+      <div style={{ display: 'flex', flexFlow: 'column nowrap', width: '100%', height: '100vh' }}>
+        <Navbar fixed="top" light expand="md" style={{ backgroundColor: '#f0f0f0' }}>
+          <NavbarBrand href="#">MEME BOIILERPLATE</NavbarBrand>
+          <NavbarToggler onClick={this.toggle} />
+          <Collapse isOpen={this.state.isOpen} navbar>
+            {/*/ (1) add navigation links here /*/}
+            <Nav className="ml-auto" navbar>
+              <UncontrolledDropdown direction="right" nav>
+                <DropdownToggle>Extras</DropdownToggle>
+                <DropdownMenu>
+                  <DropdownItem>
+                    <NavLink to="/" tag={RRNavLink} replace>
+                      Home
+                    </NavLink>
+                  </DropdownItem>
+                </DropdownMenu>
+              </UncontrolledDropdown>
+            </Nav>
+          </Collapse>
+        </Navbar>
+        <div style={{ height: '3.5em' }}>{/*/ add space underneath the fixed navbar /*/}</div>
+        {renderRoutes(Routes)}
+      </div>
     );
   } // render()
 } // AppShell()

@@ -24,6 +24,7 @@ const webConfiguration = env => {
   let entryFiles;
   let outputDir;
   let wdsOptions;
+  let copyFilesArray;
   // handle special cases of our HMR_MODE
   switch (HMR_MODE) {
     case 'wds':
@@ -38,10 +39,19 @@ const webConfiguration = env => {
       entryFiles = ['./web-index.js', 'webpack-hot-middleware/client?reload=true'];
       outputDir = path.resolve(__dirname, '../../built/web');
       wdsOptions = {};
+      copyFilesArray = [
+        {
+          from: `favicon.ico`,
+          to: `${outputDir}/favicon.ico`,
+          toType: 'file'
+        }
+      ];
       break;
     default:
     // do nothing
   }
+
+  const DIR_SOURCE = path.resolve(__dirname, '../../src/app-web');
 
   // return webConfiguration
   return merge([
@@ -50,7 +60,7 @@ const webConfiguration = env => {
       target: 'web',
       mode: 'development',
       // define base path for input filenames
-      context: path.resolve(__dirname, '../../src/app-web'),
+      context: DIR_SOURCE,
       // start bundling from this js file
       entry: entryFiles,
       // bundle file name
@@ -73,7 +83,7 @@ const webConfiguration = env => {
         new WriteFilePlugin({
           test: /^(.(?!.*\.hot-update.js$|.*\.hot-update.*))*$/ // don't write hot-updates at all, just bundles
         }),
-        new CopyWebpackPlugin(),
+        new CopyWebpackPlugin(copyFilesArray),
         new webpack.HotModuleReplacementPlugin()
       ]
     },

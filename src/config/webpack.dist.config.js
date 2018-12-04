@@ -19,7 +19,12 @@ const baseConfig = require('./webpack.base.config');
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard
 const webConfiguration = env => {
-  console.log('... EXEC WEBAPP BUILD CONFIGURATION');
+  // these paths might be relative to built/ not src/
+  // depending on who is loading this file (wds or electron)
+  const DIR_SOURCE = path.resolve(__dirname, '../../src/app-web');
+  const DIR_OUTPUT = path.resolve(__dirname, '../../built/web');
+
+  console.log('... EXEC WEBAPP BUILD CONFIGURATION', [DIR_SOURCE, DIR_OUTPUT]);
   // passed via npm script -env.HMR_MODE='string'
   const { HMR_MODE } = env;
 
@@ -28,8 +33,14 @@ const webConfiguration = env => {
 
   // otherwise we're good
   const entryFiles = ['./web-index.js'];
-  const outputDir = path.resolve(__dirname, '../../built/web');
-
+  const outputDir = DIR_OUTPUT;
+  const copyFilesArray = [
+    {
+      from: `favicon.ico`,
+      to: `${DIR_OUTPUT}/favicon.ico`,
+      toType: 'file'
+    }
+  ];
   // return webConfiguration
   return merge([
     // config webapp files
@@ -38,7 +49,7 @@ const webConfiguration = env => {
       target: 'web',
       mode: 'development',
       // define base path for input filenames
-      context: path.resolve(__dirname, '../../src/app-web'),
+      context: DIR_SOURCE,
       // start bundling from this js file
       entry: entryFiles,
       // bundle file name
@@ -58,7 +69,7 @@ const webConfiguration = env => {
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('development')
         }),
-        new CopyWebpackPlugin()
+        new CopyWebpackPlugin(copyFilesArray)
       ],
       stats: 'errors-only'
     }

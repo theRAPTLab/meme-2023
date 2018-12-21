@@ -8,10 +8,11 @@
   },
   "main": "main.js",
   "scripts": {
-    "dev": "webpack-dev-server  --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'",
-    "electron": "webpack --mode development --config ./src/config/webpack.console.config.js --env.HMR_MODE='electron' && npx electron ./built/console/ur-main",
-    "package": "rm -fr ./dist ./built && webpack --mode production --config ./src/config/webpack.dist.config.js --env.HMR_MODE='none' && cd built && npm install && npx electron-packager . --out ../dist --overwrite",
-    "mactest": "./dist/ur-darwin-x64/ur.app/Contents/MacOS/ur",
+    "dev": "echo '\n*** USING WEBPACK HOT DEV SERVER' && webpack-dev-server  --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'",
+    "electron": "echo '\n*** USING ELECTRON-BASED HOT DEV SERVER' && webpack --mode development --config ./src/config/webpack.console.config.js --env.HMR_MODE='electron' && npx electron ./built/console/ur-main",
+    "package": "echo '\n*** BUILDING STANDALONE APP in dist/ur-darwin-x64' && rm -fr ./dist ./built && webpack --mode production --config ./src/config/webpack.dist.config.js --env.HMR_MODE='none' && cd built && npm install && npx electron-packager . --out ../dist --overwrite",
+    "appsign": "echo '\n*** SIGNING APP BUNDLE' && npx electron-osx-sign ./dist/ur-darwin-x64/ur.app --platform=darwin --type=distribution && echo '\n*** DISPLAYING APP INFO' && codesign -dvv ./dist/ur-darwin-x64/ur.app",
+    "app": "echo '\n*** RUNNING APP W/CONSOLE OUTPUT...' && ./dist/ur-darwin-x64/ur.app/Contents/MacOS/ur",
     "clean": "",
     "clean:runtime": "",
     "test": ""
@@ -60,6 +61,7 @@
     "asar": "^0.14.5",
     "babel-loader": "^8.0.4",
     "css-loader": "^1.0.1",
+    "electron-osx-sign": "^0.4.11",
     "electron-packager": "^12.2.0",
     "eslint": "^5.7.0",
     "eslint-config-airbnb": "^17.1.0",

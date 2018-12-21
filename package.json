@@ -10,9 +10,9 @@
   "scripts": {
     "dev": "echo '\n*** USING WEBPACK HOT DEV SERVER' && webpack-dev-server  --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'",
     "electron": "echo '\n*** USING ELECTRON-BASED HOT DEV SERVER' && webpack --mode development --config ./src/config/webpack.console.config.js --env.HMR_MODE='electron' && npx electron ./built/console/ur-main",
-    "package": "echo '\n*** BUILDING STANDALONE APP in dist/ur-darwin-x64' && rm -fr ./dist ./built && webpack --mode production --config ./src/config/webpack.dist.config.js --env.HMR_MODE='none' && cd built && npm install && npx electron-packager . --out ../dist --overwrite",
-    "appsign": "echo '\n*** SIGNING APP BUNDLE' && npx electron-osx-sign ./dist/ur-darwin-x64/ur.app --platform=darwin --type=distribution && echo '\n*** DISPLAYING APP INFO' && codesign -dvv ./dist/ur-darwin-x64/ur.app",
-    "app": "echo '\n*** RUNNING APP W/CONSOLE OUTPUT...' && ./dist/ur-darwin-x64/ur.app/Contents/MacOS/ur",
+    "package": "echo '\n*** BUILDING STANDALONE APP in dist/meme-darwin-x64' && rm -fr ./dist ./built && webpack --mode production --config ./src/config/webpack.dist.config.js --env.HMR_MODE='none' && cd built && npm install && npx electron-packager . meme --out ../dist --overwrite --app-bundle-id com.davidseah.inquirium.meme",
+    "appsign": "echo '\n*** SIGNING APP BUNDLE' && npx electron-osx-sign ./dist/meme-darwin-x64/meme.app --platform=darwin --type=distribution",
+    "apptest": "echo '\n*** VERIFYING CODE SIGNATURE' && codesign -dvv ./dist/meme-darwin-x64/meme.app && echo '\n*** RUNNING APP W/CONSOLE OUTPUT...' && ./dist/meme-darwin-x64/meme.app/Contents/MacOS/meme",
     "clean": "",
     "clean:runtime": "",
     "test": ""

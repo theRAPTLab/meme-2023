@@ -28,6 +28,8 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import { withStyles } from '@material-ui/core/styles';
 
+import CONSOLE from './console-modules/app';
+
 const styles = theme => ({
   // theme will have properties for dynamic style definition
   menuButton: {
@@ -55,7 +57,8 @@ const App = withStyles(styles)(props => {
 console.warn(
   '\nMEME DEVS:\nYou can ignore the Security Warning below, as it is to scare you into reading about Electron security\n'
 );
-
 ReactDOM.render(<App />, document.querySelector('#app-console'), () => {
   console.log('Loaded Electron MainWindow Entry Point @ console.js');
+  console.log('Starting console-app modules');
+  CONSOLE.Start();
 });

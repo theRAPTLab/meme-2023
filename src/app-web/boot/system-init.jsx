@@ -1,17 +1,20 @@
 const DBG = true;
 
+/// LIBRARIES /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const { BrowserRouter, HashRouter, withRouter } = require('react-router-dom');
+const React = require('react');
+const ReactDOM = require('react-dom');
+const TSV = require('./ts-validator-web');
+const AppShell = require('./AppShell');
+
 /// SYSTEM-WIDE LANGUAGE EXTENSIONS ///////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// These are loaded in init to make sure they are available globally!
 /// You do not need to copy these extensions to your own module files
-// require('babel-polyfill'); // enables regenerators for async/await
+require('babel-polyfill'); // enables regenerators for async/await
 
-/// LIBRARIES /////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const React = require('react');
-const ReactDOM = require('react-dom');
-const { BrowserRouter, HashRouter, withRouter } = require('react-router-dom');
-const AppShell = require('./AppShell');
+TSV.TestTypescript();
 
 /// SYSTEM MODULES ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

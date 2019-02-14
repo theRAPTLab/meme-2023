@@ -1,10 +1,13 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const { Alert, Collapse } = require('reactstrap');
 const { Navbar, NavbarToggler } = require('reactstrap');
 const { NavbarBrand, Nav, NavItem, NavLink } = require('reactstrap');
 const { UncontrolledDropdown, DropdownToggle } = require('reactstrap');
 const { DropdownMenu, DropdownItem } = require('reactstrap');
 const { BrowserRouter, HashRouter, withRouter } = require('react-router-dom');
+const ReactRouterPropTypes = require('react-router-prop-types');
+
 // workaround name collision in ReactRouterNavLink with ReactStrap
 const RRNavLink = require('react-router-dom').NavLink;
 //
@@ -13,13 +16,22 @@ const { renderRoutes } = require('react-router-config');
 const AppDefault = require('./AppDefault');
 
 function NoMatch(props) {
-  let hash = props.location.pathname.substring(1);
+  const hash = props.location.pathname.substring(1);
   return (
     <Alert color="warning">
       No Match for route <tt>#{hash}</tt>
     </Alert>
   );
 }
+NoMatch.propTypes = {
+  // eslint and proptypes interact poorly and this is OK
+  // eslint-disable-next-line react/forbid-prop-types
+  location: PropTypes.object
+};
+NoMatch.defaultProps = {
+  // this disables another eslint complaint
+  location: null
+};
 
 const Routes = [
   {

@@ -6,17 +6,17 @@ const Loki = require('lokijs');
 const PR = 'DB:';
 const DBNAME = 'MEME_BrowserTestLoki';
 
-let m_options; // saved initialization options
-let m_db; // loki database
-let PROPS; // loki "properties" collection
-let MECHS; // loki "mechanisms" collection
+let m_options: any; // saved initialization options
+let m_db: any; // loki database
+let PROPS: any; // loki "properties" collection
+let MECHS: any; // loki "mechanisms" collection
 
 function Start() {
   console.log('Start() Electron Console App / Renderer Process');
   InitializeDatabase();
 }
 
-function InitializeDatabase(options) {
+function InitializeDatabase(options = {}) {
   let ropt = {
     autoload: true,
     autoloadCallback: f_DatabaseInitialized,
@@ -60,7 +60,4 @@ function InitializeDatabase(options) {
   }
 }
 
-module.exports = {
-  Start,
-  InitializeDatabase
-};
+module.exports = { Start, InitializeDatabase };

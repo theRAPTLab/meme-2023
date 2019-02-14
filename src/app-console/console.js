@@ -28,7 +28,8 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import { withStyles } from '@material-ui/core/styles';
 
-import CONSOLE from './console-modules/app';
+import DB from './console-modules/database';
+import TSV from './console-modules/ts-validator-console';
 
 const styles = theme => ({
   // theme will have properties for dynamic style definition
@@ -60,5 +61,6 @@ console.warn(
 ReactDOM.render(<App />, document.querySelector('#app-console'), () => {
   console.log('Loaded Electron MainWindow Entry Point @ console.js');
   console.log('Starting console-app modules');
-  CONSOLE.Start();
+  DB.Start();
+  TSV.TestTypescript();
 });

@@ -81,7 +81,7 @@ const electronRendererConfig = env => {
     {
       mode: 'development',
       target: 'electron-renderer',
-      devtool: 'inline-cheap-source-map',
+      devtool: 'source-map',
       context: DIR_SOURCE,
       entry: [`./${ENTRY_MODULE}`], // leading ./ is required
       output: {

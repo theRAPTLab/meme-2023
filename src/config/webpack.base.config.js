@@ -31,6 +31,10 @@ module.exports = env => {
             // node_modules that needs to be babelized
             exclude: /node_modules/
           },
+          { test: /\.tsx?$/, loader: 'awesome-typescript-loader' },
+
+          // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
+          { enforce: 'pre', test: /\.js$/, loader: 'source-map-loader' },
           {
             test: /\.(jpe?g|png|gif)$/,
             use: [{ loader: 'file-loader?name=img/[name]__[hash:base64:5].[ext]' }],
@@ -49,7 +53,7 @@ module.exports = env => {
       },
       // make require() handle both .js and .jsx files (default only .js)
       resolve: {
-        extensions: ['.js', '.jsx']
+        extensions: ['.js', '.jsx', '.ts', '.tsx']
       }
     }
   ]); // merge array

@@ -13,7 +13,7 @@
     },
     "sourceType": "module"
   },
-  "plugins": ["prettier"],
+  "plugins": ["import", "prettier"],
   "rules": {
     "prettier/prettier": ["error"],
     "no-console": "off",
@@ -27,5 +27,13 @@
     "react/jsx-one-expression-per-line": "off",
     "camelcase": "off",
     "no-use-before-define": "off"
+  },
+  "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      "typescript": {}
+    }
   }
 }

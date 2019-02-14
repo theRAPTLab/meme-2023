@@ -70,7 +70,7 @@ const webConfiguration = env => {
         pathinfo: false // this speeds up compilation (https://webpack.js.org/guides/build-performance/#output-without-path-info)
         // publicPath: 'web',
       },
-      devtool: '#source-map',
+      devtool: 'source-map',
       // apply these additional plugins
       plugins: [
         new HtmlWebpackPlugin({

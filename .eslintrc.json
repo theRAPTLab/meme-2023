@@ -5,7 +5,7 @@
     "es6": true,
     "node": true
   },
-  "extends": ["airbnb", "prettier"],
+  "extends": ["airbnb", "prettier", "prettier/@typescript-eslint"],
   "parserOptions": {
     "ecmaVersion": 8,
     "ecmaFeatures": {

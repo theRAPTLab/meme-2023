@@ -28,8 +28,8 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import { withStyles } from '@material-ui/core/styles';
 
-import DB from './console-modules/database';
-import TSV from './console-modules/ts-validator-console';
+const TSV = require('./console-modules/ts-validator-console');
+const DB = require('./console-modules/database');
 
 const styles = theme => ({
   // theme will have properties for dynamic style definition

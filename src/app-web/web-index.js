@@ -1,19 +1,18 @@
 /*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  The MEME webapp is served directly from src/app-urweb
+  NOTE: this file is the ENTRY POINT designated in webpack.webapp.config.js
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
-import 'bootstrap/dist/css/bootstrap.css';
-
-const PR = '[WebIndexJS]';
+import 'bootstrap/dist/css/bootstrap.css'; // enables regenerators for async/await
+import System from './boot/system-init';
 
 /// SYSTEM-WIDE LANGUAGE EXTENSIONS ///////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// These are loaded in init to make sure they are available globally!
 /// You do not need to copy these extensions to your own module files
-require('babel-polyfill'); // enables regenerators for async/await
+import 'babel-polyfill';
 
-const System = require('./boot/system-init');
+const PR = '[WebIndexJS]';
 
 console.log(`web-index.js loaded`);
 

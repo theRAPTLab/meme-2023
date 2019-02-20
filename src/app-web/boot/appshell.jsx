@@ -64,7 +64,7 @@ class AppShell extends React.Component {
     return (
       <div style={{ display: 'flex', flexFlow: 'column nowrap', width: '100%', height: '100vh' }}>
         <Navbar fixed="top" light expand="md" style={{ backgroundColor: '#f0f0f0' }}>
-          <NavbarBrand href="#">MEME BÖILERPLATE</NavbarBrand>
+          <NavbarBrand href="#">MEME BOILERPLATE</NavbarBrand>
           <NavbarToggler onClick={this.toggle} />
           <Collapse isOpen={this.state.isOpen} navbar>
             {/*/ (1) add navigation links here /*/}

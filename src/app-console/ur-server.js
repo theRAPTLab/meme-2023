@@ -176,9 +176,7 @@ function Run() {
         switch (err.errno) {
           case 'EADDRINUSE':
             errstring += `Another program is already using port ${config.port}.\n`;
-            errstring += `Go to "http://localhost:${
-              config.port
-            }" to check if NetCreate is already running.\n\n`;
+            errstring += `Go to "http://localhost:${config.port}" to check if NetCreate is already running.\n\n`;
             errstring += `Still broken? See https://github.com/daveseah/netcreate-2018/issues/4\n`;
             break;
           default:

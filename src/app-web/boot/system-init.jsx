@@ -1,12 +1,12 @@
-const DBG = true;
-
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const { BrowserRouter, HashRouter, withRouter } = require('react-router-dom');
-const React = require('react');
-const ReactDOM = require('react-dom');
-const TSV = require('./ts-validator-web');
-const AppShell = require('./AppShell');
+import { BrowserRouter, HashRouter, withRouter } from 'react-router-dom';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import TSV from './ts-validator-web';
+import AppShell from './AppShell';
+
+const DBG = true;
 
 /// SYSTEM-WIDE LANGUAGE EXTENSIONS ///////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -50,11 +50,7 @@ function SetLifecycleScope() {
 function Init() {
   document.addEventListener('DOMContentLoaded', () => {
     // console.group('init.jsx bootstrap');
-    console.log(
-      '%cINIT %cDOMContentLoaded. Starting UNISYS Lifecycle!',
-      'color:blue',
-      'color:auto'
-    );
+    console.log('%cINIT %cDOMContentLoaded. Starting UNISYS Lifecycle!', 'color:blue', 'color:auto');
     ReactDOM.render(
       <HashRouter hashType="slash">
         <AppShell />
@@ -89,4 +85,4 @@ function Init() {
 
 /// UNISYS LIFECYCLE LOADER ///////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-module.exports = { Init };
+export default { Init };

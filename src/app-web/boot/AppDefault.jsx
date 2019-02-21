@@ -1,4 +1,6 @@
 const React = require('react');
+const SVG = require('../components/SVG');
+const Canvas = require('../components/Canvas');
 
 class AppDefault extends React.Component {
   componentDidMount() {
@@ -21,6 +23,8 @@ class AppDefault extends React.Component {
           <p>
             <tt>src/app-web/boot/AppDefault.jsx</tt>
           </p>
+          <SVG />
+          <Canvas />
         </div>
         <div id="right" style={{ flex: '1 0 auto' }} />
       </div>

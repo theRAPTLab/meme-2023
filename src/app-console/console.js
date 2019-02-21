@@ -1,4 +1,4 @@
-/*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
+/*///////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
 console.js - main webpack entrypoint for Electron-based console/server
 
@@ -16,7 +16,7 @@ and accessed through the 'window' object.
 NOTE: all code from this point on are using WEBPACK's require, not NodeJS. Remember this
 is client-side javascript code, with Electron/Node enhancements!
 
-\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
+\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ///////////////////////////////////////////*/
 
 import React from 'react';
 import ReactDOM from 'react-dom';

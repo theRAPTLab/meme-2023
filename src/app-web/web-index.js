@@ -1,8 +1,9 @@
-/*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
+/*///////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
   NOTE: this file is the ENTRY POINT designated in webpack.webapp.config.js
 
-\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
+\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
+
 import 'bootstrap/dist/css/bootstrap.css'; // enables regenerators for async/await
 import System from './boot/system-init';
 

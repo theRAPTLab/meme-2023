@@ -4,37 +4,45 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
-// enables regenerators for async/await
-import System from './boot/SystemInit';
-
 /// SYSTEM-WIDE LANGUAGE EXTENSIONS ///////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// These are loaded in init to make sure they are available globally!
 /// You do not need to copy these extensions to your own module files
 import 'babel-polyfill';
+import System from './boot/SystemInit';
 
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PR = '[WebIndexJS]';
 
-console.log(`web-index.js loaded`);
+/** HOT MODULE LOADING NOTES *************************************************\
 
+  HMR is a Webpack feature. Generally you write a handler:
+  module.hot.accept('./library.js',()=>{ ..do something.. });
+
+  To enable HMR in Webpack, need to specify 'reload=true' in config:
+  entryFiles = ['./web-index.js', 'webpack-hot-middleware/client?reload=true'];
+  NOTE that this is an additional entryPoint
+
+  Since actual HMR handling is tricky, the code below just looks for a change
+  and assumes that it should reload the entire application when the source
+  files are ready
+
+\*****************************************************************************/
 if (module.hot) {
-  console.log(`${PR} hot.status is '${module.hot.status()}'`);
-  // use this for webpack-dev-server
-  // module.hot.accept();
+  // not doing this:
+  // module.hot.accept(deps,callback);
 
-  // when using this, need to specify reload=true in
-  // webpack webapp.config additional entry point
-  // module.hot.decline();
-
-  // just reload if ANY change occurs...forget about hot module
-  // replacement
   module.hot.addStatusHandler(status => {
+    // reload entire if ANY change occurs
     if (status === 'ready') {
       window.location.reload();
-    } else console.log('status', status);
+    } else console.log(PR, 'HMR status:', status);
   });
 } else {
-  console.log(`${PR} HMR support not compiled into module`);
+  console.log(`${PR} HMR support is not enabled`);
 }
 
+/// INITIALIZE THE SYSTEM /////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 System.Init();

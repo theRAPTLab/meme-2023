@@ -54,20 +54,21 @@ class ViewMain extends React.Component {
   }
 
   render() {
+    const { classes } = this.props;
     return (
-      <div
-        style={{
-          display: 'flex',
-          flexFlow: 'row nowrap',
-          width: '100%',
-          height: '100%'
-        }}
-      >
-        <div id="left" style={{ flex: '1 0 auto' }} />
-        <div id="middle" style={{ flex: '3 0 auto' }}>
-          <h2>&lt;{this.cstrName}&gt;</h2>
-        </div>
-        <div id="right" style={{ flex: '1 0 auto' }} />
+      <div>
+        <AppBar position="static">
+          <Toolbar variant="dense">
+            <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" color="inherit">
+              MEME
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <SVG />
+        <Canvas />
       </div>
     );
   }
@@ -87,4 +88,4 @@ ViewMain.propTypes = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default ViewMain;
+export default withStyles(styles)(ViewMain);

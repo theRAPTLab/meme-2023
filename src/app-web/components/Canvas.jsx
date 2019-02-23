@@ -24,8 +24,7 @@ class Canvas extends React.Component {
     this.image = this.refImage.current;
     this.view = this.refContainer.current;
     // resize canvas to full width and set height
-    const div = document.getElementById('middle');
-    const ww = div.clientWidth;
+    const ww = this.view.clientWidth;
     this.canvas.width = ww;
     this.canvas.height = this.canvas.width * 0.75;
     // draw into context

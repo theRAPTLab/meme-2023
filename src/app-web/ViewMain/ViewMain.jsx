@@ -1,8 +1,14 @@
-// react
+/*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
+
+  ViewMain - Main Application View
+
+\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
+
+/// LIBRARIES /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-// material ui
+// Material UI
 import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Menu from '@material-ui/core/Menu';
@@ -10,11 +16,19 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
-// our components
-import Canvas from './components/Canvas';
-import SVG from './components/SVG';
 
-// material ui theming
+/// COMPONENTS ////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+import Canvas from '../components/Canvas';
+import SVG from '../components/SVG';
+
+/// DEBUG CONTROL /////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = true;
+
+/// STATIC DECLARATIONS ///////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// MaterialUI theming
 const styles = theme => ({
   root: {
     flexGrow: 1
@@ -28,6 +42,8 @@ const styles = theme => ({
   }
 });
 
+/// CLASS DECLARATION /////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class ViewMain extends React.Component {
   // constructor
   constructor(props) {
@@ -73,19 +89,21 @@ class ViewMain extends React.Component {
     );
   }
 }
-
-// default props are expect properties that we expect
-// and are declared for validation
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// default props are expect properties that we expect
+/// and are declared for validation
 ViewMain.defaultProps = {
   classes: {}
 };
-// propTypeds are declared. Note "vague" propstypes are
-// disallowed by eslint, so use shape({ prop:ProtType })
-// to describe them in more detail
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// propTypeds are declared. Note "vague" propstypes are
+/// disallowed by eslint, so use shape({ prop:ProtType })
+/// to describe them in more detail
 ViewMain.propTypes = {
   classes: PropTypes.shape({})
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// include MaterialUI styles
 export default withStyles(styles)(ViewMain);

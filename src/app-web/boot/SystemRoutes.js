@@ -1,11 +1,36 @@
+/*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
+
+  SystemRoutes - define top-level routes to views
+
+  This module is imported into SystemShell.jsx to generate
+  ReactRouter-compatible <Route> entries
+
+\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
+
+/// LIBRARIES /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import ViewMain from '../ViewMain';
-import ViewBasic from '../ViewBasic';
 
-// declare main view routes here
-// list more specific routes first
-// url format is host:3000/#dev
+/// COMPONENTS ////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+import ViewMain from '../ViewMain/ViewMain';
+import ViewBasic from '../ViewBasic/ViewBasic';
+
+/// DEBUG CONTROL /////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = true;
+
+/*****************************************************************************\
+
+  MAIN ROUTE DECLARATION
+
+  declare main view routes here
+  list more specific routes first
+  url format is host:3000/#dev
+
+\*****************************************************************************/
+
 const SystemRoutes = [
   {
     path: '/basic',
@@ -24,6 +49,8 @@ const SystemRoutes = [
   }
 ];
 
+/// COMPONENT /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function NoMatch(props) {
   const hash = props.location.pathname.substring(1);
   return (
@@ -42,4 +69,6 @@ NoMatch.defaultProps = {
   location: null
 };
 
+/// MODULE EXPORTS ////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default SystemRoutes;

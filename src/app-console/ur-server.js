@@ -70,7 +70,7 @@ function Start(options) {
   app.listen(3000, () => console.log(`${PR} listening to port 3000`));
 }
 
-// THIS IS ALL UNISYS/UR STUFF TO BE PORTED AND ACTIVATED
+// THIS IS ALL UNISYS STUFF TO BE PORTED AND ACTIVATED AS URSYS
 //
 //
 let UKEY_IDX = 0;
@@ -176,7 +176,9 @@ function Run() {
         switch (err.errno) {
           case 'EADDRINUSE':
             errstring += `Another program is already using port ${config.port}.\n`;
-            errstring += `Go to "http://localhost:${config.port}" to check if NetCreate is already running.\n\n`;
+            errstring += `Go to "http://localhost:${
+              config.port
+            }" to check if NetCreate is already running.\n\n`;
             errstring += `Still broken? See https://github.com/daveseah/netcreate-2018/issues/4\n`;
             break;
           default:

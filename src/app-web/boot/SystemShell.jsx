@@ -1,13 +1,26 @@
-/// THIS IS THE SYSTEM SHELL
-/// it is loaded by SystemInit which wraps a HashRouter around it
+/*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-/// css imports (bootstrap)
-import 'bootstrap/dist/css/bootstrap.css';
+  SystemShell - React App Container
 
+  Loaded by SystemInit which wraps a HashRouter around it
+
+\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
+
+/// LIBRARIES /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
+
+/// SYSTEM ROUTES /////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import SystemRoutes from './SystemRoutes';
 
+/// DEBUG CONTROL /////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = true;
+
+/// CLASS DECLARATION /////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class SystemShell extends React.Component {
   constructor(props) {
     super(props);
@@ -35,10 +48,7 @@ class SystemShell extends React.Component {
       </Switch>
     );
   }
-} //
-
-/// EXPORT ROUTE INFO /////////////////////////////////////////////////////////
-SystemShell.Routes = SystemRoutes;
+}
 
 /// EXPORT REACT CLASS ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

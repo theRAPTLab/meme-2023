@@ -4,8 +4,8 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
-import 'bootstrap/dist/css/bootstrap.css'; // enables regenerators for async/await
-import System from './boot/system-init';
+// enables regenerators for async/await
+import System from './boot/SystemInit';
 
 /// SYSTEM-WIDE LANGUAGE EXTENSIONS ///////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

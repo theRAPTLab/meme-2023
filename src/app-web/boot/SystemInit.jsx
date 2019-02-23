@@ -1,10 +1,14 @@
+/// THIS IS THE MAIN UI STARTUP
+/// First it launches the UNISYS system
+/// Then it spawns REACT under control of UNISYS
+
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import { BrowserRouter, HashRouter, withRouter } from 'react-router-dom';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { HashRouter, Route, Link, withRouter } from 'react-router-dom';
 import TSV from './ts-validator-web';
-import AppShell from './AppShell';
+import SystemShell from './SystemShell';
 
 const DBG = true;
 
@@ -14,25 +18,18 @@ const DBG = true;
 /// You do not need to copy these extensions to your own module files
 require('babel-polyfill'); // enables regenerators for async/await
 
-TSV.TestTypescript();
-
-/// SYSTEM MODULES ////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// demo: require system modules; this will likely be removed
-// const UNISYS = require('unisys/client');
-// const AppShell = require('init-appshell');
-
 /// LIFECYCLE HELPERS /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function SetLifecycleScope() {
   // set scope for UNISYS execution
-  const routes = AppShell.Routes;
+  const routes = SystemShell.Routes;
   // check #, and remove any trailing parameters in slashes
   // we want the first one
   const hashbits = window.location.hash.split('/');
   const hash = hashbits[0];
-  const loc = `/${hash.substring(1)}`;
+  const loc = `/${hash}`;
   const matches = routes.filter(route => {
+    // console.log(`route ${route.path} loc ${loc}`);
     return route.path === loc;
   });
   if (matches.length) {
@@ -40,6 +37,7 @@ function SetLifecycleScope() {
     const { component } = matches[0];
     if (component.UMOD === undefined)
       console.warn(`WARNING: root view '${loc}' has no UMOD property, so can not set UNISYS scope`);
+    // SYSLOOP ccheckes the scope value when executing phases
     // const modscope = component.UMOD || '<undefined>/init.jsx';
     // UNISYS.SetScope(modscope);
   } else {
@@ -50,25 +48,20 @@ function SetLifecycleScope() {
 function Init() {
   document.addEventListener('DOMContentLoaded', () => {
     // console.group('init.jsx bootstrap');
-    console.log('%cINIT %cDOMContentLoaded. Starting UNISYS Lifecycle!', 'color:blue', 'color:auto');
-    ReactDOM.render(
-      <HashRouter hashType="slash">
-        <AppShell />
-      </HashRouter>,
-      document.getElementById('app-container'),
-      () => {
-        console.log('%cINIT %cReactDOM.render() complete', 'color:blue', 'color:auto');
-      }
+    console.log(
+      '%cINIT %cDOMContentLoaded. Starting UNISYS Lifecycle!',
+      'color:blue',
+      'color:auto'
     );
 
-    // SetLifecycleScope();
+    SetLifecycleScope();
     (async () => {
       // await UNISYS.JoinNet(); // UNISYS socket connection (that is all)
       // await UNISYS.EnterApp(); // TEST_CONF, INITIALIZE, LOADASSETS, CONFIGURE
       // await RenderApp(); // compose React view
       // ReactDOM.render(
       //   <HashRouter hashType="slash">
-      //     <AppShell />
+      //     <SystemShell />
       //   </HashRouter>,
       //   () => {
       //     document.querySelector('#app-container'),
@@ -77,6 +70,20 @@ function Init() {
       // );
       // await UNISYS.SetupDOM(); // DOM_READY
       // await UNISYS.SetupRun(); // RESET, START, APP_READY, RUN
+
+      // since await block isn't implemented yet, just draw ReactDOM now
+      ReactDOM.render(
+        <HashRouter hashType="slash">
+          <SystemShell />
+        </HashRouter>,
+        document.getElementById('app-container'),
+        () => {
+          console.log('%cINIT %cReactDOM.render() complete', 'color:blue', 'color:auto');
+        }
+      );
+      // do other out-of-phase initialization
+      console.log(`%cINIT %c${TSV.TestTypescript()}`, 'color:blue', 'color:auto');
+      // everything is done, system is running
       console.log('%cINIT %cUNISYS Lifecycle Initialization Complete', 'color:blue', 'color:auto');
       console.groupEnd();
     })();

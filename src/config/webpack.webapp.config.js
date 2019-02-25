@@ -24,7 +24,6 @@ const webConfiguration = env => {
   let entryFiles;
   let outputDir;
   let wdsOptions;
-  let copyFilesArray;
   // handle special cases of our HMR_MODE
   switch (HMR_MODE) {
     case 'wds':
@@ -39,17 +38,22 @@ const webConfiguration = env => {
       entryFiles = ['./web-index.js', 'webpack-hot-middleware/client?reload=true'];
       outputDir = path.resolve(__dirname, '../../built/web');
       wdsOptions = {};
-      copyFilesArray = [
-        {
-          from: `favicon.ico`,
-          to: `${outputDir}/favicon.ico`,
-          toType: 'file'
-        }
-      ];
       break;
     default:
     // do nothing
   }
+  const copyFilesArray = [
+    {
+      from: `favicon.ico`,
+      to: `${outputDir}/favicon.ico`,
+      toType: 'file'
+    },
+    {
+      from: `appdata`,
+      to: `${outputDir}/appdata`,
+      toType: 'dir'
+    }
+  ];
 
   const DIR_SOURCE = path.resolve(__dirname, '../../src/app-web');
 

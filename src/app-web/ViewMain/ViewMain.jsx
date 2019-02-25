@@ -20,7 +20,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import Canvas from '../components/Canvas';
-import SVG from '../components/SVG';
+import D3SVG from '../components/D3SVG';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -73,7 +73,7 @@ class ViewMain extends React.Component {
     const { classes } = this.props;
     return (
       <div>
-        <AppBar position="static">
+        <AppBar id="nav" position="static">
           <Toolbar variant="dense">
             <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
               <MenuIcon />
@@ -83,8 +83,7 @@ class ViewMain extends React.Component {
             </Typography>
           </Toolbar>
         </AppBar>
-        <SVG />
-        <Canvas />
+        <D3SVG />
       </div>
     );
   }

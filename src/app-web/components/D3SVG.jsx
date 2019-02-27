@@ -12,7 +12,7 @@ const D3 = require('d3');
 class D3SVG extends React.Component {
   constructor(props) {
     super(props);
-    this.fileName = '/appdata/data.csv';
+    this.fileName = '/static/sample-dsv.csv';
     this.d3data = {};
     this.refContainer = React.createRef();
     this.d3svg = null;

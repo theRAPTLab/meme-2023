@@ -49,8 +49,8 @@ const webConfiguration = env => {
       toType: 'file'
     },
     {
-      from: `appdata`,
-      to: `${outputDir}/appdata`,
+      from: `static`,
+      to: `${outputDir}/static`,
       toType: 'dir'
     }
   ];

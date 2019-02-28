@@ -43,6 +43,11 @@ const SystemRoutes = [
     component: ViewMain
   },
   {
+    path: '/:mode',
+    exact: true,
+    component: ViewMain
+  },
+  {
     path: '*',
     restricted: false,
     component: NoMatch

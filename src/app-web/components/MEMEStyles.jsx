@@ -28,5 +28,6 @@ const styles = theme => {
     }
   };
 };
+styles.DRAWER_WIDTH = m_drawerWidth;
 
 export default styles;

@@ -15,7 +15,7 @@ class RoutedView extends React.Component {
 
   render() {
     let { mode } = this.props.match.params;
-    console.log('render.viewHeight', this.props.viewHeight);
+    console.log('render.width,height', this.props.viewWidth, this.props.viewHeight);
     if (mode === undefined) mode = 'cyto';
     switch (mode) {
       case 'svg':

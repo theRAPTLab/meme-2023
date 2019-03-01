@@ -22,6 +22,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
+import debounce from 'debounce';
 
 // Material UI
 import { withStyles } from '@material-ui/core/styles';
@@ -51,17 +52,33 @@ class ViewMain extends React.Component {
   componentDidMount() {
     console.log(`<${this.cstrName}> mounted`);
     //
-    this.viewRect = this.refMain.current.getBoundingClientRect();
-    this.toolRect = this.refToolbar.current.getBoundingClientRect();
-    this.setState({
-      viewHeight: this.viewRect.height - this.toolRect.height,
-      viewWidth: this.viewRect.width
-    });
+    this.updateDimensions();
+    //
+    window.addEventListener('resize', debounce(this.updateDimensions.bind(this), 250));
     // debug
     window.xmain = this.refMain.current;
     window.xtool = this.refToolbar.current;
     window.xview = this.refView.current;
     window.xdrawer = this.refDrawer.current;
+  }
+
+  updateDimensions() {
+    setTimeout(() => {
+      this.viewRect = this.refMain.current.getBoundingClientRect();
+      this.toolRect = this.refToolbar.current.getBoundingClientRect();
+      const viewHeight = this.viewRect.height - this.toolRect.height;
+      const viewWidth = this.viewRect.width;
+      // const viewWidth = this.viewRect.width;
+      this.setState({
+        viewHeight,
+        viewWidth
+      });
+      console.log(
+        `%cupdateDimensions:%c resizing ${viewWidth}x${viewHeight}`,
+        'color:orange',
+        'color:auto'
+      );
+    }, 1000);
   }
 
   render() {

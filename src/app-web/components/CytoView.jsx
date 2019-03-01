@@ -68,11 +68,16 @@ class CytoView extends React.Component {
 
   componentDidUpdate() {
     if (this.cy) {
-      console.log('%ccomponentDidUpdate:%c cy ok', 'color:orange', 'color:auto');
+      console.log(
+        `%ccomponentDidUpdate:%c cy ok ${this.props.viewWidth}`,
+        'color:orange',
+        'color:auto'
+      );
       setTimeout(() => {
         const layout = this.cy.layout({
           name: 'grid',
-          avoidOverlap: true
+          avoidOverlap: true,
+          fit: true
         });
         layout.run();
         this.cy.center();
@@ -100,12 +105,14 @@ CytoView.propTypes = {
       data: PropTypes.shape({ id: PropTypes.string })
     })
   ),
+  viewWidth: PropTypes.number,
   viewHeight: PropTypes.number
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// defaultProps are used to populate props if they aren't passed in
 CytoView.defaultProps = {
   DB: [],
+  viewWidth: 0,
   viewHeight: 0
 };
 

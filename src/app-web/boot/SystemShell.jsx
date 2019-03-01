@@ -27,19 +27,25 @@ class SystemShell extends React.Component {
     this.state = { hasError: false };
   }
 
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
   componentDidMount() {
     console.log(`<${this.constructor.name}> mounted`);
   }
 
-  //
-  static getDerivedStateFromError(error) {
-    console.error(`${this.constructor.name} error`, error);
-    return { hasError: true };
-  }
-
   render() {
-    /// return component with matching routed view
-    if (this.state.hasError) return <p>Error in {`${this.constructor.name}`} (see console)</p>;
+    // omg an error???
+    if (this.state.hasError) {
+      return (
+        <div>
+          <div className={classes.toolbar} />
+          <p>Error in {`${this.constructor.name}`} (see console)</p>
+        </div>
+      );
+    }
+    // otherwise return component with matching routed view
     return (
       <Switch>
         {SystemRoutes.map(route => (

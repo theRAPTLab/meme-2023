@@ -47,6 +47,7 @@ class ViewMain extends React.Component {
     this.refView = React.createRef();
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
+    this.updateDimensions = this.updateDimensions.bind(this);
   }
 
   componentDidMount() {
@@ -54,7 +55,7 @@ class ViewMain extends React.Component {
     //
     this.updateDimensions();
     //
-    window.addEventListener('resize', debounce(this.updateDimensions.bind(this), 250));
+    window.addEventListener('resize', debounce(this.updateDimensions, 250));
     // debug
     window.xmain = this.refMain.current;
     window.xtool = this.refToolbar.current;
@@ -68,22 +69,18 @@ class ViewMain extends React.Component {
       this.toolRect = this.refToolbar.current.getBoundingClientRect();
       const viewHeight = this.viewRect.height - this.toolRect.height;
       const viewWidth = this.viewRect.width;
-      // const viewWidth = this.viewRect.width;
+      console.log(`${this.cstrName}.updateDimensions() ${viewWidth}x${viewHeight}`);
+
       this.setState({
         viewHeight,
         viewWidth
       });
-      console.log(
-        `%cupdateDimensions:%c resizing ${viewWidth}x${viewHeight}`,
-        'color:orange',
-        'color:auto'
-      );
     }, 1000);
   }
 
   render() {
     const { classes } = this.props;
-    const foo = 0;
+    console.log(`${this.cstrName}.render() size ${this.state.viewWidth}x${this.state.viewHeight}`);
     return (
       <div className={classes.root}>
         <CssBaseline />

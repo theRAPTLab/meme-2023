@@ -1,9 +1,11 @@
+// routed view is just a box holding the real view
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import Canvas from '../components/Canvas';
 import D3SVG from '../components/D3SVG';
 import CytosView from '../components/CytoView';
-import SVG from '../components/SVG';
+import SVGView from '../components/SVGView';
 import DB from './models/prototype.model';
 
 class RoutedView extends React.Component {
@@ -11,22 +13,31 @@ class RoutedView extends React.Component {
     super(props);
     this.cstrName = this.constructor.name;
     this.routedComponent = React.createRef();
+    console.log(`${this.cstrName}.contructor() ${this.props.viewWidth}x${this.props.viewHeight}`);
   }
 
   render() {
     let { mode } = this.props.match.params;
-    console.log('render.width,height', this.props.viewWidth, this.props.viewHeight);
-    if (mode === undefined) mode = 'cyto';
+    console.log(`${this.cstrName}.render() props ${this.props.viewWidth}x${this.props.viewHeight}`);
+    // OVERRIDE UNDEFINED DEFAULT
+    if (mode === undefined) mode = 'svg';
+    //
+    const routedProps = {
+      mode,
+      viewWidth: this.props.viewWidth,
+      viewHeight: this.props.viewHeight,
+      DB
+    };
+    //
     switch (mode) {
-      case 'svg':
-        return <SVG DB={DB} {...this.props} />;
-      case 'd3':
-        return <D3SVG DB={DB} {...this.props} />;
-      case 'canvas':
-        return <Canvas DB={DB} {...this.props} />;
       case 'cyto':
-      case undefined:
-        return <CytosView DB={DB} {...this.props} />;
+        return <CytosView {...routedProps} />;
+      case 'd3':
+        return <D3SVG {...routedProps} />;
+      case 'canvas':
+        return <Canvas {...routedProps} />;
+      case 'svg':
+        return <SVGView {...routedProps} />;
       default:
         return <div>unrecognized display mode:{mode}</div>;
     }
@@ -34,11 +45,13 @@ class RoutedView extends React.Component {
 }
 RoutedView.propTypes = {
   match: PropTypes.shape({ params: PropTypes.shape({ mode: PropTypes.string }) }),
-  viewHeight: PropTypes.number
+  viewHeight: PropTypes.number,
+  viewWidth: PropTypes.number
 };
 RoutedView.defaultProps = {
   match: { params: '' },
-  viewHeight: 0
+  viewHeight: 64,
+  viewWidth: 64
 };
 
 export default RoutedView;

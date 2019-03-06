@@ -23,10 +23,9 @@ import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 import debounce from 'debounce';
-
-// Material UI
+// Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
-//
+
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import RoutedView from './RoutedView';

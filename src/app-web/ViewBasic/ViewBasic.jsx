@@ -8,6 +8,9 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
 
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -16,7 +19,16 @@ import 'bootstrap/dist/css/bootstrap.css';
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true;
-
+const styles = theme => ({
+  root: {
+    flexGrow: 1
+  },
+  paper: {
+    padding: theme.spacing.unit * 2,
+    textAlign: 'center',
+    color: theme.palette.text.secondary
+  }
+});
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class ViewBasic extends React.Component {
@@ -26,34 +38,38 @@ class ViewBasic extends React.Component {
     this.cstrName = this.constructor.name;
   }
 
-  static getDerivedStateFromError(error) {
-    console.error(`${this.constructor.name} error`, error);
-    return { hasError: true };
-  }
-
   componentDidMount() {
     console.log(`<${this.cstrName}> mounted`);
   }
 
   render() {
+    const { classes } = this.props;
+
     return (
-      <div
-        style={{
-          display: 'flex',
-          flexFlow: 'row nowrap',
-          width: '100%',
-          height: '100%'
-        }}
-      >
-        <div id="left" style={{ flex: '1 0 auto' }} />
-        <div id="middle" style={{ flex: '3 0 auto' }}>
-          <h2>&lt;{this.cstrName}&gt;</h2>
-          <ul>
-            <li>basic flex layout</li>
-            <li>left:1, middle:3, right:1</li>
-          </ul>
-        </div>
-        <div id="right" style={{ flex: '1 0 auto' }} />
+      <div className={classes.root}>
+        <Grid container spacing={24}>
+          <Grid item xs={12}>
+            <Paper className={classes.paper}>xs=12</Paper>
+          </Grid>
+          <Grid item xs={6}>
+            <Paper className={classes.paper}>xs=6</Paper>
+          </Grid>
+          <Grid item xs={6}>
+            <Paper className={classes.paper}>xs=6</Paper>
+          </Grid>
+          <Grid item xs={3}>
+            <Paper className={classes.paper}>xs=3</Paper>
+          </Grid>
+          <Grid item xs={3}>
+            <Paper className={classes.paper}>xs=3</Paper>
+          </Grid>
+          <Grid item xs={3}>
+            <Paper className={classes.paper}>xs=3</Paper>
+          </Grid>
+          <Grid item xs={3}>
+            <Paper className={classes.paper}>xs=3</Paper>
+          </Grid>
+        </Grid>
       </div>
     );
   }
@@ -61,13 +77,17 @@ class ViewBasic extends React.Component {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// default props are expect properties that we expect
 /// and are declared for validation
-ViewBasic.defaultProps = {};
+ViewBasic.defaultProps = {
+  classes: { isDefaultProps: true }
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
 /// disallowed by eslint, so use shape({ prop:ProtType })
 /// to describe them in more detail
-ViewBasic.propTypes = {};
+ViewBasic.propTypes = {
+  classes: PropTypes.shape({})
+};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default ViewBasic;
+export default withStyles(styles)(ViewBasic);

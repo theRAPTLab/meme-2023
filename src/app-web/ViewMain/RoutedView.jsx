@@ -5,6 +5,7 @@ import Canvas from '../components/Canvas';
 import D3SVG from '../components/D3SVG';
 import CytosView from '../components/CytoView';
 import SVGView from '../components/SVGView';
+import PaperView from '../components/PaperView';
 import DB from './models/prototype.model';
 
 const DBG = false;
@@ -43,6 +44,8 @@ class RoutedView extends React.Component {
         return <Canvas {...routedProps} />;
       case 'svg':
         return <SVGView {...routedProps} />;
+      case 'paper':
+        return <PaperView {...routedProps} />;
       default:
         return <div>unrecognized display mode:{mode}</div>;
     }

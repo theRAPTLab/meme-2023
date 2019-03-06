@@ -30,7 +30,8 @@
     "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
     "no-underscore-dangle": "off",
     "no-plusplus": "off",
-    "prefer-const": "warn"
+    "prefer-const": "warn",
+    "prefer-destructuring": "warn"
   },
   "settings": {
     "import/parsers": {

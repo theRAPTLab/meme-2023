@@ -29,7 +29,8 @@
     "no-use-before-define": "off",
     "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
     "no-underscore-dangle": "off",
-    "no-plusplus": "off"
+    "no-plusplus": "off",
+    "prefer-const": "warn"
   },
   "settings": {
     "import/parsers": {

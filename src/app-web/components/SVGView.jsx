@@ -60,8 +60,11 @@ class SVGView extends React.Component {
     const pad = 25;
     const ww = width - pad - pad;
     const hh = height - pad - pad;
+    //
     console.log(`%cdrawing ${ww} ${hh}`, 'color:green');
-    const rect = this.Draw.rect(width - pad - pad, height - pad - pad).attr({ fill: '#f06' });
+    //
+    this.Draw.clear();
+    const rect = this.Draw.rect(ww, hh).attr({ fill: '#f06' });
     rect.move(pad, pad);
   }
 

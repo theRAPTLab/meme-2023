@@ -23,6 +23,8 @@
   "dependencies": {
     "@material-ui/core": "^3.9.2",
     "@material-ui/icons": "^3.0.2",
+    "@svgdotjs/svg.draggable.js": "^3.0.2",
+    "@svgdotjs/svg.js": "^3.0.12",
     "ajv": "^6.9.1",
     "babel-polyfill": "^6.26.0",
     "bootstrap": "^4.3.0",
@@ -46,7 +48,6 @@
     "react-router-dom": "^4.3.1",
     "react-router-prop-types": "^1.0.4",
     "reactstrap": "^6.5.0",
-    "svg.js": "^2.7.1",
     "webpack": "^4.29.3",
     "webpack-cli": "^3.2.3",
     "webpack-dev-middleware": "^3.5.2",

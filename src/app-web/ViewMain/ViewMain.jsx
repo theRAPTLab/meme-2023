@@ -35,6 +35,8 @@ import MEMEStyles from '../components/MEMEStyles';
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+const DBG = false;
+
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class ViewMain extends React.Component {
@@ -55,7 +57,7 @@ class ViewMain extends React.Component {
     //
     this.updateDimensions();
     //
-    window.addEventListener('resize', debounce(this.updateDimensions, 250));
+    window.addEventListener('resize', debounce(this.updateDimensions, 500));
     // debug
     window.xmain = this.refMain.current;
     window.xtool = this.refToolbar.current;
@@ -64,23 +66,31 @@ class ViewMain extends React.Component {
   }
 
   updateDimensions() {
+    /*/
+    Material UI uses FlexBox, and our content
+    /*/
     setTimeout(() => {
       this.viewRect = this.refMain.current.getBoundingClientRect();
       this.toolRect = this.refToolbar.current.getBoundingClientRect();
-      const viewHeight = this.viewRect.height - this.toolRect.height;
+      // NOTE: viewWidth/viewHeigg
       const viewWidth = this.viewRect.width;
-      console.log(`${this.cstrName}.updateDimensions() ${viewWidth}x${viewHeight}`);
+      const viewHeight = this.viewRect.height - this.toolRect.height;
+      const innerWidth = window.innerWidth - MEMEStyles.DRAWER_WIDTH;
+      const innerHeight = window.innerHeight - this.toolRect.height;
 
       this.setState({
-        viewHeight,
-        viewWidth
+        viewWidth: Math.min(viewWidth, innerWidth),
+        viewHeight: Math.min(viewHeight, innerHeight)
       });
-    }, 1000);
+    }, 150);
   }
 
   render() {
     const { classes } = this.props;
-    console.log(`${this.cstrName}.render() size ${this.state.viewWidth}x${this.state.viewHeight}`);
+    if (DBG)
+      console.log(
+        `${this.cstrName}.render() size ${this.state.viewWidth}x${this.state.viewHeight}`
+      );
     return (
       <div className={classes.root}>
         <CssBaseline />
@@ -126,7 +136,6 @@ class ViewMain extends React.Component {
             ref={this.refView}
             style={{ height: this.state.viewHeight }}
           >
-            {' '}
             <Switch>
               <Route
                 path="/:mode"

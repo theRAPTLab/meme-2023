@@ -1,5 +1,4 @@
 // routed view is just a box holding the real view
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import Canvas from '../components/Canvas';
@@ -8,17 +7,23 @@ import CytosView from '../components/CytoView';
 import SVGView from '../components/SVGView';
 import DB from './models/prototype.model';
 
+const DBG = false;
+
 class RoutedView extends React.Component {
   constructor(props) {
     super(props);
     this.cstrName = this.constructor.name;
     this.routedComponent = React.createRef();
-    console.log(`${this.cstrName}.contructor() ${this.props.viewWidth}x${this.props.viewHeight}`);
+    if (DBG)
+      console.log(`${this.cstrName}.contructor() ${this.props.viewWidth}x${this.props.viewHeight}`);
   }
 
   render() {
     let { mode } = this.props.match.params;
-    console.log(`${this.cstrName}.render() props ${this.props.viewWidth}x${this.props.viewHeight}`);
+    if (DBG)
+      console.log(
+        `${this.cstrName}.render() props ${this.props.viewWidth}x${this.props.viewHeight}`
+      );
     // OVERRIDE UNDEFINED DEFAULT
     if (mode === undefined) mode = 'svg';
     //

@@ -21,17 +21,19 @@ class SVGView extends React.Component {
     this.cstrName = this.constructor.name;
     this.refContainer = React.createRef();
     this.Draw = null; // assigned in componentDidMount
-    console.log(
-      `${this.cstrName}.constructor() state width ${this.props.viewWidth}x${this.props.viewHeight}`
-    );
+    if (DBG)
+      console.log(
+        `${this.cstrName}.constructor() state width ${this.props.viewWidth}x${
+          this.props.viewHeight
+        }`
+      );
   }
 
   componentDidMount() {
-    // this view is assumed to be passed the size of its containing div
-    console.log(`${this.cstrName}.componentDidMount()`);
     // create SVG element attached to refContainer
     this.Draw = SVG(this.refContainer.current);
-    this.DrawTestScene();
+    if (this.props.viewWidth && this.props.viewHeight) this.DrawTestScene();
+    else if (DBG) console.log(`${this.cstrName}.componentDidMount() skip draw on first mount`);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -43,16 +45,18 @@ class SVGView extends React.Component {
         return;
       }
       const prompt = `${this.cstrName}.componentDidUpdate()`;
-      console.log(
-        `%c${prompt} props ${this.props.viewWidth} ${this.props.viewHeight}`,
-        `color:blue`
-      );
+      if (DBG)
+        console.log(
+          `%c${prompt} props ${this.props.viewWidth} ${this.props.viewHeight}`,
+          `color:blue`
+        );
       this.DrawTestScene(this.props.viewWidth, this.props.viewHeight);
     }
   }
 
-  DrawTestScene(width = 100, height = 100) {
-    this.Draw.clear();
+  DrawTestScene(w, h) {
+    const width = w || this.props.viewWidth;
+    const height = h || this.props.viewHeight;
     const pad = 25;
     const ww = width - pad - pad;
     const hh = height - pad - pad;
@@ -62,7 +66,7 @@ class SVGView extends React.Component {
   }
 
   render() {
-    if (DBG.dimensions)
+    if (DBG)
       console.log(
         `${this.cstrName}.render() props ${this.props.viewWidth}x${this.props.viewHeight}`
       );

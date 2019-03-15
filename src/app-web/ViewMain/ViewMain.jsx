@@ -30,6 +30,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import RoutedView from './RoutedView';
 import MEMEStyles from '../components/MEMEStyles';
+import { cssblue, cssreact } from '../modules/console-styles';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -42,7 +43,7 @@ class ViewMain extends React.Component {
   // constructor
   constructor(props) {
     super(props);
-    this.cstrName = this.constructor.name;
+    this.displayName = this.constructor.name;
     this.refMain = React.createRef();
     this.refToolbar = React.createRef();
     this.refView = React.createRef();
@@ -52,7 +53,7 @@ class ViewMain extends React.Component {
   }
 
   componentDidMount() {
-    console.log(`<${this.cstrName}> mounted`);
+    console.log(`%ccomponentDidMount()`, cssreact);
     //
     this.updateDimensions();
     //
@@ -87,9 +88,7 @@ class ViewMain extends React.Component {
   render() {
     const { classes } = this.props;
     if (DBG)
-      console.log(
-        `${this.cstrName}.render() size ${this.state.viewWidth}x${this.state.viewHeight}`
-      );
+      console.log(`%crender() size ${this.state.viewWidth}x${this.state.viewHeight}`, cssreact);
     return (
       <div className={classes.root}>
         <CssBaseline />

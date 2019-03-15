@@ -4,7 +4,6 @@
     pure non-REACT module
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
-import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
 import SVG from '@svgdotjs/svg.js/src/svg';
 import '@svgdotjs/svg.draggable.js';
 

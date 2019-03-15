@@ -30,8 +30,10 @@
     "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
     "no-underscore-dangle": "off",
     "no-plusplus": "off",
-    "prefer-const": "warn",
-    "prefer-destructuring": "warn"
+    "prefer-const": "off",
+    "prefer-destructuring": "off",
+    "class-methods-use-this": "off",
+    "no-param-reassign": "warn"
   },
   "settings": {
     "import/parsers": {

@@ -13,7 +13,7 @@ import SVG from '@svgdotjs/svg.js/src/svg';
 import '@svgdotjs/svg.draggable.js';
 import GraphLib from '@dagrejs/graphlib';
 import { PMCView, DATA } from '../modules/pmc-viewgraph';
-import { cssinfo, cssdraw } from '../modules/console-styles';
+import { cssblue, cssreact } from '../modules/console-styles';
 
 const DBG = true;
 
@@ -29,9 +29,8 @@ class SVGView extends React.Component {
     this.Draw = null; // assigned in componentDidMount
     if (DBG)
       console.log(
-        `${this.displayName}.constructor() state width ${this.props.viewWidth}x${
-          this.props.viewHeight
-        }`
+        `%cconstructor() state width ${this.props.viewWidth}x${this.props.viewHeight}`,
+        cssreact
       );
 
     DATA.LoadGraph();

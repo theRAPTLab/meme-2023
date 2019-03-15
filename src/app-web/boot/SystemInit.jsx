@@ -18,10 +18,11 @@ import { HashRouter, Route, Link, withRouter } from 'react-router-dom';
 import TSV from './ts-validator-web';
 import SystemShell from './SystemShell';
 import SystemRoutes from './SystemRoutes';
+import { cssblue, cssreset } from '../modules/console-styles';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 
 /// SYSTEM-WIDE LANGUAGE EXTENSIONS ///////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -59,7 +60,7 @@ function SetLifecycleScope() {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function Init() {
   document.addEventListener('DOMContentLoaded', () => {
-    console.log('%cINIT %cDOMContentLoaded. Starting URSYS Lifecycle!', 'color:blue', 'color:auto');
+    if (DBG) console.log('%cINIT %cDOMContentLoaded. Starting URSYS Lifecycle!', cssblue, cssreset);
     // determine current scope of running app based on path
     // so URSYS will not execute lifecycle phases in any module
     // that exists outside those key directories
@@ -88,14 +89,15 @@ function Init() {
         </HashRouter>,
         document.getElementById('app-container'),
         () => {
-          console.log('%cINIT %cReactDOM.render() complete', 'color:blue', 'color:auto');
+          if (DBG) console.log('%cINIT %cReactDOM.render() complete', 'color:blue', 'color:auto');
         }
       );
       // do other out-of-phase initialization
-      console.log(`%cINIT %c${TSV.TestTypescript()}`, 'color:blue', 'color:auto');
+      if (DBG) console.log(`%cINIT %c${TSV.TestTypescript()}`, 'color:blue', 'color:auto');
       // everything is done, system is running
-      console.log('%cINIT %cURSYS Lifecycle Initialization Complete', 'color:blue', 'color:auto');
-      console.groupEnd();
+      if (DBG)
+        console.log('%cINIT %cURSYS Lifecycle Initialization Complete', 'color:blue', 'color:auto');
+      if (DBG) console.groupEnd();
     })();
   });
 }

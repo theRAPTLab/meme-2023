@@ -3,8 +3,11 @@
   prototype model based on dagresjs/graphlib
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
+
 import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
-import { cssinfo, cssdraw } from './console-styles';
+import { cssinfo, cssreset } from './console-styles';
+
+/// INITIALIZATION ////////////////////////////////////////////////////////////
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -14,6 +17,7 @@ let arr_components = []; // top-level props with no parents
 let map_children = new Map(); // children array of each prop by id
 let map_outedges = new Map(); // outedges array of each prop by id
 
+const DBG = false;
 const DATA = {};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -74,6 +78,8 @@ DATA.UpdateViewModel = () => {
     });
     map_outedges.set(n, arr);
   });
+  if (!DBG) return;
+  console.group('%cUpdateViewModel()%c Nodes and Edges', cssinfo, cssreset);
   console.log(`arr_components`, arr_components);
   console.log(`map_children`, map_children);
   console.log(`map_outedges`, map_outedges);
@@ -89,6 +95,7 @@ DATA.UpdateViewModel = () => {
     console.log(`component ${id} size ${m_RecurseChildren(id)}`);
   });
   // calculate size of component based on all nested children};
+  console.groupEnd();
 };
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////

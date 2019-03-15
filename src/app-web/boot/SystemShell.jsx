@@ -9,11 +9,13 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
 
 /// SYSTEM ROUTES /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import SystemRoutes from './SystemRoutes';
+import { cssblue, cssreact } from '../modules/console-styles';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -32,10 +34,11 @@ class SystemShell extends React.Component {
   }
 
   componentDidMount() {
-    console.log(`<${this.constructor.name}> mounted`);
+    console.log(`%ccomponentDidMount()`, cssreact);
   }
 
   render() {
+    const classes = this.props.classes;
     // omg an error???
     if (this.state.hasError) {
       return (
@@ -55,6 +58,20 @@ class SystemShell extends React.Component {
     );
   }
 }
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// default props are expect properties that we expect
+/// and are declared for validation
+SystemShell.defaultProps = {
+  classes: {}
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// propTypes are declared. Note "vague" propstypes are
+/// disallowed by eslint, so use shape({ prop:ProtType })
+/// to describe them in more detail
+SystemShell.propTypes = {
+  classes: PropTypes.shape({})
+};
 
 /// EXPORT REACT CLASS ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

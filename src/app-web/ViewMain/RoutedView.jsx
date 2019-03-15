@@ -6,7 +6,7 @@ import D3SVG from '../components/D3SVG';
 import CytosView from '../components/CytoView';
 import SVGView from '../components/SVGView';
 import PaperView from '../components/PaperView';
-import DB from './models/prototype.model';
+import DB from '../modules/prototype.model';
 
 const DBG = false;
 

@@ -83,39 +83,21 @@ DATA.UpdateViewModel = () => {
   console.log(`arr_components`, arr_components);
   console.log(`map_children`, map_children);
   console.log(`map_outedges`, map_outedges);
-  /*\
-     * to draw the container structure, perhaps
-     * start with the parents and distribute them in available space.
-     *
-    \*/
-  const numComponents = arr_components.length;
-  console.log(`%cDrawing ${numComponents} arr_components`, cssinfo);
-  // calculate size of a container by counting children
-  arr_components.forEach(id => {
-    console.log(`component ${id} size ${m_RecurseChildren(id)}`);
-  });
-  // calculate size of component based on all nested children};
   console.groupEnd();
 };
-
-/// PRIVATE HELPERS ///////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function m_RecurseChildren(id) {
-  let s = 10;
-  const children = map_children.get(id) || [];
-  children.forEach(child => {
-    s += m_RecurseChildren(child);
-  });
-  return s;
-}
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-/// INITIALIZATION ////////////////////////////////////////////////////////////
+DATA.Components = () => {
+  return arr_components;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+DATA.Children = id => {
+  return map_children.get(id) || [];
+};
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -39,29 +39,27 @@ class SVGView extends React.Component {
   componentDidMount() {
     // create SVG element attached to refContainer
     PMCView.MountSVG(this.refContainer.current);
-    if (this.props.viewWidth && this.props.viewHeight) PMCView.DrawTestScene();
-    else if (DBG) console.log(`${this.displayName}.componentDidMount() skip draw on first mount`);
+    if (this.props.viewWidth && this.props.viewHeight) {
+      PMCView.Update({ w: this.props.viewWidth, h: this.props.viewHeight });
+      PMCView.DrawComponents();
+    } else if (DBG) console.log(`%ccomponentDidMount() skip draw`, cssreact);
   }
 
   componentDidUpdate(prevProps, prevState) {
     let dimChanged = prevProps.viewWidth !== this.viewWidth;
     dimChanged = dimChanged || prevProps.viewHeight !== this.viewHeight;
     if (dimChanged) {
-      const prompt = `${this.displayName}.componentDidUpdate()`;
+      const prompt = `componentDidUpdate()`;
       if (DBG)
-        console.log(
-          `%c${prompt} props ${this.props.viewWidth} ${this.props.viewHeight}`,
-          `color:blue`
-        );
-      PMCView.DrawSystemDiagram(this.props.viewWidth, this.props.viewHeight);
+        console.log(`%c${prompt} props ${this.props.viewWidth} ${this.props.viewHeight}`, cssreact);
+      PMCView.Update({ w: this.props.viewWidth, h: this.props.viewHeight });
+      PMCView.DrawComponents(this.props.viewWidth, this.props.viewHeight);
     }
   }
 
   render() {
     if (DBG)
-      console.log(
-        `${this.displayName}.render() props ${this.props.viewWidth}x${this.props.viewHeight}`
-      );
+      console.log(`%crender() props ${this.props.viewWidth}x${this.props.viewHeight}`, cssreact);
     // returns a root svg that is the PARENT of the SVGJS-created draw surface
     return (
       <svg ref={this.refContainer} width={this.props.viewWidth} height={this.props.viewHeight} />

@@ -17,18 +17,36 @@ import { cssinfo, cssdraw } from './console-styles';
 const PMC = {};
 let m_element;
 let m_draw;
+let m_width;
+let m_height;
+
+/// PRIVATE HELPERS ///////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function m_RecurseChildren(id) {
+  let s = 10;
+  const children = DATA.Children(id);
+  children.forEach(child => {
+    s += m_RecurseChildren(child);
+  });
+  return s;
+}
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMC.Update = config => {
+  const { w, h } = config;
+  if (w) m_width = w;
+  if (h) m_height = h;
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMC.MountSVG = element => {
   m_element = element;
   m_draw = SVG(m_element);
 };
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMC.DrawTestScene = (w, h) => {
-  const width = w || this.props.viewWidth;
-  const height = h || this.props.viewHeight;
+  const width = w || m_width;
+  const height = h || m_height;
   const pad = 25;
   const ww = width - pad - pad;
   const hh = height - pad - pad;
@@ -39,11 +57,27 @@ PMC.DrawTestScene = (w, h) => {
   const rect = m_draw.rect(ww, hh).attr({ fill: '#f06' });
   rect.move(pad, pad);
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMC.DrawComponents = () => {
+  // PMC.DrawTestScene();
+  const components = DATA.Components();
+  /*\
+     * to draw the container structure, perhaps
+     * start with the parents and distribute them in available space.
+     *
+    \*/
+  const numComponents = components.length;
+  console.log(`%cDrawing ${numComponents} arr_components`, cssinfo);
+  // calculate size of a container by counting children
+  components.forEach(id => {
+    console.log(`component ${id} size ${m_RecurseChildren(id)}`);
+  });
+  // calculate size of component based on all nested children};
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMC.DrawSystemDiagram = (w, h) => {
-  const width = w || this.props.viewWidth;
-  const height = h || this.props.viewHeight;
+  const width = w || m_width;
+  const height = h || m_height;
   // clear screen then drawnpm
   m_draw.clear();
   console.log(`%cDrawSystemDiagram() ${width} ${height}`, cssdraw);

@@ -55,11 +55,11 @@ class SVGView extends React.Component {
   DoAppLoop() {
     // LIFECYCLE: handle inputs, event changes, pending changes, add/remove lists
     // in preparation for handling subsequent phases
-    PMCView.CollectChanges();
+    PMCView.CalculateChanges();
     // LIFECYCLE: update critical lists, element states, data
     PMCView.UpdateModel();
     // LIFECYCLE: Update the underlying viewmodel from data
-    PMCView.UpdateViewModel({ w: this.props.viewWidth, h: this.props.viewHeight });
+    PMCView.UpdateViewModel();
     // LIFECYCLE: Handle visual updates
     PMCView.UpdateView();
   }

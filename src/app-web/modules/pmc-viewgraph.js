@@ -16,6 +16,8 @@ import { cssinfo, cssdraw } from './console-styles';
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PMC = {};
+const map_props = new Map(); // our property viewmodel
+const map_mechs = new Map(); // our mechanism viewmodel
 let m_element;
 let m_draw;
 let m_width;
@@ -211,16 +213,52 @@ PMC.DrawComponent = nodeId => {
   // node should have data that looks like
 };
 
+/// LIFECYCLE /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMC.CollectChanges = () => {
-  console.log('CollectChanges() unimplemented');
+/*/
+Get user inputs (external buttons, clcks, keypresses) and convert physical
+controls like "up arrow" into app-domain intentions "move piece up"
+/*/
+PMC.GetIntent = () => {
+  console.log('GetIntent() unimplemented');
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*/
+Based on intentions, update current mode settings that will affect later
+processing stages
+/*/
+PMC.SyncModeSettings = () => {
+  console.log('SyncModeSettings() unimplemented');
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*/
+Collects queued change requests (actions, inputs) and figures out how to
+handle them in the right order. These changes are then stored in collections
+to be processed by UpdateModel().
+/*/
+PMC.CalculateChanges = () => {
+  console.log('CalculateChanges()');
+  let { added, removed, updated } = DATA.CompareProps(map_props);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*/
+Update the data model. For PMCViewGraph, this lifecycle event probably doesn't
+do anything because that is PMCDataGraph's responsibility.
+/*/
 PMC.UpdateModel = () => {
   console.log('UpdateModel() unimplemented');
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*/
+Fetch the model data and transform it into our ViewModel data structures
+/*/
 PMC.UpdateViewModel = () => {
   console.log('UpdateViewModel() unimplemented');
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*/
+Draw the model data by calling draw commands on everything. Also update.
+/*/
 PMC.UpdateView = () => {
   console.log('UpdateView() unimplemented');
 };

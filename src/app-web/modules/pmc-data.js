@@ -5,7 +5,7 @@
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
-import { cssinfo, cssreset } from './console-styles';
+import { cssinfo, cssreset, cssdata } from './console-styles';
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 
@@ -44,11 +44,11 @@ DATA.LoadGraph = () => {
   const cleanGraphObj = GraphJSON.write(g);
   const json = JSON.stringify(cleanGraphObj);
   m_graph = GraphJSON.read(JSON.parse(json));
-  DATA.UpdateViewModel();
+  DATA.BuildModel();
 }; // LoadGraph()
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.UpdateViewModel = () => {
+DATA.BuildModel = () => {
   // test graphlib
   arr_props = m_graph.nodes(); // returns ids of nodes
   arr_components = [];
@@ -79,7 +79,7 @@ DATA.UpdateViewModel = () => {
     map_outedges.set(n, arr);
   });
   if (!DBG) return;
-  console.group('%cUpdateViewModel()%c Nodes and Edges', cssinfo, cssreset);
+  console.group('%cBuildModel()%c Nodes and Edges', cssinfo, cssreset);
   console.log(`arr_components`, arr_components);
   console.log(`map_children`, map_children);
   console.log(`map_outedges`, map_outedges);
@@ -102,8 +102,27 @@ DATA.Children = id => {
 DATA.HasProp = id => {
   return m_graph.hasNode(id);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.Prop = id => {
   return m_graph.node(id);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+DATA.CompareProps = map_props => {
+  // remember that arr_props is an array of string ids, not objects
+  // therefore the returned arrays have values, not references! yay!
+  const added = [];
+  const updated = [];
+  const removed = [];
+  // find what matches and what is new
+  arr_props.forEach(id => {
+    if (map_props.has(id)) updated.push(id);
+    else added.push(id);
+  });
+  // removed array is whatever is in original keys - updated
+  map_props.forEach((val, id) => {
+    if (!updated.includes(id)) removed.push(id);
+  });
+  return { added, removed, updated };
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

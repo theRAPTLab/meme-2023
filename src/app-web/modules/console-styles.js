@@ -4,6 +4,8 @@
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const cssur = 'color:pink;background-color:#909;padding:0 4px';
+const cssuri = 'color:#000;background-color:#fcf;padding:0 4px';
 const cssinfo = 'color:#00f;background-color:#cdf;padding:0 4px';
 const cssreact = 'color:#080;background-color:#cfc;padding:0 4px';
 const cssalert = 'color:black;background-color:#ffdd99;padding:0 4px';
@@ -37,4 +39,4 @@ function Q(str, delim = '[') {
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export { Q, cssinfo, cssdraw, cssdata, cssreact, cssblue, cssreset, cssalert };
+export { Q, cssinfo, cssdraw, cssdata, cssreact, cssblue, cssreset, cssalert, cssur, cssuri };

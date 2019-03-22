@@ -20,7 +20,7 @@ import TSV from './ts-validator-web';
 import SystemShell from './SystemShell';
 import SystemRoutes from './SystemRoutes';
 import UR from '../../system/ursys';
-import { cssblue, cssreset } from '../modules/console-styles';
+import { cssblue, cssinfo, cssreset, cssur, cssuri } from '../modules/console-styles';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -70,7 +70,7 @@ function Init() {
   );
   // initialize app when DOM is completely resolved
   document.addEventListener('DOMContentLoaded', () => {
-    if (DBG) console.log('%cINIT %cDOMContentLoaded. Starting URSYS Lifecycle!', cssblue, cssreset);
+    if (DBG) console.log('%cINIT %cDOMContentLoaded. Starting URSYS Lifecycle!', cssur, cssreset);
     // determine current scope of running app based on path
     // so URSYS will not execute lifecycle phases in any module
     // that exists outside those key directories
@@ -99,12 +99,8 @@ function Init() {
         </HashRouter>,
         document.getElementById('app-container'),
         () => {
-          if (DBG)
-            console.log(
-              '%cINIT %cReactDOM.render() complete. Firing WINDOW:RESIZE event',
-              'color:blue',
-              'color:auto'
-            );
+          console.log('%cURSYS: COMPOSED', cssur);
+          console.log('%cURSYS: Firing WINDOW:RESIZE event to size non-REACT components.', cssuri);
           UR.Publish('WINDOW:RESIZE');
         }
       );

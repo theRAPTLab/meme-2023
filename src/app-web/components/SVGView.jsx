@@ -26,22 +26,20 @@ class SVGView extends React.Component {
     this.displayName = this.constructor.name;
     //
     this.refContainer = React.createRef();
-    this.Draw = null; // assigned in componentDidMount
     if (DBG)
       console.log(
         `%cconstructor() state width ${this.props.viewWidth}x${this.props.viewHeight}`,
         cssreact
       );
-
+    // LIFECYCLE: Initialize DataGraph
     DATA.LoadGraph();
   }
 
   componentDidMount() {
-    // create SVG element attached to refContainer
-    PMCView.MountSVG(this.refContainer.current);
+    // LIFECYCLE: Initialize ViewGraph
+    PMCView.InitializeViewgraph(this.refContainer.current);
     if (this.props.viewWidth && this.props.viewHeight) {
-      PMCView.Update({ w: this.props.viewWidth, h: this.props.viewHeight });
-      PMCView.DrawComponents();
+      this.InputUpdateDraw();
     } else if (DBG) console.log(`%ccomponentDidMount() skip draw`, cssreact);
   }
 
@@ -52,9 +50,17 @@ class SVGView extends React.Component {
       const prompt = `componentDidUpdate()`;
       if (DBG)
         console.log(`%c${prompt} props ${this.props.viewWidth} ${this.props.viewHeight}`, cssreact);
-      PMCView.Update({ w: this.props.viewWidth, h: this.props.viewHeight });
-      PMCView.DrawComponents(this.props.viewWidth, this.props.viewHeight);
+      this.InputUpdateDraw();
     }
+  }
+
+  InputUpdateDraw() {
+    // LIFECYCLE: CheckInputs
+    PMCView.UpdateComponentLists();
+    // LIFECYCLE: Update
+    PMCView.UpdateComponents({ w: this.props.viewWidth, h: this.props.viewHeight });
+    // LIFECYCLE: Draw
+    PMCView.DrawComponents();
   }
 
   render() {

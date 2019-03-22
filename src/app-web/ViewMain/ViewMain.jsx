@@ -69,6 +69,10 @@ class ViewMain extends React.Component {
     /*/
     Material UI uses FlexBox, and our content
     /*/
+    if (DBG) {
+      console.clear();
+      console.info('BROWSER RESIZE');
+    }
     setTimeout(() => {
       this.viewRect = this.refMain.current.getBoundingClientRect();
       this.toolRect = this.refToolbar.current.getBoundingClientRect();

@@ -10,8 +10,8 @@ import '@svgdotjs/svg.draggable.js';
 /// MODULES ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import DATA from './pmc-data';
-import VGComponent from './vg-component';
-import { cssinfo, cssdraw } from './console-styles';
+import VGProperties from './vg-properties';
+import { cssinfo, cssdraw, csstab, csstab2 } from './console-styles';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -19,10 +19,11 @@ const PMC = {};
 const map_props = new Map(); // our property viewmodel
 const map_mechs = new Map(); // our mechanism viewmodel
 let m_element;
-let m_draw;
+let m_svgroot;
 let m_width;
 let m_height;
 const COL_BG = '#F06';
+const DBG = true;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -36,7 +37,7 @@ function m_RecurseChildren(id) {
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function m_MakePropElement(name = '<unknown>') {
-  const prop = m_draw.group();
+  const prop = m_svgroot.group();
   const rect = prop
     .rect(10, 10)
     .fill(COL_BG)
@@ -109,7 +110,7 @@ PMC.UpdateComponents = config => {
 /*/
 PMC.InitializeViewgraph = element => {
   m_element = element;
-  m_draw = SVG(m_element);
+  m_svgroot = SVG(m_element);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMC.DrawTestScene = (w, h) => {
@@ -121,19 +122,14 @@ PMC.DrawTestScene = (w, h) => {
   //
   console.log(`%cdrawing ${ww} ${hh}`, cssdraw);
   //
-  m_draw.clear();
-  const rect = m_draw.rect(ww, hh).attr({ fill: '#f06' });
+  m_svgroot.clear();
+  const rect = m_svgroot.rect(ww, hh).attr({ fill: '#f06' });
   rect.move(pad, pad);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMC.DrawComponents = () => {
   // PMC.DrawTestScene();
   const components = DATA.Components();
-  /*\
-     * simple version to start
-     * drawing a component
-     *
-    \*/
   const num = components.length;
   console.log(`%cDrawing ${num} arr_components`, cssinfo);
   // calculate size of a container by counting children
@@ -145,7 +141,7 @@ PMC.DrawComponents = () => {
     const width = 100 + gap + gap;
     const height = m_RecurseChildren(id) + gap + gap;
     const gComponent = m_DrawComponent(id, ancx, ancy);
-    // const rect = m_draw.rect(width, height).attr({ fill: '#f06' });
+    // const rect = m_svgroot.rect(width, height).attr({ fill: '#f06' });
     // rect.move(ancx, ancy);
     ancy += height + gap;
   });
@@ -170,7 +166,7 @@ PMC.DrawSystemDiagram = (w, h) => {
   const width = w || m_width;
   const height = h || m_height;
   // clear screen then drawnpm
-  m_draw.clear();
+  m_svgroot.clear();
   console.log(`%cDrawSystemDiagram() ${width} ${height}`, cssdraw);
   const xx = 100;
   const yy = 200;
@@ -188,13 +184,13 @@ PMC.DrawSystemDiagram = (w, h) => {
     .cy(p2.y);
   // draw bezier
   const up = 150;
-  const mech = m_draw
+  const mech = m_svgroot
     .path(`M${p1.x},${p1.y} C${p1.x},${p1.y - up} ${p2.x},${p2.y - up} ${p2.x},${p2.y}`)
     .back()
     .fill('none')
     .stroke({ width: 4, color: 'orange', dasharray: '4 2' });
   // draw label
-  const label = m_draw.text(add => {
+  const label = m_svgroot.text(add => {
     add.tspan('mechanism');
   });
   //
@@ -216,55 +212,89 @@ PMC.DrawComponent = nodeId => {
 /// LIFECYCLE /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
-Get user inputs (external buttons, clcks, keypresses) and convert physical
-controls like "up arrow" into app-domain intentions "move piece up"
+ *  Get user inputs (external buttons, clcks, keypresses) and convert physical
+ *  controls like "up arrow" into app-domain intentions "move piece up"
 /*/
 PMC.GetIntent = () => {
   console.log('GetIntent() unimplemented');
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
-Based on intentions, update current mode settings that will affect later
-processing stages
+ *  Based on intentions, update current mode settings that will affect later
+ *  processing stages
 /*/
 PMC.SyncModeSettings = () => {
   console.log('SyncModeSettings() unimplemented');
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
-Collects queued change requests (actions, inputs) and figures out how to
-handle them in the right order. These changes are then stored in collections
-to be processed by UpdateModel().
+ *  Collects queued change requests (actions, inputs) and figures out how to
+ *  handle them in the right order. These changes are then stored in collections
+ *  to be processed by UpdateModel().
 /*/
 PMC.CalculateChanges = () => {
-  console.log('CalculateChanges()');
+  if (DBG) console.log(`%cCalculateChanges()`, cssinfo);
   let { added, removed, updated } = DATA.CompareProps(map_props);
+  removed.forEach(id => {
+    VGProperties.Release(id);
+    map_props.delete(id);
+  });
+  added.forEach(id => {
+    const vprop = VGProperties.New(id, m_svgroot);
+    map_props.set(id, vprop);
+  });
+  updated.forEach(id => {
+    VGProperties.Update(id);
+  });
+  if (DBG) {
+    if (removed.length) console.log(`%cRemoving ${removed.length} dead nodes`, csstab);
+    if (added.length) console.log(`%cAdding ${added.length} new nodes`, csstab);
+    if (updated.length) console.log(`%cUpdating ${updated.length} nodes`, csstab);
+  }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
-Update the data model. For PMCViewGraph, this lifecycle event probably doesn't
-do anything because that is PMCDataGraph's responsibility.
+ *  Update the data model. For PMCViewGraph, this lifecycle event probably doesn't
+*  do anything because that is PMCDataGraph's responsibility.
 /*/
 PMC.UpdateModel = () => {
-  console.log('UpdateModel() unimplemented');
+  console.log(`UpdateModel() unimplemented`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
-Fetch the model data and transform it into our ViewModel data structures
+*  Fetch the model data and transform it into our ViewModel data structures
 /*/
 PMC.UpdateViewModel = () => {
-  console.log('UpdateViewModel() unimplemented');
+  console.log(`UpdateViewModel() unimplemented`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
 Draw the model data by calling draw commands on everything. Also update.
 /*/
 PMC.UpdateView = () => {
-  console.log('UpdateView() unimplemented');
+  console.log(`UpdateView() unimplemented`);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMC.VProp = id => {
+  if (typeof id !== 'string') throw Error('arg1 must be string');
+  if (!map_props.has(id)) throw Error(`vprop ${id} is not in map_props`);
+  return map_props.get(id);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+window.pmc = PMC;
+window.cc = PMC.CalculateChanges;
+// DEBUGGERY
+window.snn = (id, name) => {
+  DATA.Prop(id).name = name;
+  PMC.VProp(id).Update();
+  return DATA.Prop(id).name;
+};
+window.nn = id => {
+  return DATA(id).name;
+};
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

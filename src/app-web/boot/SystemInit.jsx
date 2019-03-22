@@ -46,26 +46,30 @@ function SetLifecycleScope() {
     return route.path === loc;
   });
   if (matches.length) {
-    if (DBG) console.log(`Lifecycle Module Scope is ${hash}`);
+    if (DBG) console.log(`%cLifecycle Module Scope is ${hash}`, cssuri);
     const { component } = matches[0];
     if (component.UMOD === undefined)
-      console.warn(`WARNING: root view '${loc}' has no UMOD property, so can not set URSYS scope`);
+      console.log(
+        `%cWARNING: root view '${loc}' has no UMOD property, so can not set URSYS scope`,
+        cssuri
+      );
     // SYSLOOP ccheckes the scope value when executing phases
     // const modscope = component.UMOD || '<undefined>/init.jsx';
     // URSYS.SetScope(modscope);
   } else {
-    console.warn(`SetLifecycleScope() could not match scope ${loc}`);
+    console.log(`%cSetLifecycleScope() no match for ${loc}`, cssuri);
   }
 }
 
 /// URSYS STARTUP /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function Init() {
+  console.log('%cURSYS: INITIALIZE', cssur);
   // handle window resize events through URSYS
   window.addEventListener(
     'resize',
     debounce(() => {
-      UR.Publish('WINDOW:RESIZE');
+      UR.Publish('WINDOW:SIZE');
     }, 500)
   );
   // initialize app when DOM is completely resolved
@@ -99,9 +103,9 @@ function Init() {
         </HashRouter>,
         document.getElementById('app-container'),
         () => {
-          console.log('%cURSYS: COMPOSED', cssur);
-          console.log('%cURSYS: Firing WINDOW:RESIZE event to size non-REACT components.', cssuri);
-          UR.Publish('WINDOW:RESIZE');
+          console.log('%cURSYS: START', cssur);
+          console.log('%cURSYS: Firing WINDOW:SIZE', cssuri);
+          UR.Publish('WINDOW:SIZE');
         }
       );
       // do other out-of-phase initialization

@@ -78,6 +78,7 @@ DATA.BuildModel = () => {
     });
     map_outedges.set(n, arr);
   });
+
   if (!DBG) return;
   console.group('%cBuildModel()%c Nodes and Edges', cssinfo, cssreset);
   console.log(`arr_components`, arr_components);
@@ -107,7 +108,12 @@ DATA.Prop = id => {
   return m_graph.node(id);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.CompareProps = map_props => {
+/*/
+called by PMCViewGraph to figure out what is new in the datagraph
+compared to what it already has, so it can add/remove/update its
+visual components from the data
+/*/
+DATA.CompareProps = viewmodelPropMap => {
   // remember that arr_props is an array of string ids, not objects
   // therefore the returned arrays have values, not references! yay!
   const added = [];
@@ -115,15 +121,18 @@ DATA.CompareProps = map_props => {
   const removed = [];
   // find what matches and what is new
   arr_props.forEach(id => {
-    if (map_props.has(id)) updated.push(id);
+    if (viewmodelPropMap.has(id)) updated.push(id);
     else added.push(id);
   });
-  // removed array is whatever is in original keys - updated
-  map_props.forEach((val, id) => {
+  // removed ids exist in viewmodelPropMap but not in updated props
+  viewmodelPropMap.forEach((val, id) => {
     if (!updated.includes(id)) removed.push(id);
   });
   return { added, removed, updated };
 };
+
+/// INITIALIZATION ////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

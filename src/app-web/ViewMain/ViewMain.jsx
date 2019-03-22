@@ -49,7 +49,7 @@ class ViewMain extends React.Component {
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
-    UR.Sub('WINDOW:RESIZE', this.UpdateDimensions);
+    UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
   }
 
   componentDidMount() {
@@ -58,7 +58,7 @@ class ViewMain extends React.Component {
     // child components need to know the dimensions
     // of this component, but they are invalid until
     // the root component renders in SystemInit.
-    // SystemInit fires `WINDOW:RESIZE` to force the
+    // SystemInit fires `WINDOW:SIZE` to force the
     // relayout
   }
 

@@ -12,6 +12,8 @@ const cssalert = 'color:black;background-color:#ffdd99;padding:0 4px';
 const cssdraw = 'color:white;background-color:green;padding:0 4px';
 const cssdata = 'color:white;background-color:blue;padding:0 4px';
 const cssreset = 'color:auto;background-color:auto';
+const csstab = 'padding-left:4px';
+const csstab2 = 'padding-left:10px';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const cssblue = 'color:blue;';
 
@@ -39,4 +41,17 @@ function Q(str, delim = '[') {
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export { Q, cssinfo, cssdraw, cssdata, cssreact, cssblue, cssreset, cssalert, cssur, cssuri };
+export {
+  Q,
+  csstab,
+  csstab2,
+  cssinfo,
+  cssdraw,
+  cssdata,
+  cssreact,
+  cssblue,
+  cssreset,
+  cssalert,
+  cssur,
+  cssuri
+};

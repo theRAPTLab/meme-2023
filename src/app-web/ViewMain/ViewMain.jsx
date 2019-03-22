@@ -9,7 +9,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
-
+// Material UI Elements
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
@@ -22,7 +22,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
-import debounce from 'debounce';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -30,11 +29,11 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import RoutedView from './RoutedView';
 import MEMEStyles from '../components/MEMEStyles';
-import { cssblue, cssreact } from '../modules/console-styles';
+import UR from '../../system/ursys';
+import { cssblue, cssreact, cssdraw } from '../modules/console-styles';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 const DBG = false;
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -49,44 +48,41 @@ class ViewMain extends React.Component {
     this.refView = React.createRef();
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
-    this.updateDimensions = this.updateDimensions.bind(this);
+    this.UpdateDimensions = this.UpdateDimensions.bind(this);
+    UR.Sub('WINDOW:RESIZE', this.UpdateDimensions);
   }
 
   componentDidMount() {
     console.log(`%ccomponentDidMount()`, cssreact);
     //
-    this.updateDimensions();
-    //
-    window.addEventListener('resize', debounce(this.updateDimensions, 500));
-    // debug
-    window.xmain = this.refMain.current;
-    window.xtool = this.refToolbar.current;
-    window.xview = this.refView.current;
-    window.xdrawer = this.refDrawer.current;
+    // child components need to know the dimensions
+    // of this component, but they are invalid until
+    // the root component renders in SystemInit.
+    // SystemInit fires `WINDOW:RESIZE` to force the
+    // relayout
   }
 
-  updateDimensions() {
+  UpdateDimensions() {
     /*/
-    Material UI uses FlexBox, and our content
+    NOTE: Material UI uses FlexBox
+    we can insert a CSSGRID into here eventually
     /*/
     if (DBG) {
       console.clear();
-      console.info('BROWSER RESIZE');
+      console.info('WINDOW RESIZE');
     }
-    setTimeout(() => {
-      this.viewRect = this.refMain.current.getBoundingClientRect();
-      this.toolRect = this.refToolbar.current.getBoundingClientRect();
-      // NOTE: viewWidth/viewHeigg
-      const viewWidth = this.viewRect.width;
-      const viewHeight = this.viewRect.height - this.toolRect.height;
-      const innerWidth = window.innerWidth - MEMEStyles.DRAWER_WIDTH;
-      const innerHeight = window.innerHeight - this.toolRect.height;
+    this.viewRect = this.refMain.current.getBoundingClientRect();
+    this.toolRect = this.refToolbar.current.getBoundingClientRect();
+    // NOTE: viewWidth/viewHeigg
+    const viewWidth = this.viewRect.width;
+    const viewHeight = this.viewRect.height - this.toolRect.height;
+    const innerWidth = window.innerWidth - MEMEStyles.DRAWER_WIDTH;
+    const innerHeight = window.innerHeight - this.toolRect.height;
 
-      this.setState({
-        viewWidth: Math.min(viewWidth, innerWidth),
-        viewHeight: Math.min(viewHeight, innerHeight)
-      });
-    }, 150);
+    this.setState({
+      viewWidth: Math.min(viewWidth, innerWidth),
+      viewHeight: Math.min(viewHeight, innerHeight)
+    });
   }
 
   render() {

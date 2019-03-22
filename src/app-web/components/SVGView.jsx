@@ -13,7 +13,7 @@ import SVG from '@svgdotjs/svg.js/src/svg';
 import '@svgdotjs/svg.draggable.js';
 import GraphLib from '@dagrejs/graphlib';
 import { PMCView, DATA } from '../modules/pmc-viewgraph';
-import { cssblue, cssreact } from '../modules/console-styles';
+import { cssblue, cssreact, cssalert } from '../modules/console-styles';
 
 const DBG = true;
 
@@ -24,13 +24,9 @@ class SVGView extends React.Component {
   constructor(props) {
     super(props);
     this.displayName = this.constructor.name;
-    //
     this.refContainer = React.createRef();
-    if (DBG)
-      console.log(
-        `%cconstructor() state width ${this.props.viewWidth}x${this.props.viewHeight}`,
-        cssreact
-      );
+    // bindings
+    this.DoAppLoop = this.DoAppLoop.bind(this);
     // LIFECYCLE: Initialize DataGraph
     DATA.LoadGraph();
   }
@@ -39,8 +35,8 @@ class SVGView extends React.Component {
     // LIFECYCLE: Initialize ViewGraph
     PMCView.InitializeViewgraph(this.refContainer.current);
     if (this.props.viewWidth && this.props.viewHeight) {
-      this.InputUpdateDraw();
-    } else if (DBG) console.log(`%ccomponentDidMount() skip draw`, cssreact);
+      this.DoAppLoop();
+    } else if (DBG) console.log(`%ccomponentDidMount() skip draw`, cssalert);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -50,22 +46,33 @@ class SVGView extends React.Component {
       const prompt = `componentDidUpdate()`;
       if (DBG)
         console.log(`%c${prompt} props ${this.props.viewWidth} ${this.props.viewHeight}`, cssreact);
-      this.InputUpdateDraw();
+      this.DoAppLoop();
+      // DEBUG WINDOW UPDATE
+      // PMCView.DrawTestScene(this.props.viewWidth, this.props.viewHeight);
     }
   }
 
-  InputUpdateDraw() {
-    // LIFECYCLE: CheckInputs
-    PMCView.UpdateComponentLists();
-    // LIFECYCLE: Update
-    PMCView.UpdateComponents({ w: this.props.viewWidth, h: this.props.viewHeight });
-    // LIFECYCLE: Draw
-    PMCView.DrawComponents();
+  DoAppLoop() {
+    // LIFECYCLE: handle inputs, event changes, pending changes, add/remove lists
+    // in preparation for handling subsequent phases
+    PMCView.CollectChanges();
+    // LIFECYCLE: update critical lists, element states, data
+    PMCView.UpdateModel();
+    // LIFECYCLE: Update the underlying viewmodel from data
+    PMCView.UpdateViewModel({ w: this.props.viewWidth, h: this.props.viewHeight });
+    // LIFECYCLE: Handle visual updates
+    PMCView.UpdateView();
   }
 
   render() {
-    if (DBG)
-      console.log(`%crender() props ${this.props.viewWidth}x${this.props.viewHeight}`, cssreact);
+    // NOTE: on first render
+    // this.props.viewWidth and this.props.viewHeight will be 0
+    // because SystemInit needs to complete its entire rendering process
+    // for dimensions to begin valid
+    if (DBG) {
+      const css = this.props.viewWidth && this.props.viewHeight ? cssreact : cssalert;
+      console.log(`%crender() props ${this.props.viewWidth}x${this.props.viewHeight}`, css);
+    }
     // returns a root svg that is the PARENT of the SVGJS-created draw surface
     return (
       <svg ref={this.refContainer} width={this.props.viewWidth} height={this.props.viewHeight} />

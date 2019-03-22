@@ -15,9 +15,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { HashRouter, Route, Link, withRouter } from 'react-router-dom';
+import debounce from 'debounce';
 import TSV from './ts-validator-web';
 import SystemShell from './SystemShell';
 import SystemRoutes from './SystemRoutes';
+import UR from '../../system/ursys';
 import { cssblue, cssreset } from '../modules/console-styles';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
@@ -59,6 +61,14 @@ function SetLifecycleScope() {
 /// URSYS STARTUP /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function Init() {
+  // handle window resize events through URSYS
+  window.addEventListener(
+    'resize',
+    debounce(() => {
+      UR.Publish('WINDOW:RESIZE');
+    }, 500)
+  );
+  // initialize app when DOM is completely resolved
   document.addEventListener('DOMContentLoaded', () => {
     if (DBG) console.log('%cINIT %cDOMContentLoaded. Starting URSYS Lifecycle!', cssblue, cssreset);
     // determine current scope of running app based on path
@@ -89,7 +99,13 @@ function Init() {
         </HashRouter>,
         document.getElementById('app-container'),
         () => {
-          if (DBG) console.log('%cINIT %cReactDOM.render() complete', 'color:blue', 'color:auto');
+          if (DBG)
+            console.log(
+              '%cINIT %cReactDOM.render() complete. Firing WINDOW:RESIZE event',
+              'color:blue',
+              'color:auto'
+            );
+          UR.Publish('WINDOW:RESIZE');
         }
       );
       // do other out-of-phase initialization

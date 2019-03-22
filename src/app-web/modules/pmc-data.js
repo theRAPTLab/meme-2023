@@ -98,6 +98,13 @@ DATA.Components = () => {
 DATA.Children = id => {
   return map_children.get(id) || [];
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+DATA.HasProp = id => {
+  return m_graph.hasNode(id);
+};
+DATA.Prop = id => {
+  return m_graph.node(id);
+};
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

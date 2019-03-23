@@ -29,6 +29,7 @@
     "ajv": "^6.9.1",
     "babel-polyfill": "^6.26.0",
     "bootstrap": "^4.3.0",
+    "color": "^3.1.0",
     "cookie-parser": "^1.4.3",
     "copy-webpack-plugin": "^4.5.4",
     "cytoscape": "^3.4.2",

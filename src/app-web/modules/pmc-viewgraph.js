@@ -16,8 +16,8 @@ import { cssinfo, cssdraw, csstab, csstab2 } from './console-styles';
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PMC = {};
-const map_props = new Map(); // our property viewmodel
-const map_mechs = new Map(); // our mechanism viewmodel
+const map_vmprops = new Map(); // our property viewmodel data
+const map_vmmechs = new Map(); // our mechanism viewmodel data
 let m_element;
 let m_svgroot;
 let m_width;
@@ -26,15 +26,6 @@ const COL_BG = '#F06';
 const DBG = true;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function m_RecurseChildren(id) {
-  let s = 10;
-  const children = DATA.Children(id);
-  children.forEach(child => {
-    s += m_RecurseChildren(child);
-  });
-  return s;
-}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function m_MakePropElement(name = '<unknown>') {
   const prop = m_svgroot.group();
@@ -95,15 +86,18 @@ function m_UpdatePath() {
     textpath.attr('startOffset', mech.length() - blen);
   }
 }
+/** helper - set svg nesting of properties **/
+function u_NestProperties(propId) {
+  const children = DATA.Children(propId);
+  children.forEach(child => {
+    u_NestProperties(child);
+    VGProperties.SetParent(child, propId);
+  });
+  return { children };
+}
+
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMC.UpdateComponentLists = config => {};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMC.UpdateComponents = config => {
-  const { w, h } = config;
-  if (w) m_width = w;
-  if (h) m_height = h;
-};
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
     attach an SVG instance, managed by SVGJS, to the container element
@@ -112,55 +106,7 @@ PMC.InitializeViewgraph = element => {
   m_element = element;
   m_svgroot = SVG(m_element);
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMC.DrawTestScene = (w, h) => {
-  const width = w || m_width;
-  const height = h || m_height;
-  const pad = 25;
-  const ww = width - pad - pad;
-  const hh = height - pad - pad;
-  //
-  console.log(`%cdrawing ${ww} ${hh}`, cssdraw);
-  //
-  m_svgroot.clear();
-  const rect = m_svgroot.rect(ww, hh).attr({ fill: '#f06' });
-  rect.move(pad, pad);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMC.DrawComponents = () => {
-  // PMC.DrawTestScene();
-  const components = DATA.Components();
-  const num = components.length;
-  console.log(`%cDrawing ${num} arr_components`, cssinfo);
-  // calculate size of a container by counting children
-  let ancx = 75;
-  let ancy = 75;
-  const gap = 10;
-  //
-  components.forEach(id => {
-    const width = 100 + gap + gap;
-    const height = m_RecurseChildren(id) + gap + gap;
-    const gComponent = m_DrawComponent(id, ancx, ancy);
-    // const rect = m_svgroot.rect(width, height).attr({ fill: '#f06' });
-    // rect.move(ancx, ancy);
-    ancy += height + gap;
-  });
-  // calculate size of component based on all nested children}
-  // let's try drawing a bunch of rectangles
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function m_DrawComponent(id, ancx, ancy) {
-  /*\
-   * What is a component?
-   * it's a group of svg elements! make a group and stuff!
-   * then return the group with
-  \*/
-  const children = DATA.Children(id);
-  children.forEach(child => {
-    console.log(`drawing ${child}`);
-    // draw all the child nodes
-  });
-}
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMC.DrawSystemDiagram = (w, h) => {
   const width = w || m_width;
@@ -201,14 +147,6 @@ PMC.DrawSystemDiagram = (w, h) => {
   const textpath = label.path(mech).attr('startOffset', mech.length() - blen);
 };
 
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMC.DrawComponent = nodeId => {
-  if (typeof node !== 'string') {
-    console.log('expect string nodeId, not', nodeId);
-  }
-  // node should have data that looks like
-};
-
 /// LIFECYCLE /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
@@ -233,15 +171,15 @@ PMC.SyncModeSettings = () => {
  *  to be processed by UpdateModel().
 /*/
 PMC.CalculateChanges = () => {
-  if (DBG) console.log(`%cCalculateChanges()`, cssinfo);
-  let { added, removed, updated } = DATA.CompareProps(map_props);
+  if (DBG) console.groupCollapsed(`%cCalculateChanges()`, cssinfo);
+  const { added, removed, updated } = DATA.CompareProps(map_vmprops);
   removed.forEach(id => {
     VGProperties.Release(id);
-    map_props.delete(id);
+    map_vmprops.delete(id);
   });
   added.forEach(id => {
     const vprop = VGProperties.New(id, m_svgroot);
-    map_props.set(id, vprop);
+    map_vmprops.set(id, vprop);
   });
   updated.forEach(id => {
     VGProperties.Update(id);
@@ -250,35 +188,48 @@ PMC.CalculateChanges = () => {
     if (removed.length) console.log(`%cRemoving ${removed.length} dead nodes`, csstab);
     if (added.length) console.log(`%cAdding ${added.length} new nodes`, csstab);
     if (updated.length) console.log(`%cUpdating ${updated.length} nodes`, csstab);
+    console.groupEnd();
   }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
  *  Update the data model. For PMCViewGraph, this lifecycle event probably doesn't
-*  do anything because that is PMCDataGraph's responsibility.
+ *  do anything because that is PMCDataGraph's responsibility.
 /*/
 PMC.UpdateModel = () => {
   console.log(`UpdateModel() unimplemented`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
-*  Fetch the model data and transform it into our ViewModel data structures
+ *  rearrange properties into component hierarchies
 /*/
 PMC.UpdateViewModel = () => {
-  console.log(`UpdateViewModel() unimplemented`);
+  if (DBG) console.groupCollapsed(`%cUpdateViewModel()`, cssinfo);
+  const components = DATA.Components();
+  // components have NO CHILDREN
+  components.forEach(compId => {
+    VGProperties.SetRoot(compId);
+    const { children } = u_NestProperties(compId);
+  });
+  if (DBG) console.groupEnd();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
 Draw the model data by calling draw commands on everything. Also update.
 /*/
 PMC.UpdateView = () => {
-  console.log(`UpdateView() unimplemented`);
+  if (DBG) console.group(`%cUpdateView()`, cssinfo);
+  VGProperties.SizeToContents();
+  if (DBG) console.groupEnd();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMC.VProp = id => {
+/*/
+returns a data object
+/*/
+PMC.VMProp = id => {
   if (typeof id !== 'string') throw Error('arg1 must be string');
-  if (!map_props.has(id)) throw Error(`vprop ${id} is not in map_props`);
-  return map_props.get(id);
+  if (!map_vmprops.has(id)) throw Error(`vprop ${id} is not in map_vmprops`);
+  return map_vmprops.get(id);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -289,7 +240,7 @@ window.cc = PMC.CalculateChanges;
 // DEBUGGERY
 window.snn = (id, name) => {
   DATA.Prop(id).name = name;
-  PMC.VProp(id).Update();
+  PMC.VMProp(id).Update();
   return DATA.Prop(id).name;
 };
 window.nn = id => {

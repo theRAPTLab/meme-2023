@@ -12,14 +12,17 @@ import { cssinfo, cssreset, cssdata } from './console-styles';
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let m_graph; // dagresjs/graphlib instance
-let arr_props = []; // all properties
-let arr_components = []; // top-level props with no parents
-let map_children = new Map(); // children array of each prop by id
-let map_outedges = new Map(); // outedges array of each prop by id
+let a_props = []; // all properties
+//
+let a_components = []; // top-level props with no parents
+let h_children = new Map(); // children hash of each prop by id
+let h_outedges = new Map(); // outedges hash of each prop by id
 
-const DBG = false;
+const DBG = true;
+
+/// MODULE DECLARATION ////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DATA = {};
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.Graph = () => {
   return m_graph;
@@ -50,40 +53,40 @@ DATA.LoadGraph = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.BuildModel = () => {
   // test graphlib
-  arr_props = m_graph.nodes(); // returns ids of nodes
-  arr_components = [];
-  map_children = new Map(); // property children
-  map_outedges = new Map(); // outedges for each prop
+  a_props = m_graph.nodes(); // returns ids of nodes
+  a_components = [];
+  h_children = new Map(); // property children
+  h_outedges = new Map(); // outedges for each prop
   /*\
-     * arr_components is an array of ids of top-level props
-     * map_children maps prop ids to arrays of ids of child props,
+     * a_components is an array of ids of top-level props
+     * h_children maps prop ids to arrays of ids of child props,
      * including children of children
-     * map_outedges maps all the outgoing edges for a node
+     * h_outedges maps all the outgoing edges for a node
     \*/
-  arr_props.forEach(n => {
+  a_props.forEach(n => {
     const p = m_graph.parent(n);
     if (!p) {
-      arr_components.push(n);
+      a_components.push(n);
     }
     //
     const children = m_graph.children(n);
-    let arr = map_children.get(n);
+    let arr = h_children.get(n);
     if (arr) arr.push.apply(children);
-    else map_children.set(n, children);
+    else h_children.set(n, children);
     //
     const outedges = m_graph.outEdges(n); // an array of edge objects {v,w,name}
-    arr = map_outedges.get(n) || [];
+    arr = h_outedges.get(n) || [];
     outedges.forEach(key => {
       arr.push(key.w);
     });
-    map_outedges.set(n, arr);
+    h_outedges.set(n, arr);
   });
 
   if (!DBG) return;
-  console.group('%cBuildModel()%c Nodes and Edges', cssinfo, cssreset);
-  console.log(`arr_components`, arr_components);
-  console.log(`map_children`, map_children);
-  console.log(`map_outedges`, map_outedges);
+  console.groupCollapsed('%cBuildModel()%c Nodes and Edges', cssinfo, cssreset);
+  console.log(`arry a_components`, a_components);
+  console.log(`hash h_children`, h_children);
+  console.log(`hash h_outedges`, h_outedges);
   console.groupEnd();
 };
 
@@ -93,11 +96,11 @@ DATA.BuildModel = () => {
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.Components = () => {
-  return arr_components;
+  return a_components;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.Children = id => {
-  return map_children.get(id) || [];
+  return h_children.get(id) || [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.HasProp = id => {
@@ -114,13 +117,13 @@ compared to what it already has, so it can add/remove/update its
 visual components from the data
 /*/
 DATA.CompareProps = viewmodelPropMap => {
-  // remember that arr_props is an array of string ids, not objects
+  // remember that a_props is an array of string ids, not objects
   // therefore the returned arrays have values, not references! yay!
   const added = [];
   const updated = [];
   const removed = [];
   // find what matches and what is new
-  arr_props.forEach(id => {
+  a_props.forEach(id => {
     if (viewmodelPropMap.has(id)) updated.push(id);
     else added.push(id);
   });

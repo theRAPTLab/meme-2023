@@ -20,15 +20,18 @@ import { cssinfo, cssdraw, csstab, csstab2 } from './console-styles';
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const map_visuals = new Map();
-const m_width = 200;
-const m_height = 30;
+const m_minWidth = 200;
+const m_minHeight = 30;
 const m_pad = 5;
+const m_pad2 = m_pad * 2;
 const COL_BG = '#F06';
 const DIM_RADIUS = 3;
 
+const DBG = true;
+
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function m_VProp(id) {
+function m_GetVisual(id) {
   if (typeof id !== 'string') throw Error(`require string id`);
   const vprop = map_visuals.get(id);
   if (!vprop) throw Error(`vprop '${id}' not found`);
@@ -44,11 +47,16 @@ class VGProp {
     // basic display props
     this.id = propId;
     this.data = Object.assign({}, DATA.Prop(propId)); // copy, not reference
-    this.svgRoot = svgRoot.group();
-    this.svg = this.svgRoot.group();
+    this.visROOT = svgRoot.group(); // main container
+    this.visBGRECT = this.visROOT.rect(this.width, this.height); // background
+    this.visTITLE = this.visROOT.text(this.data.name); // label
+    this.visKIDS = this.visROOT.group(); // child components
+    //
     this.fill = COL_BG;
+    this.width = m_minWidth;
+    this.height = m_minHeight;
     // higher order display properties
-    this.svgRoot.draggable();
+    this.visROOT.draggable();
     this.dataDisplayMode = {}; // how to display data, what data to show/hide
     this.connectionPoints = []; // array of points available for mechanism connections
     this.highlightMode = {}; // how to display selection, subselection, hover
@@ -64,52 +72,66 @@ class VGProp {
 
   //
   Move(point) {
+    if (typeof point !== 'object') throw Error('arg must be {x,y} object');
     const { x, y } = point;
-    if (typeof x !== 'number') throw Error('arg1 x is not an number');
-    if (typeof y !== 'number') throw Error('arg2 y is not an number');
-    this.svg.move(x, y);
+    if (typeof x !== 'number') throw Error('x is not an number');
+    if (typeof y !== 'number') throw Error('y is not an number');
+    this.visROOT.move(x, y);
+  }
+
+  //
+  SetSize(w, h) {
+    this.width = w;
+    this.height = h;
+    this.visBGRECT.size(w, h);
+  }
+
+  // return the size requirment of the layout
+  GetInnerSize() {
+    const { w, h } = this.visTITLE.rbox();
+    return {
+      w: Math.ceil(w),
+      h: Math.ceil(h)
+    };
   }
 
   // drawing interface
   Draw(point) {
-    console.log(`drawing ${this.id}`);
-    this.svg.clear();
+    console.log(`drawing '${this.id}'`);
     // draw box
-    this.svg
-      .rect(m_width, m_height)
+    this.visBGRECT
       .fill({ color: this.fill, opacity: 0.5 })
       .stroke({ color: this.fill, width: 2 })
       .radius(DIM_RADIUS);
     // draw label
-    this.svg.text(this.data.name).move(10, 5);
+    this.visTITLE.move(10, 5);
     // move
-    if (point) this.svg.move(point.x, point.y);
+    if (point) this.visROOT.move(point.x, point.y);
   }
 
   // "destructor"
   Release() {
-    return this.svg.remove();
+    return this.visROOT.remove();
   }
 
   //
   ToParent(id) {
-    const vparent = m_VProp(id);
+    const vparent = m_GetVisual(id);
     console.log(`${this.id}.svg.toParent(${id})`);
-    return this.svg.toParent(vparent.svg);
+    return this.visROOT.toParent(vparent.visKIDS);
   }
 
   //
   AddTo(id) {
-    const vparent = m_VProp(id);
+    const vparent = m_GetVisual(id);
     console.log(`${this.id}.svg.addTo(${id})`);
-    this.svg.move(100, 100);
-    return this.svg.addTo(vparent.svg);
+    return this.visROOT.addTo(vparent.visKIDS);
   }
 
   //
   ToRoot() {
-    console.log(`${this.id}.svg.toRoot()`);
-    return this.svg.toRoot();
+    console.log(`%c${this.id}.svg.toRoot()`, `font-weight:bold`);
+    return this.visROOT.toRoot();
   }
 
   //
@@ -144,7 +166,7 @@ VGProperties.New = (id, svgRoot) => {
  *  De-allocate VGProp instance by id.
 /*/
 VGProperties.Release = id => {
-  const vprop = m_VProp(id);
+  const vprop = m_GetVisual(id);
   map_visuals.delete(id);
   return vprop.Release();
 };
@@ -153,7 +175,7 @@ VGProperties.Release = id => {
  *  Update instance from associated data id
 /*/
 VGProperties.Update = id => {
-  const vprop = m_VProp(id);
+  const vprop = m_GetVisual(id);
   vprop.Update();
   return vprop;
 };
@@ -165,10 +187,10 @@ VGProperties.Update = id => {
 VGProperties.SetParent = (id, parentId) => {
   if (!id) throw Error(`arg1 must be valid string id`);
   if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't set parent`);
-  const child = m_VProp(id);
+  const child = m_GetVisual(id);
   if (!parentId) return child.ToRoot();
   if (typeof parentId !== 'string') throw Error(`arg2 parentId must be a string`);
-  child.Move({ x: m_height + m_pad, y: m_height + m_pad });
+  child.Move({ x: m_minHeight + m_pad, y: m_minHeight + m_pad });
   return child.ToParent(parentId);
 };
 VGProperties.SetRoot = id => {
@@ -180,50 +202,61 @@ VGProperties.SetRoot = id => {
  *  based on their display state
 /*/
 VGProperties.SizeToContents = () => {
-  let x_counter = 1;
-  let y_counter = 1;
   const components = DATA.Components();
+  // then dp ;aupit
+  let xCounter = 0;
+  let highHeight = 0;
+  let yCounter = 0;
+
   // walk through all components
   components.forEach(id => {
-    const x = x_counter * (m_width + m_pad) + m_pad;
-    const y = y_counter * (m_height + m_pad) + m_pad;
-    if (++x_counter > 4) {
-      x_counter = 0;
-      ++y_counter;
+    // get the Visual
+    const visual = m_GetVisual(id);
+    console.group(`%chandling visual ${visual.id}`, cssinfo);
+    // first get the sizes of everything
+    const { w, h } = u_RecurseSize(id);
+    highHeight = Math.max(highHeight, h);
+    console.log(`component '${id}' size=[${w},${h}] to (${xCounter},${yCounter}) `);
+    visual.Move({ x: xCounter, y: yCounter });
+    visual.SetSize(w, h);
+    xCounter += w + m_pad;
+    if (xCounter > 700) {
+      yCounter += highHeight;
+      xCounter = 0;
+      highHeight = 0;
     }
-    const vprop = m_VProp(id);
-    console.log(`%chandling vprop ${id}`, cssinfo);
-    vprop.Move({ x, y });
-    const size = getSize(id);
-    console.log(`vprop size ${size[0]},${size[1]}`);
-
-    /** find size of children helper **/
-    function getSize(kId) {
-      const kids = DATA.Children(kId);
-      let level = 1;
-      const sizeArray = [];
-      // my size is based on size of children
-      // first get bounding box of each child
-      kids.forEach(kinder => {
-        const pad = level * 10;
-        const s = getSize(kinder); // returns [w,h]
-        console.log(`%ckid ${kinder} size [${s[0]},${s[1]}]`, `padding-left:${pad}px`);
-        sizeArray.push(s);
-        level += 1;
-      });
-      // now calculate my own size based on sizeArray
-      // first my size is...
-      const myWidth = 1;
-      const myHeight = myWidth * 2;
-      // second, include height,width of children
-      const width = sizeArray.length;
-      const height = width * 2;
-      //
-      return [myWidth + width, myHeight + height];
-    }
+    console.groupEnd();
   });
 };
-
+/** find size of children helper - returns size containing everything **/
+function u_RecurseSize(id) {
+  // set baseline size
+  const visual = m_GetVisual(id);
+  const vsize = visual.GetInnerSize();
+  // this is the size that will be returned + padding;
+  let w = Math.max(vsize.w, m_minWidth);
+  let h = Math.max(vsize.h, m_minHeight);
+  // for each kid, we need to add padding
+  const kids = DATA.Children(id);
+  // recurse through children
+  let level = 1;
+  kids.forEach(kid => {
+    const ksize = u_RecurseSize(kid);
+    w = Math.max(w, ksize.w + m_pad2);
+    h += ksize.h;
+    const p = { x: m_pad, y: h };
+    let padding = level * 6;
+    console.log(
+      `%cslotting '${kid}' size=[${ksize.w},${ksize.h}] to (${p.x},${p.y}) `,
+      `padding-left:${padding}px`
+    );
+    visual.Move(p);
+  });
+  level++;
+  // now calculate my own size based on label size + size of kids
+  visual.SetSize(w, h);
+  return { w, h };
+}
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 window.vgp = VGProperties;

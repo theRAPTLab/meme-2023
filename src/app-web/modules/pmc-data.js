@@ -37,8 +37,8 @@ DATA.LoadGraph = () => {
   g.setNode('e', { name: 'e node', data: { j: 5, k: 55, l: 555 } });
   g.setNode('f', { name: 'f node', data: { j: 6, k: 66, l: 667 } });
   g.setParent('c', 'a');
-  g.setParent('d', 'c');
   g.setParent('f', 'a');
+  g.setParent('d', 'b');
   g.setEdge('b', 'a', { name: 'b to a' });
   g.setEdge('b', 'd', { name: 'b to d' });
   g.setEdge('c', 'e', { name: 'c to e' });

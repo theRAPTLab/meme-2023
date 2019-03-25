@@ -53,6 +53,10 @@ class SVGView extends React.Component {
   }
 
   DoAppLoop() {
+    // TEST DRAWING
+    // PMCView.DrawSystemDiagram();
+    // PMCView.DrawRects();
+    //
     // LIFECYCLE: handle inputs, event changes, pending changes, add/remove lists
     // in preparation for handling subsequent phases
     PMCView.CalculateChanges();

@@ -30,10 +30,10 @@ const DBG = true;
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** helper - set svg nesting of properties **/
-function u_NestProperties(propId) {
+function u_MakeHierarchy(propId) {
   const children = DATA.Children(propId);
   children.forEach(child => {
-    u_NestProperties(child);
+    u_MakeHierarchy(child);
     VGProperties.SetParent(child, propId);
   });
   return { children };
@@ -110,14 +110,13 @@ PMC.UpdateModel = () => {
 /*/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     Draw the model data by calling draw commands on everything. Also update.
  *  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - /*/
-
 PMC.UpdateViewModel = () => {
   if (DBG) console.groupCollapsed(`%cUpdateViewModel()`, cssinfo);
   const components = DATA.Components();
   // components have NO CHILDREN
   components.forEach(compId => {
-    VGProperties.SetRoot(compId);
-    const { children } = u_NestProperties(compId);
+    VGProperties.MoveToRoot(compId);
+    const { children } = u_MakeHierarchy(compId);
   });
   if (DBG) console.groupEnd();
 };
@@ -127,7 +126,7 @@ PMC.UpdateViewModel = () => {
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - /*/
 PMC.UpdateView = () => {
   if (DBG) console.group(`%cUpdateView()`, cssinfo);
-  VGProperties.SizeToContents();
+  VGProperties.LayoutComponents();
   if (DBG) console.groupEnd();
 };
 /*/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

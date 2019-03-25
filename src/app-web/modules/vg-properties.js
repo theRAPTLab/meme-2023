@@ -51,6 +51,7 @@ class VGProp {
     this.visBGRECT = this.visROOT.rect(this.width, this.height); // background
     this.visTITLE = this.visROOT.text(this.data.name); // label
     this.visKIDS = this.visROOT.group(); // child components
+    this.visKIDS.move(5, 0);
     //
     this.fill = COL_BG;
     this.width = m_minWidth;
@@ -76,6 +77,7 @@ class VGProp {
     const { x, y } = point;
     if (typeof x !== 'number') throw Error('x is not an number');
     if (typeof y !== 'number') throw Error('y is not an number');
+    console.log(this.id, 'move', x, y);
     this.visROOT.move(x, y);
   }
 
@@ -104,7 +106,7 @@ class VGProp {
       .stroke({ color: this.fill, width: 2 })
       .radius(DIM_RADIUS);
     // draw label
-    this.visTITLE.move(10, 5);
+    this.visTITLE.move(m_pad, m_pad);
     // move
     if (point) this.visROOT.move(point.x, point.y);
   }
@@ -118,7 +120,9 @@ class VGProp {
   ToParent(id) {
     const vparent = m_GetVisual(id);
     console.log(`${this.id}.svg.toParent(${id})`);
-    return this.visROOT.toParent(vparent.visKIDS);
+    const kid = this.visROOT.toParent(vparent.visKIDS);
+    console.log(kid);
+    return kid;
   }
 
   //
@@ -188,12 +192,16 @@ VGProperties.SetParent = (id, parentId) => {
   if (!id) throw Error(`arg1 must be valid string id`);
   if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't set parent`);
   const child = m_GetVisual(id);
-  if (!parentId) return child.ToRoot();
+  if (!parentId) {
+    child.ToRoot();
+    return child;
+  }
   if (typeof parentId !== 'string') throw Error(`arg2 parentId must be a string`);
-  child.Move({ x: m_minHeight + m_pad, y: m_minHeight + m_pad });
-  return child.ToParent(parentId);
+  child.AddTo(parentId);
+  child.Move({ x: m_pad, y: m_pad + m_minHeight });
+  return child;
 };
-VGProperties.SetRoot = id => {
+VGProperties.MoveToRoot = id => {
   VGProperties.SetParent(id);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -201,7 +209,7 @@ VGProperties.SetRoot = id => {
  *  SizeToContents sizes all the properties to fit their contained props
  *  based on their display state
 /*/
-VGProperties.SizeToContents = () => {
+VGProperties.LayoutComponents = () => {
   const components = DATA.Components();
   // then dp ;aupit
   let xCounter = 0;
@@ -209,6 +217,8 @@ VGProperties.SizeToContents = () => {
   let yCounter = 0;
 
   // walk through all components
+  // for each component, get the size of all children
+  // set background size to it
   components.forEach(id => {
     // get the Visual
     const visual = m_GetVisual(id);
@@ -250,7 +260,6 @@ function u_RecurseSize(id) {
       `%cslotting '${kid}' size=[${ksize.w},${ksize.h}] to (${p.x},${p.y}) `,
       `padding-left:${padding}px`
     );
-    visual.Move(p);
   });
   level++;
   // now calculate my own size based on label size + size of kids

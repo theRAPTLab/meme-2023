@@ -29,15 +29,6 @@ const DBG = true;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** helper - set svg nesting of properties **/
-function u_MakeHierarchy(propId) {
-  const children = DATA.Children(propId);
-  children.forEach(child => {
-    u_MakeHierarchy(child);
-    VGProperties.SetParent(child, propId);
-  });
-  return { children };
-}
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -118,6 +109,16 @@ PMC.UpdateViewModel = () => {
     VGProperties.MoveToRoot(compId);
     const { children } = u_MakeHierarchy(compId);
   });
+
+  /** helper - set svg nesting of properties **/
+  function u_MakeHierarchy(propId) {
+    const children = DATA.Children(propId);
+    children.forEach(child => {
+      u_MakeHierarchy(child);
+      VGProperties.SetParent(child, propId);
+    });
+    return { children };
+  }
   if (DBG) console.groupEnd();
 };
 

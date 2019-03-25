@@ -197,8 +197,8 @@ VGProperties.SetParent = (id, parentId) => {
     return child;
   }
   if (typeof parentId !== 'string') throw Error(`arg2 parentId must be a string`);
-  child.AddTo(parentId);
-  child.Move({ x: m_pad, y: m_pad + m_minHeight });
+  child.ToParent(parentId);
+  child.Move({ x: m_pad2, y: m_pad + m_minHeight });
   return child;
 };
 VGProperties.MoveToRoot = id => {
@@ -253,7 +253,7 @@ function u_RecurseSize(id) {
   kids.forEach(kid => {
     const ksize = u_RecurseSize(kid);
     w = Math.max(w, ksize.w + m_pad2);
-    h += ksize.h;
+    h += ksize.h + m_pad;
     const p = { x: m_pad, y: h };
     let padding = level * 6;
     console.log(

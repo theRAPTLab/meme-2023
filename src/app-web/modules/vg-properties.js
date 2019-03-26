@@ -16,14 +16,15 @@
 import '@svgdotjs/svg.draggable.js';
 import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2 } from './console-styles';
+import { VPROP, PAD } from './defaults';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const map_visuals = new Map();
-const m_minWidth = 200;
-const m_minHeight = 30;
-const m_pad = 5;
-const m_pad2 = m_pad * 2;
+const m_minWidth = VPROP.MIN_WIDTH;
+const m_minHeight = VPROP.MIN_HEIGHT;
+const m_pad = PAD.MIN;
+const m_pad2 = PAD.MIN2;
 const COL_BG = '#F06';
 const DIM_RADIUS = 3;
 
@@ -51,7 +52,6 @@ class VGProp {
     this.visBGRECT = this.visROOT.rect(this.width, this.height); // background
     this.visTITLE = this.visROOT.text(this.data.name); // label
     this.visKIDS = this.visROOT.group(); // child components
-    this.visKIDS.move(5, 0);
     //
     this.fill = COL_BG;
     this.width = m_minWidth;
@@ -72,12 +72,28 @@ class VGProp {
   }
 
   //
+  X() {
+    return this.visROOT.x();
+  }
+
+  Y() {
+    return this.visROOT.y();
+  }
+
+  Width() {
+    return this.width;
+  }
+
+  Height() {
+    return this.height;
+  }
+
+  //
   Move(point) {
-    if (typeof point !== 'object') throw Error('arg must be {x,y} object');
+    if (typeof point !== 'object') throw Error(`arg must be {x,y} object not ${point}`);
     const { x, y } = point;
-    if (typeof x !== 'number') throw Error('x is not an number');
-    if (typeof y !== 'number') throw Error('y is not an number');
-    console.log(this.id, 'move', x, y);
+    if (typeof x !== 'number') throw Error(`x ${x} is not an number`, x);
+    if (typeof y !== 'number') throw Error(`y ${y} is not an number`, y);
     this.visROOT.move(x, y);
   }
 
@@ -89,9 +105,14 @@ class VGProp {
   }
 
   // return the size requirment of the layout
-  GetInnerSize() {
-    const { w, h } = this.visTITLE.rbox();
+  // minium size, but no additional padding
+  GetDataBBox() {
+    let { w, h } = this.visTITLE.rbox();
+    if (w < m_minWidth) w = m_minWidth;
+    if (h < m_minHeight) h = m_minHeight;
+
     return {
+      id: this.id,
       w: Math.ceil(w),
       h: Math.ceil(h)
     };
@@ -121,7 +142,6 @@ class VGProp {
     const vparent = m_GetVisual(id);
     console.log(`${this.id}.svg.toParent(${id})`);
     const kid = this.visROOT.toParent(vparent.visKIDS);
-    console.log(kid);
     return kid;
   }
 
@@ -188,7 +208,7 @@ VGProperties.Update = id => {
  *  move a property to a parent by id, preserving transformations
     if parentId is falsey, then move to root svg
 /*/
-VGProperties.SetParent = (id, parentId) => {
+VGProperties.MoveToParent = (id, parentId) => {
   if (!id) throw Error(`arg1 must be valid string id`);
   if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't set parent`);
   const child = m_GetVisual(id);
@@ -198,12 +218,46 @@ VGProperties.SetParent = (id, parentId) => {
   }
   if (typeof parentId !== 'string') throw Error(`arg2 parentId must be a string`);
   child.ToParent(parentId);
-  child.Move({ x: m_pad2, y: m_pad + m_minHeight });
   return child;
 };
 VGProperties.MoveToRoot = id => {
-  VGProperties.SetParent(id);
+  VGProperties.MoveToParent(id);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+VGProperties.GetVisual = id => {
+  return m_GetVisual(id);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+VGProperties.Move = (id, x, y) => {
+  if (!id) throw Error(`arg1 must be valid string id`);
+  if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't move`);
+  const child = m_GetVisual(id);
+  child.Move({ x, y });
+  return child;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+VGProperties.SetSize = (id, w, h) => {
+  if (!id) throw Error(`arg1 must be valid string id`);
+  if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't resize`);
+  const child = m_GetVisual(id);
+  child.SetSize(w, h);
+  return child;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+VGProperties.GetSize = id => {
+  if (!id) throw Error(`arg1 must be valid string id`);
+  if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't retrieve size`);
+  const child = m_GetVisual(id);
+  return { id: child.Id(), w: child.Width(), h: child.Height() };
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+VGProperties.GetDataBBox = id => {
+  if (!id) throw Error(`arg1 must be valid string id`);
+  if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't retrieve data BBox`);
+  const child = m_GetVisual(id);
+  return child.GetDataBBox();
+};
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
  *  SizeToContents sizes all the properties to fit their contained props
@@ -222,13 +276,13 @@ VGProperties.LayoutComponents = () => {
   components.forEach(id => {
     // get the Visual
     const visual = m_GetVisual(id);
-    console.group(`%chandling visual ${visual.id}`, cssinfo);
+    console.groupCollapsed(`%chandling visual ${visual.id}`, cssinfo);
     // first get the sizes of everything
-    const { w, h } = u_RecurseSize(id);
+    const w = visual.Width();
+    const h = visual.Height();
     highHeight = Math.max(highHeight, h);
     console.log(`component '${id}' size=[${w},${h}] to (${xCounter},${yCounter}) `);
     visual.Move({ x: xCounter, y: yCounter });
-    visual.SetSize(w, h);
     xCounter += w + m_pad;
     if (xCounter > 700) {
       yCounter += highHeight;
@@ -242,7 +296,7 @@ VGProperties.LayoutComponents = () => {
 function u_RecurseSize(id) {
   // set baseline size
   const visual = m_GetVisual(id);
-  const vsize = visual.GetInnerSize();
+  const vsize = visual.GetDataBBox();
   // this is the size that will be returned + padding;
   let w = Math.max(vsize.w, m_minWidth);
   let h = Math.max(vsize.h, m_minHeight);

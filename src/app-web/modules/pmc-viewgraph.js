@@ -12,6 +12,7 @@ import '@svgdotjs/svg.draggable.js';
 import DATA from './pmc-data';
 import VGProperties from './vg-properties';
 import { cssinfo, cssdraw, csstab, csstab2 } from './console-styles';
+import { PAD } from './defaults';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -20,8 +21,6 @@ const map_vmmechs = new Map(); // our mechanism viewmodel data
 //
 let m_element;
 let m_svgroot;
-let m_width;
-let m_height;
 const m_testprops = [];
 //
 const COL_BG = '#F06';
@@ -43,28 +42,25 @@ PMC.InitializeViewgraph = element => {
 };
 
 /// LIFECYCLE /////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
- *  Get user inputs (external buttons, clcks, keypresses) and convert physical
- *  controls like "up arrow" into app-domain intentions "move piece up"
-/*/
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
+    Get user inputs (external buttons, clcks, keypresses) and convert physical
+    controls like "up arrow" into app-domain intentions "move piece up"
+:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.GetIntent = () => {
   console.log('GetIntent() unimplemented');
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
- *  Based on intentions, update current mode settings that will affect later
- *  processing stages
-/*/
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
+    Based on intentions, update current mode settings that will affect later
+    processing stages
+:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.SyncModeSettings = () => {
   console.log('SyncModeSettings() unimplemented');
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
- *  Collects queued change requests (actions, inputs) and figures out how to
- *  handle them in the right order. These changes are then stored in collections
- *  to be processed by UpdateModel().
-/*/
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
+    Collects queued change requests (actions, inputs) and figures out how to
+    handle them in the right order. These changes are then stored in collections
+    to be processed by UpdateModel().
+:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.CalculateChanges = () => {
   if (DBG) console.groupCollapsed(`%cCalculateChanges()`, cssinfo);
   const { added, removed, updated } = DATA.CompareProps(map_vmprops);
@@ -86,53 +82,87 @@ PMC.CalculateChanges = () => {
     console.groupEnd();
   }
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
- *  Update the data model. For PMCViewGraph, this lifecycle event probably doesn't
- *  do anything because that is PMCDataGraph's responsibility.
-/*/
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
+    Update the data model. For PMCViewGraph, this lifecycle event probably
+    doesn't do anything because that is PMCDataGraph's responsibility.
+:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.UpdateModel = () => {
   console.log(`UpdateModel() unimplemented`);
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
- *  rearrange properties into component hierarchies
-/*/
-/*/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
     Draw the model data by calling draw commands on everything. Also update.
- *  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - /*/
+:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.UpdateViewModel = () => {
-  if (DBG) console.groupCollapsed(`%cUpdateViewModel()`, cssinfo);
+  if (DBG) console.group(`%cUpdateViewModel()`, cssinfo);
+
+  // first get the list of component ids to walk through
   const components = DATA.Components();
-  // components have NO CHILDREN
+
+  // walk through every component
   components.forEach(compId => {
     VGProperties.MoveToRoot(compId);
-    const { children } = u_MakeHierarchy(compId);
+    const sizes = u_GetBBoxes(compId);
+    console.log(`${compId} sizes`, sizes);
   });
-
-  /** helper - set svg nesting of properties **/
-  function u_MakeHierarchy(propId) {
-    const children = DATA.Children(propId);
-    children.forEach(child => {
-      u_MakeHierarchy(child);
-      VGProperties.SetParent(child, propId);
-    });
-    return { children };
-  }
   if (DBG) console.groupEnd();
+
+  //
 };
 
-/*/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// given a propId, return array of size objects
+// [ self { id, w, h} , child { id, w, h }, ... ]
+function u_GetBBoxes(propId) {
+  // first get the databbox of the propID
+  const pSelf = VGProperties.GetDataBBox(propId);
+  let sizes = [];
+  // then get the boxes of the children
+  const children = DATA.Children(propId);
+  children.forEach(childId => {
+    VGProperties.MoveToParent(childId, propId);
+    const childSize = u_GetBBoxes(childId);
+    sizes = sizes.concat(childSize);
+  });
+  // sizes contains pSelf + child(s)
+  // calculate size of this prop
+  let pSize = u_CombineBBoxes([pSelf, ...sizes]);
+  VGProperties.SetSize(propId, pSize.w, pSize.h);
+  // position the children
+  let yy = pSelf.h;
+  sizes.forEach(childSize => {
+    VGProperties.Move(childSize.id, 0, yy);
+    yy += childSize.h;
+  });
+
+  // return self+child sizes
+  return [pSelf].concat(sizes);
+}
+
+/** helper to compile bboxes together **/
+function u_CombineBBoxes(bboxArray) {
+  if (bboxArray === undefined) throw Error(`arg must be array of {id, w, h} items`);
+  if (!Array.isArray(bboxArray)) throw Error(`arg is not an array ${JSON.toString(bboxArray)}`);
+  if (!bboxArray.length) throw Error(`bboxArray must have at least one elements`);
+  let box = bboxArray.reduce((bbox, item) => {
+    return {
+      id: `${bbox.id}:${item.id}`,
+      w: Math.max(bbox.w, item.w),
+      h: bbox.h + item.h
+    };
+  });
+  return box;
+}
+
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
     Draw the model data by calling draw commands on everything. Also update.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - /*/
+:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.UpdateView = () => {
   if (DBG) console.group(`%cUpdateView()`, cssinfo);
   VGProperties.LayoutComponents();
   if (DBG) console.groupEnd();
 };
-/*/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
     Returns a data object
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - /*/
+:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.VMProp = id => {
   if (typeof id !== 'string') throw Error('arg1 must be string');
   if (!map_vmprops.has(id)) throw Error(`vprop ${id} is not in map_vmprops`);
@@ -140,10 +170,10 @@ PMC.VMProp = id => {
 };
 
 /// DRAWING TEST CODE /////////////////////////////////////////////////////////
-/*/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
  *  draw two svg components
  *  test nesting
- *- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - /*/
+:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 let mech;
 let label;
 let textpath;
@@ -191,10 +221,10 @@ function m_MakePropElement(name = '<unknown>') {
   m_testprops.push(prop);
   return prop;
 }
-/*\
-     * updates the path
-     * and also changes the label orientation
-    \*/
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
+    updates the path
+    and also changes the label orientation
+:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 function m_UpdatePath() {
   let p1 = {};
   let p2 = {};

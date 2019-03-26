@@ -30,15 +30,21 @@ DATA.Graph = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.LoadGraph = () => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
-  g.setNode('a', { name: 'a node', data: { j: 1, k: 11, l: 111 } });
-  g.setNode('b', { name: 'b node', data: { j: 2, k: 22, l: 222 } });
-  g.setNode('c', { name: 'c node', data: { j: 3, k: 33, l: 333 } });
-  g.setNode('d', { name: 'd node', data: { j: 4, k: 44, l: 444 } });
-  g.setNode('e', { name: 'e node', data: { j: 5, k: 55, l: 555 } });
-  g.setNode('f', { name: 'f node', data: { j: 6, k: 66, l: 667 } });
+  g.setNode('a', { name: 'a node', data: {} });
+  g.setNode('b', { name: 'b node', data: {} });
+  g.setNode('c', { name: 'c node', data: {} });
+  g.setNode('d', { name: 'd node', data: {} });
+  g.setNode('e', { name: 'e node', data: {} });
+  g.setNode('f', { name: 'f node', data: {} });
+  g.setNode('x', { name: 'x node', data: {} });
+  g.setNode('y', { name: 'y node', data: {} });
+  g.setNode('z', { name: 'z node', data: {} });
+  g.setParent('z', 'a');
   g.setParent('c', 'a');
   g.setParent('f', 'c');
   g.setParent('d', 'e');
+  g.setParent('x', 'e');
+  g.setParent('y', 'e');
   g.setEdge('b', 'a', { name: 'b to a' });
   g.setEdge('b', 'd', { name: 'b to d' });
   g.setEdge('c', 'e', { name: 'c to e' });

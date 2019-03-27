@@ -57,12 +57,15 @@ PMC.SyncModeSettings = () => {
   console.log('SyncModeSettings() unimplemented');
 };
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
+    SyncPropsToData();
+    INPUTS: DataCompareProps(map_vmprops)
+
     Collects queued change requests (actions, inputs) and figures out how to
     handle them in the right order. These changes are then stored in collections
     to be processed by UpdateModel().
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-PMC.CalculateChanges = () => {
-  if (DBG) console.groupCollapsed(`%cCalculateChanges()`, cssinfo);
+PMC.SyncPropsFromGraphData = () => {
+  if (DBG) console.groupCollapsed(`%c:SyncPropsFromGraphData()`, cssinfo);
   const { added, removed, updated } = DATA.CompareProps(map_vmprops);
   removed.forEach(id => {
     VGProperties.Release(id);
@@ -76,9 +79,9 @@ PMC.CalculateChanges = () => {
     VGProperties.Update(id);
   });
   if (DBG) {
-    if (removed.length) console.log(`%cRemoving ${removed.length} dead nodes`, csstab);
-    if (added.length) console.log(`%cAdding ${added.length} new nodes`, csstab);
-    if (updated.length) console.log(`%cUpdating ${updated.length} nodes`, csstab);
+    if (removed.length) console.log(`%c:Removing ${removed.length} dead nodes`, csstab);
+    if (added.length) console.log(`%c:Adding ${added.length} new nodes`, csstab);
+    if (updated.length) console.log(`%c:Updating ${updated.length} nodes`, csstab);
     console.groupEnd();
   }
 };
@@ -93,62 +96,65 @@ PMC.UpdateModel = () => {
     Draw the model data by calling draw commands on everything. Also update.
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.UpdateViewModel = () => {
-  if (DBG) console.group(`%cUpdateViewModel()`, cssinfo);
+  if (DBG) console.group(`%c:UpdateViewModel()`, cssinfo);
 
   // first get the list of component ids to walk through
   const components = DATA.Components();
 
   // walk through every component
   components.forEach(compId => {
-    VGProperties.MoveToRoot(compId);
-    const sizes = u_GetBBoxes(compId);
-    console.log(`${compId} sizes`, sizes);
+    // VGProperties.MoveToRoot(compId);
+    const { self, props } = u_Recurse(compId);
+    console.group(`component ${compId} ${self.w}x${self.h} w/${props.length} props`);
+    props.forEach(prop => {
+      const s = prop.self;
+      const p = prop.props;
+      console.log(`%c prop.self ${s.id} ${s.w}x${s.h}`, csstab, p);
+    });
+    console.groupEnd();
   });
   if (DBG) console.groupEnd();
-
-  //
 };
 
-// given a propId, return array of size objects
-// [ self { id, w, h} , child { id, w, h }, ... ]
-function u_GetBBoxes(propId) {
+// given a propId, set dimension data for each property
+// return dimension array of
+function u_Recurse(propId) {
+  let self; // the box { id, w, h } of the data area
+  let props = []; // this will contain the size of child props
   // first get the databbox of the propID
-  const pSelf = VGProperties.GetDataBBox(propId);
-  let sizes = [];
-  // then get the boxes of the children
+  self = VGProperties.GetDataBBox(propId);
+  // next calculate the size of the child props
   const children = DATA.Children(propId);
+  // get the full size of each child prop
   children.forEach(childId => {
-    VGProperties.MoveToParent(childId, propId);
-    const childSize = u_GetBBoxes(childId);
-    sizes = sizes.concat(childSize);
+    props.push(u_Recurse(childId));
   });
-  // sizes contains pSelf + child(s)
-  // calculate size of this prop
-  let pSize = u_CombineBBoxes([pSelf, ...sizes]);
-  VGProperties.SetSize(propId, pSize.w, pSize.h);
-  // position the children
-  let yy = pSelf.h;
-  sizes.forEach(childSize => {
-    VGProperties.Move(childSize.id, 0, yy);
-    yy += childSize.h;
-  });
-
-  // return self+child sizes
-  return [pSelf].concat(sizes);
+  return {
+    self,
+    props
+  };
 }
 
-/** helper to compile bboxes together **/
-function u_CombineBBoxes(bboxArray) {
+// given an array of box objects { id, w, h }, return
+function u_CalcPropsBox(bboxArray) {
   if (bboxArray === undefined) throw Error(`arg must be array of {id, w, h} items`);
-  if (!Array.isArray(bboxArray)) throw Error(`arg is not an array ${JSON.toString(bboxArray)}`);
-  if (!bboxArray.length) throw Error(`bboxArray must have at least one elements`);
-  let box = bboxArray.reduce((bbox, item) => {
+  if (!Array.isArray(bboxArray))
+    throw Error(`arg is not an array; got '${JSON.stringify(bboxArray)}'`);
+  if (bboxArray.length === 0) return { id: '<NOBOX>', w: 0, h: 0 };
+  let kids = '';
+  let box = bboxArray.reduce((acc, item) => {
+    // acc is the accumulator bbox and is mutated by reduce()
+    // so don't try messing with it
+    if (kids) kids = `${kids},${item.id}`;
+    else kids = `${item.id}`;
     return {
-      id: `${bbox.id}:${item.id}`,
-      w: Math.max(bbox.w, item.w),
-      h: bbox.h + item.h
+      id: acc.id,
+      w: Math.max(acc.w, item.w),
+      h: acc.h + item.h
     };
   });
+  // and is included for debugging purposes
+  if (kids) box.kids = kids;
   return box;
 }
 
@@ -156,7 +162,7 @@ function u_CombineBBoxes(bboxArray) {
     Draw the model data by calling draw commands on everything. Also update.
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.UpdateView = () => {
-  if (DBG) console.group(`%cUpdateView()`, cssinfo);
+  if (DBG) console.groupCollapsed(`%c:UpdateView()`, cssinfo);
   VGProperties.LayoutComponents();
   if (DBG) console.groupEnd();
 };
@@ -252,7 +258,7 @@ PMC.DrawSystemDiagram = (w, h) => {
   const height = h || m_svgroot.height();
   // clear screen then drawnpm
   m_svgroot.clear();
-  console.log(`%cDrawSystemDiagram() ${width} ${height}`, cssdraw);
+  console.log(`%c:DrawSystemDiagram() ${width} ${height}`, cssdraw);
   const xx = 100;
   const yy = 200;
   const ww = 200;

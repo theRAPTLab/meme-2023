@@ -57,18 +57,15 @@ class SVGView extends React.Component {
     // PMCView.DrawSystemDiagram();
     // PMCView.DrawRects();
 
-    // LIFECYCLE: handle inputs, event changes, pending changes, add/remove lists
-    // in preparation for handling subsequent phases
-    // creates all the svg components elements but doesn't position them
-    PMCView.CalculateChanges();
+    // LIFECYCLE: handle changes to underlying data and queued user inputs
+    PMCView.SyncPropsFromGraphData();
 
-    // LIFECYCLE: update critical lists, element states, data
-    // doesn't yet do anything
-    PMCView.UpdateModel();
+    // LIFECYCLE: update critical lists, element states, data.
+    // This is purely DATA related
+    // PMCView.UpdateModel();
 
-    // LIFECYCLE: Update the underlying viewmodel from data
-    // goes through component list, and (1) sets parent to root svg
-    // then (2) moves all the properties appropriately
+    // LIFECYCLE: Update the underlying viewmodel by setting modes
+    // of all properties, which is used by the layout module
     PMCView.UpdateViewModel();
 
     // LIFECYCLE: Handle visual updates

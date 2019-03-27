@@ -43,8 +43,9 @@ DATA.LoadGraph = () => {
   g.setParent('c', 'a');
   g.setParent('f', 'c');
   g.setParent('d', 'e');
-  g.setParent('x', 'e');
+  g.setParent('x', 'd');
   g.setParent('y', 'e');
+  g.setParent('a', 'e');
   g.setEdge('b', 'a', { name: 'b to a' });
   g.setEdge('b', 'd', { name: 'b to d' });
   g.setEdge('c', 'e', { name: 'c to e' });

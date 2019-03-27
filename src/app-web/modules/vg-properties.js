@@ -140,7 +140,7 @@ class VGProp {
   //
   ToParent(id) {
     const vparent = m_GetVisual(id);
-    console.log(`${this.id}.svg.toParent(${id})`);
+    console.log(`${id} <- ${this.id}`);
     const kid = this.visROOT.toParent(vparent.visKIDS);
     return kid;
   }
@@ -148,13 +148,13 @@ class VGProp {
   //
   AddTo(id) {
     const vparent = m_GetVisual(id);
-    console.log(`${this.id}.svg.addTo(${id})`);
+    console.log(`${id} ++ ${this.id}`);
     return this.visROOT.addTo(vparent.visKIDS);
   }
 
   //
   ToRoot() {
-    console.log(`%c${this.id}.svg.toRoot()`, `font-weight:bold`);
+    console.log(`%croot <- ${this.id}`, `font-weight:bold`);
     return this.visROOT.toRoot();
   }
 
@@ -276,7 +276,7 @@ VGProperties.LayoutComponents = () => {
   components.forEach(id => {
     // get the Visual
     const visual = m_GetVisual(id);
-    console.groupCollapsed(`%chandling visual ${visual.id}`, cssinfo);
+    console.groupCollapsed(`%c:handling visual ${visual.id}`, cssinfo);
     // first get the sizes of everything
     const w = visual.Width();
     const h = visual.Height();
@@ -311,7 +311,7 @@ function u_RecurseSize(id) {
     const p = { x: m_pad, y: h };
     let padding = level * 6;
     console.log(
-      `%cslotting '${kid}' size=[${ksize.w},${ksize.h}] to (${p.x},${p.y}) `,
+      `%c:slotting '${kid}' size=[${ksize.w},${ksize.h}] to (${p.x},${p.y}) `,
       `padding-left:${padding}px`
     );
   });

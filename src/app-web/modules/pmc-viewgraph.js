@@ -5,7 +5,7 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 import SVG from '@svgdotjs/svg.js/src/svg';
-import '@svgdotjs/svg.draggable.js';
+// import '@svgdotjs/svg.draggable.js';
 
 /// MODULES ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -96,73 +96,73 @@ PMC.UpdateModel = () => {
     Draw the model data by calling draw commands on everything. Also update.
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.UpdateViewModel = () => {
-  if (DBG) console.group(`%c:UpdateViewModel()`, cssinfo);
+  if (DBG) console.groupCollapsed(`%c:UpdateViewModel()`, cssinfo);
 
   // first get the list of component ids to walk through
   const components = DATA.Components();
 
   // walk through every component
   components.forEach(compId => {
-    // VGProperties.MoveToRoot(compId);
-    const { self, props } = u_Recurse(compId);
-    console.group(`component ${compId} ${self.w}x${self.h} w/${props.length} props`);
-    props.forEach(prop => {
-      const s = prop.self;
-      const p = prop.props;
-      console.log(`%c prop.self ${s.id} ${s.w}x${s.h}`, csstab, p);
-    });
+    VGProperties.MoveToRoot(compId);
+    const pbox = u_Recurse(compId);
+    // remaining props are leftover
+    console.group(`component '${pbox.id}'`);
+    console.log(`%c bbox ${pbox.w}x${pbox.h}`, csstab);
     console.groupEnd();
   });
   if (DBG) console.groupEnd();
 };
 
 // given a propId, set dimension data for each property
-// return dimension array of
+// set the component directly
+// return struct { id, w, h } w/out padding
 function u_Recurse(propId) {
-  let self; // the box { id, w, h } of the data area
-  let props = []; // this will contain the size of child props
-  // first get the databbox of the propID
-  self = VGProperties.GetDataBBox(propId);
-  // next calculate the size of the child props
-  const children = DATA.Children(propId);
-  // get the full size of each child prop
-  children.forEach(childId => {
-    props.push(u_Recurse(childId));
+  const propVis = VGProperties.GetVisual(propId);
+  const self = propVis.GetDataBBox();
+  console.group(`${propId} recurse`);
+  /* WALK CHILD PROPS */
+  const childIds = DATA.Children(propId);
+  // if there are no children, break recursion
+  if (childIds.length === 0) {
+    propVis.SetSize(self);
+    propVis.SetKidsBBox({ w: 0, h: 0 });
+    console.groupEnd();
+    return self;
+  }
+  // otherwise, let's recurse!
+  let sizes = [];
+  childIds.forEach(childId => {
+    const childVis = VGProperties.GetVisual(childId);
+    childVis.ToParent(propId);
+    const size = u_Recurse(childId);
+    childVis.SetKidsBBox(size);
+    sizes.push(size);
   });
-  return {
-    self,
-    props
-  };
-}
-
-// given an array of box objects { id, w, h }, return
-function u_CalcPropsBox(bboxArray) {
-  if (bboxArray === undefined) throw Error(`arg must be array of {id, w, h} items`);
-  if (!Array.isArray(bboxArray))
-    throw Error(`arg is not an array; got '${JSON.stringify(bboxArray)}'`);
-  if (bboxArray.length === 0) return { id: '<NOBOX>', w: 0, h: 0 };
-  let kids = '';
-  let box = bboxArray.reduce((acc, item) => {
-    // acc is the accumulator bbox and is mutated by reduce()
-    // so don't try messing with it
-    if (kids) kids = `${kids},${item.id}`;
-    else kids = `${item.id}`;
+  //
+  const pbox = sizes.reduce((accbox, item) => {
     return {
-      id: acc.id,
-      w: Math.max(acc.w, item.w),
-      h: acc.h + item.h
+      id: propId,
+      w: Math.max(accbox.w, item.w),
+      h: accbox.h + item.h
     };
   });
-  // and is included for debugging purposes
-  if (kids) box.kids = kids;
-  return box;
+  // adjust size
+  const all = {
+    id: pbox.id,
+    w: Math.max(self.w, pbox.w),
+    h: self.h + pbox.h
+  };
+  propVis.SetSize(all);
+  propVis.SetKidsBBox(all);
+  console.groupEnd();
+  return all;
 }
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
     Draw the model data by calling draw commands on everything. Also update.
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.UpdateView = () => {
-  if (DBG) console.groupCollapsed(`%c:UpdateView()`, cssinfo);
+  if (DBG) console.group(`%c:UpdateView()`, cssinfo);
   VGProperties.LayoutComponents();
   if (DBG) console.groupEnd();
 };

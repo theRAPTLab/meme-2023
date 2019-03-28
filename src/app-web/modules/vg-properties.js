@@ -25,7 +25,7 @@ const m_minWidth = VPROP.MIN_WIDTH;
 const m_minHeight = VPROP.MIN_HEIGHT;
 const m_pad = PAD.MIN;
 const m_pad2 = PAD.MIN2;
-const COL_BG = '#F06';
+const COL_BG = '#44F';
 const DIM_RADIUS = 3;
 
 const DBG = false;
@@ -53,7 +53,7 @@ class VGProp {
     this.visBG = this.gRoot.rect(this.width, this.height); // background
     this.gData = this.gRoot.group(); // main data properties
     this.gKids = this.gRoot.group(); // child components group
-    this.gDataName = this.gData.text(this.data.name); // label
+    this.gDataName = this.gData.text(this.data.name.toUpperCase()); // label
     // other default properties
     this.fill = COL_BG;
     this.width = m_minWidth;
@@ -122,8 +122,6 @@ class VGProp {
     }
     // set the background size
     this.visBG.size(this.width, this.height);
-    const bbox = this.GetDataBBox();
-    this.gKids.move(0, bbox.h);
   }
 
   //
@@ -165,7 +163,7 @@ class VGProp {
   }
 
   GetKidsBBox() {
-    return { w: this.kidsWidth, h: this.kidsHeight };
+    return { id: this.id, w: this.kidsWidth, h: this.kidsHeight };
   }
 
   MoveKids(xObj, yNum) {
@@ -181,11 +179,11 @@ class VGProp {
     console.log(`drawing '${this.id}'`);
     // draw box
     this.visBG
-      .fill({ color: this.fill, opacity: 0.5 })
-      .stroke({ color: this.fill, width: 2 })
+      .fill({ color: this.fill, opacity: 0.1 })
+      //      .stroke({ color: this.fill, width: 2 })
       .radius(DIM_RADIUS);
     // draw label
-    this.gDataName.move(m_pad, m_pad);
+    this.gDataName.transform({ translateX: m_pad, translateY: m_pad / 2 });
     // move
     if (point) this.gRoot.move(point.x, point.y);
   }
@@ -221,9 +219,9 @@ class VGProp {
     const data = DATA.Prop(this.id);
     this.data.name = data.name;
     // preserve layout
-    const x = this.svg.x();
-    const y = this.svg.y();
-    //this.Draw({ x, y });
+    const x = this.gRoot.x();
+    const y = this.gRoot.y();
+    this.Draw({ x, y });
   }
 }
 function m_Norm(aObj, bNum) {
@@ -350,12 +348,15 @@ function u_Layout(offset, id) {
   console.group(`${id} recurse layout from (${x},${y})`);
   const compVis = m_GetVisual(id);
   compVis.Move(x, y); // draw compVis where it should go in screen space
-  y += compVis.DataHeight();
+  y += compVis.DataHeight() + PAD.MIN;
+  x += PAD.MIN;
   const children = DATA.Children(id);
+  let widest = 0;
   children.forEach(cid => {
     const childVis = m_GetVisual(cid);
+    widest = Math.max(widest, childVis.GetKidsBBox()).w;
     u_Layout({ x, y }, cid);
-    y += childVis.Height();
+    y += childVis.Height() + PAD.MIN;
     console.log(`[${cid}] to y=${y}`);
   });
   console.groupEnd();

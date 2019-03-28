@@ -30,22 +30,22 @@ DATA.Graph = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.LoadGraph = () => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
-  g.setNode('a', { name: 'a node', data: {} });
-  g.setNode('b', { name: 'b node', data: {} });
-  g.setNode('c', { name: 'c node', data: {} });
-  g.setNode('d', { name: 'd node', data: {} });
-  g.setNode('e', { name: 'e node', data: {} });
-  g.setNode('f', { name: 'f node', data: {} });
-  g.setNode('x', { name: 'x node', data: {} });
-  g.setNode('y', { name: 'y node', data: {} });
-  g.setNode('z', { name: 'z node', data: {} });
-  g.setParent('z', 'a');
-  g.setParent('c', 'a');
-  g.setParent('f', 'c');
-  g.setParent('d', 'e');
-  g.setParent('x', 'd');
-  g.setParent('y', 'e');
-  g.setParent('a', 'e');
+  g.setNode('a', { name: 'a property', data: {} });
+  g.setNode('b', { name: 'b property', data: {} });
+  g.setNode('c', { name: 'c property', data: {} });
+  g.setNode('d', { name: 'd property', data: {} });
+  g.setNode('e', { name: 'e property', data: {} });
+  g.setNode('f', { name: 'f property', data: {} });
+  g.setNode('x', { name: 'x property', data: {} });
+  g.setNode('y', { name: 'y property', data: {} });
+  g.setNode('z', { name: 'z property', data: {} });
+  g.setParent('d', 'a');
+  g.setParent('e', 'a');
+  g.setParent('f', 'b');
+  g.setParent('x', 'c');
+  g.setParent('y', 'x');
+  g.setParent('z', 'c');
+  g.setParent('b', 'z');
   g.setEdge('b', 'a', { name: 'b to a' });
   g.setEdge('b', 'd', { name: 'b to d' });
   g.setEdge('c', 'e', { name: 'c to e' });
@@ -101,6 +101,10 @@ DATA.BuildModel = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+DATA.AllProps = () => {
+  return a_props;
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.Components = () => {
   return a_components;

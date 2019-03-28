@@ -119,6 +119,7 @@ PMC.UpdateViewModel = () => {
 function u_Recurse(propId) {
   const propVis = VGProperties.GetVisual(propId);
   const self = propVis.GetDataBBox();
+  self.h += PAD.MIN;
   console.group(`${propId} recurse`);
   /* WALK CHILD PROPS */
   const childIds = DATA.Children(propId);
@@ -149,9 +150,10 @@ function u_Recurse(propId) {
   // adjust size
   const all = {
     id: pbox.id,
-    w: Math.max(self.w, pbox.w),
+    w: Math.max(self.w, pbox.w) + PAD.MIN2,
     h: self.h + pbox.h
   };
+  all.h += childIds.length > 1 ? PAD.MIN2 : PAD.MIN;
   propVis.SetSize(all);
   propVis.SetKidsBBox(all);
   console.groupEnd();

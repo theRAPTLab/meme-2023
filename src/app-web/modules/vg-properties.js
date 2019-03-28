@@ -48,20 +48,20 @@ class VGProp {
     // basic display props
     this.id = propId;
     this.data = Object.assign({}, DATA.Prop(propId)); // copy, not reference
-    this.visRoot = svgRoot.group(); // main container
-    this.visBG = this.visRoot.rect(this.width, this.height); // background
-    this.visData = this.visRoot.group();
-    this.visDataName = this.visData.text(this.data.name); // label
-    this.visKids = this.visRoot.group(); // child components
-    this.visKids.rect(5, 5).fill('red'); // debug
-    //
+    this.gRoot = svgRoot.group(); // main reference group
+    // this order is important
+    this.visBG = this.gRoot.rect(this.width, this.height); // background
+    this.gData = this.gRoot.group(); // main data properties
+    this.gKids = this.gRoot.group(); // child components group
+    this.gDataName = this.gData.text(this.data.name); // label
+    // other default properties
     this.fill = COL_BG;
     this.width = m_minWidth;
     this.height = m_minHeight;
     this.kidsWidth = 0;
     this.kidsHeight = 0;
     // higher order display properties
-    this.visRoot.draggable();
+    this.gRoot.draggable();
     this.dataDisplayMode = {}; // how to display data, what data to show/hide
     this.connectionPoints = []; // array of points available for mechanism connections
     this.highlightMode = {}; // how to display selection, subselection, hover
@@ -77,11 +77,11 @@ class VGProp {
 
   //
   X() {
-    return this.visRoot.x();
+    return this.gRoot.x();
   }
 
   Y() {
-    return this.visRoot.y();
+    return this.gRoot.y();
   }
 
   Width() {
@@ -92,19 +92,23 @@ class VGProp {
     return this.height;
   }
 
+  DataHeight() {
+    return this.GetDataBBox().h;
+  }
+
   //
   Move(xObj, y) {
     if (typeof xObj === 'object') {
       const { x: xx, y: yy } = xObj;
       if (typeof xx !== 'number') throw Error(`x ${xx} is not an number`, xx);
       if (typeof yy !== 'number') throw Error(`y ${yy} is not an number`, yy);
-      this.visRoot.move(xx, yy);
+      this.gRoot.move(xx, yy);
       return;
     }
     const x = xObj;
     if (typeof x !== 'number') throw Error(`x ${x} is not an number`, x);
     if (typeof y !== 'number') throw Error(`y ${y} is not an number`, y);
-    this.visRoot.move(x, y);
+    this.gRoot.move(x, y);
   }
 
   //
@@ -119,7 +123,7 @@ class VGProp {
     // set the background size
     this.visBG.size(this.width, this.height);
     const bbox = this.GetDataBBox();
-    this.visKids.move(0, bbox.h);
+    this.gKids.move(0, bbox.h);
   }
 
   //
@@ -133,7 +137,7 @@ class VGProp {
   // return the size requirment of the layout
   // minium size, but no additional padding
   GetDataBBox() {
-    let { w, h } = this.visDataName.rbox();
+    let { w, h } = this.gDataName.rbox();
     if (w < m_minWidth) w = m_minWidth;
     if (h < m_minHeight) h = m_minHeight;
 
@@ -169,7 +173,7 @@ class VGProp {
     if (typeof xx !== 'number') throw Error(`x ${xx} is not an number`, xx);
     if (typeof yy !== 'number') throw Error(`y ${yy} is not an number`, yy);
     console.log(`${this.id} moving kids to ${xx},${yy}`);
-    this.visKids.move(xx, yy);
+    this.gKids.move(xx, yy);
   }
 
   // drawing interface
@@ -181,34 +185,34 @@ class VGProp {
       .stroke({ color: this.fill, width: 2 })
       .radius(DIM_RADIUS);
     // draw label
-    this.visDataName.move(m_pad, m_pad);
+    this.gDataName.move(m_pad, m_pad);
     // move
-    if (point) this.visRoot.move(point.x, point.y);
+    if (point) this.gRoot.move(point.x, point.y);
   }
 
   // "destructor"
   Release() {
-    return this.visRoot.remove();
+    return this.gRoot.remove();
   }
 
   //
   ToParent(id) {
     const vparent = m_GetVisual(id);
     if (DBG) console.log(`${id} <- ${this.id}`);
-    this.visRoot.toParent(vparent.visKids);
+    this.gRoot.toParent(vparent.gKids);
   }
 
   //
   AddTo(id) {
     const vparent = m_GetVisual(id);
     if (DBG) console.log(`${id} ++ ${this.id}`);
-    this.visRoot.addTo(vparent.visKids);
+    this.gRoot.addTo(vparent.gKids);
   }
 
   //
   ToRoot() {
     if (DBG) console.log(`%croot <- ${this.id}`, `font-weight:bold`);
-    this.visRoot.toRoot();
+    this.gRoot.toRoot();
   }
 
   //
@@ -328,14 +332,10 @@ VGProperties.LayoutComponents = () => {
   // set background size to it
   components.forEach(id => {
     // get the Visual
+    console.groupCollapsed(`%c:handling visual ${id}`, cssinfo);
+    u_Layout({ x: xCounter, y: yCounter }, id);
     const compVis = m_GetVisual(id);
-    console.groupCollapsed(`%c:handling visual ${compVis.id}`, cssinfo);
-    const dbox = compVis.GetDataBBox();
-    highHeight = Math.max(highHeight, dbox.h);
-    console.log(`component [${id}] size=[${dbox.w},${dbox.h}] to (${xCounter},${yCounter}) `);
-    u_LayoutChildren({ x: 0, y: dbox.h }, id);
-    compVis.Move(xCounter, yCounter);
-    xCounter += dbox.w + m_pad;
+    xCounter += compVis.GetSize().width + PAD.MIN2;
     if (xCounter > 700) {
       yCounter += highHeight;
       xCounter = 0;
@@ -345,17 +345,18 @@ VGProperties.LayoutComponents = () => {
   });
 };
 
-function u_LayoutChildren(offset, id) {
-  console.group(`${id} recurse layout`);
+function u_Layout(offset, id) {
+  let { x, y } = offset;
+  console.group(`${id} recurse layout from (${x},${y})`);
+  const compVis = m_GetVisual(id);
+  compVis.Move(x, y); // draw compVis where it should go in screen space
+  y += compVis.DataHeight();
   const children = DATA.Children(id);
-  let cyy = offset.y;
   children.forEach(cid => {
-    u_LayoutChildren({ x: 0, y: cyy }, cid);
     const childVis = m_GetVisual(cid);
-    const kbb = childVis.GetKidsBBox();
-    childVis.Move(0, cyy);
-    console.log(`[${cid}] h=${kbb.h} to y=${cyy}`);
-    cyy += kbb.h;
+    u_Layout({ x, y }, cid);
+    y += childVis.Height();
+    console.log(`[${cid}] to y=${y}`);
   });
   console.groupEnd();
 }

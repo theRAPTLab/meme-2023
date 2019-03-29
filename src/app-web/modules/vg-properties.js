@@ -17,6 +17,7 @@ import '@svgdotjs/svg.draggable.js';
 import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
 import { VPROP, PAD } from './defaults';
+import UR from '../../system/ursys';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -53,6 +54,14 @@ class VGProp {
     this.kidsHeight = 0;
     // higher order display properties
     this.gRoot.draggable();
+    this.gRoot.on('dragmove.propmove', event => {
+      const { handler, box } = event.detail;
+      event.preventDefault();
+      const { x, y } = box;
+      handler.move(x, y);
+      UR.Publish('PROP:MOVED', { prop: this.id });
+    });
+
     this.dataDisplayMode = {}; // how to display data, what data to show/hide
     this.connectionPoints = []; // array of points available for mechanism connections
     this.highlightMode = {}; // how to display selection, subselection, hover
@@ -119,8 +128,8 @@ class VGProp {
   GetCenter() {
     return {
       id: this.id,
-      x: this.gRoot.cx(),
-      y: this.gRoot.cy()
+      x: this.visBG.cx(),
+      y: this.visBG.cy()
     };
   }
 
@@ -365,7 +374,8 @@ function u_Layout(offset, id) {
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-window.vprops = () => {
+if (!window.meme) window.meme = {};
+window.meme.vprops = () => {
   console.log(`%cattaching props to window by [id]`, cssdata);
   let props = DATA.AllProps();
   props.forEach(pid => {
@@ -373,7 +383,7 @@ window.vprops = () => {
   });
   return `${props} attached to window object`;
 };
-window.comps = () => {
+window.meme.comps = () => {
   console.log(`%cshowing components`, cssdata);
   let comps = DATA.Components();
   comps.forEach(id => {
@@ -381,7 +391,7 @@ window.comps = () => {
   });
   return `${comps.length} components listed`;
 };
-window.dumpid = id => {
+window.meme.dumpid = id => {
   console.log(`%cdumping id [${id}] child hierarchy`, cssdata);
   recurse(id);
   /** helper **/

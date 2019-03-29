@@ -14,6 +14,7 @@ import VGProperties from './vg-properties';
 import VGMechanisms from './vg-mechanisms';
 import { cssinfo, cssdraw, csstab, csstab2 } from './console-styles';
 import { PAD } from './defaults';
+import UR from '../../system/ursys';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -26,6 +27,9 @@ const DBG = true;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+UR.Sub('PROP:MOVED', data => {
+  VGMechanisms.DrawEdges();
+});
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -347,20 +351,6 @@ PMC.DrawRects = () => {
       .stroke({ color: COLOR, width: 4 });
     g1.move(10, 200);
   }
-};
-
-/// INITIALIZATION ////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-window.pmc = PMC;
-window.cc = PMC.CalculateChanges;
-// DEBUGGERY
-window.snn = (id, name) => {
-  DATA.Prop(id).name = name;
-  PMC.VMProp(id).Update();
-  return DATA.Prop(id).name;
-};
-window.nn = id => {
-  return DATA(id).name;
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

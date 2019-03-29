@@ -136,12 +136,22 @@ DATA.HasMech = (evo, ew) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.Prop = id => {
-  return m_graph.node(id);
+  const prop = m_graph.node(id);
+  if (prop) return prop;
+  throw Error(`no prop with id '${id}' exists`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.Mech = (evo, ew) => {
-  if (typeof ew === 'string') return m_graph.edge(evo, ew);
-  return m_graph.edge(evo);
+  if (typeof ew === 'string') {
+    const mech = m_graph.edge(evo, ew);
+    if (mech) return mech;
+    console.warn('FYI: DATA.Mech() accepts edgeObj or w,v. A pathId is invalid');
+    throw Error(`no mech with id '${evo}', '${ew}'`);
+  }
+  const mech = m_graph.edge(evo);
+  if (mech) return mech;
+  console.warn('FYI: DATA.Mech() accepts edgeObj or w,v. A pathId is invalid');
+  throw Error(`no mech with edgeObj '${JSON.stringify(evo)}'`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/

@@ -12,6 +12,7 @@
 import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
 import { VPathId } from './defaults';
+import UR from '../../system/ursys';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -30,7 +31,7 @@ function m_GetSVGPath(vso, ws) {
   if (!vmech) throw Error(`vmech '${pathId}' not found`);
   return vmech;
 }
-function m_GetSVGPathString(p1, p2) {
+function m_MakePathDrawingString(p1, p2) {
   let pstring = `M${p1.x},${p1.y} C${p1.x},${p1.y - m_up} ${p2.x},${p2.y - m_up} ${p2.x},${p2.y}`;
   return pstring;
 }
@@ -43,16 +44,24 @@ class VGMech {
     if (!DATA.HasMech(edgeObj)) throw Error(`${pathId} is not in graph data`);
     // basic display props
     this.id = pathId;
-    this.data = Object.assign({}, DATA.Mech(pathId)); // copy, not reference
+    this.data = Object.assign({}, DATA.Mech(edgeObj)); // copy, not reference
+    this.sourceId = 0;
+    this.targetId = 0;
     // higher order display properties
     this.dataDisplayMode = {}; // how to display data, what data to show/hide
     this.connectionPoints = []; // array of points available for mechanism connections
     this.highlightMode = {}; // how to display selection, subselection, hover
-    this.svgPath = svgRoot
+    this.path = svgRoot
       .path()
       .back()
       .fill('none')
       .stroke({ width: 4, color: 'orange', dasharray: '4 2' });
+    this.pathLabel = svgRoot.text(add => {
+      add.tspan(this.data.name);
+    });
+    this.pathLabel.fill('orange').attr('dy', -6);
+    this.pathLabel.attr('text-anchor', 'end');
+    this.textpath = this.pathLabel.path(this.path).attr('startOffset', this.path.length() - m_blen);
   }
 
   //
@@ -62,18 +71,29 @@ class VGMech {
 
   // "destructor"
   Release() {
-    if (this.svgPath) this.svgPath.remove();
+    if (this.path) this.path.remove();
   }
 
   Update(p1, p2) {
-    this.p1 = p1;
-    this.p2 = p2;
     // update data by copying
     const data = DATA.Mech(p1.id, p2.id);
     this.data.name = data.name;
-    //
-    if (this.svgPath) {
-      this.svgPath.plot(m_GetSVGPathString(p1, p2));
+    // save edge metadata
+    let w = p1.id;
+    let v = p2.id;
+    this.sourceId = w;
+    this.targetId = v;
+    // plot path left-right
+    if (this.path) {
+      if (p1.x < p2.x) {
+        this.path.plot(m_MakePathDrawingString(p1, p2));
+        this.pathLabel.attr('text-anchor', 'end');
+        this.textpath.attr('startOffset', this.path.length() - m_blen);
+      } else {
+        this.path.plot(m_MakePathDrawingString(p2, p1));
+        this.pathLabel.attr('text-anchor', 'start');
+        this.textpath.attr('startOffset', m_blen);
+      }
     }
   }
 }

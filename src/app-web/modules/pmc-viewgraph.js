@@ -11,13 +11,14 @@ import SVG from '@svgdotjs/svg.js/src/svg';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import DATA from './pmc-data';
 import VGProperties from './vg-properties';
+import VGMechanisms from './vg-mechanisms';
 import { cssinfo, cssdraw, csstab, csstab2 } from './console-styles';
 import { PAD } from './defaults';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const map_vmprops = new Map(); // our property viewmodel data
-const map_vmmechs = new Map(); // our mechanism viewmodel data
+const map_vmprops = DATA.VM.map_vmprops;
+const map_vmmechs = DATA.VM.map_vmmechs;
 //
 let m_element;
 let m_svgroot;
@@ -66,14 +67,14 @@ PMC.SyncModeSettings = () => {
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.SyncPropsFromGraphData = () => {
   if (DBG) console.groupCollapsed(`%c:SyncPropsFromGraphData()`, cssinfo);
-  const { added, removed, updated } = DATA.CompareProps(map_vmprops);
+  const { added, removed, updated } = DATA.VM_GetVPropChanges();
   removed.forEach(id => {
     VGProperties.Release(id);
-    map_vmprops.delete(id);
+    DATA.VM_VPropDelete(id);
   });
   added.forEach(id => {
     const vprop = VGProperties.New(id, m_svgroot);
-    map_vmprops.set(id, vprop);
+    DATA.VM_VPropSet(id, vprop);
   });
   updated.forEach(id => {
     VGProperties.Update(id);
@@ -85,6 +86,28 @@ PMC.SyncPropsFromGraphData = () => {
     console.groupEnd();
   }
 };
+PMC.SyncMechsFromGraphData = () => {
+  if (DBG) console.group(`%c:SyncMechsFromGraphData()`, cssinfo);
+  const { added, removed, updated } = DATA.VM_GetVMechChanges();
+  removed.forEach(edgeObj => {
+    VGMechanisms.Release(edgeObj);
+    DATA.VM_VMechDelete(edgeObj);
+  });
+  added.forEach(edgeObj => {
+    const vmech = VGMechanisms.New(edgeObj, m_svgroot);
+    DATA.VM_VMechSet(edgeObj, vmech);
+  });
+  updated.forEach(edgeObj => {
+    VGMechanisms.Update(edgeObj);
+  });
+  if (DBG) {
+    if (removed.length) console.log(`%c:Removing ${removed.length} dead edgeObjs`, csstab);
+    if (added.length) console.log(`%c:Adding ${added.length} new edgeObjs`, csstab);
+    if (updated.length) console.log(`%c:Updating ${updated.length} edgeObjs`, csstab);
+    console.groupEnd();
+  }
+};
+
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
     Update the data model. For PMCViewGraph, this lifecycle event probably
     doesn't do anything because that is PMCDataGraph's responsibility.

@@ -59,7 +59,7 @@ class SVGView extends React.Component {
 
     // LIFECYCLE: handle changes to underlying data and queued user inputs
     PMCView.SyncPropsFromGraphData();
-
+    PMCView.SyncMechsFromGraphData();
     // LIFECYCLE: update critical lists, element states, data.
     // This is purely DATA related
     // PMCView.UpdateModel();

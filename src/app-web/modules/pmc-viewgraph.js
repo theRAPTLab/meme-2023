@@ -127,11 +127,7 @@ PMC.UpdateViewModel = () => {
   // walk through every component
   components.forEach(compId => {
     VGProperties.MoveToRoot(compId);
-    const pbox = u_Recurse(compId);
-    // remaining props are leftover
-    console.group(`component '${pbox.id}'`);
-    console.log(`%c bbox ${pbox.w}x${pbox.h}`, csstab);
-    console.groupEnd();
+    const bbox = u_Recurse(compId);
   });
   if (DBG) console.groupEnd();
 };

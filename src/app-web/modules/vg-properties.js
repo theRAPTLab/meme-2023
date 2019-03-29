@@ -345,7 +345,7 @@ VGProperties.LayoutComponents = () => {
 
 function u_Layout(offset, id) {
   let { x, y } = offset;
-  console.group(`${id} recurse layout from (${x},${y})`);
+  console.group(`${id} draw at (${x},${y})`);
   const compVis = m_GetVisual(id);
   compVis.Move(x, y); // draw compVis where it should go in screen space
   y += compVis.DataHeight() + PAD.MIN;
@@ -356,8 +356,9 @@ function u_Layout(offset, id) {
     const childVis = m_GetVisual(cid);
     widest = Math.max(widest, childVis.GetKidsBBox()).w;
     u_Layout({ x, y }, cid);
-    y += childVis.Height() + PAD.MIN;
-    console.log(`[${cid}] to y=${y}`);
+    const addH = childVis.Height() + PAD.MIN;
+    y += addH;
+    console.log(`y + ${addH} = ${y}`);
   });
   console.groupEnd();
 }

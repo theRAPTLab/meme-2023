@@ -48,20 +48,16 @@ class VGMech {
     this.dataDisplayMode = {}; // how to display data, what data to show/hide
     this.connectionPoints = []; // array of points available for mechanism connections
     this.highlightMode = {}; // how to display selection, subselection, hover
-    this.svgPath = null;
-
-    // initial drawing
-    this.Draw();
+    this.svgPath = svgRoot
+      .path()
+      .back()
+      .fill('none')
+      .stroke({ width: 4, color: 'orange', dasharray: '4 2' });
   }
 
   //
   Id() {
     return this.id;
-  }
-
-  // drawing interface
-  Draw() {
-    console.log(`drawing ${this.id}`);
   }
 
   // "destructor"
@@ -120,15 +116,25 @@ VGMechanisms.Update = (vSO, wS) => {
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
  *  Return the SVGPath from the ViewModel data by either edgeObj or v,w
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-VGMechanisms.Get = (vso, ws) => {
+VGMechanisms.GetVisual = (vso, ws) => {
   return m_GetSVGPath(vso, ws);
 };
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
     Draw the model data by calling draw commands on everything. Also update.
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 VGMechanisms.DrawEdges = () => {
-  console.log(DATA.VM.map_vmechs);
-  console.log(`drawing ${DATA.VM.map_vmechs.size} edges`);
+  console.group(`%c:drawing ${DATA.VM.map_vmechs.size} edges`, cssinfo);
+  let edges = DATA.AllMechs();
+  edges.forEach(edgeObj => {
+    const src = DATA.VM_VProp(edgeObj.v);
+    const dst = DATA.VM_VProp(edgeObj.w);
+    const p1 = src.GetCenter();
+    const p2 = dst.GetCenter();
+    console.log(`${src.id}:${dst.id} (${p1.x},${p1.y}) to (${p2.x},${p2.y})`);
+    const vmech = DATA.VM_VMech(edgeObj);
+    vmech.Update(p1, p2);
+  });
+  console.groupEnd();
 };
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////

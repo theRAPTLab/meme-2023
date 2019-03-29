@@ -116,6 +116,15 @@ class VGProp {
   }
 
   //
+  GetCenter() {
+    return {
+      id: this.id,
+      x: this.gRoot.cx(),
+      y: this.gRoot.cy()
+    };
+  }
+
+  //
   GetSize() {
     return {
       width: this.width,
@@ -321,7 +330,7 @@ VGProperties.LayoutComponents = () => {
   // set background size to it
   components.forEach(id => {
     // get the Visual
-    console.groupCollapsed(`%c:handling visual ${id}`, cssinfo);
+    console.groupCollapsed(`%c:layout component ${id}`, cssinfo);
     u_Layout({ x: xCounter, y: yCounter }, id);
     const compVis = DATA.VM_VProp(id);
     xCounter += compVis.GetSize().width + PAD.MIN2;

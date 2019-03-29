@@ -53,10 +53,10 @@ DATA.LoadGraph = () => {
   g.setParent('y', 'x');
   g.setParent('z', 'c');
   g.setParent('b', 'z');
-  g.setEdge('b', 'a', { name: 'b to a' });
-  g.setEdge('b', 'd', { name: 'b to d' });
-  g.setEdge('c', 'e', { name: 'c to e' });
-  g.setEdge('e', 'b', { name: 'e to b' });
+  g.setEdge('a', 'c', { name: 'a to c' });
+  g.setEdge('a', 'x', { name: 'a to x' });
+  g.setEdge('y', 'e', { name: 'y to e' });
+  g.setEdge('b', 'e', { name: 'b to e' });
   // test serial write out, then serial read back in
   const cleanGraphObj = GraphJSON.write(g);
   const json = JSON.stringify(cleanGraphObj);
@@ -114,6 +114,10 @@ DATA.AllProps = () => {
   return a_props;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+DATA.AllMechs = () => {
+  return a_mechs;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.Components = () => {
   return a_components;
 };
@@ -127,7 +131,7 @@ DATA.HasProp = id => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.HasMech = (evo, ew) => {
-  if (typeof ew === 'number') return m_graph.hasEdge(evo, ew);
+  if (typeof ew === 'string') return m_graph.hasEdge(evo, ew);
   return m_graph.hasEdge(evo);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -136,7 +140,7 @@ DATA.Prop = id => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.Mech = (evo, ew) => {
-  if (typeof ew === 'number') return m_graph.edge(evo, ew);
+  if (typeof ew === 'string') return m_graph.edge(evo, ew);
   return m_graph.edge(evo);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -199,12 +203,12 @@ DATA.VM_GetVMechChanges = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
 DATA.VM_VMechExists = (vso, ws) => {
   const pathId = VPathId(vso, ws);
-  return map_vprops.has(pathId);
+  return map_vmechs.has(pathId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
 DATA.VM_VMech = (vso, ws) => {
   const pathId = VPathId(vso, ws);
-  return map_vprops.get(pathId);
+  return map_vmechs.get(pathId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
 DATA.VM_VMechDelete = edgeObj => {

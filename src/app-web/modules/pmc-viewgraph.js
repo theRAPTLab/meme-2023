@@ -86,7 +86,7 @@ PMC.SyncPropsFromGraphData = () => {
     removed, or updated
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.SyncMechsFromGraphData = () => {
-  if (DBG) console.group(`%c:SyncMechsFromGraphData()`, cssinfo);
+  if (DBG) console.groupCollapsed(`%c:SyncMechsFromGraphData()`, cssinfo);
   const { added, removed, updated } = DATA.VM_GetVMechChanges();
   removed.forEach(edgeObj => {
     VGMechanisms.Release(edgeObj);

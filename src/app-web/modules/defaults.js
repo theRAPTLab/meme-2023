@@ -14,13 +14,17 @@ const PAD = {
   MIN2: GAP * 2
 };
 
-// construct string id from sourceId, targetId for use in storing edge ids.
-// v = source, w = target in dagrejs/graphlib
+// construct string id from source and target OR edge object
+// vso = sourceId or edgeObject, ws = targetId
 function VPathId(vso, ws) {
-  let [v, w] = ArrayFromABO(vso, ws);
-  if (typeof v !== 'string') throw Error(`arg1 must be string id`);
-  if (typeof w !== 'string') throw Error(`arg2 must be string id`);
-  return `${v}:${w}`;
+  if (typeof vso === 'object') {
+    const { v, w } = vso;
+    if (!(v && w)) throw Error(`missing v and w properties in arg`);
+    return `${v}:${w}`;
+  }
+  if (typeof vso !== 'string') throw Error(`arg1 must be string id`);
+  if (typeof ws !== 'string') throw Error(`arg2 '${ws}' must be string id. arg1 was '${vso}'`);
+  return `${vso}:${ws}`;
 }
 // deconstruct a single pathId into edgeObj
 // const eobj = EdgeObjFromPathId(pathId))

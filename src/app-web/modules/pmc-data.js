@@ -24,13 +24,8 @@ let h_outedges = new Map(); // outedges hash of each prop by id
 
 /// VIEWMODEL /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// used by vg-properties
-const map_visuals = new Map();
-// used by vg-mechanisms.js
-const map_paths = new Map(); // vmech visuals stored by pathId
-// used by pmc-viewgraph
-const map_vmprops = new Map(); // our property viewmodel data
-const map_vmmechs = new Map(); // our mechanism viewmodel data
+const map_vprops = new Map(); // our property viewmodel data stored by id
+const map_vmechs = new Map(); // our mechanism viewmodel data stored by pathid
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -158,20 +153,30 @@ DATA.VM_GetVPropChanges = () => {
   const removed = [];
   // find what matches and what is new
   a_props.forEach(id => {
-    if (map_vmprops.has(id)) updated.push(id);
+    if (map_vprops.has(id)) updated.push(id);
     else added.push(id);
   });
   // removed ids exist in viewmodelPropMap but not in updated props
-  map_vmprops.forEach((val, id) => {
+  map_vprops.forEach((val, id) => {
     if (!updated.includes(id)) removed.push(id);
   });
   return { added, removed, updated };
 };
-DATA.VM_VPropDelete = id => {
-  map_vmprops.delete(id);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
+DATA.VM_VPropExists = id => {
+  return map_vprops.has(id);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
+DATA.VM_VProp = id => {
+  return map_vprops.get(id);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
+DATA.VM_VPropDelete = id => {
+  map_vprops.delete(id);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
 DATA.VM_VPropSet = (id, vprop) => {
-  map_vmprops.set(id, vprop);
+  map_vprops.set(id, vprop);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -182,22 +187,34 @@ DATA.VM_GetVMechChanges = () => {
   const removed = [];
   // find what matches and what is new
   a_mechs.forEach(edgeObj => {
-    if (map_vmmechs.has(edgeObj)) updated.push(edgeObj);
+    if (map_vmechs.has(edgeObj)) updated.push(edgeObj);
     else added.push(edgeObj);
   });
   // removed ids exist in viewmodelPropMap but not in updated props
-  map_vmmechs.forEach((val, edgeObj) => {
+  map_vmechs.forEach((val, edgeObj) => {
     if (!updated.includes(edgeObj)) removed.push(edgeObj);
   });
   return { added, removed, updated };
 };
-DATA.VM_VMechDelete = edgeObj => {
-  map_vmmechs.delete(edgeObj);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
+DATA.VM_VMechExists = (vso, ws) => {
+  const pathId = VPathId(vso, ws);
+  return map_vprops.has(pathId);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
+DATA.VM_VMech = (vso, ws) => {
+  const pathId = VPathId(vso, ws);
+  return map_vprops.get(pathId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
+DATA.VM_VMechDelete = edgeObj => {
+  map_vmechs.delete(edgeObj);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
 DATA.VM_VMechSet = (edgeObj, vmech) => {
-  map_vmmechs.set(edgeObj, vmech);
+  map_vmechs.set(edgeObj, vmech);
 };
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
-DATA.VM = { map_paths, map_vmprops, map_vmmechs, map_visuals };
+DATA.VM = { map_vprops, map_vmechs };
 export default DATA;

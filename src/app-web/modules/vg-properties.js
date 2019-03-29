@@ -30,15 +30,6 @@ const DIM_RADIUS = 3;
 
 const DBG = false;
 
-/// PRIVATE HELPERS ///////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function m_GetVisual(id) {
-  if (typeof id !== 'string') throw Error(`require string id`);
-  const vprop = map_visuals.get(id);
-  if (!vprop) throw Error(`vprop '${id}' not found`);
-  return vprop;
-}
-
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class VGProp {
@@ -195,14 +186,14 @@ class VGProp {
 
   //
   ToParent(id) {
-    const vparent = m_GetVisual(id);
+    const vparent = DATA.VM_VProp(id);
     if (DBG) console.log(`${id} <- ${this.id}`);
     this.gRoot.toParent(vparent.gKids);
   }
 
   //
   AddTo(id) {
-    const vparent = m_GetVisual(id);
+    const vparent = DATA.VM_VProp(id);
     if (DBG) console.log(`${id} ++ ${this.id}`);
     this.gRoot.addTo(vparent.gKids);
   }
@@ -241,10 +232,10 @@ const VGProperties = {};
  *  the collection of all allocated visuals
 /*/
 VGProperties.New = (id, svgRoot) => {
-  if (map_visuals.has(id)) throw Error(`${id} is already allocated`);
+  if (DATA.VM_VProp(id)) throw Error(`${id} is already allocated`);
   if (svgRoot.constructor.name !== 'Svg') throw Error(`arg2 must be SVGJS draw instance`);
   const vprop = new VGProp(id, svgRoot);
-  map_visuals.set(id, vprop);
+  DATA.VM_VPropSet(id, vprop);
   return vprop;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -252,8 +243,8 @@ VGProperties.New = (id, svgRoot) => {
  *  De-allocate VGProp instance by id.
 /*/
 VGProperties.Release = id => {
-  const vprop = m_GetVisual(id);
-  map_visuals.delete(id);
+  const vprop = DATA.VM_VProp(id);
+  DATA.VM_VPropDelete(id);
   return vprop.Release();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -261,7 +252,7 @@ VGProperties.Release = id => {
  *  Update instance from associated data id
 /*/
 VGProperties.Update = id => {
-  const vprop = m_GetVisual(id);
+  const vprop = DATA.VM_VProp(id);
   vprop.Update();
   return vprop;
 };
@@ -272,8 +263,8 @@ VGProperties.Update = id => {
 /*/
 VGProperties.MoveToParent = (id, parentId) => {
   if (!id) throw Error(`arg1 must be valid string id`);
-  if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't set parent`);
-  const child = m_GetVisual(id);
+  if (!DATA.VM_VPropExists(id)) throw Error(`${id} isn't allocated, so can't set parent`);
+  const child = DATA.VM_VProp(id);
   if (!parentId) {
     child.ToRoot();
     return child;
@@ -287,13 +278,13 @@ VGProperties.MoveToRoot = id => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 VGProperties.GetVisual = id => {
-  return m_GetVisual(id);
+  return DATA.VM_VProp(id);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 VGProperties.Move = (id, x, y) => {
   if (!id) throw Error(`arg1 must be valid string id`);
   if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't move`);
-  const child = m_GetVisual(id);
+  const child = DATA.VM_VProp(id);
   child.Move({ x, y });
   return child;
 };
@@ -301,7 +292,7 @@ VGProperties.Move = (id, x, y) => {
 VGProperties.SetSize = (id, w, h) => {
   if (!id) throw Error(`arg1 must be valid string id`);
   if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't resize`);
-  const child = m_GetVisual(id);
+  const child = DATA.VM_VProp(id);
   child.SetSize(w, h);
   return child;
 };
@@ -309,7 +300,7 @@ VGProperties.SetSize = (id, w, h) => {
 VGProperties.GetSize = id => {
   if (!id) throw Error(`arg1 must be valid string id`);
   if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't retrieve size`);
-  const child = m_GetVisual(id);
+  const child = DATA.VM_VProp(id);
   return { id: child.Id(), w: child.Width(), h: child.Height() };
 };
 
@@ -332,7 +323,7 @@ VGProperties.LayoutComponents = () => {
     // get the Visual
     console.groupCollapsed(`%c:handling visual ${id}`, cssinfo);
     u_Layout({ x: xCounter, y: yCounter }, id);
-    const compVis = m_GetVisual(id);
+    const compVis = DATA.VM_VProp(id);
     xCounter += compVis.GetSize().width + PAD.MIN2;
     if (xCounter > 700) {
       yCounter += highHeight;
@@ -346,14 +337,14 @@ VGProperties.LayoutComponents = () => {
 function u_Layout(offset, id) {
   let { x, y } = offset;
   console.group(`${id} draw at (${x},${y})`);
-  const compVis = m_GetVisual(id);
+  const compVis = DATA.VM_VProp(id);
   compVis.Move(x, y); // draw compVis where it should go in screen space
   y += compVis.DataHeight() + PAD.MIN;
   x += PAD.MIN;
   const children = DATA.Children(id);
   let widest = 0;
   children.forEach(cid => {
-    const childVis = m_GetVisual(cid);
+    const childVis = DATA.VM_VProp(cid);
     widest = Math.max(widest, childVis.GetKidsBBox()).w;
     u_Layout({ x, y }, cid);
     const addH = childVis.Height() + PAD.MIN;
@@ -369,7 +360,7 @@ window.vprops = () => {
   console.log(`%cattaching props to window by [id]`, cssdata);
   let props = DATA.AllProps();
   props.forEach(pid => {
-    window[pid] = m_GetVisual(pid);
+    window[pid] = DATA.VM_VProp(pid);
   });
   return `${props} attached to window object`;
 };
@@ -386,7 +377,7 @@ window.dumpid = id => {
   recurse(id);
   /** helper **/
   function recurse(pid) {
-    const vis = m_GetVisual(pid);
+    const vis = DATA.VM_VProp(pid);
     const visHeight = vis.Height();
     const visY = vis.Y();
     console.group(`[${pid}] y=${visHeight} (${visHeight})`);

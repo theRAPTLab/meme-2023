@@ -17,9 +17,6 @@ import { PAD } from './defaults';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const map_vmprops = DATA.VM.map_vmprops;
-const map_vmmechs = DATA.VM.map_vmmechs;
-//
 let m_element;
 let m_svgroot;
 const m_testprops = [];
@@ -58,23 +55,19 @@ PMC.SyncModeSettings = () => {
   console.log('SyncModeSettings() unimplemented');
 };
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
-    SyncPropsToData();
-    INPUTS: DataCompareProps(map_vmprops)
+    SyncPropsFromGraphData()
 
-    Collects queued change requests (actions, inputs) and figures out how to
-    handle them in the right order. These changes are then stored in collections
-    to be processed by UpdateModel().
+    Maintain Properties ViewModel by synchronizing data that has been added,
+    removed, or updated
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.SyncPropsFromGraphData = () => {
   if (DBG) console.groupCollapsed(`%c:SyncPropsFromGraphData()`, cssinfo);
   const { added, removed, updated } = DATA.VM_GetVPropChanges();
   removed.forEach(id => {
     VGProperties.Release(id);
-    DATA.VM_VPropDelete(id);
   });
   added.forEach(id => {
     const vprop = VGProperties.New(id, m_svgroot);
-    DATA.VM_VPropSet(id, vprop);
   });
   updated.forEach(id => {
     VGProperties.Update(id);
@@ -86,16 +79,20 @@ PMC.SyncPropsFromGraphData = () => {
     console.groupEnd();
   }
 };
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
+    SyncMechsFromGraphData()
+
+    Maintain Mechanisms ViewModel by synchronizing data that has been added,
+    removed, or updated
+:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.SyncMechsFromGraphData = () => {
   if (DBG) console.group(`%c:SyncMechsFromGraphData()`, cssinfo);
   const { added, removed, updated } = DATA.VM_GetVMechChanges();
   removed.forEach(edgeObj => {
     VGMechanisms.Release(edgeObj);
-    DATA.VM_VMechDelete(edgeObj);
   });
   added.forEach(edgeObj => {
     const vmech = VGMechanisms.New(edgeObj, m_svgroot);
-    DATA.VM_VMechSet(edgeObj, vmech);
   });
   updated.forEach(edgeObj => {
     VGMechanisms.Update(edgeObj);
@@ -185,15 +182,8 @@ function u_Recurse(propId) {
 PMC.UpdateView = () => {
   if (DBG) console.group(`%c:UpdateView()`, cssinfo);
   VGProperties.LayoutComponents();
+  VGMechanisms.DrawEdges();
   if (DBG) console.groupEnd();
-};
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
-    Returns a data object
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-PMC.VMProp = id => {
-  if (typeof id !== 'string') throw Error('arg1 must be string');
-  if (!map_vmprops.has(id)) throw Error(`vprop ${id} is not in map_vmprops`);
-  return map_vmprops.get(id);
 };
 
 /// DRAWING TEST CODE /////////////////////////////////////////////////////////

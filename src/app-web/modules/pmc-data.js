@@ -6,7 +6,7 @@
 
 import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
 import { cssinfo, cssreset, cssdata } from './console-styles';
-import { VPathId, ArrayFromABO } from './defaults';
+import { VPathId, EdgeObjFromPathId } from './defaults';
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -199,14 +199,24 @@ DATA.VM_GetVMechChanges = () => {
   const added = [];
   const updated = [];
   const removed = [];
-  // find what matches and what is new
+  // find what matches and what is new by pathid
   a_mechs.forEach(edgeObj => {
-    if (map_vmechs.has(edgeObj)) updated.push(edgeObj);
-    else added.push(edgeObj);
+    const pathId = VPathId(edgeObj);
+    if (map_vmechs.has(pathId)) {
+      updated.push(edgeObj);
+      console.log('updated', pathId);
+    } else {
+      added.push(edgeObj);
+      console.log('added', pathId);
+    }
   });
-  // removed ids exist in viewmodelPropMap but not in updated props
-  map_vmechs.forEach((val, edgeObj) => {
-    if (!updated.includes(edgeObj)) removed.push(edgeObj);
+  // removed
+  map_vmechs.forEach((vmech, pathId) => {
+    const edgeObj = EdgeObjFromPathId(vmech.id);
+    if (!updated.includes(edgeObj)) {
+      removed.push(edgeObj);
+      console.log('removed', pathId);
+    }
   });
   return { added, removed, updated };
 };
@@ -221,12 +231,14 @@ DATA.VM_VMech = (vso, ws) => {
   return map_vmechs.get(pathId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
-DATA.VM_VMechDelete = edgeObj => {
-  map_vmechs.delete(edgeObj);
+DATA.VM_VMechDelete = (vso, ws) => {
+  const pathId = VPathId(vso, ws);
+  map_vmechs.delete(pathId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
-DATA.VM_VMechSet = (edgeObj, vmech) => {
-  map_vmechs.set(edgeObj, vmech);
+DATA.VM_VMechSet = (vmech, vso, ws) => {
+  const pathId = VPathId(vso, ws);
+  map_vmechs.set(pathId, vmech);
 };
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -

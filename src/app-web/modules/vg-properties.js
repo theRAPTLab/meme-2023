@@ -330,9 +330,8 @@ VGProperties.GetSize = id => {
 VGProperties.LayoutComponents = () => {
   const components = DATA.Components();
   // then dp ;aupit
-  let xCounter = 50;
-  let highHeight = 0;
-  let yCounter = 50;
+  let xCounter = PAD.MIN2;
+  let yCounter = PAD.MIN2;
 
   // walk through all components
   // for each component, get the size of all children
@@ -342,15 +341,19 @@ VGProperties.LayoutComponents = () => {
     console.groupCollapsed(`%c:layout component ${id}`, cssinfo);
     u_Layout({ x: xCounter, y: yCounter }, id);
     const compVis = DATA.VM_VProp(id);
+    const compHeight = compVis.Height();
+    highHeight = Math.max(compHeight, highHeight);
     xCounter += compVis.GetSize().width + PAD.MIN2;
     if (xCounter > 700) {
-      yCounter += highHeight;
-      xCounter = 0;
+      yCounter += highHeight + PAD.MIN2;
+      xCounter = PAD.MIN2;
       highHeight = 0;
     }
     console.groupEnd();
   });
 };
+
+let highHeight = 0;
 
 function u_Layout(offset, id) {
   let { x, y } = offset;

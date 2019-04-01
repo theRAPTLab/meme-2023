@@ -19,7 +19,10 @@ const PAD = {
 function VPathId(vso, ws) {
   if (typeof vso === 'object') {
     const { v, w } = vso;
-    if (!(v && w)) throw Error(`missing v and w properties in arg`);
+    if (!(v && w)) {
+      console.warn('error edgeObj', vso);
+      throw Error(`missing v and w properties in arg`);
+    }
     return `${v}:${w}`;
   }
   if (typeof vso !== 'string') throw Error(`arg1 must be string id`);

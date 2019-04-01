@@ -91,12 +91,15 @@ PMC.SyncPropsFromGraphData = () => {
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.SyncMechsFromGraphData = () => {
   if (DBG) console.groupCollapsed(`%c:SyncMechsFromGraphData()`, cssinfo);
+  // these arrays contain edgeObj { v, w }
   const { added, removed, updated } = DATA.VM_GetVMechChanges();
   removed.forEach(edgeObj => {
     VGMechanisms.Release(edgeObj);
+    DATA.VM_VMechDelete(edgeObj);
   });
   added.forEach(edgeObj => {
     const vmech = VGMechanisms.New(edgeObj, m_svgroot);
+    DATA.VM_VMechSet(vmech, edgeObj);
   });
   updated.forEach(edgeObj => {
     VGMechanisms.Update(edgeObj);
@@ -184,7 +187,7 @@ function u_Recurse(propId) {
     Draw the model data by calling draw commands on everything. Also update.
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.UpdateView = () => {
-  if (DBG) console.group(`%c:UpdateView()`, cssinfo);
+  if (DBG) console.groupCollapsed(`%c:UpdateView()`, cssinfo);
   VGProperties.LayoutComponents();
   VGMechanisms.DrawEdges();
   if (DBG) console.groupEnd();

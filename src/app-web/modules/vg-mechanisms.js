@@ -25,12 +25,6 @@ const DBG = false;
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// accepts either edgeObj or v,w as parameters
-function m_GetSVGPath(vso, ws) {
-  const pathId = VPathId(vso, ws);
-  const vmech = DATA.GetVPath(pathId);
-  if (!vmech) throw Error(`vmech '${pathId}' not found`);
-  return vmech;
-}
 function m_MakePathDrawingString(p1, p2) {
   let pstring = `M${p1.x},${p1.y} C${p1.x},${p1.y - m_up} ${p2.x},${p2.y - m_up} ${p2.x},${p2.y}`;
   return pstring;
@@ -111,7 +105,8 @@ VGMechanisms.New = (edgeObj, svgRoot) => {
   if (DATA.VM_VMechExists(edgeObj)) throw Error(`${pathId} is already allocated`);
   if (svgRoot.constructor.name !== 'Svg') throw Error(`arg2 must be SVGJS draw instance`);
   const vmech = new VGMech(edgeObj, svgRoot);
-  DATA.VM_VMechSet(pathId, vmech);
+  console.log('created vmech', vmech.id);
+  DATA.VM_VMechSet(vmech, edgeObj);
   return vmech;
 };
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
@@ -119,9 +114,9 @@ VGMechanisms.New = (edgeObj, svgRoot) => {
  *  accepts either edgeObj or v,w
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 VGMechanisms.Release = (vso, ws) => {
-  const pathId = VPathId(vso, ws);
-  const vmech = m_GetSVGPath(pathId);
-  DATA.VM_VMechDelete(pathId);
+  const vmech = DATA.VM_VMech(vso, ws);
+  DATA.VM_VMechDelete(vso, ws);
+  console.log('released vmech', vmech.id);
   return vmech.Release();
 };
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
@@ -129,7 +124,8 @@ VGMechanisms.Release = (vso, ws) => {
  *  accepts either edgeObj or v,w
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 VGMechanisms.Update = (vSO, wS) => {
-  const vmech = m_GetSVGPath(vSO, wS);
+  const vmech = DATA.VM_VMech(vSO, wS);
+  console.log('update vmech', vmech);
   vmech.Update();
   return vmech;
 };
@@ -137,7 +133,7 @@ VGMechanisms.Update = (vSO, wS) => {
  *  Return the SVGPath from the ViewModel data by either edgeObj or v,w
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 VGMechanisms.GetVisual = (vso, ws) => {
-  return m_GetSVGPath(vso, ws);
+  return DATA.VM_VMech(vso, ws);
 };
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
     Draw the model data by calling draw commands on everything. Also update.

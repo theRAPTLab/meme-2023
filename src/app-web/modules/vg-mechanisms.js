@@ -11,7 +11,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
-import { VPathId } from './defaults';
+import { CoerceToPathId, CoerceToEdgeObj } from './defaults';
 import UR from '../../system/ursys';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
@@ -33,12 +33,11 @@ function m_MakePathDrawingString(p1, p2) {
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class VGMech {
-  constructor(edgeObj, svgRoot) {
-    const pathId = VPathId(edgeObj);
-    if (!DATA.HasMech(edgeObj)) throw Error(`${pathId} is not in graph data`);
+  constructor(pathId, svgRoot) {
+    if (!DATA.HasMech(pathId)) throw Error(`${pathId} is not in graph data`);
     // basic display props
     this.id = pathId;
-    this.data = Object.assign({}, DATA.Mech(edgeObj)); // copy, not reference
+    this.data = Object.assign({}, DATA.Mech(pathId)); // copy, not reference
     this.sourceId = 0;
     this.targetId = 0;
     // higher order display properties
@@ -68,26 +67,46 @@ class VGMech {
     if (this.path) this.path.remove();
   }
 
-  Update(p1, p2) {
-    // update data by copying
-    const data = DATA.Mech(p1.id, p2.id);
-    this.data.name = data.name;
-    // save edge metadata
-    let w = p1.id;
-    let v = p2.id;
-    this.sourceId = w;
-    this.targetId = v;
-    // plot path left-right
-    if (this.path) {
-      if (p1.x < p2.x) {
-        this.path.plot(m_MakePathDrawingString(p1, p2));
-        this.pathLabel.attr('text-anchor', 'end');
-        this.textpath.attr('startOffset', this.path.length() - m_blen);
-      } else {
-        this.path.plot(m_MakePathDrawingString(p2, p1));
-        this.pathLabel.attr('text-anchor', 'start');
-        this.textpath.attr('startOffset', m_blen);
+  Update(srcId, tgtId) {
+    const stype = typeof srcId;
+    const ttype = typeof tgtId;
+
+    if (srcId === undefined && tgtId === undefined) {
+      // update data
+      const data = DATA.Mech(this.sourceId, this.targetId);
+      this.data.name = data.name;
+      // no change in srcId or tgtId so return
+      return;
+    }
+    if (stype === 'string' && ttype === 'string') {
+      // valid id inputs
+      this.sourceId = srcId;
+      this.targetId = tgtId;
+
+      // update visual data fields
+      const data = DATA.Mech(this.sourceId, this.targetId);
+      this.data.name = data.name;
+
+      // update visual paths
+      const src = DATA.VM_VProp(srcId);
+      const dst = DATA.VM_VProp(tgtId);
+      const srcPt = src.GetCenter();
+      const tgtPt = dst.GetCenter();
+
+      // plot path left-right
+      if (this.path) {
+        if (srcPt.x < tgtPt.x) {
+          this.path.plot(m_MakePathDrawingString(srcPt, tgtPt));
+          this.pathLabel.attr('text-anchor', 'end');
+          this.textpath.attr('startOffset', this.path.length() - m_blen);
+        } else {
+          this.path.plot(m_MakePathDrawingString(tgtPt, srcPt));
+          this.pathLabel.attr('text-anchor', 'start');
+          this.textpath.attr('startOffset', m_blen);
+        }
       }
+    } else {
+      throw Error('arg1 and arg2 must both be propIds or undefined');
     }
   }
 }
@@ -100,13 +119,12 @@ const VGMechanisms = {};
  *  Allocate VGProp instances through this static method. It maintains
  *  the collection of all allocated visuals
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-VGMechanisms.New = (edgeObj, svgRoot) => {
-  const pathId = VPathId(edgeObj);
-  if (DATA.VM_VMechExists(edgeObj)) throw Error(`${pathId} is already allocated`);
+VGMechanisms.New = (pathId, svgRoot) => {
+  if (DATA.VM_VMechExists(pathId)) throw Error(`${pathId} is already allocated`);
   if (svgRoot.constructor.name !== 'Svg') throw Error(`arg2 must be SVGJS draw instance`);
-  const vmech = new VGMech(edgeObj, svgRoot);
+  const vmech = new VGMech(pathId, svgRoot);
   console.log('created vmech', vmech.id);
-  DATA.VM_VMechSet(vmech, edgeObj);
+  DATA.VM_VMechSet(vmech, pathId);
   return vmech;
 };
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
@@ -124,9 +142,10 @@ VGMechanisms.Release = (vso, ws) => {
  *  accepts either edgeObj or v,w
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 VGMechanisms.Update = (vSO, wS) => {
-  const vmech = DATA.VM_VMech(vSO, wS);
+  const eobj = CoerceToEdgeObj(vSO, wS);
+  const vmech = DATA.VM_VMech(eobj);
   console.log('update vmech', vmech);
-  vmech.Update();
+  vmech.Update(eobj.v, eobj.w);
   return vmech;
 };
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
@@ -139,18 +158,14 @@ VGMechanisms.GetVisual = (vso, ws) => {
     Draw the model data by calling draw commands on everything. Also update.
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 VGMechanisms.DrawEdges = () => {
-  console.group(`%c:drawing ${DATA.VM.map_vmechs.size} edges`, cssinfo);
+  // console.group(`%c:drawing ${DATA.VM.map_vmechs.size} edges`, cssinfo);
   let edges = DATA.AllMechs();
   edges.forEach(edgeObj => {
-    const src = DATA.VM_VProp(edgeObj.v);
-    const dst = DATA.VM_VProp(edgeObj.w);
-    const p1 = src.GetCenter();
-    const p2 = dst.GetCenter();
-    console.log(`${src.id}:${dst.id} (${p1.x},${p1.y}) to (${p2.x},${p2.y})`);
+    const { v, w } = edgeObj;
     const vmech = DATA.VM_VMech(edgeObj);
-    vmech.Update(p1, p2);
+    vmech.Update(v, w);
   });
-  console.groupEnd();
+  // console.groupEnd();
 };
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////

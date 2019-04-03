@@ -16,8 +16,11 @@ const PAD = {
 
 // construct string id from source and target OR edge object
 // vso = sourceId or edgeObject, ws = targetId
-function VPathId(vso, ws) {
-  if (typeof vso === 'object') {
+function CoerceToPathId(vso, ws) {
+  // assume this is an edgeObj
+  const vtype = typeof vso;
+  const wtype = typeof ws;
+  if (vtype === 'object') {
     const { v, w } = vso;
     if (!(v && w)) {
       console.warn('error edgeObj', vso);
@@ -25,17 +28,35 @@ function VPathId(vso, ws) {
     }
     return `${v}:${w}`;
   }
-  if (typeof vso !== 'string') throw Error(`arg1 must be string id`);
-  if (typeof ws !== 'string') throw Error(`arg2 '${ws}' must be string id. arg1 was '${vso}'`);
+  // assume it's a pathId already
+  if (vtype === 'string') {
+    if (ws === undefined) return vso;
+    throw Error(`arg1 must be string id`);
+  }
+
+  //
+  if (wtype !== 'string') throw Error(`arg2 '${ws}' must be string id (arg1 was '${vso}')`);
   return `${vso}:${ws}`;
 }
-// deconstruct a single pathId into edgeObj
-// const eobj = EdgeObjFromPathId(pathId))
-function EdgeObjFromPathId(pathId, delimiter = ':') {
-  if (typeof pathId !== 'string') throw Error('arg must be string');
-  let bits = pathId.split(delimiter);
-  if (bits.length !== 2) throw Error(`pathId has too many ${delimiter} chars`);
-  return { v: bits[0], w: bits[1] };
+// deconstruct a single pathId into edgeObj. Accepts v,w and edgeobjs too
+// const eobj = CoerceToEdgeObj(pathId))
+function CoerceToEdgeObj(pathId, ws) {
+  const ptype = typeof pathId;
+  const wtype = typeof ws;
+  if (ptype === 'string') {
+    if (ws === undefined) {
+      // this is probably a regular pathid
+      let bits = pathId.split(':');
+      if (bits.length !== 2) throw Error(`pathId has too many ${delimiter} chars`);
+      return { v: bits[0], w: bits[1] };
+    }
+    // this might be v,w
+    return { v: pathId, w: ws };
+  }
+  if (ptype === 'object' && pathId.v && pathId.w) {
+    return pathId; // this is already an edgeobj
+  }
+  throw Error('can not conform');
 }
 // deeconstruct either int,int or object with keys into array
 // const [ a, b] = ArrayFromABO(x,y) or ArrayFromABO(obj)
@@ -50,4 +71,4 @@ function ArrayFromABO(aObj, bNum) {
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export { VPROP, VMECH, PAD, VPathId, ArrayFromABO, EdgeObjFromPathId };
+export { VPROP, VMECH, PAD, CoerceToPathId, ArrayFromABO, CoerceToEdgeObj };

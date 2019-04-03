@@ -6,7 +6,7 @@
 
 import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
 import { cssinfo, cssreset, cssdata } from './console-styles';
-import { VPathId, EdgeObjFromPathId } from './defaults';
+import { CoerceToPathId, CoerceToEdgeObj } from './defaults';
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -131,8 +131,8 @@ DATA.HasProp = id => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.HasMech = (evo, ew) => {
-  if (typeof ew === 'string') return m_graph.hasEdge(evo, ew);
-  return m_graph.hasEdge(evo);
+  const eobj = CoerceToEdgeObj(evo, ew);
+  return m_graph.hasEdge(eobj);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.Prop = id => {
@@ -142,16 +142,8 @@ DATA.Prop = id => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.Mech = (evo, ew) => {
-  if (typeof ew === 'string') {
-    const mech = m_graph.edge(evo, ew);
-    if (mech) return mech;
-    console.warn('FYI: DATA.Mech() accepts edgeObj or w,v. A pathId is invalid');
-    throw Error(`no mech with id '${evo}', '${ew}'`);
-  }
-  const mech = m_graph.edge(evo);
-  if (mech) return mech;
-  console.warn('FYI: DATA.Mech() accepts edgeObj or w,v. A pathId is invalid');
-  throw Error(`no mech with edgeObj '${JSON.stringify(evo)}'`);
+  const eobj = CoerceToEdgeObj(evo, ew);
+  return m_graph.edge(eobj);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
@@ -201,43 +193,42 @@ DATA.VM_GetVMechChanges = () => {
   const removed = [];
   // find what matches and what is new by pathid
   a_mechs.forEach(edgeObj => {
-    const pathId = VPathId(edgeObj);
+    const pathId = CoerceToPathId(edgeObj);
     if (map_vmechs.has(pathId)) {
-      updated.push(edgeObj);
+      updated.push(pathId);
       console.log('updated', pathId);
     } else {
-      added.push(edgeObj);
+      added.push(pathId);
       console.log('added', pathId);
     }
   });
   // removed
-  map_vmechs.forEach((vmech, pathId) => {
-    const edgeObj = EdgeObjFromPathId(vmech.id);
-    if (!updated.includes(edgeObj)) {
-      removed.push(edgeObj);
-      console.log('removed', pathId);
+  map_vmechs.forEach((val_vmech, key_pathId) => {
+    if (!updated.includes(key_pathId)) {
+      removed.push(key_pathId);
+      console.log('removed', key_pathId);
     }
   });
   return { added, removed, updated };
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
 DATA.VM_VMechExists = (vso, ws) => {
-  const pathId = VPathId(vso, ws);
+  const pathId = CoerceToPathId(vso, ws);
   return map_vmechs.has(pathId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
 DATA.VM_VMech = (vso, ws) => {
-  const pathId = VPathId(vso, ws);
+  const pathId = CoerceToPathId(vso, ws);
   return map_vmechs.get(pathId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
 DATA.VM_VMechDelete = (vso, ws) => {
-  const pathId = VPathId(vso, ws);
+  const pathId = CoerceToPathId(vso, ws);
   map_vmechs.delete(pathId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
 DATA.VM_VMechSet = (vmech, vso, ws) => {
-  const pathId = VPathId(vso, ws);
+  const pathId = CoerceToPathId(vso, ws);
   map_vmechs.set(pathId, vmech);
 };
 /// EXPORTS ///////////////////////////////////////////////////////////////////

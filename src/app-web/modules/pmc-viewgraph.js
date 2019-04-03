@@ -91,18 +91,18 @@ PMC.SyncPropsFromGraphData = () => {
 :*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 PMC.SyncMechsFromGraphData = () => {
   if (DBG) console.groupCollapsed(`%c:SyncMechsFromGraphData()`, cssinfo);
-  // these arrays contain edgeObj { v, w }
+  // the following arrays contain pathIds
   const { added, removed, updated } = DATA.VM_GetVMechChanges();
-  removed.forEach(edgeObj => {
-    VGMechanisms.Release(edgeObj);
-    DATA.VM_VMechDelete(edgeObj);
+  removed.forEach(pathId => {
+    VGMechanisms.Release(pathId);
+    DATA.VM_VMechDelete(pathId);
   });
-  added.forEach(edgeObj => {
-    const vmech = VGMechanisms.New(edgeObj, m_svgroot);
-    DATA.VM_VMechSet(vmech, edgeObj);
+  added.forEach(pathId => {
+    const vmech = VGMechanisms.New(pathId, m_svgroot);
+    DATA.VM_VMechSet(vmech, pathId);
   });
-  updated.forEach(edgeObj => {
-    VGMechanisms.Update(edgeObj);
+  updated.forEach(pathId => {
+    VGMechanisms.Update(pathId);
   });
   if (DBG) {
     if (removed.length) console.log(`%c:Removing ${removed.length} dead edgeObjs`, csstab);

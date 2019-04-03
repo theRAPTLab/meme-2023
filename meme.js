@@ -12,9 +12,11 @@ let argv;
 let MTERM;
 const ESC = '\x1b';
 try {
+  /* eslint-disable global-require */
   shell = require('shelljs');
   argv = require('minimist')(process.argv.slice(1));
   MTERM = require('./src/cli/meme-term');
+  /* eslint-enable global-require */
 } catch (e) {
   const { code } = e;
   console.log(`\n${ESC}[30;41m NODE RUNTIME ERROR: ${code} ${ESC}[0m`);

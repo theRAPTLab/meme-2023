@@ -27,7 +27,7 @@ const DBG = true;
 
 /// REFLECT DUMP
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-console.log(DocumentObject(DATA));
+console.log(`Reflection test`, DocumentObject(DATA));
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

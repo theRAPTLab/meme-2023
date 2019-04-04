@@ -7,7 +7,9 @@ const VPROP = {
   MIN_HEIGHT: 30
 };
 const VMECH = {
-  STROKE: 5
+  STROKE: 5,
+  UP: 150,
+  BLEN: 55
 };
 const PAD = {
   MIN: GAP,
@@ -66,6 +68,41 @@ function ArrayFromABO(aObj, bNum) {
   return [aObj, bNum];
 }
 
+// return methods and properties of object
+const DocumentObject = obj => {
+  const found_props = [];
+  const found_methods = [];
+  const prop_set = new Set();
+  getProps(obj);
+  prop_set.forEach(key => {
+    switch (typeof key) {
+      case 'string':
+      case 'number':
+      case 'object':
+        found_props.push(`${key}`);
+        break;
+      case 'function':
+        found_methods.push(`${key.name}()`);
+        break;
+      default:
+        console.log(`unknown keytype ${key}`);
+    }
+  });
+  return { props: found_props, methods: found_methods };
+  //
+  function getProps(o) {
+    if (!o) return;
+    const props = Object.values(o);
+    props.forEach(item => {
+      prop_set.add(item);
+    });
+    getProps(Object.getPrototypeOf(o));
+  }
+};
+
+if (window.meme === undefined) window.meme = {};
+window.meme.reflect = DocumentObject;
+
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export { VPROP, VMECH, PAD, CoerceToPathId, ArrayFromABO, CoerceToEdgeObj };
+export { VPROP, VMECH, PAD, DocumentObject, CoerceToPathId, ArrayFromABO, CoerceToEdgeObj };

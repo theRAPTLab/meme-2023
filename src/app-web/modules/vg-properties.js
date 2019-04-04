@@ -212,23 +212,51 @@ class VGProp {
     // if no drawable line (e.g. overlapping) then return no line
     if (distances.length === 0) return {}; // no drawable line
 
-    function makePtObj(x1, y1, x2, y2) {
-      return { pt1: { x: x1, y: y1 }, pt2: { x: x2, y: y2 } };
+    // let's make a helper function to create an object
+    // return { pt1:{ x,y,d, up }, pt2:{ x,y,d, up } }
+    function makePtObj(side, x1, y1, x2, y2) {
+      const dx = x1 - x2;
+      const dy = y1 - y2;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      const up = Math.min(1000, d) / 1000; // should be based on viewport size
+      let up1;
+      let up2;
+      switch (side) {
+        case 'l': // falls-through
+          up1 = up / 2;
+          up2 = up;
+          break;
+        case 'r':
+          up1 = up / 2;
+          up2 = up;
+          break;
+        case 't':
+          up1 = up;
+          up2 = -up;
+          break;
+        case 'b':
+          up1 = -up;
+          up2 = up;
+          break;
+        default:
+          throw Error(`unxpected side ${side}`);
+      }
+      return { pt1: { x: x1, y: y1, d, up: up1 }, pt2: { x: x2, y: y2, d, up: up2 } };
     }
 
     // return the points from source (x1,y1) to target (x2,y2)
-    const shortest = distances[0];
-    switch (shortest.side) {
+    const longest = distances[distances.length - 1];
+    switch (longest.side) {
       case 't':
-        return makePtObj(Acx, Atop, Bcx, Bbot);
+        return makePtObj('t', Acx, Atop, Bcx, Bbot);
       case 'r':
-        return makePtObj(Aright, Acy, Bleft, Bcy);
+        return makePtObj('r', Aright, Acy, Bleft, Bcy);
       case 'b':
-        return makePtObj(Acx, Abot, Bcx, Btop);
+        return makePtObj('b', Acx, Abot, Bcx, Btop);
       case 'l':
-        return makePtObj(Aleft, Acy, Bright, Bcy);
+        return makePtObj('l', Aleft, Acy, Bright, Bcy);
       default:
-        throw Error(`unxpected side value ${shortest.side}`);
+        throw Error(`unxpected side value ${longest.side}`);
     }
   }
 

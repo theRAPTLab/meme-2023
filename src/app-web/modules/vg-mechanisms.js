@@ -11,14 +11,14 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
-import { CoerceToPathId, CoerceToEdgeObj } from './defaults';
+import { VMECH, CoerceToPathId, CoerceToEdgeObj } from './defaults';
 import UR from '../../system/ursys';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const map_paths = DATA.VM.map_paths; // the paths being drawn by system
-const m_up = 150;
-const m_blen = 55;
+const m_up = VMECH.UP;
+const m_blen = VMECH.BLEN;
 const COL_BG = '#44F';
 const DBG = false;
 
@@ -26,7 +26,9 @@ const DBG = false;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// accepts either edgeObj or v,w as parameters
 function m_MakePathDrawingString(p1, p2) {
-  let pstring = `M${p1.x},${p1.y} C${p1.x},${p1.y - m_up} ${p2.x},${p2.y - m_up} ${p2.x},${p2.y}`;
+  const p1start = `M${p1.x},${p1.y} C${p1.x},${p1.y - p1.up * m_up}`;
+  const p2end = `${p2.x},${p2.y - p2.up * m_up} ${p2.x},${p2.y}`;
+  let pstring = `${p1start} ${p2end}`;
   return pstring;
 }
 
@@ -90,7 +92,10 @@ class VGMech {
       // update visual paths
       const srcVProp = DATA.VM_VProp(srcId);
       const { pt1: srcPt, pt2: tgtPt } = srcVProp.GetEdgeConnectionPoints(tgtId);
+      // pt1 and pt2 contain x,y, and d (distance between pt1 and pt2)
+      // pt1 and pt2 also have a source or target property set
       if (srcPt && tgtPt && this.path) {
+        this.path.show();
         if (srcPt.x < tgtPt.x) {
           this.path.plot(m_MakePathDrawingString(srcPt, tgtPt));
           this.pathLabel.attr('text-anchor', 'end');
@@ -100,7 +105,10 @@ class VGMech {
           this.pathLabel.attr('text-anchor', 'start');
           this.textpath.attr('startOffset', m_blen);
         }
+        return;
       }
+      // no srcPt or tgtPt, so hide path if it exists
+      if (this.path) this.path.hide();
     }
   }
 }
@@ -157,8 +165,6 @@ VGMechanisms.DrawEdges = () => {
     const { v, w } = edgeObj;
     const vmech = DATA.VM_VMech(edgeObj);
     vmech.Update(v, w);
-    const vprop = DATA.VM_VProp(v);
-    const pts = vprop.GetEdgeConnectionPoints(w);
   });
   // console.groupEnd();
 };

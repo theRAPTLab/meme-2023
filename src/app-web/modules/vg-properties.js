@@ -147,12 +147,89 @@ class VGProp {
     let { w, h } = this.gDataName.rbox();
     if (w < m_minWidth) w = m_minWidth;
     if (h < m_minHeight) h = m_minHeight;
-
     return {
       id: this.id,
       w: Math.ceil(w),
       h: Math.ceil(h)
     };
+  }
+
+  // return position bbox in screen coordinardinates
+  // x,y,x2,y2,w,h,cx,cy
+  GetScreenBBox() {
+    return this.visBG.bbox();
+  }
+
+  // return a point to connect to
+  GetEdgePoint(loc = 'c') {
+    const { x, y, x2, y2, cx, cy } = this.visBG.bbox();
+    switch (loc) {
+      case 'c':
+        return { x: cx, y: cy };
+      case 't':
+        return { x: cx, y };
+      case 'r':
+        return { x: x2, y: cy };
+      case 'b':
+        return { x: cx, y: y2 };
+      case 'l':
+        return { x, y: cy };
+      default:
+        throw Error(`unexpected location '${loc}'. Valid valus c t r b l`);
+    }
+  }
+
+  // figures out what points to return
+  // returns empty object if no path is possible (e.g. completely contained paths
+  // returns { pt1: {x,y}, pt2:{x,y} } if possible
+  GetEdgeConnectionPoints(targetId) {
+    const target = DATA.VM_VProp(targetId);
+    if (!target) throw Error(`VProp with targetId '${targetId}' doesn't exist`);
+    const { x: Aleft, y: Atop, x2: Aright, y2: Abot, cx: Acx, cy: Acy } = this.GetScreenBBox();
+    const { x: Bleft, y: Btop, x2: Bright, y2: Bbot, cx: Bcx, cy: Bcy } = target.GetScreenBBox();
+    // find shortest distance between THIS and TARGET
+    // eliminate negative values
+    const distances = [
+      { side: 't', d: Atop - Bbot },
+      { side: 'r', d: Bleft - Aright },
+      { side: 'b', d: Btop - Abot },
+      { side: 'l', d: Aleft - Bright }
+    ].filter(item => {
+      return item.d > 0;
+    });
+    // sort by ascending distance
+    distances.sort((foo, bar) => {
+      if (foo.d < bar.d) return -1;
+      if (foo.d > bar.d) return 1;
+      return 0;
+    });
+    if (DBG)
+      console.log(
+        `${this.Id()} sees ${distances.length} potential outedges to ${targetId}`,
+        distances
+      );
+
+    // if no drawable line (e.g. overlapping) then return no line
+    if (distances.length === 0) return {}; // no drawable line
+
+    function makePtObj(x1, y1, x2, y2) {
+      return { pt1: { x: x1, y: y1 }, pt2: { x: x2, y: y2 } };
+    }
+
+    // return the points from source (x1,y1) to target (x2,y2)
+    const shortest = distances[0];
+    switch (shortest.side) {
+      case 't':
+        return makePtObj(Acx, Atop, Bcx, Bbot);
+      case 'r':
+        return makePtObj(Aright, Acy, Bleft, Bcy);
+      case 'b':
+        return makePtObj(Acx, Abot, Bcx, Btop);
+      case 'l':
+        return makePtObj(Aleft, Acy, Bright, Bcy);
+      default:
+        throw Error(`unxpected side value ${shortest.side}`);
+    }
   }
 
   SetKidsBBox(wObj, h) {

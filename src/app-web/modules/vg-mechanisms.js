@@ -88,13 +88,9 @@ class VGMech {
       this.data.name = data.name;
 
       // update visual paths
-      const src = DATA.VM_VProp(srcId);
-      const dst = DATA.VM_VProp(tgtId);
-      const srcPt = src.GetCenter();
-      const tgtPt = dst.GetCenter();
-
-      // plot path left-right
-      if (this.path) {
+      const srcVProp = DATA.VM_VProp(srcId);
+      const { pt1: srcPt, pt2: tgtPt } = srcVProp.GetEdgeConnectionPoints(tgtId);
+      if (srcPt && tgtPt && this.path) {
         if (srcPt.x < tgtPt.x) {
           this.path.plot(m_MakePathDrawingString(srcPt, tgtPt));
           this.pathLabel.attr('text-anchor', 'end');
@@ -105,8 +101,6 @@ class VGMech {
           this.textpath.attr('startOffset', m_blen);
         }
       }
-    } else {
-      throw Error('arg1 and arg2 must both be propIds or undefined');
     }
   }
 }
@@ -144,7 +138,6 @@ VGMechanisms.Release = (vso, ws) => {
 VGMechanisms.Update = (vSO, wS) => {
   const eobj = CoerceToEdgeObj(vSO, wS);
   const vmech = DATA.VM_VMech(eobj);
-  console.log('update vmech', vmech);
   vmech.Update(eobj.v, eobj.w);
   return vmech;
 };
@@ -164,6 +157,8 @@ VGMechanisms.DrawEdges = () => {
     const { v, w } = edgeObj;
     const vmech = DATA.VM_VMech(edgeObj);
     vmech.Update(v, w);
+    const vprop = DATA.VM_VProp(v);
+    const pts = vprop.GetEdgeConnectionPoints(w);
   });
   // console.groupEnd();
 };

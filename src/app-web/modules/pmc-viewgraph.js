@@ -13,7 +13,7 @@ import DATA from './pmc-data';
 import VGProperties from './vg-properties';
 import VGMechanisms from './vg-mechanisms';
 import { cssinfo, cssdraw, csstab, csstab2 } from './console-styles';
-import { PAD } from './defaults';
+import { PAD, DocumentObject } from './defaults';
 import UR from '../../system/ursys';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@ const m_testprops = [];
 //
 const COL_BG = '#F06';
 const DBG = true;
+
+/// REFLECT DUMP
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+console.log(DocumentObject(DATA));
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

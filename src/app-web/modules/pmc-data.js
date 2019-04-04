@@ -37,26 +37,35 @@ DATA.Graph = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DATA.LoadGraph = () => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
-  g.setNode('a', { name: 'a property', data: {} });
-  g.setNode('b', { name: 'b property', data: {} });
-  g.setNode('c', { name: 'c property', data: {} });
-  g.setNode('d', { name: 'd property', data: {} });
-  g.setNode('e', { name: 'e property', data: {} });
-  g.setNode('f', { name: 'f property', data: {} });
-  g.setNode('x', { name: 'x property', data: {} });
-  g.setNode('y', { name: 'y property', data: {} });
-  g.setNode('z', { name: 'z property', data: {} });
-  g.setParent('d', 'a');
-  g.setParent('e', 'a');
-  g.setParent('f', 'b');
-  g.setParent('x', 'c');
-  g.setParent('y', 'x');
-  g.setParent('z', 'c');
-  g.setParent('b', 'z');
-  g.setEdge('a', 'c', { name: 'a to c' });
-  g.setEdge('a', 'x', { name: 'a to x' });
-  g.setEdge('y', 'e', { name: 'y to e' });
-  g.setEdge('b', 'e', { name: 'b to e' });
+
+  /** insert graph definition here *******************************************/
+
+  /// g.setNode('a', { name: 'a node' });
+  g.setNode('a', { name: 'a node' });
+  g.setNode('b', { name: 'b node' });
+  g.setNode('c', { name: 'c node' });
+  g.setNode('d', { name: 'd node' });
+  g.setNode('e', { name: 'e node' });
+  g.setNode('f', { name: 'f node' });
+  g.setNode('g', { name: 'g node' });
+  g.setNode('x', { name: 'x node' });
+  g.setNode('y', { name: 'y node' });
+  g.setNode('z', { name: 'z node' });
+  /// g.setParent('a','b')
+  g.setParent('a', 'b');
+  g.setParent('c', 'd');
+  g.setParent('e', 'd');
+  g.setParent('f', 'd');
+  g.setParent('g', 'a');
+  g.setParent('y', 'd');
+  /// g.setEdge('a', 'b', { name: 'a-b' });
+  g.setEdge('z', 'x', { name: 'zexxxxy!' });
+  g.setEdge('g', 'd', { name: 'alpha>' });
+  g.setEdge('y', 'z', { name: 'datum' });
+  g.setEdge('a', 'g', { name: 'atog' });
+
+  /***************************************************************************/
+
   // test serial write out, then serial read back in
   const cleanGraphObj = GraphJSON.write(g);
   const json = JSON.stringify(cleanGraphObj);

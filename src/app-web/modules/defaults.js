@@ -24,15 +24,12 @@ function CoerceToPathId(vso, ws) {
     const { v, w } = vso;
     if (!(v && w)) {
       console.warn('error edgeObj', vso);
-      throw Error(`missing v and w properties in arg`);
+      throw Error(`missing v and w prop_set in arg`);
     }
     return `${v}:${w}`;
   }
-  // assume it's a pathId already
-  if (vtype === 'string') {
-    if (ws === undefined) return vso;
-    throw Error(`arg1 must be string id`);
-  }
+  // Maybe a string was passed in and its a pathId already?
+  if (vtype === 'string' && ws === undefined) return vso;
 
   //
   if (wtype !== 'string') throw Error(`arg2 '${ws}' must be string id (arg1 was '${vso}')`);
@@ -47,7 +44,7 @@ function CoerceToEdgeObj(pathId, ws) {
     if (ws === undefined) {
       // this is probably a regular pathid
       let bits = pathId.split(':');
-      if (bits.length !== 2) throw Error(`pathId has too many ${delimiter} chars`);
+      if (bits.length !== 2) throw Error(`pathId parse error. Check delimiter char`);
       return { v: bits[0], w: bits[1] };
     }
     // this might be v,w

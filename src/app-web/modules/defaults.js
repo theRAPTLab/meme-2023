@@ -15,6 +15,14 @@ const PAD = {
   MIN: GAP,
   MIN2: GAP * 2
 };
+const SVGDEFS = new Map();
+const UTIL = {
+  DumpObj
+};
+const COLOR = {
+  LINE: 'orange',
+  PROP_BG: '#44F'
+};
 
 // construct string id from source and target OR edge object
 // vso = sourceId or edgeObject, ws = targetId
@@ -69,7 +77,7 @@ function ArrayFromABO(aObj, bNum) {
 }
 
 // return methods and properties of object
-const DocumentObject = obj => {
+function DumpObj(obj) {
   const found_props = [];
   const found_methods = [];
   const prop_set = new Set();
@@ -98,11 +106,11 @@ const DocumentObject = obj => {
     });
     getProps(Object.getPrototypeOf(o));
   }
-};
+}
 
 if (window.meme === undefined) window.meme = {};
-window.meme.reflect = DocumentObject;
+window.meme.reflect = DumpObj;
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export { VPROP, VMECH, PAD, DocumentObject, CoerceToPathId, ArrayFromABO, CoerceToEdgeObj };
+export { VPROP, VMECH, PAD, SVGDEFS, COLOR, UTIL, CoerceToPathId, ArrayFromABO, CoerceToEdgeObj };

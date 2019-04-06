@@ -9,9 +9,7 @@ should be a child of RoutedView
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import SVG from '@svgdotjs/svg.js/src/svg';
 import '@svgdotjs/svg.draggable.js';
-import GraphLib from '@dagrejs/graphlib';
 import { PMCView, DATA } from '../modules/pmc-viewgraph';
 import { cssblue, cssreact, cssalert } from '../modules/console-styles';
 

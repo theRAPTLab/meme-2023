@@ -4,7 +4,7 @@
     pure non-REACT module
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
-import SVG from '@svgdotjs/svg.js/src/svg';
+import SVGJS from '@svgdotjs/svg.js/src/svg';
 // import '@svgdotjs/svg.draggable.js';
 
 /// MODULES ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@ import DATA from './pmc-data';
 import VGProperties from './vg-properties';
 import VGMechanisms from './vg-mechanisms';
 import { cssinfo, cssdraw, csstab, csstab2 } from './console-styles';
-import { PAD, DocumentObject } from './defaults';
+import { PAD, SVGDEFS, COLOR, UTIL } from './defaults';
 import UR from '../../system/ursys';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ const DBG = true;
 
 /// REFLECT DUMP
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-console.log(`Reflection test`, DocumentObject(DATA));
+console.log(`Reflection test`, UTIL.DumpObj(DATA));
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -44,8 +44,37 @@ const PMC = {};
 /*/
 PMC.InitializeViewgraph = element => {
   m_element = element;
-  m_svgroot = SVG(m_element);
+  m_svgroot = SVGJS(m_element);
+  PMC.DefineDefs(m_svgroot);
+  PMC.DefineSymbols(m_svgroot);
 };
+
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
+  define svg defs that are resused in the viewgraph
+:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+PMC.DefineDefs = svg => {
+  SVGDEFS.set(
+    'arrowEndHead',
+    svg
+      .marker(4, 4, add => {
+        add.path('M0,0 L0,4 L4,2 Z').fill(COLOR.LINE);
+      })
+      .attr({ id: 'arrowEndHead', orient: 'auto', refX: 4 })
+  );
+  SVGDEFS.set(
+    'arrowStartHead',
+    svg
+      .marker(4, 4, add => {
+        add.path('M4,4 L4,0 L0,2 Z').fill(COLOR.LINE);
+      })
+      .attr({ id: 'arrowStartHead', orient: 'auto', refX: 0 })
+  );
+};
+
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
+  define svg symbols that are resused in the viewgraph
+:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+PMC.DefineSymbols = svg => {};
 
 /// LIFECYCLE /////////////////////////////////////////////////////////////////
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:

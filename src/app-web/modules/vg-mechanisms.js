@@ -11,7 +11,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
-import { VMECH, CoerceToPathId, CoerceToEdgeObj } from './defaults';
+import { VMECH, COLOR, CoerceToEdgeObj, SVGDEFS } from './defaults';
 import UR from '../../system/ursys';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
@@ -25,11 +25,21 @@ const DBG = false;
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// accepts either edgeObj or v,w as parameters
-function m_MakePathDrawingString(p1, p2) {
-  const p1start = `M${p1.x},${p1.y} C${p1.x},${p1.y - p1.up * m_up}`;
-  const p2end = `${p2.x},${p2.y - p2.up * m_up} ${p2.x},${p2.y}`;
-  let pstring = `${p1start} ${p2end}`;
-  return pstring;
+function m_MakeQuadraticDrawingString(p1, p2) {
+  // find midpoint
+  const mx = (p1.x + p2.x) / 2;
+  const my = (p1.y + p2.y) / 2;
+  // calculate unit vector perpendicular to line
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  const d = Math.sqrt(dx * dx + dy * dy);
+  const nx = -(p2.y - p1.y) / d;
+  const ny = dx / d;
+  // caculate nudge along perpendicular scaled by "up" factor
+  const offx = nx * m_up * p1.up;
+  const offy = ny * m_up * p1.up;
+
+  return `M${p1.x},${p1.y} Q${mx - offx},${my - offy} ${p2.x},${p2.y}`;
 }
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -50,11 +60,12 @@ class VGMech {
       .path()
       .back()
       .fill('none')
-      .stroke({ width: 4, color: 'orange', dasharray: '4 2' });
+      .stroke({ width: 4, color: COLOR.LINE, dasharray: '4 2' });
+
     this.pathLabel = svgRoot.text(add => {
       add.tspan(this.data.name);
     });
-    this.pathLabel.fill('orange').attr('dy', -6);
+    this.pathLabel.fill(COLOR.LINE).attr('dy', -6);
     this.pathLabel.attr('text-anchor', 'end');
     this.textpath = this.pathLabel.path(this.path).attr('startOffset', this.path.length() - m_blen);
   }
@@ -96,12 +107,18 @@ class VGMech {
       // pt1 and pt2 also have a source or target property set
       if (srcPt && tgtPt && this.path) {
         this.path.show();
+        // we have to flip the starting point so it always draws left-right
+        // so text label doesn't draw upside down
         if (srcPt.x < tgtPt.x) {
-          this.path.plot(m_MakePathDrawingString(srcPt, tgtPt));
+          // left to right
+          this.path.plot(m_MakeQuadraticDrawingString(srcPt, tgtPt));
+          this.path.marker('end', SVGDEFS.get('arrowEndHead')).attr('marker-start', '');
           this.pathLabel.attr('text-anchor', 'end');
           this.textpath.attr('startOffset', this.path.length() - m_blen);
         } else {
-          this.path.plot(m_MakePathDrawingString(tgtPt, srcPt));
+          // right to left
+          this.path.plot(m_MakeQuadraticDrawingString(tgtPt, srcPt));
+          this.path.marker('start', SVGDEFS.get('arrowStartHead')).attr('marker-end', '');
           this.pathLabel.attr('text-anchor', 'start');
           this.textpath.attr('startOffset', m_blen);
         }

@@ -1,14 +1,4 @@
-/*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
-
-    MCGraph - Mechanisms and Components Graphing
-    pure non-REACT module
-
-\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 import SVGJS from '@svgdotjs/svg.js/src/svg';
-// import '@svgdotjs/svg.draggable.js';
-
-/// MODULES ///////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import DATA from './pmc-data';
 import VGProperties from './vg-properties';
 import VGMechanisms from './vg-mechanisms';
@@ -16,13 +6,21 @@ import { cssinfo, cssdraw, csstab, csstab2 } from './console-styles';
 import { PAD, SVGDEFS, COLOR, UTIL } from './defaults';
 import UR from '../../system/ursys';
 
+/// MODULE DECLARATION ////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @module PMCView
+ * @desc
+ * Manages the SVGJS instance that is contained by SVGView.
+ *
+ */
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const PMCView = {};
+
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let m_element;
 let m_svgroot;
-const m_testprops = [];
-//
-const COL_BG = '#F06';
 const DBG = true;
 
 /// REFLECT DUMP
@@ -37,22 +35,23 @@ UR.Sub('PROP:MOVED', data => {
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const PMC = {};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
-    attach an SVG instance, managed by SVGJS, to the container element
-/*/
-PMC.InitializeViewgraph = element => {
-  m_element = element;
+/**
+ * API: Create an SVGJS-wrapped <svg> child element of `container`.
+ * @param {HTMLElement} container - Where to add SVGJS <svg> root element
+ */
+PMCView.InitializeViewgraph = container => {
+  m_element = container;
   m_svgroot = SVGJS(m_element);
-  PMC.DefineDefs(m_svgroot);
-  PMC.DefineSymbols(m_svgroot);
+  PMCView.DefineDefs(m_svgroot);
+  PMCView.DefineSymbols(m_svgroot);
 };
-
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
-  define svg defs that are resused in the viewgraph
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-PMC.DefineDefs = svg => {
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * PRIVATE: Define named svg "defs" for reuse in the view. For example, arrowheads.
+ * It shouldn't be called externally.
+ * @param {SVGJSinstance} svg - SVGJS instance to add DEFs to
+ */
+PMCView.DefineDefs = svg => {
   SVGDEFS.set(
     'arrowEndHead',
     svg
@@ -70,34 +69,40 @@ PMC.DefineDefs = svg => {
       .attr({ id: 'arrowStartHead', orient: 'auto', refX: 0 })
   );
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * PRIVATE: Define named svg "symbols" for reuse in the view.
+ * It shouldn't be called externally.
+ * @param {SVGJSinstance} svg - SVGJS instance to add DEFs to
+ */
+PMCView.DefineSymbols = svg => { };
 
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
-  define svg symbols that are resused in the viewgraph
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-PMC.DefineSymbols = svg => {};
 
 /// LIFECYCLE /////////////////////////////////////////////////////////////////
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
-    Get user inputs (external buttons, clcks, keypresses) and convert physical
-    controls like "up arrow" into app-domain intentions "move piece up"
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-PMC.GetIntent = () => {
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * LIFECYCLE: Get user inputs (external buttons, clcks, keypresses) and
+ * convert physical controls like "up arrow" into app-domain intentions
+ * (for example, a queued "move piece up" command)
+ */
+PMCView.GetIntent = () => {
   console.log('GetIntent() unimplemented');
 };
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
-    Based on intentions, update current mode settings that will affect later
-    processing stages
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-PMC.SyncModeSettings = () => {
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * LIFECYCLE: Application mode settings, which might be set by the previous
+ * lifecycle, are processed by adjusting whatever data structures will affect
+ * subsequent mode-related processing (e.g. setting spacing before layout)
+ */
+PMCView.SyncModeSettings = () => {
   console.log('SyncModeSettings() unimplemented');
 };
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
-    SyncPropsFromGraphData()
-
-    Maintain Properties ViewModel by synchronizing data that has been added,
-    removed, or updated
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-PMC.SyncPropsFromGraphData = () => {
+/**
+ * LIFECYCLE: Synchs PMC property changes from model to the
+ * viewmodel. In other words, the pure data (model) is processed and the data
+ * structures that are used to *display* the data (viewmodel) is updated.
+ */
+PMCView.SyncPropsFromGraphData = () => {
   if (DBG) console.groupCollapsed(`%c:SyncPropsFromGraphData()`, cssinfo);
   const { added, removed, updated } = DATA.VM_GetVPropChanges();
   removed.forEach(id => {
@@ -116,13 +121,13 @@ PMC.SyncPropsFromGraphData = () => {
     console.groupEnd();
   }
 };
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
-    SyncMechsFromGraphData()
-
-    Maintain Mechanisms ViewModel by synchronizing data that has been added,
-    removed, or updated
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-PMC.SyncMechsFromGraphData = () => {
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * LIFECYCLE: Syncs PMC mechanism changes from model to the viewmodel. In other
+ * words, the pure mechanism data (model) is processed and the *display* data
+ * structures (the viewmodel) is updated to reflect it.
+ */
+PMCView.SyncMechsFromGraphData = () => {
   if (DBG) console.groupCollapsed(`%c:SyncMechsFromGraphData()`, cssinfo);
   // the following arrays contain pathIds
   const { added, removed, updated } = DATA.VM_GetVMechChanges();
@@ -144,18 +149,20 @@ PMC.SyncMechsFromGraphData = () => {
     console.groupEnd();
   }
 };
-
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
-    Update the data model. For PMCViewGraph, this lifecycle event probably
-    doesn't do anything because that is PMCDataGraph's responsibility.
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-PMC.UpdateModel = () => {
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * LIFECYCLE: Update the model and dependent derived model structures.
+ * CURRENTLY NOT USED!!!
+ */
+PMCView.UpdateModel = () => {
   console.log(`UpdateModel() unimplemented`);
 };
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
-    Draw the model data by calling draw commands on everything. Also update.
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-PMC.UpdateViewModel = () => {
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * LIFECYCLE: Update the viewmodel based on the model. It walks the component
+ * list and calculates how to resize them so they are properly drawn nested.
+ */
+PMCView.UpdateViewModel = () => {
   if (DBG) console.groupCollapsed(`%c:UpdateViewModel()`, cssinfo);
 
   // first get the list of component ids to walk through
@@ -215,11 +222,12 @@ function u_Recurse(propId) {
   console.groupEnd();
   return all;
 }
-
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
-    Draw the model data by calling draw commands on everything. Also update.
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-PMC.UpdateView = () => {
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * LIFECYCLE: Draws the current view from the updated viewmodel. Currently
+ * handles layout and edge drawing.
+ */
+PMCView.UpdateView = () => {
   if (DBG) console.groupCollapsed(`%c:UpdateView()`, cssinfo);
   VGProperties.LayoutComponents();
   VGMechanisms.DrawEdges();
@@ -228,5 +236,4 @@ PMC.UpdateView = () => {
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const PMCView = PMC;
-export { PMCView, DATA };
+export default PMCView;

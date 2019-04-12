@@ -21,15 +21,24 @@ import UR from '../../system/ursys';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const map_visuals = new Map();
 const m_minWidth = VPROP.MIN_WIDTH;
 const m_minHeight = VPROP.MIN_HEIGHT;
 const m_pad = PAD.MIN;
-const m_pad2 = PAD.MIN2;
 const COL_BG = '#44F';
 const DIM_RADIUS = 3;
 
 const DBG = false;
+
+/// PRIVATE HELPERS ///////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// accepts either edgeObj or v,w as parameters
+function m_Norm(aObj, bNum) {
+  if (typeof aObj === 'object') {
+    if (bNum === undefined) return aObj.keys();
+    throw Error(`can't normalize aObj ${aObj}, bNum ${bNum}`);
+  }
+  return [aObj, bNum];
+}
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -295,7 +304,11 @@ class VGProp {
     this.gRoot.toParent(vparent.gKids);
   }
 
-  //
+  /**
+  @description add
+  @param {id} string
+  @return {null}
+  **/
   AddTo(id) {
     const vparent = DATA.VM_VProp(id);
     if (DBG) console.log(`${id} ++ ${this.id}`);
@@ -318,13 +331,6 @@ class VGProp {
     const y = this.gRoot.y();
     this.Draw({ x, y });
   }
-}
-function m_Norm(aObj, bNum) {
-  if (typeof aObj === 'object') {
-    if (bNum === undefined) return aObj.keys();
-    throw Error(`can't normalize aObj ${aObj}, bNum ${bNum}`);
-  }
-  return [aObj, bNum];
 }
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
@@ -387,7 +393,6 @@ VGProperties.GetVisual = id => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 VGProperties.Move = (id, x, y) => {
   if (!id) throw Error(`arg1 must be valid string id`);
-  if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't move`);
   const child = DATA.VM_VProp(id);
   child.Move({ x, y });
   return child;
@@ -395,7 +400,6 @@ VGProperties.Move = (id, x, y) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 VGProperties.SetSize = (id, w, h) => {
   if (!id) throw Error(`arg1 must be valid string id`);
-  if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't resize`);
   const child = DATA.VM_VProp(id);
   child.SetSize(w, h);
   return child;
@@ -403,7 +407,6 @@ VGProperties.SetSize = (id, w, h) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 VGProperties.GetSize = id => {
   if (!id) throw Error(`arg1 must be valid string id`);
-  if (!map_visuals.has(id)) throw Error(`${id} isn't allocated, so can't retrieve size`);
   const child = DATA.VM_VProp(id);
   return { id: child.Id(), w: child.Width(), h: child.Height() };
 };

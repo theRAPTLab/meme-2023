@@ -15,7 +15,7 @@ import System from './boot/SystemInit';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PR = '[WebIndexJS]';
 
-/** HOT MODULE LOADING NOTES *************************************************\
+/*\
 
   HMR is a Webpack feature. Generally you write a handler:
   module.hot.accept('./library.js',()=>{ ..do something.. });
@@ -28,7 +28,7 @@ const PR = '[WebIndexJS]';
   and assumes that it should reload the entire application when the source
   files are ready
 
-\*****************************************************************************/
+\*/
 if (module.hot) {
   // not doing this:
   // module.hot.accept(deps,callback);

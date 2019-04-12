@@ -1,26 +1,22 @@
-/*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
-
-  A VGMech is the visual representation of connection between properties
-  in our ViewGraph.
-
-  extern DATA is the graph
-
-\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
-
-/// LIBRARIES /////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
 import { VMECH, COLOR, CoerceToEdgeObj, SVGDEFS } from './defaults';
 import UR from '../../system/ursys';
 
-/// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
+/// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const map_paths = DATA.VM.map_paths; // the paths being drawn by system
+/**
+ * @module VMech
+ * @desc
+ * The visual representation of "a connection between PMC properties and
+ * components".
+ */
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+/// DECLARATIONS //////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const m_up = VMECH.UP;
 const m_blen = VMECH.BLEN;
-const COL_BG = '#44F';
-const DBG = false;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -44,7 +40,7 @@ function m_MakeQuadraticDrawingString(p1, p2) {
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-class VGMech {
+class VMech {
   constructor(pathId, svgRoot) {
     if (!DATA.HasMech(pathId)) throw Error(`${pathId} is not in graph data`);
     // basic display props
@@ -130,52 +126,80 @@ class VGMech {
   }
 }
 
-/// PUBLIC METHODS ////////////////////////////////////////////////////////////
+/// STATIC CLASS METHODS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const VGMechanisms = {};
-
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
- *  Allocate VGProp instances through this static method. It maintains
- *  the collection of all allocated visuals
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-VGMechanisms.New = (pathId, svgRoot) => {
+/**
+ * Factory method for creating a new managed VMech instance.
+ * @param {string} pathId - a PMC pathId of form 'w:v'
+ * @param {SVGJSElement} svgRoot - the SVGJS-created root element that should
+ * contain the new element.
+ * @returns {VMech} - the newly-created VMech instance
+ */
+VMech.New = (pathId, svgRoot) => {
   if (DATA.VM_VMechExists(pathId)) throw Error(`${pathId} is already allocated`);
   if (svgRoot.constructor.name !== 'Svg') throw Error(`arg2 must be SVGJS draw instance`);
-  const vmech = new VGMech(pathId, svgRoot);
+  const vmech = new VMech(pathId, svgRoot);
   console.log('created vmech', vmech.id);
   DATA.VM_VMechSet(vmech, pathId);
   return vmech;
 };
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
- *  De-allocate VGProp instance by id.
- *  accepts either edgeObj or v,w
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-VGMechanisms.Release = (vso, ws) => {
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Factory method to de-allocate the VMech associated with the designated edge.
+ * Accepts one of three forms:
+ * * `sourceNodeId, targetNodeId`
+ * * `{ w: sourceNodeId, v: targetNodeId }`
+ * * a string of form 'w:v'
+ * @param {string|object} vso - a PMC pathId, edgeObj, or source nodeId
+ * @param {string} ws - the targetNodeId, if `vso` is also a string
+ * contain the new element.
+ */
+VMech.Release = (vso, ws) => {
   const vmech = DATA.VM_VMech(vso, ws);
   DATA.VM_VMechDelete(vso, ws);
   console.log('released vmech', vmech.id);
   return vmech.Release();
 };
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
- *  Update instance from associated data id
- *  accepts either edgeObj or v,w
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-VGMechanisms.Update = (vSO, wS) => {
-  const eobj = CoerceToEdgeObj(vSO, wS);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Tells designated VMech to update its appearance from the raw data. It uses
+ * its stored id to fetch the data directed from PMCData. Accepts one of three
+ * methods for designating which VMech to update:
+ * * `sourceNodeId, targetNodeId`
+ * * `{ w: sourceNodeId, v: targetNodeId }`
+ * * a string of form 'w:v'
+ * @param {string|object} vso - a PMC pathId, edgeObj, or source nodeId
+ * @param {string} ws - the targetNodeId, if `vso` is also a string contain the
+ * new element.
+ */
+VMech.Update = (vso, ws) => {
+  const eobj = CoerceToEdgeObj(vso, ws);
   const vmech = DATA.VM_VMech(eobj);
   vmech.Update(eobj.v, eobj.w);
   return vmech;
 };
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
- *  Return the SVGPath from the ViewModel data by either edgeObj or v,w
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-VGMechanisms.GetVisual = (vso, ws) => {
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Retrieve the VMech by mechanism selector. Accepts one of three
+ * methods for designating which VMech to update:
+ * * `sourceNodeId, targetNodeId`
+ * * `{ w: sourceNodeId, v: targetNodeId }`
+ * * a string of form 'w:v'
+ * @param {string|object} vso - a PMC pathId, edgeObj, or source nodeId
+ * @param {string} ws - the targetNodeId, if `vso` is also a string contain the
+ * new element.
+ * @returns {VMech} = an instance of the VMech class
+ */
+VMech.GetVisual = (vso, ws) => {
   return DATA.VM_VMech(vso, ws);
 };
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*:
-    Draw the model data by calling draw commands on everything. Also update.
-:*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-VGMechanisms.DrawEdges = () => {
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Draw all edges in the model by iterating through them and updating their
+ * associated VMech instances. All the VProps should have already been sized and
+ * positions before this call.
+ */
+VMech.DrawEdges = () => {
   // console.group(`%c:drawing ${DATA.VM.map_vmechs.size} edges`, cssinfo);
   let edges = DATA.AllMechs();
   edges.forEach(edgeObj => {
@@ -186,9 +210,6 @@ VGMechanisms.DrawEdges = () => {
   // console.groupEnd();
 };
 
-/// INITIALIZATION ////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default VGMechanisms;
+export default VMech;

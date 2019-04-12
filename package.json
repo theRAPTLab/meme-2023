@@ -15,7 +15,7 @@
     "package": "echo '\n*** BUILDING STANDALONE APP in dist/meme-darwin-x64' && rm -fr ./dist ./built && webpack --mode production --config ./src/config/webpack.dist.config.js --env.HMR_MODE='none' && cd built && npm install && npx electron-packager . meme --out ../dist --overwrite --app-bundle-id com.davidseah.inquirium.meme",
     "appsign": "echo '\n*** SIGNING APP BUNDLE' && npx electron-osx-sign ./dist/meme-darwin-x64/meme.app --platform=darwin --type=distribution",
     "app": "echo '\n*** VERIFYING CODE SIGNATURE' && codesign -dvv ./dist/meme-darwin-x64/meme.app && echo '\n*** RUNNING APP W/CONSOLE OUTPUT...' && ./dist/meme-darwin-x64/meme.app/Contents/MacOS/meme",
-    "clean": "node mode clean",
+    "clean": "node meme clean",
     "clean:all": "node meme clean --all",
     "test": "node meme test"
   },

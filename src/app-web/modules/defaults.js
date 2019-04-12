@@ -1,32 +1,58 @@
-/*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
-\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
+/// MODULE DECLARATION ////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @module DEFAULTS
+ * @desc
+ * Shared settings across the MEME source. Covers:
+ * * Visual Spacing
+ * * Utlities for data conversion and coercion
+ */
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 const GAP = 15;
-const VPROP = {
-  MIN_WIDTH: 200,
-  MIN_HEIGHT: 30
-};
-const VMECH = {
-  STROKE: 5,
-  UP: 150,
-  BLEN: 55
-};
-const PAD = {
-  MIN: GAP,
-  MIN2: GAP * 2
-};
-const SVGDEFS = new Map();
-const UTIL = {
-  DumpObj
-};
-const COLOR = {
-  LINE: 'orange',
-  PROP_BG: '#44F'
+
+const DEFAULTS = {
+  /** vprop constants */
+  VPROP: {
+    MIN_WIDTH: 200,
+    MIN_HEIGHT: 30
+  },
+  /** vmech path styles */
+  VMECH: {
+    STROKE: 5,
+    UP: 150,
+    BLEN: 55
+  },
+  /** common spacing */
+  PAD: {
+    MIN: GAP,
+    MIN2: GAP * 2
+  },
+  /** map collection of all SVG defs */
+  SVGDEFS: new Map(),
+  /** console utils */
+  UTIL: {
+    DumpObj
+  },
+  /** semantic colors definitions */
+  COLOR: {
+    LINE: 'orange',
+    PROP_BG: '#44F'
+  }
 };
 
-// construct string id from source and target OR edge object
-// vso = sourceId or edgeObject, ws = targetId
-function CoerceToPathId(vso, ws) {
+/**
+ * Returns a pathId string from non-pathId edge selectors. The pathId
+ * string used by MEME as a key for storing VMech instances in a Map.
+ * Accepts one of three forms:
+ * * `sourceNodeId, targetNodeId`
+ * * `{ w: sourceNodeId, v: targetNodeId }`
+ * * a string of form 'w:v' (just is returned as is without validation)
+ * @param {string|object} vso - a PMC pathId, edgeObj, or source nodeId
+ * @param {string} ws - the targetNodeId, if `vso` is also a string
+ * @returns {string} pathId of form 'w:v', where `w` and `v` are nodeIds.
+ */
+DEFAULTS.CoerceToPathId = (vso, ws) => {
   // assume this is an edgeObj
   const vtype = typeof vso;
   const wtype = typeof ws;
@@ -44,37 +70,57 @@ function CoerceToPathId(vso, ws) {
   //
   if (wtype !== 'string') throw Error(`arg2 '${ws}' must be string id (arg1 was '${vso}')`);
   return `${vso}:${ws}`;
-}
-// deconstruct a single pathId into edgeObj. Accepts v,w and edgeobjs too
-// const eobj = CoerceToEdgeObj(pathId))
-function CoerceToEdgeObj(pathId, ws) {
-  const ptype = typeof pathId;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Given one of the following forms...
+ * * `sourceNodeId, targetNodeId`
+ * * `{ w: sourceNodeId, v: targetNodeId }`
+ * * a string of form 'w:v' (just is returned as is without validation)
+ *
+ *  ...always return an EdgeObject suitable for use by `dagres/graphlib`.
+ * @param {string|object} vso - a PMC pathId, edgeObj, or source nodeId
+ * @param {string} ws - the targetNodeId, if `vso` is also a string
+ * @returns {object} - object of shape { w, v }
+ */
+DEFAULTS.CoerceToEdgeObj = (vso, ws) => {
+  const ptype = typeof vso;
   const wtype = typeof ws;
   if (ptype === 'string') {
     if (ws === undefined) {
       // this is probably a regular pathid
-      let bits = pathId.split(':');
+      let bits = vso.split(':');
       if (bits.length !== 2) throw Error(`pathId parse error. Check delimiter char`);
       return { v: bits[0], w: bits[1] };
     }
     // this might be v,w
-    return { v: pathId, w: ws };
+    return { v: vso, w: ws };
   }
-  if (ptype === 'object' && pathId.v && pathId.w) {
-    return pathId; // this is already an edgeobj
+  if (ptype === 'object' && vso.v && vso.w) {
+    return vso; // this is already an edgeobj
   }
   throw Error('can not conform');
-}
+};
 // deeconstruct either int,int or object with keys into array
 // const [ a, b] = ArrayFromABO(x,y) or ArrayFromABO(obj)
 // used by code for move() that could get a point x,y or x,y
-function ArrayFromABO(aObj, bNum) {
-  if (typeof aObj === 'object') {
-    if (bNum === undefined) return Object.values(aObj);
-    throw Error(`can't normalize aObj ${aObj}, bNum ${bNum}`);
+/**
+ * Used to convert { x, y } to [ x, y ] for destructoring point
+ * objects
+ * @deprecated not very reliable when multiple keys exist, order is suspect too
+ * @param {number|object} ano - object with keys, or a value (e.g. `x`)
+ * @param {number} bn - second value (e.g. `y`) if `ano` is not an object
+ * @example
+ * const [a,b] = ArrayFromABO({x:10,y:20});
+ * // returns [10,20]
+ */
+DEFAULTS.ArrayFromABO = (ano, bn) => {
+  if (typeof ano === 'object') {
+    if (bn === undefined) return Object.values(ano);
+    throw Error(`can't normalize ano ${ano}, bn ${bn}`);
   }
-  return [aObj, bNum];
-}
+  return [ano, bn];
+};
 
 // return methods and properties of object
 function DumpObj(obj) {
@@ -113,4 +159,4 @@ window.meme.reflect = DumpObj;
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export { VPROP, VMECH, PAD, SVGDEFS, COLOR, UTIL, CoerceToPathId, ArrayFromABO, CoerceToEdgeObj };
+export default DEFAULTS;

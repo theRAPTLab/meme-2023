@@ -1,32 +1,29 @@
-/*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
-
-  A VGProp is the visual representation of a component OR property in
-  our ViewGraph. It is designed to worth with IDs that are
-  used to fetch the underlying graph data to refresh its viewmodel.
-
-  All static properties operate on ids that are shared between data and
-  svg elements.
-
-  extern DATA is the graph
-
-\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
-
-/// LIBRARIES /////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import '@svgdotjs/svg.draggable.js';
 import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
-import { VPROP, PAD } from './defaults';
+import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
 
-/// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
+const { VPROP, PAD } = DEFAULTS;
+
+/// MODULE DECLARATION ////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @module VProp
+ * @desc
+ * The visual representation of "a property that has a name and associated data,
+ * and may contain nested properties". It works with string ids (nodeId) that corresponds
+ * to the pure data model nodeId.
+ */
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+/// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const m_minWidth = VPROP.MIN_WIDTH;
 const m_minHeight = VPROP.MIN_HEIGHT;
 const m_pad = PAD.MIN;
 const COL_BG = '#44F';
 const DIM_RADIUS = 3;
-
+//
 const DBG = false;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
@@ -42,7 +39,7 @@ function m_Norm(aObj, bNum) {
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-class VGProp {
+class VProp {
   constructor(propId, svgRoot) {
     if (typeof propId !== 'string') throw Error(`require string id`);
     if (!DATA.HasProp(propId)) throw Error(`${propId} is not in graph data`);
@@ -62,6 +59,7 @@ class VGProp {
     this.kidsWidth = 0;
     this.kidsHeight = 0;
     // higher order display properties
+    console.log(this.gRoot);
     this.gRoot.draggable();
     this.gRoot.on('dragmove.propmove', event => {
       const { handler, box } = event.detail;
@@ -304,11 +302,6 @@ class VGProp {
     this.gRoot.toParent(vparent.gKids);
   }
 
-  /**
-  @description add
-  @param {id} string
-  @return {null}
-  **/
   AddTo(id) {
     const vparent = DATA.VM_VProp(id);
     if (DBG) console.log(`${id} ++ ${this.id}`);
@@ -333,45 +326,47 @@ class VGProp {
   }
 }
 
-/// PUBLIC METHODS ////////////////////////////////////////////////////////////
+/// STATIC CLASS METHODS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const VGProperties = {};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
- *  Allocate VGProp instances through this static method. It maintains
+/**
+ *  Allocate VProp instances through this static method. It maintains
  *  the collection of all allocated visuals
-/*/
-VGProperties.New = (id, svgRoot) => {
+ */
+VProp.New = (id, svgRoot) => {
   if (DATA.VM_VProp(id)) throw Error(`${id} is already allocated`);
   if (svgRoot.constructor.name !== 'Svg') throw Error(`arg2 must be SVGJS draw instance`);
-  const vprop = new VGProp(id, svgRoot);
+  const vprop = new VProp(id, svgRoot);
   DATA.VM_VPropSet(id, vprop);
   return vprop;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
- *  De-allocate VGProp instance by id.
-/*/
-VGProperties.Release = id => {
+/**
+ *  De-allocate VProp instance by id.
+ */
+VProp.Release = id => {
   const vprop = DATA.VM_VProp(id);
   DATA.VM_VPropDelete(id);
   return vprop.Release();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
+/**
  *  Update instance from associated data id
-/*/
-VGProperties.Update = id => {
+ */
+VProp.Update = id => {
   const vprop = DATA.VM_VProp(id);
   vprop.Update();
   return vprop;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
- *  move a property to a parent by id, preserving transformations
-    if parentId is falsey, then move to root svg
-/*/
-VGProperties.MoveToParent = (id, parentId) => {
+/**
+ *  Given a nodeId, add its associated VProp to the designated parent. After
+ *  this is done, moving the parent VProp will also move its children.
+ *  `parentId`. Transformations are preserved so it will not "jump".
+ *  @param {string} id - the key for getting the associated VProp
+ *  @param {string} parentId - the key for the parent VProp. If null, will move
+ *  to the root SVG canvas.
+ */
+VProp.MoveToParent = (id, parentId) => {
   if (!id) throw Error(`arg1 must be valid string id`);
   if (!DATA.VM_VPropExists(id)) throw Error(`${id} isn't allocated, so can't set parent`);
   const child = DATA.VM_VProp(id);
@@ -383,40 +378,74 @@ VGProperties.MoveToParent = (id, parentId) => {
   child.ToParent(parentId);
   return child;
 };
-VGProperties.MoveToRoot = id => {
-  VGProperties.MoveToParent(id);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Given a nodeId, move the associated VProp to the svg root canvas, All PMC
+ * properties that are also a Component are drawn on the root canvas.
+ *  @param {string} id - the key for getting the associated VProp
+ */
+VProp.MoveToRoot = id => {
+  VProp.MoveToParent(id);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-VGProperties.GetVisual = id => {
+/**
+ * Return the VProp associated with the passed nodeId
+ * @param {string} id - the key for getting the associated VProp
+ * @returns {VProp} - the retrieved VProp instance
+ */
+VProp.GetVisual = id => {
   return DATA.VM_VProp(id);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-VGProperties.Move = (id, x, y) => {
+/**
+ * Move a VProp to the x,y screen location. The origin is set by the root SVG canvas' transform.
+ * @param {string} id - the key for getting the associated VProp
+ * @param {number} x - the x coordinate
+ * @param {number} y - the y coordinate
+ * @returns {VProp} - the VProp instance that was moved
+ */
+VProp.Move = (id, x, y) => {
   if (!id) throw Error(`arg1 must be valid string id`);
-  const child = DATA.VM_VProp(id);
-  child.Move({ x, y });
-  return child;
+  const vprop = DATA.VM_VProp(id);
+  vprop.Move({ x, y });
+  return vprop;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-VGProperties.SetSize = (id, w, h) => {
+/**
+ * Set the size of a VProp, which is the size of its background rect. This call
+ * is used by the layout pass and probably should be changed so the size is set
+ * explicitly by the VProps data fields, not externally.
+ * @param {string} id - the key for getting the associated VProp
+ * @param {number} w - the width to set
+ * @param {number} h - the height to set
+ * @returns {VProp} - the VProp instance that was sized
+ */
+VProp.SetSize = (id, w, h) => {
   if (!id) throw Error(`arg1 must be valid string id`);
-  const child = DATA.VM_VProp(id);
-  child.SetSize(w, h);
-  return child;
+  const vprop = DATA.VM_VProp(id);
+  vprop.SetSize(w, h);
+  return vprop;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-VGProperties.GetSize = id => {
+/**
+ * Retrieve the size of a VProp in width and height
+ * @param {string} id - the key for getting the associated VProp
+ * @returns {object} - { id, w, h }
+ * @example
+ * const {id, w, h} = VProp.GetSize('a');
+ */
+VProp.GetSize = id => {
   if (!id) throw Error(`arg1 must be valid string id`);
-  const child = DATA.VM_VProp(id);
-  return { id: child.Id(), w: child.Width(), h: child.Height() };
+  const vprop = DATA.VM_VProp(id);
+  return { id: vprop.Id(), w: vprop.Width(), h: vprop.Height() };
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
- *  SizeToContents sizes all the properties to fit their contained props
+/**
+ *  LIFECYCLE: SizeToContents sizes all the properties to fit their contained props
  *  based on their display state
-/*/
-VGProperties.LayoutComponents = () => {
+ */
+VProp.LayoutComponents = () => {
   const components = DATA.Components();
   // then dp ;aupit
   let xCounter = PAD.MIN2;
@@ -486,7 +515,7 @@ window.meme.comps = () => {
 window.meme.dumpid = id => {
   console.log(`%cdumping id [${id}] child hierarchy`, cssdata);
   recurse(id);
-  /** helper **/
+  /* helper */
   function recurse(pid) {
     const vis = DATA.VM_VProp(pid);
     const visHeight = vis.Height();
@@ -503,4 +532,4 @@ window.meme.dumpid = id => {
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default VGProperties;
+export default VProp;

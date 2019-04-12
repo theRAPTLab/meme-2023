@@ -1,7 +1,9 @@
 import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
-import { VMECH, COLOR, CoerceToEdgeObj, SVGDEFS } from './defaults';
 import UR from '../../system/ursys';
+import DEFAULTS from './defaults';
+
+const { VMECH, COLOR, CoerceToEdgeObj, SVGDEFS } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,10 +1,12 @@
 import SVGJS from '@svgdotjs/svg.js/src/svg';
 import DATA from './pmc-data';
 import VGProperties from './vg-properties';
-import VGMechanisms from './vg-mechanisms';
+import VMech from './class-vmech';
 import { cssinfo, cssdraw, csstab, csstab2 } from './console-styles';
-import { PAD, SVGDEFS, COLOR, UTIL } from './defaults';
 import UR from '../../system/ursys';
+import DEFAULTS from './defaults';
+
+const { PAD, SVGDEFS, COLOR, UTIL } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -30,7 +32,7 @@ console.log(`Reflection test`, UTIL.DumpObj(DATA));
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 UR.Sub('PROP:MOVED', data => {
-  VGMechanisms.DrawEdges();
+  VMech.DrawEdges();
 });
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
@@ -132,15 +134,15 @@ PMCView.SyncMechsFromGraphData = () => {
   // the following arrays contain pathIds
   const { added, removed, updated } = DATA.VM_GetVMechChanges();
   removed.forEach(pathId => {
-    VGMechanisms.Release(pathId);
+    VMech.Release(pathId);
     DATA.VM_VMechDelete(pathId);
   });
   added.forEach(pathId => {
-    const vmech = VGMechanisms.New(pathId, m_svgroot);
+    const vmech = VMech.New(pathId, m_svgroot);
     DATA.VM_VMechSet(vmech, pathId);
   });
   updated.forEach(pathId => {
-    VGMechanisms.Update(pathId);
+    VMech.Update(pathId);
   });
   if (DBG) {
     if (removed.length) console.log(`%c:Removing ${removed.length} dead edgeObjs`, csstab);
@@ -230,7 +232,7 @@ function u_Recurse(propId) {
 PMCView.UpdateView = () => {
   if (DBG) console.groupCollapsed(`%c:UpdateView()`, cssinfo);
   VGProperties.LayoutComponents();
-  VGMechanisms.DrawEdges();
+  VMech.DrawEdges();
   if (DBG) console.groupEnd();
 };
 

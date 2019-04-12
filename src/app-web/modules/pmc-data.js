@@ -1,6 +1,8 @@
 import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
 import { cssinfo, cssreset, cssdata } from './console-styles';
-import { CoerceToPathId, CoerceToEdgeObj } from './defaults';
+import DEFAULTS from './defaults';
+
+const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -64,8 +66,6 @@ PMCData.Graph = () => {
  */
 PMCData.LoadGraph = uri => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
-
-  /** insert graph definition here *******************************************/
 
   /// g.setNode('a', { name: 'a node' });
   g.setNode('a', { name: 'a node' });

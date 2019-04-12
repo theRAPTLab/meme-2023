@@ -1,6 +1,6 @@
 import SVGJS from '@svgdotjs/svg.js/src/svg';
 import DATA from './pmc-data';
-import VGProperties from './vg-properties';
+import VProp from './class-vprop';
 import VMech from './class-vmech';
 import { cssinfo, cssdraw, csstab, csstab2 } from './console-styles';
 import UR from '../../system/ursys';
@@ -108,13 +108,13 @@ PMCView.SyncPropsFromGraphData = () => {
   if (DBG) console.groupCollapsed(`%c:SyncPropsFromGraphData()`, cssinfo);
   const { added, removed, updated } = DATA.VM_GetVPropChanges();
   removed.forEach(id => {
-    VGProperties.Release(id);
+    VProp.Release(id);
   });
   added.forEach(id => {
-    const vprop = VGProperties.New(id, m_svgroot);
+    const vprop = VProp.New(id, m_svgroot);
   });
   updated.forEach(id => {
-    VGProperties.Update(id);
+    VProp.Update(id);
   });
   if (DBG) {
     if (removed.length) console.log(`%c:Removing ${removed.length} dead nodes`, csstab);
@@ -172,7 +172,7 @@ PMCView.UpdateViewModel = () => {
 
   // walk through every component
   components.forEach(compId => {
-    VGProperties.MoveToRoot(compId);
+    VProp.MoveToRoot(compId);
     const bbox = u_Recurse(compId);
   });
   if (DBG) console.groupEnd();
@@ -182,7 +182,7 @@ PMCView.UpdateViewModel = () => {
 // set the component directly
 // return struct { id, w, h } w/out padding
 function u_Recurse(propId) {
-  const propVis = VGProperties.GetVisual(propId);
+  const propVis = VProp.GetVisual(propId);
   const self = propVis.GetDataBBox();
   self.h += PAD.MIN;
   console.group(`${propId} recurse`);
@@ -198,7 +198,7 @@ function u_Recurse(propId) {
   // otherwise, let's recurse!
   let sizes = [];
   childIds.forEach(childId => {
-    const childVis = VGProperties.GetVisual(childId);
+    const childVis = VProp.GetVisual(childId);
     childVis.ToParent(propId);
     const size = u_Recurse(childId);
     childVis.SetKidsBBox(size);
@@ -231,7 +231,7 @@ function u_Recurse(propId) {
  */
 PMCView.UpdateView = () => {
   if (DBG) console.groupCollapsed(`%c:UpdateView()`, cssinfo);
-  VGProperties.LayoutComponents();
+  VProp.LayoutComponents();
   VMech.DrawEdges();
   if (DBG) console.groupEnd();
 };

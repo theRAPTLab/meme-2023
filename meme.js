@@ -50,8 +50,22 @@ switch (param1) {
   case 'clean':
     f_Clean({ all: argv.all });
     break;
+  case 'doc':
+    f_DocServe();
+    break;
   default:
     console.log(`${P_SCRIPT}\n- ${P_ERR} unknown command '${param1}'\n`);
+}
+
+function f_DocServe(opt) {
+  const loc = `${TERM.FgYellow}localhost:4001${TERM.Reset}`;
+
+  console.log(`${P_SCRIPT}: Point your browser to "${loc}" to read JSDoc-generate documentation.`);
+  console.log(
+    `${P_SCRIPT}: You can edit source and the documentation will live-update (browser refresh required).`
+  );
+  console.log(`${P_SCRIPT}: When you're done, type CTRL-C to stop the documentation server`);
+  shell.exec(`npx documentation serve --watch ./src/app-web/web-index.js`);
 }
 
 function f_Clean(opt) {

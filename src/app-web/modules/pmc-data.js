@@ -64,6 +64,127 @@ DATA.LoadGraph = () => {
   g.setEdge('y', 'z', { name: 'datum' });
   g.setEdge('a', 'g', { name: 'atog' });
 
+  /**
+   *    Student Examples
+   *
+   *    These are four examples of student work based on student sketches.
+   *    To use them, first comment out the nodes above that you're not interested in,
+   *    then uncomment the section below that you ARE interested in and save to reload.
+   * 
+   */
+  
+  // // 3.5.19 sample model for group 3.pdf
+  // // Sample for Group 3
+  // g.setNode('title', { name: 'Sample for Group 3' });
+  // g.setNode('foxes', { name: 'Fox' });
+  // g.setNode('foxes-amount', { name: 'amount' });
+  // g.setNode('rabbit', { name: 'Rabbit' });
+  // g.setNode('rabbit-furcolor', { name: 'fur color' });
+  // g.setNode('rabbit-amount', { name: 'amount' });
+  // g.setNode('rabbits', { name: 'Rabbits' });
+  // g.setNode('rabbits-furcolor', { name: 'fur color' });
+  // g.setNode('plants', { name: 'Thicket' });
+  // g.setNode('bacteria', { name: 'Bacteria?' });
+  // g.setNode('oldage', { name: 'Old age?' });
+  // g.setNode('properties', { name: 'Make sure to talk properties' });
+  // g.setParent('foxes-amount', 'foxes');
+  // g.setParent('rabbit-furcolor', 'rabbit');
+  // g.setParent('rabbit-amount', 'rabbit');
+  // g.setParent('rabbits-furcolor', 'rabbits');
+  // g.setEdge('foxes', 'rabbit', { name: 'eat' });
+  // g.setEdge('rabbit', 'rabbits', { name: 'tries to hide' });
+  // g.setEdge('rabbits', 'plants', { name: 'hiding' });
+
+  // 3.5.19 Day 1 Group 4 sample model.pdf
+  // // Sample for Group 4
+  // g.setNode('title', { name: 'Sample for Group 4' });
+  // g.setNode('foxes', { name: 'Foxes' });
+  // g.setNode('foxes-amount', { name: 'amount: 2' });
+  // g.setNode('rabbits', { name: 'Rabbits' });
+  // g.setNode('rabbits-amount', { name: 'amount: 20' });
+  // g.setNode('plants', { name: 'Plants' });
+  // g.setNode('forest', { name: 'Forest' });
+  // g.setParent('foxes-amount', 'foxes');
+  // g.setParent('rabbits-amount', 'rabbits');
+  // g.setEdge('foxes', 'rabbits', { name: 'eat' });
+  // g.setEdge('rabbits', 'plants', { name: 'eat' });
+  // g.setEdge('forest', 'foxes', { name: 'live in' });
+  // g.setEdge('forest', 'rabbits', { name: 'live in' });
+
+  // // day2_group4_model_02.JPG
+  // // Sample for Group 3
+  // g.setNode('title', { name: 'Day 2 Group 4 Model 2: "Food Water Cleaning System' });
+  // g.setNode('ammonia', { name: 'Ammonia' });
+  // g.setNode('dirty-water', { name: 'dirty water' });
+  // g.setNode('dirty-water-waste', { name: 'waste' });
+  // g.setNode('dirty-water-algee', { name: 'algee' });
+  // g.setNode('tank', { name: 'big enough fish tank' });
+  // g.setNode('fish', { name: 'fish' });
+  // g.setNode('food', { name: 'food' });
+  // g.setNode('rotting-food', { name: 'rotting food' });
+  // g.setNode('cleaning', { name: 'cleaning system?' });
+  // g.setNode('clean-water', { name: 'clean water' });
+  // g.setParent('dirty-water-waste', 'dirty-water');
+  // g.setParent('dirty-water-algee', 'dirty-water');
+  // g.setEdge('ammonia', 'fish', { name: 'death' });
+  // g.setEdge('fish', 'ammonia', { name: 'makes' });
+  // g.setEdge('fish', 'dirty-water', { name: 'waste' });
+  // g.setEdge('dirty-water', 'fish', { name: 'death' });
+  // g.setEdge('tank', 'fish', { name: 'live in' });
+  // g.setEdge('fish', 'food', { name: 'eat' });
+  // g.setEdge('food', 'rotting-food', { name: '' });
+  // g.setEdge('cleaning', 'clean-water', { name: 'clean' });
+  // g.setEdge('clean-water', 'fish', { name: 'live in' });
+  // g.setEdge('rotting-food', 'clean-water', { name: 'if rots can also make dirty' });
+
+
+  // // 3.5.19 Day 1 Group 3 Brainstomring list and Final Model.pdf
+  // g.setNode('title', { name: 'Day 1 Group 3 Brainstorming List' });
+  // g.setNode('fish', { name: 'Fish' });
+  // g.setNode('fish-how-many', { name: 'how many' });
+  // g.setNode('fish-how-big', { name: 'how big' });
+  // g.setNode('fish-camo', { name: 'camo' });
+  // g.setNode('fish-how-healthy', { name: 'how healthy' });
+  // g.setNode('food', { name: 'food' });
+  // g.setNode('aquarium', { name: 'aquarium' });
+  // g.setNode('water-type', { name: 'water type' });
+  // g.setNode('water-how-clean', { name: 'how clean water is' });
+  // g.setNode('aquarium-setup', { name: 'setup' });
+  // g.setNode('aquarium-space', { name: 'space in aquarium' });
+  // /**
+  //  * Comment out the setParents to show graph as students originally drew it
+  //  * The setParents reworks the items as propoerties of fish and aquarium
+  //  *  */
+  // // g.setParent('fish-how-big', 'fish');
+  // // g.setParent('fish-how-many', 'fish');
+  // // g.setParent('fish-camo', 'fish');
+  // // g.setParent('fish-how-healthy', 'fish');
+  // // g.setParent('water-type', 'aquarium');
+  // // g.setParent('aquarium-setup', 'aquarium');
+  // // g.setParent('aquarium-space', 'aquarium');
+  // // g.setParent('water-how-clean', 'water-type');
+  // g.setEdge('fish', 'fish-how-big', { name: '' });
+  // g.setEdge('fish', 'fish-how-many', { name: '' });
+  // g.setEdge('fish', 'fish-camo', { name: 'what type' });
+  // g.setEdge('fish', 'fish-how-healthy', { name: '' });
+  // g.setEdge('fish', 'food', { name: '' });
+  // g.setEdge('fish', 'aquarium', { name: 'Live in it' });
+  // g.setEdge('fish-how-big', 'aquarium-space', { name: '' });
+  // g.setEdge('fish-how-healthy', 'fish-how-many', { name: '' });
+  // g.setEdge('fish-how-healthy', 'food', { name: '' });
+  // g.setEdge('fish-how-healthy', 'water-how-clean', { name: '' });
+  // g.setEdge('fish-how-healthy', 'aquarium-setup', { name: '' });
+  // g.setEdge('fish-how-healthy', 'aquarium-space', { name: '' });
+  // g.setEdge('food', 'water-type', { name: 'stays at top or rot' });
+  // g.setEdge('water-how-clean', 'fish', { name: 'how long they live could depend on this' });
+  // g.setEdge('aquarium', 'water-type', { name: 'water in aquarium' });
+  // g.setEdge('aquarium', 'aquarium-setup', { name: '' });
+  // g.setEdge('aquarium', 'aquarium-space', { name: '' });
+  // g.setEdge('water-type', 'water-how-clean', { name: '' });
+  // g.setEdge('water-type', 'aquarium-space', { name: 'more or less water purifier' });
+  // g.setEdge('aquarium-setup', 'aquarium-space', { name: 'more or less decoration depends on size' });
+
+
   /***************************************************************************/
 
   // test serial write out, then serial read back in

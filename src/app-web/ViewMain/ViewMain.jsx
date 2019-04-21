@@ -72,6 +72,26 @@ class ViewMain extends React.Component {
       addEdgeOpen: false,
       edgeSource: 'Source',
       edgeTarget: 'Target',
+      evidenceList: [
+        {
+          id: 'ev0',
+          evid: '1',
+          label: 'Food Rot Simulation',
+          keyvars: 'water quality, food rotting',
+          type: 'simulation',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 0
+        },
+        {
+          id: 'ev1',
+          evid: '2',
+          label: 'Autopsy Report',
+          keyvars: 'physical damage',
+          type: 'report',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 0
+        }
+      ]
     }
   }
 
@@ -268,6 +288,25 @@ class ViewMain extends React.Component {
             </div>
           </Drawer>
         </main>
+        <Drawer
+          className={ClassNames(classes.drawer, classes.drawerEvidence)}
+          classes={{
+            paper: classes.drawerEvidence
+          }}
+          variant="permanent"
+          anchor="right"
+        >
+          <div className={classes.toolbar} />
+          <Divider />
+          <List>
+            {this.state.evidenceList.map((item, index) => (
+              <ListItem button key={item.id} onClick={this.handleClick}>
+                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+                <ListItemText primary={item.label} />
+              </ListItem>
+            ))}
+          </List>
+        </Drawer>
       </div>
     );
   }

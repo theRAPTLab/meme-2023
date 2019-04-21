@@ -1,6 +1,6 @@
-const m_drawerWidth = 150;
 import { orange } from "@material-ui/core/colors";
 
+const m_drawerWidth = 100;
 const styles = theme => {
   return {
     root: {
@@ -17,6 +17,9 @@ const styles = theme => {
     },
     drawerPaper: {
       width: m_drawerWidth
+    },
+    drawerEvidence: {
+      width: `300px`
     },
     toolbar: theme.mixins.toolbar,
     content: {

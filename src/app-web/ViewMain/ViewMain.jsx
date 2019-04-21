@@ -8,6 +8,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
+import ClassNames from 'classnames';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Elements
 import Drawer from '@material-ui/core/Drawer';
@@ -20,6 +21,14 @@ import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import Fab from '@material-ui/core/Fab';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import AddIcon from '@material-ui/icons/Add';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 // Material UI Theming
@@ -49,7 +58,14 @@ class ViewMain extends React.Component {
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
+    this.handleAddProp = this.handleAddProp.bind(this);
+    this.handleAddPropCreate = this.handleAddPropCreate.bind(this);
+    this.handleAddPropClose = this.handleAddPropClose.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
+    this.state = {
+      addPropOpen: false,
+      addEdgeOpen: false,
+    }
   }
 
   componentDidMount() {
@@ -85,6 +101,22 @@ class ViewMain extends React.Component {
     });
   }
 
+  handleAddProp() {
+    console.log('Add!');
+    this.setState({ addPropOpen: true });
+  }
+
+  handleAddPropCreate() {
+    console.log('create');
+    let label = document.getElementById('propLabel').value;
+    DATA.PMC_add(label);
+    this.handleAddPropClose();
+  }
+
+  handleAddPropClose() {
+    console.log('close');
+    this.setState({ addPropOpen: false });
+  }
   render() {
     const { classes } = this.props;
     if (DBG)
@@ -108,6 +140,23 @@ class ViewMain extends React.Component {
           anchor="left"
         >
           <div className={classes.toolbar} />
+          <Divider />
+          <Fab color="primary" aria-label="Add" className={classes.fab} onClick={this.handleAddProp}><AddIcon /></Fab>
+          <Dialog
+            open={this.state.addPropOpen}
+            onClose={this.handleAddPropClose}
+            aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle id="form-dialog-title">Add Component/Property</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Type a name for your component or property.</DialogContentText>
+              <TextField autoFocus margin="dense" id="propLabel" label="Label" fullWidth />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.handleAddPropClose} color="primary">Cancel</Button>
+              <Button onClick={this.handleAddPropCreate} color="primary">Create</Button>
+            </DialogActions>
+          </Dialog>
           <Divider />
           <List>
             {['CmdA', 'CmdB', 'CmdC', 'CmdD'].map((text, index) => (

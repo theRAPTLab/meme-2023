@@ -25,6 +25,10 @@ const styles = theme => {
     view: {
       flex: 1,
       backgroundColor: '#f0f0ff'
+    },
+    fab: {
+      margin: theme.spacing.unit * 2
+    },
     }
   };
 };

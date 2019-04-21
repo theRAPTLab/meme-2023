@@ -493,6 +493,16 @@ PMCData.VM_VMechSet = (vmech, evo, ew) => {
   const pathId = CoerceToPathId(evo, ew);
   map_vmechs.set(pathId, vmech);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.PMC_add = (node = "a") => {
+  m_graph.setNode(node, { name: `${node}` });
+  PMCData.BuildModel();
+  return `added node ${node}`;
+}
+
+if (window.may1 === undefined) window.may1 = {};
+window.may1.PMC_add = PMCData.PMC_add;
+
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

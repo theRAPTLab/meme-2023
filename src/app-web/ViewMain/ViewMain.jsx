@@ -21,6 +21,7 @@ import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -39,6 +40,7 @@ import { withStyles } from '@material-ui/core/styles';
 import RoutedView from './RoutedView';
 import MEMEStyles from '../components/MEMEStyles';
 import UR from '../../system/ursys';
+import DATA from '../modules/pmc-data';
 import { cssblue, cssreact, cssdraw } from '../modules/console-styles';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -61,10 +63,15 @@ class ViewMain extends React.Component {
     this.handleAddProp = this.handleAddProp.bind(this);
     this.handleAddPropCreate = this.handleAddPropCreate.bind(this);
     this.handleAddPropClose = this.handleAddPropClose.bind(this);
+    this.handleAddEdge = this.handleAddEdge.bind(this);
+    this.handleAddEdgeCreate = this.handleAddEdgeCreate.bind(this);
+    this.handleAddEdgeClose = this.handleAddEdgeClose.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
     this.state = {
       addPropOpen: false,
       addEdgeOpen: false,
+      edgeSource: 'Source',
+      edgeTarget: 'Target',
     }
   }
 
@@ -117,6 +124,34 @@ class ViewMain extends React.Component {
     console.log('close');
     this.setState({ addPropOpen: false });
   }
+
+  handleAddEdge() {
+    console.log('Add!');
+    this.setState({ addEdgeOpen: true });
+  }
+
+  handleAddEdgeCreate() {
+    console.log('create');
+    let label = document.getElementById('propLabel').value;
+    DATA.PMC_add(label);
+    this.handleAddPropClose();
+  }
+
+  handleAddEdgeClose() {
+    console.log('close');
+    this.setState({ addEdgeOpen: false });
+  }
+
+  handleSetEdgeSource() {
+    console.log('handleSetEdgeSource');
+    UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
+
+  }
+
+  handleSetEdgeTarget() {
+    console.log('handleSetEdgeTarget');
+  }
+
   render() {
     const { classes } = this.props;
     if (DBG)
@@ -166,6 +201,7 @@ class ViewMain extends React.Component {
               </ListItem>
             ))}
           </List>
+          <Fab color="primary" aria-label="Add" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleAddEdge}><AddIcon /></Fab>
           <Divider />
           <List>
             {['CmdE', 'CmdF', 'CmdG'].map((text, index) => (
@@ -206,6 +242,31 @@ class ViewMain extends React.Component {
               />
             </Switch>
           </div>
+          <Drawer
+            variant='persistent'
+            anchor='bottom'
+            open={this.state.addEdgeOpen}
+            onClose={this.handleAddEdgeClose}
+          >
+            <div className={classes.edgeDrawerContainer}>
+              <div className="classes.drawerHeader">Add Links</div>
+              <ol>
+                <li>Click on 'Source' button then select your source node.</li>
+                <li>Click on 'Target' button then select your target node.</li>
+                <li>Type in a label for your edge (optional).</li>
+                <li>Then click 'Create'.</li>
+              </ol>
+              <div className={classes.edgeDrawerInput}>
+                <Fab color="primary" aria-label="Add Source" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleSetEdgeSource}>{this.state.edgeSource}</Fab>
+                <TextField autoFocus margin="dense" id="edgeLabel" label="Label" className={classes.textField} />
+                <Fab color="primary" aria-label="Add Target" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleSetEdgeTarget}>{this.state.edgeTarget}</Fab>
+              </div>
+              <DialogActions>
+                <Button onClick={this.handleAddEdgeClose} color="primary">Cancel</Button>
+                <Button onClick={this.handleAddEdgeCreate} color="primary">Create</Button>
+              </DialogActions>
+            </div>
+          </Drawer>
         </main>
       </div>
     );

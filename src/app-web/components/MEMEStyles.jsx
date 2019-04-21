@@ -1,4 +1,6 @@
 const m_drawerWidth = 150;
+import { orange } from "@material-ui/core/colors";
+
 const styles = theme => {
   return {
     root: {
@@ -29,6 +31,16 @@ const styles = theme => {
     fab: {
       margin: theme.spacing.unit * 2
     },
+    edgeButton: {
+      backgroundColor: orange[500],
+      '&:hover': { backgroundColor: orange[700] }
+    },
+    edgeDrawerContainer: {
+      width: `600px`,
+      margin: '1em 10em 1em 10em'
+    },
+    edgeDrawerInput: {
+      display: 'flex'
     }
   };
 };

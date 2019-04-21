@@ -3,20 +3,9 @@ import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-s
 import UR from '../../system/ursys';
 import DEFAULTS from './defaults';
 
-const { VMECH, COLOR, CoerceToEdgeObj, SVGDEFS } = DEFAULTS;
-
-/// MODULE DECLARATION ////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * @module VMech
- * @desc
- * The visual representation of "a connection between PMC properties and
- * components".
- */
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const { VMECH, COLOR, CoerceToEdgeObj, SVGDEFS } = DEFAULTS;
 const m_up = VMECH.UP;
 const m_blen = VMECH.BLEN;
 
@@ -36,13 +25,29 @@ function m_MakeQuadraticDrawingString(p1, p2) {
   // caculate nudge along perpendicular scaled by "up" factor
   const offx = nx * m_up * p1.up;
   const offy = ny * m_up * p1.up;
-
+  //
   return `M${p1.x},${p1.y} Q${mx - offx},${my - offy} ${p2.x},${p2.y}`;
 }
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * A visual representation of a "mechanism", which is the edge connecting
+ * two nodes in a directed graph.
+ * @property {string} id - the pathId that this VMech corresponds to
+ * @property {object} data - local copy of graph edge data
+ * @property {string} sourceId - local copy of source nodeId
+ * @property {string} targetId - local copy of target nodeId
+ * @property {object} dataDisplayMode - visual-specific mode flags
+ * @property {SVGPath} path - SVGJS path object
+ * @property {SVGText} pathLabel - SVGJS text object
+ * @property {SVGTextPath} textpath - SVGJS text path object
+ */
 class VMech {
+  /**
+   * @param {string} pathId
+   * @param {SVGElement} svgRoot
+   */
   constructor(pathId, svgRoot) {
     if (!DATA.HasMech(pathId)) throw Error(`${pathId} is not in graph data`);
     // basic display props
@@ -68,16 +73,26 @@ class VMech {
     this.textpath = this.pathLabel.path(this.path).attr('startOffset', this.path.length() - m_blen);
   }
 
-  //
+  /**
+   * @returns {string} associated nodeId
+
+   */
   Id() {
     return this.id;
   }
 
-  // "destructor"
+  /**
+   * cleans up any SVGJS elements that need cleaning up when this instance is destroyed
+   */
   Release() {
     if (this.path) this.path.remove();
   }
 
+  /**
+   * given source and target nodeIds, get connection points to connect and update SVG paths
+   * @param {string} srcId - sourceId of the node to request a connection point **FROM**
+   * @param {string} tgtId - targetId of the node to request a connection point **TO**
+   */
   Update(srcId, tgtId) {
     const stype = typeof srcId;
     const ttype = typeof tgtId;

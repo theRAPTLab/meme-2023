@@ -1,40 +1,42 @@
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * @module DEFAULTS
- * @desc
- * Shared settings across the MEME source. Covers:
- * * Visual Spacing
- * * Utlities for data conversion and coercion
- */
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 const GAP = 15;
-
+/**
+ * @property {object} VPROP - props
+ * @property {number} VPROP.MIN_WIDTH - minimum width
+ * @property {number} VPROP.MIN_HEIGHT - minimum height
+ * @property {object} VMECH - mechs
+ * @property {number} VMECH.STROKE - width in pixels
+ * @property {number} VMECH.UP - used to construct an "up" vector for endpoints
+ * @property {number} VMECH.BLEN - used to offset the textlabel
+ * @property {object} PAD - padding
+ * @property {number} PAD.MIN - minimum spacing used for vprops, vmechs
+ * @property {number} PAD.MIN2 - double min spacing
+ * @property {object} SVGDEFS - defs
+ * @property {object} UTIL - utility functions for debugging (availble from console)
+ * @property {object} COLOR - colors
+ * @property {string} COLOR.LINE - VMECH line color
+ * @property {string} COLOR.PROP_BG - VPROP background
+ */
 const DEFAULTS = {
-  /** vprop constants */
   VPROP: {
     MIN_WIDTH: 200,
     MIN_HEIGHT: 30
   },
-  /** vmech path styles */
   VMECH: {
     STROKE: 5,
     UP: 150,
     BLEN: 55
   },
-  /** common spacing */
   PAD: {
     MIN: GAP,
     MIN2: GAP * 2
   },
-  /** map collection of all SVG defs */
   SVGDEFS: new Map(),
-  /** console utils */
   UTIL: {
     DumpObj
   },
-  /** semantic colors definitions */
   COLOR: {
     LINE: 'orange',
     PROP_BG: '#44F'

@@ -16,7 +16,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { HashRouter, Route, Link, withRouter } from 'react-router-dom';
 import debounce from 'debounce';
-import TSV from './ts-validator-web';
 import SystemShell from './SystemShell';
 import SystemRoutes from './SystemRoutes';
 import UR from '../../system/ursys';
@@ -108,8 +107,6 @@ function Init() {
           UR.Publish('WINDOW:SIZE');
         }
       );
-      // do other out-of-phase initialization
-      if (DBG) console.log(`%cINIT %c${TSV.TestTypescript()}`, 'color:blue', 'color:auto');
       // everything is done, system is running
       if (DBG)
         console.log('%cINIT %cURSYS Lifecycle Initialization Complete', 'color:blue', 'color:auto');

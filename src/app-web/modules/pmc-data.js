@@ -1,14 +1,32 @@
-/*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
-
-  MODEL and VIEWMODEL data
-
-\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
-
 import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
 import { cssinfo, cssreset, cssdata } from './console-styles';
-import { VPathId, ArrayFromABO } from './defaults';
+import DEFAULTS from './defaults';
 
-/// INITIALIZATION ////////////////////////////////////////////////////////////
+const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
+
+/// MODULE DECLARATION ////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @module PMCData
+ * @desc
+ * A centralized data manager for graph data consisting of MEME properties and
+ * mechanisms. Also provides derived structures used for building view models
+ * for the user interface.
+ *
+ * The model, viewmodel, and view data elements all use the same kinds of id.
+ * For properties and components, a string `nodeId` is used. For mechanisms
+ * connecting properties, a string `pathId` consisting of the form
+ * `sourcetNodeId:targetNodeId` is used internally. However, mechanism-related
+ * API methods also accept dagres/graphlib's native `edgeObj` and `w,v`
+ * syntax as well.
+ * @example TO USE
+ * import PMCData from `../modules/pmc-data`;
+ * console.log(PMCData.Graph())
+ */
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const PMCData = {};
+
+/// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true;
 
@@ -29,43 +47,65 @@ const map_vmechs = new Map(); // our mechanism viewmodel data stored by pathid
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DATA = {};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.Graph = () => {
+/** API: DATASTORE:
+ * Returns the raw object database, which is an instance of Graphlib
+ * @returns {Graph} - GraphlibJS object
+ * @example
+ * const model = PMCData.Graph();
+ * const edges = model.edges();
+ * console.log(`there are ${edges.length} edges in the graph!`);
+ */
+PMCData.Graph = () => {
   return m_graph;
 };
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.LoadGraph = () => {
+/** API.DATASTORE:
+ * Loads GraphLib data into data store (currently hardcoded)
+ * @param {string} uri - (unimplemented) URI pointing to browser-accessible JSON-formatted data file
+ */
+PMCData.LoadGraph = uri => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
-  g.setNode('a', { name: 'a property', data: {} });
-  g.setNode('b', { name: 'b property', data: {} });
-  g.setNode('c', { name: 'c property', data: {} });
-  g.setNode('d', { name: 'd property', data: {} });
-  g.setNode('e', { name: 'e property', data: {} });
-  g.setNode('f', { name: 'f property', data: {} });
-  g.setNode('x', { name: 'x property', data: {} });
-  g.setNode('y', { name: 'y property', data: {} });
-  g.setNode('z', { name: 'z property', data: {} });
-  g.setParent('d', 'a');
-  g.setParent('e', 'a');
-  g.setParent('f', 'b');
-  g.setParent('x', 'c');
-  g.setParent('y', 'x');
-  g.setParent('z', 'c');
-  g.setParent('b', 'z');
-  g.setEdge('a', 'c', { name: 'a to c' });
-  g.setEdge('a', 'x', { name: 'a to x' });
-  g.setEdge('y', 'e', { name: 'y to e' });
-  g.setEdge('b', 'e', { name: 'b to e' });
+
+  /// g.setNode('a', { name: 'a node' });
+  g.setNode('a', { name: 'a node' });
+  g.setNode('b', { name: 'b node' });
+  g.setNode('c', { name: 'c node' });
+  g.setNode('d', { name: 'd node' });
+  g.setNode('e', { name: 'e node' });
+  g.setNode('f', { name: 'f node' });
+  g.setNode('g', { name: 'g node' });
+  g.setNode('x', { name: 'x node' });
+  g.setNode('y', { name: 'y node' });
+  g.setNode('z', { name: 'z node' });
+  /// g.setParent('a','b')
+  g.setParent('a', 'b');
+  g.setParent('c', 'd');
+  g.setParent('e', 'd');
+  g.setParent('f', 'd');
+  g.setParent('g', 'a');
+  g.setParent('y', 'd');
+  /// g.setEdge('a', 'b', { name: 'a-b' });
+  g.setEdge('z', 'x', { name: 'zexxxxy!' });
+  g.setEdge('g', 'd', { name: 'alpha>' });
+  g.setEdge('y', 'z', { name: 'datum' });
+  g.setEdge('a', 'g', { name: 'atog' });
+
+  /***************************************************************************/
+
   // test serial write out, then serial read back in
   const cleanGraphObj = GraphJSON.write(g);
   const json = JSON.stringify(cleanGraphObj);
   m_graph = GraphJSON.read(JSON.parse(json));
-  DATA.BuildModel();
+  PMCData.BuildModel();
 }; // LoadGraph()
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.BuildModel = () => {
+/** API.MODEL:
+ *  Builds the PROPS, MECHS, COMPONENTS, CHILDREN, and OUTEDGES lists
+ *  from the raw GraphLibJS data store.
+ */
+PMCData.BuildModel = () => {
   // test graphlib
   a_props = m_graph.nodes(); // returns node ids
   a_mechs = m_graph.edges(); // returns edgeObjects {v,w}
@@ -105,61 +145,100 @@ DATA.BuildModel = () => {
   console.groupEnd();
 };
 
-/// CLASS DECLARATION /////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.AllProps = () => {
+/** API.MODEL:
+ *  Return array of all the properties of the PMC model. Note that a PMC
+ *  component is just a property that isn't a child of any other property.
+ *  @returns {array} - array of nodeId strings
+ */
+PMCData.AllProps = () => {
   return a_props;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.AllMechs = () => {
+/** API.MODEL:
+ *  Return array of all the mechanisms of the PMC model.
+ *  @returns {array} - array of pathId strings "sourceid:targetid"
+ */
+PMCData.AllMechs = () => {
   return a_mechs;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.Components = () => {
+/** API.MODEL:
+ *  Return array of all the components of the PMC model. Note that a PMC
+ *  component is just a property (node) that isn't a child of another property.
+ *  @returns {array} - array of nodeId strings
+ */
+PMCData.Components = () => {
   return a_components;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.Children = id => {
-  return h_children.get(id) || [];
+/** API.MODEL:
+ *  Return array of all the children.
+ *  @param {string} nodeId - the nodeId that might have children
+ *  @returns {array} - an array of nodeId strings, or empty array
+ */
+PMCData.Children = nodeId => {
+  return h_children.get(nodeId) || [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.HasProp = id => {
-  return m_graph.hasNode(id);
+/** API.MODEL:
+ *  Returns TRUE if the passed nodeId exists in the graph data store
+ *  @param {string} nodeId - the nodeId to test
+ *  @returns {boolean} - true if the nodeId exists
+ */
+PMCData.HasProp = nodeId => {
+  return m_graph.hasNode(nodeId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.HasMech = (evo, ew) => {
-  if (typeof ew === 'string') return m_graph.hasEdge(evo, ew);
-  return m_graph.hasEdge(evo);
+/** API.MODEL:
+ *  Returns TRUE if the passed edge exists. This function can accept one of
+ *  three formats: an edgeObject, a pathId, or a source/target pair of nodeId strings
+ *  @param {object|string} evo - edgeObj {w,v}, pathId, or nodeId string of source
+ *  @param {string|undefined} ew - if defined, nodeId string of the target prop
+ *  @returns {boolean} - true if the the edge exists
+ */
+PMCData.HasMech = (evo, ew) => {
+  const eobj = CoerceToEdgeObj(evo, ew);
+  return m_graph.hasEdge(eobj);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.Prop = id => {
-  const prop = m_graph.node(id);
+/** API.MODEL:
+ *  Given the passed nodeId string, returns the requested property object.
+ *  This object is not a copy, so changing its properties will change the
+ *  underlying data. If it the requested nodeId doesn't exist, an error is
+ *  thrown.
+ *  @param {string} nodeId - the nodeId you want
+ *  @returns {object} - the property object
+ */
+PMCData.Prop = nodeId => {
+  const prop = m_graph.node(nodeId);
   if (prop) return prop;
-  throw Error(`no prop with id '${id}' exists`);
+  throw Error(`no prop with id '${nodeId}' exists`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.Mech = (evo, ew) => {
-  if (typeof ew === 'string') {
-    const mech = m_graph.edge(evo, ew);
-    if (mech) return mech;
-    console.warn('FYI: DATA.Mech() accepts edgeObj or w,v. A pathId is invalid');
-    throw Error(`no mech with id '${evo}', '${ew}'`);
-  }
-  const mech = m_graph.edge(evo);
-  if (mech) return mech;
-  console.warn('FYI: DATA.Mech() accepts edgeObj or w,v. A pathId is invalid');
-  throw Error(`no mech with edgeObj '${JSON.stringify(evo)}'`);
+/** API.MODEL:
+ *  Given the passed edge selector, returns the requested mechanism object.
+ *  This object is not a copy, so changing it will change the
+ *  underlying data. If it the requested edge doesn't exist, an error is
+ *  thrown.
+ *
+ *  This function can accept one of three formats: an edgeObject, a pathId,
+ *  or a source/target pair of nodeId strings.
+ *  @param {object|string} evo - edgeObj {w,v}, pathId, or nodeId string of source
+ *  @param {string|undefined} ew - if defined, nodeId string of the target prop
+ */
+PMCData.Mech = (evo, ew) => {
+  const eobj = CoerceToEdgeObj(evo, ew);
+  return m_graph.edge(eobj);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
-called by PMCViewGraph to figure out what is new in the datagraph
-compared to what it already has, so it can add/remove/update its
-visual components from the data
-/*/
-DATA.VM_GetVPropChanges = () => {
+/** API.VIEWMODEL:
+ *  returns an object containing added, updated, removed arrays
+ *  containing nodeId strings
+ *  @return {object} - object { added, updated, removed }
+ */
+PMCData.VM_GetVPropChanges = () => {
   // remember that a_props is an array of string ids, not objects
   // therefore the returned arrays have values, not references! yay!
   const added = [];
@@ -176,59 +255,126 @@ DATA.VM_GetVPropChanges = () => {
   });
   return { added, removed, updated };
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
-DATA.VM_VPropExists = id => {
-  return map_vprops.has(id);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  returns TRUE if a VProp corresponding to nodeId exists
+ *  @param {string} nodeId - the property with nodeId to test
+ *  @return {boolean} - true if the nodeId exists
+ */
+PMCData.VM_VPropExists = nodeId => {
+  return map_vprops.has(nodeId);
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
-DATA.VM_VProp = id => {
-  return map_vprops.get(id);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  returns the VProp corresponding to nodeId if it exists
+ *  @param {string} nodeId - the property with nodeId to retrieve
+ *  @return {VProp} - VProp instance, if it exists
+ */
+PMCData.VM_VProp = nodeId => {
+  return map_vprops.get(nodeId);
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
-DATA.VM_VPropDelete = id => {
-  map_vprops.delete(id);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  deletes the VProp corresponding to nodeId if it exists
+ *  @param {string} nodeId - the property with nodeId to delete
+ */
+PMCData.VM_VPropDelete = nodeId => {
+  map_vprops.delete(nodeId);
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
-DATA.VM_VPropSet = (id, vprop) => {
-  map_vprops.set(id, vprop);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  sets the VProp corresponding to nodeId
+ *  @param {string} nodeId - the property with nodeId to add to viewmodel
+ *  @param {VProp} vprop - the property with nodeId to add to viewmodel
+ */
+PMCData.VM_VPropSet = (nodeId, vprop) => {
+  map_vprops.set(nodeId, vprop);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DATA.VM_GetVMechChanges = () => {
+/** API.VIEWMODEL:
+ *  returns an object containing added, updated, removed string arrays
+ *  containing pathIds.
+ */
+PMCData.VM_GetVMechChanges = () => {
   // remember that a_mechs is an array of { v, w } edgeObjects.
   const added = [];
   const updated = [];
   const removed = [];
-  // find what matches and what is new
+  // find what matches and what is new by pathid
   a_mechs.forEach(edgeObj => {
-    if (map_vmechs.has(edgeObj)) updated.push(edgeObj);
-    else added.push(edgeObj);
+    const pathId = CoerceToPathId(edgeObj);
+    if (map_vmechs.has(pathId)) {
+      updated.push(pathId);
+      console.log('updated', pathId);
+    } else {
+      added.push(pathId);
+      console.log('added', pathId);
+    }
   });
-  // removed ids exist in viewmodelPropMap but not in updated props
-  map_vmechs.forEach((val, edgeObj) => {
-    if (!updated.includes(edgeObj)) removed.push(edgeObj);
+  // removed
+  map_vmechs.forEach((val_vmech, key_pathId) => {
+    if (!updated.includes(key_pathId)) {
+      removed.push(key_pathId);
+      console.log('removed', key_pathId);
+    }
   });
   return { added, removed, updated };
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
-DATA.VM_VMechExists = (vso, ws) => {
-  const pathId = VPathId(vso, ws);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  returns TRUE if the designated edge exists.
+ *
+ *  This function can accept one of three formats: an edgeObject, a pathId,
+ *  or a source/target pair of nodeId strings.
+ *  @param {object|string} evo - edgeObj {w,v}, pathId, or nodeId string of source
+ *  @param {string|undefined} ew - if defined, nodeId string of the target prop */
+PMCData.VM_VMechExists = (evo, ew) => {
+  const pathId = CoerceToPathId(evo, ew);
   return map_vmechs.has(pathId);
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
-DATA.VM_VMech = (vso, ws) => {
-  const pathId = VPathId(vso, ws);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  returns the VMech corresponding to the designated edge if it exists
+ *
+ *  This function can accept one of three formats: an edgeObject, a pathId,
+ *  or a source/target pair of nodeId strings.
+ *  @param {object|string} evo - edgeObj {w,v}, pathId, or nodeId string of source
+ *  @param {string|undefined} ew - if defined, nodeId string of the target prop
+ */
+PMCData.VM_VMech = (evo, ew) => {
+  const pathId = CoerceToPathId(evo, ew);
   return map_vmechs.get(pathId);
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
-DATA.VM_VMechDelete = edgeObj => {
-  map_vmechs.delete(edgeObj);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  deletes the VMech corresponding to designated edge if it exists
+ *
+ *  This function can accept one of three formats: an edgeObject, a pathId,
+ *  or a source/target pair of nodeId strings.
+ *  @param {object|string} evo - edgeObj {w,v}, pathId, or nodeId string of source
+ *  @param {string|undefined} ew - if defined, nodeId string of the target prop
+ */
+PMCData.VM_VMechDelete = (evo, ew) => {
+  const pathId = CoerceToPathId(evo, ew);
+  map_vmechs.delete(pathId);
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
-DATA.VM_VMechSet = (edgeObj, vmech) => {
-  map_vmechs.set(edgeObj, vmech);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  sets the VMech corresponding to the designated edge
+ *
+ *  This function can accept one of three formats: an edgeObject, a pathId,
+ *  or a source/target pair of nodeId strings.
+ *  @param {VMech} vmech - the VMech instance
+ *  @param {object|string} evo - edgeObj {w,v}, pathId, or nodeId string of source
+ *  @param {string|undefined} ew - if defined, nodeId string of the target prop
+ */
+PMCData.VM_VMechSet = (vmech, evo, ew) => {
+  const pathId = CoerceToPathId(evo, ew);
+  map_vmechs.set(pathId, vmech);
 };
+
 /// EXPORTS ///////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - s- - - - - - - - - -
-DATA.VM = { map_vprops, map_vmechs };
-export default DATA;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.VM = { map_vprops, map_vmechs };
+export default PMCData;

@@ -8,11 +8,10 @@ should be a child of RoutedView
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-
-import SVG from '@svgdotjs/svg.js/src/svg';
 import '@svgdotjs/svg.draggable.js';
-import GraphLib from '@dagrejs/graphlib';
-import { PMCView, DATA } from '../modules/pmc-viewgraph';
+import PMCView from '../modules/pmc-view';
+import DATA from '../modules/pmc-data';
+
 import { cssblue, cssreact, cssalert } from '../modules/console-styles';
 
 const DBG = true;
@@ -32,6 +31,7 @@ class SVGView extends React.Component {
   }
 
   componentDidMount() {
+    // placeholder
     // LIFECYCLE: Initialize ViewGraph
     PMCView.InitializeViewgraph(this.refContainer.current);
     if (this.props.viewWidth && this.props.viewHeight) {
@@ -40,6 +40,7 @@ class SVGView extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    // placeholder to trap resizing
     let dimChanged = prevProps.viewWidth !== this.viewWidth;
     dimChanged = dimChanged || prevProps.viewHeight !== this.viewHeight;
     if (dimChanged) {

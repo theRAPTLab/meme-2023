@@ -236,6 +236,17 @@ PMCView.UpdateView = () => {
   if (DBG) console.groupEnd();
 };
 
+window.PMC = PMCView;
+
+if (window.may1 === undefined) window.may1 = {};
+window.may1.Update = () => {
+  PMCView.SyncPropsFromGraphData();
+  PMCView.SyncMechsFromGraphData();
+  PMCView.UpdateViewModel();
+  PMCView.UpdateView();
+}
+
+
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default PMCView;

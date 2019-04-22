@@ -11,6 +11,8 @@ import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Elements
+import Avatar from '@material-ui/core/Avatar';
+import Badge from '@material-ui/core/Badge';
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
@@ -19,8 +21,16 @@ import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import Tooltip from '@material-ui/core/Tooltip';
+import Modal from '@material-ui/core/Modal';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Chip from '@material-ui/core/Chip';
+import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import TextField from '@material-ui/core/TextField';
@@ -30,6 +40,8 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import AddIcon from '@material-ui/icons/Add';
+import DescriptionIcon from '@material-ui/icons/Description';
+import ImageIcon from '@material-ui/icons/Image';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 // Material UI Theming
@@ -66,10 +78,13 @@ class ViewMain extends React.Component {
     this.handleAddEdge = this.handleAddEdge.bind(this);
     this.handleAddEdgeCreate = this.handleAddEdgeCreate.bind(this);
     this.handleAddEdgeClose = this.handleAddEdgeClose.bind(this);
+    this.handleEvidenceClick = this.handleEvidenceClick.bind(this);
+    this.handleEvidenceDialogClose = this.handleEvidenceDialogClose.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
     this.state = {
       addPropOpen: false,
       addEdgeOpen: false,
+      evidenceDialogOpen: false,
       edgeSource: 'Source',
       edgeTarget: 'Target',
       evidenceList: [
@@ -77,21 +92,158 @@ class ViewMain extends React.Component {
           id: 'ev0',
           evid: '1',
           label: 'Food Rot Simulation',
-          keyvars: 'water quality, food rotting',
+          keyvars: ['water quality', 'food rotting'],
           type: 'simulation',
           url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
           links: 0
+          url: '../static/FishSpawn_Sim_5_SEEDS_v7.html',
+          links: 2
         },
         {
           id: 'ev1',
           evid: '2',
           label: 'Autopsy Report',
-          keyvars: 'physical damage',
+          keyvars: ['physical damage'],
           type: 'report',
           url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
           links: 0
-        }
-      ]
+        },
+        {
+          id: 'ev2',
+          evid: '3',
+          label: 'Ammonia and Food Experiment',
+          keyvars: ['water quality', 'ammonia'],
+          type: 'report',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 1
+        },
+        {
+          id: 'ev3',
+          evid: '4',
+          label: 'Fish in a Tank Simulation',
+          keyvars: ['water quality', 'fish population'],
+          type: 'simulation',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 3
+        },
+        {
+          id: 'ev4',
+          evid: '5',
+          label: 'Measuring Ammonia Experiment',
+          keyvars: ['water quality', 'ammonia'],
+          type: 'report',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 0
+        },
+        {
+          id: 'ev5',
+          evid: '6',
+          label: 'Fish Fighting Simulation',
+          keyvars: ['fish agression'],
+          type: 'simulation',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 0
+        },
+        {
+          id: 'ev6',
+          evid: '7',
+          label: 'Fish Fighting Simulation',
+          keyvars: ['fish agression'],
+          type: 'simulation',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 1
+        },
+        {
+          id: 'ev7',
+          evid: '8',
+          label: 'Fish Fighting Simulation',
+          keyvars: ['fish agression'],
+          type: 'simulation',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 0
+        },
+        {
+          id: 'ev8',
+          evid: '9',
+          label: 'Fish Fighting Simulation',
+          keyvars: ['fish agression'],
+          type: 'simulation',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 0
+        },
+        {
+          id: 'ev9',
+          evid: '10',
+          label: 'Fish Fighting Simulation',
+          keyvars: ['fish agression'],
+          type: 'simulation',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 0
+        },
+        {
+          id: 'ev10',
+          evid: '11',
+          label: 'Fish Fighting Simulation',
+          keyvars: ['fish agression'],
+          type: 'simulation',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 0
+        },
+        {
+          id: 'ev11',
+          evid: '12',
+          label: 'Fish Fighting Simulation',
+          keyvars: ['fish agression'],
+          type: 'simulation',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 0
+        },
+        {
+          id: 'ev12',
+          evid: '13',
+          label: 'Fish Fighting Simulation',
+          keyvars: ['fish agression'],
+          type: 'simulation',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 0
+        },
+        {
+          id: 'ev13',
+          evid: '14',
+          label: 'Fish Fighting Simulation',
+          keyvars: 'fish agression',
+          type: 'simulation',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 0
+        },
+        {
+          id: 'ev15',
+          evid: '16',
+          label: 'Fish Fighting Simulation',
+          keyvars: 'fish agression',
+          type: 'simulation',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 0
+        },
+        {
+          id: 'ev16',
+          evid: '17',
+          label: 'Fish Fighting Simulation',
+          keyvars: 'fish agression',
+          type: 'simulation',
+          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+          links: 0
+        },
+      ],
+      selectedEvidence: {
+        id: '',
+        evid: '',
+        label: 'Unselected',
+        keyvars: [],
+        type: '',
+        url: '',
+        links: -1
+      }
     }
   }
 
@@ -172,6 +324,24 @@ class ViewMain extends React.Component {
     console.log('handleSetEdgeTarget');
   }
 
+  handleEvidenceClick(id) {
+    console.log('clicked on ', id);
+    // Look up evidence
+    let selectedEvidence = this.state.evidenceList.find((item) => { return item.id === id });
+    if (selectedEvidence) {
+      this.setState({
+        evidenceDialogOpen: true,
+        selectedEvidence: selectedEvidence
+      });      
+    } else {
+      console.error('ViewMain: Could not find selected evidence id', id);
+    }
+  }
+  
+  handleEvidenceDialogClose() {
+    this.setState({ evidenceDialogOpen: false });
+  }
+  
   render() {
     const { classes } = this.props;
     if (DBG)
@@ -196,7 +366,9 @@ class ViewMain extends React.Component {
         >
           <div className={classes.toolbar} />
           <Divider />
-          <Fab color="primary" aria-label="Add" className={classes.fab} onClick={this.handleAddProp}><AddIcon /></Fab>
+          <Tooltip title="Add Component or Property">
+            <Fab color="primary" aria-label="Add" className={classes.fab} onClick={this.handleAddProp}><AddIcon /></Fab>
+          </Tooltip>
           <Dialog
             open={this.state.addPropOpen}
             onClose={this.handleAddPropClose}
@@ -221,16 +393,9 @@ class ViewMain extends React.Component {
               </ListItem>
             ))}
           </List>
-          <Fab color="primary" aria-label="Add" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleAddEdge}><AddIcon /></Fab>
-          <Divider />
-          <List>
-            {['CmdE', 'CmdF', 'CmdG'].map((text, index) => (
-              <ListItem button key={text}>
-                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItem>
-            ))}
-          </List>
+          <Tooltip title="Add Link">
+            <Fab color="primary" aria-label="Add" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleAddEdge}><AddIcon /></Fab>
+          </Tooltip>
         </Drawer>
         <main className={classes.content} ref={this.refMain}>
           <div className={classes.toolbar} ref={this.refToolbar} />
@@ -262,51 +427,91 @@ class ViewMain extends React.Component {
               />
             </Switch>
           </div>
-          <Drawer
-            variant='persistent'
-            anchor='bottom'
-            open={this.state.addEdgeOpen}
-            onClose={this.handleAddEdgeClose}
-          >
-            <div className={classes.edgeDrawerContainer}>
-              <div className="classes.drawerHeader">Add Links</div>
-              <ol>
-                <li>Click on 'Source' button then select your source node.</li>
-                <li>Click on 'Target' button then select your target node.</li>
-                <li>Type in a label for your edge (optional).</li>
-                <li>Then click 'Create'.</li>
-              </ol>
-              <div className={classes.edgeDrawerInput}>
-                <Fab color="primary" aria-label="Add Source" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleSetEdgeSource}>{this.state.edgeSource}</Fab>
-                <TextField autoFocus margin="dense" id="edgeLabel" label="Label" className={classes.textField} />
-                <Fab color="primary" aria-label="Add Target" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleSetEdgeTarget}>{this.state.edgeTarget}</Fab>
-              </div>
-              <DialogActions>
-                <Button onClick={this.handleAddEdgeClose} color="primary">Cancel</Button>
-                <Button onClick={this.handleAddEdgeCreate} color="primary">Create</Button>
-              </DialogActions>
-            </div>
-          </Drawer>
         </main>
-        <Drawer
-          className={ClassNames(classes.drawer, classes.drawerEvidence)}
-          classes={{
-            paper: classes.drawerEvidence
-          }}
-          variant="permanent"
-          anchor="right"
-        >
+
+        <Paper className={classes.evidencePane}>
           <div className={classes.toolbar} />
-          <Divider />
-          <List>
-            {this.state.evidenceList.map((item, index) => (
-              <ListItem button key={item.id} onClick={this.handleClick}>
-                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                <ListItemText primary={item.label} />
+          <List dense={true}>
+            {this.state.evidenceList.map(item => (
+              <ListItem button key={item.id} onClick={() => this.handleEvidenceClick(item.id)}>
+                <ListItemAvatar>
+                  <Avatar className={classes.evidenceAvatar}>{item.evid}</Avatar>
+                </ListItemAvatar>
+                <ListItemText primary={`${item.label}`} secondary={`${item.keyvars}`} />
+                <ListItemSecondaryAction>
+                  {item.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
+                  {item.links > 0 ?
+                    <Chip className={classes.evidenceBadge} label={item.links} color="secondary" /> :
+                    <Chip className={classes.evidenceBadge} label='' /> }
+                </ListItemSecondaryAction>
               </ListItem>
             ))}
           </List>
-        </Drawer>
+        </Paper>
+
+        <Modal
+          className={classes.edgeDialog}
+          disableBackdropClick={true}
+          hideBackdrop={true}
+          open={this.state.addEdgeOpen}
+          onClose={this.handleAddEdgeClose}
+        >
+          <Paper className={classes.edgePaper}>
+            <div className={classes.drawerHeader}>Add Links</div>
+            <ol>
+              <li>Click on 'Source' button then select your source node.</li>
+              <li>Click on 'Target' button then select your target node.</li>
+              <li>Type in a label for your edge (optional).</li>
+              <li>Then click 'Create'.</li>
+            </ol>
+            <div className={classes.edgeDrawerInput}>
+              <Fab color="primary" aria-label="Add Source" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleSetEdgeSource}>{this.state.edgeSource}</Fab>
+              <TextField autoFocus margin="dense" id="edgeLabel" label="Label" className={classes.textField} />
+              <Fab color="primary" aria-label="Add Target" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleSetEdgeTarget}>{this.state.edgeTarget}</Fab>
+            </div>
+            <DialogActions>
+              <Button onClick={this.handleAddEdgeClose} color="primary">Cancel</Button>
+              <Button onClick={this.handleAddEdgeCreate} color="primary">Create</Button>
+            </DialogActions>
+          </Paper>
+        </Modal>
+
+        <Modal
+          className={classes.evidenceDialog}
+          disableBackdropClick={false}
+          hideBackdrop={false}
+          open={this.state.evidenceDialogOpen}
+          onClose={this.handleEvidenceDialogClose}
+        >
+          <Paper className={classes.evidencePaper}>
+            <div className={classes.evidenceTitle}>
+              <Avatar>{this.state.selectedEvidence.evid}</Avatar>&nbsp;
+              <div style={{ flexGrow: 1 }}>{this.state.selectedEvidence.label}</div>
+              <Card>
+                <CardContent>
+                  <Typography>Key Variables:</Typography>
+                  {this.state.selectedEvidence.keyvars.map( (item, index) => (
+                    <Chip label={item} key={index} />
+                  ))}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent>
+                  <Typography>Type:</Typography>
+                  {this.state.selectedEvidence.type} {this.state.selectedEvidence.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent>
+                  <Typography>Links:</Typography>
+                  <Chip label={this.state.selectedEvidence.links} color="secondary" />
+                </CardContent>
+              </Card>
+              <Button className={classes.evidenceCloseBtn} onClick={this.handleEvidenceDialogClose} color="primary">Close</Button>
+            </div>
+            <iframe src={this.state.selectedEvidence.url} width="1024" height="600"></iframe>
+          </Paper>
+        </Modal>
       </div>
     );
   }

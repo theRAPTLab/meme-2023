@@ -1,6 +1,7 @@
-import { orange } from "@material-ui/core/colors";
+import { orange, teal } from "@material-ui/core/colors";
 
-const m_drawerWidth = 100;
+const m_drawerWidth = 150;
+const m_edgeDialogWidth = 600;
 const styles = theme => {
   return {
     root: {
@@ -17,9 +18,6 @@ const styles = theme => {
     },
     drawerPaper: {
       width: m_drawerWidth
-    },
-    drawerEvidence: {
-      width: `300px`
     },
     toolbar: theme.mixins.toolbar,
     content: {
@@ -38,12 +36,49 @@ const styles = theme => {
       backgroundColor: orange[500],
       '&:hover': { backgroundColor: orange[700] }
     },
-    edgeDrawerContainer: {
-      width: `600px`,
-      margin: '1em 10em 1em 10em'
+    edgeDialog: {
+      width: m_edgeDialogWidth
+    },
+    edgePaper: {
+      margin: `1em 10em 1em ${m_drawerWidth}px`,
+      padding: '1em',
+      width: m_edgeDialogWidth,
+      position: 'absolute',
+      bottom: 0
     },
     edgeDrawerInput: {
       display: 'flex'
+    },
+    evidencePane: {
+      zIndex: 1250  // above drawer, below modal
+    },
+    evidenceDialog: {
+      width: '95%'
+    },
+    evidencePaper: {
+      width: '95%',
+      margin: '0 auto',
+      padding: '1em'
+    },
+    evidenceTitle: {
+      fontSize: '1.4em',
+      fontWeight: 'bold',
+      display: 'flex'
+    },
+    evidenceAvatar: {
+      backgroundColor: teal[100]
+    },
+    evidenceBadge: {
+      height: '16px',
+      width: '16px',
+      fontSize: '0.8em',
+      fontWeight: 'bold'
+    },
+    evidenceCloseBtn: {
+      flexPosition: ''
+    },
+    badge: {
+      margin: '8px'
     }
   };
 };

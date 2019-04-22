@@ -6,6 +6,7 @@ npm run myscript -- --myoptions=something
 alternatively you'll just write your own script that does it
 /*/
 const path = require('path');
+const ip = require('ip');
 
 let shell;
 let argv;
@@ -42,7 +43,12 @@ const PATH_WDS = `./node_modules/webpack-dev-server/bin`;
 switch (param1) {
   case 'dev':
     //    "dev": "echo '\n*** USING WEBPACK HOT DEV SERVER' && webpack-dev-server  --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'",
+    console.log(`\n`);
     console.log(`${P_SCRIPT}: running development server`);
+    console.log(`${P_SCRIPT}: ${TERM.FgYellow}GO TO ONE OF THESE URLS in CHROME WEB BROWSER${TERM.Reset}`);
+    console.log(`${P_SCRIPT}: MAINAPP - http://localhost:3000`);
+    console.log(`${P_SCRIPT}: CLIENTS - http://${ip.address()}:3000`);
+    console.log(`\n`);
     shell.exec(
       `${PATH_WDS}/webpack-dev-server.js --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'`
     );

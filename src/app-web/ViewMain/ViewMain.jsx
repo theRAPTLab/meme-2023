@@ -94,8 +94,6 @@ class ViewMain extends React.Component {
           label: 'Food Rot Simulation',
           keyvars: ['water quality', 'food rotting'],
           type: 'simulation',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 0
           url: '../static/FishSpawn_Sim_5_SEEDS_v7.html',
           links: 2
         },

@@ -6,7 +6,7 @@
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true; // module-wide debug flag
+const DBG = false; // module-wide debug flag
 const F_SEL = 'selected';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////

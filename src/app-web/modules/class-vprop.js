@@ -66,33 +66,26 @@ class VProp {
     this.mechPoints = []; // array of points available for mechanism connections
     // higher order display properties
     this.gRoot.draggable();
-    this.gRoot.on('dragmove.propmove', event => {
-      const { handler, box } = event.detail;
+    this.gRoot.on('dragstart.propmove', event => {
       event.preventDefault();
+      this.dragStartBox = event.detail.box;
+    });
+    this.gRoot.on('dragmove.propmove', event => {
+      event.preventDefault();
+      const { handler, box } = event.detail;
       const { x, y } = box;
+      this.dragMoveBox = box;
       handler.move(x, y);
       UR.Publish('PROP:MOVED', { prop: this.id });
     });
-    //
-    this.gRoot.mousedown(() => { DATA.VM_ToggleProp(this) });
-    this.gRoot.touchstart(() => { DATA.VM_ToggleProp(this) });
+    this.gRoot.on('dragend.propmove', event => {
+      event.stopPropagation();
+      const { x: x1, y: y1 } = this.dragStartBox;
+      const { x: x2, y: y2 } = this.dragMoveBox;
+      if (Math.abs(x1 - x2) < 5 && Math.abs(y1 - y2) < 5) DATA.VM_ToggleProp(this);
+    });
     // initial drawing
     this.Draw();
-  }
-
-  /** set selection flags
-   * @param {...string} args variable-length selection flags to set
-   */
-  Select(...args) {
-    this.visualState.Select(...args);
-  }
-
-  Deselect(...args) {
-    this.visualState.Deselect(...args);
-  }
-
-  ToggleSelect(...args) {
-    this.visualState.ToggleSelect(...args);
   }
 
   /** return associated nodeId
@@ -298,14 +291,17 @@ class VProp {
     this.gKids.move(xx, yy);
   }
 
-  // drawing interface
+  /**
+   * Redraw svg elements from properties that may have been updated by
+   * Update().
+   * @param {object} point { x, y } coordinate
+   */
   Draw(point) {
-    console.log(`drawing '${this.id}'`);
     // draw box
-    this.visBG
-      .fill({ color: this.fill, opacity: 0.1 })
-      //      .stroke({ color: this.fill, width: 2 })
-      .radius(DIM_RADIUS);
+    this.visBG.fill({ color: this.fill, opacity: 0.1 }).radius(DIM_RADIUS);
+    let sw = this.visualState.IsSelected() ? 2 : 0;
+    if (this.visualState.IsSelected('first')) sw *= 2;
+    this.visBG.stroke({ color: this.fill, width: sw });
     // draw label
     this.gDataName.transform({ translateX: m_pad, translateY: m_pad / 2 });
     // move
@@ -336,6 +332,9 @@ class VProp {
     this.gRoot.toRoot();
   }
 
+  /**
+   * Update instance properties from model, then call Draw() to update svg elements
+   */
   Update() {
     // update data by copying
     const data = DATA.Prop(this.id);

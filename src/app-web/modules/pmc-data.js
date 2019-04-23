@@ -28,7 +28,7 @@ const PMCData = {};
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 
 /// MODEL /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -504,6 +504,7 @@ PMCData.VM_VMechSet = (vmech, evo, ew) => {
 PMCData.VM_SelectProp = vprop => {
   // set appropriate vprop flags
   vprop.Select();
+  vprop.Draw();
   // update viewmodel
   selected_vprops.add(vprop.id);
 }
@@ -515,6 +516,7 @@ PMCData.VM_SelectProp = vprop => {
 PMCData.VM_DeselectProp = vprop => {
   // set appropriate vprop flags
   vprop.visualState.Deselect();
+  vprop.Draw();
   // update viewmodel
   selected_vprops.delete(vprop.id);
 }
@@ -532,10 +534,12 @@ PMCData.VM_ToggleProp = vprop => {
     if (selected_vprops.size === 1) {
       vprop.visualState.Select('first');
     }
+    vprop.Draw();
   } else {
     selected_vprops.delete(vprop.id);
+    vprop.Draw();
   }
-  console.log(`global selection`, selected_vprops);
+  if (DBG) console.log(`global selection`, selected_vprops);
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
@@ -547,10 +551,11 @@ PMCData.VM_DeselectAllProps = () => {
   selected_vprops.forEach(vpid => {
     const vprop = PMCData.VM_VProp(vpid);
     vprop.visualState.Deselect();
+    vprop.Draw();
   });
   // clear selection viewmodel
   selected_vprops.clear();
-  console.log(`global selection`, selected_vprops);
+  if (DBG) console.log(`global selection`, selected_vprops);
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
@@ -563,6 +568,7 @@ PMCData.VM_DeselectAllProps = () => {
 PMCData.VM_SelectedProps = () => {
   return Array.from(selected_vprops.values());
 }
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
  */

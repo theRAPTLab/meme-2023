@@ -48,7 +48,7 @@ switch (param1) {
     console.log(`${P_SCRIPT}: ${TERM.FgYellow}GO TO ONE OF THESE URLS in CHROME WEB BROWSER${TERM.Reset}`);
     console.log(`${P_SCRIPT}: MAINAPP - http://localhost:3000`);
     console.log(`${P_SCRIPT}: CLIENTS - http://${ip.address()}:3000`);
-    console.log(`\n`);
+    console.log(`---\n`);
     shell.exec(
       `${PATH_WDS}/webpack-dev-server.js --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'`
     );
@@ -71,7 +71,7 @@ function f_DocServe(opt) {
     `${P_SCRIPT}: You can edit source and the documentation will live-update (browser refresh required).`
   );
   console.log(`${P_SCRIPT}: When you're done, type CTRL-C to stop the documentation server`);
-  shell.exec(`npx documentation serve --watch ./src/app-web/web-index.js`);
+  shell.exec(`npx documentation serve --config meme-documentation.yml --watch ./src/app-web/web-index.js`);
 }
 
 function f_Clean(opt) {

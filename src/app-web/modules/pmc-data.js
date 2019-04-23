@@ -44,6 +44,8 @@ let h_outedges = new Map(); // outedges hash of each prop by id
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const map_vprops = new Map(); // our property viewmodel data stored by id
 const map_vmechs = new Map(); // our mechanism viewmodel data stored by pathid
+const selected_vprops = new Set();
+const selected_vmechs = new Set();
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -97,9 +99,9 @@ PMCData.LoadGraph = uri => {
    *    These are four examples of student work based on student sketches.
    *    To use them, first comment out the nodes above that you're not interested in,
    *    then uncomment the section below that you ARE interested in and save to reload.
-   * 
+   *
    */
-  
+
   // // 3.5.19 sample model for group 3.pdf
   // // Sample for Group 3
   // g.setNode('title', { name: 'Sample for Group 3' });
@@ -494,7 +496,68 @@ PMCData.VM_VMechSet = (vmech, evo, ew) => {
   const pathId = CoerceToPathId(evo, ew);
   map_vmechs.set(pathId, vmech);
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * add the vprop to the selection
+ * @param {object} vprop - VProp instance with id property
+ */
+PMCData.VM_SelectProp = vprop => {
+  // set appropriate vprop flags
+  vprop.Select();
+  // update viewmodel
+  selected_vprops.add(vprop.id);
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * remove th
+ * @param {object} vprop - VProp instance with id property
+ */
+PMCData.VM_DeselectProp = vprop => {
+  // set appropriate vprop flags
+  vprop.visualState.Deselect();
+  // update viewmodel
+  selected_vprops.delete(vprop.id);
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * remove th
+ * @param {object} vprop - VProp instance with id property
+ */
+PMCData.VM_ToggleProp = vprop => {
+  // set appropriate vprop flags
+  vprop.visualState.ToggleSelect();
+  // update viewmodel
+  if (vprop.visualState.IsSelected()) {
+    selected_vprops.add(vprop.id);
+  } else {
+    selected_vprops.delete(vprop.id);
+  }
+  console.log(`global selection`, selected_vprops);
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * erase the selected properties set
+ */
+PMCData.VM_DeselectAllProps = () => {
+  // tell all vprops to clear themselves
+  selected_vprops.forEach(vpid => {
+    const vprop = PMCData.VM_VProp(vpid);
+    vprop.visualState.Deselect();
+  });
+  // clear selection viewmodel
+  selected_vprops.clear();
+  console.log(`global selection`, selected_vprops);
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * return array of all string ids that are currently selected properties
+ */
+PMCData.VM_SelectedProps = () => {
+  return Array.from(selected_vprops.values());
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ */
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.VM = { map_vprops, map_vmechs };

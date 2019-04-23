@@ -2,18 +2,11 @@ import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
 import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
+import { VisualState } from './classes-visual';
 
 const { VPROP, PAD } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * @module VProp
- * @desc
- * The visual representation of "a property that has a name and associated data,
- * and may contain nested properties". It works with string ids (nodeId) that corresponds
- * to the pure data model nodeId.
- */
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
@@ -39,7 +32,16 @@ function m_Norm(aObj, bNum) {
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * The visual representation of "a property that has a name and associated data,
+ * and may contain nested properties". It works with string ids (nodeId) that corresponds
+ * to the pure data model nodeId.
+ */
 class VProp {
+  /** create a VProp
+   * @param {number} propId
+   * @param {SVGJSElement} svg root element
+   */
   constructor(propId, svgRoot) {
     if (typeof propId !== 'string') throw Error(`require string id`);
     if (!DATA.HasProp(propId)) throw Error(`${propId} is not in graph data`);
@@ -58,8 +60,11 @@ class VProp {
     this.height = m_minHeight;
     this.kidsWidth = 0;
     this.kidsHeight = 0;
+    // shared modes
+    this.visualState = new VisualState(this.id);
+    this.displayMode = {};
+    this.mechPoints = []; // array of points available for mechanism connections
     // higher order display properties
-    console.log(this.gRoot);
     this.gRoot.draggable();
     this.gRoot.on('dragmove.propmove', event => {
       const { handler, box } = event.detail;
@@ -68,29 +73,46 @@ class VProp {
       handler.move(x, y);
       UR.Publish('PROP:MOVED', { prop: this.id });
     });
-
-    this.dataDisplayMode = {}; // how to display data, what data to show/hide
-    this.connectionPoints = []; // array of points available for mechanism connections
-    this.highlightMode = {}; // how to display selection, subselection, hover
-
+    //
+    this.gRoot.mousedown(() => { DATA.VM_ToggleProp(this) });
+    this.gRoot.touchstart(() => { DATA.VM_ToggleProp(this) });
     // initial drawing
     this.Draw();
   }
 
-  //
+  /** set selection flags
+   * @param {...string} args variable-length selection flags to set
+   */
+  Select(...args) {
+    this.visualState.Select(...args);
+  }
+
+  Deselect(...args) {
+    this.visualState.Deselect(...args);
+  }
+
+  ToggleSelect(...args) {
+    this.visualState.ToggleSelect(...args);
+  }
+
+  /** return associated nodeId
+   * @returns {string} nodeId string
+   */
   Id() {
     return this.id;
   }
 
-  //
+  /** return upper-left X coordinate */
   X() {
     return this.gRoot.x();
   }
 
+  /** return upper-left y coordinate */
   Y() {
     return this.gRoot.y();
   }
 
+  /** return width of element */
   Width() {
     return this.width;
   }
@@ -439,10 +461,9 @@ VProp.GetSize = id => {
   const vprop = DATA.VM_VProp(id);
   return { id: vprop.Id(), w: vprop.Width(), h: vprop.Height() };
 };
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  LIFECYCLE: SizeToContents sizes all the properties to fit their contained props
+ *  LIFECYCLE: Sizes all the properties to fit their contained props
  *  based on their display state
  */
 VProp.LayoutComponents = () => {

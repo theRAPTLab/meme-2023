@@ -529,6 +529,9 @@ PMCData.VM_ToggleProp = vprop => {
   // update viewmodel
   if (vprop.visualState.IsSelected()) {
     selected_vprops.add(vprop.id);
+    if (selected_vprops.size === 1) {
+      vprop.visualState.Select('first');
+    }
   } else {
     selected_vprops.delete(vprop.id);
   }
@@ -536,7 +539,8 @@ PMCData.VM_ToggleProp = vprop => {
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- * erase the selected properties set
+ * erase the selected properties set. Also calls affected vprops to
+ * handle deselection update
  */
 PMCData.VM_DeselectAllProps = () => {
   // tell all vprops to clear themselves
@@ -550,7 +554,11 @@ PMCData.VM_DeselectAllProps = () => {
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- * return array of all string ids that are currently selected properties
+ return array of all string ids that are currently selected properties
+ in order of insertion.
+ Use VProp.visualState.IsSelected('first') to determine what the first
+ selection is
+ @returns {string[]} propIds - array of string ids of properties
  */
 PMCData.VM_SelectedProps = () => {
   return Array.from(selected_vprops.values());

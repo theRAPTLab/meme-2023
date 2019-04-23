@@ -336,7 +336,6 @@ class VProp {
     this.gRoot.toRoot();
   }
 
-  //
   Update() {
     // update data by copying
     const data = DATA.Prop(this.id);

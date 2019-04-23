@@ -34,27 +34,28 @@ class VisualState {
   /**
    * returns true if any selection flags are set. If a specific set of
    * flags are
-   * @param  {...string} flags - optional selection flags to test
+   * @param  {...string} optFlags optional selection flags to test
    */
-  IsSelected(...flags) {
-    if (flags.length === 0) return this.selected.has(F_SEL);
+  IsSelected(...optFlags) {
+    if (optFlags.length === 0) return this.selected.has(F_SEL);
     let doesHave = true;
-    flags.forEach(arg => {
+    optFlags.forEach(arg => {
       doesHave = doesHave && this.selected.has(arg);
     });
     return doesHave;
   }
 
-  /** set selection flags
-   * @param {...string} flags variable-length selection flags to set
+  /**
+   * set selection flags
+   * @param {...string} optFlags optional selection flags to set
    */
-  Select(...flags) {
-    if (flags.length === 0) {
+  Select(...optFlags) {
+    if (optFlags.length === 0) {
       this.selected.add(F_SEL);
       if (DBG) console.log(`${this.id} default add`, this.selected);
       return;
     }
-    flags.forEach(arg => {
+    optFlags.forEach(arg => {
       if (arg === true) {
         this.selected.add(F_SEL);
         if (DBG) console.log(`${this.id} true add`, this.selected);
@@ -67,13 +68,17 @@ class VisualState {
     });
   }
 
-  Deselect(...flags) {
-    if (flags.length === 0) {
-      this.selected.delete(F_SEL);
-      if (DBG) console.log(`${this.id} default delete`, this.selected);
+  /**
+   * unset selection flags
+   * @param {...string} optFlags variable-length selection flags to unset
+   */
+  Deselect(...optFlags) {
+    if (optFlags.length === 0) {
+      this.selected.clear();
+      if (DBG) console.log(`${this.id} default deleted all`, this.selected);
       return;
     }
-    flags.forEach(arg => {
+    optFlags.forEach(arg => {
       if (arg === true) {
         this.selected.delete(F_SEL);
         if (DBG) console.log(`true delete`, this.selected);
@@ -86,7 +91,11 @@ class VisualState {
     });
   }
 
-  ToggleSelect(...flags) {
+  /**
+   * toggle selection flags
+   * @param {...string} optFlags optional selection flags to toggle
+   */
+  ToggleSelect(...optFlags) {
     // helper function
     function toggle(self, flag) {
       if (self.selected.has(flag)) {
@@ -96,13 +105,13 @@ class VisualState {
       }
     }
     // default no argument is 'selected'
-    if (flags.length === 0) {
+    if (optFlags.length === 0) {
       toggle(this, F_SEL);
       if (DBG) console.log(`${this.id} toggled state`, this.selected);
       return;
     }
     // process arg list when provided
-    flags.forEach(arg => {
+    optFlags.forEach(arg => {
       if (arg === true) {
         toggle(this, F_SEL);
       } else if (typeof arg === 'string') {

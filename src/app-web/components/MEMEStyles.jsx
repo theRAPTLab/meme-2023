@@ -50,6 +50,7 @@ const styles = theme => {
       display: 'flex'
     },
     evidencePane: {
+      width: 300,
       zIndex: 1250  // above drawer, below modal
     },
     evidenceDialog: {

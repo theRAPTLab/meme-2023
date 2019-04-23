@@ -87,152 +87,6 @@ class ViewMain extends React.Component {
       evidenceDialogOpen: false,
       edgeSource: 'Source',
       edgeTarget: 'Target',
-      evidenceList: [
-        {
-          id: 'ev0',
-          evid: '1',
-          label: 'Food Rot Simulation',
-          keyvars: ['water quality', 'food rotting'],
-          type: 'simulation',
-          url: '../static/FishSpawn_Sim_5_SEEDS_v7.html',
-          links: 2
-        },
-        {
-          id: 'ev1',
-          evid: '2',
-          label: 'Autopsy Report',
-          keyvars: ['physical damage'],
-          type: 'report',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 0
-        },
-        {
-          id: 'ev2',
-          evid: '3',
-          label: 'Ammonia and Food Experiment',
-          keyvars: ['water quality', 'ammonia'],
-          type: 'report',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 1
-        },
-        {
-          id: 'ev3',
-          evid: '4',
-          label: 'Fish in a Tank Simulation',
-          keyvars: ['water quality', 'fish population'],
-          type: 'simulation',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 3
-        },
-        {
-          id: 'ev4',
-          evid: '5',
-          label: 'Measuring Ammonia Experiment',
-          keyvars: ['water quality', 'ammonia'],
-          type: 'report',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 0
-        },
-        {
-          id: 'ev5',
-          evid: '6',
-          label: 'Fish Fighting Simulation',
-          keyvars: ['fish agression'],
-          type: 'simulation',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 0
-        },
-        {
-          id: 'ev6',
-          evid: '7',
-          label: 'Fish Fighting Simulation',
-          keyvars: ['fish agression'],
-          type: 'simulation',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 1
-        },
-        {
-          id: 'ev7',
-          evid: '8',
-          label: 'Fish Fighting Simulation',
-          keyvars: ['fish agression'],
-          type: 'simulation',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 0
-        },
-        {
-          id: 'ev8',
-          evid: '9',
-          label: 'Fish Fighting Simulation',
-          keyvars: ['fish agression'],
-          type: 'simulation',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 0
-        },
-        {
-          id: 'ev9',
-          evid: '10',
-          label: 'Fish Fighting Simulation',
-          keyvars: ['fish agression'],
-          type: 'simulation',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 0
-        },
-        {
-          id: 'ev10',
-          evid: '11',
-          label: 'Fish Fighting Simulation',
-          keyvars: ['fish agression'],
-          type: 'simulation',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 0
-        },
-        {
-          id: 'ev11',
-          evid: '12',
-          label: 'Fish Fighting Simulation',
-          keyvars: ['fish agression'],
-          type: 'simulation',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 0
-        },
-        {
-          id: 'ev12',
-          evid: '13',
-          label: 'Fish Fighting Simulation',
-          keyvars: ['fish agression'],
-          type: 'simulation',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 0
-        },
-        {
-          id: 'ev13',
-          evid: '14',
-          label: 'Fish Fighting Simulation',
-          keyvars: 'fish agression',
-          type: 'simulation',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 0
-        },
-        {
-          id: 'ev15',
-          evid: '16',
-          label: 'Fish Fighting Simulation',
-          keyvars: 'fish agression',
-          type: 'simulation',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 0
-        },
-        {
-          id: 'ev16',
-          evid: '17',
-          label: 'Fish Fighting Simulation',
-          keyvars: 'fish agression',
-          type: 'simulation',
-          url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-          links: 0
-        },
-      ],
       selectedEvidence: {
         id: '',
         evid: '',
@@ -325,12 +179,12 @@ class ViewMain extends React.Component {
   handleEvidenceClick(id) {
     console.log('clicked on ', id);
     // Look up evidence
-    let selectedEvidence = this.state.evidenceList.find((item) => { return item.id === id });
+    let selectedEvidence = DATA.Evidence(id);
     if (selectedEvidence) {
       this.setState({
         evidenceDialogOpen: true,
         selectedEvidence: selectedEvidence
-      });      
+      });
     } else {
       console.error('ViewMain: Could not find selected evidence id', id);
     }
@@ -342,6 +196,7 @@ class ViewMain extends React.Component {
   
   render() {
     const { classes } = this.props;
+    const evidence = DATA.AllEvidence();
     if (DBG)
       console.log(`%crender() size ${this.state.viewWidth}x${this.state.viewHeight}`, cssreact);
     return (
@@ -430,10 +285,10 @@ class ViewMain extends React.Component {
         <Paper className={classes.evidencePane}>
           <div className={classes.toolbar} />
           <List dense={true}>
-            {this.state.evidenceList.map(item => (
+            {evidence.map(item => (
               <ListItem button key={item.id} onClick={() => this.handleEvidenceClick(item.id)}>
                 <ListItemAvatar>
-                  <Avatar className={classes.evidenceAvatar}>{item.evid}</Avatar>
+                  <Avatar className={classes.evidenceAvatar}>{item.id}</Avatar>
                 </ListItemAvatar>
                 <ListItemText primary={`${item.label}`} secondary={`${item.keyvars}`} />
                 <ListItemSecondaryAction>

@@ -39,6 +39,12 @@ let a_mechs = []; // all mechanisms (pathId strings)
 let a_components = []; // top-level props with no parents
 let h_children = new Map(); // children hash of each prop by id
 let h_outedges = new Map(); // outedges hash of each prop by id
+//
+let a_evidence = []; // all evidence objects
+let a_propEvidence = new Map(); // links to evidence by prop id: {propId, [evId1,evId2]}
+let a_mechEvidence = new Map(); // links to evidence by mechanism id
+let h_evProp = new Map(); // calculated links to props by evidence id
+let h_evMech = new Map(); // calculated links to mechanisms by evidence id
 
 /// VIEWMODEL /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -90,6 +96,13 @@ PMCData.LoadGraph = uri => {
   g.setEdge('g', 'd', { name: 'alpha>' });
   g.setEdge('y', 'z', { name: 'datum' });
   g.setEdge('a', 'g', { name: 'atog' });
+  
+  // define evidence mapping: propID => evIDArray
+  a_propEvidence.set('a', ['1']);
+  a_propEvidence.set('b', ['2', '3']);
+  a_propEvidence.set('g', ['1']);
+  a_propEvidence.set('y', ['4']);
+  a_propEvidence.set('z', ['7']);
 
 /**
  *    Student Examples
@@ -213,6 +226,143 @@ PMCData.LoadGraph = uri => {
 
   /***************************************************************************/
 
+  // This doesn't belong here
+  a_evidence = [
+    {
+      id: '1',
+      label: 'Food Rot Simulation',
+      keyvars: ['water quality', 'food rotting'],
+      type: 'simulation',
+      url: '../static/FishSpawn_Sim_5_SEEDS_v7.html',
+      links: 0
+    },
+    {
+      id: '2',
+      label: 'Autopsy Report',
+      keyvars: ['physical damage'],
+      type: 'report',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: '3',
+      label: 'Ammonia and Food Experiment',
+      keyvars: ['water quality', 'ammonia'],
+      type: 'report',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: '4',
+      label: 'Fish in a Tank Simulation',
+      keyvars: ['water quality', 'fish population'],
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: '5',
+      label: 'Measuring Ammonia Experiment',
+      keyvars: ['water quality', 'ammonia'],
+      type: 'report',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: '6',
+      label: 'Fish Fighting Simulation',
+      keyvars: ['fish agression'],
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: '7',
+      label: 'Fish Fighting Simulation',
+      keyvars: ['fish agression'],
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: '8',
+      label: 'Fish Fighting Simulation',
+      keyvars: ['fish agression'],
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: 'ev8',
+      evid: '9',
+      label: 'Fish Fighting Simulation',
+      keyvars: ['fish agression'],
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: '10',
+      label: 'Fish Fighting Simulation',
+      keyvars: ['fish agression'],
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: 'ev10',
+      evid: '11',
+      label: 'Fish Fighting Simulation',
+      keyvars: ['fish agression'],
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: 'ev11',
+      evid: '12',
+      label: 'Fish Fighting Simulation',
+      keyvars: ['fish agression'],
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: 'ev12',
+      evid: '13',
+      label: 'Fish Fighting Simulation',
+      keyvars: ['fish agression'],
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: '14',
+      label: 'Fish Fighting Simulation',
+      keyvars: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: '16',
+      label: 'Fish Fighting Simulation',
+      keyvars: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      id: '17',
+      label: 'Fish Fighting Simulation',
+      keyvars: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    }
+  ];
+  
+  /***************************************************************************/
   // test serial write out, then serial read back in
   const cleanGraphObj = GraphJSON.write(g);
   const json = JSON.stringify(cleanGraphObj);
@@ -257,6 +407,33 @@ PMCData.BuildModel = () => {
     h_outedges.set(n, arr);
   });
 
+  /*/
+   *  Update h_evProp lookup table to
+   *  look up props that are linked to a particular piece of evidence
+  /*/
+  h_evProp = new Map();
+  a_propEvidence.forEach((evIds, propId) => {
+    if (evIds) {
+      evIds.forEach(id => {
+        let propIds = h_evProp.get(id);
+        if (propIds === undefined) propIds = [];
+        if (!propIds.includes(propId)) propIds.push(propId);
+        h_evProp.set(id, propIds);
+      });
+    }
+  });
+  
+  /*/
+   *  Now update all evidence link counts
+  /*/
+  a_evidence.forEach(ev => {
+    let props = h_evProp.get(ev.id);
+    if (props) {
+      ev.links = props.length;
+      console.log('length is', props.length);
+    }
+  });
+  
   if (!DBG) return;
   console.groupCollapsed('%cBuildModel()%c Nodes and Edges', cssinfo, cssreset);
   console.log(`arry a_components`, a_components);
@@ -498,11 +675,44 @@ PMCData.PMC_add = (node = "a") => {
   m_graph.setNode(node, { name: `${node}` });
   PMCData.BuildModel();
   return `added node ${node}`;
-}
+};
 
 if (window.may1 === undefined) window.may1 = {};
 window.may1.PMC_add = PMCData.PMC_add;
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Returns all of the evidence objects.
+ */
+PMCData.AllEvidence = () => {
+  return a_evidence;
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Returns the evidence object matching the evId.
+ */
+PMCData.Evidence = (id) => {
+  return a_evidence.find((item) => { return item.id === id });
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Given the passed nodeID, returns evidence linked to the prop object.
+ *  @param {string|undefined} nodeId - if defined, nodeId string of the prop
+ */
+PMCData.PropEvidence = (nodeId) => {
+  return a_propEvidence.get(nodeId);
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Given the passed evidence ID, returns props linked to the evidence object.
+ *  @param {string|undefined} id - if defined, id string of the evidence object
+ */
+PMCData.EvidenceProps = (id) => {
+  return h_evProp.get(id);
+};
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

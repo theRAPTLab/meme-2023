@@ -278,7 +278,6 @@ class VProp {
 
   // drawing interface
   Draw(point) {
-    console.log(`drawing '${this.id}'`);
     // draw box
     this.visBG
       .fill({ color: this.fill, opacity: 0.1 })
@@ -286,6 +285,18 @@ class VProp {
       .radius(DIM_RADIUS);
     // draw label
     this.gDataName.transform({ translateX: m_pad, translateY: m_pad / 2 });
+    // draw evidence labels on right side of prop
+    let evWidth = 28;
+    if (this.gDataEvidenceBadge) {
+      this.gDataEvidenceBadge.forEach((ev, index) => {
+       ev.transform({ translateX: this.width - evWidth * (index + 1) - 4, translateY: m_pad / 2 + 3 });
+      });
+    }
+    if (this.gDataEvidenceLabel) {
+      this.gDataEvidenceLabel.forEach((ev, index) => {
+       ev.transform({ translateX: this.width - evWidth * (index + 1) + evWidth / 3 - 4, translateY: m_pad / 2 + 7 });
+      });
+    }
     // move
     if (point) this.gRoot.move(point.x, point.y);
   }
@@ -319,9 +330,33 @@ class VProp {
     // update data by copying
     const data = DATA.Prop(this.id);
     this.data.name = data.name;
+
     // preserve layout
     const x = this.gRoot.x();
     const y = this.gRoot.y();
+
+    // Evidence
+    const evArr = DATA.PropEvidence(this.id);
+    this.gDataEvidenceBadge = [];
+    this.gDataEvidenceLabel = [];
+    if (evArr) {
+      // When adding the evidence badges, we have to move them to the current location
+      evArr.forEach((evId) => {
+        this.gDataEvidenceBadge.push(
+          this.gData
+            .circle(25)
+            .fill('#b2dfdb')
+            .move(x, y)
+        );
+        this.gDataEvidenceLabel.push(
+          this.gData
+            .text(evId)
+            .font({ fill: '#fff', size: '0.8em', weight: 'bold' })
+            .move(x, y)
+        );
+      });
+    }
+
     this.Draw({ x, y });
   }
 }

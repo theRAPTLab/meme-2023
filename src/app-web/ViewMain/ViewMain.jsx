@@ -40,6 +40,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import AddIcon from '@material-ui/icons/Add';
+import CloseIcon from '@material-ui/icons/Close';
 import DescriptionIcon from '@material-ui/icons/Description';
 import ImageIcon from '@material-ui/icons/Image';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
@@ -80,7 +81,12 @@ class ViewMain extends React.Component {
     this.handleAddEdgeClose = this.handleAddEdgeClose.bind(this);
     this.handleEvidenceClick = this.handleEvidenceClick.bind(this);
     this.handleEvidenceDialogClose = this.handleEvidenceDialogClose.bind(this);
+    this.handleEvidenceNoteOpen = this.handleEvidenceNoteOpen.bind(this);
+    this.handleEvidenceNoteClose = this.handleEvidenceNoteClose.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
+    UR.Sub('SHOW_EVIDENCE_NOTE', evidenceNote => {
+      this.handleEvidenceNoteOpen(evidenceNote);
+    });
     this.state = {
       addPropOpen: false,
       addEdgeOpen: false,
@@ -95,6 +101,11 @@ class ViewMain extends React.Component {
         type: '',
         url: '',
         links: -1
+      },
+      evidenceNoteOpen: false,
+      selectedEvidenceNote: {
+        id: '',
+        note: ''
       }
     }
   }
@@ -189,11 +200,22 @@ class ViewMain extends React.Component {
       console.error('ViewMain: Could not find selected evidence id', id);
     }
   }
-  
+
   handleEvidenceDialogClose() {
     this.setState({ evidenceDialogOpen: false });
   }
-  
+
+  handleEvidenceNoteOpen(evidenceNote) {
+    this.setState({
+      selectedEvidenceNote: evidenceNote,
+      evidenceNoteOpen: true
+    });
+  }
+
+  handleEvidenceNoteClose() {
+    this.setState({ evidenceNoteOpen: false });
+  }
+
   render() {
     const { classes } = this.props;
     const evidence = DATA.AllEvidence();
@@ -294,7 +316,7 @@ class ViewMain extends React.Component {
                 <ListItemSecondaryAction>
                   {item.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
                   {item.links > 0 ?
-                    <Chip className={classes.evidenceBadge} label={item.links} color="secondary" /> :
+                    <Chip className={classes.evidenceBadge} label={item.links} color="primary" /> :
                     <Chip className={classes.evidenceBadge} label='' /> }
                 </ListItemSecondaryAction>
               </ListItem>
@@ -338,7 +360,7 @@ class ViewMain extends React.Component {
         >
           <Paper className={classes.evidencePaper}>
             <div className={classes.evidenceTitle}>
-              <Avatar>{this.state.selectedEvidence.evid}</Avatar>&nbsp;
+              <Avatar className={classes.evidenceAvatar}>{this.state.selectedEvidence.id}</Avatar>&nbsp;
               <div style={{ flexGrow: 1 }}>{this.state.selectedEvidence.label}</div>
               <Card>
                 <CardContent>
@@ -365,6 +387,25 @@ class ViewMain extends React.Component {
             <iframe src={this.state.selectedEvidence.url} width="1024" height="600"></iframe>
           </Paper>
         </Modal>
+
+        <Modal
+          className={classes.evidenceNote}
+          disableBackdropClick={false}
+          hideBackdrop={true}
+          open={this.state.evidenceNoteOpen}
+          onClose={this.handleEvidenceNoteClose}
+        >
+          <Paper className={classes.evidenceNotePaper}>
+            <div className={classes.evidenceTitle}>
+              <Avatar className={classes.evidenceAvatar}>{this.state.selectedEvidenceNote.id}</Avatar>&nbsp;
+              <TextField value={this.state.selectedEvidenceNote.note} />
+              <Button className={classes.evidenceCloseBtn} onClick={this.handleEvidenceNoteClose} color="primary">
+                <CloseIcon/>
+              </Button>
+            </div>
+          </Paper>
+        </Modal>
+
       </div>
     );
   }

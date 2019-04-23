@@ -1,4 +1,4 @@
-import { orange, teal } from "@material-ui/core/colors";
+import { orange, teal, yellow } from "@material-ui/core/colors";
 
 const m_drawerWidth = 150;
 const m_edgeDialogWidth = 600;
@@ -54,6 +54,7 @@ const styles = theme => {
       zIndex: 1250  // above drawer, below modal
     },
     evidenceDialog: {
+      marginTop: '1em',
       width: '95%'
     },
     evidencePaper: {
@@ -77,6 +78,16 @@ const styles = theme => {
     },
     evidenceCloseBtn: {
       flexPosition: ''
+    },
+    evidenceNote: {
+      width: 400,
+      margin: '50% auto'
+    },
+    evidenceNotePaper: {
+      width: '95%',
+      margin: '0 auto',
+      padding: '1em',
+      backgroundColor: yellow[100]
     },
     badge: {
       margin: '8px'

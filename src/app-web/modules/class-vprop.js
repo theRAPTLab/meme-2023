@@ -341,16 +341,18 @@ class VProp {
     this.gDataEvidenceLabel = [];
     if (evArr) {
       // When adding the evidence badges, we have to move them to the current location
-      evArr.forEach((evId) => {
-        this.gDataEvidenceBadge.push(
-          this.gData
-            .circle(25)
-            .fill('#b2dfdb')
-            .move(x, y)
-        );
+      evArr.forEach((ev) => {
+        let badge = this.gData
+          .circle(25)
+          .fill('#b2dfdb')
+          .move(x, y)
+          .mouseover(() => {
+            UR.Publish('SHOW_EVIDENCE_NOTE', { id: ev.evidenceId, note: ev.note, x: x, y: y });
+          });
+        this.gDataEvidenceBadge.push(badge);
         this.gDataEvidenceLabel.push(
           this.gData
-            .text(evId)
+            .text(ev.evidenceId)
             .font({ fill: '#fff', size: '0.8em', weight: 'bold' })
             .move(x, y)
         );

@@ -98,11 +98,24 @@ PMCData.LoadGraph = uri => {
   g.setEdge('a', 'g', { name: 'atog' });
   
   // define evidence mapping: propID => evIDArray
-  a_propEvidence.set('a', ['1']);
-  a_propEvidence.set('b', ['2', '3']);
-  a_propEvidence.set('g', ['1']);
-  a_propEvidence.set('y', ['4']);
-  a_propEvidence.set('z', ['7']);
+  a_propEvidence.set('a', [
+    { evidenceId: '1', note: 'fish need food' }
+  ]);
+  a_propEvidence.set('b', [
+    { evidenceId: '2', note: 'fish cant live in dirty water' },
+    { evidenceId: '3', note: 'fish heads' }
+  ]);
+  a_propEvidence.set('g', [
+    { evidenceId: '2', note: 'fish fish fish' },
+    { evidenceId: '5', note: 'fishy fishy fishy' },
+    { evidenceId: '1', note: 'here fishy fishy fishy' }
+  ]);
+  a_propEvidence.set('y', [
+    { evidenceId: '1', note: 'phoeti' }
+  ]);
+  a_propEvidence.set('z', [
+    { evidenceId: '1', note: 'fish food fish food' }
+  ]);
 
 /**
  *    Student Examples
@@ -293,8 +306,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: 'ev8',
-      evid: '9',
+      id: '9',
       label: 'Fish Fighting Simulation',
       keyvars: ['fish agression'],
       type: 'simulation',
@@ -310,8 +322,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: 'ev10',
-      evid: '11',
+      id: '11',
       label: 'Fish Fighting Simulation',
       keyvars: ['fish agression'],
       type: 'simulation',
@@ -319,8 +330,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: 'ev11',
-      evid: '12',
+      id: '12',
       label: 'Fish Fighting Simulation',
       keyvars: ['fish agression'],
       type: 'simulation',
@@ -328,8 +338,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: 'ev12',
-      evid: '13',
+      id: '13',
       label: 'Fish Fighting Simulation',
       keyvars: ['fish agression'],
       type: 'simulation',
@@ -345,7 +354,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '16',
+      id: '15',
       label: 'Fish Fighting Simulation',
       keyvars: 'fish agression',
       type: 'simulation',
@@ -353,7 +362,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '17',
+      id: '16',
       label: 'Fish Fighting Simulation',
       keyvars: 'fish agression',
       type: 'simulation',
@@ -412,13 +421,13 @@ PMCData.BuildModel = () => {
    *  look up props that are linked to a particular piece of evidence
   /*/
   h_evProp = new Map();
-  a_propEvidence.forEach((evIds, propId) => {
-    if (evIds) {
-      evIds.forEach(id => {
-        let propIds = h_evProp.get(id);
+  a_propEvidence.forEach((evArr, propId) => {
+    if (evArr) {
+      evArr.forEach(ev => {
+        let propIds = h_evProp.get(ev.evidenceId);
         if (propIds === undefined) propIds = [];
         if (!propIds.includes(propId)) propIds.push(propId);
-        h_evProp.set(id, propIds);
+        h_evProp.set(ev.evidenceId, propIds);
       });
     }
   });

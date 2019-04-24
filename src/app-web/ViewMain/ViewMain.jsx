@@ -83,10 +83,12 @@ class ViewMain extends React.Component {
     this.handleEvidenceDialogClose = this.handleEvidenceDialogClose.bind(this);
     this.handleEvidenceNoteOpen = this.handleEvidenceNoteOpen.bind(this);
     this.handleEvidenceNoteClose = this.handleEvidenceNoteClose.bind(this);
+    this.handleSelectionChange = this.handleSelectionChange.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
     UR.Sub('SHOW_EVIDENCE_NOTE', evidenceNote => {
       this.handleEvidenceNoteOpen(evidenceNote);
     });
+    UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
     this.state = {
       addPropOpen: false,
       addEdgeOpen: false,
@@ -149,9 +151,9 @@ class ViewMain extends React.Component {
   }
 
   handleAddPropCreate() {
-    console.log('create');
+    console.log('create prop');
     let label = document.getElementById('propLabel').value;
-    DATA.PMC_add(label);
+    DATA.PMC_AddProp(label);
     this.handleAddPropClose();
   }
 
@@ -166,10 +168,10 @@ class ViewMain extends React.Component {
   }
 
   handleAddEdgeCreate() {
-    console.log('create');
-    let label = document.getElementById('propLabel').value;
-    DATA.PMC_add(label);
-    this.handleAddPropClose();
+    console.log('create edge');
+    let label = document.getElementById('edgeLabel').value;
+    DATA.PMC_AddMech(this.state.edgeSource, this.state.edgeTarget, label);
+    this.handleAddEdgeClose();
   }
 
   handleAddEdgeClose() {
@@ -214,6 +216,23 @@ class ViewMain extends React.Component {
 
   handleEvidenceNoteClose() {
     this.setState({ evidenceNoteOpen: false });
+  }
+  
+  handleSelectionChange() {
+    let selected = DATA.VM_SelectedProps();
+    console.error('selection chagned', selected);
+    let source = 'sourced';
+    let target = 'targetd';
+    if (selected.length > 0) {
+      source = selected[0];
+    }
+    if (selected.length > 1) {
+      target = selected[1];
+    }
+    this.setState({
+      edgeSource: source,
+      edgeTarget: target
+    })
   }
 
   render() {
@@ -302,8 +321,35 @@ class ViewMain extends React.Component {
               />
             </Switch>
           </div>
+
+
+          <Card
+            className={classes.edgeDialog}
+            hidden={!this.state.addEdgeOpen}
+          >
+            <Paper className={classes.edgePaper}>
+              <div className={classes.drawerHeader}>Add Links</div>
+              <ol>
+                <li>Click on a source node.</li>
+                <li>Click on a target node.</li>
+                <li>Type in a label for your edge (optional).</li>
+                <li>Then click 'Create'.</li>
+              </ol>
+              <div className={classes.edgeDrawerInput}>
+                <Fab color="primary" aria-label="Add Source" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleSetEdgeSource}>{this.state.edgeSource}</Fab>
+                <TextField autoFocus margin="dense" id="edgeLabel" label="Label" className={classes.textField} />
+                <Fab color="primary" aria-label="Add Target" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleSetEdgeTarget}>{this.state.edgeTarget}</Fab>
+              </div>
+              <DialogActions>
+                <Button onClick={this.handleAddEdgeClose} color="primary">Cancel</Button>
+                <Button onClick={this.handleAddEdgeCreate} color="primary">Create</Button>
+              </DialogActions>
+            </Paper>
+          </Card>
+
         </main>
 
+        <div style={{ height: this.state.viewHeight, overflow: 'scroll'}}>
         <Paper className={classes.evidencePane}>
           <div className={classes.toolbar} />
           <List dense={true}>
@@ -323,33 +369,7 @@ class ViewMain extends React.Component {
             ))}
           </List>
         </Paper>
-
-        <Modal
-          className={classes.edgeDialog}
-          disableBackdropClick={true}
-          hideBackdrop={true}
-          open={this.state.addEdgeOpen}
-          onClose={this.handleAddEdgeClose}
-        >
-          <Paper className={classes.edgePaper}>
-            <div className={classes.drawerHeader}>Add Links</div>
-            <ol>
-              <li>Click on 'Source' button then select your source node.</li>
-              <li>Click on 'Target' button then select your target node.</li>
-              <li>Type in a label for your edge (optional).</li>
-              <li>Then click 'Create'.</li>
-            </ol>
-            <div className={classes.edgeDrawerInput}>
-              <Fab color="primary" aria-label="Add Source" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleSetEdgeSource}>{this.state.edgeSource}</Fab>
-              <TextField autoFocus margin="dense" id="edgeLabel" label="Label" className={classes.textField} />
-              <Fab color="primary" aria-label="Add Target" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleSetEdgeTarget}>{this.state.edgeTarget}</Fab>
-            </div>
-            <DialogActions>
-              <Button onClick={this.handleAddEdgeClose} color="primary">Cancel</Button>
-              <Button onClick={this.handleAddEdgeCreate} color="primary">Create</Button>
-            </DialogActions>
-          </Paper>
-        </Modal>
+        </div>
 
         <Modal
           className={classes.evidenceDialog}

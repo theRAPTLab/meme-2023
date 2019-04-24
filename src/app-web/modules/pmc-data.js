@@ -1,6 +1,7 @@
 import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
 import { cssinfo, cssreset, cssdata } from './console-styles';
 import DEFAULTS from './defaults';
+import UR from '../../system/ursys';
 
 const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
 
@@ -726,6 +727,7 @@ PMCData.VM_ToggleProp = vprop => {
     vprop.Draw();
   }
   if (DBG) console.log(`global selection`, selected_vprops);
+  UR.Publish('SELECTION_CHANGED');
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
@@ -742,6 +744,7 @@ PMCData.VM_DeselectAllProps = () => {
   // clear selection viewmodel
   selected_vprops.clear();
   if (DBG) console.log(`global selection`, selected_vprops);
+  UR.Publish('SELECTION_CHANGED');
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
@@ -758,14 +761,23 @@ PMCData.VM_SelectedProps = () => {
 
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_add = (node = "a") => {
+PMCData.PMC_AddProp = (node = "a") => {
   m_graph.setNode(node, { name: `${node}` });
   PMCData.BuildModel();
   return `added node ${node}`;
 };
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.PMC_AddMech = (sourceId, targetId, label) => {
+  m_graph.setEdge(sourceId, targetId, { name: label });
+  PMCData.BuildModel();
+  return `added edge ${sourceId} ${targetId} ${label}`;
+};
+
 if (window.may1 === undefined) window.may1 = {};
-window.may1.PMC_add = PMCData.PMC_add;
+window.may1.PMC_AddProp = PMCData.PMC_AddProp;
+window.may1.PMC_AddMech = PMCData.PMC_AddMech;
+
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:

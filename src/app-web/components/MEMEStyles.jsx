@@ -55,7 +55,7 @@ const styles = theme => {
     },
     evidenceDialog: {
       marginTop: '1em',
-      width: '95%'
+      width: '100%'
     },
     evidencePaper: {
       width: '95%',

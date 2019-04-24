@@ -68,10 +68,12 @@ class VProp {
     this.gRoot.draggable();
     this.gRoot.on('dragstart.propmove', event => {
       event.preventDefault();
+      console.log('dragstart.propmove');
       this.dragStartBox = event.detail.box;
     });
     this.gRoot.on('dragmove.propmove', event => {
       event.preventDefault();
+      console.log('dragmove.propmove');
       const { handler, box } = event.detail;
       const { x, y } = box;
       this.dragMoveBox = box;
@@ -80,6 +82,7 @@ class VProp {
     });
     this.gRoot.on('dragend.propmove', event => {
       event.stopPropagation();
+      console.log('dragend.propmove');
       const { x: x1, y: y1 } = this.dragStartBox;
       const { x: x2, y: y2 } = this.dragMoveBox;
       if (Math.abs(x1 - x2) < 5 && Math.abs(y1 - y2) < 5) DATA.VM_ToggleProp(this);
@@ -367,7 +370,10 @@ class VProp {
           .circle(25)
           .fill('#b2dfdb')
           .move(x, y)
-          .mouseover(() => {
+          .mousedown((e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('badge click');
             UR.Publish('SHOW_EVIDENCE_NOTE', { id: ev.evidenceId, note: ev.note, x: x, y: y });
           });
         this.gDataEvidenceBadge.push(badge);

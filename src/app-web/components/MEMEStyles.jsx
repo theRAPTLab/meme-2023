@@ -49,11 +49,11 @@ const styles = theme => {
     edgeDrawerInput: {
       display: 'flex'
     },
-    evidencePane: {
+    informationList: {
       width: 300,
       zIndex: 1250  // above drawer, below modal
     },
-    evidenceDialog: {
+    informationView: {
       marginTop: '1em',
       width: '100%'
     },
@@ -79,11 +79,11 @@ const styles = theme => {
     evidenceCloseBtn: {
       flexPosition: ''
     },
-    evidenceNote: {
+    evidenceLink: {
       width: 400,
       margin: '50% auto'
     },
-    evidenceNotePaper: {
+    evidenceLinkPaper: {
       width: '95%',
       margin: '0 auto',
       padding: '1em',

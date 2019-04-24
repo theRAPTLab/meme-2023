@@ -80,19 +80,20 @@ class ViewMain extends React.Component {
     this.handleAddEdgeCreate = this.handleAddEdgeCreate.bind(this);
     this.handleAddEdgeClose = this.handleAddEdgeClose.bind(this);
     this.handleEvidenceClick = this.handleEvidenceClick.bind(this);
-    this.handleEvidenceDialogClose = this.handleEvidenceDialogClose.bind(this);
-    this.handleEvidenceNoteOpen = this.handleEvidenceNoteOpen.bind(this);
-    this.handleEvidenceNoteClose = this.handleEvidenceNoteClose.bind(this);
+    this.handleInformationViewClose = this.handleInformationViewClose.bind(this);
+    this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
+    this.handleEvidenceLinkClose = this.handleEvidenceLinkClose.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
-    UR.Sub('SHOW_EVIDENCE_NOTE', evidenceNote => {
-      this.handleEvidenceNoteOpen(evidenceNote);
+    UR.Sub('SHOW_EVIDENCE_NOTE', evidenceLink => {
+      this.handleEvidenceLinkOpen(evidenceLink);
     });
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
     this.state = {
+      viewHeight: 0, // need to init this to prevent error with first render of informationList
       addPropOpen: false,
       addEdgeOpen: false,
-      evidenceDialogOpen: false,
+      informationViewOpen: false,
       edgeSource: 'Source',
       edgeTarget: 'Target',
       selectedEvidence: {
@@ -104,8 +105,8 @@ class ViewMain extends React.Component {
         url: '',
         links: -1
       },
-      evidenceNoteOpen: false,
-      selectedEvidenceNote: {
+      evidenceLinkOpen: false,
+      selectedEvidenceLink: {
         id: '',
         note: ''
       }
@@ -195,7 +196,7 @@ class ViewMain extends React.Component {
     let selectedEvidence = DATA.Evidence(id);
     if (selectedEvidence) {
       this.setState({
-        evidenceDialogOpen: true,
+        informationViewOpen: true,
         selectedEvidence: selectedEvidence
       });
     } else {
@@ -203,19 +204,19 @@ class ViewMain extends React.Component {
     }
   }
 
-  handleEvidenceDialogClose() {
-    this.setState({ evidenceDialogOpen: false });
+  handleInformationViewClose() {
+    this.setState({ informationViewOpen: false });
   }
 
-  handleEvidenceNoteOpen(evidenceNote) {
+  handleEvidenceLinkOpen(evidenceLink) {
     this.setState({
-      selectedEvidenceNote: evidenceNote,
-      evidenceNoteOpen: true
+      selectedEvidenceLink: evidenceLink,
+      evidenceLinkOpen: true
     });
   }
 
-  handleEvidenceNoteClose() {
-    this.setState({ evidenceNoteOpen: false });
+  handleEvidenceLinkClose() {
+    this.setState({ evidenceLinkOpen: false });
   }
   
   handleSelectionChange() {
@@ -349,9 +350,8 @@ class ViewMain extends React.Component {
 
         </main>
 
-        <div style={{ height: this.state.viewHeight, overflow: 'scroll'}}>
-        <Paper className={classes.evidencePane}>
-          <div className={classes.toolbar} />
+        <div style={{ height: this.state.viewHeight+64, overflow: 'scroll', zIndex: 1250}}>
+        <Paper className={classes.informationList}>
           <List dense={true}>
             {evidence.map(item => (
               <ListItem button key={item.id} onClick={() => this.handleEvidenceClick(item.id)}>
@@ -372,11 +372,11 @@ class ViewMain extends React.Component {
         </div>
 
         <Modal
-          className={classes.evidenceDialog}
+          className={classes.informationView}
           disableBackdropClick={false}
           hideBackdrop={false}
-          open={this.state.evidenceDialogOpen}
-          onClose={this.handleEvidenceDialogClose}
+          open={this.state.informationViewOpen}
+          onClose={this.handleInformationViewClose}
         >
           <Paper className={classes.evidencePaper}>
             <div className={classes.evidenceTitle}>
@@ -402,24 +402,24 @@ class ViewMain extends React.Component {
                   <Chip label={this.state.selectedEvidence.links} color="secondary" />
                 </CardContent>
               </Card>
-              <Button className={classes.evidenceCloseBtn} onClick={this.handleEvidenceDialogClose} color="primary">Close</Button>
+              <Button className={classes.evidenceCloseBtn} onClick={this.handleInformationViewClose} color="primary">Close</Button>
             </div>
             <iframe src={this.state.selectedEvidence.url} width="1024" height="600"></iframe>
           </Paper>
         </Modal>
 
         <Modal
-          className={classes.evidenceNote}
+          className={classes.evidenceLink}
           disableBackdropClick={false}
           hideBackdrop={true}
-          open={this.state.evidenceNoteOpen}
-          onClose={this.handleEvidenceNoteClose}
+          open={this.state.evidenceLinkOpen}
+          onClose={this.handleEvidenceLinkClose}
         >
-          <Paper className={classes.evidenceNotePaper}>
+          <Paper className={classes.evidenceLinkPaper}>
             <div className={classes.evidenceTitle}>
-              <Avatar className={classes.evidenceAvatar}>{this.state.selectedEvidenceNote.id}</Avatar>&nbsp;
-              <TextField value={this.state.selectedEvidenceNote.note} />
-              <Button className={classes.evidenceCloseBtn} onClick={this.handleEvidenceNoteClose} color="primary">
+              <Avatar className={classes.evidenceAvatar}>{this.state.selectedEvidenceLink.id}</Avatar>&nbsp;
+              <TextField value={this.state.selectedEvidenceLink.note} />
+              <Button className={classes.evidenceCloseBtn} onClick={this.handleEvidenceLinkClose} color="primary">
                 <CloseIcon/>
               </Button>
             </div>

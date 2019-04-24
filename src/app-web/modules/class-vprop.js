@@ -2,18 +2,11 @@ import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
 import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
+import { VisualState } from './classes-visual';
 
 const { VPROP, PAD } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * @module VProp
- * @desc
- * The visual representation of "a property that has a name and associated data,
- * and may contain nested properties". It works with string ids (nodeId) that corresponds
- * to the pure data model nodeId.
- */
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
@@ -39,7 +32,16 @@ function m_Norm(aObj, bNum) {
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * The visual representation of "a property that has a name and associated data,
+ * and may contain nested properties". It works with string ids (nodeId) that corresponds
+ * to the pure data model nodeId.
+ */
 class VProp {
+  /** create a VProp
+   * @param {number} propId
+   * @param {SVGJSElement} svg root element
+   */
   constructor(propId, svgRoot) {
     if (typeof propId !== 'string') throw Error(`require string id`);
     if (!DATA.HasProp(propId)) throw Error(`${propId} is not in graph data`);
@@ -58,39 +60,52 @@ class VProp {
     this.height = m_minHeight;
     this.kidsWidth = 0;
     this.kidsHeight = 0;
+    // shared modes
+    this.visualState = new VisualState(this.id);
+    this.displayMode = {};
+    this.mechPoints = []; // array of points available for mechanism connections
     // higher order display properties
-    console.log(this.gRoot);
     this.gRoot.draggable();
-    this.gRoot.on('dragmove.propmove', event => {
-      const { handler, box } = event.detail;
+    this.gRoot.on('dragstart.propmove', event => {
       event.preventDefault();
+      this.dragStartBox = event.detail.box;
+    });
+    this.gRoot.on('dragmove.propmove', event => {
+      event.preventDefault();
+      const { handler, box } = event.detail;
       const { x, y } = box;
+      this.dragMoveBox = box;
       handler.move(x, y);
       UR.Publish('PROP:MOVED', { prop: this.id });
     });
-
-    this.dataDisplayMode = {}; // how to display data, what data to show/hide
-    this.connectionPoints = []; // array of points available for mechanism connections
-    this.highlightMode = {}; // how to display selection, subselection, hover
-
+    this.gRoot.on('dragend.propmove', event => {
+      event.stopPropagation();
+      const { x: x1, y: y1 } = this.dragStartBox;
+      const { x: x2, y: y2 } = this.dragMoveBox;
+      if (Math.abs(x1 - x2) < 5 && Math.abs(y1 - y2) < 5) DATA.VM_ToggleProp(this);
+    });
     // initial drawing
     this.Draw();
   }
 
-  //
+  /** return associated nodeId
+   * @returns {string} nodeId string
+   */
   Id() {
     return this.id;
   }
 
-  //
+  /** return upper-left X coordinate */
   X() {
     return this.gRoot.x();
   }
 
+  /** return upper-left y coordinate */
   Y() {
     return this.gRoot.y();
   }
 
+  /** return width of element */
   Width() {
     return this.width;
   }
@@ -276,13 +291,17 @@ class VProp {
     this.gKids.move(xx, yy);
   }
 
-  // drawing interface
+  /**
+   * Redraw svg elements from properties that may have been updated by
+   * Update().
+   * @param {object} point { x, y } coordinate
+   */
   Draw(point) {
     // draw box
-    this.visBG
-      .fill({ color: this.fill, opacity: 0.1 })
-      //      .stroke({ color: this.fill, width: 2 })
-      .radius(DIM_RADIUS);
+    this.visBG.fill({ color: this.fill, opacity: 0.1 }).radius(DIM_RADIUS);
+    let sw = this.visualState.IsSelected() ? 2 : 0;
+    if (this.visualState.IsSelected('first')) sw *= 2;
+    this.visBG.stroke({ color: this.fill, width: sw });
     // draw label
     this.gDataName.transform({ translateX: m_pad, translateY: m_pad / 2 });
     // draw evidence labels on right side of prop
@@ -325,7 +344,9 @@ class VProp {
     this.gRoot.toRoot();
   }
 
-  //
+  /**
+   * Update instance properties from model, then call Draw() to update svg elements
+   */
   Update() {
     // update data by copying
     const data = DATA.Prop(this.id);
@@ -476,10 +497,9 @@ VProp.GetSize = id => {
   const vprop = DATA.VM_VProp(id);
   return { id: vprop.Id(), w: vprop.Width(), h: vprop.Height() };
 };
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  LIFECYCLE: SizeToContents sizes all the properties to fit their contained props
+ *  LIFECYCLE: Sizes all the properties to fit their contained props
  *  based on their display state
  */
 VProp.LayoutComponents = () => {

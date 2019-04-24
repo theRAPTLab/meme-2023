@@ -55,10 +55,16 @@ const styles = theme => {
     },
     informationView: {
       marginTop: '1em',
-      width: '100%'
+      width: '100%',
+      height: '100%'
     },
-    evidencePaper: {
+    informationNote: {
+      marginLeft: theme.spacing.unit,
+      marginRight: theme.spacing.unit
+    },
+    informationViewPaper: {
       width: '95%',
+      height: '95%',
       margin: '0 auto',
       padding: '1em'
     },

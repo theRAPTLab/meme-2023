@@ -350,25 +350,25 @@ class ViewMain extends React.Component {
 
         </main>
 
-        <div style={{ height: this.state.viewHeight+64, overflow: 'scroll', zIndex: 1250}}>
-        <Paper className={classes.informationList}>
-          <List dense={true}>
-            {evidence.map(item => (
-              <ListItem button key={item.id} onClick={() => this.handleEvidenceClick(item.id)}>
-                <ListItemAvatar>
-                  <Avatar className={classes.evidenceAvatar}>{item.id}</Avatar>
-                </ListItemAvatar>
-                <ListItemText primary={`${item.label}`} secondary={`${item.keyvars}`} />
-                <ListItemSecondaryAction>
-                  {item.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
-                  {item.links > 0 ?
-                    <Chip className={classes.evidenceBadge} label={item.links} color="primary" /> :
-                    <Chip className={classes.evidenceBadge} label='' /> }
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
+        <div style={{ height: this.state.viewHeight + 64, overflow: 'scroll', zIndex: 1250 }}>
+          <Paper className={classes.informationList}>
+            <List dense={true}>
+              {evidence.map(item => (
+                <ListItem button key={item.id} onClick={() => this.handleEvidenceClick(item.id)}>
+                  <ListItemAvatar>
+                    <Avatar className={classes.evidenceAvatar}>{item.id}</Avatar>
+                  </ListItemAvatar>
+                  <ListItemText primary={`${item.label}`} secondary={`${item.keyvars}`} />
+                  <ListItemSecondaryAction>
+                    {item.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
+                    {item.links > 0 ?
+                      <Chip className={classes.evidenceBadge} label={item.links} color="primary" /> :
+                      <Chip className={classes.evidenceBadge} label="" /> }
+                  </ListItemSecondaryAction>
+                </ListItem>
+              ))}
+            </List>
+          </Paper>
         </div>
 
         <Modal
@@ -378,7 +378,7 @@ class ViewMain extends React.Component {
           open={this.state.informationViewOpen}
           onClose={this.handleInformationViewClose}
         >
-          <Paper className={classes.evidencePaper}>
+          <Paper className={classes.informationViewPaper}>
             <div className={classes.evidenceTitle}>
               <Avatar className={classes.evidenceAvatar}>{this.state.selectedEvidence.id}</Avatar>&nbsp;
               <div style={{ flexGrow: 1 }}>{this.state.selectedEvidence.label}</div>
@@ -404,7 +404,17 @@ class ViewMain extends React.Component {
               </Card>
               <Button className={classes.evidenceCloseBtn} onClick={this.handleInformationViewClose} color="primary">Close</Button>
             </div>
-            <iframe src={this.state.selectedEvidence.url} width="1024" height="600"></iframe>
+            <iframe src={this.state.selectedEvidence.url} width="1024" height="700"></iframe>
+            <TextField
+              id="informationNote"
+              label="Our Notes"
+              placeholder="We noticed..."
+              multiline
+              rows="8"
+              className={classes.informationNote}
+              margin="normal"
+              variant="outlined"
+            />
           </Paper>
         </Modal>
 

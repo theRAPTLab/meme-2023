@@ -1,4 +1,5 @@
-import { orange, teal, yellow } from "@material-ui/core/colors";
+import { indigo, orange, teal, yellow } from "@material-ui/core/colors";
+import { registerMorphableType } from "@svgdotjs/svg.js/src/main";
 
 const m_drawerWidth = 150;
 const m_edgeDialogWidth = 600;
@@ -51,6 +52,7 @@ const styles = theme => {
     },
     informationList: {
       width: 300,
+      backgroundColor: teal[50],
       zIndex: 1250  // above drawer, below modal
     },
     informationView: {
@@ -69,11 +71,12 @@ const styles = theme => {
       padding: '1em'
     },
     evidenceTitle: {
-      fontSize: '1.4em',
-      fontWeight: 'bold',
+      fontSize: '1em',
+      fontWeight: 'normal',
       display: 'flex'
     },
     evidenceAvatar: {
+      color: '#366',
       backgroundColor: teal[100]
     },
     evidenceBadge: {
@@ -94,6 +97,13 @@ const styles = theme => {
       margin: '0 auto',
       padding: '1em',
       backgroundColor: yellow[100]
+    },
+    evidenceLinkPropAvatar: {
+      width: '25px',
+      height: '25px',
+      fontSize: '0.8em',
+      color: indigo[900],
+      backgroundColor: indigo[100]
     },
     badge: {
       margin: '8px'

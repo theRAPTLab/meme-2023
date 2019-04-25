@@ -54,6 +54,7 @@ import RoutedView from './RoutedView';
 import MEMEStyles from '../components/MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
+import EvidenceList from '../components/EvidenceList';
 import { cssblue, cssreact, cssdraw } from '../modules/console-styles';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -235,6 +236,11 @@ class ViewMain extends React.Component {
       edgeTarget: target
     })
   }
+  
+  handleSnapshot() {
+    if (DBG) console.log('create new evidence!')
+    
+  }
 
   render() {
     const { classes } = this.props;
@@ -370,6 +376,7 @@ class ViewMain extends React.Component {
                         <Chip className={classes.evidenceBadge} label="" /> }
                     </ListItemSecondaryAction>
                   </ListItem>
+                  <EvidenceList rid={resource.rid} key={`${resource.rid}ev`}/>
                 </div>
               ))}
             </List>

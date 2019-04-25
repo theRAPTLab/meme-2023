@@ -73,17 +73,18 @@ class ViewMain extends React.Component {
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
-    this.handleAddProp = this.handleAddProp.bind(this);
-    this.handleAddPropCreate = this.handleAddPropCreate.bind(this);
+    this.handleAddPropOpen = this.handleAddPropOpen.bind(this);
     this.handleAddPropClose = this.handleAddPropClose.bind(this);
+    this.handleAddPropCreate = this.handleAddPropCreate.bind(this);
     this.handleAddEdge = this.handleAddEdge.bind(this);
     this.handleAddEdgeCreate = this.handleAddEdgeCreate.bind(this);
     this.handleAddEdgeClose = this.handleAddEdgeClose.bind(this);
-    this.handleEvidenceClick = this.handleEvidenceClick.bind(this);
+    this.handleResourceClick = this.handleResourceClick.bind(this);
     this.handleInformationViewClose = this.handleInformationViewClose.bind(this);
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
     this.handleEvidenceLinkClose = this.handleEvidenceLinkClose.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
+    this.handleSnapshot = this.handleSnapshot.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
     UR.Sub('SHOW_EVIDENCE_NOTE', evidenceLink => {
       this.handleEvidenceLinkOpen(evidenceLink);
@@ -96,7 +97,7 @@ class ViewMain extends React.Component {
       informationViewOpen: false,
       edgeSource: 'Source',
       edgeTarget: 'Target',
-      selectedEvidence: {
+      selectedResource: {
         id: '',
         evid: '',
         label: 'Unselected',
@@ -146,58 +147,57 @@ class ViewMain extends React.Component {
     });
   }
 
-  handleAddProp() {
-    console.log('Add!');
+  handleAddPropOpen() {
+    if (DBG) console.log('Add!');
     this.setState({ addPropOpen: true });
   }
-
+  handleAddPropClose() {
+    if (DBG) console.log('close');
+    this.setState({ addPropOpen: false });
+  }
   handleAddPropCreate() {
-    console.log('create prop');
+    if (DBG) console.log('create prop');
     let label = document.getElementById('propLabel').value;
     DATA.PMC_AddProp(label);
     this.handleAddPropClose();
   }
 
-  handleAddPropClose() {
-    console.log('close');
-    this.setState({ addPropOpen: false });
-  }
 
   handleAddEdge() {
-    console.log('Add!');
+    if (DBG) console.log('Add!');
     this.setState({ addEdgeOpen: true });
   }
 
   handleAddEdgeCreate() {
-    console.log('create edge');
+    if (DBG) console.log('create edge');
     let label = document.getElementById('edgeLabel').value;
     DATA.PMC_AddMech(this.state.edgeSource, this.state.edgeTarget, label);
     this.handleAddEdgeClose();
   }
 
   handleAddEdgeClose() {
-    console.log('close');
+    if (DBG) console.log('close');
     this.setState({ addEdgeOpen: false });
   }
 
   handleSetEdgeSource() {
-    console.log('handleSetEdgeSource');
+    if (DBG) console.log('handleSetEdgeSource');
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
 
   }
 
   handleSetEdgeTarget() {
-    console.log('handleSetEdgeTarget');
+    if (DBG) console.log('handleSetEdgeTarget');
   }
 
-  handleEvidenceClick(id) {
-    console.log('clicked on ', id);
-    // Look up evidence
-    let selectedEvidence = DATA.Evidence(id);
-    if (selectedEvidence) {
+  handleResourceClick(rid) {
+    if (DBG) console.log('clicked on ', rid);
+    // Look up resource
+    let selectedResource = DATA.Resource(rid);
+    if (selectedResource) {
       this.setState({
         informationViewOpen: true,
-        selectedEvidence: selectedEvidence
+        selectedResource: selectedResource
       });
     } else {
       console.error('ViewMain: Could not find selected evidence id', id);
@@ -221,7 +221,7 @@ class ViewMain extends React.Component {
   
   handleSelectionChange() {
     let selected = DATA.VM_SelectedProps();
-    console.error('selection chagned', selected);
+    if (DBG) console.log('selection changed', selected);
     let source = 'sourced';
     let target = 'targetd';
     if (selected.length > 0) {
@@ -238,7 +238,7 @@ class ViewMain extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const evidence = DATA.AllEvidence();
+    const resources = DATA.AllResources();
     if (DBG)
       console.log(`%crender() size ${this.state.viewWidth}x${this.state.viewHeight}`, cssreact);
     return (
@@ -262,7 +262,7 @@ class ViewMain extends React.Component {
           <div className={classes.toolbar} />
           <Divider />
           <Tooltip title="Add Component or Property">
-            <Fab color="primary" aria-label="Add" className={classes.fab} onClick={this.handleAddProp}><AddIcon /></Fab>
+            <Fab color="primary" aria-label="Add" className={classes.fab} onClick={this.handleAddPropOpen}><AddIcon /></Fab>
           </Tooltip>
           <Dialog
             open={this.state.addPropOpen}
@@ -353,19 +353,24 @@ class ViewMain extends React.Component {
         <div style={{ height: this.state.viewHeight + 64, overflow: 'scroll', zIndex: 1250 }}>
           <Paper className={classes.informationList}>
             <List dense={true}>
-              {evidence.map(item => (
-                <ListItem button key={item.id} onClick={() => this.handleEvidenceClick(item.id)}>
-                  <ListItemAvatar>
-                    <Avatar className={classes.evidenceAvatar}>{item.id}</Avatar>
-                  </ListItemAvatar>
-                  <ListItemText primary={`${item.label}`} secondary={`${item.keyvars}`} />
-                  <ListItemSecondaryAction>
-                    {item.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
-                    {item.links > 0 ?
-                      <Chip className={classes.evidenceBadge} label={item.links} color="primary" /> :
-                      <Chip className={classes.evidenceBadge} label="" /> }
-                  </ListItemSecondaryAction>
-                </ListItem>
+              {resources.map(resource => (
+                <div key={resource.rid}>
+                  <ListItem button
+                    key={resource.id}
+                    onClick={() => this.handleResourceClick(resource.rid)}
+                  >
+                    <ListItemAvatar>
+                      <Avatar className={classes.evidenceAvatar}>{resource.rid}</Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary={`${resource.label}`} secondary={`${resource.keyvars}`} />
+                    <ListItemSecondaryAction>
+                      {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
+                      {resource.links > 0 ?
+                        <Chip className={classes.evidenceBadge} label={resource.links} color="primary" /> :
+                        <Chip className={classes.evidenceBadge} label="" /> }
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                </div>
               ))}
             </List>
           </Paper>
@@ -380,12 +385,12 @@ class ViewMain extends React.Component {
         >
           <Paper className={classes.informationViewPaper}>
             <div className={classes.evidenceTitle}>
-              <Avatar className={classes.evidenceAvatar}>{this.state.selectedEvidence.id}</Avatar>&nbsp;
-              <div style={{ flexGrow: 1 }}>{this.state.selectedEvidence.label}</div>
+              <Avatar className={classes.evidenceAvatar}>{this.state.selectedResource.id}</Avatar>&nbsp;
+              <div style={{ flexGrow: 1 }}>{this.state.selectedResource.label}</div>
               <Card>
                 <CardContent>
                   <Typography>Key Variables:</Typography>
-                  {this.state.selectedEvidence.keyvars.map( (item, index) => (
+                  {this.state.selectedResource.keyvars.map( (item, index) => (
                     <Chip label={item} key={index} />
                   ))}
                 </CardContent>
@@ -393,28 +398,31 @@ class ViewMain extends React.Component {
               <Card>
                 <CardContent>
                   <Typography>Type:</Typography>
-                  {this.state.selectedEvidence.type} {this.state.selectedEvidence.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
+                  {this.state.selectedResource.type} {this.state.selectedResource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
                 </CardContent>
               </Card>
               <Card>
                 <CardContent>
                   <Typography>Links:</Typography>
-                  <Chip label={this.state.selectedEvidence.links} color="secondary" />
+                  <Chip label={this.state.selectedResource.links} color="secondary" />
                 </CardContent>
               </Card>
               <Button className={classes.evidenceCloseBtn} onClick={this.handleInformationViewClose} color="primary">Close</Button>
             </div>
-            <iframe src={this.state.selectedEvidence.url} width="1024" height="700"></iframe>
-            <TextField
-              id="informationNote"
-              label="Our Notes"
-              placeholder="We noticed..."
-              multiline
-              rows="8"
-              className={classes.informationNote}
-              margin="normal"
-              variant="outlined"
-            />
+            <iframe src={this.state.selectedResource.url} width="1024" height="700"></iframe>
+            <div style={{ display: 'inline-block', width: '250px', textAlign: 'center', verticalAlign: 'top' }}>
+              <TextField
+                id="informationNote"
+                label="Our Notes"
+                placeholder="We noticed..."
+                multiline
+                rows="8"
+                className={classes.informationNote}
+                margin="normal"
+                variant="outlined"
+              />
+              <Button variant="contained" onClick={this.handleSnapshot} color="primary">Snapshot + Evidence</Button>
+            </div>
           </Paper>
         </Modal>
 

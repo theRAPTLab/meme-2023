@@ -17,7 +17,7 @@ const m_pad = PAD.MIN;
 const COL_BG = '#44F';
 const DIM_RADIUS = 3;
 //
-const DBG = false;
+const DBG = true;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -374,13 +374,13 @@ class VProp {
             e.preventDefault();
             e.stopPropagation();
             console.log('badge click');
-            UR.Publish('SHOW_EVIDENCE_NOTE', { id: ev.evidenceId, note: ev.note, x: x, y: y });
+            UR.Publish('SHOW_EVIDENCE_NOTE', { id: ev.rid, note: ev.note, x: x, y: y });
           });
         this.gDataEvidenceBadge.push(badge);
         this.gDataEvidenceLabel.push(
           this.gData
-            .text(ev.evidenceId)
-            .font({ fill: '#fff', size: '0.8em', weight: 'bold' })
+            .text(ev.rid)
+            .font({ fill: '#366', size: '0.8em', weight: 'bold' })
             .move(x, y)
         );
       });

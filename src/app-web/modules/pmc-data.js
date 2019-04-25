@@ -41,11 +41,47 @@ let a_components = []; // top-level props with no parents
 let h_children = new Map(); // children hash of each prop by id
 let h_outedges = new Map(); // outedges hash of each prop by id
 //
-let a_evidence = []; // all evidence objects
-let a_propEvidence = new Map(); // links to evidence by prop id: {propId, [evId1,evId2]}
-let a_mechEvidence = new Map(); // links to evidence by mechanism id
-let h_evProp = new Map(); // calculated links to props by evidence id
-let h_evMech = new Map(); // calculated links to mechanisms by evidence id
+let a_resource = []; // all resource objects to be displayed in InformationList
+                        /*/
+                          a_resource = [
+                            {
+                              rid: '1',
+                              label: 'Food Rot Simulation',
+                              keyvars: ['water quality', 'food rotting'],
+                              type: 'simulation',
+                              url: '../static/FishSpawn_Sim_5_SEEDS_v7.html',
+                              links: 0
+                            }
+                          ]
+                        /*/
+let a_pEvidence = []; /*/ An array of prop-related evidence links.
+                          This is the master list of evidence links.
+                          
+                          [ evidenceLink,... ]
+                          [ {pid, rid, note},... ]
+                      /*/
+let h_pEvidenceByProp = new Map(); /*/
+                          Hash table of an array of evidence links related 
+                          to a property id, and grouped by property id.
+                          
+                          Used by class-vprop when displaying
+                          the list of evidenceLink badges for each prop.
+                          
+                          {pid: [{pid, rid, note},                                                                                                
+                                 {pid, rid, note},
+                                ...],
+                          ...}
+                      /*/
+let h_evidenceByMech = new Map(); // links to evidence by mechanism id
+let h_propByResource = new Map(); /*/
+                          Hash table to look up an array of property IDs related to
+                          a specific resource.
+
+                          Used by InformationList to show props related to each resource.
+                          
+                          {rid: [pid1, pid2,...],... }
+                      /*/
+let h_mechByResource = new Map(); // calculated links to mechanisms by evidence id
 
 /// VIEWMODEL /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -101,24 +137,14 @@ PMCData.LoadGraph = uri => {
   g.setEdge('a', 'g', { name: 'atog' });
   
   // define evidence mapping: propID => evIDArray
-  a_propEvidence.set('a', [
-    { evidenceId: '1', note: 'fish need food' }
-  ]);
-  a_propEvidence.set('b', [
-    { evidenceId: '2', note: 'fish cant live in dirty water' },
-    { evidenceId: '3', note: 'fish heads' }
-  ]);
-  a_propEvidence.set('g', [
-    { evidenceId: '2', note: 'fish fish fish' },
-    { evidenceId: '5', note: 'fishy fishy fishy' },
-    { evidenceId: '1', note: 'here fishy fishy fishy' }
-  ]);
-  a_propEvidence.set('y', [
-    { evidenceId: '1', note: 'phoeti' }
-  ]);
-  a_propEvidence.set('z', [
-    { evidenceId: '1', note: 'fish food fish food' }
-  ]);
+  a_pEvidence.push({ pid: 'a', rid: '1', note: 'fish need food' });
+  a_pEvidence.push({ pid: 'b', rid: '2', note: 'fish cant live in dirty water' });
+  a_pEvidence.push({ pid: 'b', rid: '3', note: 'fish heads' });
+  a_pEvidence.push({ pid: 'g', rid: '2', note: 'fish fish fish' });
+  a_pEvidence.push({ pid: 'g', rid: '5', note: 'fishy fishy fishy' });
+  a_pEvidence.push({ pid: 'g', rid: '1', note: 'here fishy fishy fishy' });
+  a_pEvidence.push({ pid: 'y', rid: '1', note: 'phoeti' });
+  a_pEvidence.push({ pid: 'z', rid: '1', note: 'fish food fish food' });
 
   /**
    *    Student Examples
@@ -244,9 +270,9 @@ PMCData.LoadGraph = uri => {
   /***************************************************************************/
 
   // This doesn't belong here
-  a_evidence = [
+  a_resource = [
     {
-      id: '1',
+      rid: '1',
       label: 'Food Rot Simulation',
       keyvars: ['water quality', 'food rotting'],
       type: 'simulation',
@@ -254,7 +280,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '2',
+      rid: '2',
       label: 'Autopsy Report',
       keyvars: ['physical damage'],
       type: 'report',
@@ -262,7 +288,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '3',
+      rid: '3',
       label: 'Ammonia and Food Experiment',
       keyvars: ['water quality', 'ammonia'],
       type: 'report',
@@ -270,7 +296,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '4',
+      rid: '4',
       label: 'Fish in a Tank Simulation',
       keyvars: ['water quality', 'fish population'],
       type: 'simulation',
@@ -278,7 +304,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '5',
+      rid: '5',
       label: 'Measuring Ammonia Experiment',
       keyvars: ['water quality', 'ammonia'],
       type: 'report',
@@ -286,7 +312,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '6',
+      rid: '6',
       label: 'Fish Fighting Simulation',
       keyvars: ['fish agression'],
       type: 'simulation',
@@ -294,7 +320,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '7',
+      rid: '7',
       label: 'Fish Fighting Simulation',
       keyvars: ['fish agression'],
       type: 'simulation',
@@ -302,7 +328,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '8',
+      rid: '8',
       label: 'Fish Fighting Simulation',
       keyvars: ['fish agression'],
       type: 'simulation',
@@ -310,7 +336,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '9',
+      rid: '9',
       label: 'Fish Fighting Simulation',
       keyvars: ['fish agression'],
       type: 'simulation',
@@ -318,7 +344,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '10',
+      rid: '10',
       label: 'Fish Fighting Simulation',
       keyvars: ['fish agression'],
       type: 'simulation',
@@ -326,7 +352,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '11',
+      rid: '11',
       label: 'Fish Fighting Simulation',
       keyvars: ['fish agression'],
       type: 'simulation',
@@ -334,7 +360,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '12',
+      rid: '12',
       label: 'Fish Fighting Simulation',
       keyvars: ['fish agression'],
       type: 'simulation',
@@ -342,7 +368,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '13',
+      rid: '13',
       label: 'Fish Fighting Simulation',
       keyvars: ['fish agression'],
       type: 'simulation',
@@ -350,7 +376,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '14',
+      rid: '14',
       label: 'Fish Fighting Simulation',
       keyvars: 'fish agression',
       type: 'simulation',
@@ -358,7 +384,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '15',
+      rid: '15',
       label: 'Fish Fighting Simulation',
       keyvars: 'fish agression',
       type: 'simulation',
@@ -366,7 +392,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      id: '16',
+      rid: '16',
       label: 'Fish Fighting Simulation',
       keyvars: 'fish agression',
       type: 'simulation',
@@ -421,32 +447,43 @@ PMCData.BuildModel = () => {
   });
 
   /*/
-   *  Update h_evProp lookup table to
+   *  Update h_pEvidenceByProp table
+  /*/
+  h_pEvidenceByProp = new Map();
+  a_pEvidence.forEach(ev => {
+    let evidenceLinkArray = h_pEvidenceByProp.get(ev.pid);
+    if (evidenceLinkArray === undefined) evidenceLinkArray = [];
+    if (!evidenceLinkArray.includes(ev.pid)) evidenceLinkArray.push(ev);
+    h_pEvidenceByProp.set(ev.pid, evidenceLinkArray);
+  });
+
+  /*/
+   *  Update h_propByResource lookup table to
    *  look up props that are linked to a particular piece of evidence
   /*/
-  h_evProp = new Map();
-  a_propEvidence.forEach((evArr, propId) => {
+  h_propByResource = new Map();
+  h_pEvidenceByProp.forEach((evArr, propId) => {
     if (evArr) {
       evArr.forEach(ev => {
-        let propIds = h_evProp.get(ev.evidenceId);
+        let propIds = h_propByResource.get(ev.rid);
         if (propIds === undefined) propIds = [];
         if (!propIds.includes(propId)) propIds.push(propId);
-        h_evProp.set(ev.evidenceId, propIds);
+        h_propByResource.set(ev.rid, propIds);
       });
     }
   });
-  
+
   /*/
    *  Now update all evidence link counts
   /*/
-  a_evidence.forEach(ev => {
-    let props = h_evProp.get(ev.id);
+  a_resource.forEach(resource => {
+    let props = h_propByResource.get(resource.rid);
     if (props) {
-      ev.links = props.length;
+      resource.links = props.length;
       console.log('length is', props.length);
     }
   });
-  
+
   if (!DBG) return;
   console.groupCollapsed('%cBuildModel()%c Nodes and Edges', cssinfo, cssreset);
   console.log(`arry a_components`, a_components);
@@ -783,34 +820,35 @@ window.may1.PMC_AddMech = PMCData.PMC_AddMech;
 /** API.MODEL:
  *  Returns all of the evidence objects.
  */
-PMCData.AllEvidence = () => {
-  return a_evidence;
+PMCData.AllResources = () => {
+  return a_resource;
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Returns the evidence object matching the evId.
+ *  Returns the resource object matching the evId.
  */
-PMCData.Evidence = (id) => {
-  return a_evidence.find((item) => { return item.id === id });
+PMCData.Resource = (rid) => {
+  return a_resource.find((item) => { return item.rid === rid });
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Given the passed nodeID, returns evidence linked to the prop object.
+ *  Given the passed nodeID (prop object), returns evidence linked to the prop object.
+ *  e.g. { evidenceId: '1', note: 'fish food fish food' }
  *  @param {string|undefined} nodeId - if defined, nodeId string of the prop
  */
 PMCData.PropEvidence = (nodeId) => {
-  return a_propEvidence.get(nodeId);
+  return h_pEvidenceByProp.get(nodeId);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Given the passed evidence ID, returns props linked to the evidence object.
+ *  Given the passed evidence ID, returns array of prop ids linked to the evidence object.
  *  @param {string|undefined} id - if defined, id string of the evidence object
  */
 PMCData.EvidenceProps = (id) => {
-  return h_evProp.get(id);
+  return h_propByResource.get(id);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

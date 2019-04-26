@@ -558,7 +558,7 @@ function u_Layout(offset, id) {
   console.group(`${id} draw at (${x},${y})`);
   const compVis = DATA.VM_VProp(id);
   if (!compVis.HackWasMoved()) {
-    console.log(`moving ${compVis.id}`);
+    if (DBG) console.log(`moving ${compVis.id}`);
     compVis.Move(x, y); // draw compVis where it should go in screen space
     y += compVis.DataHeight() + PAD.MIN;
     x += PAD.MIN;
@@ -572,6 +572,8 @@ function u_Layout(offset, id) {
       y += addH;
       console.log(`y + ${addH} = ${y}`);
     });
+  } else {
+    if (DBG) console.log(`skipping layout of ${compVis.id}`);
   }
   console.groupEnd();
 }

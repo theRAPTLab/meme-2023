@@ -70,12 +70,11 @@ class VProp {
     this.gRoot.draggable();
     this.gRoot.on('dragstart.propmove', event => {
       event.preventDefault();
-      console.log('dragstart.propmove');
+      console.log(`dragstart.propmove ${this.id}`);
       this.dragStartBox = event.detail.box;
     });
     this.gRoot.on('dragmove.propmove', event => {
       event.preventDefault();
-      console.log('dragmove.propmove');
       const { handler, box } = event.detail;
       const { x, y } = box;
       this.dragMoveBox = box;
@@ -84,7 +83,7 @@ class VProp {
     });
     this.gRoot.on('dragend.propmove', event => {
       event.stopPropagation();
-      console.log('dragend.propmove');
+      console.log(`dragend.propmove ${this.id}`);
       const { x: x1, y: y1 } = this.dragStartBox;
       const { x: x2, y: y2 } = this.dragMoveBox;
       if (Math.abs(x1 - x2) < 5 && Math.abs(y1 - y2) < 5) {
@@ -245,11 +244,10 @@ class VProp {
       if (foo.d > bar.d) return 1;
       return 0;
     });
-    if (DBG)
-      console.log(
-        `${this.Id()} sees ${distances.length} potential outedges to ${targetId}`,
-        distances
-      );
+    if (DBG) {
+      const out = `${this.Id()} sees ${distances.length} potential outedges to ${targetId}`;
+      // console.log(out, distances);
+    }
 
     // if no drawable line (e.g. overlapping) then return no line
     if (distances.length === 0) return {}; // no drawable line

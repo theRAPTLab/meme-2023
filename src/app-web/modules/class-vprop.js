@@ -64,6 +64,8 @@ class VProp {
     this.visualState = new VisualState(this.id);
     this.displayMode = {};
     this.mechPoints = []; // array of points available for mechanism connections
+    // hacked items
+    this.hack = { wasMoved: false };
     // higher order display properties
     this.gRoot.draggable();
     this.gRoot.on('dragstart.propmove', event => {
@@ -85,7 +87,12 @@ class VProp {
       console.log('dragend.propmove');
       const { x: x1, y: y1 } = this.dragStartBox;
       const { x: x2, y: y2 } = this.dragMoveBox;
-      if (Math.abs(x1 - x2) < 5 && Math.abs(y1 - y2) < 5) DATA.VM_ToggleProp(this);
+      if (Math.abs(x1 - x2) < 5 && Math.abs(y1 - y2) < 5) {
+        DATA.VM_ToggleProp(this);
+      } else {
+        console.log(`${this.id} was moved, setting 'dont move' hack flag`);
+        this.HackSetMoved(true);
+      }
     });
     // initial drawing
     this.Draw();
@@ -96,6 +103,16 @@ class VProp {
    */
   Id() {
     return this.id;
+  }
+
+  /** was moved */
+  HackWasMoved() {
+    return this.hack.wasMoved;
+  }
+
+  /** set was moved */
+  HackSetMoved(flag = true) {
+    this.hack.wasMoved = flag;
   }
 
   /** return upper-left X coordinate */
@@ -311,12 +328,12 @@ class VProp {
     let evWidth = 28;
     if (this.gDataEvidenceBadge) {
       this.gDataEvidenceBadge.forEach((ev, index) => {
-       ev.transform({ translateX: this.width - evWidth * (index + 1) - 4, translateY: m_pad / 2 + 3 });
+        ev.transform({ translateX: this.width - evWidth * (index + 1) - 4, translateY: m_pad / 2 + 3 });
       });
     }
     if (this.gDataEvidenceLabel) {
       this.gDataEvidenceLabel.forEach((ev, index) => {
-       ev.transform({ translateX: this.width - evWidth * (index + 1) + evWidth / 3 - 4, translateY: m_pad / 2 + 7 });
+        ev.transform({ translateX: this.width - evWidth * (index + 1) + evWidth / 3 - 4, translateY: m_pad / 2 + 7 });
       });
     }
     // move
@@ -540,19 +557,22 @@ function u_Layout(offset, id) {
   let { x, y } = offset;
   console.group(`${id} draw at (${x},${y})`);
   const compVis = DATA.VM_VProp(id);
-  compVis.Move(x, y); // draw compVis where it should go in screen space
-  y += compVis.DataHeight() + PAD.MIN;
-  x += PAD.MIN;
-  const children = DATA.Children(id);
-  let widest = 0;
-  children.forEach(cid => {
-    const childVis = DATA.VM_VProp(cid);
-    widest = Math.max(widest, childVis.GetKidsBBox()).w;
-    u_Layout({ x, y }, cid);
-    const addH = childVis.Height() + PAD.MIN;
-    y += addH;
-    console.log(`y + ${addH} = ${y}`);
-  });
+  if (!compVis.HackWasMoved()) {
+    console.log(`moving ${compVis.id}`);
+    compVis.Move(x, y); // draw compVis where it should go in screen space
+    y += compVis.DataHeight() + PAD.MIN;
+    x += PAD.MIN;
+    const children = DATA.Children(id);
+    let widest = 0;
+    children.forEach(cid => {
+      const childVis = DATA.VM_VProp(cid);
+      widest = Math.max(widest, childVis.GetKidsBBox()).w;
+      u_Layout({ x, y }, cid);
+      const addH = childVis.Height() + PAD.MIN;
+      y += addH;
+      console.log(`y + ${addH} = ${y}`);
+    });
+  }
   console.groupEnd();
 }
 

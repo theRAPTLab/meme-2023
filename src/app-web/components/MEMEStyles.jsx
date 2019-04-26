@@ -1,5 +1,6 @@
 import { indigo, orange, teal, yellow } from "@material-ui/core/colors";
 import { registerMorphableType } from "@svgdotjs/svg.js/src/main";
+import { Hidden } from "@material-ui/core";
 
 const m_drawerWidth = 150;
 const m_edgeDialogWidth = 600;
@@ -75,6 +76,16 @@ const styles = theme => {
       fontWeight: 'normal',
       display: 'flex'
     },
+    evidenceLabelField: {
+      flexGrow: '1'
+    },
+    evidencePrompt: {
+      fontSize: '0.8em',
+      color: '#999'
+    },
+    evidenceScreenshot: {
+      width: '100%'
+    },
     evidenceAvatar: {
       color: '#366',
       backgroundColor: teal[100]
@@ -95,15 +106,25 @@ const styles = theme => {
     evidenceLinkPaper: {
       width: '95%',
       margin: '0 auto',
-      padding: '1em',
-      backgroundColor: yellow[100]
+      padding: '10px 0 10px 10px',
+      backgroundColor: yellow[50]
+    },
+    evidenceLinkPaperExpanded: {
+      backgroundColor: yellow[200]
     },
     evidenceLinkPropAvatar: {
-      width: '25px',
+      maxWidth: '50px',
       height: '25px',
+      padding: '0 7px',
       fontSize: '0.8em',
       color: indigo[900],
-      backgroundColor: indigo[100]
+      backgroundColor: indigo[100],
+      justifyContent: 'left',
+      overflow: 'hidden',
+      textOverflow: 'clip',
+      whiteSpace: 'nowrap',
+      lineHeight: '1.8em',
+      boxSizing: 'content-box'
     },
     badge: {
       margin: '8px'

@@ -55,11 +55,13 @@ import MEMEStyles from '../components/MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
 import EvidenceList from '../components/EvidenceList';
+import ResourceItem from '../components/ResourceItem';
 import { cssblue, cssreact, cssdraw } from '../modules/console-styles';
+import { data } from '@svgdotjs/svg.js/src/modules/optional/data';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = false;
+const DBG = true;
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -90,6 +92,9 @@ class ViewMain extends React.Component {
     UR.Sub('SHOW_EVIDENCE_NOTE', evidenceLink => {
       this.handleEvidenceLinkOpen(evidenceLink);
     });
+    UR.Sub('SHOW_RESOURCE', data => {
+      this.handleResourceClick(data.rid);
+    })
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
     this.state = {
       viewHeight: 0, // need to init this to prevent error with first render of informationList
@@ -201,7 +206,7 @@ class ViewMain extends React.Component {
         selectedResource: selectedResource
       });
     } else {
-      console.error('ViewMain: Could not find selected evidence id', id);
+      console.error('ViewMain: Could not find selected resource id', rid);
     }
   }
 
@@ -210,6 +215,7 @@ class ViewMain extends React.Component {
   }
 
   handleEvidenceLinkOpen(evidenceLink) {
+    if (DBG) console.log('handleEvidenceLinkOpen: ', evidenceLink);
     this.setState({
       selectedEvidenceLink: evidenceLink,
       evidenceLinkOpen: true
@@ -360,24 +366,7 @@ class ViewMain extends React.Component {
           <Paper className={classes.informationList}>
             <List dense={true}>
               {resources.map(resource => (
-                <div key={resource.rid}>
-                  <ListItem button
-                    key={resource.id}
-                    onClick={() => this.handleResourceClick(resource.rid)}
-                  >
-                    <ListItemAvatar>
-                      <Avatar className={classes.evidenceAvatar}>{resource.rid}</Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary={`${resource.label}`} secondary={`${resource.keyvars}`} />
-                    <ListItemSecondaryAction>
-                      {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
-                      {resource.links > 0 ?
-                        <Chip className={classes.evidenceBadge} label={resource.links} color="primary" /> :
-                        <Chip className={classes.evidenceBadge} label="" /> }
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                  <EvidenceList rid={resource.rid} key={`${resource.rid}ev`}/>
-                </div>
+                <ResourceItem key={resource.rid} resource={resource} />
               ))}
             </List>
           </Paper>
@@ -392,7 +381,7 @@ class ViewMain extends React.Component {
         >
           <Paper className={classes.informationViewPaper}>
             <div className={classes.evidenceTitle}>
-              <Avatar className={classes.evidenceAvatar}>{this.state.selectedResource.id}</Avatar>&nbsp;
+              <Avatar className={classes.evidenceAvatar}>{this.state.selectedResource.rid}</Avatar>&nbsp;
               <div style={{ flexGrow: 1 }}>{this.state.selectedResource.label}</div>
               <Card>
                 <CardContent>
@@ -429,28 +418,10 @@ class ViewMain extends React.Component {
                 variant="outlined"
               />
               <Button variant="contained" onClick={this.handleSnapshot} color="primary">Snapshot + Evidence</Button>
+              <EvidenceList rid={this.state.selectedResource.rid} />
             </div>
           </Paper>
         </Modal>
-
-        <Modal
-          className={classes.evidenceLink}
-          disableBackdropClick={false}
-          hideBackdrop={true}
-          open={this.state.evidenceLinkOpen}
-          onClose={this.handleEvidenceLinkClose}
-        >
-          <Paper className={classes.evidenceLinkPaper}>
-            <div className={classes.evidenceTitle}>
-              <Avatar className={classes.evidenceAvatar}>{this.state.selectedEvidenceLink.id}</Avatar>&nbsp;
-              <TextField value={this.state.selectedEvidenceLink.note} />
-              <Button className={classes.evidenceCloseBtn} onClick={this.handleEvidenceLinkClose} color="primary">
-                <CloseIcon/>
-              </Button>
-            </div>
-          </Paper>
-        </Modal>
-
       </div>
     );
   }

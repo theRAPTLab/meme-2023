@@ -5,10 +5,6 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
-// Material UI Elements
-import Avatar from '@material-ui/core/Avatar';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -16,6 +12,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../components/MEMEStyles';
 import DATA from '../modules/pmc-data';
+import EvidenceLink from '../components/EvidenceLink';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -44,17 +41,7 @@ class EvidenceList extends React.Component {
     return (
       <div key={this.props.rid}>
         {evidenceLinkList.map((evidenceLink, index) => (
-          <Paper className={classes.evidenceLinkPaper} key={`${evidenceLink[0].rid}${index}`}>
-            <div className={classes.evidenceTitle}>
-              <TextField
-                value={evidenceLink[0].note}
-                InputProps={{
-                  readOnly: true
-                }}
-              />
-              <Avatar className={classes.evidenceLinkPropAvatar}>{evidenceLink[0].pid}</Avatar>&nbsp;
-            </div>
-          </Paper>
+          <EvidenceLink evidenceLink={evidenceLink} key={index}/>
         ))}
       </div>
     );

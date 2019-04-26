@@ -142,9 +142,9 @@ PMCData.LoadGraph = uri => {
   a_pEvidence.push({ pid: 'b', rid: '3', note: 'fish heads' });
   a_pEvidence.push({ pid: 'g', rid: '2', note: 'fish fish fish' });
   a_pEvidence.push({ pid: 'g', rid: '5', note: 'fishy fishy fishy' });
-  a_pEvidence.push({ pid: 'g', rid: '1', note: 'here fishy fishy fishy' });
-  a_pEvidence.push({ pid: 'y', rid: '1', note: 'phoeti' });
-  a_pEvidence.push({ pid: 'z', rid: '1', note: 'fish food fish food' });
+  a_pEvidence.push({ pid: 'g', rid: '1', note: 'fish cant live in dirty water' });
+  a_pEvidence.push({ pid: 'y', rid: '1', note: 'fish poop in water' });
+  a_pEvidence.push({ pid: 'z', rid: '1', note: 'fish food rots' });
 
   /**
    *    Student Examples
@@ -836,7 +836,7 @@ PMCData.Resource = (rid) => {
 /** API.MODEL:
  *  Given the passed nodeID (prop object), returns evidence linked to the prop object.
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
- *  @param {string|undefined} nodeId - if defined, nodeId string of the prop
+ *  @param {string|undefined} nodeId - if defined, nodeId string of the prop (aka `pid`)
  */
 PMCData.PropEvidence = (nodeId) => {
   return h_pEvidenceByProp.get(nodeId);

@@ -390,7 +390,7 @@ class VProp {
             e.preventDefault();
             e.stopPropagation();
             console.log('badge click');
-            UR.Publish('SHOW_EVIDENCE_NOTE', { pid: this.id, rid: ev.rid, note: ev.note, x: x, y: y });
+            UR.Publish('SHOW_EVIDENCE_LINK', { pid: this.id, rid: ev.rid, note: ev.note, x: x, y: y });
           });
 
         this.gDataEvidenceBadge.push(badge);

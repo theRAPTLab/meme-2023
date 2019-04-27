@@ -828,7 +828,7 @@ PMCData.AllResources = () => {
 /** API.MODEL:
  *  Returns the resource object matching the evId.
  */
-PMCData.Resource = (rid) => {
+PMCData.Resource = rid => {
   return a_resource.find((item) => { return item.rid === rid });
 };
 

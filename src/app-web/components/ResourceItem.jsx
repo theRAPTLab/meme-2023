@@ -45,8 +45,8 @@ class ResourceItem extends React.Component {
       isExpanded: false
     };
 
-    UR.Sub('SHOW_EVIDENCE_NOTE', evidenceLink => {
-      if (DBG) console.log(PKG+'received SHOW_EVIDENCE_NOTE', evidenceLink);
+    UR.Sub('SHOW_EVIDENCE_LINK', evidenceLink => {
+      if (DBG) console.log(PKG +'received SHOW_EVIDENCE_LINK', evidenceLink);
       this.handleEvidenceLinkOpen(evidenceLink);
     });
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
@@ -70,7 +70,7 @@ class ResourceItem extends React.Component {
         isExpanded: true
       }, () => {
           // First open resource list, then open evidence Link
-        UR.Publish('SHOW_EVIDENCE_NOTE_SECONDARY', evidenceLink );
+        UR.Publish('SHOW_EVIDENCE_LINK_SECONDARY', evidenceLink );
       });
     }
   }

@@ -40,8 +40,8 @@ class EvidenceLink extends React.Component {
       isExpanded: false
     };
 
-    UR.Sub('SHOW_EVIDENCE_NOTE_SECONDARY', evidenceLink => {
-      if (DBG) console.log('received SHOW_EVIDENCE_NOTE', evidenceLink);
+    UR.Sub('SHOW_EVIDENCE_LINK_SECONDARY', evidenceLink => {
+      if (DBG) console.log('received SHOW_EVIDENCE_LINK_SECONDARY', evidenceLink);
       this.handleEvidenceLinkOpen(evidenceLink);
     });
 

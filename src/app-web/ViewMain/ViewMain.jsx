@@ -85,7 +85,6 @@ class ViewMain extends React.Component {
     this.handleResourceClick = this.handleResourceClick.bind(this);
     this.handleInformationViewClose = this.handleInformationViewClose.bind(this);
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
-    this.handleEvidenceLinkClose = this.handleEvidenceLinkClose.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.handleSnapshot = this.handleSnapshot.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
@@ -112,7 +111,6 @@ class ViewMain extends React.Component {
         url: '',
         links: -1
       },
-      evidenceLinkOpen: false,
       selectedEvidenceLink: {
         id: '',
         note: ''
@@ -217,15 +215,10 @@ class ViewMain extends React.Component {
   handleEvidenceLinkOpen(evidenceLink) {
     if (DBG) console.log('handleEvidenceLinkOpen: ', evidenceLink);
     this.setState({
-      selectedEvidenceLink: evidenceLink,
-      evidenceLinkOpen: true
+      selectedEvidenceLink: evidenceLink
     });
   }
 
-  handleEvidenceLinkClose() {
-    this.setState({ evidenceLinkOpen: false });
-  }
-  
   handleSelectionChange() {
     let selected = DATA.VM_SelectedProps();
     if (DBG) console.log('selection changed', selected);
@@ -242,10 +235,9 @@ class ViewMain extends React.Component {
       edgeTarget: target
     })
   }
-  
+
   handleSnapshot() {
     if (DBG) console.log('create new evidence!')
-    
   }
 
   render() {
@@ -405,7 +397,7 @@ class ViewMain extends React.Component {
               </Card>
               <Button className={classes.evidenceCloseBtn} onClick={this.handleInformationViewClose} color="primary">Close</Button>
             </div>
-            <iframe src={this.state.selectedResource.url} width="1024" height="700"></iframe>
+            <iframe src={this.state.selectedResource.url} width="900" height="700"></iframe>
             <div style={{ display: 'inline-block', width: '250px', textAlign: 'center', verticalAlign: 'top' }}>
               <TextField
                 id="informationNote"

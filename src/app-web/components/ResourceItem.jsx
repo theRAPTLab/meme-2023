@@ -30,6 +30,11 @@ import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
 import EvidenceList from '../components/EvidenceList';
 
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = true;
+const PKG = 'ResourceItem:';
+
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -40,20 +45,38 @@ class ResourceItem extends React.Component {
       isExpanded: false
     };
 
+    UR.Sub('SHOW_EVIDENCE_NOTE', evidenceLink => {
+      if (DBG) console.log(PKG+'received SHOW_EVIDENCE_NOTE', evidenceLink);
+      this.handleEvidenceLinkOpen(evidenceLink);
+    });
+    this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
+    this.handleResourceClick = this.handleResourceClick.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
   }
 
   componentDidMount() { }
 
   toggleExpanded() {
-    console.log('expansion clicked');
+    if (DBG) console.log(PKG +'expansion clicked');
     this.setState({
       isExpanded: !this.state.isExpanded
-    })
+    });
   };
+
+  handleEvidenceLinkOpen(evidenceLink) {
+    if (DBG) console.log(PKG +'comparing', evidenceLink, 'to', this.props.resource.rid);
+    if (this.props.resource.rid === evidenceLink.rid) {
+      this.setState({
+        isExpanded: true
+      }, () => {
+          // First open resource list, then open evidence Link
+        UR.Publish('SHOW_EVIDENCE_NOTE_SECONDARY', evidenceLink );
+      });
+    }
+  }
   
   handleResourceClick(rid) {
-    console.log('Resource clicked', rid);
+    if (DBG) console.log(PKG +'Resource clicked', rid);
     UR.Publish('SHOW_RESOURCE', {rid: rid});
   }
 

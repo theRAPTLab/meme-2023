@@ -8,6 +8,7 @@ import React from 'react';
 import ClassNames from 'classnames';
 // Material UI Elements
 import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
@@ -19,6 +20,12 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../components/MEMEStyles';
 import DATA from '../modules/pmc-data';
+import UR from '../../system/ursys';
+
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = true;
+const PKG = 'EvidenceLink:';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,44 +40,88 @@ class EvidenceLink extends React.Component {
       isExpanded: false
     };
 
+    UR.Sub('SHOW_EVIDENCE_NOTE_SECONDARY', evidenceLink => {
+      if (DBG) console.log('received SHOW_EVIDENCE_NOTE', evidenceLink);
+      this.handleEvidenceLinkOpen(evidenceLink);
+    });
+
+    this.handleEditButtonClick = this.handleEditButtonClick.bind(this);
+    this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
+    this.handleNoteChange = this.handleNoteChange.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
   }
 
   componentDidMount() { }
 
+  handleEditButtonClick() {
+    this.setState({
+      isBeingEdited: true
+    });
+  }
+
+  handleEvidenceLinkOpen(evidenceLink) {
+    if (DBG) console.log('comparing', evidenceLink, 'to', this.props.evidenceLinks[0].rid);
+    if (
+      this.props.evidenceLinks[0].rid === evidenceLink.rid &&
+      this.props.evidenceLinks[0].pid === evidenceLink.pid
+    ) {
+      console.log('EvidenceLink: Expanding', evidenceLink.rid);
+      this.setState({
+        isExpanded: true
+      });
+    }
+  }
+
+  handleNoteChange(e) {
+    if (DBG) console.log(PKG + 'Note Change:', e.target.value);
+    this.props.evidenceLinks[0].note = e.target.value;
+  }
+
   toggleExpanded() {
-    console.log('paper clicked');
+    if (DBG) console.log('evidence link clicked');
     this.setState({
       isExpanded: !this.state.isExpanded
-    })
-  };
+    });
+  }
 
   render() {
-    const { evidenceLink, classes } = this.props;
+    // evidenceLinks is an array of arrays because there might be more than one?!?
+    const { evidenceLinks, classes } = this.props;
+    let evidenceLink;
+    if (Array.isArray(evidenceLinks) && evidenceLinks.length > 0) {
+      // Only allow one evidence link for now
+      evidenceLink = evidenceLinks[0];
+    } else {
+      return '';
+    }
     return (
       <Paper className={ClassNames(
           classes.evidenceLinkPaper,
           this.state.isExpanded ? classes.evidenceLinkPaperExpanded : ''
         )}
-        key={`${evidenceLink[0].rid}`}
+        key={`${evidenceLink.rid}`}
       >
         <div className={classes.evidencePrompt} hidden={!this.state.isExpanded}>How does this resource support this component / property / mechanism?</div>
         <div className={classes.evidenceTitle}>
           {!this.state.isDisplayedInInformationList ?
-            <Avatar className={classes.evidenceAvatar}>{evidenceLink[0].rid}</Avatar> :
+            <Avatar className={classes.evidenceAvatar}>{evidenceLink.rid}</Avatar> :
             ''
           }
-          <div className={classes.evidenceLinkPropAvatar}>{DATA.Prop(evidenceLink[0].pid).name}</div>&nbsp;
-          <TextField
-            className={classes.evidenceLabelField}
-            value={evidenceLink[0].note}
-            InputProps={{
-              readOnly: true
-            }}
-          />
+          <div className={classes.evidenceLinkPropAvatar}>{DATA.Prop(evidenceLink.pid).name}</div>&nbsp;
+          {this.state.isBeingEdited ? (
+            <TextField
+              className={classes.evidenceLabelField}
+              value={evidenceLink.note}
+              onChange={this.handleNoteChange}
+            />
+          ) :
+            <div className={classes.evidenceLabelField}>{evidenceLink.note}</div>
+          }
           <IconButton onClick={this.toggleExpanded}><ExpandMoreIcon /></IconButton>
         </div>
         <img src="../static/screenshot_sim.png" className={classes.evidenceScreenshot} hidden={!this.state.isExpanded} />
+        <a href="" hidden={!this.state.isExpanded || this.state.isBeingEdited}>delete</a>
+        <Button variant="contained" onClick={this.handleEditButtonClick} hidden={!this.state.isExpanded || this.state.isBeingEdited}>Edit</Button>
       </Paper>
     );
   }

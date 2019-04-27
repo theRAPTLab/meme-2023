@@ -40,8 +40,8 @@ class EvidenceList extends React.Component {
     console.log('evidenceLinkList is', evidenceLinkList);
     return (
       <div key={this.props.rid}>
-        {evidenceLinkList.map((evidenceLink, index) => (
-          <EvidenceLink evidenceLink={evidenceLink} key={index}/>
+        {evidenceLinkList.map((evidenceLinks, index) => (
+          <EvidenceLink evidenceLinks={evidenceLinks} key={index}/>
         ))}
       </div>
     );

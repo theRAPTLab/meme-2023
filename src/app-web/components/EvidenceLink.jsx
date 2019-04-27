@@ -60,12 +60,12 @@ class EvidenceLink extends React.Component {
   }
 
   handleEvidenceLinkOpen(evidenceLink) {
-    if (DBG) console.log('comparing', evidenceLink, 'to', this.props.evidenceLinks[0].rid);
+    if (DBG) console.log('comparing', evidenceLink, 'to', this.props.evidenceLinks[0].rsrcId);
     if (
-      this.props.evidenceLinks[0].rid === evidenceLink.rid &&
-      this.props.evidenceLinks[0].pid === evidenceLink.pid
+      this.props.evidenceLinks[0].rsrcId === evidenceLink.rsrcId &&
+      this.props.evidenceLinks[0].propId === evidenceLink.propId
     ) {
-      console.log('EvidenceLink: Expanding', evidenceLink.rid);
+      console.log('EvidenceLink: Expanding', evidenceLink.rsrcId);
       this.setState({
         isExpanded: true
       });
@@ -99,15 +99,15 @@ class EvidenceLink extends React.Component {
           classes.evidenceLinkPaper,
           this.state.isExpanded ? classes.evidenceLinkPaperExpanded : ''
         )}
-        key={`${evidenceLink.rid}`}
+        key={`${evidenceLink.rsrcId}`}
       >
         <div className={classes.evidencePrompt} hidden={!this.state.isExpanded}>How does this resource support this component / property / mechanism?</div>
         <div className={classes.evidenceTitle}>
           {!this.state.isDisplayedInInformationList ?
-            <Avatar className={classes.evidenceAvatar}>{evidenceLink.rid}</Avatar> :
+            <Avatar className={classes.evidenceAvatar}>{evidenceLink.rsrcId}</Avatar> :
             ''
           }
-          <div className={classes.evidenceLinkPropAvatar}>{DATA.Prop(evidenceLink.pid).name}</div>&nbsp;
+          <div className={classes.evidenceLinkPropAvatar}>{DATA.Prop(evidenceLink.propId).name}</div>&nbsp;
           {this.state.isBeingEdited ? (
             <TextField
               className={classes.evidenceLabelField}

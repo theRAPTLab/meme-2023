@@ -25,21 +25,21 @@ class EvidenceList extends React.Component {
   componentDidMount() { }
 
   render() {
-    const { classes, rid } = this.props;
-    const evidenceLinkIds = DATA.EvidenceProps(rid);
+    const { classes, rsrcId } = this.props;
+    const evidenceLinkIds = DATA.EvidenceLinksByResourceId(rsrcId);
     if (evidenceLinkIds === undefined) return '';
 
     let evidenceLinkList = [];
     evidenceLinkIds.forEach(propId => {
       let evidenceLinks = DATA.PropEvidence(propId);
-      let relatedEvidenceLinks = evidenceLinks.filter(evlink => evlink.rid === rid);
+      let relatedEvidenceLinks = evidenceLinks.filter(evlink => evlink.rsrcId === rsrcId);
       evidenceLinkList.push(relatedEvidenceLinks);
     });
 
     // evidenceLinkList is an array of arrays because there might be more than one?!?
     console.log('evidenceLinkList is', evidenceLinkList);
     return (
-      <div key={this.props.rid}>
+      <div key={this.props.rsrcId}>
         {evidenceLinkList.map((evidenceLinks, index) => (
           <EvidenceLink evidenceLinks={evidenceLinks} key={index}/>
         ))}

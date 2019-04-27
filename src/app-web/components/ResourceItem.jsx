@@ -64,8 +64,8 @@ class ResourceItem extends React.Component {
   };
 
   handleEvidenceLinkOpen(evidenceLink) {
-    if (DBG) console.log(PKG +'comparing', evidenceLink, 'to', this.props.resource.rid);
-    if (this.props.resource.rid === evidenceLink.rid) {
+    if (DBG) console.log(PKG +'comparing', evidenceLink, 'to', this.props.resource.rsrcId);
+    if (this.props.resource.rsrcId === evidenceLink.rsrcId) {
       this.setState({
         isExpanded: true
       }, () => {
@@ -75,18 +75,18 @@ class ResourceItem extends React.Component {
     }
   }
   
-  handleResourceClick(rid) {
-    if (DBG) console.log(PKG +'Resource clicked', rid);
-    UR.Publish('SHOW_RESOURCE', {rid: rid});
+  handleResourceClick(rsrcId) {
+    if (DBG) console.log(PKG +'Resource clicked', rsrcId);
+    UR.Publish('SHOW_RESOURCE', {rsrcId: rsrcId});
   }
 
   render() {
     const { resource, classes } = this.props;
     return (
       <div>
-        <ListItem button key={resource.id} onClick={() => this.handleResourceClick(resource.rid)}>
+        <ListItem button key={resource.id} onClick={() => this.handleResourceClick(resource.rsrcId)}>
           <ListItemAvatar>
-            <Avatar className={classes.evidenceAvatar}>{resource.rid}</Avatar>
+            <Avatar className={classes.evidenceAvatar}>{resource.rsrcId}</Avatar>
           </ListItemAvatar>
           <ListItemText primary={`${resource.label}`} secondary={`${resource.keyvars}`} />
           <ListItemSecondaryAction>
@@ -101,7 +101,7 @@ class ResourceItem extends React.Component {
             <IconButton onClick={this.toggleExpanded}><ExpandMoreIcon /></IconButton>
           </ListItemSecondaryAction>
         </ListItem>
-        {this.state.isExpanded ? <EvidenceList rid={resource.rid} key={`${resource.rid}ev`} /> : ''}
+        {this.state.isExpanded ? <EvidenceList rsrcId={resource.rsrcId} key={`${resource.rsrcId}ev`} /> : ''}
       </div>
     );
   }

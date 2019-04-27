@@ -92,7 +92,7 @@ class ViewMain extends React.Component {
       this.handleEvidenceLinkOpen(evidenceLink);
     });
     UR.Sub('SHOW_RESOURCE', data => {
-      this.handleResourceClick(data.rid);
+      this.handleResourceClick(data.rsrcId);
     })
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
     this.state = {
@@ -194,17 +194,17 @@ class ViewMain extends React.Component {
     if (DBG) console.log('handleSetEdgeTarget');
   }
 
-  handleResourceClick(rid) {
-    if (DBG) console.log('clicked on ', rid);
+  handleResourceClick(rsrcId) {
+    if (DBG) console.log('clicked on ', rsrcId);
     // Look up resource
-    let selectedResource = DATA.Resource(rid);
+    let selectedResource = DATA.Resource(rsrcId);
     if (selectedResource) {
       this.setState({
         informationViewOpen: true,
         selectedResource: selectedResource
       });
     } else {
-      console.error('ViewMain: Could not find selected resource id', rid);
+      console.error('ViewMain: Could not find selected resource id', rsrcId);
     }
   }
 
@@ -358,7 +358,7 @@ class ViewMain extends React.Component {
           <Paper className={classes.informationList}>
             <List dense={true}>
               {resources.map(resource => (
-                <ResourceItem key={resource.rid} resource={resource} />
+                <ResourceItem key={resource.rsrcId} resource={resource} />
               ))}
             </List>
           </Paper>
@@ -373,7 +373,7 @@ class ViewMain extends React.Component {
         >
           <Paper className={classes.informationViewPaper}>
             <div className={classes.evidenceTitle}>
-              <Avatar className={classes.evidenceAvatar}>{this.state.selectedResource.rid}</Avatar>&nbsp;
+              <Avatar className={classes.evidenceAvatar}>{this.state.selectedResource.rsrcId}</Avatar>&nbsp;
               <div style={{ flexGrow: 1 }}>{this.state.selectedResource.label}</div>
               <Card>
                 <CardContent>
@@ -410,7 +410,7 @@ class ViewMain extends React.Component {
                 variant="outlined"
               />
               <Button variant="contained" onClick={this.handleSnapshot} color="primary">Snapshot + Evidence</Button>
-              <EvidenceList rid={this.state.selectedResource.rid} />
+              <EvidenceList rsrcId={this.state.selectedResource.rsrcId} />
             </div>
           </Paper>
         </Modal>

@@ -390,13 +390,13 @@ class VProp {
             e.preventDefault();
             e.stopPropagation();
             console.log('badge click');
-            UR.Publish('SHOW_EVIDENCE_LINK', { pid: this.id, rid: ev.rid, note: ev.note, x: x, y: y });
+            UR.Publish('SHOW_EVIDENCE_LINK', { propId: this.id, rsrcId: ev.rsrcId, note: ev.note, x: x, y: y });
           });
 
         this.gDataEvidenceBadge.push(badge);
         this.gDataEvidenceLabel.push(
           this.gData
-            .text(ev.rid)
+            .text(ev.rsrcId)
             .font({ fill: '#366', size: '0.8em', weight: 'bold' })
             .move(x, y)
             .mousedown((e) => {
@@ -587,8 +587,8 @@ if (!window.meme) window.meme = {};
 window.meme.vprops = () => {
   console.log(`%cattaching props to window by [id]`, cssdata);
   let props = DATA.AllProps();
-  props.forEach(pid => {
-    window[pid] = DATA.VM_VProp(pid);
+  props.forEach(propId => {
+    window[propId] = DATA.VM_VProp(propId);
   });
   return `${props} attached to window object`;
 };
@@ -604,12 +604,12 @@ window.meme.dumpid = id => {
   console.log(`%cdumping id [${id}] child hierarchy`, cssdata);
   recurse(id);
   /* helper */
-  function recurse(pid) {
-    const vis = DATA.VM_VProp(pid);
+  function recurse(propId) {
+    const vis = DATA.VM_VProp(propId);
     const visHeight = vis.Height();
     const visY = vis.Y();
-    console.group(`[${pid}] y=${visHeight} (${visHeight})`);
-    const kids = DATA.Children(pid);
+    console.group(`[${propId}] y=${visHeight} (${visHeight})`);
+    const kids = DATA.Children(propId);
     kids.forEach(kid => {
       recurse(kid);
     });

@@ -63,13 +63,15 @@ const styles = theme => {
     },
     informationNote: {
       marginLeft: theme.spacing.unit,
-      marginRight: theme.spacing.unit
+      marginRight: theme.spacing.unit,
+      backgroundColor: yellow[50]
     },
     informationViewPaper: {
       width: '95%',
       height: '95%',
       margin: '0 auto',
-      padding: '1em'
+      padding: '1em',
+      backgroundColor: teal[50]
     },
     evidenceTitle: {
       fontSize: '1em',

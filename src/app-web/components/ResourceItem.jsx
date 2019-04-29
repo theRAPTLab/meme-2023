@@ -45,9 +45,9 @@ class ResourceItem extends React.Component {
       isExpanded: false
     };
 
-    UR.Sub('SHOW_EVIDENCE_LINK', evidenceLink => {
-      if (DBG) console.log(PKG +'received SHOW_EVIDENCE_LINK', evidenceLink);
-      this.handleEvidenceLinkOpen(evidenceLink);
+    UR.Sub('SHOW_EVIDENCE_LINK', data => {
+      if (DBG) console.log(PKG + 'received SHOW_EVIDENCE_LINK', data);
+      this.handleEvidenceLinkOpen(data);
     });
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
     this.handleResourceClick = this.handleResourceClick.bind(this);
@@ -63,14 +63,14 @@ class ResourceItem extends React.Component {
     });
   };
 
-  handleEvidenceLinkOpen(evidenceLink) {
-    if (DBG) console.log(PKG +'comparing', evidenceLink, 'to', this.props.resource.rsrcId);
-    if (this.props.resource.rsrcId === evidenceLink.rsrcId) {
+  handleEvidenceLinkOpen(data) {
+    if (DBG) console.log(PKG + 'comparing', data.rsrcId, 'to', this.props.resource.rsrcId);
+    if (this.props.resource.rsrcId === data.rsrcId) {
       this.setState({
         isExpanded: true
       }, () => {
           // First open resource list, then open evidence Link
-        UR.Publish('SHOW_EVIDENCE_LINK_SECONDARY', evidenceLink );
+          UR.Publish('SHOW_EVIDENCE_LINK_SECONDARY', data );
       });
     }
   }

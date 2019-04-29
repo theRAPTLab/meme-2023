@@ -9,9 +9,11 @@ import ClassNames from 'classnames';
 // Material UI Elements
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
+// Material UI Icons
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
@@ -36,19 +38,19 @@ class EvidenceLink extends React.Component {
     this.state = {
       canBeEdited: false,
       isBeingEdited: false,
-      isDisplayedInInformationList: true,
+      isBeingDisplayedInInformationList: true,
       isExpanded: false
     };
-
-    UR.Sub('SHOW_EVIDENCE_LINK_SECONDARY', evidenceLink => {
-      if (DBG) console.log('received SHOW_EVIDENCE_LINK_SECONDARY', evidenceLink);
-      this.handleEvidenceLinkOpen(evidenceLink);
-    });
-
     this.handleEditButtonClick = this.handleEditButtonClick.bind(this);
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
     this.handleNoteChange = this.handleNoteChange.bind(this);
+    this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
+    UR.Sub('SHOW_EVIDENCE_LINK_SECONDARY', data => {
+      if (DBG) console.log('received SHOW_EVIDENCE_LINK_SECONDARY', data);
+      this.handleEvidenceLinkOpen(data);
+    });
+    UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
   }
 
   componentDidMount() { }
@@ -59,22 +61,39 @@ class EvidenceLink extends React.Component {
     });
   }
 
-  handleEvidenceLinkOpen(evidenceLink) {
-    if (DBG) console.log('comparing', evidenceLink, 'to', this.props.evidenceLinks[0].rsrcId);
+  handleEvidenceLinkOpen(data) {
+    if (DBG) console.log('comparing', data.evId, 'to', this.props.evidenceLinks[0].evId);
     if (
-      this.props.evidenceLinks[0].rsrcId === evidenceLink.rsrcId &&
-      this.props.evidenceLinks[0].propId === evidenceLink.propId
+      this.props.evidenceLinks[0].evId === data.evId
     ) {
-      console.log('EvidenceLink: Expanding', evidenceLink.rsrcId);
+      console.log('EvidenceLink: Expanding', data.evId);
       this.setState({
-        isExpanded: true
+        isExpanded: true,
+// results in react object error       selectedSource: {}
       });
     }
   }
 
   handleNoteChange(e) {
     if (DBG) console.log(PKG + 'Note Change:', e.target.value);
-    this.props.evidenceLinks[0].note = e.target.value;
+    DATA.SetEvidenceLinkNote(this.props.evidenceLinks[0].evId, e.target.value);
+//    this.props.evidenceLinks[0].note = e.target.value;
+  }
+
+  handleSelectionChange() {
+    let selected = DATA.VM_SelectedProps();
+    if (DBG) console.log(PKG, 'selection changed', selected);
+    let source = 'source';
+    if (selected.length > 0) {
+      source = selected[selected.length-1];
+    }
+    this.setState({
+      selectedSource: source
+    });
+  }
+  
+  handleSourceSelectClick(evId, rsrcId) {
+    UR.Publish('SELECT_EVLINK_SOURCE', { evId: evId, rsrcId: rsrcId });
   }
 
   toggleExpanded() {
@@ -101,13 +120,30 @@ class EvidenceLink extends React.Component {
         )}
         key={`${evidenceLink.rsrcId}`}
       >
-        <div className={classes.evidencePrompt} hidden={!this.state.isExpanded}>How does this resource support this component / property / mechanism?</div>
+        <div className={classes.evidencePrompt} hidden={!this.state.isExpanded}>
+          How does this resource support this component / property / mechanism?
+        </div>
         <div className={classes.evidenceTitle}>
-          {!this.state.isDisplayedInInformationList ?
-            <Avatar className={classes.evidenceAvatar}>{evidenceLink.rsrcId}</Avatar> :
+          {!this.state.isBeingDisplayedInInformationList ? (
+            <Avatar className={classes.evidenceAvatar}>{evidenceLink.rsrcId}</Avatar>
+          ) : (
             ''
-          }
-          <div className={classes.evidenceLinkPropAvatar}>{DATA.Prop(evidenceLink.propId).name}</div>&nbsp;
+          )}
+          {evidenceLink.propId !== undefined ? (
+            <div className={classes.evidenceLinkPropAvatar}>
+              {DATA.Prop(evidenceLink.propId).name}
+            </div>
+          ) : (
+            <Button
+              onClick={() => {
+                  this.handleSourceSelectClick(evidenceLink.evId, evidenceLink.rsrcId);
+              }}
+              className={classes.evidenceLinkPropAvatar}
+            >
+              select
+            </Button>
+          )}
+          &nbsp;
           {this.state.isBeingEdited ? (
             <TextField
               className={classes.evidenceLabelField}
@@ -117,10 +153,10 @@ class EvidenceLink extends React.Component {
           ) :
             <div className={classes.evidenceLabelField}>{evidenceLink.note}</div>
           }
-          <IconButton onClick={this.toggleExpanded}><ExpandMoreIcon /></IconButton>
+          <IconButton onClick={this.toggleExpanded}><ExpandMoreIcon/></IconButton>
         </div>
         <img src="../static/screenshot_sim.png" className={classes.evidenceScreenshot} hidden={!this.state.isExpanded} />
-        <a href="" hidden={!this.state.isExpanded || this.state.isBeingEdited}>delete</a>
+        <a href="" hidden={!this.state.isExpanded || this.state.isBeingEdited}>delete</a>&nbsp;
         <Button variant="contained" onClick={this.handleEditButtonClick} hidden={!this.state.isExpanded || this.state.isBeingEdited}>Edit</Button>
       </Paper>
     );

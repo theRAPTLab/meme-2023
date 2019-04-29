@@ -28,29 +28,27 @@ class EvidenceList extends React.Component {
   componentDidMount() { }
 
   handleDataUpdate() {
-    // Reload
-    console.log('EvidenceList Updated. Forcing Render');
-    this.setState({junk:'junk'});
+    // Reload -- This is necessary to handle evlink.note updates as a controlled component.
+    this.forceUpdate();
   }
 
   render() {
     const { classes, rsrcId } = this.props;
-    const evidenceLinkIds = DATA.EvidenceLinkIdsByResourceId(rsrcId);
-    if (evidenceLinkIds === undefined) return '';
+    const evLinks = DATA.GetEvLinkByResourceId(rsrcId);
+    /*/ evLinks
+          is an array of evidence Link objects related to the resource
+          [
+            {evId: "1", propId: "food", rsrcId: "1", note: "fish need food"},
+            {evId: "3", propId: "rotting-food", rsrcId: "1", note: "fish food rots"},
+            {evId: "4", propId: "ammonia", rsrcId: "1", note: "ammonia causes fish to die"}
+          ]
+    /*/
+    if (evLinks === undefined) return '';
 
-    let evidenceLinkList = [];
-    evidenceLinkIds.forEach(propId => {
-      let evidenceLinks = DATA.PropEvidence(propId);
-      let relatedEvidenceLinks = evidenceLinks.filter(evlink => evlink.rsrcId === rsrcId);
-      evidenceLinkList.push(relatedEvidenceLinks);
-    });
-
-    // evidenceLinkList is an array of arrays because there might be more than one?!?
-    console.log('evidenceLinkList is', evidenceLinkList);
     return (
       <div key={this.props.rsrcId}>
-        {evidenceLinkList.map((evidenceLinks, index) => (
-          <EvidenceLink evidenceLinks={evidenceLinks} key={index}/>
+        {evLinks.map((evlink, index) => (
+          <EvidenceLink evId={evlink.evId} rsrcId={evlink.rsrcId} propId={evlink.propId} note={evlink.note} key={index}/>
         ))}
       </div>
     );

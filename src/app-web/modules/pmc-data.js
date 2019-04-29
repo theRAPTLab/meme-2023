@@ -88,6 +88,9 @@ let h_pEvidenceByProp = new Map(); /*/
                                 ...],
                           ...}
                       /*/
+let h_evlinkByResource = new Map();  /*/
+                          Used by EvidenceList to look up all evidence related to a resource
+                      /*/
 let h_evidenceByMech = new Map(); // links to evidence by mechanism id
 let h_propByResource = new Map(); /*/
                           Hash table to look up an array of property IDs related to
@@ -503,6 +506,17 @@ PMCData.BuildModel = () => {
   });
 
   /*/
+   *  Used by EvidenceList to look up all evidence related to a resource
+  /*/
+  h_evlinkByResource = new Map();
+  a_resource.forEach(resource => {
+    let evlinkArray = a_pEvidence.filter( evlink => evlink.rsrcId === resource.rsrcId);
+    if (evlinkArray === undefined) evlinkArray = [];
+    h_evlinkByResource.set(resource.rsrcId, evlinkArray);
+  });
+
+
+  /*/
    *  Now update all evidence link counts
   /*/
   a_resource.forEach(resource => {
@@ -893,14 +907,23 @@ PMCData.EvidenceLinkByEvidenceId = (evId) => {
 PMCData.SetEvidenceLinkNote = (evId, note) => {
   let ev = a_pEvidence.find((item) => { return item.evId === evId });
   ev.note = note;
+  UR.Publish('DATA_UPDATED');
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Given the passed resource ID, returns array of prop ids linked to the resource object.
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  */
-PMCData.EvidenceLinkIdsByResourceId = (rsrcId) => {
+PMCData.GetPropIdsByResourceId = (rsrcId) => {
   return h_propByResource.get(rsrcId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Given the passed resource ID, returns array of prop ids linked to the resource object.
+ *  @param {string|undefined} rsrcId - if defined, id string of the resource object
+ */
+PMCData.GetEvLinkByResourceId = (rsrcId) => {
+  return h_evlinkByResource.get(rsrcId);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

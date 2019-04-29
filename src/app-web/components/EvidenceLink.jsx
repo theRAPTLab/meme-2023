@@ -36,6 +36,11 @@ class EvidenceLink extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      evId: "",
+      rsrcId: "",
+      propId: "",
+      note: "",
+      
       canBeEdited: false,
       isBeingEdited: false,
       isBeingDisplayedInInformationList: true,
@@ -55,6 +60,22 @@ class EvidenceLink extends React.Component {
 
   componentDidMount() { }
 
+  handleDataUpdate() {
+    // Reload
+    console.log(PKG,'DATA_UPDATED');
+    let evidenceLinks = this.props.evidenceLinks;
+    if (Array.isArray(evidenceLinks) && evidenceLinks.length > 0) {
+      // Only allow one evidence link for now
+      let evLink = evidenceLinks[0];
+      this.setState({
+        evId: evLink.evId,
+        rsrcId: evLink.rsrcId,
+        propId: evLink.propId,
+        note: evLink.note
+      })
+    }
+  }
+
   handleEditButtonClick() {
     this.setState({
       isBeingEdited: true
@@ -62,9 +83,9 @@ class EvidenceLink extends React.Component {
   }
 
   handleEvidenceLinkOpen(data) {
-    if (DBG) console.log('comparing', data.evId, 'to', this.props.evidenceLinks[0].evId);
+    if (DBG) console.log('comparing', data.evId, 'to', this.props.evId);
     if (
-      this.props.evidenceLinks[0].evId === data.evId
+      this.props.evId === data.evId
     ) {
       console.log('EvidenceLink: Expanding', data.evId);
       this.setState({
@@ -76,7 +97,7 @@ class EvidenceLink extends React.Component {
 
   handleNoteChange(e) {
     if (DBG) console.log(PKG + 'Note Change:', e.target.value);
-    DATA.SetEvidenceLinkNote(this.props.evidenceLinks[0].evId, e.target.value);
+    DATA.SetEvidenceLinkNote(this.props.evId, e.target.value);
 //    this.props.evidenceLinks[0].note = e.target.value;
   }
 
@@ -105,38 +126,33 @@ class EvidenceLink extends React.Component {
 
   render() {
     // evidenceLinks is an array of arrays because there might be more than one?!?
-    const { evidenceLinks, classes } = this.props;
-    let evidenceLink;
-    if (Array.isArray(evidenceLinks) && evidenceLinks.length > 0) {
-      // Only allow one evidence link for now
-      evidenceLink = evidenceLinks[0];
-    } else {
-      return '';
-    }
+    const { evId, rsrcId, propId, note, classes } = this.props;
+    const { isBeingEdited, isExpanded, isBeingDisplayedInInformationList } = this.state;
+    if (evId === '') return '';
     return (
       <Paper className={ClassNames(
           classes.evidenceLinkPaper,
-          this.state.isExpanded ? classes.evidenceLinkPaperExpanded : ''
+          isExpanded ? classes.evidenceLinkPaperExpanded : ''
         )}
-        key={`${evidenceLink.rsrcId}`}
+        key={`${rsrcId}`}
       >
-        <div className={classes.evidencePrompt} hidden={!this.state.isExpanded}>
+        <div className={classes.evidencePrompt} hidden={!isExpanded}>
           How does this resource support this component / property / mechanism?
         </div>
         <div className={classes.evidenceTitle}>
-          {!this.state.isBeingDisplayedInInformationList ? (
-            <Avatar className={classes.evidenceAvatar}>{evidenceLink.rsrcId}</Avatar>
+          {!isBeingDisplayedInInformationList ? (
+            <Avatar className={classes.evidenceAvatar}>{rsrcId}</Avatar>
           ) : (
             ''
           )}
-          {evidenceLink.propId !== undefined ? (
+          {propId !== undefined ? (
             <div className={classes.evidenceLinkPropAvatar}>
-              {DATA.Prop(evidenceLink.propId).name}
+              {DATA.Prop(propId).name}
             </div>
           ) : (
             <Button
               onClick={() => {
-                  this.handleSourceSelectClick(evidenceLink.evId, evidenceLink.rsrcId);
+                  this.handleSourceSelectClick(evId, rsrcId);
               }}
               className={classes.evidenceLinkPropAvatar}
             >
@@ -144,20 +160,20 @@ class EvidenceLink extends React.Component {
             </Button>
           )}
           &nbsp;
-          {this.state.isBeingEdited ? (
+          {isBeingEdited ? (
             <TextField
               className={classes.evidenceLabelField}
-              value={evidenceLink.note}
+              value={note}
               onChange={this.handleNoteChange}
             />
           ) :
-            <div className={classes.evidenceLabelField}>{evidenceLink.note}</div>
+            <div className={classes.evidenceLabelField}>{note}</div>
           }
           <IconButton onClick={this.toggleExpanded}><ExpandMoreIcon/></IconButton>
         </div>
-        <img src="../static/screenshot_sim.png" className={classes.evidenceScreenshot} hidden={!this.state.isExpanded} />
-        <a href="" hidden={!this.state.isExpanded || this.state.isBeingEdited}>delete</a>&nbsp;
-        <Button variant="contained" onClick={this.handleEditButtonClick} hidden={!this.state.isExpanded || this.state.isBeingEdited}>Edit</Button>
+        <img src="../static/screenshot_sim.png" className={classes.evidenceScreenshot} hidden={!isExpanded} />
+        <a href="" hidden={!isExpanded || isBeingEdited}>delete</a>&nbsp;
+        <Button variant="contained" onClick={this.handleEditButtonClick} hidden={!isExpanded || isBeingEdited}>Edit</Button>
       </Paper>
     );
   }

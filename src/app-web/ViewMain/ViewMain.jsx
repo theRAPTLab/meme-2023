@@ -302,14 +302,16 @@ class ViewMain extends React.Component {
             </DialogActions>
           </Dialog>
           <Divider />
-          <List>
-            {['CmdA', 'CmdB', 'CmdC', 'CmdD'].map((text, index) => (
-              <ListItem button key={text}>
-                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItem>
-            ))}
-          </List>
+          {/*
+            <List>
+              {['CmdA', 'CmdB', 'CmdC', 'CmdD'].map((text, index) => (
+                <ListItem button key={text}>
+                  <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+                  <ListItemText primary={text} />
+                </ListItem>
+              ))}
+            </List>
+          */}
           <Tooltip title="Add Link">
             <Fab color="primary" aria-label="Add" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleAddEdge}><AddIcon /></Fab>
           </Tooltip>

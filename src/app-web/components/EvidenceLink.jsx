@@ -197,7 +197,9 @@ class EvidenceLink extends React.Component {
           <IconButton onClick={this.toggleExpanded}><ExpandMoreIcon/></IconButton>
         </div>
         <img src="../static/screenshot_sim.png" className={classes.evidenceScreenshot} hidden={!isExpanded} />
-        <a href="" hidden={!isExpanded || isBeingEdited}>delete</a>&nbsp;
+        &nbsp;
+        <a href="" hidden={!isExpanded || isBeingEdited}>delete</a>
+        &nbsp;
         <Button variant="contained" onClick={this.handleEditButtonClick} hidden={!isExpanded || isBeingEdited}>Edit</Button>
       </Paper>
     );

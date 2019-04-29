@@ -86,7 +86,7 @@ const styles = theme => {
       color: '#999'
     },
     evidenceScreenshot: {
-      width: '100%'
+      width: '30%'
     },
     evidenceAvatar: {
       color: '#366',

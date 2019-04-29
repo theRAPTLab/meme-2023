@@ -149,18 +149,24 @@ class EvidenceLink extends React.Component {
     if (evId === '') return '';
     let sourceLabel;
     if (propId !== undefined) {
-      sourceLabel = DATA.Prop(propId).name;
+      sourceLabel = (
+        <div className={classes.evidenceLinkSourceAvatarSelected}>
+          {DATA.Prop(propId).name}
+        </div>
+      );
     } else if (isWaitingForSourceSelect) {
-      sourceLabel = 'waiting';
+      sourceLabel = (
+        <div className={classes.evidenceLinkSourceAvatarWaiting}>waiting...</div>
+      );
     } else {
       sourceLabel = (
         <Button
           onClick={() => {
             this.handleSourceSelectClick(evId, rsrcId);
           }}
-          className={classes.evidenceLinkPropAvatar}
+          className={classes.evidenceLinkSelectButton}
         >
-          Select
+          Link
         </Button>
       );
     }
@@ -179,7 +185,7 @@ class EvidenceLink extends React.Component {
             <Avatar className={classes.evidenceAvatar}>{rsrcId}</Avatar>
           ) : (
             ''
-            )}
+          )}
           <div className={classes.evidenceLinkPropAvatar}>
             {sourceLabel}
           </div>

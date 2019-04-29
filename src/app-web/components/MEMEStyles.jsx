@@ -1,4 +1,4 @@
-import { indigo, orange, teal, yellow } from "@material-ui/core/colors";
+import { indigo, orange, red, teal, yellow } from "@material-ui/core/colors";
 import { registerMorphableType } from "@svgdotjs/svg.js/src/main";
 import { Hidden } from "@material-ui/core";
 
@@ -117,16 +117,30 @@ const styles = theme => {
     evidenceLinkPropAvatar: {
       maxWidth: '50px',
       height: '25px',
-      padding: '0 7px',
       fontSize: '0.8em',
-      color: indigo[900],
-      backgroundColor: indigo[100],
       justifyContent: 'left',
       overflow: 'hidden',
       textOverflow: 'clip',
       whiteSpace: 'nowrap',
       lineHeight: '1.8em',
       boxSizing: 'content-box'
+    },
+    evidenceLinkSourceAvatarWaiting: {
+      padding: '0 7px',
+      color: '#fff',
+      backgroundColor: red['A700']
+    },
+    evidenceLinkSelectButton: {
+      height: '25px',
+      minWidth: '25px', // override material default min-width 60
+      fontSize: '0.8em',
+      color: '#fff',
+      backgroundColor: red['A700']
+    },
+    evidenceLinkSourceAvatarSelected: {
+      color: indigo[900],
+      backgroundColor: indigo[100],
+      padding: '0 7px'
     },
     badge: {
       margin: '8px'

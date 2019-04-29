@@ -12,6 +12,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../components/MEMEStyles';
 import DATA from '../modules/pmc-data';
+import UR from '../../system/ursys';
 import EvidenceLink from '../components/EvidenceLink';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -20,13 +21,21 @@ import EvidenceLink from '../components/EvidenceLink';
 class EvidenceList extends React.Component {
   constructor(props) {
     super(props);
+    this.handleDataUpdate = this.handleDataUpdate.bind(this);
+    UR.Sub('DATA_UPDATED', this.handleDataUpdate);
   }
 
   componentDidMount() { }
 
+  handleDataUpdate() {
+    // Reload
+    console.log('EvidenceList Updated. Forcing Render');
+    this.setState({junk:'junk'});
+  }
+
   render() {
     const { classes, rsrcId } = this.props;
-    const evidenceLinkIds = DATA.EvidenceLinksByResourceId(rsrcId);
+    const evidenceLinkIds = DATA.EvidenceLinkIdsByResourceId(rsrcId);
     if (evidenceLinkIds === undefined) return '';
 
     let evidenceLinkList = [];

@@ -62,6 +62,7 @@ import { data } from '@svgdotjs/svg.js/src/modules/optional/data';
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true;
+const PKG = 'ViewMain:';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -85,6 +86,7 @@ class ViewMain extends React.Component {
     this.handleResourceClick = this.handleResourceClick.bind(this);
     this.handleInformationViewClose = this.handleInformationViewClose.bind(this);
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
+    this.handleEvidenceLinkSourceSelect = this.handleEvidenceLinkSourceSelect.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.handleSnapshot = this.handleSnapshot.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
@@ -95,6 +97,7 @@ class ViewMain extends React.Component {
       this.handleResourceClick(data.rsrcId);
     })
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Sub('SELECT_EVLINK_SOURCE', this.handleEvidenceLinkSourceSelect);
     this.state = {
       viewHeight: 0, // need to init this to prevent error with first render of informationList
       addPropOpen: false,
@@ -218,6 +221,12 @@ class ViewMain extends React.Component {
       selectedEvidenceLink: evidenceLink
     });
   }
+  
+  handleEvidenceLinkSourceSelect(data) {
+    this.setState({ informationViewOpen: false },
+      UR.Publish('SHOW_EVIDENCE_NOTE',{evId: data.evId, rsrcId: data.rsrcId })
+    )
+  }
 
   handleSelectionChange() {
     let selected = DATA.VM_SelectedProps();
@@ -236,8 +245,10 @@ class ViewMain extends React.Component {
     })
   }
 
-  handleSnapshot() {
-    if (DBG) console.log('create new evidence!')
+  handleSnapshot(rsrcId) {
+    if (DBG) console.log(PKG, 'create new evidence:', rsrcId);
+    let evId = DATA.PMC_AddEvidenceLink(rsrcId);
+    UR.Publish('SHOW_EVIDENCE_LINK', { evId: evId, rsrcId: rsrcId });
   }
 
   render() {
@@ -409,7 +420,7 @@ class ViewMain extends React.Component {
                 margin="normal"
                 variant="outlined"
               />
-              <Button variant="contained" onClick={this.handleSnapshot} color="primary">Snapshot + Evidence</Button>
+              <Button variant="contained" onClick={()=>this.handleSnapshot(this.state.selectedResource.rsrcId)} color="primary">Snapshot + Evidence</Button>
               <EvidenceList rsrcId={this.state.selectedResource.rsrcId} />
             </div>
           </Paper>

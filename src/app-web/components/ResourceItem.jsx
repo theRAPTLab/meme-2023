@@ -49,7 +49,10 @@ class ResourceItem extends React.Component {
       if (DBG) console.log(PKG + 'received SHOW_EVIDENCE_LINK', data);
       this.handleEvidenceLinkOpen(data);
     });
+    UR.Sub('DATA_UPDATED', this.handleDataUpdate);
+    
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
+    this.handleDataUpdate = this.handleDataUpdate.bind(this);
     this.handleResourceClick = this.handleResourceClick.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
   }
@@ -62,6 +65,10 @@ class ResourceItem extends React.Component {
       isExpanded: !this.state.isExpanded
     });
   };
+  
+  handleDataUpdate() {
+    // Reload
+  }
 
   handleEvidenceLinkOpen(data) {
     if (DBG) console.log(PKG + 'comparing', data.rsrcId, 'to', this.props.resource.rsrcId);

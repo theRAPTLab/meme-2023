@@ -509,9 +509,10 @@ PMCData.BuildModel = () => {
     let props = h_propByResource.get(resource.rsrcId);
     if (props) {
       resource.links = props.length;
-      console.log('length is', props.length);
     }
   });
+
+  UR.Publish('DATA_UPDATED');
 
   if (!DBG) return;
   console.groupCollapsed('%cBuildModel()%c Nodes and Edges', cssinfo, cssreset);
@@ -840,9 +841,18 @@ PMCData.PMC_AddMech = (sourceId, targetId, label) => {
   return `added edge ${sourceId} ${targetId} ${label}`;
 };
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.PMC_AddEvidenceLink = (rsrcId, note = "untitled") => {
+  let evId = Math.trunc(Math.random() * 10000);
+  a_pEvidence.push({ evId: evId, propId: undefined, rsrcId: rsrcId, note: note });
+  PMCData.BuildModel();
+  return evId;
+};
+
 if (window.may1 === undefined) window.may1 = {};
 window.may1.PMC_AddProp = PMCData.PMC_AddProp;
 window.may1.PMC_AddMech = PMCData.PMC_AddMech;
+window.may1.PMC_AddEvidenceLink = PMCData.PMC_AddEvidenceLink;
 
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -873,10 +883,23 @@ PMCData.PropEvidence = (nodeId) => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
+ *  Given the passed evidence ID, returns the EvidneceLink object.
+ *  @param {string|undefined} rsrcId - if defined, id string of the resource object
+ */
+PMCData.EvidenceLinkByEvidenceId = (evId) => {
+  return a_pEvidence.find((item) => { return item.evId === evId });
+};
+
+PMCData.SetEvidenceLinkNote = (evId, note) => {
+  let ev = a_pEvidence.find((item) => { return item.evId === evId });
+  ev.note = note;
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
  *  Given the passed resource ID, returns array of prop ids linked to the resource object.
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  */
-PMCData.EvidenceLinksByResourceId = (rsrcId) => {
+PMCData.EvidenceLinkIdsByResourceId = (rsrcId) => {
   return h_propByResource.get(rsrcId);
 };
 

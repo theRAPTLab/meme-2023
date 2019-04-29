@@ -87,6 +87,12 @@ class ResourceItem extends React.Component {
     UR.Publish('SHOW_RESOURCE', {rsrcId: rsrcId});
   }
 
+  componentWillUnmount() {
+    UR.Unsub('SHOW_EVIDENCE_LINK', this.handleEvidenceLinkOpen);
+    UR.Unsub('DATA_UPDATED', this.handleDataUpdate);
+    UR.Unsub('UNEXPAND_ALL_RESOURCES', this.handleUnexpandAll);
+  }
+
   render() {
     const { resource, classes } = this.props;
     return (

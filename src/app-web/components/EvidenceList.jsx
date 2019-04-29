@@ -32,6 +32,10 @@ class EvidenceList extends React.Component {
     this.forceUpdate();
   }
 
+  componentWillUnmount() {
+    UR.Unsub('DATA_UPDATED', this.handleDataUpdate);
+  };
+  
   render() {
     const { classes, rsrcId } = this.props;
     const evLinks = DATA.GetEvLinkByResourceId(rsrcId);

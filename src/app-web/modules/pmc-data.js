@@ -128,39 +128,39 @@ PMCData.Graph = () => {
 PMCData.LoadGraph = uri => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
 
-  /// g.setNode('a', { name: 'a node' });
-  g.setNode('a', { name: 'a node' });
-  g.setNode('b', { name: 'b node' });
-  g.setNode('c', { name: 'c node' });
-  g.setNode('d', { name: 'd node' });
-  g.setNode('e', { name: 'e node' });
-  g.setNode('f', { name: 'f node' });
-  g.setNode('g', { name: 'g node' });
-  g.setNode('x', { name: 'x node' });
-  g.setNode('y', { name: 'y node' });
-  g.setNode('z', { name: 'z node' });
-  /// g.setParent('a','b')
-  g.setParent('a', 'b');
-  g.setParent('c', 'd');
-  g.setParent('e', 'd');
-  g.setParent('f', 'd');
-  g.setParent('g', 'a');
-  g.setParent('y', 'd');
-  /// g.setEdge('a', 'b', { name: 'a-b' });
-  g.setEdge('z', 'x', { name: 'zexxxxy!' });
-  g.setEdge('g', 'd', { name: 'alpha>' });
-  g.setEdge('y', 'z', { name: 'datum' });
-  g.setEdge('a', 'g', { name: 'atog' });
+  // /// g.setNode('a', { name: 'a node' });
+  // g.setNode('a', { name: 'a node' });
+  // g.setNode('b', { name: 'b node' });
+  // g.setNode('c', { name: 'c node' });
+  // g.setNode('d', { name: 'd node' });
+  // g.setNode('e', { name: 'e node' });
+  // g.setNode('f', { name: 'f node' });
+  // g.setNode('g', { name: 'g node' });
+  // g.setNode('x', { name: 'x node' });
+  // g.setNode('y', { name: 'y node' });
+  // g.setNode('z', { name: 'z node' });
+  // /// g.setParent('a','b')
+  // g.setParent('a', 'b');
+  // g.setParent('c', 'd');
+  // g.setParent('e', 'd');
+  // g.setParent('f', 'd');
+  // g.setParent('g', 'a');
+  // g.setParent('y', 'd');
+  // /// g.setEdge('a', 'b', { name: 'a-b' });
+  // g.setEdge('z', 'x', { name: 'zexxxxy!' });
+  // g.setEdge('g', 'd', { name: 'alpha>' });
+  // g.setEdge('y', 'z', { name: 'datum' });
+  // g.setEdge('a', 'g', { name: 'atog' });
   
-  // define evidence mapping: propID => evIDArray
-  a_pEvidence.push({ evId: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
-  a_pEvidence.push({ evId: '2', propId: 'b', rsrcId: '2', note: 'fish cant live in dirty water' });
-  a_pEvidence.push({ evId: '3', propId: 'b', rsrcId: '3', note: 'fish heads' });
-  a_pEvidence.push({ evId: '4', propId: 'g', rsrcId: '2', note: 'fish fish fish' });
-  a_pEvidence.push({ evId: '5', propId: 'g', rsrcId: '5', note: 'fishy fishy fishy' });
-  a_pEvidence.push({ evId: '6', propId: 'g', rsrcId: '1', note: 'fish cant live in dirty water' });
-  a_pEvidence.push({ evId: '7', propId: 'y', rsrcId: '1', note: 'fish poop in water' });
-  a_pEvidence.push({ evId: '8', propId: 'z', rsrcId: '1', note: 'fish food rots' });
+  // // define evidence mapping: propID => evIDArray
+  // a_pEvidence.push({ evId: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
+  // a_pEvidence.push({ evId: '2', propId: 'b', rsrcId: '2', note: 'fish cant live in dirty water' });
+  // a_pEvidence.push({ evId: '3', propId: 'b', rsrcId: '3', note: 'fish heads' });
+  // a_pEvidence.push({ evId: '4', propId: 'g', rsrcId: '2', note: 'fish fish fish' });
+  // a_pEvidence.push({ evId: '5', propId: 'g', rsrcId: '5', note: 'fishy fishy fishy' });
+  // a_pEvidence.push({ evId: '6', propId: 'g', rsrcId: '1', note: 'fish cant live in dirty water' });
+  // a_pEvidence.push({ evId: '7', propId: 'y', rsrcId: '1', note: 'fish poop in water' });
+  // a_pEvidence.push({ evId: '8', propId: 'z', rsrcId: '1', note: 'fish food rots' });
 
   /**
    *    Student Examples
@@ -209,31 +209,38 @@ PMCData.LoadGraph = uri => {
   // g.setEdge('forest', 'foxes', { name: 'live in' });
   // g.setEdge('forest', 'rabbits', { name: 'live in' });
 
-  // // day2_group4_model_02.JPG
-  // // Sample for Group 3
-  // g.setNode('title', { name: 'Day 2 Group 4 Model 2: "Food Water Cleaning System' });
-  // g.setNode('ammonia', { name: 'Ammonia' });
-  // g.setNode('dirty-water', { name: 'dirty water' });
-  // g.setNode('dirty-water-waste', { name: 'waste' });
-  // g.setNode('dirty-water-algee', { name: 'algee' });
-  // g.setNode('tank', { name: 'big enough fish tank' });
-  // g.setNode('fish', { name: 'fish' });
-  // g.setNode('food', { name: 'food' });
-  // g.setNode('rotting-food', { name: 'rotting food' });
-  // g.setNode('cleaning', { name: 'cleaning system?' });
-  // g.setNode('clean-water', { name: 'clean water' });
-  // g.setParent('dirty-water-waste', 'dirty-water');
-  // g.setParent('dirty-water-algee', 'dirty-water');
-  // g.setEdge('ammonia', 'fish', { name: 'death' });
-  // g.setEdge('fish', 'ammonia', { name: 'makes' });
-  // g.setEdge('fish', 'dirty-water', { name: 'waste' });
-  // g.setEdge('dirty-water', 'fish', { name: 'death' });
-  // g.setEdge('tank', 'fish', { name: 'live in' });
-  // g.setEdge('fish', 'food', { name: 'eat' });
-  // g.setEdge('food', 'rotting-food', { name: '' });
-  // g.setEdge('cleaning', 'clean-water', { name: 'clean' });
-  // g.setEdge('clean-water', 'fish', { name: 'live in' });
-  // g.setEdge('rotting-food', 'clean-water', { name: 'if rots can also make dirty' });
+  // day2_group4_model_02.JPG
+  // Sample for Group 3
+  g.setNode('title', { name: 'Day 2 Group 4 Model 2: "Food Water Cleaning System' });
+  g.setNode('ammonia', { name: 'Ammonia' });
+  g.setNode('dirty-water', { name: 'dirty water' });
+  g.setNode('dirty-water-waste', { name: 'waste' });
+  g.setNode('dirty-water-algee', { name: 'algee' });
+  g.setNode('tank', { name: 'big enough fish tank' });
+  g.setNode('fish', { name: 'fish' });
+  g.setNode('food', { name: 'food' });
+  g.setNode('rotting-food', { name: 'rotting food' });
+  g.setNode('cleaning', { name: 'cleaning system?' });
+  g.setNode('clean-water', { name: 'clean water' });
+  
+  g.setParent('dirty-water-waste', 'dirty-water');
+  g.setParent('dirty-water-algee', 'dirty-water');
+  
+  g.setEdge('ammonia', 'fish', { name: 'death' });
+  g.setEdge('fish', 'ammonia', { name: 'makes' });
+  g.setEdge('fish', 'dirty-water', { name: 'waste' });
+  g.setEdge('dirty-water', 'fish', { name: 'death' });
+  g.setEdge('tank', 'fish', { name: 'live in' });
+  g.setEdge('fish', 'food', { name: 'eat' });
+  g.setEdge('food', 'rotting-food', { name: '' });
+  g.setEdge('cleaning', 'clean-water', { name: 'clean' });
+  g.setEdge('clean-water', 'fish', { name: 'live in' });
+  g.setEdge('rotting-food', 'clean-water', { name: 'if rots can also make dirty' });
+  // define evidence mapping: propID => evIDArray
+  a_pEvidence.push({ evId: '1', propId: 'food', rsrcId: '1', note: 'fish need food' });
+  a_pEvidence.push({ evId: '2', propId: 'clean-water', rsrcId: '2', note: 'fish cant live in dirty water' });
+  a_pEvidence.push({ evId: '3', propId: 'rotting-food', rsrcId: '1', note: 'fish food rots' });
+  a_pEvidence.push({ evId: '4', propId: 'ammonia', rsrcId: '1', note: 'ammonia causes fish to die' });
 
 
   // // 3.5.19 Day 1 Group 3 Brainstomring list and Final Model.pdf

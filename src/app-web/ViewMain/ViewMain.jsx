@@ -86,7 +86,7 @@ class ViewMain extends React.Component {
     this.handleResourceClick = this.handleResourceClick.bind(this);
     this.handleInformationViewClose = this.handleInformationViewClose.bind(this);
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
-    this.handleEvidenceLinkSourceSelect = this.handleEvidenceLinkSourceSelect.bind(this);
+    this.handleEvidenceLinkSourceSelectRequest = this.handleEvidenceLinkSourceSelectRequest.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.handleSnapshot = this.handleSnapshot.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
@@ -97,7 +97,7 @@ class ViewMain extends React.Component {
       this.handleResourceClick(data.rsrcId);
     })
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
-    UR.Sub('SELECT_EVLINK_SOURCE', this.handleEvidenceLinkSourceSelect);
+    UR.Sub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvidenceLinkSourceSelectRequest);
     this.state = {
       viewHeight: 0, // need to init this to prevent error with first render of informationList
       addPropOpen: false,
@@ -222,10 +222,17 @@ class ViewMain extends React.Component {
     });
   }
   
-  handleEvidenceLinkSourceSelect(data) {
-    this.setState({ informationViewOpen: false },
-      UR.Publish('SHOW_EVIDENCE_NOTE',{evId: data.evId, rsrcId: data.rsrcId })
-    )
+  /*/
+   *  User wants to set the source on an EvidenceLink
+   *  So close the ResourceView if open,
+   *  and then show and expand the evidence
+  /*/
+  handleEvidenceLinkSourceSelectRequest(data) {
+    this.setState({ informationViewOpen: false }, () => {
+      UR.Publish('UNEXPAND_ALL_RESOURCES');
+      UR.Publish('SHOW_EVIDENCE_NOTE', { evId: data.evId, rsrcId: data.rsrcId })
+      UR.Publish('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', { evId: data.evId, rsrcId: data.rsrcId });
+    })
   }
 
   handleSelectionChange() {

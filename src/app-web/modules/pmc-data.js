@@ -904,6 +904,11 @@ PMCData.EvidenceLinkByEvidenceId = (evId) => {
   return a_pEvidence.find((item) => { return item.evId === evId });
 };
 
+PMCData.SetEvidenceLinkPropId = (evId, propId) => {
+  let ev = a_pEvidence.find((item) => { return item.evId === evId });
+  ev.propId = propId;
+  UR.Publish('DATA_UPDATED');
+}
 PMCData.SetEvidenceLinkNote = (evId, note) => {
   let ev = a_pEvidence.find((item) => { return item.evId === evId });
   ev.note = note;

@@ -44,17 +44,23 @@ class ResourceItem extends React.Component {
     this.state = {
       isExpanded: false
     };
+    
+    this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
+    this.handleDataUpdate = this.handleDataUpdate.bind(this);
+    this.handleResourceClick = this.handleResourceClick.bind(this);
+    this.handleUnexpandAll = this.handleUnexpandAll.bind(this);
+    this.toggleExpanded = this.toggleExpanded.bind(this);
 
     UR.Sub('SHOW_EVIDENCE_LINK', data => {
       if (DBG) console.log(PKG + 'received SHOW_EVIDENCE_LINK', data);
       this.handleEvidenceLinkOpen(data);
     });
     UR.Sub('DATA_UPDATED', this.handleDataUpdate);
-    
-    this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
-    this.handleDataUpdate = this.handleDataUpdate.bind(this);
-    this.handleResourceClick = this.handleResourceClick.bind(this);
-    this.toggleExpanded = this.toggleExpanded.bind(this);
+    UR.Sub('UNEXPAND_ALL_RESOURCES', this.handleUnexpandAll);
+    UR.Sub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', data => {
+      // FIXME: Resource is getting closed before selection, force it open again
+      this.handleEvidenceLinkOpen(data);
+    });
   }
 
   componentDidMount() { }
@@ -69,7 +75,7 @@ class ResourceItem extends React.Component {
   handleDataUpdate() {
     // Reload
   }
-
+  
   handleEvidenceLinkOpen(data) {
     if (DBG) console.log(PKG + 'comparing', data.rsrcId, 'to', this.props.resource.rsrcId);
     if (this.props.resource.rsrcId === data.rsrcId) {
@@ -81,10 +87,17 @@ class ResourceItem extends React.Component {
       });
     }
   }
-  
+
   handleResourceClick(rsrcId) {
     if (DBG) console.log(PKG +'Resource clicked', rsrcId);
     UR.Publish('SHOW_RESOURCE', {rsrcId: rsrcId});
+  }
+
+  handleUnexpandAll() {
+    // FIXME: Why is `this` undefined?!?
+    if (this) {
+      this.setState({ isExpanded: false });      
+    }
   }
 
   componentWillUnmount() {

@@ -1,5 +1,11 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
+EvidenceLinks are used to display individual pieces of evidence created by
+students to link an information resource item (e.g. simulation, report) to
+a component, property, or mechanism.
+
+They are controlled components.
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////
@@ -36,19 +42,17 @@ class EvidenceLink extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      evId: "",
-      rsrcId: "",
-      propId: "",
-      note: "",
-      
       canBeEdited: false,
       isBeingEdited: false,
       isBeingDisplayedInInformationList: true,
-      isExpanded: false
+      isExpanded: false,
+      isWaitingForSourceSelect: false
     };
     this.handleEditButtonClick = this.handleEditButtonClick.bind(this);
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
     this.handleNoteChange = this.handleNoteChange.bind(this);
+    this.handleSourceSelectClick = this.handleSourceSelectClick.bind(this);
+    this.handleActivateWaitForSourceSelect = this.handleActivateWaitForSourceSelect.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
     UR.Sub('SHOW_EVIDENCE_LINK_SECONDARY', data => {
@@ -56,25 +60,12 @@ class EvidenceLink extends React.Component {
       this.handleEvidenceLinkOpen(data);
     });
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Sub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', data => {
+      this.handleActivateWaitForSourceSelect(data);
+    });
   }
 
   componentDidMount() { }
-
-  handleDataUpdate() {
-    // Reload
-    console.log(PKG,'DATA_UPDATED');
-    let evidenceLinks = this.props.evidenceLinks;
-    if (Array.isArray(evidenceLinks) && evidenceLinks.length > 0) {
-      // Only allow one evidence link for now
-      let evLink = evidenceLinks[0];
-      this.setState({
-        evId: evLink.evId,
-        rsrcId: evLink.rsrcId,
-        propId: evLink.propId,
-        note: evLink.note
-      })
-    }
-  }
 
   handleEditButtonClick() {
     this.setState({
@@ -84,9 +75,7 @@ class EvidenceLink extends React.Component {
 
   handleEvidenceLinkOpen(data) {
     if (DBG) console.log('comparing', data.evId, 'to', this.props.evId);
-    if (
-      this.props.evId === data.evId
-    ) {
+    if (this.props.evId === data.evId) {
       console.log('EvidenceLink: Expanding', data.evId);
       this.setState({
         isExpanded: true,
@@ -96,25 +85,38 @@ class EvidenceLink extends React.Component {
   }
 
   handleNoteChange(e) {
-    if (DBG) console.log(PKG + 'Note Change:', e.target.value);
+    if (DBG) console.log(PKG, 'Note Change:', e.target.value);
     DATA.SetEvidenceLinkNote(this.props.evId, e.target.value);
-//    this.props.evidenceLinks[0].note = e.target.value;
+  }
+
+  handleSourceSelectClick(evId, rsrcId) {
+    this.setState({ isWaitingForSourceSelect: true });
+    UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId, rsrcId });
+  }
+
+  handleActivateWaitForSourceSelect(data) {
+    if (data.evId === this.props.evId) {
+      if (DBG) console.warn(PKG, 'Wait for source select!')
+      this.setState({
+        isExpanded: true,
+        isBeingEdited: true,
+        isWaitingForSourceSelect: true
+      });
+    }
   }
 
   handleSelectionChange() {
-    let selected = DATA.VM_SelectedProps();
-    if (DBG) console.log(PKG, 'selection changed', selected);
-    let source = 'source';
-    if (selected.length > 0) {
-      source = selected[selected.length-1];
+    if (this.state.isWaitingForSourceSelect) {
+      let selectedPropIds = DATA.VM_SelectedProps();
+      if (DBG) console.log(PKG, 'selection changed', selectedPropIds);
+      let sourceId = 'source';
+      if (selectedPropIds.length > 0) {
+        // Get the last selection
+        sourceId = selectedPropIds[selectedPropIds.length - 1];
+      }
+      DATA.SetEvidenceLinkPropId(this.props.evId, sourceId);
+      this.setState({ isWaitingForSourceSelect: false });
     }
-    this.setState({
-      selectedSource: source
-    });
-  }
-  
-  handleSourceSelectClick(evId, rsrcId) {
-    UR.Publish('SELECT_EVLINK_SOURCE', { evId: evId, rsrcId: rsrcId });
   }
 
   toggleExpanded() {
@@ -124,11 +126,34 @@ class EvidenceLink extends React.Component {
     });
   }
 
+  componentWillUnmount() {
+    UR.Unsub('SHOW_EVIDENCE_LINK_SECONDARY', this.handleEvidenceLinkOpen);
+    UR.Unsub('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Unsub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleActivateWaitForSourceSelect);
+  }
+
   render() {
     // evidenceLinks is an array of arrays because there might be more than one?!?
     const { evId, rsrcId, propId, note, classes } = this.props;
-    const { isBeingEdited, isExpanded, isBeingDisplayedInInformationList } = this.state;
+    const { isBeingEdited, isExpanded, isBeingDisplayedInInformationList, isWaitingForSourceSelect } = this.state;
     if (evId === '') return '';
+    let sourceLabel;
+    if (propId !== undefined) {
+      sourceLabel = DATA.Prop(propId).name;
+    } else if (isWaitingForSourceSelect) {
+      sourceLabel = 'waiting';
+    } else {
+      sourceLabel = (
+        <Button
+          onClick={() => {
+            this.handleSourceSelectClick(evId, rsrcId);
+          }}
+          className={classes.evidenceLinkPropAvatar}
+        >
+          Select
+        </Button>
+      );
+    }
     return (
       <Paper className={ClassNames(
           classes.evidenceLinkPaper,
@@ -144,21 +169,10 @@ class EvidenceLink extends React.Component {
             <Avatar className={classes.evidenceAvatar}>{rsrcId}</Avatar>
           ) : (
             ''
-          )}
-          {propId !== undefined ? (
-            <div className={classes.evidenceLinkPropAvatar}>
-              {DATA.Prop(propId).name}
-            </div>
-          ) : (
-            <Button
-              onClick={() => {
-                  this.handleSourceSelectClick(evId, rsrcId);
-              }}
-              className={classes.evidenceLinkPropAvatar}
-            >
-              select
-            </Button>
-          )}
+            )}
+          <div className={classes.evidenceLinkPropAvatar}>
+            {sourceLabel}
+          </div>
           &nbsp;
           {isBeingEdited ? (
             <TextField

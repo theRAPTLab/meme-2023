@@ -392,7 +392,8 @@ class ViewMain extends React.Component {
           onClose={this.handleInformationViewClose}
         >
           <Paper className={classes.informationViewPaper}>
-            <div className={classes.evidenceTitle}>
+            <div className={classes.resourceViewWindowLabel}>RESOURCE VIEW</div>
+            <div className={classes.resourceViewTitle}>
               <Avatar className={classes.evidenceAvatar}>{this.state.selectedResource.rsrcId}</Avatar>&nbsp;
               <div style={{ flexGrow: 1 }}>{this.state.selectedResource.label}</div>
               <Card>
@@ -410,12 +411,12 @@ class ViewMain extends React.Component {
               <Card>
                 <CardContent>
                   <Typography>Links:</Typography>
-                  <Chip label={this.state.selectedResource.links} color="secondary" />
+                  <Chip className={classes.resourceViewLinksBadge} label={this.state.selectedResource.links} color="primary" />
                 </CardContent>
               </Card>
               <Button className={classes.evidenceCloseBtn} onClick={this.handleInformationViewClose} color="primary">Close</Button>
             </div>
-            <iframe src={this.state.selectedResource.url} width="900" height="700"></iframe>
+            <iframe src={this.state.selectedResource.url} width="1000" height="600"></iframe>
             <div style={{ display: 'inline-block', width: '250px', textAlign: 'center', verticalAlign: 'top' }}>
               <TextField
                 id="informationNote"

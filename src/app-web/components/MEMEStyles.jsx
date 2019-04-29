@@ -4,6 +4,7 @@ import { Hidden } from "@material-ui/core";
 
 const m_drawerWidth = 150;
 const m_edgeDialogWidth = 600;
+const m_systemTextColor = '#999';
 const styles = theme => {
   return {
     root: {
@@ -72,6 +73,22 @@ const styles = theme => {
       margin: '0 auto',
       padding: '1em',
       backgroundColor: teal[50]
+    },
+    resourceViewWindowLabel: {
+      fontSize: '0.8em',
+      color: m_systemTextColor,
+      marginBottom: '5px'
+    },
+    resourceViewTitle: {
+      fontSize: '1em',
+      fontWeight: 'normal',
+      display: 'flex',
+      height: '90px',
+      paddingBottom: '20px'
+    },
+    resourceViewLinksBadge: {
+      width: '18px',
+      height: '18px'
     },
     evidenceTitle: {
       fontSize: '1em',

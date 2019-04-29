@@ -57,6 +57,12 @@ const styles = theme => {
       backgroundColor: teal[50],
       zIndex: 1250  // above drawer, below modal
     },
+    resourceListLabel: {
+      fontSize: '0.8em',
+      color: m_systemTextColor,
+      marginBottom: '5px',
+      padding: '3px 5px'
+    },
     informationView: {
       marginTop: '1em',
       width: '100%',

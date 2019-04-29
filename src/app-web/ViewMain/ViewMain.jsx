@@ -376,6 +376,7 @@ class ViewMain extends React.Component {
 
         <div style={{ height: this.state.viewHeight + 64, overflow: 'scroll', zIndex: 1250 }}>
           <Paper className={classes.informationList}>
+            <div className={classes.resourceListLabel}>RESOURCE LIBRARY</div>
             <List dense={true}>
               {resources.map(resource => (
                 <ResourceItem key={resource.rsrcId} resource={resource} />

@@ -171,12 +171,14 @@ class EvidenceLink extends React.Component {
       );
     }
     return (
-      <Paper className={ClassNames(
+      <Paper
+        className={ClassNames(
           classes.evidenceLinkPaper,
           isExpanded ? classes.evidenceLinkPaperExpanded : ''
         )}
         key={`${rsrcId}`}
       >
+        <div className={classes.evidenceWindowLabel}>EVIDENCE LINK</div>
         <div className={classes.evidencePrompt} hidden={!isExpanded}>
           How does this resource support this component / property / mechanism?
         </div>
@@ -186,9 +188,7 @@ class EvidenceLink extends React.Component {
           ) : (
             ''
           )}
-          <div className={classes.evidenceLinkPropAvatar}>
-            {sourceLabel}
-          </div>
+          <div className={classes.evidenceLinkPropAvatar}>{sourceLabel}</div>
           &nbsp;
           {isBeingEdited ? (
             <TextField
@@ -200,7 +200,7 @@ class EvidenceLink extends React.Component {
           ) :
             <div className={classes.evidenceLabelField}>{note}</div>
           }
-          <IconButton onClick={this.toggleExpanded}><ExpandMoreIcon/></IconButton>
+          <IconButton className={classes.evidenceExpandButton} onClick={this.toggleExpanded}><ExpandMoreIcon/></IconButton>
         </div>
         <img src="../static/screenshot_sim.png" className={classes.evidenceScreenshot} hidden={!isExpanded} />
         &nbsp;

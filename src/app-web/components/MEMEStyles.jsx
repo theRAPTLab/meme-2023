@@ -101,8 +101,17 @@ const styles = theme => {
       fontWeight: 'normal',
       display: 'flex'
     },
+    evidenceWindowLabel: {
+      fontSize: '0.6em',
+      color: m_systemTextColor,
+      marginBottom: '5px'      
+    },
     evidenceLabelField: {
       flexGrow: '1'
+    },
+    evidenceExpandButton: {
+      width: '20px',
+      height: '20px'
     },
     evidencePrompt: {
       fontSize: '0.8em',

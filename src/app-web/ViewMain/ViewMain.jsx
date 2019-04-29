@@ -109,7 +109,7 @@ class ViewMain extends React.Component {
         id: '',
         evid: '',
         label: 'Unselected',
-        keyvars: [],
+        notes: [],
         type: '',
         url: '',
         links: -1
@@ -397,10 +397,8 @@ class ViewMain extends React.Component {
               <div style={{ flexGrow: 1 }}>{this.state.selectedResource.label}</div>
               <Card>
                 <CardContent>
-                  <Typography>Key Variables:</Typography>
-                  {this.state.selectedResource.keyvars.map( (item, index) => (
-                    <Chip label={item} key={index} />
-                  ))}
+                  <Typography>Notes:</Typography>
+                  {this.state.selectedResource.notes}
                 </CardContent>
               </Card>
               <Card>

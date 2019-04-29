@@ -60,7 +60,7 @@ let a_resource = [];  /*/ all resource objects to be displayed in InformationLis
                             {
                               rsrcId: '1',
                               label: 'Food Rot Simulation',
-                              keyvars: ['water quality', 'food rotting'],
+                              notes: ['water quality', 'food rotting'],
                               type: 'simulation',
                               url: '../static/FishSpawn_Sim_5_SEEDS_v7.html',
                               links: 0
@@ -306,7 +306,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '1',
       label: 'Food Rot Simulation',
-      keyvars: ['water quality', 'food rotting'],
+      notes: 'water quality, food rotting',
       type: 'simulation',
       url: '../static/FishSpawn_Sim_5_SEEDS_v7.html',
       links: 0
@@ -314,7 +314,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '2',
       label: 'Autopsy Report',
-      keyvars: ['physical damage'],
+      notes: 'physical damage',
       type: 'report',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -322,7 +322,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '3',
       label: 'Ammonia and Food Experiment',
-      keyvars: ['water quality', 'ammonia'],
+      notes: 'water quality, ammonia',
       type: 'report',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -330,7 +330,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '4',
       label: 'Fish in a Tank Simulation',
-      keyvars: ['water quality', 'fish population'],
+      notes: 'water quality, fish population',
       type: 'simulation',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -338,7 +338,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '5',
       label: 'Measuring Ammonia Experiment',
-      keyvars: ['water quality', 'ammonia'],
+      notes: 'water quality, ammonia',
       type: 'report',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -346,7 +346,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '6',
       label: 'Fish Fighting Simulation',
-      keyvars: ['fish agression'],
+      notes: 'fish agression',
       type: 'simulation',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -354,7 +354,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '7',
       label: 'Fish Fighting Simulation',
-      keyvars: ['fish agression'],
+      notes: 'fish agression',
       type: 'simulation',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -362,7 +362,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '8',
       label: 'Fish Fighting Simulation',
-      keyvars: ['fish agression'],
+      notes: 'fish agression',
       type: 'simulation',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -370,7 +370,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '9',
       label: 'Fish Fighting Simulation',
-      keyvars: ['fish agression'],
+      notes: 'fish agression',
       type: 'simulation',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -378,7 +378,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '10',
       label: 'Fish Fighting Simulation',
-      keyvars: ['fish agression'],
+      notes: 'fish agression',
       type: 'simulation',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -386,7 +386,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '11',
       label: 'Fish Fighting Simulation',
-      keyvars: ['fish agression'],
+      notes: 'fish agression',
       type: 'simulation',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -394,7 +394,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '12',
       label: 'Fish Fighting Simulation',
-      keyvars: ['fish agression'],
+      notes: 'fish agression',
       type: 'simulation',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -402,7 +402,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '13',
       label: 'Fish Fighting Simulation',
-      keyvars: ['fish agression'],
+      notes: 'fish agression',
       type: 'simulation',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -410,7 +410,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '14',
       label: 'Fish Fighting Simulation',
-      keyvars: 'fish agression',
+      notes: 'fish agression',
       type: 'simulation',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -418,7 +418,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '15',
       label: 'Fish Fighting Simulation',
-      keyvars: 'fish agression',
+      notes: 'fish agression',
       type: 'simulation',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0
@@ -426,7 +426,7 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: '16',
       label: 'Fish Fighting Simulation',
-      keyvars: 'fish agression',
+      notes: 'fish agression',
       type: 'simulation',
       url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
       links: 0

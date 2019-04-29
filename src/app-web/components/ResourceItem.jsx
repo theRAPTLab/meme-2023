@@ -114,7 +114,7 @@ class ResourceItem extends React.Component {
           <ListItemAvatar>
             <Avatar className={classes.evidenceAvatar}>{resource.rsrcId}</Avatar>
           </ListItemAvatar>
-          <ListItemText primary={`${resource.label}`} secondary={`${resource.keyvars}`} />
+          <ListItemText primary={`${resource.label}`} secondary={`${resource.notes}`} />
           <ListItemSecondaryAction>
             {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
             {!this.state.isExpanded ?

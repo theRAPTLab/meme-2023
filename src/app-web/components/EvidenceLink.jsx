@@ -188,6 +188,7 @@ class EvidenceLink extends React.Component {
             <TextField
               className={classes.evidenceLabelField}
               value={note}
+              multiline
               onChange={this.handleNoteChange}
             />
           ) :

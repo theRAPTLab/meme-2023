@@ -236,19 +236,19 @@ class ViewMain extends React.Component {
   }
 
   handleSelectionChange() {
-    let selected = DATA.VM_SelectedProps();
-    if (DBG) console.log('selection changed', selected);
-    let source = 'sourced';
-    let target = 'targetd';
-    if (selected.length > 0) {
-      source = selected[0];
+    let selectedPropIds = DATA.VM_SelectedProps();
+    if (DBG) console.log('selection changed', selectedPropIds);
+    let sourceId = 'sourced';
+    let targetId = 'targetd';
+    if (selectedPropIds.length > 0) {
+      sourceId = selectedPropIds[0];
     }
-    if (selected.length > 1) {
-      target = selected[1];
+    if (selectedPropIds.length > 1) {
+      targetId = selectedPropIds[1];
     }
     this.setState({
-      edgeSource: source,
-      edgeTarget: target
+      edgeSource: sourceId,
+      edgeTarget: targetId
     })
   }
 

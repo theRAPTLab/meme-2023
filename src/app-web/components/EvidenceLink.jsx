@@ -109,21 +109,31 @@ class EvidenceLink extends React.Component {
     if (this.state.isWaitingForSourceSelect) {
       let selectedPropIds = DATA.VM_SelectedProps();
       if (DBG) console.log(PKG, 'selection changed', selectedPropIds);
-      let sourceId = 'source';
+      let sourceId;
       if (selectedPropIds.length > 0) {
         // Get the last selection
         sourceId = selectedPropIds[selectedPropIds.length - 1];
+        DATA.SetEvidenceLinkPropId(this.props.evId, sourceId);
       }
-      DATA.SetEvidenceLinkPropId(this.props.evId, sourceId);
-      this.setState({ isWaitingForSourceSelect: false });
+      // leave it in a waiting state?  This allows you to change your mind?
+      // this.setState({ isWaitingForSourceSelect: false });
     }
   }
 
   toggleExpanded() {
     if (DBG) console.log('evidence link clicked');
-    this.setState({
-      isExpanded: !this.state.isExpanded
-    });
+    let isExpanded = this.state.isExpanded;
+    if (isExpanded) {
+      this.setState({
+        isExpanded: false,
+        isBeingEdited: false,
+        isWaitingForSourceSelect: false
+      });
+    } else {
+      this.setState({
+        isExpanded: true
+      });
+    }
   }
 
   componentWillUnmount() {

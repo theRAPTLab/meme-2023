@@ -524,6 +524,17 @@ PMCData.BuildModel = () => {
   });
 
   /*/
+   *  Update h_evidenceByMech table
+  /*/
+  h_evidenceByMech = new Map();
+  a_pEvidence.forEach(ev => {
+    let evidenceLinkArray = h_evidenceByMech.get(ev.mechId);
+    if (evidenceLinkArray === undefined) evidenceLinkArray = [];
+    if (!evidenceLinkArray.includes(ev.mechId)) evidenceLinkArray.push(ev);
+    h_evidenceByMech.set(ev.mechId, evidenceLinkArray);
+  });
+
+  /*/
    *  Update h_propByResource lookup table to
    *  look up props that are linked to a particular piece of evidence
   /*/
@@ -965,6 +976,7 @@ PMCData.PMC_AddEvidenceLink = (rsrcId, note = 'untitled') => {
 };
 
 if (window.may1 === undefined) window.may1 = {};
+window.may1.PCM_Mech = PMCData.Mech;
 window.may1.PMC_AddProp = PMCData.PMC_AddProp;
 window.may1.PMC_AddMech = PMCData.PMC_AddMech;
 window.may1.PMC_AddEvidenceLink = PMCData.PMC_AddEvidenceLink;
@@ -998,7 +1010,7 @@ PMCData.PropEvidence = (nodeId) => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Given the passed evidence ID, returns the EvidneceLink object.
+ *  Given the passed evidence ID, returns the EvidenceLink object.
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  */
 PMCData.EvidenceLinkByEvidenceId = (evId) => {
@@ -1030,6 +1042,16 @@ PMCData.GetPropIdsByResourceId = (rsrcId) => {
  */
 PMCData.GetEvLinkByResourceId = (rsrcId) => {
   return h_evlinkByResource.get(rsrcId);
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Given the passed mechId (mech object), returns evidence linked to the mech object.
+ *  e.g. { evidenceId: '1', note: 'fish food fish food' }
+ *  @param {string|undefined} mechId - if defined, mechId string of the prop (aka `propId`)
+ */
+PMCData.MechEvidence = (mechId) => {
+  return h_evidenceByMech.get(mechId);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

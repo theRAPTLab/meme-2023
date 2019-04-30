@@ -105,10 +105,27 @@ class VMech {
     const stype = typeof srcId;
     const ttype = typeof tgtId;
 
+    // FIXME May 1 Hack
+    // Display evidence badge as a text update for now
+    let evString = ' ';
+    const evArr = DATA.MechEvidence(this.id);
+    if (evArr) {
+      evArr.forEach((ev) => {
+        let label = DATA.Resource(ev.rsrcId).referenceLabel;
+        evString += `[${label}]`;
+      });
+    }
+
     if (srcId === undefined && tgtId === undefined) {
       // update data
       const data = DATA.Mech(this.sourceId, this.targetId);
       this.data.name = data.name;
+      
+      // FIXME May 1 Hack
+      // Display evidence badge as a text update for now
+      // Update text label to show evidence
+      this.pathLabel.children()[0].text(this.data.name + evString);
+      
       // no change in srcId or tgtId so return
       return;
     }
@@ -120,6 +137,11 @@ class VMech {
       // update visual data fields
       const data = DATA.Mech(this.sourceId, this.targetId);
       this.data.name = data.name;
+      
+      // FIXME May 1 Hack
+      // Display evidence badge as a text update for now
+      // Update text label to show evidence
+      this.pathLabel.children()[0].text(this.data.name + evString);
 
       // update visual paths
       const srcVProp = DATA.VM_VProp(srcId);

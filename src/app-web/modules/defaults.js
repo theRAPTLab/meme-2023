@@ -156,6 +156,8 @@ function DumpObj(obj) {
   }
 }
 
+/// DEBUGGING CONSOLE /////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (window.meme === undefined) window.meme = {};
 window.meme.reflect = DumpObj;
 

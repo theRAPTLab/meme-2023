@@ -36,7 +36,7 @@ const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
  *       `propId` is the property id
  *       `rsrcId` is the resourceItem id
  *       `note` is a general text field for the student to enter an explanation
- * 
+ *
  */
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PMCData = {};
@@ -69,21 +69,21 @@ let a_resource = [];  /*/ all resource objects to be displayed in InformationLis
                       /*/
 let a_pEvidence = []; /*/ An array of prop-related evidence links.
                           This is the master list of evidence links.
-                          
+
                           [ evidenceLink,... ]
                           [ {eid, propId, rsrcId, note},... ]
-                          
+
                           a_pEvidence.push({ eid: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
 
                       /*/
 let h_pEvidenceByProp = new Map(); /*/
-                          Hash table of an array of evidence links related 
+                          Hash table of an array of evidence links related
                           to a property id, and grouped by property id.
-                          
+
                           Used by class-vprop when displaying
                           the list of evidenceLink badges for each prop.
-                          
-                          {propId: [{propId, rsrcId, note},                                                                                                
+
+                          {propId: [{propId, rsrcId, note},
                                  {propId, rsrcId, note},
                                 ...],
                           ...}
@@ -97,7 +97,7 @@ let h_propByResource = new Map(); /*/
                           a specific resource.
 
                           Used by InformationList to show props related to each resource.
-                          
+
                           {rsrcId: [propId1, propId2,...],... }
                       /*/
 let h_mechByResource = new Map(); // calculated links to mechanisms by evidence id
@@ -154,7 +154,7 @@ PMCData.LoadGraph = uri => {
   // g.setEdge('g', 'd', { name: 'alpha>' });
   // g.setEdge('y', 'z', { name: 'datum' });
   // g.setEdge('a', 'g', { name: 'atog' });
-  
+
   // // define evidence mapping: propID => evIDArray
   // a_pEvidence.push({ evId: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
   // a_pEvidence.push({ evId: '2', propId: 'b', rsrcId: '2', note: 'fish cant live in dirty water' });
@@ -225,10 +225,10 @@ PMCData.LoadGraph = uri => {
   g.setNode('rotting-food', { name: 'rotting food' });
   g.setNode('cleaning', { name: 'cleaning system?' });
   g.setNode('clean-water', { name: 'clean water' });
-  
+
   g.setParent('dirty-water-waste', 'dirty-water');
   g.setParent('dirty-water-algee', 'dirty-water');
-  
+
   g.setEdge('ammonia', 'fish', { name: 'death' });
   g.setEdge('fish', 'ammonia', { name: 'makes' });
   g.setEdge('fish', 'dirty-water', { name: 'waste' });
@@ -432,7 +432,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     }
   ];
-  
+
   /***************************************************************************/
   // test serial write out, then serial read back in
   const cleanGraphObj = GraphJSON.write(g);
@@ -510,7 +510,7 @@ PMCData.BuildModel = () => {
   /*/
   h_evlinkByResource = new Map();
   a_resource.forEach(resource => {
-    let evlinkArray = a_pEvidence.filter( evlink => evlink.rsrcId === resource.rsrcId);
+    let evlinkArray = a_pEvidence.filter(evlink => evlink.rsrcId === resource.rsrcId);
     if (evlinkArray === undefined) evlinkArray = [];
     h_evlinkByResource.set(resource.rsrcId, evlinkArray);
   });
@@ -764,6 +764,8 @@ PMCData.VM_VMechSet = (vmech, evo, ew) => {
   const pathId = CoerceToPathId(evo, ew);
   map_vmechs.set(pathId, vmech);
 };
+
+/// SELECTION MANAGER TEMPORARY HOME //////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
  * add the vprop to the selection

@@ -14,15 +14,20 @@ const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
  * mechanisms. Also provides derived structures used for building view models
  * for the user interface.
  *
+ * NOTE: `nodeId` (used by graphlib natively) corresponds to a PMC Property
+ * `propId` and visual prop `vpropId`. They all map to the same value
+ * NODE: `edgeObj` (used by graphlib natively) contains two nodeIds that
+ * collectively refer to a particular PMC Mechanism `mechId`. See below for
+ * more info about the data structure.
+ *
  * The model, viewmodel, and view data elements all use the same kinds of id.
  * For properties and components, a string `nodeId` is used. For mechanisms
  * connecting properties, a string `pathId` consisting of the form
  * `sourcetNodeId:targetNodeId` is used internally. However, mechanism-related
  * API methods also accept dagres/graphlib's native `edgeObj` and `w,v`
  * syntax as well.
- * @example TO USE
- * import PMCData from `../modules/pmc-data`;
- * console.log(PMCData.Graph())
+ *
+ * ADDITIONAL NOTES FROM BEN (WIP):
  *
  * resourceItems -- resourceItems refer to the information resources, such as
  * simulations and reports, that students use as evidence for their models.
@@ -37,6 +42,10 @@ const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
  *       `rsrcId` is the resourceItem id
  *       `note` is a general text field for the student to enter an explanation
  *
+ *
+ * @example TO USE MODULE
+ * import PMCData from `../modules/pmc-data`;
+ * console.log(PMCData.Graph())
  */
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PMCData = {};
@@ -764,6 +773,7 @@ PMCData.VM_VMechSet = (vmech, evo, ew) => {
   const pathId = CoerceToPathId(evo, ew);
   map_vmechs.set(pathId, vmech);
 };
+
 
 /// SELECTION MANAGER TEMPORARY HOME //////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

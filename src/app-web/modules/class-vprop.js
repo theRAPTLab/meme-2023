@@ -366,7 +366,6 @@ class VProp {
    * Update instance properties from model, then call Draw() to update svg elements
    */
   Update() {
-    if (DBG) console.error('class-vprop: Update');
     // update data by copying
     const data = DATA.Prop(this.id);
     this.data.name = data.name;
@@ -575,8 +574,8 @@ function u_Layout(offset, id) {
       y += addH;
       console.log(`y + ${addH} = ${y}`);
     });
-  } else {
-    if (DBG) console.log(`skipping layout of ${compVis.id}`);
+  } else if (DBG) {
+    console.log(`skipping layout of ${compVis.id}`);
   }
   console.groupEnd();
 }

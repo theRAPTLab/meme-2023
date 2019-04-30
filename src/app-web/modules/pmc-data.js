@@ -900,7 +900,7 @@ PMCData.VM_DeselectAll = () => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- return array of all string ids that are currently selected properties
+ return array of all string ids that are currently selected PROPERTIES
  in order of insertion.
  Use VProp.visualState.IsSelected('first') to determine what the first
  selection is
@@ -908,6 +908,16 @@ PMCData.VM_DeselectAll = () => {
  */
 PMCData.VM_SelectedProps = () => {
   return Array.from(selected_vprops.values());
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ return array of all string ids that are currently selected MECHANISMS
+ in order of insertion. Unlike the Props version of this call, the selection
+ is not tagged with any other meta data (e.g. 'first')
+ @returns {string[]} mechIds - array of string ids of properties
+ */
+PMCData.VM_SelectedMechs = () => {
+  return Array.from(selected_vmechs.values());
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddProp = (node = "a") => {

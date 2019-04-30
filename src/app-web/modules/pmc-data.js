@@ -827,6 +827,40 @@ PMCData.VM_ToggleProp = vprop => {
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
+ * erase the selected properties set. Also calls affected vprops to
+ * handle deselection update
+ */
+PMCData.VM_DeselectAllProps = () => {
+  // tell all vprops to clear themselves
+  selected_vprops.forEach(vpid => {
+    const vprop = PMCData.VM_VProp(vpid);
+    vprop.visualState.Deselect();
+    vprop.Draw();
+  });
+  // clear selection viewmodel
+  selected_vprops.clear();
+  if (DBG) console.log(`global selection`, selected_vprops);
+  UR.Publish('SELECTION_CHANGED');
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * Deselect all vmechs. The vmechs will be updated in its
+ * appearance to reflect its new state
+ */
+PMCData.VM_DeselectAllMechs = () => {
+  // tell all vprops to clear themselves
+  selected_vmechs.forEach(vmid => {
+    const vmech = PMCData.VM_VMech(vmid);
+    vmech.visualState.Deselect();
+    vmech.Draw();
+  });
+  // clear selection viewmodel
+  selected_vmechs.clear();
+  if (DBG) console.log(`global selection`, selected_vmechs);
+  UR.Publish('SELECTION_CHANGED');
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
  * Select/deselect the passed vmech. The vmech will be updated in its
  * appearance to reflect its new state
  */
@@ -843,24 +877,15 @@ PMCData.VM_ToggleMech = vmech => {
   }
   if (DBG) console.log(`vmech selection`, selected_vmechs);
   UR.Publish('SELECTION_CHANGED');
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- * erase the selected properties set. Also calls affected vprops to
- * handle deselection update
+ * select ALL selected visuals, property or mechanism alike
  */
-PMCData.VM_DeselectAllProps = () => {
-  // tell all vprops to clear themselves
-  selected_vprops.forEach(vpid => {
-    const vprop = PMCData.VM_VProp(vpid);
-    vprop.visualState.Deselect();
-    vprop.Draw();
-  });
-  // clear selection viewmodel
-  selected_vprops.clear();
-  if (DBG) console.log(`global selection`, selected_vprops);
-  UR.Publish('SELECTION_CHANGED');
-}
+PMCData.VM_DeselectAll = () => {
+  PMCData.VM_DeselectAllProps();
+  PMCData.VM_DeselectAllMechs();
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
  return array of all string ids that are currently selected properties
@@ -871,28 +896,23 @@ PMCData.VM_DeselectAllProps = () => {
  */
 PMCData.VM_SelectedProps = () => {
   return Array.from(selected_vprops.values());
-}
-
-
-
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddProp = (node = "a") => {
   m_graph.setNode(node, { name: `${node}` });
   PMCData.BuildModel();
   return `added node ${node}`;
 };
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddMech = (sourceId, targetId, label) => {
   m_graph.setEdge(sourceId, targetId, { name: label });
   PMCData.BuildModel();
   return `added edge ${sourceId} ${targetId} ${label}`;
 };
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddEvidenceLink = (rsrcId, note = "untitled") => {
+PMCData.PMC_AddEvidenceLink = (rsrcId, note = 'untitled') => {
   let evId = Math.trunc(Math.random() * 10000);
-  a_pEvidence.push({ evId: evId, propId: undefined, rsrcId: rsrcId, note: note });
+  a_pEvidence.push({ evId, propId: undefined, rsrcId, note });
   PMCData.BuildModel();
   return evId;
 };

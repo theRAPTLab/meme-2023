@@ -23,7 +23,7 @@ const PMCView = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let m_element;
 let m_svgroot;
-const DBG = true;
+const DBG = false;
 
 /// REFLECT DUMP
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -45,7 +45,7 @@ PMCView.InitializeViewgraph = container => {
   m_element = container;
   m_svgroot = SVGJS(m_element);
   m_svgroot.mousedown(() => {
-    DATA.VM_DeselectAllProps();
+    DATA.VM_DeselectAll();
   });
   PMCView.DefineDefs(m_svgroot);
   PMCView.DefineSymbols(m_svgroot);
@@ -61,7 +61,7 @@ PMCView.DefineDefs = svg => {
     'arrowEndHead',
     svg
       .marker(4, 4, add => {
-        add.path('M0,0 L0,4 L4,2 Z').fill(COLOR.LINE);
+        add.path('M0,0 L0,4 L4,2 Z').fill(COLOR.MECH);
       })
       .attr({ id: 'arrowEndHead', orient: 'auto', refX: 4 })
   );
@@ -69,7 +69,7 @@ PMCView.DefineDefs = svg => {
     'arrowStartHead',
     svg
       .marker(4, 4, add => {
-        add.path('M4,4 L4,0 L0,2 Z').fill(COLOR.LINE);
+        add.path('M4,4 L4,0 L0,2 Z').fill(COLOR.MECH);
       })
       .attr({ id: 'arrowStartHead', orient: 'auto', refX: 0 })
   );
@@ -188,14 +188,14 @@ function u_Recurse(propId) {
   const propVis = VProp.GetVisual(propId);
   const self = propVis.GetDataBBox();
   self.h += PAD.MIN;
-  console.group(`${propId} recurse`);
+  if (DBG) console.group(`${propId} recurse`);
   /* WALK CHILD PROPS */
   const childIds = DATA.Children(propId);
   // if there are no children, break recursion
   if (childIds.length === 0) {
     propVis.SetSize(self);
     propVis.SetKidsBBox({ w: 0, h: 0 });
-    console.groupEnd();
+    if (DBG) console.groupEnd();
     return self;
   }
   // otherwise, let's recurse!
@@ -224,7 +224,7 @@ function u_Recurse(propId) {
   all.h += childIds.length > 1 ? PAD.MIN2 : PAD.MIN;
   propVis.SetSize(all);
   propVis.SetKidsBBox(all);
-  console.groupEnd();
+  if (DBG) console.groupEnd();
   return all;
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

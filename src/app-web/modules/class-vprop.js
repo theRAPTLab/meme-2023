@@ -4,7 +4,7 @@ import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
 import { VisualState } from './classes-visual';
 
-const { VPROP, PAD } = DEFAULTS;
+const { VPROP, PAD, COLOR } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -14,10 +14,10 @@ const { VPROP, PAD } = DEFAULTS;
 const m_minWidth = VPROP.MIN_WIDTH;
 const m_minHeight = VPROP.MIN_HEIGHT;
 const m_pad = PAD.MIN;
-const COL_BG = '#44F';
+const COL_BG = COLOR.PROP;
 const DIM_RADIUS = 3;
 //
-const DBG = true;
+const DBG = false;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -366,7 +366,6 @@ class VProp {
    * Update instance properties from model, then call Draw() to update svg elements
    */
   Update() {
-    if (DBG) console.error('class-vprop: Update');
     // update data by copying
     const data = DATA.Prop(this.id);
     this.data.name = data.name;
@@ -539,7 +538,7 @@ VProp.LayoutComponents = () => {
   // set background size to it
   components.forEach(id => {
     // get the Visual
-    console.groupCollapsed(`%c:layout component ${id}`, cssinfo);
+    if (DBG) console.groupCollapsed(`%c:layout component ${id}`, cssinfo);
     u_Layout({ x: xCounter, y: yCounter }, id);
     const compVis = DATA.VM_VProp(id);
     const compHeight = compVis.Height();
@@ -550,7 +549,7 @@ VProp.LayoutComponents = () => {
       xCounter = PAD.MIN2;
       highHeight = 0;
     }
-    console.groupEnd();
+    if (DBG) console.groupEnd();
   });
 };
 
@@ -558,7 +557,7 @@ let highHeight = 0;
 
 function u_Layout(offset, id) {
   let { x, y } = offset;
-  console.group(`${id} draw at (${x},${y})`);
+  if (DBG) console.group(`${id} draw at (${x},${y})`);
   const compVis = DATA.VM_VProp(id);
   if (!compVis.HackWasMoved()) {
     if (DBG) console.log(`moving ${compVis.id}`);
@@ -573,12 +572,12 @@ function u_Layout(offset, id) {
       u_Layout({ x, y }, cid);
       const addH = childVis.Height() + PAD.MIN;
       y += addH;
-      console.log(`y + ${addH} = ${y}`);
+      if (DBG) console.log(`y + ${addH} = ${y}`);
     });
-  } else {
-    if (DBG) console.log(`skipping layout of ${compVis.id}`);
+  } else if (DBG) {
+    console.log(`skipping layout of ${compVis.id}`);
   }
-  console.groupEnd();
+  if (DBG) console.groupEnd();
 }
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////

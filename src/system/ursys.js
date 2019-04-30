@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  UR (aka URSYS) offers
+  UR will offer:
   * publisher/subscriber channel-based networked messaging through a broker
   * global state management across the network and within the app
   * convenience events for use by any subscriber
@@ -9,7 +9,8 @@
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import { Publish, Sub, Unsub } from './urlib-pubsub';
+import { Publish, Sub, Unsub } from './ur-pubsub';
+import { KnownEvents } from './ur-events';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

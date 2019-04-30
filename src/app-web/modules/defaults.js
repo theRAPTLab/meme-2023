@@ -16,8 +16,8 @@ const GAP = 15;
  * @property {object} SVGDEFS - defs
  * @property {object} UTIL - utility functions for debugging (availble from console)
  * @property {object} COLOR - colors
- * @property {string} COLOR.LINE - VMECH line color
- * @property {string} COLOR.PROP_BG - VPROP background
+ * @property {string} COLOR.MECH - VMECH line color
+ * @property {string} COLOR.PROP - VPROP background
  */
 const DEFAULTS = {
   VPROP: {
@@ -38,8 +38,10 @@ const DEFAULTS = {
     DumpObj
   },
   COLOR: {
-    LINE: 'orange',
-    PROP_BG: '#44F'
+    MECH: 'orange',
+    MECH_SEL: '#44F',
+    PROP: '#44F',
+    PROP_SEL: '#44F'
   }
 };
 
@@ -156,6 +158,8 @@ function DumpObj(obj) {
   }
 }
 
+/// DEBUGGING CONSOLE /////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (window.meme === undefined) window.meme = {};
 window.meme.reflect = DumpObj;
 

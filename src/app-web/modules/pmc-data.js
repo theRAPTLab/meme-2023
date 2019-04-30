@@ -14,15 +14,20 @@ const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
  * mechanisms. Also provides derived structures used for building view models
  * for the user interface.
  *
+ * NOTE: `nodeId` (used by graphlib natively) corresponds to a PMC Property
+ * `propId` and visual prop `vpropId`. They all map to the same value
+ * NODE: `edgeObj` (used by graphlib natively) contains two nodeIds that
+ * collectively refer to a particular PMC Mechanism `mechId`. See below for
+ * more info about the data structure.
+ *
  * The model, viewmodel, and view data elements all use the same kinds of id.
  * For properties and components, a string `nodeId` is used. For mechanisms
  * connecting properties, a string `pathId` consisting of the form
  * `sourcetNodeId:targetNodeId` is used internally. However, mechanism-related
  * API methods also accept dagres/graphlib's native `edgeObj` and `w,v`
  * syntax as well.
- * @example TO USE
- * import PMCData from `../modules/pmc-data`;
- * console.log(PMCData.Graph())
+ *
+ * ADDITIONAL NOTES FROM BEN (WIP):
  *
  * resourceItems -- resourceItems refer to the information resources, such as
  * simulations and reports, that students use as evidence for their models.
@@ -36,7 +41,11 @@ const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
  *       `propId` is the property id
  *       `rsrcId` is the resourceItem id
  *       `note` is a general text field for the student to enter an explanation
- * 
+ *
+ *
+ * @example TO USE MODULE
+ * import PMCData from `../modules/pmc-data`;
+ * console.log(PMCData.Graph())
  */
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PMCData = {};
@@ -69,21 +78,21 @@ let a_resource = [];  /*/ all resource objects to be displayed in InformationLis
                       /*/
 let a_pEvidence = []; /*/ An array of prop-related evidence links.
                           This is the master list of evidence links.
-                          
+
                           [ evidenceLink,... ]
                           [ {eid, propId, rsrcId, note},... ]
-                          
+
                           a_pEvidence.push({ eid: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
 
                       /*/
 let h_pEvidenceByProp = new Map(); /*/
-                          Hash table of an array of evidence links related 
+                          Hash table of an array of evidence links related
                           to a property id, and grouped by property id.
-                          
+
                           Used by class-vprop when displaying
                           the list of evidenceLink badges for each prop.
-                          
-                          {propId: [{propId, rsrcId, note},                                                                                                
+
+                          {propId: [{propId, rsrcId, note},
                                  {propId, rsrcId, note},
                                 ...],
                           ...}
@@ -97,7 +106,7 @@ let h_propByResource = new Map(); /*/
                           a specific resource.
 
                           Used by InformationList to show props related to each resource.
-                          
+
                           {rsrcId: [propId1, propId2,...],... }
                       /*/
 let h_mechByResource = new Map(); // calculated links to mechanisms by evidence id
@@ -154,7 +163,7 @@ PMCData.LoadGraph = uri => {
   // g.setEdge('g', 'd', { name: 'alpha>' });
   // g.setEdge('y', 'z', { name: 'datum' });
   // g.setEdge('a', 'g', { name: 'atog' });
-  
+
   // // define evidence mapping: propID => evIDArray
   // a_pEvidence.push({ evId: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
   // a_pEvidence.push({ evId: '2', propId: 'b', rsrcId: '2', note: 'fish cant live in dirty water' });
@@ -225,10 +234,10 @@ PMCData.LoadGraph = uri => {
   g.setNode('rotting-food', { name: 'rotting food' });
   g.setNode('cleaning', { name: 'cleaning system?' });
   g.setNode('clean-water', { name: 'clean water' });
-  
+
   g.setParent('dirty-water-waste', 'dirty-water');
   g.setParent('dirty-water-algee', 'dirty-water');
-  
+
   g.setEdge('ammonia', 'fish', { name: 'death' });
   g.setEdge('fish', 'ammonia', { name: 'makes' });
   g.setEdge('fish', 'dirty-water', { name: 'waste' });
@@ -432,7 +441,7 @@ PMCData.LoadGraph = uri => {
       links: 0
     }
   ];
-  
+
   /***************************************************************************/
   // test serial write out, then serial read back in
   const cleanGraphObj = GraphJSON.write(g);
@@ -510,7 +519,7 @@ PMCData.BuildModel = () => {
   /*/
   h_evlinkByResource = new Map();
   a_resource.forEach(resource => {
-    let evlinkArray = a_pEvidence.filter( evlink => evlink.rsrcId === resource.rsrcId);
+    let evlinkArray = a_pEvidence.filter(evlink => evlink.rsrcId === resource.rsrcId);
     if (evlinkArray === undefined) evlinkArray = [];
     h_evlinkByResource.set(resource.rsrcId, evlinkArray);
   });
@@ -697,17 +706,17 @@ PMCData.VM_GetVMechChanges = () => {
     const pathId = CoerceToPathId(edgeObj);
     if (map_vmechs.has(pathId)) {
       updated.push(pathId);
-      console.log('updated', pathId);
+      if (DBG) console.log('updated', pathId);
     } else {
       added.push(pathId);
-      console.log('added', pathId);
+      if (DBG) console.log('added', pathId);
     }
   });
   // removed
   map_vmechs.forEach((val_vmech, key_pathId) => {
     if (!updated.includes(key_pathId)) {
       removed.push(key_pathId);
-      console.log('removed', key_pathId);
+      if (DBG) console.log('removed', key_pathId);
     }
   });
   return { added, removed, updated };
@@ -764,21 +773,26 @@ PMCData.VM_VMechSet = (vmech, evo, ew) => {
   const pathId = CoerceToPathId(evo, ew);
   map_vmechs.set(pathId, vmech);
 };
+
+
+/// SELECTION MANAGER TEMPORARY HOME //////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- * add the vprop to the selection
- * @param {object} vprop - VProp instance with id property
+ * add the vprop to the selection set. The vprop will be
+ * updated in its appearance to reflect its new state.
+ * @param {object} vprop - VProp instance with id property.
  */
 PMCData.VM_SelectProp = vprop => {
   // set appropriate vprop flags
-  vprop.Select();
+  vprop.visualState.Select();
   vprop.Draw();
   // update viewmodel
   selected_vprops.add(vprop.id);
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- * remove th
+ * Remove the passed vprop from the selection set, if set. The vprop will be
+ * updated in its appearance to reflect its new state.
  * @param {object} vprop - VProp instance with id property
  */
 PMCData.VM_DeselectProp = vprop => {
@@ -787,10 +801,11 @@ PMCData.VM_DeselectProp = vprop => {
   vprop.Draw();
   // update viewmodel
   selected_vprops.delete(vprop.id);
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- * remove th
+ * Select or deselect the passed vprop.  The vprop will be
+ * updated in its appearance to reflect its new state.
  * @param {object} vprop - VProp instance with id property
  */
 PMCData.VM_ToggleProp = vprop => {
@@ -807,7 +822,7 @@ PMCData.VM_ToggleProp = vprop => {
     selected_vprops.delete(vprop.id);
     vprop.Draw();
   }
-  if (DBG) console.log(`global selection`, selected_vprops);
+  if (DBG) console.log(`vprop selection`, selected_vprops);
   UR.Publish('SELECTION_CHANGED');
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -826,10 +841,66 @@ PMCData.VM_DeselectAllProps = () => {
   selected_vprops.clear();
   if (DBG) console.log(`global selection`, selected_vprops);
   UR.Publish('SELECTION_CHANGED');
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- return array of all string ids that are currently selected properties
+ * Deselect all vmechs. The vmechs will be updated in its
+ * appearance to reflect its new state
+ */
+PMCData.VM_DeselectAllMechs = () => {
+  // tell all vprops to clear themselves
+  selected_vmechs.forEach(vmid => {
+    const vmech = PMCData.VM_VMech(vmid);
+    vmech.visualState.Deselect();
+    vmech.Draw();
+  });
+  // clear selection viewmodel
+  selected_vmechs.clear();
+  if (DBG) console.log(`global selection`, selected_vmechs);
+  UR.Publish('SELECTION_CHANGED');
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * Select a single mechanism, clearing the existing selection.
+ */
+PMCData.VM_SelectOneMech = vmech => {
+  // set appropriate vprop flags
+  PMCData.VM_DeselectAllMechs();
+  vmech.visualState.Select();
+  vmech.Draw();
+  // update viewmodel
+  selected_vmechs.add(vmech.id);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * Select/deselect the passed vmech. The vmech will be updated in its
+ * appearance to reflect its new state
+ */
+PMCData.VM_ToggleMech = vmech => {
+  // set appropriate vprop flags
+  vmech.visualState.ToggleSelect();
+  // update viewmodel
+  if (vmech.visualState.IsSelected()) {
+    selected_vmechs.add(vmech.id);
+    vmech.Draw();
+  } else {
+    selected_vmechs.delete(vmech.id);
+    vmech.Draw();
+  }
+  if (DBG) console.log(`vmech selection`, selected_vmechs);
+  UR.Publish('SELECTION_CHANGED');
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * select ALL selected visuals, property or mechanism alike
+ */
+PMCData.VM_DeselectAll = () => {
+  PMCData.VM_DeselectAllMechs();
+  PMCData.VM_DeselectAllProps();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ return array of all string ids that are currently selected PROPERTIES
  in order of insertion.
  Use VProp.visualState.IsSelected('first') to determine what the first
  selection is
@@ -837,28 +908,33 @@ PMCData.VM_DeselectAllProps = () => {
  */
 PMCData.VM_SelectedProps = () => {
   return Array.from(selected_vprops.values());
-}
-
-
-
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ return array of all string ids that are currently selected MECHANISMS
+ in order of insertion. Unlike the Props version of this call, the selection
+ is not tagged with any other meta data (e.g. 'first')
+ @returns {string[]} mechIds - array of string ids of properties
+ */
+PMCData.VM_SelectedMechs = () => {
+  return Array.from(selected_vmechs.values());
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddProp = (node = "a") => {
   m_graph.setNode(node, { name: `${node}` });
   PMCData.BuildModel();
   return `added node ${node}`;
 };
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddMech = (sourceId, targetId, label) => {
   m_graph.setEdge(sourceId, targetId, { name: label });
   PMCData.BuildModel();
   return `added edge ${sourceId} ${targetId} ${label}`;
 };
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddEvidenceLink = (rsrcId, note = "untitled") => {
+PMCData.PMC_AddEvidenceLink = (rsrcId, note = 'untitled') => {
   let evId = Math.trunc(Math.random() * 10000);
-  a_pEvidence.push({ evId: evId, propId: undefined, rsrcId: rsrcId, note: note });
+  a_pEvidence.push({ evId, propId: undefined, rsrcId, note });
   PMCData.BuildModel();
   return evId;
 };

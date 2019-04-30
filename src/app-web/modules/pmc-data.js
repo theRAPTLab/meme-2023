@@ -861,6 +861,18 @@ PMCData.VM_DeselectAllMechs = () => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
+ * Select a single mechanism, clearing the existing selection.
+ */
+PMCData.VM_SelectOneMech = vmech => {
+  // set appropriate vprop flags
+  PMCData.VM_DeselectAllMechs();
+  vmech.visualState.Select();
+  vmech.Draw();
+  // update viewmodel
+  selected_vmechs.add(vmech.id);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
  * Select/deselect the passed vmech. The vmech will be updated in its
  * appearance to reflect its new state
  */

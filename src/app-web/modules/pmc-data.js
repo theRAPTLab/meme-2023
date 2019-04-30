@@ -784,7 +784,7 @@ PMCData.VM_VMechSet = (vmech, evo, ew) => {
  */
 PMCData.VM_SelectProp = vprop => {
   // set appropriate vprop flags
-  vprop.Select();
+  vprop.visualState.Select();
   vprop.Draw();
   // update viewmodel
   selected_vprops.add(vprop.id);
@@ -895,8 +895,8 @@ PMCData.VM_ToggleMech = vmech => {
  * select ALL selected visuals, property or mechanism alike
  */
 PMCData.VM_DeselectAll = () => {
-  PMCData.VM_DeselectAllProps();
   PMCData.VM_DeselectAllMechs();
+  PMCData.VM_DeselectAllProps();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:

@@ -152,7 +152,7 @@ class VMech {
 
   HandleSelect(event) {
     console.log(`%c${this.id} clicked`, cssblue);
-    DATA.VM_ToggleMech(this);
+    DATA.VM_SelectOneMech(this);
     event.stopPropagation();
   }
 

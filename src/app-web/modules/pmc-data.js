@@ -778,8 +778,9 @@ PMCData.VM_VMechSet = (vmech, evo, ew) => {
 /// SELECTION MANAGER TEMPORARY HOME //////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- * add the vprop to the selection
- * @param {object} vprop - VProp instance with id property
+ * add the vprop to the selection set. The vprop will be
+ * updated in its appearance to reflect its new state.
+ * @param {object} vprop - VProp instance with id property.
  */
 PMCData.VM_SelectProp = vprop => {
   // set appropriate vprop flags
@@ -787,10 +788,11 @@ PMCData.VM_SelectProp = vprop => {
   vprop.Draw();
   // update viewmodel
   selected_vprops.add(vprop.id);
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- * remove th
+ * Remove the passed vprop from the selection set, if set. The vprop will be
+ * updated in its appearance to reflect its new state.
  * @param {object} vprop - VProp instance with id property
  */
 PMCData.VM_DeselectProp = vprop => {
@@ -799,10 +801,11 @@ PMCData.VM_DeselectProp = vprop => {
   vprop.Draw();
   // update viewmodel
   selected_vprops.delete(vprop.id);
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- * remove th
+ * Select or deselect the passed vprop.  The vprop will be
+ * updated in its appearance to reflect its new state.
  * @param {object} vprop - VProp instance with id property
  */
 PMCData.VM_ToggleProp = vprop => {
@@ -819,7 +822,26 @@ PMCData.VM_ToggleProp = vprop => {
     selected_vprops.delete(vprop.id);
     vprop.Draw();
   }
-  if (DBG) console.log(`global selection`, selected_vprops);
+  if (DBG) console.log(`vprop selection`, selected_vprops);
+  UR.Publish('SELECTION_CHANGED');
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * Select/deselect the passed vmech. The vmech will be updated in its
+ * appearance to reflect its new state
+ */
+PMCData.VM_ToggleMech = vmech => {
+  // set appropriate vprop flags
+  vmech.visualState.ToggleSelect();
+  // update viewmodel
+  if (vmech.visualState.IsSelected()) {
+    selected_vmechs.add(vmech.id);
+    vmech.Draw();
+  } else {
+    selected_vmechs.delete(vmech.id);
+    vmech.Draw();
+  }
+  if (DBG) console.log(`vmech selection`, selected_vmechs);
   UR.Publish('SELECTION_CHANGED');
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

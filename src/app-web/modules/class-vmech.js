@@ -2,6 +2,7 @@ import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
 import UR from '../../system/ursys';
 import DEFAULTS from './defaults';
+import { VisualState } from './classes-visual';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -63,14 +64,21 @@ class VMech {
       .path()
       .back()
       .fill('none')
-      .stroke({ width: 4, color: COLOR.LINE, dasharray: '4 2' });
+      .stroke({ width: 4, color: COLOR.MECH, dasharray: '4 2' });
 
     this.pathLabel = svgRoot.text(add => {
       add.tspan(this.data.name);
     });
-    this.pathLabel.fill(COLOR.LINE).attr('dy', -6);
+    this.pathLabel.fill(COLOR.MECH).attr('dy', -6);
     this.pathLabel.attr('text-anchor', 'end');
     this.textpath = this.pathLabel.path(this.path).attr('startOffset', this.path.length() - m_blen);
+    // shared modes
+    this.visualState = new VisualState(this.id);
+    this.displayMode = {};
+    // event hack for may 1
+    this.HandleSelect = this.HandleSelect.bind(this);
+    this.path.click(this.HandleSelect);
+    this.pathLabel.click(this.HandleSelect);
   }
 
   /**
@@ -139,6 +147,25 @@ class VMech {
       }
       // no srcPt or tgtPt, so hide path if it exists
       if (this.path) this.path.hide();
+    }
+  }
+
+  HandleSelect(event) {
+    console.log(`%c${this.id} clicked`, cssblue);
+    DATA.VM_ToggleMech(this);
+    event.stopPropagation();
+  }
+
+  /**
+   * Handle any post-Update() drawing, such as selection state
+   */
+  Draw() {
+    if (this.visualState.IsSelected()) {
+      this.path.stroke({ width: 6, color: COLOR.MECH_SEL, dasharray: '6 3' });
+      this.pathLabel.fill(COLOR.MECH_SEL);
+    } else {
+      this.path.stroke({ width: 4, color: COLOR.MECH, dasharray: '4 2' });
+      this.pathLabel.fill(COLOR.MECH);
     }
   }
 }

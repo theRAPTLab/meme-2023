@@ -61,7 +61,7 @@ PMCView.DefineDefs = svg => {
     'arrowEndHead',
     svg
       .marker(4, 4, add => {
-        add.path('M0,0 L0,4 L4,2 Z').fill(COLOR.LINE);
+        add.path('M0,0 L0,4 L4,2 Z').fill(COLOR.MECH);
       })
       .attr({ id: 'arrowEndHead', orient: 'auto', refX: 4 })
   );
@@ -69,7 +69,7 @@ PMCView.DefineDefs = svg => {
     'arrowStartHead',
     svg
       .marker(4, 4, add => {
-        add.path('M4,4 L4,0 L0,2 Z').fill(COLOR.LINE);
+        add.path('M4,4 L4,0 L0,2 Z').fill(COLOR.MECH);
       })
       .attr({ id: 'arrowStartHead', orient: 'auto', refX: 0 })
   );

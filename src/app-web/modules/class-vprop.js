@@ -4,7 +4,7 @@ import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
 import { VisualState } from './classes-visual';
 
-const { VPROP, PAD } = DEFAULTS;
+const { VPROP, PAD, COLOR } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -14,7 +14,7 @@ const { VPROP, PAD } = DEFAULTS;
 const m_minWidth = VPROP.MIN_WIDTH;
 const m_minHeight = VPROP.MIN_HEIGHT;
 const m_pad = PAD.MIN;
-const COL_BG = '#44F';
+const COL_BG = COLOR.PROP;
 const DIM_RADIUS = 3;
 //
 const DBG = true;

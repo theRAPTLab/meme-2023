@@ -108,7 +108,7 @@ class ResourceItem extends React.Component {
       <div>
         <ListItem button key={resource.id} onClick={() => this.handleResourceClick(resource.rsrcId)}>
           <ListItemAvatar>
-            <Avatar className={classes.evidenceAvatar}>{resource.rsrcId}</Avatar>
+            <Avatar className={classes.evidenceAvatar}>{resource.referenceLabel}</Avatar>
           </ListItemAvatar>
           <ListItemText primary={`${resource.label}`} secondary={`${resource.notes}`} />
           <ListItemSecondaryAction>

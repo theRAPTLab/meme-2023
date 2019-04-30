@@ -31,17 +31,24 @@ const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
  *
  * resourceItems -- resourceItems refer to the information resources, such as
  * simulations and reports, that students use as evidence for their models.
+ * They are considered "facts" rather than "interpretations", so they are not
+ * in themselves considered evidence until some connection is made to a model.
+ * The interpreation is embodied by the evidence link.
+ * `referenceLabel` is the human-readable footnote-like reference number for the
+ * resource.  e.g. this way you can refer to "resource 1".
  *
  * evidenceLink -- evidenceLinks are core objects that connect components or
- * properties or mechanims to resources.  There may be multiple connections
+ * properties or mechanisms to resources.  There may be multiple connections
  * between any component/property/mechanism and any resourceItem.  The
  * structure is:
- *  `{ evId: '1', propId: 'a', rsrcId: '1', note: 'fish need food' })`
+ *  `{ evId: 'ev1', propId: 'a', mechId: 'a', rsrcId: 'rs1', note: 'fish need food' })`
  * where `evId` is the evidenceLink id
  *       `propId` is the property id
+ *       `mechId` is the mechanism id, e.g. 'ammonia:fish'
  *       `rsrcId` is the resourceItem id
  *       `note` is a general text field for the student to enter an explanation
- *
+ * Since an evidence link can be connected either a prop or a mechanism, the
+ * one not used just remains undefined.
  *
  * @example TO USE MODULE
  * import PMCData from `../modules/pmc-data`;
@@ -249,10 +256,12 @@ PMCData.LoadGraph = uri => {
   g.setEdge('clean-water', 'fish', { name: 'live in' });
   g.setEdge('rotting-food', 'clean-water', { name: 'if rots can also make dirty' });
   // define evidence mapping: propID => evIDArray
-  a_pEvidence.push({ evId: '1', propId: 'food', rsrcId: '1', note: 'fish need food' });
-  a_pEvidence.push({ evId: '2', propId: 'clean-water', rsrcId: '2', note: 'fish cant live in dirty water' });
-  a_pEvidence.push({ evId: '3', propId: 'rotting-food', rsrcId: '1', note: 'fish food rots' });
-  a_pEvidence.push({ evId: '4', propId: 'ammonia', rsrcId: '1', note: 'ammonia causes fish to die' });
+  a_pEvidence.push({ evId: '1', propId: 'food', rsrcId: 'rs1', note: 'fish need food' });
+  a_pEvidence.push({ evId: '2', propId: 'clean-water', rsrcId: 'rs2', note: 'fish cant live in dirty water' });
+  a_pEvidence.push({ evId: '3', propId: 'rotting-food', rsrcId: 'rs1', note: 'fish food rots' });
+  a_pEvidence.push({ evId: '4', propId: 'ammonia', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
+  a_pEvidence.push({ evId: '5', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
+  a_pEvidence.push({ evId: '6', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs2', note: 'ammonia causes fish to die' });
 
 
   // // 3.5.19 Day 1 Group 3 Brainstomring list and Final Model.pdf
@@ -313,7 +322,8 @@ PMCData.LoadGraph = uri => {
    */
   a_resource = [
     {
-      rsrcId: '1',
+      rsrcId: 'rs1',
+      referenceLabel: '1',
       label: 'Food Rot Simulation',
       notes: 'water quality, food rotting',
       type: 'simulation',
@@ -321,7 +331,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '2',
+      rsrcId: 'rs2',
+      referenceLabel: '2',
       label: 'Autopsy Report',
       notes: 'physical damage',
       type: 'report',
@@ -329,7 +340,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '3',
+      rsrcId: 'rs3',
+      referenceLabel: '3',
       label: 'Ammonia and Food Experiment',
       notes: 'water quality, ammonia',
       type: 'report',
@@ -337,7 +349,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '4',
+      rsrcId: 'rs4',
+      referenceLabel: '4',
       label: 'Fish in a Tank Simulation',
       notes: 'water quality, fish population',
       type: 'simulation',
@@ -345,7 +358,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '5',
+      rsrcId: 'rs5',
+      referenceLabel: '5',
       label: 'Measuring Ammonia Experiment',
       notes: 'water quality, ammonia',
       type: 'report',
@@ -353,7 +367,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '6',
+      rsrcId: 'rs6',
+      referenceLabel: '6',
       label: 'Fish Fighting Simulation',
       notes: 'fish agression',
       type: 'simulation',
@@ -361,7 +376,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '7',
+      rsrcId: 'rs7',
+      referenceLabel: '7',
       label: 'Fish Fighting Simulation',
       notes: 'fish agression',
       type: 'simulation',
@@ -369,7 +385,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '8',
+      rsrcId: 'rs8',
+      referenceLabel: '8',
       label: 'Fish Fighting Simulation',
       notes: 'fish agression',
       type: 'simulation',
@@ -377,7 +394,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '9',
+      rsrcId: 'rs9',
+      referenceLabel: '9',
       label: 'Fish Fighting Simulation',
       notes: 'fish agression',
       type: 'simulation',
@@ -385,7 +403,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '10',
+      rsrcId: 'rs10',
+      referenceLabel: '10',
       label: 'Fish Fighting Simulation',
       notes: 'fish agression',
       type: 'simulation',
@@ -393,7 +412,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '11',
+      rsrcId: 'rs11',
+      referenceLabel: '11',
       label: 'Fish Fighting Simulation',
       notes: 'fish agression',
       type: 'simulation',
@@ -401,7 +421,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '12',
+      rsrcId: 'rs12',
+      referenceLabel: '12',
       label: 'Fish Fighting Simulation',
       notes: 'fish agression',
       type: 'simulation',
@@ -409,7 +430,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '13',
+      rsrcId: 'rs13',
+      referenceLabel: '13',
       label: 'Fish Fighting Simulation',
       notes: 'fish agression',
       type: 'simulation',
@@ -417,7 +439,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '14',
+      rsrcId: 'rs14',
+      referenceLabel: '14',
       label: 'Fish Fighting Simulation',
       notes: 'fish agression',
       type: 'simulation',
@@ -425,7 +448,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '15',
+      rsrcId: 'rs15',
+      referenceLabel: '15',
       label: 'Fish Fighting Simulation',
       notes: 'fish agression',
       type: 'simulation',
@@ -433,7 +457,8 @@ PMCData.LoadGraph = uri => {
       links: 0
     },
     {
-      rsrcId: '16',
+      rsrcId: 'rs16',
+      referenceLabel: '16',
       label: 'Fish Fighting Simulation',
       notes: 'fish agression',
       type: 'simulation',

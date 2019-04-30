@@ -55,14 +55,9 @@ class EvidenceLink extends React.Component {
     this.handleActivateWaitForSourceSelect = this.handleActivateWaitForSourceSelect.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
-    UR.Sub('SHOW_EVIDENCE_LINK_SECONDARY', data => {
-      if (DBG) console.log('received SHOW_EVIDENCE_LINK_SECONDARY', data);
-      this.handleEvidenceLinkOpen(data);
-    });
+    UR.Sub('SHOW_EVIDENCE_LINK_SECONDARY', this.handleEvidenceLinkOpen);
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
-    UR.Sub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', data => {
-      this.handleActivateWaitForSourceSelect(data);
-    });
+    UR.Sub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleActivateWaitForSourceSelect);
   }
 
   componentDidMount() { }

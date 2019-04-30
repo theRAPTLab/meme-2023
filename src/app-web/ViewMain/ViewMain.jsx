@@ -90,12 +90,8 @@ class ViewMain extends React.Component {
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.handleSnapshot = this.handleSnapshot.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
-    UR.Sub('SHOW_EVIDENCE_NOTE', evidenceLink => {
-      this.handleEvidenceLinkOpen(evidenceLink);
-    });
-    UR.Sub('SHOW_RESOURCE', data => {
-      this.handleResourceClick(data.rsrcId);
-    })
+    UR.Sub('SHOW_EVIDENCE_NOTE', this.handleEvidenceLinkOpen);
+    UR.Sub('SHOW_RESOURCE', this.handleResourceClick);
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Sub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvidenceLinkSourceSelectRequest);
     this.state = {
@@ -197,17 +193,17 @@ class ViewMain extends React.Component {
     if (DBG) console.log('handleSetEdgeTarget');
   }
 
-  handleResourceClick(rsrcId) {
-    if (DBG) console.log('clicked on ', rsrcId);
+  handleResourceClick(data) {
+    if (DBG) console.log('clicked on ', data.rsrcId);
     // Look up resource
-    let selectedResource = DATA.Resource(rsrcId);
+    let selectedResource = DATA.Resource(data.rsrcId);
     if (selectedResource) {
       this.setState({
         informationViewOpen: true,
         selectedResource: selectedResource
       });
     } else {
-      console.error('ViewMain: Could not find selected resource id', rsrcId);
+      console.error('ViewMain: Could not find selected resource id', data.rsrcId);
     }
   }
 

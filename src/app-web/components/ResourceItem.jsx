@@ -51,16 +51,11 @@ class ResourceItem extends React.Component {
     this.handleUnexpandAll = this.handleUnexpandAll.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
 
-    UR.Sub('SHOW_EVIDENCE_LINK', data => {
-      if (DBG) console.log(PKG + 'received SHOW_EVIDENCE_LINK', data);
-      this.handleEvidenceLinkOpen(data);
-    });
+    UR.Sub('SHOW_EVIDENCE_LINK', this.handleEvidenceLinkOpen);
     UR.Sub('DATA_UPDATED', this.handleDataUpdate);
     UR.Sub('UNEXPAND_ALL_RESOURCES', this.handleUnexpandAll);
-    UR.Sub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', data => {
-      // FIXME: Resource is getting closed before selection, force it open again
-      this.handleEvidenceLinkOpen(data);
-    });
+    // FIXME: Resource is getting closed before selection, force it open again
+    UR.Sub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleEvidenceLinkOpen);
   }
 
   componentDidMount() { }
@@ -104,6 +99,7 @@ class ResourceItem extends React.Component {
     UR.Unsub('SHOW_EVIDENCE_LINK', this.handleEvidenceLinkOpen);
     UR.Unsub('DATA_UPDATED', this.handleDataUpdate);
     UR.Unsub('UNEXPAND_ALL_RESOURCES', this.handleUnexpandAll);
+    UR.Unsub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleEvidenceLinkOpen);
   }
 
   render() {

@@ -17,7 +17,7 @@ const m_pad = PAD.MIN;
 const COL_BG = COLOR.PROP;
 const DIM_RADIUS = 3;
 //
-const DBG = true;
+const DBG = false;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -538,7 +538,7 @@ VProp.LayoutComponents = () => {
   // set background size to it
   components.forEach(id => {
     // get the Visual
-    console.groupCollapsed(`%c:layout component ${id}`, cssinfo);
+    if (DBG) console.groupCollapsed(`%c:layout component ${id}`, cssinfo);
     u_Layout({ x: xCounter, y: yCounter }, id);
     const compVis = DATA.VM_VProp(id);
     const compHeight = compVis.Height();
@@ -549,7 +549,7 @@ VProp.LayoutComponents = () => {
       xCounter = PAD.MIN2;
       highHeight = 0;
     }
-    console.groupEnd();
+    if (DBG) console.groupEnd();
   });
 };
 
@@ -557,7 +557,7 @@ let highHeight = 0;
 
 function u_Layout(offset, id) {
   let { x, y } = offset;
-  console.group(`${id} draw at (${x},${y})`);
+  if (DBG) console.group(`${id} draw at (${x},${y})`);
   const compVis = DATA.VM_VProp(id);
   if (!compVis.HackWasMoved()) {
     if (DBG) console.log(`moving ${compVis.id}`);
@@ -572,12 +572,12 @@ function u_Layout(offset, id) {
       u_Layout({ x, y }, cid);
       const addH = childVis.Height() + PAD.MIN;
       y += addH;
-      console.log(`y + ${addH} = ${y}`);
+      if (DBG) console.log(`y + ${addH} = ${y}`);
     });
   } else if (DBG) {
     console.log(`skipping layout of ${compVis.id}`);
   }
-  console.groupEnd();
+  if (DBG) console.groupEnd();
 }
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////

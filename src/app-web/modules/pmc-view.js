@@ -23,7 +23,7 @@ const PMCView = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let m_element;
 let m_svgroot;
-const DBG = true;
+const DBG = false;
 
 /// REFLECT DUMP
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -188,14 +188,14 @@ function u_Recurse(propId) {
   const propVis = VProp.GetVisual(propId);
   const self = propVis.GetDataBBox();
   self.h += PAD.MIN;
-  console.group(`${propId} recurse`);
+  if (DBG) console.group(`${propId} recurse`);
   /* WALK CHILD PROPS */
   const childIds = DATA.Children(propId);
   // if there are no children, break recursion
   if (childIds.length === 0) {
     propVis.SetSize(self);
     propVis.SetKidsBBox({ w: 0, h: 0 });
-    console.groupEnd();
+    if (DBG) console.groupEnd();
     return self;
   }
   // otherwise, let's recurse!
@@ -224,7 +224,7 @@ function u_Recurse(propId) {
   all.h += childIds.length > 1 ? PAD.MIN2 : PAD.MIN;
   propVis.SetSize(all);
   propVis.SetKidsBBox(all);
-  console.groupEnd();
+  if (DBG) console.groupEnd();
   return all;
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

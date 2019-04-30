@@ -706,17 +706,17 @@ PMCData.VM_GetVMechChanges = () => {
     const pathId = CoerceToPathId(edgeObj);
     if (map_vmechs.has(pathId)) {
       updated.push(pathId);
-      console.log('updated', pathId);
+      if (DBG) console.log('updated', pathId);
     } else {
       added.push(pathId);
-      console.log('added', pathId);
+      if (DBG) console.log('added', pathId);
     }
   });
   // removed
   map_vmechs.forEach((val_vmech, key_pathId) => {
     if (!updated.includes(key_pathId)) {
       removed.push(key_pathId);
-      console.log('removed', key_pathId);
+      if (DBG) console.log('removed', key_pathId);
     }
   });
   return { added, removed, updated };

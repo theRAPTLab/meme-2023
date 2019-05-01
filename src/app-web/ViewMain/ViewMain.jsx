@@ -389,43 +389,43 @@ class ViewMain extends React.Component {
           onClose={this.handleInformationViewClose}
         >
           <Paper className={classes.informationViewPaper}>
-            <div className={classes.resourceViewWindowLabel}>RESOURCE VIEW</div>
             <div className={classes.resourceViewTitle}>
-              <Avatar className={classes.evidenceAvatar}>{this.state.selectedResource.rsrcId}</Avatar>&nbsp;
+              <div className={classes.resourceViewWindowLabel}>RESOURCE VIEW</div>
+              <Avatar className={classes.resourceViewAvatar}>{this.state.selectedResource.referenceLabel}</Avatar>&nbsp;
               <div style={{ flexGrow: 1 }}>{this.state.selectedResource.label}</div>
-              <Card>
-                <CardContent>
-                  <Typography>Notes:</Typography>
-                  {this.state.selectedResource.notes}
+              <Card className={classes.resourceViewCard}>
+                <CardContent className={classes.resourceViewCardContent}>
+                  <Typography variant="overline">Notes:&nbsp;</Typography>
+                  <Typography variant="body2">{this.state.selectedResource.notes}</Typography>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent>
-                  <Typography>Type:</Typography>
-                  {this.state.selectedResource.type} {this.state.selectedResource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
+              <Card className={classes.resourceViewCard}>
+                <CardContent className={classes.resourceViewCardContent}>
+                  <Typography variant="overline">Type:&nbsp;</Typography>
+                  <Typography variant="body2">{this.state.selectedResource.type} {this.state.selectedResource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}</Typography>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent>
-                  <Typography>Links:</Typography>
+              <Card className={classes.resourceViewCard}>
+                <CardContent className={classes.resourceViewCardContent}>
+                  <Typography variant="overline">Links:&nbsp;</Typography>
                   <Chip className={classes.resourceViewLinksBadge} label={this.state.selectedResource.links} color="primary" />
                 </CardContent>
               </Card>
               <Button className={classes.evidenceCloseBtn} onClick={this.handleInformationViewClose} color="primary">Close</Button>
             </div>
-            <iframe src={this.state.selectedResource.url} width="1000" height="600"></iframe>
-            <div style={{ display: 'inline-block', width: '250px', verticalAlign: 'top' }}>
+            <iframe src={this.state.selectedResource.url} width="1000" height="90%"></iframe>
+            <div className={classes.resourceViewSidebar}>
               <TextField
                 id="informationNote"
                 label="Our Notes"
                 placeholder="We noticed..."
                 multiline
-                rows="8"
-                className={classes.informationNote}
+                rows="5"
+                className={classes.resourceViewNote}
                 margin="normal"
                 variant="outlined"
               />
-              <Button variant="contained" onClick={()=>this.handleSnapshot(this.state.selectedResource.rsrcId)} color="primary">Snapshot + Evidence</Button>
+              <Button className={classes.resourceViewCreatebutton} variant="contained" onClick={()=>this.handleSnapshot(this.state.selectedResource.rsrcId)} color="primary">Create Evidence</Button>
               <EvidenceList rsrcId={this.state.selectedResource.rsrcId} />
             </div>
           </Paper>

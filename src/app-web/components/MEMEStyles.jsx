@@ -68,12 +68,6 @@ const styles = theme => {
       width: '100%',
       height: '100%'
     },
-    informationNote: {
-      width: '250px',
-      marginLeft: theme.spacing.unit,
-      marginRight: theme.spacing.unit,
-      backgroundColor: yellow[50]
-    },
     informationViewPaper: {
       width: '95%',
       height: '95%',
@@ -84,18 +78,56 @@ const styles = theme => {
     resourceViewWindowLabel: {
       fontSize: '0.8em',
       color: m_systemTextColor,
-      marginBottom: '5px'
+      marginBottom: '5px',
+      marginRight: theme.spacing.unit * 2,
+      alignSelf: 'flex-start'
     },
     resourceViewTitle: {
       fontSize: '1em',
       fontWeight: 'normal',
       display: 'flex',
-      height: '90px',
-      paddingBottom: '20px'
+      height: '60px',
+      paddingBottom: '10px',
+      alignItems: 'center'
+    },
+    resourceViewAvatar: {
+      color: '#366',
+      backgroundColor: teal[100],
+      marginRight: theme.spacing.unit
+    },
+    resourceViewCard: {
+      height: '50px'
+    },
+    resourceViewCardContent: {
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      padding: '10px 16px'
     },
     resourceViewLinksBadge: {
       width: '18px',
       height: '18px'
+    },
+    resourceViewSidebar: {
+      display: 'inline-flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      width: '265px',
+      height: '90%',
+      verticalAlign: 'top',
+      overflowY: 'scroll',
+      overflowX: 'hidden'
+    },
+    resourceViewNote: {
+      width: '237px',
+      marginTop: '0.5em',
+      marginLeft: theme.spacing.unit,
+      marginRight: theme.spacing.unit,
+      backgroundColor: yellow[50]
+    },
+    resourceViewCreatebutton: {
+      marginBottom: theme.spacing.unit,
+      width: 'fit-content'
     },
     evidenceTitle: {
       fontSize: '1em',
@@ -105,7 +137,7 @@ const styles = theme => {
     evidenceWindowLabel: {
       fontSize: '0.6em',
       color: m_systemTextColor,
-      marginBottom: '5px'      
+      marginBottom: '5px'
     },
     evidenceLabelField: {
       flexGrow: '1'
@@ -120,10 +152,6 @@ const styles = theme => {
     },
     evidenceScreenshot: {
       width: '30%'
-    },
-    evidenceAvatar: {
-      color: '#366',
-      backgroundColor: teal[100]
     },
     evidenceBadge: {
       height: '16px',

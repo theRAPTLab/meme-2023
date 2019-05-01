@@ -204,7 +204,7 @@ class EvidenceLink extends React.Component {
         </div>
         <div className={classes.evidenceTitle}>
           {!isBeingDisplayedInInformationList ? (
-            <Avatar className={classes.evidenceAvatar}>{rsrcId}</Avatar>
+            <Avatar className={classes.resourceViewAvatar}>{rsrcId}</Avatar>
           ) : (
             ''
           )}

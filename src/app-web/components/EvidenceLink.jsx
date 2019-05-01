@@ -61,6 +61,12 @@ class EvidenceLink extends React.Component {
   }
 
   componentDidMount() { }
+  
+  componentWillUnmount() {
+    UR.Unsub('SHOW_EVIDENCE_LINK_SECONDARY', this.handleEvidenceLinkOpen);
+    UR.Unsub('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Unsub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleActivateWaitForSourceSelect);
+  }
 
   handleEditButtonClick() {
     this.setState({
@@ -129,12 +135,6 @@ class EvidenceLink extends React.Component {
         isExpanded: true
       });
     }
-  }
-
-  componentWillUnmount() {
-    UR.Unsub('SHOW_EVIDENCE_LINK_SECONDARY', this.handleEvidenceLinkOpen);
-    UR.Unsub('SELECTION_CHANGED', this.handleSelectionChange);
-    UR.Unsub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleActivateWaitForSourceSelect);
   }
 
   render() {

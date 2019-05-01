@@ -381,6 +381,7 @@ class VProp {
     if (evArr) {
       // When adding the evidence badges, we have to move them to the current location
       evArr.forEach((ev) => {
+        let referenceLabel = DATA.Resource(ev.rsrcId).referenceLabel;
         let badge = this.gData
           .circle(25)
           .fill('#b2dfdb')
@@ -395,7 +396,7 @@ class VProp {
         this.gDataEvidenceBadge.push(badge);
         this.gDataEvidenceLabel.push(
           this.gData
-            .text(ev.rsrcId)
+            .text(referenceLabel)
             .font({ fill: '#366', size: '0.8em', weight: 'bold' })
             .move(x, y)
             .mousedown((e) => {

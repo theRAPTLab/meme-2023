@@ -69,6 +69,7 @@ const styles = theme => {
       height: '100%'
     },
     informationNote: {
+      width: '250px',
       marginLeft: theme.spacing.unit,
       marginRight: theme.spacing.unit,
       backgroundColor: yellow[50]
@@ -169,10 +170,15 @@ const styles = theme => {
       color: '#fff',
       backgroundColor: red['A700']
     },
-    evidenceLinkSourceAvatarSelected: {
+    evidenceLinkSourcePropAvatarSelected: {
       color: indigo[900],
       backgroundColor: indigo[100],
       padding: '0 7px'
+    },
+    evidenceLinkSourceMechAvatarSelected: {
+      color: orange[900],
+      backgroundColor: orange[100],
+      padding: '0 7px'      
     },
     badge: {
       margin: '8px'

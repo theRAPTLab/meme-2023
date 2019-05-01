@@ -52,7 +52,7 @@ class EvidenceList extends React.Component {
     return (
       <div key={this.props.rsrcId}>
         {evLinks.map((evlink, index) => (
-          <EvidenceLink evId={evlink.evId} rsrcId={evlink.rsrcId} propId={evlink.propId} note={evlink.note} key={index}/>
+          <EvidenceLink evId={evlink.evId} rsrcId={evlink.rsrcId} propId={evlink.propId} mechId={evlink.mechId} note={evlink.note} key={index}/>
         ))}
       </div>
     );

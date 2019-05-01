@@ -139,15 +139,17 @@ class EvidenceLink extends React.Component {
 
   render() {
     // evidenceLinks is an array of arrays because there might be more than one?!?
-    const { evId, rsrcId, propId, note, classes } = this.props;
+    const { evId, rsrcId, propId, mechId, note, classes } = this.props;
     const { isBeingEdited, isExpanded, isBeingDisplayedInInformationList, isWaitingForSourceSelect } = this.state;
     if (evId === '') return '';
     let sourceLabel;
     if (propId !== undefined) {
       sourceLabel = (
-        <div className={classes.evidenceLinkSourceAvatarSelected}>
-          {DATA.Prop(propId).name}
-        </div>
+        <div className={classes.evidenceLinkSourcePropAvatarSelected}>{DATA.Prop(propId).name}</div>
+      );
+    } else if (mechId !== undefined) {
+      sourceLabel = (
+        <div className={classes.evidenceLinkSourceMechAvatarSelected}>{DATA.Mech(mechId).name}</div>
       );
     } else if (isWaitingForSourceSelect) {
       sourceLabel = (

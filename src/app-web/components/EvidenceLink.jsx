@@ -75,9 +75,9 @@ class EvidenceLink extends React.Component {
   }
 
   handleEvidenceLinkOpen(data) {
-    if (DBG) console.log('comparing', data.evId, 'to', this.props.evId);
+    if (DBG) console.log(PKG,'comparing', data.evId, 'to', this.props.evId);
     if (this.props.evId === data.evId) {
-      console.log('EvidenceLink: Expanding', data.evId);
+      if (DBG) console.log(PKG,'Expanding', data.evId);
       this.setState({
         isExpanded: true,
 // results in react object error       selectedSource: {}
@@ -97,7 +97,7 @@ class EvidenceLink extends React.Component {
 
   handleActivateWaitForSourceSelect(data) {
     if (data.evId === this.props.evId) {
-      if (DBG) console.warn(PKG, 'Wait for source select!')
+      if (DBG) console.log(PKG, 'Wait for source select!')
       this.setState({
         isExpanded: true,
         isBeingEdited: true,
@@ -117,7 +117,6 @@ class EvidenceLink extends React.Component {
       if (selectedMechIds.length > 0) {
         // Get the last selection
         sourceId = selectedMechIds[selectedMechIds.length - 1];
-        console.error(PKG, 'setting mechid', sourceId);
         DATA.SetEvidenceLinkMechId(this.props.evId, sourceId);
         return;
       }
@@ -135,7 +134,7 @@ class EvidenceLink extends React.Component {
   }
 
   toggleExpanded() {
-    if (DBG) console.log('evidence link clicked');
+    if (DBG) console.log(PKG,'evidence link clicked');
     let isExpanded = this.state.isExpanded;
     if (isExpanded) {
       this.setState({

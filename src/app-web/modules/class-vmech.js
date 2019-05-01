@@ -120,12 +120,12 @@ class VMech {
       // update data
       const data = DATA.Mech(this.sourceId, this.targetId);
       this.data.name = data.name;
-      
+
       // FIXME May 1 Hack
       // Display evidence badge as a text update for now
       // Update text label to show evidence
       this.pathLabel.children()[0].text(this.data.name + evString);
-      
+
       // no change in srcId or tgtId so return
       return;
     }
@@ -137,7 +137,7 @@ class VMech {
       // update visual data fields
       const data = DATA.Mech(this.sourceId, this.targetId);
       this.data.name = data.name;
-      
+
       // FIXME May 1 Hack
       // Display evidence badge as a text update for now
       // Update text label to show evidence

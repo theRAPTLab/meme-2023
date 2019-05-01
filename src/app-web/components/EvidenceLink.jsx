@@ -108,9 +108,22 @@ class EvidenceLink extends React.Component {
 
   handleSelectionChange() {
     if (this.state.isWaitingForSourceSelect) {
-      let selectedPropIds = DATA.VM_SelectedProps();
-      if (DBG) console.log(PKG, 'selection changed', selectedPropIds);
       let sourceId;
+
+      // Assume mechs are harder to select so check for them first.
+      // REVIEW: Does this work well?
+      let selectedMechIds = DATA.VM_SelectedMechs();
+      if (DBG) console.log(PKG, 'selection changed mechsIds:', selectedMechIds);
+      if (selectedMechIds.length > 0) {
+        // Get the last selection
+        sourceId = selectedMechIds[selectedMechIds.length - 1];
+        console.error(PKG, 'setting mechid', sourceId);
+        DATA.SetEvidenceLinkMechId(this.props.evId, sourceId);
+        return;
+      }
+
+      let selectedPropIds = DATA.VM_SelectedProps();
+      if (DBG) console.log(PKG, 'selection changed propIds:', selectedPropIds);
       if (selectedPropIds.length > 0) {
         // Get the last selection
         sourceId = selectedPropIds[selectedPropIds.length - 1];

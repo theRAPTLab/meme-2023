@@ -256,13 +256,12 @@ PMCData.LoadGraph = uri => {
   g.setEdge('clean-water', 'fish', { name: 'live in' });
   g.setEdge('rotting-food', 'clean-water', { name: 'if rots can also make dirty' });
   // define evidence mapping: propID => evIDArray
-  a_pEvidence.push({ evId: '1', propId: 'food', rsrcId: 'rs1', note: 'fish need food' });
-  a_pEvidence.push({ evId: '2', propId: 'clean-water', rsrcId: 'rs2', note: 'fish cant live in dirty water' });
-  a_pEvidence.push({ evId: '3', propId: 'rotting-food', rsrcId: 'rs1', note: 'fish food rots' });
-  a_pEvidence.push({ evId: '4', propId: 'ammonia', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
-  a_pEvidence.push({ evId: '5', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
-  a_pEvidence.push({ evId: '6', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs2', note: 'ammonia causes fish to die' });
-
+  a_pEvidence.push({ evId: 'ev1', propId: 'food', rsrcId: 'rs1', note: 'fish need food' });
+  a_pEvidence.push({ evId: 'ev2', propId: 'clean-water', rsrcId: 'rs2', note: 'fish cant live in dirty water' });
+  a_pEvidence.push({ evId: 'ev3', propId: 'rotting-food', rsrcId: 'rs1', note: 'fish food rots' });
+  a_pEvidence.push({ evId: 'ev4', propId: 'ammonia', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
+  a_pEvidence.push({ evId: 'ev5', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
+  a_pEvidence.push({ evId: 'ev6', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs2', note: 'ammonia causes fish to die' });
 
   // // 3.5.19 Day 1 Group 3 Brainstomring list and Final Model.pdf
   // g.setNode('title', { name: 'Day 1 Group 3 Brainstorming List' });
@@ -1022,12 +1021,19 @@ PMCData.SetEvidenceLinkPropId = (evId, propId) => {
   let ev = a_pEvidence.find((item) => { return item.evId === evId });
   ev.propId = propId;
   UR.Publish('DATA_UPDATED');
-}
+};
+PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
+  let ev = a_pEvidence.find(item => {
+    return item.evId === evId;
+  });
+  ev.mechId = mechId;
+  UR.Publish('DATA_UPDATED');
+};
 PMCData.SetEvidenceLinkNote = (evId, note) => {
   let ev = a_pEvidence.find((item) => { return item.evId === evId });
   ev.note = note;
   UR.Publish('DATA_UPDATED');
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Given the passed resource ID, returns array of prop ids linked to the resource object.

@@ -906,6 +906,7 @@ PMCData.VM_SelectOneMech = vmech => {
   vmech.Draw();
   // update viewmodel
   selected_vmechs.add(vmech.id);
+  UR.Publish('SELECTION_CHANGED');
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:

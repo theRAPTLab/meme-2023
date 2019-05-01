@@ -1020,14 +1020,16 @@ PMCData.EvidenceLinkByEvidenceId = (evId) => {
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
   let ev = a_pEvidence.find((item) => { return item.evId === evId });
   ev.propId = propId;
-  UR.Publish('DATA_UPDATED');
+  // Call BuildModel to rebuild hash tables since we've added a new propId
+  PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
 };
 PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
   let ev = a_pEvidence.find(item => {
     return item.evId === evId;
   });
   ev.mechId = mechId;
-  UR.Publish('DATA_UPDATED');
+  // Call BuildModel to rebuild hash tables since we've added a new mechId
+  PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
 };
 PMCData.SetEvidenceLinkNote = (evId, note) => {
   let ev = a_pEvidence.find((item) => { return item.evId === evId });

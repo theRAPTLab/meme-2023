@@ -414,7 +414,7 @@ class ViewMain extends React.Component {
               <Button className={classes.evidenceCloseBtn} onClick={this.handleInformationViewClose} color="primary">Close</Button>
             </div>
             <iframe src={this.state.selectedResource.url} width="1000" height="600"></iframe>
-            <div style={{ display: 'inline-block', width: '250px', textAlign: 'center', verticalAlign: 'top' }}>
+            <div style={{ display: 'inline-block', width: '250px', verticalAlign: 'top' }}>
               <TextField
                 id="informationNote"
                 label="Our Notes"

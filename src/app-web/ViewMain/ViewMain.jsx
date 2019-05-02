@@ -98,9 +98,9 @@ class ViewMain extends React.Component {
       viewHeight: 0, // need to init this to prevent error with first render of informationList
       addPropOpen: false,
       addEdgeOpen: false,
-      informationViewOpen: false,
-      edgeSource: 'Source',
-      edgeTarget: 'Target',
+      resourceViewOpen: false,
+      edgeSource: '',
+      edgeTarget: '',
       selectedResource: {
         id: '',
         evid: '',
@@ -199,7 +199,7 @@ class ViewMain extends React.Component {
     let selectedResource = DATA.Resource(data.rsrcId);
     if (selectedResource) {
       this.setState({
-        informationViewOpen: true,
+        resourceViewOpen: true,
         selectedResource: selectedResource
       });
     } else {
@@ -208,7 +208,7 @@ class ViewMain extends React.Component {
   }
 
   handleInformationViewClose() {
-    this.setState({ informationViewOpen: false });
+    this.setState({ resourceViewOpen: false });
   }
 
   handleEvidenceLinkOpen(evidenceLink) {
@@ -224,7 +224,7 @@ class ViewMain extends React.Component {
    *  and then show and expand the evidence
   /*/
   handleEvidenceLinkSourceSelectRequest(data) {
-    this.setState({ informationViewOpen: false }, () => {
+    this.setState({ resourceViewOpen: false }, () => {
       UR.Publish('UNEXPAND_ALL_RESOURCES');
       UR.Publish('SHOW_EVIDENCE_NOTE', { evId: data.evId, rsrcId: data.rsrcId })
       UR.Publish('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', { evId: data.evId, rsrcId: data.rsrcId });
@@ -234,8 +234,8 @@ class ViewMain extends React.Component {
   handleSelectionChange() {
     let selectedPropIds = DATA.VM_SelectedProps();
     if (DBG) console.log('selection changed', selectedPropIds);
-    let sourceId = 'sourced';
-    let targetId = 'targetd';
+    let sourceId = '';
+    let targetId = '';
     if (selectedPropIds.length > 0) {
       sourceId = selectedPropIds[0];
     }
@@ -343,33 +343,38 @@ class ViewMain extends React.Component {
             </Switch>
           </div>
 
-
-          <Card
-            className={classes.edgeDialog}
-            hidden={!this.state.addEdgeOpen}
-          >
-            <Paper className={classes.edgePaper}>
-              <div className={classes.drawerHeader}>Add Links</div>
-              <ol>
-                <li>Click on a source node.</li>
-                <li>Click on a target node.</li>
-                <li>Type in a label for your edge (optional).</li>
-                <li>Then click 'Create'.</li>
-              </ol>
-              <div className={classes.edgeDrawerInput}>
-                <Fab color="primary" aria-label="Add Source" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleSetEdgeSource}>{this.state.edgeSource}</Fab>
-                <TextField autoFocus margin="dense" id="edgeLabel" label="Label" className={classes.textField} />
-                <Fab color="primary" aria-label="Add Target" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleSetEdgeTarget}>{this.state.edgeTarget}</Fab>
-              </div>
-              <DialogActions>
+          {/* Add Edge Dialog */}
+          <Card className={classes.edgeDialog} hidden={!this.state.addEdgeOpen}>
+            <Paper className={classes.edgeDialogPaper}>
+              <div className={classes.edgeDialogWindowLabel}>ADD LINKS</div>
+              <div className={classes.edgeDialogInput}>
+                {this.state.edgeSource !== '' ? (
+                  <div className={classes.evidenceLinkSourcePropAvatarSelected}>
+                    {this.state.edgeSource}
+                  </div>
+                ) : (
+                  <div className={classes.evidenceLinkSourceAvatarWaiting}>1. Click on a source...</div>
+                )}
+                &nbsp;
+                <TextField autoFocus placeholder="link label" margin="dense" id="edgeLabel" label="Label" className={classes.edgeDialogTextField} />
+                &nbsp;
+                {this.state.edgeTarget !== '' ? (
+                  <div className={classes.evidenceLinkSourcePropAvatarSelected}>
+                    {this.state.edgeTarget}
+                  </div>
+                ) : (
+                  <div className={classes.evidenceLinkSourceAvatarWaiting}>2. Click on a target...</div>
+                )}
+                <div style={{ flexGrow: '1' }} />
                 <Button onClick={this.handleAddEdgeClose} color="primary">Cancel</Button>
-                <Button onClick={this.handleAddEdgeCreate} color="primary">Create</Button>
-              </DialogActions>
+                <Button onClick={this.handleAddEdgeCreate} color="primary" variant="contained" >Create</Button>
+              </div>
             </Paper>
           </Card>
 
         </main>
 
+        {/* Resource Library */}
         <div style={{ height: this.state.viewHeight + 64, overflow: 'scroll', zIndex: 1250 }}>
           <Paper className={classes.informationList}>
             <div className={classes.resourceListLabel}>RESOURCE LIBRARY</div>
@@ -381,14 +386,15 @@ class ViewMain extends React.Component {
           </Paper>
         </div>
 
+        {/* Resource View */}
         <Modal
-          className={classes.informationView}
+          className={classes.resourceView}
           disableBackdropClick={false}
           hideBackdrop={false}
-          open={this.state.informationViewOpen}
+          open={this.state.resourceViewOpen}
           onClose={this.handleInformationViewClose}
         >
-          <Paper className={classes.informationViewPaper}>
+          <Paper className={classes.resourceViewPaper}>
             <div className={classes.resourceViewTitle}>
               <div className={classes.resourceViewWindowLabel}>RESOURCE VIEW</div>
               <Avatar className={classes.resourceViewAvatar}>{this.state.selectedResource.referenceLabel}</Avatar>&nbsp;

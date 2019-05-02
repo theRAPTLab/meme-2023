@@ -2,8 +2,8 @@ import { indigo, orange, red, teal, yellow } from "@material-ui/core/colors";
 import { registerMorphableType } from "@svgdotjs/svg.js/src/main";
 import { Hidden } from "@material-ui/core";
 
-const m_drawerWidth = 150;
-const m_edgeDialogWidth = 600;
+const m_drawerWidth = 100;
+const m_edgeDialogWidth = 750;
 const m_systemTextColor = '#999';
 const styles = theme => {
   return {
@@ -42,15 +42,26 @@ const styles = theme => {
     edgeDialog: {
       width: m_edgeDialogWidth
     },
-    edgePaper: {
+    edgeDialogWindowLabel: {
+      fontSize: '0.6em',
+      color: m_systemTextColor,
+      marginBottom: '-10px',
+      marginTop: '-1em'
+    },
+    edgeDialogTextField: {
+      color: orange[500]
+    },
+    edgeDialogPaper: {
       margin: `1em 10em 1em ${m_drawerWidth}px`,
       padding: '1em',
       width: m_edgeDialogWidth,
       position: 'absolute',
       bottom: 0
     },
-    edgeDrawerInput: {
-      display: 'flex'
+    edgeDialogInput: {
+      display: 'flex',
+      height: '3em',
+      alignItems: 'baseline'
     },
     informationList: {
       width: 300,
@@ -63,12 +74,12 @@ const styles = theme => {
       marginBottom: '5px',
       padding: '3px 5px'
     },
-    informationView: {
+    resourceView: {
       marginTop: '1em',
       width: '100%',
       height: '100%'
     },
-    informationViewPaper: {
+    resourceViewPaper: {
       width: '95%',
       height: '95%',
       margin: '0 auto',

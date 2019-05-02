@@ -392,7 +392,7 @@ class ViewMain extends React.Component {
         </main>
 
         {/* Resource Library */}
-        <div style={{ height: this.state.viewHeight + 64, overflow: 'scroll', zIndex: 1250 }}>
+        <div style={{ height: this.state.viewHeight + 64, overflowY: 'scroll', zIndex: 1250 }}>
           <Paper className={classes.informationList}>
             <div className={classes.resourceListLabel}>RESOURCE LIBRARY</div>
             <List dense>

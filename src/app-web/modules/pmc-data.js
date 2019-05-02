@@ -83,13 +83,13 @@ let a_resource = [];  /*/ all resource objects to be displayed in InformationLis
                             }
                           ]
                       /*/
-let a_pEvidence = []; /*/ An array of prop-related evidence links.
+let a_evidence = []; /*/ An array of prop-related evidence links.
                           This is the master list of evidence links.
 
                           [ evidenceLink,... ]
                           [ {eid, propId, rsrcId, note},... ]
 
-                          a_pEvidence.push({ eid: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
+                          a_evidence.push({ eid: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
 
                       /*/
 let h_evidenceByProp = new Map(); /*/
@@ -172,14 +172,14 @@ PMCData.LoadGraph = uri => {
   // g.setEdge('a', 'g', { name: 'atog' });
 
   // // define evidence mapping: propID => evIDArray
-  // a_pEvidence.push({ evId: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
-  // a_pEvidence.push({ evId: '2', propId: 'b', rsrcId: '2', note: 'fish cant live in dirty water' });
-  // a_pEvidence.push({ evId: '3', propId: 'b', rsrcId: '3', note: 'fish heads' });
-  // a_pEvidence.push({ evId: '4', propId: 'g', rsrcId: '2', note: 'fish fish fish' });
-  // a_pEvidence.push({ evId: '5', propId: 'g', rsrcId: '5', note: 'fishy fishy fishy' });
-  // a_pEvidence.push({ evId: '6', propId: 'g', rsrcId: '1', note: 'fish cant live in dirty water' });
-  // a_pEvidence.push({ evId: '7', propId: 'y', rsrcId: '1', note: 'fish poop in water' });
-  // a_pEvidence.push({ evId: '8', propId: 'z', rsrcId: '1', note: 'fish food rots' });
+  // a_evidence.push({ evId: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
+  // a_evidence.push({ evId: '2', propId: 'b', rsrcId: '2', note: 'fish cant live in dirty water' });
+  // a_evidence.push({ evId: '3', propId: 'b', rsrcId: '3', note: 'fish heads' });
+  // a_evidence.push({ evId: '4', propId: 'g', rsrcId: '2', note: 'fish fish fish' });
+  // a_evidence.push({ evId: '5', propId: 'g', rsrcId: '5', note: 'fishy fishy fishy' });
+  // a_evidence.push({ evId: '6', propId: 'g', rsrcId: '1', note: 'fish cant live in dirty water' });
+  // a_evidence.push({ evId: '7', propId: 'y', rsrcId: '1', note: 'fish poop in water' });
+  // a_evidence.push({ evId: '8', propId: 'z', rsrcId: '1', note: 'fish food rots' });
 
   /**
    *    Student Examples
@@ -256,11 +256,11 @@ PMCData.LoadGraph = uri => {
   g.setEdge('clean-water', 'fish', { name: 'live in' });
   g.setEdge('rotting-food', 'clean-water', { name: 'if rots can also make dirty' });
   // define evidence mapping: propID => evIDArray
-  a_pEvidence.push({ evId: 'ev1', propId: 'food', rsrcId: 'rs1', note: 'fish need food' });
-  a_pEvidence.push({ evId: 'ev2', propId: 'clean-water', rsrcId: 'rs2', note: 'fish cant live in dirty water' });
-  a_pEvidence.push({ evId: 'ev3', propId: 'rotting-food', rsrcId: 'rs1', note: 'fish food rots' });
-  a_pEvidence.push({ evId: 'ev4', propId: 'ammonia', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
-  a_pEvidence.push({
+  a_evidence.push({ evId: 'ev1', propId: 'food', rsrcId: 'rs1', note: 'fish need food' });
+  a_evidence.push({ evId: 'ev2', propId: 'clean-water', rsrcId: 'rs2', note: 'fish cant live in dirty water' });
+  a_evidence.push({ evId: 'ev3', propId: 'rotting-food', rsrcId: 'rs1', note: 'fish food rots' });
+  a_evidence.push({ evId: 'ev4', propId: 'ammonia', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
+  a_evidence.push({
     evId: 'ev5',
     propId: undefined,
     mechId: 'ammonia:fish',
@@ -268,7 +268,7 @@ PMCData.LoadGraph = uri => {
     note:
       'ammonia causes fish to die. This is a really long explanation so that we can test how the text wraps.'
   });
-  a_pEvidence.push({ evId: 'ev6', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs2', note: 'ammonia causes fish to die' });
+  a_evidence.push({ evId: 'ev6', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs2', note: 'ammonia causes fish to die' });
 
   // // 3.5.19 Day 1 Group 3 Brainstomring list and Final Model.pdf
   // g.setNode('title', { name: 'Day 1 Group 3 Brainstorming List' });
@@ -522,7 +522,7 @@ PMCData.BuildModel = () => {
    *  Update h_evidenceByProp table
   /*/
   h_evidenceByProp = new Map();
-  a_pEvidence.forEach(ev => {
+  a_evidence.forEach(ev => {
     let evidenceLinkArray = h_evidenceByProp.get(ev.propId);
     if (evidenceLinkArray === undefined) evidenceLinkArray = [];
     if (!evidenceLinkArray.includes(ev.propId)) evidenceLinkArray.push(ev);
@@ -533,7 +533,7 @@ PMCData.BuildModel = () => {
    *  Update h_evidenceByMech table
   /*/
   h_evidenceByMech = new Map();
-  a_pEvidence.forEach(ev => {
+  a_evidence.forEach(ev => {
     let evidenceLinkArray = h_evidenceByMech.get(ev.mechId);
     if (evidenceLinkArray === undefined) evidenceLinkArray = [];
     if (!evidenceLinkArray.includes(ev.mechId)) evidenceLinkArray.push(ev);
@@ -561,7 +561,7 @@ PMCData.BuildModel = () => {
   /*/
   h_evlinkByResource = new Map();
   a_resource.forEach(resource => {
-    let evlinkArray = a_pEvidence.filter(evlink => evlink.rsrcId === resource.rsrcId);
+    let evlinkArray = a_evidence.filter(evlink => evlink.rsrcId === resource.rsrcId);
     if (evlinkArray === undefined) evlinkArray = [];
     h_evlinkByResource.set(resource.rsrcId, evlinkArray);
   });
@@ -977,7 +977,7 @@ PMCData.PMC_AddMech = (sourceId, targetId, label) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddEvidenceLink = (rsrcId, note = 'untitled') => {
   let evId = Math.trunc(Math.random() * 10000);
-  a_pEvidence.push({ evId, propId: undefined, rsrcId, note });
+  a_evidence.push({ evId, propId: undefined, rsrcId, note });
   PMCData.BuildModel();
   return evId;
 };
@@ -1021,17 +1021,17 @@ PMCData.PropEvidence = (nodeId) => {
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  */
 PMCData.EvidenceLinkByEvidenceId = (evId) => {
-  return a_pEvidence.find((item) => { return item.evId === evId });
+  return a_evidence.find((item) => { return item.evId === evId });
 };
 
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
-  let ev = a_pEvidence.find((item) => { return item.evId === evId });
+  let ev = a_evidence.find((item) => { return item.evId === evId });
   ev.propId = propId;
   // Call BuildModel to rebuild hash tables since we've added a new propId
   PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
 };
 PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
-  let ev = a_pEvidence.find(item => {
+  let ev = a_evidence.find(item => {
     return item.evId === evId;
   });
   ev.mechId = mechId;
@@ -1039,7 +1039,7 @@ PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
   PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
 };
 PMCData.SetEvidenceLinkNote = (evId, note) => {
-  let ev = a_pEvidence.find((item) => { return item.evId === evId });
+  let ev = a_evidence.find((item) => { return item.evId === evId });
   ev.note = note;
   UR.Publish('DATA_UPDATED');
 };

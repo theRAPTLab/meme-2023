@@ -12,7 +12,6 @@ import ClassNames from 'classnames';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Elements
 import Avatar from '@material-ui/core/Avatar';
-import Badge from '@material-ui/core/Badge';
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
@@ -20,11 +19,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Tooltip from '@material-ui/core/Tooltip';
 import Modal from '@material-ui/core/Modal';
 import Card from '@material-ui/core/Card';
@@ -39,8 +33,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+// Material UI Icons
 import AddIcon from '@material-ui/icons/Add';
-import CloseIcon from '@material-ui/icons/Close';
 import DescriptionIcon from '@material-ui/icons/Description';
 import ImageIcon from '@material-ui/icons/Image';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
@@ -85,13 +79,13 @@ class ViewMain extends React.Component {
     this.handleAddEdgeClose = this.handleAddEdgeClose.bind(this);
     this.handleResourceClick = this.handleResourceClick.bind(this);
     this.handleInformationViewClose = this.handleInformationViewClose.bind(this);
-    this.handleEvidenceLinkSourceSelectRequest = this.handleEvidenceLinkSourceSelectRequest.bind(this);
+    this.handleEvLinkSourceSelectRequest = this.handleEvLinkSourceSelectRequest.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.handleSnapshot = this.handleSnapshot.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
     UR.Sub('SHOW_RESOURCE', this.handleResourceClick);
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
-    UR.Sub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvidenceLinkSourceSelectRequest);
+    UR.Sub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
     this.state = {
       viewHeight: 0, // need to init this to prevent error with first render of informationList
       addPropOpen: false,
@@ -189,17 +183,17 @@ class ViewMain extends React.Component {
     if (DBG) console.log('handleSetEdgeTarget');
   }
 
-  handleResourceClick(data) {
-    if (DBG) console.log('clicked on ', data.rsrcId);
+  handleResourceClick(urdata) {
+    if (DBG) console.log('ViewMain: clicked on ', urdata.rsrcId);
     // Look up resource
-    let selectedResource = DATA.Resource(data.rsrcId);
+    let selectedResource = DATA.Resource(urdata.rsrcId);
     if (selectedResource) {
       this.setState({
         resourceViewOpen: true,
-        selectedResource: selectedResource
+        selectedResource
       });
     } else {
-      console.error('ViewMain: Could not find selected resource id', data.rsrcId);
+      console.error('ViewMain: Could not find selected resource id', urdata.rsrcId);
     }
   }
 
@@ -212,12 +206,15 @@ class ViewMain extends React.Component {
    *  So close the ResourceView if open,
    *  and then show and expand the evidence
   /*/
-  handleEvidenceLinkSourceSelectRequest(data) {
+  handleEvLinkSourceSelectRequest(urdata) {
     this.setState({ resourceViewOpen: false }, () => {
       UR.Publish('UNEXPAND_ALL_RESOURCES');
-      UR.Publish('SHOW_EVIDENCE_NOTE', { evId: data.evId, rsrcId: data.rsrcId })
-      UR.Publish('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', { evId: data.evId, rsrcId: data.rsrcId });
-    })
+      UR.Publish('SHOW_EVIDENCE_NOTE', { evId: urdata.evId, rsrcId: urdata.rsrcId });
+      UR.Publish('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', {
+        evId: urdata.evId,
+        rsrcId: urdata.rsrcId
+      });
+    });
   }
 
   handleSelectionChange() {
@@ -234,13 +231,13 @@ class ViewMain extends React.Component {
     this.setState({
       edgeSource: sourceId,
       edgeTarget: targetId
-    })
+    });
   }
 
   handleSnapshot(rsrcId) {
     if (DBG) console.log(PKG, 'create new evidence:', rsrcId);
     let evId = DATA.PMC_AddEvidenceLink(rsrcId);
-    UR.Publish('SHOW_EVIDENCE_LINK', { evId: evId, rsrcId: rsrcId });
+    UR.Publish('SHOW_EVIDENCE_LINK', { evId, rsrcId });
   }
 
   render() {
@@ -269,7 +266,14 @@ class ViewMain extends React.Component {
           <div className={classes.toolbar} />
           <Divider />
           <Tooltip title="Add Component or Property">
-            <Fab color="primary" aria-label="Add" className={classes.fab} onClick={this.handleAddPropOpen}><AddIcon /></Fab>
+            <Fab
+              color="primary"
+              aria-label="Add"
+              className={classes.fab}
+              onClick={this.handleAddPropOpen}
+            >
+              <AddIcon />
+            </Fab>
           </Tooltip>
           <Dialog
             open={this.state.addPropOpen}
@@ -282,8 +286,12 @@ class ViewMain extends React.Component {
               <TextField autoFocus margin="dense" id="propLabel" label="Label" fullWidth />
             </DialogContent>
             <DialogActions>
-              <Button onClick={this.handleAddPropClose} color="primary">Cancel</Button>
-              <Button onClick={this.handleAddPropCreate} color="primary">Create</Button>
+              <Button onClick={this.handleAddPropClose} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={this.handleAddPropCreate} color="primary">
+                Create
+              </Button>
             </DialogActions>
           </Dialog>
           <Divider />
@@ -298,7 +306,14 @@ class ViewMain extends React.Component {
             </List>
           */}
           <Tooltip title="Add Link">
-            <Fab color="primary" aria-label="Add" className={ClassNames(classes.fab, classes.edgeButton)} onClick={this.handleAddEdge}><AddIcon /></Fab>
+            <Fab
+              color="primary"
+              aria-label="Add"
+              className={ClassNames(classes.fab, classes.edgeButton)}
+              onClick={this.handleAddEdge}
+            >
+              <AddIcon />
+            </Fab>
           </Tooltip>
         </Drawer>
         <main className={classes.content} ref={this.refMain}>
@@ -345,18 +360,31 @@ class ViewMain extends React.Component {
                   <div className={classes.evidenceLinkSourceAvatarWaiting}>1. Click on a source...</div>
                 )}
                 &nbsp;
-                <TextField autoFocus placeholder="link label" margin="dense" id="edgeLabel" label="Label" className={classes.edgeDialogTextField} />
+                <TextField
+                  autoFocus
+                  placeholder="link label"
+                  margin="dense"
+                  id="edgeLabel"
+                  label="Label"
+                  className={classes.edgeDialogTextField}
+                />
                 &nbsp;
                 {this.state.edgeTarget !== '' ? (
                   <div className={classes.evidenceLinkSourcePropAvatarSelected}>
                     {this.state.edgeTarget}
                   </div>
                 ) : (
-                  <div className={classes.evidenceLinkSourceAvatarWaiting}>2. Click on a target...</div>
+                  <div className={classes.evidenceLinkSourceAvatarWaiting}>
+                    2. Click on a target...
+                  </div>
                 )}
                 <div style={{ flexGrow: '1' }} />
-                <Button onClick={this.handleAddEdgeClose} color="primary">Cancel</Button>
-                <Button onClick={this.handleAddEdgeCreate} color="primary" variant="contained" >Create</Button>
+                <Button onClick={this.handleAddEdgeClose} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={this.handleAddEdgeCreate} color="primary" variant="contained">
+                  Create
+                </Button>
               </div>
             </Paper>
           </Card>
@@ -367,7 +395,7 @@ class ViewMain extends React.Component {
         <div style={{ height: this.state.viewHeight + 64, overflow: 'scroll', zIndex: 1250 }}>
           <Paper className={classes.informationList}>
             <div className={classes.resourceListLabel}>RESOURCE LIBRARY</div>
-            <List dense={true}>
+            <List dense>
               {resources.map(resource => (
                 <ResourceItem key={resource.rsrcId} resource={resource} />
               ))}
@@ -386,7 +414,10 @@ class ViewMain extends React.Component {
           <Paper className={classes.resourceViewPaper}>
             <div className={classes.resourceViewTitle}>
               <div className={classes.resourceViewWindowLabel}>RESOURCE VIEW</div>
-              <Avatar className={classes.resourceViewAvatar}>{this.state.selectedResource.referenceLabel}</Avatar>&nbsp;
+              <Avatar className={classes.resourceViewAvatar}>
+                {this.state.selectedResource.referenceLabel}
+              </Avatar>
+              &nbsp;
               <div style={{ flexGrow: 1 }}>{this.state.selectedResource.label}</div>
               <Card className={classes.resourceViewCard}>
                 <CardContent className={classes.resourceViewCardContent}>
@@ -397,18 +428,40 @@ class ViewMain extends React.Component {
               <Card className={classes.resourceViewCard}>
                 <CardContent className={classes.resourceViewCardContent}>
                   <Typography variant="overline">Type:&nbsp;</Typography>
-                  <Typography variant="body2">{this.state.selectedResource.type} {this.state.selectedResource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}</Typography>
+                  <Typography variant="body2">
+                    {this.state.selectedResource.type}{' '}
+                    {this.state.selectedResource.type === 'simulation' ? (
+                      <ImageIcon />
+                    ) : (
+                      <DescriptionIcon />
+                    )}
+                  </Typography>
                 </CardContent>
               </Card>
               <Card className={classes.resourceViewCard}>
                 <CardContent className={classes.resourceViewCardContent}>
                   <Typography variant="overline">Links:&nbsp;</Typography>
-                  <Chip className={classes.resourceViewLinksBadge} label={this.state.selectedResource.links} color="primary" />
+                  <Chip
+                    className={classes.resourceViewLinksBadge}
+                    label={this.state.selectedResource.links}
+                    color="primary"
+                  />
                 </CardContent>
               </Card>
-              <Button className={classes.evidenceCloseBtn} onClick={this.handleInformationViewClose} color="primary">Close</Button>
+              <Button
+                className={classes.evidenceCloseBtn}
+                onClick={this.handleInformationViewClose}
+                color="primary"
+              >
+                Close
+              </Button>
             </div>
-            <iframe src={this.state.selectedResource.url} width="1000" height="90%"></iframe>
+            <iframe
+              src={this.state.selectedResource.url}
+              width="1000"
+              height="90%"
+              title="resource"
+            />
             <div className={classes.resourceViewSidebar}>
               <TextField
                 id="informationNote"
@@ -420,7 +473,14 @@ class ViewMain extends React.Component {
                 margin="normal"
                 variant="outlined"
               />
-              <Button className={classes.resourceViewCreatebutton} variant="contained" onClick={()=>this.handleSnapshot(this.state.selectedResource.rsrcId)} color="primary">Create Evidence</Button>
+              <Button
+                className={classes.resourceViewCreatebutton}
+                variant="contained"
+                onClick={() => this.handleSnapshot(this.state.selectedResource.rsrcId)}
+                color="primary"
+              >
+                Create Evidence
+              </Button>
               <EvidenceList rsrcId={this.state.selectedResource.rsrcId} />
             </div>
           </Paper>

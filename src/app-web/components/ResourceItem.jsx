@@ -8,6 +8,7 @@ import React from 'react';
 import ClassNames from 'classnames';
 // Material UI Elements
 import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
 import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton';
 import ListItem from '@material-ui/core/ListItem';
@@ -110,7 +111,7 @@ class ResourceItem extends React.Component {
           <ListItemAvatar>
             <Avatar className={classes.resourceViewAvatar}>{resource.referenceLabel}</Avatar>
           </ListItemAvatar>
-          <ListItemText primary={`${resource.label}`} secondary={`${resource.notes}`} />
+          <ListItemText className={classes.resourceViewLabel} primary={`${resource.label}`} secondary={`${resource.notes}`} />
           <ListItemSecondaryAction>
             {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
             {!this.state.isExpanded ?
@@ -120,7 +121,7 @@ class ResourceItem extends React.Component {
                   <Chip className={classes.evidenceBadge} label="" />
                ) : ''
             }
-            <IconButton onClick={this.toggleExpanded}><ExpandMoreIcon /></IconButton>
+            <Button className={classes.resourceExpandButton} onClick={this.toggleExpanded}><ExpandMoreIcon /></Button>
           </ListItemSecondaryAction>
         </ListItem>
         {this.state.isExpanded ? <EvidenceList rsrcId={resource.rsrcId} key={`${resource.rsrcId}ev`} /> : ''}

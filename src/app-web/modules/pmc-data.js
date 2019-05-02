@@ -260,7 +260,7 @@ PMCData.LoadGraph = uri => {
   a_pEvidence.push({ evId: 'ev2', propId: 'clean-water', rsrcId: 'rs2', note: 'fish cant live in dirty water' });
   a_pEvidence.push({ evId: 'ev3', propId: 'rotting-food', rsrcId: 'rs1', note: 'fish food rots' });
   a_pEvidence.push({ evId: 'ev4', propId: 'ammonia', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
-  a_pEvidence.push({ evId: 'ev5', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
+  a_pEvidence.push({ evId: 'ev5', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs1', note: 'ammonia causes fish to die. This is a really long explanation so that we can test how the text wraps.' });
   a_pEvidence.push({ evId: 'ev6', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs2', note: 'ammonia causes fish to die' });
 
   // // 3.5.19 Day 1 Group 3 Brainstomring list and Final Model.pdf

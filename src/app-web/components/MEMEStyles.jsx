@@ -95,6 +95,9 @@ const styles = theme => {
       backgroundColor: teal[100],
       marginRight: theme.spacing.unit
     },
+    resourceViewLabel: {
+      paddingLeft: '0'
+    },
     resourceViewCard: {
       height: '50px'
     },
@@ -118,6 +121,12 @@ const styles = theme => {
       overflowY: 'scroll',
       overflowX: 'hidden'
     },
+    resourceExpandButton: {
+      width: '40px',
+      minWidth: '40px',
+      height: '50px',
+      padding: '0',
+    },
     resourceViewNote: {
       width: '237px',
       marginTop: '0.5em',
@@ -140,18 +149,33 @@ const styles = theme => {
       marginBottom: '5px'
     },
     evidenceLabelField: {
-      flexGrow: '1'
+      flexGrow: '1',
+      fontSize: '0.9em',
+      lineHeight: '1em',
+      height: '30px',
+      margin: '0 0 15px 10px',
+      overflowY: 'auto'
+    },
+    evidenceLabelFieldExpanded: {
+      height: 'auto'
     },
     evidenceExpandButton: {
-      width: '20px',
-      height: '20px'
+      width: '40px',
+      minWidth: '40px',
+      height: '50px',
+      padding: '0',
+      float: 'right'
     },
     evidencePrompt: {
       fontSize: '0.8em',
+      lineHeight: '1.1em',
+      fontStyle: 'italic',
+      margin: '15px 0',
       color: '#999'
     },
     evidenceScreenshot: {
-      width: '30%'
+      width: '50px',
+      margin: '10px 0'
     },
     evidenceBadge: {
       height: '16px',
@@ -168,15 +192,18 @@ const styles = theme => {
     },
     evidenceLinkPaper: {
       width: '95%',
+      height: '70px',
       margin: '0 auto',
       padding: '10px 0 10px 10px',
       backgroundColor: yellow[50]
     },
     evidenceLinkPaperExpanded: {
+      height: 'auto',
       backgroundColor: yellow[200]
     },
-    evidenceLinkPropAvatar: {
+    evidenceLinkAvatar: {
       maxWidth: '50px',
+      minWidth: '50px',
       height: '25px',
       fontSize: '0.8em',
       justifyContent: 'left',

@@ -15,8 +15,7 @@ import ClassNames from 'classnames';
 // Material UI Elements
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
-import Fab from '@material-ui/core/Fab';
-import IconButton from '@material-ui/core/IconButton';
+import Divider from '@material-ui/core/Divider';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 // Material UI Icons
@@ -26,7 +25,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import MEMEStyles from '../components/MEMEStyles';
+import MEMEStyles from './MEMEStyles';
 import DATA from '../modules/pmc-data';
 import UR from '../../system/ursys';
 
@@ -48,7 +47,9 @@ class EvidenceLink extends React.Component {
       isExpanded: false,
       isWaitingForSourceSelect: false
     };
+    this.handleDeleteButtonClick = this.handleDeleteButtonClick.bind(this);
     this.handleEditButtonClick = this.handleEditButtonClick.bind(this);
+    this.handleSaveButtonClick = this.handleSaveButtonClick.bind(this);
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
     this.handleNoteChange = this.handleNoteChange.bind(this);
     this.handleSourceSelectClick = this.handleSourceSelectClick.bind(this);
@@ -60,12 +61,16 @@ class EvidenceLink extends React.Component {
     UR.Sub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleActivateWaitForSourceSelect);
   }
 
-  componentDidMount() { }
-  
+  componentDidMount() {}
+
   componentWillUnmount() {
     UR.Unsub('SHOW_EVIDENCE_LINK_SECONDARY', this.handleEvidenceLinkOpen);
     UR.Unsub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Unsub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleActivateWaitForSourceSelect);
+  }
+
+  handleDeleteButtonClick() {
+    alert("DELETE/CANCEL not implemented yet.");
   }
 
   handleEditButtonClick() {
@@ -74,13 +79,20 @@ class EvidenceLink extends React.Component {
     });
   }
 
+  handleSaveButtonClick() {
+    // FIXME May 1 Hack
+    // How do we handle draftValue vs committedValue?
+    this.setState({
+      isBeingEdited: false
+    });
+  }
+
   handleEvidenceLinkOpen(data) {
-    if (DBG) console.log(PKG,'comparing', data.evId, 'to', this.props.evId);
+    if (DBG) console.log(PKG, 'comparing', data.evId, 'to', this.props.evId);
     if (this.props.evId === data.evId) {
-      if (DBG) console.log(PKG,'Expanding', data.evId);
+      if (DBG) console.log(PKG, 'Expanding', data.evId);
       this.setState({
-        isExpanded: true,
-// results in react object error       selectedSource: {}
+        isExpanded: true
       });
     }
   }
@@ -120,7 +132,7 @@ class EvidenceLink extends React.Component {
         DATA.SetEvidenceLinkMechId(this.props.evId, sourceId);
         // leave it in a waiting state?  This allows you to change your mind?
         // REVIEW may want another way to exit / confirm the selection?
-        // For May 1, exit as soon as something is selected to prevent 
+        // For May 1, exit as soon as something is selected to prevent
         // subsequent source selections from being applied to ALL open
         // evlinks.
         this.setState({ isWaitingForSourceSelect: false });
@@ -135,7 +147,7 @@ class EvidenceLink extends React.Component {
         DATA.SetEvidenceLinkPropId(this.props.evId, sourceId);
         // leave it in a waiting state?  This allows you to change your mind?
         // REVIEW may want another way to exit / confirm the selection?
-        // For May 1, exit as soon as something is selected to prevent 
+        // For May 1, exit as soon as something is selected to prevent
         // subsequent source selections from being applied to ALL open
         // evlinks.
         this.setState({ isWaitingForSourceSelect: false });
@@ -175,6 +187,7 @@ class EvidenceLink extends React.Component {
         <div className={classes.evidenceLinkSourceMechAvatarSelected}>{DATA.Mech(mechId).name}</div>
       );
     } else if (isWaitingForSourceSelect) {
+      // eslint-disable-next-line prettier/prettier
       sourceLabel = (
         <div className={classes.evidenceLinkSourceAvatarWaiting}>waiting...</div>
       );
@@ -198,35 +211,81 @@ class EvidenceLink extends React.Component {
         )}
         key={`${rsrcId}`}
       >
+        <Button className={classes.evidenceExpandButton} onClick={this.toggleExpanded}>
+          <ExpandMoreIcon />
+        </Button>
         <div className={classes.evidenceWindowLabel}>EVIDENCE LINK</div>
         <div className={classes.evidencePrompt} hidden={!isExpanded}>
           How does this resource support this component / property / mechanism?
         </div>
         <div className={classes.evidenceTitle}>
-          {!isBeingDisplayedInInformationList ? (
-            <Avatar className={classes.resourceViewAvatar}>{rsrcId}</Avatar>
-          ) : (
-            ''
-          )}
-          <div className={classes.evidenceLinkPropAvatar}>{sourceLabel}</div>
-          &nbsp;
+          <div style={{ width: '50px', display: 'flex', flexDirection:'column'}}>
+            {!isBeingDisplayedInInformationList ? (
+              <Avatar className={classes.resourceViewAvatar}>{rsrcId}</Avatar>
+            ) : (
+              ''
+            )}
+            <div className={classes.evidenceLinkAvatar}>{sourceLabel}</div>
+            <img
+              src="../static/screenshot_sim.png"
+              alt="screenshot"
+              className={classes.evidenceScreenshot}
+              hidden={!isExpanded}
+            />
+          </div>
           {isBeingEdited ? (
             <TextField
-              className={classes.evidenceLabelField}
+              className={ClassNames(
+                classes.evidenceLabelField,
+                isExpanded ? classes.evidenceLabelFieldExpanded : ''
+              )}
               value={note}
               multiline
               onChange={this.handleNoteChange}
             />
-          ) :
-            <div className={classes.evidenceLabelField}>{note}</div>
-          }
-          <IconButton className={classes.evidenceExpandButton} onClick={this.toggleExpanded}><ExpandMoreIcon/></IconButton>
+          ) : (
+            <div
+              className={ClassNames(
+                classes.evidenceLabelField,
+                isExpanded ? classes.evidenceLabelFieldExpanded : ''
+              )}
+            >
+              {note}
+            </div>
+          )}
         </div>
-        <img src="../static/screenshot_sim.png" className={classes.evidenceScreenshot} hidden={!isExpanded} />
-        &nbsp;
-        <a href="" hidden={!isExpanded || isBeingEdited}>delete</a>
-        &nbsp;
-        <Button variant="contained" onClick={this.handleEditButtonClick} hidden={!isExpanded || isBeingEdited}>Edit</Button>
+        <Divider />
+        <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
+          <Button
+            hidden={!isExpanded || isBeingEdited}
+            size="small"
+            onClick={this.handleDeleteButtonClick}
+          >
+            delete
+          </Button>
+          <Button
+            hidden={!isExpanded || !isBeingEdited}
+            size="small"
+            onClick={this.handleDeleteButtonClick}
+          >
+            cancel
+          </Button>
+          <div style={{ flexGrow: '1' }} />
+          <Button
+            variant="contained"
+            onClick={this.handleEditButtonClick}
+            hidden={!isExpanded || isBeingEdited}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="contained"
+            onClick={this.handleSaveButtonClick}
+            hidden={!isExpanded || !isBeingEdited}
+          >
+            Save
+          </Button>
+        </div>
       </Paper>
     );
   }

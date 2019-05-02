@@ -92,7 +92,7 @@ let a_pEvidence = []; /*/ An array of prop-related evidence links.
                           a_pEvidence.push({ eid: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
 
                       /*/
-let h_pEvidenceByProp = new Map(); /*/
+let h_evidenceByProp = new Map(); /*/
                           Hash table of an array of evidence links related
                           to a property id, and grouped by property id.
 
@@ -519,14 +519,14 @@ PMCData.BuildModel = () => {
   });
 
   /*/
-   *  Update h_pEvidenceByProp table
+   *  Update h_evidenceByProp table
   /*/
-  h_pEvidenceByProp = new Map();
+  h_evidenceByProp = new Map();
   a_pEvidence.forEach(ev => {
-    let evidenceLinkArray = h_pEvidenceByProp.get(ev.propId);
+    let evidenceLinkArray = h_evidenceByProp.get(ev.propId);
     if (evidenceLinkArray === undefined) evidenceLinkArray = [];
     if (!evidenceLinkArray.includes(ev.propId)) evidenceLinkArray.push(ev);
-    h_pEvidenceByProp.set(ev.propId, evidenceLinkArray);
+    h_evidenceByProp.set(ev.propId, evidenceLinkArray);
   });
 
   /*/
@@ -545,7 +545,7 @@ PMCData.BuildModel = () => {
    *  look up props that are linked to a particular piece of evidence
   /*/
   h_propByResource = new Map();
-  h_pEvidenceByProp.forEach((evArr, propId) => {
+  h_evidenceByProp.forEach((evArr, propId) => {
     if (evArr) {
       evArr.forEach(ev => {
         let propIds = h_propByResource.get(ev.rsrcId);
@@ -1012,7 +1012,7 @@ PMCData.Resource = rsrcId => {
  *  @param {string|undefined} nodeId - if defined, nodeId string of the prop (aka `propId`)
  */
 PMCData.PropEvidence = (nodeId) => {
-  return h_pEvidenceByProp.get(nodeId);
+  return h_evidenceByProp.get(nodeId);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

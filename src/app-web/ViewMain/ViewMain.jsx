@@ -85,12 +85,10 @@ class ViewMain extends React.Component {
     this.handleAddEdgeClose = this.handleAddEdgeClose.bind(this);
     this.handleResourceClick = this.handleResourceClick.bind(this);
     this.handleInformationViewClose = this.handleInformationViewClose.bind(this);
-    this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
     this.handleEvidenceLinkSourceSelectRequest = this.handleEvidenceLinkSourceSelectRequest.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.handleSnapshot = this.handleSnapshot.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
-    UR.Sub('SHOW_EVIDENCE_NOTE', this.handleEvidenceLinkOpen);
     UR.Sub('SHOW_RESOURCE', this.handleResourceClick);
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Sub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvidenceLinkSourceSelectRequest);
@@ -109,10 +107,6 @@ class ViewMain extends React.Component {
         type: '',
         url: '',
         links: -1
-      },
-      selectedEvidenceLink: {
-        id: '',
-        note: ''
       }
     }
   }
@@ -154,10 +148,12 @@ class ViewMain extends React.Component {
     if (DBG) console.log('Add!');
     this.setState({ addPropOpen: true });
   }
+
   handleAddPropClose() {
     if (DBG) console.log('close');
     this.setState({ addPropOpen: false });
   }
+
   handleAddPropCreate() {
     if (DBG) console.log('create prop');
     let label = document.getElementById('propLabel').value;
@@ -211,13 +207,6 @@ class ViewMain extends React.Component {
     this.setState({ resourceViewOpen: false });
   }
 
-  handleEvidenceLinkOpen(evidenceLink) {
-    if (DBG) console.log('handleEvidenceLinkOpen: ', evidenceLink);
-    this.setState({
-      selectedEvidenceLink: evidenceLink
-    });
-  }
-  
   /*/
    *  User wants to set the source on an EvidenceLink
    *  So close the ResourceView if open,

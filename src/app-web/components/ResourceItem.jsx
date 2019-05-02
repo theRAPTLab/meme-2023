@@ -105,26 +105,38 @@ class ResourceItem extends React.Component {
 
   render() {
     const { resource, classes } = this.props;
+    const { isExpanded } = this.state;
+    let evBadge = {};
+    if (!isExpanded) {
+      if (resource.links > 0) {
+        evBadge = <Chip className={classes.evidenceBadge} label={resource.links} color="primary" />;
+      } else {
+        evBadge = <Chip className={classes.evidenceBadge} label="" />;
+      }
+    } else {
+      evBadge = '';
+    }
     return (
       <div>
         <ListItem button key={resource.id} onClick={() => this.handleResourceClick(resource.rsrcId)}>
           <ListItemAvatar>
             <Avatar className={classes.resourceViewAvatar}>{resource.referenceLabel}</Avatar>
           </ListItemAvatar>
-          <ListItemText className={classes.resourceViewLabel} primary={`${resource.label}`} secondary={`${resource.notes}`} />
+          <ListItemText
+            className={ClassNames(
+              classes.resourceViewLabel,
+              isExpanded ? classes.resourceViewLabelExpanded : ''
+            )}
+            primary={`${resource.label}`}
+            secondary={`${resource.notes}`}
+          />
           <ListItemSecondaryAction>
             {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
-            {!this.state.isExpanded ?
-              (
-                resource.links > 0 ?
-                  <Chip className={classes.evidenceBadge} label={resource.links} color="primary" /> :
-                  <Chip className={classes.evidenceBadge} label="" />
-               ) : ''
-            }
+            {evBadge}
             <Button className={classes.resourceExpandButton} onClick={this.toggleExpanded}><ExpandMoreIcon /></Button>
           </ListItemSecondaryAction>
         </ListItem>
-        {this.state.isExpanded ? <EvidenceList rsrcId={resource.rsrcId} key={`${resource.rsrcId}ev`} /> : ''}
+        {isExpanded ? <EvidenceList rsrcId={resource.rsrcId} key={`${resource.rsrcId}ev`} /> : ''}
       </div>
     );
   }

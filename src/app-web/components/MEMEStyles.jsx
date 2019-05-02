@@ -96,7 +96,10 @@ const styles = theme => {
       marginRight: theme.spacing.unit
     },
     resourceViewLabel: {
-      paddingLeft: '0'
+      paddingLeft: '0',
+      maxWidth: '170px',
+      maxHeight: '4em',
+      overflow: 'hidden'
     },
     resourceViewCard: {
       height: '50px'

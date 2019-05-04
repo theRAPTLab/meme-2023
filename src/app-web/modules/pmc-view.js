@@ -154,6 +154,30 @@ PMCView.SyncMechsFromGraphData = () => {
     console.groupEnd();
   }
 };
+/**
+ * LIFECYCLE: Syncs PMC property changes from model to the
+ * viewmodel. In other words, the pure data (model) is processed and the data
+ * structures that are used to *display* the data (viewmodel) is updated.
+ */
+PMCView.SyncBadgesFromEvLinkData = () => {
+  if (DBG) console.groupCollapsed(`%c:SyncBadgesFromEvLinkData()`, cssinfo);
+  const { added, removed, updated } = DATA.VM_GetVBadgeChanges();
+  removed.forEach(id => {
+    VProp.ReleaseBadge(id);
+  });
+  added.forEach(id => {
+    const vprop = VProp.NewBadge(id, m_svgroot);
+  });
+  updated.forEach(id => {
+    VProp.UpdateBadge(id);
+  });
+  if (DBG) {
+    if (removed.length) console.log(`%c:Removing ${removed.length} dead badges`, csstab);
+    if (added.length) console.log(`%c:Adding ${added.length} new badges`, csstab);
+    if (updated.length) console.log(`%c:Updating ${updated.length} badges`, csstab);
+    console.groupEnd();
+  }
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * LIFECYCLE: Update the model and dependent derived model structures.

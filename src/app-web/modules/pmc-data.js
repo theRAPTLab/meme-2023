@@ -122,6 +122,7 @@ let h_mechByResource = new Map(); // calculated links to mechanisms by evidence 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const map_vprops = new Map(); // our property viewmodel data stored by id
 const map_vmechs = new Map(); // our mechanism viewmodel data stored by pathid
+const map_vbadges = new Map(); // our evidence badge viewmodel data stored by evId
 const selected_vprops = new Set();
 const selected_vmechs = new Set();
 
@@ -816,6 +817,69 @@ PMCData.VM_VMechSet = (vmech, evo, ew) => {
   map_vmechs.set(pathId, vmech);
 };
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  returns an object containing added, updated, removed string arrays
+ *  containing evIds.
+ */
+PMCData.VM_GetVBadgeChanges = () => {
+  const added = [];
+  const updated = [];
+  const removed = [];
+  // find what matches and what is new by pathid
+  a_evidence.forEach(evLink => {
+    const evId = evLink.evId;
+    if (map_vbadges.has(evId)) {
+      updated.push(evId);
+      if (DBG) console.log('updated', evId);
+    } else {
+      added.push(evId);
+      if (DBG) console.log('added', evId);
+    }
+  });
+  // removed
+  map_vbadges.forEach((val_badge, key_evId) => {
+    if (!updated.includes(key_evId)) {
+      removed.push(key_evId);
+      if (DBG) console.log('removed', key_evId);
+    }
+  });
+  return { added, removed, updated };
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  returns the VBadge corresponding to evId if it exists
+ *  @param {string} evId - the property with evId to retrieve
+ *  @return {VBadge} - VBadge instance, if it exists
+ */
+PMCData.VM_VBadge = evId => {
+  return map_vbadges.get(evId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  deletes the VBadge corresponding to evId if it exists
+ *  @param {string} evId - the property with evId to delete
+ */
+PMCData.VM_VBadgeDelete = evId => {
+  map_vbadges.delete(evId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  sets the vobj (either a vprop or a vmech) corresponding to the designated
+ *  evidenceLink id
+ *
+ *  Unlike vmech and vprop, evidence badges are drawn directly on the source
+ *
+ *  map_vbadges
+ *      key: evId
+ *      value: vbadge
+ *
+ *  @param {string} evId - the property with evId to add to viewmodel
+ *  @param {VBadge} vbadge - the VBadge instance
+ */
+PMCData.VM_VBadgeSet = (evId, vbadge) => {
+  map_vbadges.set(evId, vbadge);
+};
 
 /// SELECTION MANAGER TEMPORARY HOME //////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -987,7 +1051,7 @@ window.may1.PCM_Mech = PMCData.Mech;
 window.may1.PMC_AddProp = PMCData.PMC_AddProp;
 window.may1.PMC_AddMech = PMCData.PMC_AddMech;
 window.may1.PMC_AddEvidenceLink = PMCData.PMC_AddEvidenceLink;
-
+window.may1.VM_GetVEvLinkChanges = PMCData.VM_GetVEvLinkChanges;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:

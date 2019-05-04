@@ -33,7 +33,7 @@ import EvidenceList from '../components/EvidenceList';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 const PKG = 'ResourceItem:';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ class ResourceItem extends React.Component {
     this.state = {
       isExpanded: false
     };
-    
+
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
     this.handleDataUpdate = this.handleDataUpdate.bind(this);
     this.handleResourceClick = this.handleResourceClick.bind(this);
@@ -59,48 +59,51 @@ class ResourceItem extends React.Component {
     UR.Sub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleEvidenceLinkOpen);
   }
 
-  componentDidMount() { }
-
-  toggleExpanded() {
-    if (DBG) console.log(PKG +'expansion clicked');
-    this.setState({
-      isExpanded: !this.state.isExpanded
-    });
-  };
-  
-  handleDataUpdate() {
-    // Reload
-  }
-  
-  handleEvidenceLinkOpen(data) {
-    if (DBG) console.log(PKG + 'comparing', data.rsrcId, 'to', this.props.resource.rsrcId);
-    if (this.props.resource.rsrcId === data.rsrcId) {
-      this.setState({
-        isExpanded: true
-      }, () => {
-          // First open resource list, then open evidence Link
-          UR.Publish('SHOW_EVIDENCE_LINK_SECONDARY', data );
-      });
-    }
-  }
-
-  handleResourceClick(rsrcId) {
-    if (DBG) console.log(PKG +'Resource clicked', rsrcId);
-    UR.Publish('SHOW_RESOURCE', {rsrcId: rsrcId});
-  }
-
-  handleUnexpandAll() {
-    // FIXME: Why is `this` undefined?!?
-    if (this) {
-      this.setState({ isExpanded: false });      
-    }
-  }
+  componentDidMount() {}
 
   componentWillUnmount() {
     UR.Unsub('SHOW_EVIDENCE_LINK', this.handleEvidenceLinkOpen);
     UR.Unsub('DATA_UPDATED', this.handleDataUpdate);
     UR.Unsub('UNEXPAND_ALL_RESOURCES', this.handleUnexpandAll);
     UR.Unsub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleEvidenceLinkOpen);
+  }
+
+  toggleExpanded() {
+    if (DBG) console.log(PKG, 'expansion clicked');
+    this.setState({
+      isExpanded: !this.state.isExpanded
+    });
+  }
+
+  handleDataUpdate() {
+    // Reload
+  }
+
+  handleEvidenceLinkOpen(data) {
+    if (DBG) console.log(PKG, 'comparing', data.rsrcId, 'to', this.props.resource.rsrcId);
+    if (this.props.resource.rsrcId === data.rsrcId) {
+      this.setState(
+        {
+          isExpanded: true
+        },
+        () => {
+          // First open resource list, then open evidence Link
+          UR.Publish('SHOW_EVIDENCE_LINK_SECONDARY', data);
+        }
+      );
+    }
+  }
+
+  handleResourceClick(rsrcId) {
+    if (DBG) console.log(PKG, 'Resource clicked', rsrcId);
+    UR.Publish('SHOW_RESOURCE', {rsrcId});
+  }
+
+  handleUnexpandAll() {
+    // FIXME: Why is `this` undefined?!?
+    if (this) {
+      this.setState({ isExpanded: false });
+    }
   }
 
   render() {
@@ -118,7 +121,11 @@ class ResourceItem extends React.Component {
     }
     return (
       <div>
-        <ListItem button key={resource.id} onClick={() => this.handleResourceClick(resource.rsrcId)}>
+        <ListItem
+          button
+          key={resource.id}
+          onClick={() => this.handleResourceClick(resource.rsrcId)}
+        >
           <ListItemAvatar>
             <Avatar className={classes.resourceViewAvatar}>{resource.referenceLabel}</Avatar>
           </ListItemAvatar>

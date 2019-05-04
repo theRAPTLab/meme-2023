@@ -115,6 +115,13 @@ class ViewMain extends React.Component {
     // relayout
   }
 
+  componentWillUnmount() {
+    UR.Unsub('WINDOW:SIZE', this.UpdateDimensions);
+    UR.Unsub('SHOW_RESOURCE', this.handleResourceClick);
+    UR.Unsub('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Unsub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
+  }
+
   UpdateDimensions() {
     /*/
     NOTE: Material UI uses FlexBox
@@ -209,7 +216,7 @@ class ViewMain extends React.Component {
   handleEvLinkSourceSelectRequest(urdata) {
     this.setState({ resourceViewOpen: false }, () => {
       UR.Publish('UNEXPAND_ALL_RESOURCES');
-      UR.Publish('SHOW_EVIDENCE_NOTE', { evId: urdata.evId, rsrcId: urdata.rsrcId });
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: urdata.evId, rsrcId: urdata.rsrcId });
       UR.Publish('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', {
         evId: urdata.evId,
         rsrcId: urdata.rsrcId

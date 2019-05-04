@@ -258,6 +258,7 @@ PMCData.LoadGraph = uri => {
   g.setEdge('rotting-food', 'clean-water', { name: 'if rots can also make dirty' });
   // define evidence mapping: propID => evIDArray
   a_evidence.push({ evId: 'ev1', propId: 'food', rsrcId: 'rs1', note: 'fish need food' });
+  a_evidence.push({ evId: 'ev7', propId: 'food', rsrcId: 'rs2', note: 'fish die without food' });
   a_evidence.push({ evId: 'ev2', propId: 'clean-water', rsrcId: 'rs2', note: 'fish cant live in dirty water' });
   a_evidence.push({ evId: 'ev3', propId: 'rotting-food', rsrcId: 'rs1', note: 'fish food rots' });
   a_evidence.push({ evId: 'ev4', propId: 'ammonia', rsrcId: 'rs1', note: 'ammonia causes fish to die' });

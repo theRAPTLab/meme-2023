@@ -66,6 +66,7 @@ class VProp {
     this.mechPoints = []; // array of points available for mechanism connections
     // hacked items
     this.hack = { wasMoved: false };
+    this.badgesCount = 0; // number of badges attached to this prop
     // higher order display properties
     this.gRoot.draggable();
     this.gRoot.on('dragstart.propmove', event => {
@@ -551,10 +552,13 @@ VProp.NewBadge = (id, svgRoot) => {
   const evlink = DATA.EvidenceLinkByEvidenceId(id);
   if (evlink.propId === undefined) return; // Not evidence for a property, probably a vmech
   const myVProp = DATA.VM_VProp(evlink.propId);
+  myVProp.badgesCount++;
+  const badgeCount = myVProp.badgesCount;
 
   let vbadge = myVProp.gRoot.group();
   vbadge.id = id;
   vbadge.Release = () => {
+    // FIXME - Need to update myVProp.badgesCount?
     // FIXME - This is wrong!  How do we remove ourselves?
     return vbadge.remove();
   };
@@ -565,12 +569,12 @@ VProp.NewBadge = (id, svgRoot) => {
 
   const radius = m_minHeight + m_pad / 2;
   const x = myVProp.gRoot.x();
-  const y = myVProp.gRoot.y();
+  const y = myVProp.gRoot.y() + (badgeCount - 1) * 7.5; // FIXME hack -- for some reason Y on subsequent badges is decreased
   const referenceLabel = DATA.Resource(evlink.rsrcId).referenceLabel;
   vbadge.gCircle = vbadge
     .circle(radius)
     .fill('#b2dfdb')
-    .move(x + m_minWidth - radius - m_pad * 1.5, y - m_pad / 2)
+    .move(x + m_minWidth - badgeCount * (radius + 0.25 * m_pad) - m_pad, y - m_pad / 2)
     .mousedown(e => {
       e.preventDefault();
       e.stopPropagation();
@@ -580,7 +584,10 @@ VProp.NewBadge = (id, svgRoot) => {
   vbadge.gLabel = vbadge
     .text(referenceLabel)
     .font({ fill: '#366', size: '0.8em', weight: 'bold' })
-    .move(x + m_minWidth - radius - m_pad / 2, y + radius / 2 - m_pad)
+    .move(
+      x + m_minWidth - badgeCount * (radius + 0.25 * m_pad) - m_pad + 0.4 * radius,
+      y + radius / 2 - m_pad
+    )
     .mousedown(e => {
       e.preventDefault();
       e.stopPropagation();

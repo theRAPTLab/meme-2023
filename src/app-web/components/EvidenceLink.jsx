@@ -31,7 +31,7 @@ import UR from '../../system/ursys';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 const PKG = 'EvidenceLink:';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -87,12 +87,15 @@ class EvidenceLink extends React.Component {
     });
   }
 
+  /*/
+   *  Toggles visible state
+  /*/
   handleEvidenceLinkOpen(data) {
     if (DBG) console.log(PKG, 'comparing', data.evId, 'to', this.props.evId);
     if (this.props.evId === data.evId) {
       if (DBG) console.log(PKG, 'Expanding', data.evId);
-      this.setState({
-        isExpanded: true
+      this.setState(prevState => {
+        return { isExpanded: !prevState.isExpanded };
       });
     }
   }

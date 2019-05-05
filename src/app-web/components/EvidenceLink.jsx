@@ -215,7 +215,7 @@ class EvidenceLink extends React.Component {
         key={`${rsrcId}`}
       >
         <Button className={classes.evidenceExpandButton} onClick={this.toggleExpanded}>
-          <ExpandMoreIcon />
+          <ExpandMoreIcon className={isExpanded ? classes.iconExpanded : ''} />
         </Button>
         <div className={classes.evidenceWindowLabel}>EVIDENCE LINK</div>
         <div className={classes.evidencePrompt} hidden={!isExpanded}>

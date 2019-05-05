@@ -96,7 +96,7 @@ class ResourceItem extends React.Component {
 
   handleResourceClick(rsrcId) {
     if (DBG) console.log(PKG, 'Resource clicked', rsrcId);
-    UR.Publish('SHOW_RESOURCE', {rsrcId});
+    UR.Publish('SHOW_RESOURCE', { rsrcId });
   }
 
   handleUnexpandAll() {
@@ -140,7 +140,9 @@ class ResourceItem extends React.Component {
           <ListItemSecondaryAction>
             {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
             {evBadge}
-            <Button className={classes.resourceExpandButton} onClick={this.toggleExpanded}><ExpandMoreIcon /></Button>
+            <Button className={classes.resourceExpandButton} onClick={this.toggleExpanded}>
+              <ExpandMoreIcon className={isExpanded ? classes.iconExpanded : ''} />
+            </Button>
           </ListItemSecondaryAction>
         </ListItem>
         {isExpanded ? <EvidenceList rsrcId={resource.rsrcId} key={`${resource.rsrcId}ev`} /> : ''}

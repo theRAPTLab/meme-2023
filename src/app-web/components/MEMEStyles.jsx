@@ -215,6 +215,9 @@ const styles = theme => {
       height: 'auto',
       backgroundColor: yellow[200]
     },
+    iconExpanded: {
+      transform: 'rotate(180deg)'
+    },
     evidenceLinkAvatar: {
       maxWidth: '50px',
       minWidth: '50px',

@@ -282,6 +282,8 @@ class ViewMain extends React.Component {
               <AddIcon />
             </Fab>
           </Tooltip>
+          <Typography align="center" variant="caption">Add Component / Property</Typography>
+          <br />
           <Dialog
             open={this.state.addPropOpen}
             onClose={this.handleAddPropClose}
@@ -301,6 +303,7 @@ class ViewMain extends React.Component {
               </Button>
             </DialogActions>
           </Dialog>
+          
           <Divider />
           {/*
             <List>
@@ -322,6 +325,7 @@ class ViewMain extends React.Component {
               <AddIcon />
             </Fab>
           </Tooltip>
+          <Typography align="center" variant="caption">Add Mechanism</Typography>
         </Drawer>
         <main className={classes.content} ref={this.refMain}>
           <div className={classes.toolbar} ref={this.refToolbar} />

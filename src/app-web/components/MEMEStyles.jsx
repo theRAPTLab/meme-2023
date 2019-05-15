@@ -35,6 +35,9 @@ const styles = theme => {
     fab: {
       margin: theme.spacing.unit * 2
     },
+    projectTitle: {
+      color: '#fff'
+    },
     edgeButton: {
       backgroundColor: orange[500],
       '&:hover': { backgroundColor: orange[700] }

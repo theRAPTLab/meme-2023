@@ -259,9 +259,11 @@ class ViewMain extends React.Component {
         <CssBaseline />
         <AppBar position="fixed" className={classes.appBar}>
           <Toolbar>
-            <Typography variant="h6" color="inherit" noWrap>
-              MEME PROTO
-            </Typography>
+            <TextField
+              id="projectTitle"
+              InputProps={{ className: classes.projectTitle }}
+              placeholder="Untitled Project"
+            />
           </Toolbar>
         </AppBar>
         <Drawer

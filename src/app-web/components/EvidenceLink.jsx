@@ -97,6 +97,13 @@ class EvidenceLink extends React.Component {
       this.setState(prevState => {
         return { isExpanded: !prevState.isExpanded };
       });
+    } else {
+      // Always contract if someone else is expanding
+      // This is only called when an evidence link is opened
+      // programmaticaly either when creating a new evidence link
+      // or expanding one via a badge.
+      // A user can still directly expand two simultaneously.
+      this.setState({ isExpanded: false });
     }
   }
 

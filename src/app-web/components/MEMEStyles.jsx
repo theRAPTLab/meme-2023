@@ -155,7 +155,7 @@ const styles = theme => {
     },
     resourceViewNote: {
       width: '100%',
-      marginTop: '0.5em',
+      marginTop: '0',
       backgroundColor: yellow[50]
     },
     resourceViewCreatebutton: {

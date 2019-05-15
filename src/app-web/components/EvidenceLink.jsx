@@ -94,8 +94,24 @@ class EvidenceLink extends React.Component {
     if (DBG) console.log(PKG, 'comparing', data.evId, 'to', this.props.evId);
     if (this.props.evId === data.evId) {
       if (DBG) console.log(PKG, 'Expanding', data.evId);
+
+      // If we're being opened for the first time, notes is empty
+      // and no links have been set, so automatically go into edit mode
+      // FIXME/REVIEW: Should this setState call be folded into the next one?
+      let activateEditState = false;
+      if (
+        this.props.note === '' ||
+        (this.props.propId === undefined && this.props.mechId === undefined)
+      ) {
+        //this.setState({ isBeingEdited: true });
+        activateEditState = true;
+      }
+
       this.setState(prevState => {
-        return { isExpanded: !prevState.isExpanded };
+        return {
+          isExpanded: !prevState.isExpanded,
+          isBeingEdited: activateEditState
+        };
       });
     } else {
       // Always contract if someone else is expanding

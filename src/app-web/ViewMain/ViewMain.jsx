@@ -165,6 +165,8 @@ class ViewMain extends React.Component {
 
   handleAddEdge() {
     if (DBG) console.log('Add!');
+    // clear the label first
+    document.getElementById('edgeLabel').value = '';
     this.setState({ addEdgeOpen: true });
   }
 

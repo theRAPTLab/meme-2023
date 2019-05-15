@@ -484,6 +484,10 @@ class ViewMain extends React.Component {
                 margin="normal"
                 variant="outlined"
               />
+              <Typography variant="caption">OUR EVIDENCE LIST</Typography>
+              <div className={classes.resourceViewSidebarEvidenceList}>
+                <EvidenceList rsrcId={this.state.selectedResource.rsrcId} />
+              </div>
               <Button
                 className={classes.resourceViewCreatebutton}
                 variant="contained"
@@ -491,8 +495,7 @@ class ViewMain extends React.Component {
                 color="primary"
               >
                 Create Evidence
-              </Button>
-              <EvidenceList rsrcId={this.state.selectedResource.rsrcId} />
+                </Button>
             </div>
           </Paper>
         </Modal>

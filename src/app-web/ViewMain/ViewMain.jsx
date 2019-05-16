@@ -182,16 +182,6 @@ class ViewMain extends React.Component {
     this.setState({ addEdgeOpen: false });
   }
 
-  handleSetEdgeSource() {
-    if (DBG) console.log('handleSetEdgeSource');
-    UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
-
-  }
-
-  handleSetEdgeTarget() {
-    if (DBG) console.log('handleSetEdgeTarget');
-  }
-
   handleResourceClick(urdata) {
     if (DBG) console.log('ViewMain: clicked on ', urdata.rsrcId);
     // Look up resource

@@ -71,6 +71,7 @@ class ViewMain extends React.Component {
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
+    this.HandleAddComponentDialogLabelChange = this.HandleAddComponentDialogLabelChange.bind(this);
     this.handleAddPropOpen = this.handleAddPropOpen.bind(this);
     this.handleAddPropClose = this.handleAddPropClose.bind(this);
     this.handleAddPropCreate = this.handleAddPropCreate.bind(this);
@@ -89,6 +90,7 @@ class ViewMain extends React.Component {
     this.state = {
       viewHeight: 0, // need to init this to prevent error with first render of informationList
       addPropOpen: false,
+      addComponentLabel: '',
       addEdgeOpen: false,
       resourceViewOpen: false,
       edgeSource: '',
@@ -145,6 +147,10 @@ class ViewMain extends React.Component {
     });
   }
 
+  HandleAddComponentDialogLabelChange(e) {
+    this.setState({ addComponentLabel: e.target.value })
+  }
+  
   handleAddPropOpen() {
     if (DBG) console.log('Add!');
     this.setState({ addPropOpen: true });
@@ -157,8 +163,7 @@ class ViewMain extends React.Component {
 
   handleAddPropCreate() {
     if (DBG) console.log('create prop');
-    let label = document.getElementById('propLabel').value;
-    DATA.PMC_AddProp(label);
+    DATA.PMC_AddProp(this.state.addComponentLabel);
     this.handleAddPropClose();
   }
 
@@ -256,6 +261,8 @@ class ViewMain extends React.Component {
             />
           </Toolbar>
         </AppBar>
+        
+        {/* Add Comonent Dialog */}
         <Drawer
           className={classes.drawer}
           variant="permanent"
@@ -286,7 +293,14 @@ class ViewMain extends React.Component {
             <DialogTitle id="form-dialog-title">Add Component/Property</DialogTitle>
             <DialogContent>
               <DialogContentText>Type a name for your component or property.</DialogContentText>
-              <TextField autoFocus margin="dense" id="propLabel" label="Label" fullWidth />
+              <TextField
+                autoFocus
+                margin="dense"
+                id="propLabel"
+                label="Label"
+                fullWidth
+                onChange={this.HandleAddComponentDialogLabelChange}
+              />
             </DialogContent>
             <DialogActions>
               <Button onClick={this.handleAddPropClose} color="primary">

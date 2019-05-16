@@ -116,7 +116,8 @@ const styles = theme => {
       overflow: 'hidden'
     },
     resourceViewCard: {
-      height: '50px'
+      height: '50px',
+      minWidth: '150px'
     },
     resourceViewCardContent: {
       display: 'flex',

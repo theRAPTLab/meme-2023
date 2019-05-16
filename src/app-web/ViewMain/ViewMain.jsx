@@ -72,6 +72,7 @@ class ViewMain extends React.Component {
     this.state = { viewHeight: 0, viewWidth: 0 };
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
     this.HandleAddComponentDialogLabelChange = this.HandleAddComponentDialogLabelChange.bind(this);
+    this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
     this.handleAddPropOpen = this.handleAddPropOpen.bind(this);
     this.handleAddPropClose = this.handleAddPropClose.bind(this);
     this.handleAddPropCreate = this.handleAddPropCreate.bind(this);
@@ -92,9 +93,10 @@ class ViewMain extends React.Component {
       addPropOpen: false,
       addComponentLabel: '',
       addEdgeOpen: false,
+      addEdgeLabel: '',
+      addEdgeSource: '',
+      addEdgeTarget: '',
       resourceViewOpen: false,
-      edgeSource: '',
-      edgeTarget: '',
       selectedResource: {
         id: '',
         evid: '',
@@ -148,9 +150,13 @@ class ViewMain extends React.Component {
   }
 
   HandleAddComponentDialogLabelChange(e) {
-    this.setState({ addComponentLabel: e.target.value })
+    this.setState({ addComponentLabel: e.target.value });
   }
-  
+
+  HandleAddEdgeDialogLabelChange(e) {
+    this.setState({ addEdgeLabel: e.target.value });
+  }
+
   handleAddPropOpen() {
     if (DBG) console.log('Add!');
     this.setState({ addPropOpen: true });
@@ -177,8 +183,7 @@ class ViewMain extends React.Component {
 
   handleAddEdgeCreate() {
     if (DBG) console.log('create edge');
-    let label = document.getElementById('edgeLabel').value;
-    DATA.PMC_AddMech(this.state.edgeSource, this.state.edgeTarget, label);
+    DATA.PMC_AddMech(this.state.addEdgeSource, this.state.addEdgeTarget, this.state.addEdgeLabel);
     this.handleAddEdgeClose();
   }
 
@@ -233,8 +238,8 @@ class ViewMain extends React.Component {
       targetId = selectedPropIds[1];
     }
     this.setState({
-      edgeSource: sourceId,
-      edgeTarget: targetId
+      addEdgeSource: sourceId,
+      addEdgeTarget: targetId
     });
   }
 
@@ -261,7 +266,7 @@ class ViewMain extends React.Component {
             />
           </Toolbar>
         </AppBar>
-        
+
         {/* Add Comonent Dialog */}
         <Drawer
           className={classes.drawer}
@@ -311,7 +316,7 @@ class ViewMain extends React.Component {
               </Button>
             </DialogActions>
           </Dialog>
-          
+
           <Divider />
           {/*
             <List>
@@ -371,9 +376,9 @@ class ViewMain extends React.Component {
             <Paper className={classes.edgeDialogPaper}>
               <div className={classes.edgeDialogWindowLabel}>ADD LINKS</div>
               <div className={classes.edgeDialogInput}>
-                {this.state.edgeSource !== '' ? (
+                {this.state.addEdgeSource !== '' ? (
                   <div className={classes.evidenceLinkSourcePropAvatarSelected}>
-                    {this.state.edgeSource}
+                    {this.state.addEdgeSource}
                   </div>
                 ) : (
                   <div className={classes.evidenceLinkSourceAvatarWaiting}>1. Click on a source...</div>
@@ -385,12 +390,14 @@ class ViewMain extends React.Component {
                   margin="dense"
                   id="edgeLabel"
                   label="Label"
+                  value={this.state.addEdgeLabel}
+                  onChange={this.HandleAddEdgeDialogLabelChange}
                   className={classes.edgeDialogTextField}
                 />
                 &nbsp;
-                {this.state.edgeTarget !== '' ? (
+                {this.state.addEdgeTarget !== '' ? (
                   <div className={classes.evidenceLinkSourcePropAvatarSelected}>
-                    {this.state.edgeTarget}
+                    {this.state.addEdgeTarget}
                   </div>
                 ) : (
                   <div className={classes.evidenceLinkSourceAvatarWaiting}>

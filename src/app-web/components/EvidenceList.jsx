@@ -19,26 +19,13 @@ import EvidenceLink from './EvidenceLink';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class EvidenceList extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleDataUpdate = this.handleDataUpdate.bind(this);
-    UR.Sub('DATA_UPDATED', this.handleDataUpdate);
-  }
 
   componentDidMount() {}
 
-  componentWillUnmount() {
-    UR.Unsub('DATA_UPDATED', this.handleDataUpdate);
-  }
-
-  handleDataUpdate() {
-    // Reload -- This is necessary to handle evlink.note updates as a controlled component.
-    //           Otherwise, evlink note won't be updated when the user types.
-    this.forceUpdate();
-  }
+  componentWillUnmount() {}
 
   render() {
-    const { classes, rsrcId } = this.props;
+    const { rsrcId } = this.props;
     const evLinks = DATA.GetEvLinkByResourceId(rsrcId);
     /*/ evLinks
           is an array of evidence Link objects related to the resource, e.g.

@@ -159,7 +159,7 @@ const styles = theme => {
     },
     resourceViewNote: {
       width: '100%',
-      marginTop: '0',
+      marginTop: '0.35em',
       backgroundColor: yellow[50]
     },
     resourceViewCreatebutton: {

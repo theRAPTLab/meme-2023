@@ -1040,7 +1040,7 @@ PMCData.PMC_AddMech = (sourceId, targetId, label) => {
   return `added edge ${sourceId} ${targetId} ${label}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddEvidenceLink = (rsrcId, note = 'untitled') => {
+PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
   let evId = Math.trunc(Math.random() * 10000);
   a_evidence.push({ evId, propId: undefined, rsrcId, note });
   PMCData.BuildModel();

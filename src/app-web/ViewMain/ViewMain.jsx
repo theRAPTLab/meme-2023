@@ -165,6 +165,8 @@ class ViewMain extends React.Component {
 
   handleAddEdge() {
     if (DBG) console.log('Add!');
+    // clear the label first
+    document.getElementById('edgeLabel').value = '';
     this.setState({ addEdgeOpen: true });
   }
 
@@ -178,16 +180,6 @@ class ViewMain extends React.Component {
   handleAddEdgeClose() {
     if (DBG) console.log('close');
     this.setState({ addEdgeOpen: false });
-  }
-
-  handleSetEdgeSource() {
-    if (DBG) console.log('handleSetEdgeSource');
-    UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
-
-  }
-
-  handleSetEdgeTarget() {
-    if (DBG) console.log('handleSetEdgeTarget');
   }
 
   handleResourceClick(urdata) {
@@ -257,9 +249,11 @@ class ViewMain extends React.Component {
         <CssBaseline />
         <AppBar position="fixed" className={classes.appBar}>
           <Toolbar>
-            <Typography variant="h6" color="inherit" noWrap>
-              MEME PROTO
-            </Typography>
+            <TextField
+              id="projectTitle"
+              InputProps={{ className: classes.projectTitle }}
+              placeholder="Untitled Project"
+            />
           </Toolbar>
         </AppBar>
         <Drawer
@@ -282,6 +276,8 @@ class ViewMain extends React.Component {
               <AddIcon />
             </Fab>
           </Tooltip>
+          <Typography align="center" variant="caption">Add Component / Property</Typography>
+          <br />
           <Dialog
             open={this.state.addPropOpen}
             onClose={this.handleAddPropClose}
@@ -301,6 +297,7 @@ class ViewMain extends React.Component {
               </Button>
             </DialogActions>
           </Dialog>
+          
           <Divider />
           {/*
             <List>
@@ -322,6 +319,7 @@ class ViewMain extends React.Component {
               <AddIcon />
             </Fab>
           </Tooltip>
+          <Typography align="center" variant="caption">Add Mechanism</Typography>
         </Drawer>
         <main className={classes.content} ref={this.refMain}>
           <div className={classes.toolbar} ref={this.refToolbar} />
@@ -480,6 +478,10 @@ class ViewMain extends React.Component {
                 margin="normal"
                 variant="outlined"
               />
+              <Typography variant="caption">OUR EVIDENCE LIST</Typography>
+              <div className={classes.resourceViewSidebarEvidenceList}>
+                <EvidenceList rsrcId={this.state.selectedResource.rsrcId} />
+              </div>
               <Button
                 className={classes.resourceViewCreatebutton}
                 variant="contained"
@@ -487,8 +489,7 @@ class ViewMain extends React.Component {
                 color="primary"
               >
                 Create Evidence
-              </Button>
-              <EvidenceList rsrcId={this.state.selectedResource.rsrcId} />
+                </Button>
             </div>
           </Paper>
         </Modal>

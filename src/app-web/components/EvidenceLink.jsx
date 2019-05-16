@@ -41,6 +41,7 @@ class EvidenceLink extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      note: this.props.note,
       canBeEdited: false,
       isBeingEdited: false,
       isBeingDisplayedInInformationList: true,
@@ -94,14 +95,38 @@ class EvidenceLink extends React.Component {
     if (DBG) console.log(PKG, 'comparing', data.evId, 'to', this.props.evId);
     if (this.props.evId === data.evId) {
       if (DBG) console.log(PKG, 'Expanding', data.evId);
+
+      // If we're being opened for the first time, notes is empty
+      // and no links have been set, so automatically go into edit mode
+      // FIXME/REVIEW: Should this setState call be folded into the next one?
+      let activateEditState = false;
+      if (
+        this.props.note === '' ||
+        (this.props.propId === undefined && this.props.mechId === undefined)
+      ) {
+        //this.setState({ isBeingEdited: true });
+        activateEditState = true;
+      }
+
       this.setState(prevState => {
-        return { isExpanded: !prevState.isExpanded };
+        return {
+          isExpanded: !prevState.isExpanded,
+          isBeingEdited: activateEditState
+        };
       });
+    } else {
+      // Always contract if someone else is expanding
+      // This is only called when an evidence link is opened
+      // programmaticaly either when creating a new evidence link
+      // or expanding one via a badge.
+      // A user can still directly expand two simultaneously.
+      this.setState({ isExpanded: false });
     }
   }
 
   handleNoteChange(e) {
     if (DBG) console.log(PKG, 'Note Change:', e.target.value);
+    this.setState({ note: e.target.value });
     DATA.SetEvidenceLinkNote(this.props.evId, e.target.value);
   }
 
@@ -177,8 +202,8 @@ class EvidenceLink extends React.Component {
 
   render() {
     // evidenceLinks is an array of arrays because there might be more than one?!?
-    const { evId, rsrcId, propId, mechId, note, classes } = this.props;
-    const { isBeingEdited, isExpanded, isBeingDisplayedInInformationList, isWaitingForSourceSelect } = this.state;
+    const { evId, rsrcId, propId, mechId, classes } = this.props;
+    const { note, isBeingEdited, isExpanded, isBeingDisplayedInInformationList, isWaitingForSourceSelect } = this.state;
     if (evId === '') return '';
     let sourceLabel;
     if (propId !== undefined) {
@@ -243,6 +268,7 @@ class EvidenceLink extends React.Component {
                 isExpanded ? classes.evidenceLabelFieldExpanded : ''
               )}
               value={note}
+              placeholder='Click here to type...'
               multiline
               onChange={this.handleNoteChange}
             />

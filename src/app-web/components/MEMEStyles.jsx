@@ -35,6 +35,9 @@ const styles = theme => {
     fab: {
       margin: theme.spacing.unit * 2
     },
+    projectTitle: {
+      color: '#fff'
+    },
     edgeButton: {
       backgroundColor: orange[500],
       '&:hover': { backgroundColor: orange[700] }
@@ -113,7 +116,8 @@ const styles = theme => {
       overflow: 'hidden'
     },
     resourceViewCard: {
-      height: '50px'
+      height: '50px',
+      minWidth: '150px'
     },
     resourceViewCardContent: {
       display: 'flex',
@@ -131,6 +135,18 @@ const styles = theme => {
       alignItems: 'center',
       width: '265px',
       height: '90%',
+      paddingLeft: '10px',
+      verticalAlign: 'top',
+      overflow: 'hidden'
+    },
+    resourceViewSidebarEvidenceList: {
+      display: 'inline-flex',
+      backgroundColor: '#c7d7d6',
+      width: '100%',
+      height: '100%',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '5px',
       verticalAlign: 'top',
       overflowY: 'scroll',
       overflowX: 'hidden'
@@ -142,15 +158,13 @@ const styles = theme => {
       padding: '0',
     },
     resourceViewNote: {
-      width: '237px',
-      marginTop: '0.5em',
-      marginLeft: theme.spacing.unit,
-      marginRight: theme.spacing.unit,
+      width: '100%',
+      marginTop: '0.35em',
       backgroundColor: yellow[50]
     },
     resourceViewCreatebutton: {
       marginBottom: theme.spacing.unit,
-      width: 'fit-content'
+      width: '100%'
     },
     evidenceTitle: {
       fontSize: '1em',
@@ -205,7 +219,7 @@ const styles = theme => {
       margin: '50% auto'
     },
     evidenceLinkPaper: {
-      width: '95%',
+      width: '230px',
       height: '70px',
       margin: '0 auto',
       padding: '10px 0 10px 10px',

@@ -280,7 +280,8 @@ class EvidenceLink extends React.Component {
                 isExpanded ? classes.evidenceLabelFieldExpanded : ''
               )}
               value={note}
-              placeholder='Click here to type...'
+              placeholder="Click to add label..."
+              autoFocus
               multiline
               onChange={this.handleNoteChange}
             />

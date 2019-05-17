@@ -40,34 +40,49 @@ const PKG = 'EvidenceLink:';
 class EvidenceLink extends React.Component {
   constructor(props) {
     super(props);
+    // sourceHasNotBeenSet if neither propId nor mechId have been defined.
+    let sourceHasNotBeenSet = this.props.propId === undefined && this.props.mechId === undefined;
     this.state = {
       note: this.props.note,
       canBeEdited: false,
       isBeingEdited: false,
-      isBeingDisplayedInInformationList: true,
+      isBeingDisplayedInResourceLibrary: true,
       isExpanded: false,
-      isWaitingForSourceSelect: false
+      listenForSourceSelection: false,
+      sourceHasNotBeenSet
     };
+    this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
     this.handleDeleteButtonClick = this.handleDeleteButtonClick.bind(this);
     this.handleEditButtonClick = this.handleEditButtonClick.bind(this);
     this.handleSaveButtonClick = this.handleSaveButtonClick.bind(this);
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
     this.handleNoteChange = this.handleNoteChange.bind(this);
     this.handleSourceSelectClick = this.handleSourceSelectClick.bind(this);
-    this.handleActivateWaitForSourceSelect = this.handleActivateWaitForSourceSelect.bind(this);
+    this.EnableSourceSelect = this.EnableSourceSelect.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
+    UR.Sub('DATA_UPDATED', this.HandleDataUpdate);
     UR.Sub('SHOW_EVIDENCE_LINK_SECONDARY', this.handleEvidenceLinkOpen);
+    UR.Sub('EVLINK:ENABLE_SOURCE_SELECT', this.EnableSourceSelect);
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
-    UR.Sub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleActivateWaitForSourceSelect);
   }
 
   componentDidMount() {}
 
   componentWillUnmount() {
+    UR.Unsub('DATA_UPDATED', this.HandleDataUpdate);
     UR.Unsub('SHOW_EVIDENCE_LINK_SECONDARY', this.handleEvidenceLinkOpen);
+    UR.Unsub('EVLINK:ENABLE_SOURCE_SELECT', this.EnableSourceSelect);
     UR.Unsub('SELECTION_CHANGED', this.handleSelectionChange);
-    UR.Unsub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleActivateWaitForSourceSelect);
+  }
+
+  HandleDataUpdate() {
+    // The same EvidenceLink can be displayed in both the Resource Library
+    // and a Resource View.  If one is updated, the other needs to update itself
+    // via the DATA_UPDATED call because `note` is only set by props 
+    // during construction.
+    let note = DATA.EvidenceLinkByEvidenceId(this.props.evId).note;
+    this.setState({ note });
   }
 
   handleDeleteButtonClick() {
@@ -88,31 +103,23 @@ class EvidenceLink extends React.Component {
     });
   }
 
-  /*/
-   *  Toggles visible state
-  /*/
   handleEvidenceLinkOpen(data) {
-    if (DBG) console.log(PKG, 'comparing', data.evId, 'to', this.props.evId);
     if (this.props.evId === data.evId) {
       if (DBG) console.log(PKG, 'Expanding', data.evId);
 
       // If we're being opened for the first time, notes is empty
       // and no links have been set, so automatically go into edit mode
-      // FIXME/REVIEW: Should this setState call be folded into the next one?
       let activateEditState = false;
       if (
         this.props.note === '' ||
         (this.props.propId === undefined && this.props.mechId === undefined)
       ) {
-        //this.setState({ isBeingEdited: true });
         activateEditState = true;
       }
 
-      this.setState(prevState => {
-        return {
-          isExpanded: !prevState.isExpanded,
-          isBeingEdited: activateEditState
-        };
+      this.setState({
+        isExpanded: true,
+        isBeingEdited: activateEditState
       });
     } else {
       // Always contract if someone else is expanding
@@ -130,24 +137,24 @@ class EvidenceLink extends React.Component {
     DATA.SetEvidenceLinkNote(this.props.evId, e.target.value);
   }
 
+  /* User has clicked on the 'link' button, so we want to
+     send the request to ViewMain, which will handle
+     the sequence of closing the resource view (so that the
+     user can see the components for selection) and opening up
+     the evLink
+  */
   handleSourceSelectClick(evId, rsrcId) {
-    this.setState({ isWaitingForSourceSelect: true });
     UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId, rsrcId });
   }
 
-  handleActivateWaitForSourceSelect(data) {
+  EnableSourceSelect(data) {
     if (data.evId === this.props.evId) {
-      if (DBG) console.log(PKG, 'Wait for source select!')
-      this.setState({
-        isExpanded: true,
-        isBeingEdited: true,
-        isWaitingForSourceSelect: true
-      });
+      this.setState({ listenForSourceSelection: true });      
     }
   }
 
   handleSelectionChange() {
-    if (this.state.isWaitingForSourceSelect) {
+    if (this.state.sourceHasNotBeenSet && this.state.listenForSourceSelection) {
       let sourceId;
 
       // Assume mechs are harder to select so check for them first.
@@ -163,7 +170,7 @@ class EvidenceLink extends React.Component {
         // For May 1, exit as soon as something is selected to prevent
         // subsequent source selections from being applied to ALL open
         // evlinks.
-        this.setState({ isWaitingForSourceSelect: false });
+        this.setState({ sourceHasNotBeenSet: false });
         return;
       }
 
@@ -178,7 +185,7 @@ class EvidenceLink extends React.Component {
         // For May 1, exit as soon as something is selected to prevent
         // subsequent source selections from being applied to ALL open
         // evlinks.
-        this.setState({ isWaitingForSourceSelect: false });
+        this.setState({ sourceHasNotBeenSet: false });
         return;
       }
     }
@@ -186,12 +193,10 @@ class EvidenceLink extends React.Component {
 
   toggleExpanded() {
     if (DBG) console.log(PKG,'evidence link clicked');
-    let isExpanded = this.state.isExpanded;
-    if (isExpanded) {
+    if (this.state.isExpanded) {
       this.setState({
         isExpanded: false,
-        isBeingEdited: false,
-        isWaitingForSourceSelect: false
+        isBeingEdited: false
       });
     } else {
       this.setState({
@@ -203,7 +208,14 @@ class EvidenceLink extends React.Component {
   render() {
     // evidenceLinks is an array of arrays because there might be more than one?!?
     const { evId, rsrcId, propId, mechId, classes } = this.props;
-    const { note, isBeingEdited, isExpanded, isBeingDisplayedInInformationList, isWaitingForSourceSelect } = this.state;
+    const {
+      note,
+      isBeingEdited,
+      isExpanded,
+      isBeingDisplayedInResourceLibrary,
+      sourceHasNotBeenSet,
+      listenForSourceSelection
+    } = this.state;
     if (evId === '') return '';
     let sourceLabel;
     if (propId !== undefined) {
@@ -214,10 +226,10 @@ class EvidenceLink extends React.Component {
       sourceLabel = (
         <div className={classes.evidenceLinkSourceMechAvatarSelected}>{DATA.Mech(mechId).name}</div>
       );
-    } else if (isWaitingForSourceSelect) {
+    } else if (sourceHasNotBeenSet && listenForSourceSelection) {
       // eslint-disable-next-line prettier/prettier
       sourceLabel = (
-        <div className={classes.evidenceLinkSourceAvatarWaiting}>waiting...</div>
+        <div className={classes.evidenceLinkSourceAvatarWaiting}>select source...</div>
       );
     } else {
       sourceLabel = (
@@ -248,7 +260,7 @@ class EvidenceLink extends React.Component {
         </div>
         <div className={classes.evidenceTitle}>
           <div style={{ width: '50px', display: 'flex', flexDirection:'column'}}>
-            {!isBeingDisplayedInInformationList ? (
+            {!isBeingDisplayedInResourceLibrary ? (
               <Avatar className={classes.resourceViewAvatar}>{rsrcId}</Avatar>
             ) : (
               ''

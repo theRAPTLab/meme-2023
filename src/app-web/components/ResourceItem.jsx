@@ -70,8 +70,10 @@ class ResourceItem extends React.Component {
 
   toggleExpanded() {
     if (DBG) console.log(PKG, 'expansion clicked');
-    this.setState({
-      isExpanded: !this.state.isExpanded
+    this.setState(prevState => {
+      return {
+        isExpanded: !prevState.isExpanded
+      };
     });
   }
 

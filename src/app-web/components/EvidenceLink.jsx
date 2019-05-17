@@ -229,7 +229,7 @@ class EvidenceLink extends React.Component {
     } else if (sourceHasNotBeenSet && listenForSourceSelection) {
       // eslint-disable-next-line prettier/prettier
       sourceLabel = (
-        <div className={classes.evidenceLinkSourceAvatarWaiting}>select source...</div>
+        <div className={classes.evidenceLinkSourceAvatarWaiting}>select</div>
       );
     } else {
       sourceLabel = (

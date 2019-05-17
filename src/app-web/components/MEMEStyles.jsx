@@ -246,8 +246,8 @@ const styles = theme => {
     },
     evidenceLinkSourceAvatarWaiting: {
       padding: '0 7px',
-      color: '#fff',
-      backgroundColor: red['A700']
+      color: red['A700'],
+      backgroundColor: red['100']
     },
     evidenceLinkSelectButton: {
       height: '25px',

@@ -8,8 +8,10 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
+import ClassNames from 'classnames';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Elements
+import Avatar from '@material-ui/core/Avatar';
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
@@ -17,9 +19,24 @@ import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
+import Tooltip from '@material-ui/core/Tooltip';
+import Modal from '@material-ui/core/Modal';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Chip from '@material-ui/core/Chip';
+import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+// Material UI Icons
+import AddIcon from '@material-ui/icons/Add';
+import DescriptionIcon from '@material-ui/icons/Description';
+import ImageIcon from '@material-ui/icons/Image';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 // Material UI Theming
@@ -30,11 +47,16 @@ import { withStyles } from '@material-ui/core/styles';
 import RoutedView from './RoutedView';
 import MEMEStyles from '../components/MEMEStyles';
 import UR from '../../system/ursys';
+import DATA from '../modules/pmc-data';
+import EvidenceList from '../components/EvidenceList';
+import ResourceItem from '../components/ResourceItem';
 import { cssblue, cssreact, cssdraw } from '../modules/console-styles';
+import { data } from '@svgdotjs/svg.js/src/modules/optional/data';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = false;
+const DBG = true;
+const PKG = 'ViewMain:';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -49,7 +71,42 @@ class ViewMain extends React.Component {
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
+    this.HandleAddComponentDialogLabelChange = this.HandleAddComponentDialogLabelChange.bind(this);
+    this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
+    this.handleAddPropOpen = this.handleAddPropOpen.bind(this);
+    this.handleAddPropClose = this.handleAddPropClose.bind(this);
+    this.handleAddPropCreate = this.handleAddPropCreate.bind(this);
+    this.handleAddEdge = this.handleAddEdge.bind(this);
+    this.handleAddEdgeCreate = this.handleAddEdgeCreate.bind(this);
+    this.handleAddEdgeClose = this.handleAddEdgeClose.bind(this);
+    this.handleResourceClick = this.handleResourceClick.bind(this);
+    this.handleInformationViewClose = this.handleInformationViewClose.bind(this);
+    this.handleEvLinkSourceSelectRequest = this.handleEvLinkSourceSelectRequest.bind(this);
+    this.handleSelectionChange = this.handleSelectionChange.bind(this);
+    this.handleSnapshot = this.handleSnapshot.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
+    UR.Sub('SHOW_RESOURCE', this.handleResourceClick);
+    UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Sub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
+    this.state = {
+      viewHeight: 0, // need to init this to prevent error with first render of informationList
+      addPropOpen: false,
+      addComponentLabel: '',
+      addEdgeOpen: false,
+      addEdgeLabel: '',
+      addEdgeSource: '',
+      addEdgeTarget: '',
+      resourceViewOpen: false,
+      selectedResource: {
+        id: '',
+        evid: '',
+        label: 'Unselected',
+        notes: [],
+        type: '',
+        url: '',
+        links: -1
+      }
+    }
   }
 
   componentDidMount() {
@@ -60,6 +117,13 @@ class ViewMain extends React.Component {
     // the root component renders in SystemInit.
     // SystemInit fires `WINDOW:SIZE` to force the
     // relayout
+  }
+
+  componentWillUnmount() {
+    UR.Unsub('WINDOW:SIZE', this.UpdateDimensions);
+    UR.Unsub('SHOW_RESOURCE', this.handleResourceClick);
+    UR.Unsub('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Unsub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
   }
 
   UpdateDimensions() {
@@ -85,8 +149,107 @@ class ViewMain extends React.Component {
     });
   }
 
+  HandleAddComponentDialogLabelChange(e) {
+    this.setState({ addComponentLabel: e.target.value });
+  }
+
+  HandleAddEdgeDialogLabelChange(e) {
+    this.setState({ addEdgeLabel: e.target.value });
+  }
+
+  handleAddPropOpen() {
+    if (DBG) console.log('Add!');
+    this.setState({ addPropOpen: true });
+  }
+
+  handleAddPropClose() {
+    if (DBG) console.log('close');
+    this.setState({ addPropOpen: false });
+  }
+
+  handleAddPropCreate() {
+    if (DBG) console.log('create prop');
+    DATA.PMC_AddProp(this.state.addComponentLabel);
+    this.handleAddPropClose();
+  }
+
+
+  handleAddEdge() {
+    if (DBG) console.log('Add!');
+    // clear the label first
+    document.getElementById('edgeLabel').value = '';
+    this.setState({ addEdgeOpen: true });
+  }
+
+  handleAddEdgeCreate() {
+    if (DBG) console.log('create edge');
+    DATA.PMC_AddMech(this.state.addEdgeSource, this.state.addEdgeTarget, this.state.addEdgeLabel);
+    this.handleAddEdgeClose();
+  }
+
+  handleAddEdgeClose() {
+    if (DBG) console.log('close');
+    this.setState({ addEdgeOpen: false });
+  }
+
+  handleResourceClick(urdata) {
+    if (DBG) console.log('ViewMain: clicked on ', urdata.rsrcId);
+    // Look up resource
+    let selectedResource = DATA.Resource(urdata.rsrcId);
+    if (selectedResource) {
+      this.setState({
+        resourceViewOpen: true,
+        selectedResource
+      });
+    } else {
+      console.error('ViewMain: Could not find selected resource id', urdata.rsrcId);
+    }
+  }
+
+  handleInformationViewClose() {
+    this.setState({ resourceViewOpen: false });
+  }
+
+  /*/
+   *  User wants to set the source on an EvidenceLink, so:
+   *  1. Close the ResourceView if open,
+   *  2. Show and expand the evidence
+   *  3. Enable source selection on the Evidence Link
+  /*/
+  handleEvLinkSourceSelectRequest(urdata) {
+    this.setState({ resourceViewOpen: false }, () => {
+      UR.Publish('RESOURCES:COLLAPSE_ALL');
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: urdata.evId, rsrcId: urdata.rsrcId });
+      UR.Publish('EVLINK:ENABLE_SOURCE_SELECT', { evId: urdata.evId });
+    });
+  }
+
+  handleSelectionChange() {
+    let selectedPropIds = DATA.VM_SelectedProps();
+    if (DBG) console.log('selection changed', selectedPropIds);
+    let sourceId = '';
+    let targetId = '';
+    if (selectedPropIds.length > 0) {
+      sourceId = selectedPropIds[0];
+    }
+    if (selectedPropIds.length > 1) {
+      targetId = selectedPropIds[1];
+    }
+    this.setState({
+      addEdgeSource: sourceId,
+      addEdgeTarget: targetId
+    });
+  }
+
+  handleSnapshot(rsrcId) {
+    if (DBG) console.log(PKG, 'create new evidence:', rsrcId);
+    let evId = DATA.PMC_AddEvidenceLink(rsrcId);
+    UR.Publish('SHOW_EVIDENCE_LINK', { evId, rsrcId });
+  }
+
   render() {
     const { classes } = this.props;
+    const resources = DATA.AllResources();
     if (DBG)
       console.log(`%crender() size ${this.state.viewWidth}x${this.state.viewHeight}`, cssreact);
     return (
@@ -94,11 +257,15 @@ class ViewMain extends React.Component {
         <CssBaseline />
         <AppBar position="fixed" className={classes.appBar}>
           <Toolbar>
-            <Typography variant="h6" color="inherit" noWrap>
-              MEME PROTO
-            </Typography>
+            <TextField
+              id="projectTitle"
+              InputProps={{ className: classes.projectTitle }}
+              placeholder="Untitled Project"
+            />
           </Toolbar>
         </AppBar>
+
+        {/* Add Comonent Dialog */}
         <Drawer
           className={classes.drawer}
           variant="permanent"
@@ -109,23 +276,67 @@ class ViewMain extends React.Component {
         >
           <div className={classes.toolbar} />
           <Divider />
-          <List>
-            {['CmdA', 'CmdB', 'CmdC', 'CmdD'].map((text, index) => (
-              <ListItem button key={text}>
-                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItem>
-            ))}
-          </List>
+          <Tooltip title="Add Component or Property">
+            <Fab
+              color="primary"
+              aria-label="Add"
+              className={classes.fab}
+              onClick={this.handleAddPropOpen}
+            >
+              <AddIcon />
+            </Fab>
+          </Tooltip>
+          <Typography align="center" variant="caption">Add Component / Property</Typography>
+          <br />
+          <Dialog
+            open={this.state.addPropOpen}
+            onClose={this.handleAddPropClose}
+            aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle id="form-dialog-title">Add Component/Property</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Type a name for your component or property.</DialogContentText>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="propLabel"
+                label="Label"
+                fullWidth
+                onChange={this.HandleAddComponentDialogLabelChange}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.handleAddPropClose} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={this.handleAddPropCreate} color="primary">
+                Create
+              </Button>
+            </DialogActions>
+          </Dialog>
+
           <Divider />
-          <List>
-            {['CmdE', 'CmdF', 'CmdG'].map((text, index) => (
-              <ListItem button key={text}>
-                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItem>
-            ))}
-          </List>
+          {/*
+            <List>
+              {['CmdA', 'CmdB', 'CmdC', 'CmdD'].map((text, index) => (
+                <ListItem button key={text}>
+                  <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+                  <ListItemText primary={text} />
+                </ListItem>
+              ))}
+            </List>
+          */}
+          <Tooltip title="Add Link">
+            <Fab
+              color="primary"
+              aria-label="Add"
+              className={ClassNames(classes.fab, classes.edgeButton)}
+              onClick={this.handleAddEdge}
+            >
+              <AddIcon />
+            </Fab>
+          </Tooltip>
+          <Typography align="center" variant="caption">Add Mechanism</Typography>
         </Drawer>
         <main className={classes.content} ref={this.refMain}>
           <div className={classes.toolbar} ref={this.refToolbar} />
@@ -157,7 +368,150 @@ class ViewMain extends React.Component {
               />
             </Switch>
           </div>
+
+          {/* Add Edge Dialog */}
+          <Card className={classes.edgeDialog} hidden={!this.state.addEdgeOpen}>
+            <Paper className={classes.edgeDialogPaper}>
+              <div className={classes.edgeDialogWindowLabel}>ADD LINKS</div>
+              <div className={classes.edgeDialogInput}>
+                {this.state.addEdgeSource !== '' ? (
+                  <div className={classes.evidenceLinkSourcePropAvatarSelected}>
+                    {this.state.addEdgeSource}
+                  </div>
+                ) : (
+                  <div className={classes.evidenceLinkSourceAvatarWaiting}>1. Click on a source...</div>
+                )}
+                &nbsp;
+                <TextField
+                  autoFocus
+                  placeholder="link label"
+                  margin="dense"
+                  id="edgeLabel"
+                  label="Label"
+                  value={this.state.addEdgeLabel}
+                  onChange={this.HandleAddEdgeDialogLabelChange}
+                  className={classes.edgeDialogTextField}
+                />
+                &nbsp;
+                {this.state.addEdgeTarget !== '' ? (
+                  <div className={classes.evidenceLinkSourcePropAvatarSelected}>
+                    {this.state.addEdgeTarget}
+                  </div>
+                ) : (
+                  <div className={classes.evidenceLinkSourceAvatarWaiting}>
+                    2. Click on a target...
+                  </div>
+                )}
+                <div style={{ flexGrow: '1' }} />
+                <Button onClick={this.handleAddEdgeClose} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={this.handleAddEdgeCreate} color="primary" variant="contained">
+                  Create
+                </Button>
+              </div>
+            </Paper>
+          </Card>
+
         </main>
+
+        {/* Resource Library */}
+        <div style={{ height: this.state.viewHeight + 64, overflowY: 'scroll', zIndex: 1250 }}>
+          <Paper className={classes.informationList}>
+            <div className={classes.resourceListLabel}>RESOURCE LIBRARY</div>
+            <List dense>
+              {resources.map(resource => (
+                <ResourceItem key={resource.rsrcId} resource={resource} />
+              ))}
+            </List>
+          </Paper>
+        </div>
+
+        {/* Resource View */}
+        <Modal
+          className={classes.resourceView}
+          disableBackdropClick={false}
+          hideBackdrop={false}
+          open={this.state.resourceViewOpen}
+          onClose={this.handleInformationViewClose}
+        >
+          <Paper className={classes.resourceViewPaper}>
+            <div className={classes.resourceViewTitle}>
+              <div className={classes.resourceViewWindowLabel}>RESOURCE VIEW</div>
+              <Avatar className={classes.resourceViewAvatar}>
+                {this.state.selectedResource.referenceLabel}
+              </Avatar>
+              &nbsp;
+              <div style={{ flexGrow: 1 }}>{this.state.selectedResource.label}</div>
+              <Card className={classes.resourceViewCard}>
+                <CardContent className={classes.resourceViewCardContent}>
+                  <Typography variant="overline">Notes:&nbsp;</Typography>
+                  <Typography variant="body2">{this.state.selectedResource.notes}</Typography>
+                </CardContent>
+              </Card>
+              <Card className={classes.resourceViewCard}>
+                <CardContent className={classes.resourceViewCardContent}>
+                  <Typography variant="overline">Type:&nbsp;</Typography>
+                  <Typography variant="body2">
+                    {this.state.selectedResource.type}{' '}
+                    {this.state.selectedResource.type === 'simulation' ? (
+                      <ImageIcon />
+                    ) : (
+                      <DescriptionIcon />
+                    )}
+                  </Typography>
+                </CardContent>
+              </Card>
+              <Card className={classes.resourceViewCard}>
+                <CardContent className={classes.resourceViewCardContent}>
+                  <Typography variant="overline">Links:&nbsp;</Typography>
+                  <Chip
+                    className={classes.resourceViewLinksBadge}
+                    label={this.state.selectedResource.links}
+                    color="primary"
+                  />
+                </CardContent>
+              </Card>
+              <Button
+                className={classes.evidenceCloseBtn}
+                onClick={this.handleInformationViewClose}
+                color="primary"
+              >
+                Close
+              </Button>
+            </div>
+            <iframe
+              src={this.state.selectedResource.url}
+              width="1000"
+              height="90%"
+              title="resource"
+            />
+            <div className={classes.resourceViewSidebar}>
+              <TextField
+                id="informationNote"
+                label="Our Notes"
+                placeholder="We noticed..."
+                multiline
+                rows="5"
+                className={classes.resourceViewNote}
+                margin="normal"
+                variant="outlined"
+              />
+              <Typography variant="caption">OUR EVIDENCE LIST</Typography>
+              <div className={classes.resourceViewSidebarEvidenceList}>
+                <EvidenceList rsrcId={this.state.selectedResource.rsrcId} />
+              </div>
+              <Button
+                className={classes.resourceViewCreatebutton}
+                variant="contained"
+                onClick={() => this.handleSnapshot(this.state.selectedResource.rsrcId)}
+                color="primary"
+              >
+                Create Evidence
+                </Button>
+            </div>
+          </Paper>
+        </Modal>
       </div>
     );
   }

@@ -1,6 +1,7 @@
 import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
 import { cssinfo, cssreset, cssdata } from './console-styles';
 import DEFAULTS from './defaults';
+import UR from '../../system/ursys';
 
 const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
 
@@ -13,13 +14,43 @@ const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
  * mechanisms. Also provides derived structures used for building view models
  * for the user interface.
  *
+ * NOTE: `nodeId` (used by graphlib natively) corresponds to a PMC Property
+ * `propId` and visual prop `vpropId`. They all map to the same value
+ * NODE: `edgeObj` (used by graphlib natively) contains two nodeIds that
+ * collectively refer to a particular PMC Mechanism `mechId`. See below for
+ * more info about the data structure.
+ *
  * The model, viewmodel, and view data elements all use the same kinds of id.
  * For properties and components, a string `nodeId` is used. For mechanisms
  * connecting properties, a string `pathId` consisting of the form
  * `sourcetNodeId:targetNodeId` is used internally. However, mechanism-related
  * API methods also accept dagres/graphlib's native `edgeObj` and `w,v`
  * syntax as well.
- * @example TO USE
+ *
+ * ADDITIONAL NOTES FROM BEN (WIP):
+ *
+ * resourceItems -- resourceItems refer to the information resources, such as
+ * simulations and reports, that students use as evidence for their models.
+ * They are considered "facts" rather than "interpretations", so they are not
+ * in themselves considered evidence until some connection is made to a model.
+ * The interpreation is embodied by the evidence link.
+ * `referenceLabel` is the human-readable footnote-like reference number for the
+ * resource.  e.g. this way you can refer to "resource 1".
+ *
+ * evidenceLink -- evidenceLinks are core objects that connect components or
+ * properties or mechanisms to resources.  There may be multiple connections
+ * between any component/property/mechanism and any resourceItem.  The
+ * structure is:
+ *  `{ evId: 'ev1', propId: 'a', mechId: 'a', rsrcId: 'rs1', note: 'fish need food' })`
+ * where `evId` is the evidenceLink id
+ *       `propId` is the property id
+ *       `mechId` is the mechanism id, e.g. 'ammonia:fish'
+ *       `rsrcId` is the resourceItem id
+ *       `note` is a general text field for the student to enter an explanation
+ * Since an evidence link can be connected either a prop or a mechanism, the
+ * one not used just remains undefined.
+ *
+ * @example TO USE MODULE
  * import PMCData from `../modules/pmc-data`;
  * console.log(PMCData.Graph())
  */
@@ -28,7 +59,7 @@ const PMCData = {};
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 
 /// MODEL /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -39,11 +70,61 @@ let a_mechs = []; // all mechanisms (pathId strings)
 let a_components = []; // top-level props with no parents
 let h_children = new Map(); // children hash of each prop by id
 let h_outedges = new Map(); // outedges hash of each prop by id
+//
+let a_resource = [];  /*/ all resource objects to be displayed in InformationList
+                          a_resource = [
+                            {
+                              rsrcId: '1',
+                              label: 'Food Rot Simulation',
+                              notes: ['water quality', 'food rotting'],
+                              type: 'simulation',
+                              url: '../static/FishSpawn_Sim_5_SEEDS_v7.html',
+                              links: 0
+                            }
+                          ]
+                      /*/
+let a_evidence = []; /*/ An array of prop-related evidence links.
+                          This is the master list of evidence links.
+
+                          [ evidenceLink,... ]
+                          [ {eid, propId, rsrcId, note},... ]
+
+                          a_evidence.push({ eid: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
+
+                      /*/
+let h_evidenceByProp = new Map(); /*/
+                          Hash table of an array of evidence links related
+                          to a property id, and grouped by property id.
+
+                          Used by class-vprop when displaying
+                          the list of evidenceLink badges for each prop.
+
+                          {propId: [{propId, rsrcId, note},
+                                 {propId, rsrcId, note},
+                                ...],
+                          ...}
+                      /*/
+let h_evlinkByResource = new Map();  /*/
+                          Used by EvidenceList to look up all evidence related to a resource
+                      /*/
+let h_evidenceByMech = new Map(); // links to evidence by mechanism id
+let h_propByResource = new Map(); /*/
+                          Hash table to look up an array of property IDs related to
+                          a specific resource.
+
+                          Used by InformationList to show props related to each resource.
+
+                          {rsrcId: [propId1, propId2,...],... }
+                      /*/
+let h_mechByResource = new Map(); // calculated links to mechanisms by evidence id
 
 /// VIEWMODEL /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const map_vprops = new Map(); // our property viewmodel data stored by id
 const map_vmechs = new Map(); // our mechanism viewmodel data stored by pathid
+const map_vbadges = new Map(); // our evidence badge viewmodel data stored by evId
+const selected_vprops = new Set();
+const selected_vmechs = new Set();
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -67,32 +148,334 @@ PMCData.Graph = () => {
 PMCData.LoadGraph = uri => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
 
-  /// g.setNode('a', { name: 'a node' });
-  g.setNode('a', { name: 'a node' });
-  g.setNode('b', { name: 'b node' });
-  g.setNode('c', { name: 'c node' });
-  g.setNode('d', { name: 'd node' });
-  g.setNode('e', { name: 'e node' });
-  g.setNode('f', { name: 'f node' });
-  g.setNode('g', { name: 'g node' });
-  g.setNode('x', { name: 'x node' });
-  g.setNode('y', { name: 'y node' });
-  g.setNode('z', { name: 'z node' });
-  /// g.setParent('a','b')
-  g.setParent('a', 'b');
-  g.setParent('c', 'd');
-  g.setParent('e', 'd');
-  g.setParent('f', 'd');
-  g.setParent('g', 'a');
-  g.setParent('y', 'd');
-  /// g.setEdge('a', 'b', { name: 'a-b' });
-  g.setEdge('z', 'x', { name: 'zexxxxy!' });
-  g.setEdge('g', 'd', { name: 'alpha>' });
-  g.setEdge('y', 'z', { name: 'datum' });
-  g.setEdge('a', 'g', { name: 'atog' });
+  // /// g.setNode('a', { name: 'a node' });
+  // g.setNode('a', { name: 'a node' });
+  // g.setNode('b', { name: 'b node' });
+  // g.setNode('c', { name: 'c node' });
+  // g.setNode('d', { name: 'd node' });
+  // g.setNode('e', { name: 'e node' });
+  // g.setNode('f', { name: 'f node' });
+  // g.setNode('g', { name: 'g node' });
+  // g.setNode('x', { name: 'x node' });
+  // g.setNode('y', { name: 'y node' });
+  // g.setNode('z', { name: 'z node' });
+  // /// g.setParent('a','b')
+  // g.setParent('a', 'b');
+  // g.setParent('c', 'd');
+  // g.setParent('e', 'd');
+  // g.setParent('f', 'd');
+  // g.setParent('g', 'a');
+  // g.setParent('y', 'd');
+  // /// g.setEdge('a', 'b', { name: 'a-b' });
+  // g.setEdge('z', 'x', { name: 'zexxxxy!' });
+  // g.setEdge('g', 'd', { name: 'alpha>' });
+  // g.setEdge('y', 'z', { name: 'datum' });
+  // g.setEdge('a', 'g', { name: 'atog' });
+
+  // // define evidence mapping: propID => evIDArray
+  // a_evidence.push({ evId: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
+  // a_evidence.push({ evId: '2', propId: 'b', rsrcId: '2', note: 'fish cant live in dirty water' });
+  // a_evidence.push({ evId: '3', propId: 'b', rsrcId: '3', note: 'fish heads' });
+  // a_evidence.push({ evId: '4', propId: 'g', rsrcId: '2', note: 'fish fish fish' });
+  // a_evidence.push({ evId: '5', propId: 'g', rsrcId: '5', note: 'fishy fishy fishy' });
+  // a_evidence.push({ evId: '6', propId: 'g', rsrcId: '1', note: 'fish cant live in dirty water' });
+  // a_evidence.push({ evId: '7', propId: 'y', rsrcId: '1', note: 'fish poop in water' });
+  // a_evidence.push({ evId: '8', propId: 'z', rsrcId: '1', note: 'fish food rots' });
+
+  /**
+   *    Student Examples
+   *
+   *    These are four examples of student work based on student sketches.
+   *    To use them, first comment out the nodes above that you're not interested in,
+   *    then uncomment the section below that you ARE interested in and save to reload.
+   *
+   */
+
+  // // 3.5.19 sample model for group 3.pdf
+  // // Sample for Group 3
+  // g.setNode('title', { name: 'Sample for Group 3' });
+  // g.setNode('foxes', { name: 'Fox' });
+  // g.setNode('foxes-amount', { name: 'amount' });
+  // g.setNode('rabbit', { name: 'Rabbit' });
+  // g.setNode('rabbit-furcolor', { name: 'fur color' });
+  // g.setNode('rabbit-amount', { name: 'amount' });
+  // g.setNode('rabbits', { name: 'Rabbits' });
+  // g.setNode('rabbits-furcolor', { name: 'fur color' });
+  // g.setNode('plants', { name: 'Thicket' });
+  // g.setNode('bacteria', { name: 'Bacteria?' });
+  // g.setNode('oldage', { name: 'Old age?' });
+  // g.setNode('properties', { name: 'Make sure to talk properties' });
+  // g.setParent('foxes-amount', 'foxes');
+  // g.setParent('rabbit-furcolor', 'rabbit');
+  // g.setParent('rabbit-amount', 'rabbit');
+  // g.setParent('rabbits-furcolor', 'rabbits');
+  // g.setEdge('foxes', 'rabbit', { name: 'eat' });
+  // g.setEdge('rabbit', 'rabbits', { name: 'tries to hide' });
+  // g.setEdge('rabbits', 'plants', { name: 'hiding' });
+
+  // 3.5.19 Day 1 Group 4 sample model.pdf
+  // // Sample for Group 4
+  // g.setNode('title', { name: 'Sample for Group 4' });
+  // g.setNode('foxes', { name: 'Foxes' });
+  // g.setNode('foxes-amount', { name: 'amount: 2' });
+  // g.setNode('rabbits', { name: 'Rabbits' });
+  // g.setNode('rabbits-amount', { name: 'amount: 20' });
+  // g.setNode('plants', { name: 'Plants' });
+  // g.setNode('forest', { name: 'Forest' });
+  // g.setParent('foxes-amount', 'foxes');
+  // g.setParent('rabbits-amount', 'rabbits');
+  // g.setEdge('foxes', 'rabbits', { name: 'eat' });
+  // g.setEdge('rabbits', 'plants', { name: 'eat' });
+  // g.setEdge('forest', 'foxes', { name: 'live in' });
+  // g.setEdge('forest', 'rabbits', { name: 'live in' });
+
+  // day2_group4_model_02.JPG
+  // Sample for Group 3
+  g.setNode('title', { name: 'Day 2 Group 4 Model 2: "Food Water Cleaning System' });
+  g.setNode('ammonia', { name: 'Ammonia' });
+  g.setNode('dirty-water', { name: 'dirty water' });
+  g.setNode('dirty-water-waste', { name: 'waste' });
+  g.setNode('dirty-water-algee', { name: 'algee' });
+  g.setNode('tank', { name: 'big enough fish tank' });
+  g.setNode('fish', { name: 'fish' });
+  g.setNode('food', { name: 'food' });
+  g.setNode('rotting-food', { name: 'rotting food' });
+  g.setNode('cleaning', { name: 'cleaning system?' });
+  g.setNode('clean-water', { name: 'clean water' });
+
+  g.setParent('dirty-water-waste', 'dirty-water');
+  g.setParent('dirty-water-algee', 'dirty-water');
+
+  g.setEdge('ammonia', 'fish', { name: 'death' });
+  g.setEdge('fish', 'ammonia', { name: 'makes' });
+  g.setEdge('fish', 'dirty-water', { name: 'waste' });
+  g.setEdge('dirty-water', 'fish', { name: 'death' });
+  g.setEdge('tank', 'fish', { name: 'live in' });
+  g.setEdge('fish', 'food', { name: 'eat' });
+  g.setEdge('food', 'rotting-food', { name: '' });
+  g.setEdge('cleaning', 'clean-water', { name: 'clean' });
+  g.setEdge('clean-water', 'fish', { name: 'live in' });
+  g.setEdge('rotting-food', 'clean-water', { name: 'if rots can also make dirty' });
+  // define evidence mapping: propID => evIDArray
+  a_evidence.push({ evId: 'ev1', propId: 'food', rsrcId: 'rs1', note: 'fish need food' });
+  a_evidence.push({ evId: 'ev7', propId: 'food', rsrcId: 'rs2', note: 'fish die without food' });
+  a_evidence.push({ evId: 'ev2', propId: 'clean-water', rsrcId: 'rs2', note: 'fish cant live in dirty water' });
+  a_evidence.push({ evId: 'ev3', propId: 'rotting-food', rsrcId: 'rs1', note: 'fish food rots' });
+  a_evidence.push({ evId: 'ev4', propId: 'ammonia', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
+  a_evidence.push({
+    evId: 'ev5',
+    propId: undefined,
+    mechId: 'ammonia:fish',
+    rsrcId: 'rs1',
+    note:
+      'ammonia causes fish to die. This is a really long explanation so that we can test how the text wraps.'
+  });
+  a_evidence.push({ evId: 'ev6', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs2', note: 'ammonia causes fish to die' });
+
+  // // 3.5.19 Day 1 Group 3 Brainstomring list and Final Model.pdf
+  // g.setNode('title', { name: 'Day 1 Group 3 Brainstorming List' });
+  // g.setNode('fish', { name: 'Fish' });
+  // g.setNode('fish-how-many', { name: 'how many' });
+  // g.setNode('fish-how-big', { name: 'how big' });
+  // g.setNode('fish-camo', { name: 'camo' });
+  // g.setNode('fish-how-healthy', { name: 'how healthy' });
+  // g.setNode('food', { name: 'food' });
+  // g.setNode('aquarium', { name: 'aquarium' });
+  // g.setNode('water-type', { name: 'water type' });
+  // g.setNode('water-how-clean', { name: 'how clean water is' });
+  // g.setNode('aquarium-setup', { name: 'setup' });
+  // g.setNode('aquarium-space', { name: 'space in aquarium' });
+  // /**
+  //  * Comment out the setParents to show graph as students originally drew it
+  //  * The setParents reworks the items as propoerties of fish and aquarium
+  //  *  */
+  // // g.setParent('fish-how-big', 'fish');
+  // // g.setParent('fish-how-many', 'fish');
+  // // g.setParent('fish-camo', 'fish');
+  // // g.setParent('fish-how-healthy', 'fish');
+  // // g.setParent('water-type', 'aquarium');
+  // // g.setParent('aquarium-setup', 'aquarium');
+  // // g.setParent('aquarium-space', 'aquarium');
+  // // g.setParent('water-how-clean', 'water-type');
+  // g.setEdge('fish', 'fish-how-big', { name: '' });
+  // g.setEdge('fish', 'fish-how-many', { name: '' });
+  // g.setEdge('fish', 'fish-camo', { name: 'what type' });
+  // g.setEdge('fish', 'fish-how-healthy', { name: '' });
+  // g.setEdge('fish', 'food', { name: '' });
+  // g.setEdge('fish', 'aquarium', { name: 'Live in it' });
+  // g.setEdge('fish-how-big', 'aquarium-space', { name: '' });
+  // g.setEdge('fish-how-healthy', 'fish-how-many', { name: '' });
+  // g.setEdge('fish-how-healthy', 'food', { name: '' });
+  // g.setEdge('fish-how-healthy', 'water-how-clean', { name: '' });
+  // g.setEdge('fish-how-healthy', 'aquarium-setup', { name: '' });
+  // g.setEdge('fish-how-healthy', 'aquarium-space', { name: '' });
+  // g.setEdge('food', 'water-type', { name: 'stays at top or rot' });
+  // g.setEdge('water-how-clean', 'fish', { name: 'how long they live could depend on this' });
+  // g.setEdge('aquarium', 'water-type', { name: 'water in aquarium' });
+  // g.setEdge('aquarium', 'aquarium-setup', { name: '' });
+  // g.setEdge('aquarium', 'aquarium-space', { name: '' });
+  // g.setEdge('water-type', 'water-how-clean', { name: '' });
+  // g.setEdge('water-type', 'aquarium-space', { name: 'more or less water purifier' });
+  // g.setEdge('aquarium-setup', 'aquarium-space', { name: 'more or less decoration depends on size' });
+
 
   /***************************************************************************/
 
+  /**
+   *    Resources
+   *
+   *    Currently resources use a placeholder screenshot as the default image.
+   *    (Screenshot-creation and saving have not been implemented yet).
+   *
+   */
+  a_resource = [
+    {
+      rsrcId: 'rs1',
+      referenceLabel: '1',
+      label: 'Food Rot Simulation',
+      notes: 'water quality, food rotting',
+      type: 'simulation',
+      url: '../static/FishSpawn_Sim_5_SEEDS_v7.html',
+      links: 0
+    },
+    {
+      rsrcId: 'rs2',
+      referenceLabel: '2',
+      label: 'Autopsy Report',
+      notes: 'Lorem ipsum dolor sit amet enim. Etiam ullamcorper. Suspendisse a pellentesque dui, non felis. Maecenas malesuada elit lectus felis, malesuada ultricies.',
+      type: 'report',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs3',
+      referenceLabel: '3',
+      label: 'Ammonia and Food Experiment',
+      notes: 'water quality, ammonia',
+      type: 'report',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs4',
+      referenceLabel: '4',
+      label: 'Fish in a Tank Simulation',
+      notes: 'water quality, fish population',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs5',
+      referenceLabel: '5',
+      label: 'Measuring Ammonia Experiment',
+      notes: 'water quality, ammonia',
+      type: 'report',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs6',
+      referenceLabel: '6',
+      label: 'Fish Fighting Simulation',
+      notes: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs7',
+      referenceLabel: '7',
+      label: 'Fish Fighting Simulation',
+      notes: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs8',
+      referenceLabel: '8',
+      label: 'Fish Fighting Simulation',
+      notes: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs9',
+      referenceLabel: '9',
+      label: 'Fish Fighting Simulation',
+      notes: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs10',
+      referenceLabel: '10',
+      label: 'Fish Fighting Simulation',
+      notes: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs11',
+      referenceLabel: '11',
+      label: 'Fish Fighting Simulation',
+      notes: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs12',
+      referenceLabel: '12',
+      label: 'Fish Fighting Simulation',
+      notes: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs13',
+      referenceLabel: '13',
+      label: 'Fish Fighting Simulation',
+      notes: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs14',
+      referenceLabel: '14',
+      label: 'Fish Fighting Simulation',
+      notes: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs15',
+      referenceLabel: '15',
+      label: 'Fish Fighting Simulation',
+      notes: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    },
+    {
+      rsrcId: 'rs16',
+      referenceLabel: '16',
+      label: 'Fish Fighting Simulation',
+      notes: 'fish agression',
+      type: 'simulation',
+      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      links: 0
+    }
+  ];
+
+  /***************************************************************************/
   // test serial write out, then serial read back in
   const cleanGraphObj = GraphJSON.write(g);
   const json = JSON.stringify(cleanGraphObj);
@@ -136,6 +519,67 @@ PMCData.BuildModel = () => {
     });
     h_outedges.set(n, arr);
   });
+
+  /*/
+   *  Update h_evidenceByProp table
+  /*/
+  h_evidenceByProp = new Map();
+  a_evidence.forEach(ev => {
+    let evidenceLinkArray = h_evidenceByProp.get(ev.propId);
+    if (evidenceLinkArray === undefined) evidenceLinkArray = [];
+    if (!evidenceLinkArray.includes(ev.propId)) evidenceLinkArray.push(ev);
+    h_evidenceByProp.set(ev.propId, evidenceLinkArray);
+  });
+
+  /*/
+   *  Update h_evidenceByMech table
+  /*/
+  h_evidenceByMech = new Map();
+  a_evidence.forEach(ev => {
+    let evidenceLinkArray = h_evidenceByMech.get(ev.mechId);
+    if (evidenceLinkArray === undefined) evidenceLinkArray = [];
+    if (!evidenceLinkArray.includes(ev.mechId)) evidenceLinkArray.push(ev);
+    h_evidenceByMech.set(ev.mechId, evidenceLinkArray);
+  });
+
+  /*/
+   *  Update h_propByResource lookup table to
+   *  look up props that are linked to a particular piece of evidence
+  /*/
+  h_propByResource = new Map();
+  h_evidenceByProp.forEach((evArr, propId) => {
+    if (evArr) {
+      evArr.forEach(ev => {
+        let propIds = h_propByResource.get(ev.rsrcId);
+        if (propIds === undefined) propIds = [];
+        if (!propIds.includes(propId)) propIds.push(propId);
+        h_propByResource.set(ev.rsrcId, propIds);
+      });
+    }
+  });
+
+  /*/
+   *  Used by EvidenceList to look up all evidence related to a resource
+  /*/
+  h_evlinkByResource = new Map();
+  a_resource.forEach(resource => {
+    let evlinkArray = a_evidence.filter(evlink => evlink.rsrcId === resource.rsrcId);
+    if (evlinkArray === undefined) evlinkArray = [];
+    h_evlinkByResource.set(resource.rsrcId, evlinkArray);
+  });
+
+
+  /*/
+   *  Now update all evidence link counts
+  /*/
+  a_resource.forEach(resource => {
+    let props = h_propByResource.get(resource.rsrcId);
+    if (props) {
+      resource.links = props.length;
+    }
+  });
+
+  UR.Publish('DATA_UPDATED');
 
   if (!DBG) return;
   console.groupCollapsed('%cBuildModel()%c Nodes and Edges', cssinfo, cssreset);
@@ -306,17 +750,17 @@ PMCData.VM_GetVMechChanges = () => {
     const pathId = CoerceToPathId(edgeObj);
     if (map_vmechs.has(pathId)) {
       updated.push(pathId);
-      console.log('updated', pathId);
+      if (DBG) console.log('updated', pathId);
     } else {
       added.push(pathId);
-      console.log('added', pathId);
+      if (DBG) console.log('added', pathId);
     }
   });
   // removed
   map_vmechs.forEach((val_vmech, key_pathId) => {
     if (!updated.includes(key_pathId)) {
       removed.push(key_pathId);
-      console.log('removed', key_pathId);
+      if (DBG) console.log('removed', key_pathId);
     }
   });
   return { added, removed, updated };
@@ -374,6 +818,326 @@ PMCData.VM_VMechSet = (vmech, evo, ew) => {
   map_vmechs.set(pathId, vmech);
 };
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  returns an object containing added, updated, removed string arrays
+ *  containing evIds.
+ */
+PMCData.VM_GetVBadgeChanges = () => {
+  const added = [];
+  const updated = [];
+  const removed = [];
+  // find what matches and what is new by pathid
+  a_evidence.forEach(evLink => {
+    const evId = evLink.evId;
+    if (map_vbadges.has(evId)) {
+      updated.push(evId);
+      if (DBG) console.log('updated', evId);
+    } else {
+      added.push(evId);
+      if (DBG) console.log('added', evId);
+    }
+  });
+  // removed
+  map_vbadges.forEach((val_badge, key_evId) => {
+    if (!updated.includes(key_evId)) {
+      removed.push(key_evId);
+      if (DBG) console.log('removed', key_evId);
+    }
+  });
+  return { added, removed, updated };
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  returns the VBadge corresponding to evId if it exists
+ *  @param {string} evId - the property with evId to retrieve
+ *  @return {VBadge} - VBadge instance, if it exists
+ */
+PMCData.VM_VBadge = evId => {
+  return map_vbadges.get(evId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  deletes the VBadge corresponding to evId if it exists
+ *  @param {string} evId - the property with evId to delete
+ */
+PMCData.VM_VBadgeDelete = evId => {
+  map_vbadges.delete(evId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  sets the vobj (either a vprop or a vmech) corresponding to the designated
+ *  evidenceLink id
+ *
+ *  Unlike vmech and vprop, evidence badges are drawn directly on the source
+ *
+ *  map_vbadges
+ *      key: evId
+ *      value: vbadge
+ *
+ *  @param {string} evId - the property with evId to add to viewmodel
+ *  @param {VBadge} vbadge - the VBadge instance
+ */
+PMCData.VM_VBadgeSet = (evId, vbadge) => {
+  map_vbadges.set(evId, vbadge);
+};
+
+/// SELECTION MANAGER TEMPORARY HOME //////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * add the vprop to the selection set. The vprop will be
+ * updated in its appearance to reflect its new state.
+ * @param {object} vprop - VProp instance with id property.
+ */
+PMCData.VM_SelectProp = vprop => {
+  // set appropriate vprop flags
+  vprop.visualState.Select();
+  vprop.Draw();
+  // update viewmodel
+  selected_vprops.add(vprop.id);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * Remove the passed vprop from the selection set, if set. The vprop will be
+ * updated in its appearance to reflect its new state.
+ * @param {object} vprop - VProp instance with id property
+ */
+PMCData.VM_DeselectProp = vprop => {
+  // set appropriate vprop flags
+  vprop.visualState.Deselect();
+  vprop.Draw();
+  // update viewmodel
+  selected_vprops.delete(vprop.id);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * Select or deselect the passed vprop.  The vprop will be
+ * updated in its appearance to reflect its new state.
+ * @param {object} vprop - VProp instance with id property
+ */
+PMCData.VM_ToggleProp = vprop => {
+  // set appropriate vprop flags
+  vprop.visualState.ToggleSelect();
+  // update viewmodel
+  if (vprop.visualState.IsSelected()) {
+    selected_vprops.add(vprop.id);
+    if (selected_vprops.size === 1) {
+      vprop.visualState.Select('first');
+    }
+    vprop.Draw();
+  } else {
+    selected_vprops.delete(vprop.id);
+    vprop.Draw();
+  }
+  if (DBG) console.log(`vprop selection`, selected_vprops);
+  UR.Publish('SELECTION_CHANGED');
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * erase the selected properties set. Also calls affected vprops to
+ * handle deselection update
+ */
+PMCData.VM_DeselectAllProps = () => {
+  // tell all vprops to clear themselves
+  selected_vprops.forEach(vpid => {
+    const vprop = PMCData.VM_VProp(vpid);
+    vprop.visualState.Deselect();
+    vprop.Draw();
+  });
+  // clear selection viewmodel
+  selected_vprops.clear();
+  if (DBG) console.log(`global selection`, selected_vprops);
+  UR.Publish('SELECTION_CHANGED');
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * Deselect all vmechs. The vmechs will be updated in its
+ * appearance to reflect its new state
+ */
+PMCData.VM_DeselectAllMechs = () => {
+  // tell all vprops to clear themselves
+  selected_vmechs.forEach(vmid => {
+    const vmech = PMCData.VM_VMech(vmid);
+    vmech.visualState.Deselect();
+    vmech.Draw();
+  });
+  // clear selection viewmodel
+  selected_vmechs.clear();
+  if (DBG) console.log(`global selection`, selected_vmechs);
+  UR.Publish('SELECTION_CHANGED');
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * Select a single mechanism, clearing the existing selection.
+ */
+PMCData.VM_SelectOneMech = vmech => {
+  // set appropriate vprop flags
+  PMCData.VM_DeselectAllMechs();
+  vmech.visualState.Select();
+  vmech.Draw();
+  // update viewmodel
+  selected_vmechs.add(vmech.id);
+  UR.Publish('SELECTION_CHANGED');
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * Select/deselect the passed vmech. The vmech will be updated in its
+ * appearance to reflect its new state
+ */
+PMCData.VM_ToggleMech = vmech => {
+  // set appropriate vprop flags
+  vmech.visualState.ToggleSelect();
+  // update viewmodel
+  if (vmech.visualState.IsSelected()) {
+    selected_vmechs.add(vmech.id);
+    vmech.Draw();
+  } else {
+    selected_vmechs.delete(vmech.id);
+    vmech.Draw();
+  }
+  if (DBG) console.log(`vmech selection`, selected_vmechs);
+  UR.Publish('SELECTION_CHANGED');
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * select ALL selected visuals, property or mechanism alike
+ */
+PMCData.VM_DeselectAll = () => {
+  PMCData.VM_DeselectAllMechs();
+  PMCData.VM_DeselectAllProps();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ return array of all string ids that are currently selected PROPERTIES
+ in order of insertion.
+ Use VProp.visualState.IsSelected('first') to determine what the first
+ selection is
+ @returns {string[]} propIds - array of string ids of properties
+ */
+PMCData.VM_SelectedProps = () => {
+  return Array.from(selected_vprops.values());
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ return array of all string ids that are currently selected MECHANISMS
+ in order of insertion. Unlike the Props version of this call, the selection
+ is not tagged with any other meta data (e.g. 'first')
+ @returns {string[]} mechIds - array of string ids of properties
+ */
+PMCData.VM_SelectedMechs = () => {
+  return Array.from(selected_vmechs.values());
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.PMC_AddProp = (node = "a") => {
+  m_graph.setNode(node, { name: `${node}` });
+  PMCData.BuildModel();
+  return `added node ${node}`;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.PMC_AddMech = (sourceId, targetId, label) => {
+  m_graph.setEdge(sourceId, targetId, { name: label });
+  PMCData.BuildModel();
+  return `added edge ${sourceId} ${targetId} ${label}`;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
+  let evId = Math.trunc(Math.random() * 10000);
+  a_evidence.push({ evId, propId: undefined, rsrcId, note });
+  PMCData.BuildModel();
+  return evId;
+};
+
+if (window.may1 === undefined) window.may1 = {};
+window.may1.PCM_Mech = PMCData.Mech;
+window.may1.PMC_AddProp = PMCData.PMC_AddProp;
+window.may1.PMC_AddMech = PMCData.PMC_AddMech;
+window.may1.PMC_AddEvidenceLink = PMCData.PMC_AddEvidenceLink;
+window.may1.VM_GetVEvLinkChanges = PMCData.VM_GetVEvLinkChanges;
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Returns all of the evidence objects.
+ */
+PMCData.AllResources = () => {
+  return a_resource;
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Returns the resource object matching the evId.
+ */
+PMCData.Resource = rsrcId => {
+  return a_resource.find((item) => { return item.rsrcId === rsrcId });
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Given the passed nodeID (prop object), returns evidence linked to the prop object.
+ *  e.g. { evidenceId: '1', note: 'fish food fish food' }
+ *  @param {string|undefined} nodeId - if defined, nodeId string of the prop (aka `propId`)
+ */
+PMCData.PropEvidence = (nodeId) => {
+  return h_evidenceByProp.get(nodeId);
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Given the passed evidence ID, returns the EvidenceLink object.
+ *  @param {string|undefined} rsrcId - if defined, id string of the resource object
+ */
+PMCData.EvidenceLinkByEvidenceId = (evId) => {
+  return a_evidence.find((item) => { return item.evId === evId });
+};
+
+PMCData.SetEvidenceLinkPropId = (evId, propId) => {
+  let ev = a_evidence.find((item) => { return item.evId === evId });
+  ev.propId = propId;
+  // Call BuildModel to rebuild hash tables since we've added a new propId
+  PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
+};
+PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
+  let ev = a_evidence.find(item => {
+    return item.evId === evId;
+  });
+  ev.mechId = mechId;
+  // Call BuildModel to rebuild hash tables since we've added a new mechId
+  PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
+};
+PMCData.SetEvidenceLinkNote = (evId, note) => {
+  let ev = a_evidence.find((item) => { return item.evId === evId });
+  ev.note = note;
+  UR.Publish('DATA_UPDATED');
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Given the passed resource ID, returns array of prop ids linked to the resource object.
+ *  @param {string|undefined} rsrcId - if defined, id string of the resource object
+ */
+PMCData.GetPropIdsByResourceId = (rsrcId) => {
+  return h_propByResource.get(rsrcId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Given the passed resource ID, returns array of prop ids linked to the resource object.
+ *  @param {string|undefined} rsrcId - if defined, id string of the resource object
+ */
+PMCData.GetEvLinkByResourceId = (rsrcId) => {
+  return h_evlinkByResource.get(rsrcId);
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Given the passed mechId (mech object), returns evidence linked to the mech object.
+ *  e.g. { evidenceId: '1', note: 'fish food fish food' }
+ *  @param {string|undefined} mechId - if defined, mechId string of the prop (aka `propId`)
+ */
+PMCData.MechEvidence = (mechId) => {
+  return h_evidenceByMech.get(mechId);
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ */
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.VM = { map_vprops, map_vmechs };

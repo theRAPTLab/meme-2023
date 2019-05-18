@@ -2,18 +2,11 @@ import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
 import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
+import { VisualState } from './classes-visual';
 
-const { VPROP, PAD } = DEFAULTS;
+const { VPROP, PAD, COLOR } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * @module VProp
- * @desc
- * The visual representation of "a property that has a name and associated data,
- * and may contain nested properties". It works with string ids (nodeId) that corresponds
- * to the pure data model nodeId.
- */
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
@@ -21,7 +14,7 @@ const { VPROP, PAD } = DEFAULTS;
 const m_minWidth = VPROP.MIN_WIDTH;
 const m_minHeight = VPROP.MIN_HEIGHT;
 const m_pad = PAD.MIN;
-const COL_BG = '#44F';
+const COL_BG = COLOR.PROP;
 const DIM_RADIUS = 3;
 //
 const DBG = false;
@@ -39,7 +32,16 @@ function m_Norm(aObj, bNum) {
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * The visual representation of "a property that has a name and associated data,
+ * and may contain nested properties". It works with string ids (nodeId) that corresponds
+ * to the pure data model nodeId.
+ */
 class VProp {
+  /** create a VProp
+   * @param {number} propId
+   * @param {SVGJSElement} svg root element
+   */
   constructor(propId, svgRoot) {
     if (typeof propId !== 'string') throw Error(`require string id`);
     if (!DATA.HasProp(propId)) throw Error(`${propId} is not in graph data`);
@@ -58,39 +60,72 @@ class VProp {
     this.height = m_minHeight;
     this.kidsWidth = 0;
     this.kidsHeight = 0;
+    // shared modes
+    this.visualState = new VisualState(this.id);
+    this.displayMode = {};
+    this.mechPoints = []; // array of points available for mechanism connections
+    // hacked items
+    this.hack = { wasMoved: false };
+    this.badgesCount = 0; // number of badges attached to this prop
     // higher order display properties
-    console.log(this.gRoot);
     this.gRoot.draggable();
-    this.gRoot.on('dragmove.propmove', event => {
-      const { handler, box } = event.detail;
+    this.gRoot.on('dragstart.propmove', event => {
       event.preventDefault();
+      console.log(`dragstart.propmove ${this.id}`);
+      this.dragStartBox = event.detail.box;
+    });
+    this.gRoot.on('dragmove.propmove', event => {
+      event.preventDefault();
+      const { handler, box } = event.detail;
       const { x, y } = box;
+      this.dragMoveBox = box;
       handler.move(x, y);
       UR.Publish('PROP:MOVED', { prop: this.id });
     });
-
-    this.dataDisplayMode = {}; // how to display data, what data to show/hide
-    this.connectionPoints = []; // array of points available for mechanism connections
-    this.highlightMode = {}; // how to display selection, subselection, hover
-
+    this.gRoot.on('dragend.propmove', event => {
+      event.stopPropagation();
+      console.log(`dragend.propmove ${this.id}`);
+      const { x: x1, y: y1 } = this.dragStartBox;
+      const { x: x2, y: y2 } = this.dragMoveBox;
+      if (Math.abs(x1 - x2) < 5 && Math.abs(y1 - y2) < 5) {
+        DATA.VM_ToggleProp(this);
+      } else {
+        console.log(`${this.id} was moved, setting 'dont move' hack flag`);
+        this.HackSetMoved(true);
+      }
+    });
     // initial drawing
     this.Draw();
   }
 
-  //
+  /** return associated nodeId
+   * @returns {string} nodeId string
+   */
   Id() {
     return this.id;
   }
 
-  //
+  /** was moved */
+  HackWasMoved() {
+    return this.hack.wasMoved;
+  }
+
+  /** set was moved */
+  HackSetMoved(flag = true) {
+    this.hack.wasMoved = flag;
+  }
+
+  /** return upper-left X coordinate */
   X() {
     return this.gRoot.x();
   }
 
+  /** return upper-left y coordinate */
   Y() {
     return this.gRoot.y();
   }
 
+  /** return width of element */
   Width() {
     return this.width;
   }
@@ -210,11 +245,10 @@ class VProp {
       if (foo.d > bar.d) return 1;
       return 0;
     });
-    if (DBG)
-      console.log(
-        `${this.Id()} sees ${distances.length} potential outedges to ${targetId}`,
-        distances
-      );
+    if (DBG) {
+      const out = `${this.Id()} sees ${distances.length} potential outedges to ${targetId}`;
+      // console.log(out, distances);
+    }
 
     // if no drawable line (e.g. overlapping) then return no line
     if (distances.length === 0) return {}; // no drawable line
@@ -276,14 +310,17 @@ class VProp {
     this.gKids.move(xx, yy);
   }
 
-  // drawing interface
+  /**
+   * Redraw svg elements from properties that may have been updated by
+   * Update().
+   * @param {object} point { x, y } coordinate
+   */
   Draw(point) {
-    console.log(`drawing '${this.id}'`);
     // draw box
-    this.visBG
-      .fill({ color: this.fill, opacity: 0.1 })
-      //      .stroke({ color: this.fill, width: 2 })
-      .radius(DIM_RADIUS);
+    this.visBG.fill({ color: this.fill, opacity: 0.1 }).radius(DIM_RADIUS);
+    let sw = this.visualState.IsSelected() ? 2 : 0;
+    if (this.visualState.IsSelected('first')) sw *= 2;
+    this.visBG.stroke({ color: this.fill, width: sw });
     // draw label
     this.gDataName.transform({ translateX: m_pad, translateY: m_pad / 2 });
     // move
@@ -314,14 +351,18 @@ class VProp {
     this.gRoot.toRoot();
   }
 
-  //
+  /**
+   * Update instance properties from model, then call Draw() to update svg elements
+   */
   Update() {
     // update data by copying
     const data = DATA.Prop(this.id);
     this.data.name = data.name;
+
     // preserve layout
     const x = this.gRoot.x();
     const y = this.gRoot.y();
+
     this.Draw({ x, y });
   }
 }
@@ -439,10 +480,9 @@ VProp.GetSize = id => {
   const vprop = DATA.VM_VProp(id);
   return { id: vprop.Id(), w: vprop.Width(), h: vprop.Height() };
 };
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  LIFECYCLE: SizeToContents sizes all the properties to fit their contained props
+ *  LIFECYCLE: Sizes all the properties to fit their contained props
  *  based on their display state
  */
 VProp.LayoutComponents = () => {
@@ -456,7 +496,7 @@ VProp.LayoutComponents = () => {
   // set background size to it
   components.forEach(id => {
     // get the Visual
-    console.groupCollapsed(`%c:layout component ${id}`, cssinfo);
+    if (DBG) console.groupCollapsed(`%c:layout component ${id}`, cssinfo);
     u_Layout({ x: xCounter, y: yCounter }, id);
     const compVis = DATA.VM_VProp(id);
     const compHeight = compVis.Height();
@@ -467,7 +507,7 @@ VProp.LayoutComponents = () => {
       xCounter = PAD.MIN2;
       highHeight = 0;
     }
-    console.groupEnd();
+    if (DBG) console.groupEnd();
   });
 };
 
@@ -475,23 +515,107 @@ let highHeight = 0;
 
 function u_Layout(offset, id) {
   let { x, y } = offset;
-  console.group(`${id} draw at (${x},${y})`);
+  if (DBG) console.group(`${id} draw at (${x},${y})`);
   const compVis = DATA.VM_VProp(id);
-  compVis.Move(x, y); // draw compVis where it should go in screen space
-  y += compVis.DataHeight() + PAD.MIN;
-  x += PAD.MIN;
-  const children = DATA.Children(id);
-  let widest = 0;
-  children.forEach(cid => {
-    const childVis = DATA.VM_VProp(cid);
-    widest = Math.max(widest, childVis.GetKidsBBox()).w;
-    u_Layout({ x, y }, cid);
-    const addH = childVis.Height() + PAD.MIN;
-    y += addH;
-    console.log(`y + ${addH} = ${y}`);
-  });
-  console.groupEnd();
+  if (!compVis.HackWasMoved()) {
+    if (DBG) console.log(`moving ${compVis.id}`);
+    compVis.Move(x, y); // draw compVis where it should go in screen space
+    y += compVis.DataHeight() + PAD.MIN;
+    x += PAD.MIN;
+    const children = DATA.Children(id);
+    let widest = 0;
+    children.forEach(cid => {
+      const childVis = DATA.VM_VProp(cid);
+      widest = Math.max(widest, childVis.GetKidsBBox()).w;
+      u_Layout({ x, y }, cid);
+      const addH = childVis.Height() + PAD.MIN;
+      y += addH;
+      if (DBG) console.log(`y + ${addH} = ${y}`);
+    });
+  } else if (DBG) {
+    console.log(`skipping layout of ${compVis.id}`);
+  }
+  if (DBG) console.groupEnd();
 }
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Allocate VProp instances through this static method. It maintains
+ *  the collection of all allocated visuals
+ *  @param {string} id = evId of the evidence link
+ */
+VProp.NewBadge = (id, svgRoot) => {
+  if (DATA.VM_VBadge(id)) throw Error(`${id} is already allocated`);
+  if (svgRoot.constructor.name !== 'Svg') throw Error(`arg2 must be SVGJS draw instance`);
+
+  // Find my corresponding VProp
+  const evlink = DATA.EvidenceLinkByEvidenceId(id);
+  if (evlink.propId === undefined) return; // Not evidence for a property, probably a vmech
+  const myVProp = DATA.VM_VProp(evlink.propId);
+  myVProp.badgesCount++;
+  const badgeCount = myVProp.badgesCount;
+
+  let vbadge = myVProp.gRoot.group();
+  vbadge.id = id;
+  vbadge.Release = () => {
+    // FIXME - Need to update myVProp.badgesCount?
+    // FIXME - This is wrong!  How do we remove ourselves?
+    return vbadge.remove();
+  };
+  vbadge.Update = () => {
+    // FIXME -- do we need to update text?
+    // or maybe we don't need to do ANY update?
+  };
+
+  const radius = m_minHeight + m_pad / 2;
+  const x = myVProp.gRoot.x();
+  const y = myVProp.gRoot.y() + (badgeCount - 1) * 7.5; // FIXME hack -- for some reason Y on subsequent badges is decreased
+  const referenceLabel = DATA.Resource(evlink.rsrcId).referenceLabel;
+  vbadge.gCircle = vbadge
+    .circle(radius)
+    .fill('#b2dfdb')
+    .move(x + m_minWidth - badgeCount * (radius + 0.25 * m_pad) - m_pad, y - m_pad / 2)
+    .mousedown(e => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (DBG) console.log('badge click');
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: evlink.evId, rsrcId: evlink.rsrcId });
+    });
+  vbadge.gLabel = vbadge
+    .text(referenceLabel)
+    .font({ fill: '#366', size: '0.8em', weight: 'bold' })
+    .move(
+      x + m_minWidth - badgeCount * (radius + 0.25 * m_pad) - m_pad + 0.4 * radius,
+      y + radius / 2 - m_pad
+    )
+    .mousedown(e => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (DBG) console.log('evidenceLabel click');
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: evlink.evId, rsrcId: evlink.rsrcId });
+    });
+
+  DATA.VM_VBadgeSet(id, vbadge);
+  return vbadge;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  De-allocate VProp instance by id.
+ */
+VProp.ReleaseBadge = id => {
+  const vbadge = DATA.VM_VBadge(id);
+  DATA.VM_VBadgeDelete(id);
+  return vbadge.Release();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Update instance from associated data id
+ */
+VProp.UpdateBadge = id => {
+  const vbadge = DATA.VM_VBadge(id);
+  vbadge.Update();
+  return vbadge;
+};
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -499,8 +623,8 @@ if (!window.meme) window.meme = {};
 window.meme.vprops = () => {
   console.log(`%cattaching props to window by [id]`, cssdata);
   let props = DATA.AllProps();
-  props.forEach(pid => {
-    window[pid] = DATA.VM_VProp(pid);
+  props.forEach(propId => {
+    window[propId] = DATA.VM_VProp(propId);
   });
   return `${props} attached to window object`;
 };
@@ -516,12 +640,12 @@ window.meme.dumpid = id => {
   console.log(`%cdumping id [${id}] child hierarchy`, cssdata);
   recurse(id);
   /* helper */
-  function recurse(pid) {
-    const vis = DATA.VM_VProp(pid);
+  function recurse(propId) {
+    const vis = DATA.VM_VProp(propId);
     const visHeight = vis.Height();
     const visY = vis.Y();
-    console.group(`[${pid}] y=${visHeight} (${visHeight})`);
-    const kids = DATA.Children(pid);
+    console.group(`[${propId}] y=${visHeight} (${visHeight})`);
+    const kids = DATA.Children(propId);
     kids.forEach(kid => {
       recurse(kid);
     });

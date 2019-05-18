@@ -66,6 +66,7 @@ class VProp {
     this.mechPoints = []; // array of points available for mechanism connections
     // hacked items
     this.hack = { wasMoved: false };
+    this.badgesCount = 0; // number of badges attached to this prop
     // higher order display properties
     this.gRoot.draggable();
     this.gRoot.on('dragstart.propmove', event => {
@@ -322,18 +323,6 @@ class VProp {
     this.visBG.stroke({ color: this.fill, width: sw });
     // draw label
     this.gDataName.transform({ translateX: m_pad, translateY: m_pad / 2 });
-    // draw evidence labels on right side of prop
-    let evWidth = 28;
-    if (this.gDataEvidenceBadge) {
-      this.gDataEvidenceBadge.forEach((ev, index) => {
-        ev.transform({ translateX: this.width - evWidth * (index + 1) - 4, translateY: m_pad / 2 + 3 });
-      });
-    }
-    if (this.gDataEvidenceLabel) {
-      this.gDataEvidenceLabel.forEach((ev, index) => {
-        ev.transform({ translateX: this.width - evWidth * (index + 1) + evWidth / 3 - 4, translateY: m_pad / 2 + 7 });
-      });
-    }
     // move
     if (point) this.gRoot.move(point.x, point.y);
   }
@@ -373,38 +362,6 @@ class VProp {
     // preserve layout
     const x = this.gRoot.x();
     const y = this.gRoot.y();
-
-    // Evidence
-    const evArr = DATA.PropEvidence(this.id);
-    this.gDataEvidenceBadge = [];
-    this.gDataEvidenceLabel = [];
-    if (evArr) {
-      // When adding the evidence badges, we have to move them to the current location
-      evArr.forEach((ev) => {
-        let referenceLabel = DATA.Resource(ev.rsrcId).referenceLabel;
-        let badge = this.gData
-          .circle(25)
-          .fill('#b2dfdb')
-          .move(x, y)
-          .mousedown((e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('badge click');
-            UR.Publish('SHOW_EVIDENCE_LINK', { evId: ev.evId, rsrcId: ev.rsrcId });
-          });
-
-        this.gDataEvidenceBadge.push(badge);
-        this.gDataEvidenceLabel.push(
-          this.gData
-            .text(referenceLabel)
-            .font({ fill: '#366', size: '0.8em', weight: 'bold' })
-            .move(x, y)
-            .mousedown((e) => {
-              console.log('evidenceLabel click');
-            })
-        );
-      });
-    }
 
     this.Draw({ x, y });
   }
@@ -580,6 +537,85 @@ function u_Layout(offset, id) {
   }
   if (DBG) console.groupEnd();
 }
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Allocate VProp instances through this static method. It maintains
+ *  the collection of all allocated visuals
+ *  @param {string} id = evId of the evidence link
+ */
+VProp.NewBadge = (id, svgRoot) => {
+  if (DATA.VM_VBadge(id)) throw Error(`${id} is already allocated`);
+  if (svgRoot.constructor.name !== 'Svg') throw Error(`arg2 must be SVGJS draw instance`);
+
+  // Find my corresponding VProp
+  const evlink = DATA.EvidenceLinkByEvidenceId(id);
+  if (evlink.propId === undefined) return; // Not evidence for a property, probably a vmech
+  const myVProp = DATA.VM_VProp(evlink.propId);
+  myVProp.badgesCount++;
+  const badgeCount = myVProp.badgesCount;
+
+  let vbadge = myVProp.gRoot.group();
+  vbadge.id = id;
+  vbadge.Release = () => {
+    // FIXME - Need to update myVProp.badgesCount?
+    // FIXME - This is wrong!  How do we remove ourselves?
+    return vbadge.remove();
+  };
+  vbadge.Update = () => {
+    // FIXME -- do we need to update text?
+    // or maybe we don't need to do ANY update?
+  };
+
+  const radius = m_minHeight + m_pad / 2;
+  const x = myVProp.gRoot.x();
+  const y = myVProp.gRoot.y() + (badgeCount - 1) * 7.5; // FIXME hack -- for some reason Y on subsequent badges is decreased
+  const referenceLabel = DATA.Resource(evlink.rsrcId).referenceLabel;
+  vbadge.gCircle = vbadge
+    .circle(radius)
+    .fill('#b2dfdb')
+    .move(x + m_minWidth - badgeCount * (radius + 0.25 * m_pad) - m_pad, y - m_pad / 2)
+    .mousedown(e => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (DBG) console.log('badge click');
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: evlink.evId, rsrcId: evlink.rsrcId });
+    });
+  vbadge.gLabel = vbadge
+    .text(referenceLabel)
+    .font({ fill: '#366', size: '0.8em', weight: 'bold' })
+    .move(
+      x + m_minWidth - badgeCount * (radius + 0.25 * m_pad) - m_pad + 0.4 * radius,
+      y + radius / 2 - m_pad
+    )
+    .mousedown(e => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (DBG) console.log('evidenceLabel click');
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: evlink.evId, rsrcId: evlink.rsrcId });
+    });
+
+  DATA.VM_VBadgeSet(id, vbadge);
+  return vbadge;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  De-allocate VProp instance by id.
+ */
+VProp.ReleaseBadge = id => {
+  const vbadge = DATA.VM_VBadge(id);
+  DATA.VM_VBadgeDelete(id);
+  return vbadge.Release();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Update instance from associated data id
+ */
+VProp.UpdateBadge = id => {
+  const vbadge = DATA.VM_VBadge(id);
+  vbadge.Update();
+  return vbadge;
+};
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

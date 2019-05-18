@@ -21,19 +21,18 @@ import EvidenceLink from './EvidenceLink';
 class EvidenceList extends React.Component {
   constructor(props) {
     super(props);
-    this.handleDataUpdate = this.handleDataUpdate.bind(this);
-    UR.Sub('DATA_UPDATED', this.handleDataUpdate);
+    this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
+    UR.Sub('DATA_UPDATED', this.HandleDataUpdate);
   }
 
   componentDidMount() {}
 
   componentWillUnmount() {
-    UR.Unsub('DATA_UPDATED', this.handleDataUpdate);
+    UR.Unsub('DATA_UPDATED', this.HandleDataUpdate);
   }
 
-  handleDataUpdate() {
-    // Reload -- This is necessary to handle evlink.note updates as a controlled component.
-    //           Otherwise, evlink note won't be updated when the user types.
+  HandleDataUpdate() {
+    // If an EvidenceLink is added we need to update the list.
     this.forceUpdate();
   }
 

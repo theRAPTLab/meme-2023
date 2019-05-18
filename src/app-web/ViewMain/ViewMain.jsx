@@ -71,6 +71,8 @@ class ViewMain extends React.Component {
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
+    this.HandleAddComponentDialogLabelChange = this.HandleAddComponentDialogLabelChange.bind(this);
+    this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
     this.handleAddPropOpen = this.handleAddPropOpen.bind(this);
     this.handleAddPropClose = this.handleAddPropClose.bind(this);
     this.handleAddPropCreate = this.handleAddPropCreate.bind(this);
@@ -89,10 +91,12 @@ class ViewMain extends React.Component {
     this.state = {
       viewHeight: 0, // need to init this to prevent error with first render of informationList
       addPropOpen: false,
+      addComponentLabel: '',
       addEdgeOpen: false,
+      addEdgeLabel: '',
+      addEdgeSource: '',
+      addEdgeTarget: '',
       resourceViewOpen: false,
-      edgeSource: '',
-      edgeTarget: '',
       selectedResource: {
         id: '',
         evid: '',
@@ -113,6 +117,13 @@ class ViewMain extends React.Component {
     // the root component renders in SystemInit.
     // SystemInit fires `WINDOW:SIZE` to force the
     // relayout
+  }
+
+  componentWillUnmount() {
+    UR.Unsub('WINDOW:SIZE', this.UpdateDimensions);
+    UR.Unsub('SHOW_RESOURCE', this.handleResourceClick);
+    UR.Unsub('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Unsub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
   }
 
   UpdateDimensions() {
@@ -138,6 +149,14 @@ class ViewMain extends React.Component {
     });
   }
 
+  HandleAddComponentDialogLabelChange(e) {
+    this.setState({ addComponentLabel: e.target.value });
+  }
+
+  HandleAddEdgeDialogLabelChange(e) {
+    this.setState({ addEdgeLabel: e.target.value });
+  }
+
   handleAddPropOpen() {
     if (DBG) console.log('Add!');
     this.setState({ addPropOpen: true });
@@ -150,37 +169,27 @@ class ViewMain extends React.Component {
 
   handleAddPropCreate() {
     if (DBG) console.log('create prop');
-    let label = document.getElementById('propLabel').value;
-    DATA.PMC_AddProp(label);
+    DATA.PMC_AddProp(this.state.addComponentLabel);
     this.handleAddPropClose();
   }
 
 
   handleAddEdge() {
     if (DBG) console.log('Add!');
+    // clear the label first
+    document.getElementById('edgeLabel').value = '';
     this.setState({ addEdgeOpen: true });
   }
 
   handleAddEdgeCreate() {
     if (DBG) console.log('create edge');
-    let label = document.getElementById('edgeLabel').value;
-    DATA.PMC_AddMech(this.state.edgeSource, this.state.edgeTarget, label);
+    DATA.PMC_AddMech(this.state.addEdgeSource, this.state.addEdgeTarget, this.state.addEdgeLabel);
     this.handleAddEdgeClose();
   }
 
   handleAddEdgeClose() {
     if (DBG) console.log('close');
     this.setState({ addEdgeOpen: false });
-  }
-
-  handleSetEdgeSource() {
-    if (DBG) console.log('handleSetEdgeSource');
-    UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
-
-  }
-
-  handleSetEdgeTarget() {
-    if (DBG) console.log('handleSetEdgeTarget');
   }
 
   handleResourceClick(urdata) {
@@ -202,18 +211,16 @@ class ViewMain extends React.Component {
   }
 
   /*/
-   *  User wants to set the source on an EvidenceLink
-   *  So close the ResourceView if open,
-   *  and then show and expand the evidence
+   *  User wants to set the source on an EvidenceLink, so:
+   *  1. Close the ResourceView if open,
+   *  2. Show and expand the evidence
+   *  3. Enable source selection on the Evidence Link
   /*/
   handleEvLinkSourceSelectRequest(urdata) {
     this.setState({ resourceViewOpen: false }, () => {
-      UR.Publish('UNEXPAND_ALL_RESOURCES');
-      UR.Publish('SHOW_EVIDENCE_NOTE', { evId: urdata.evId, rsrcId: urdata.rsrcId });
-      UR.Publish('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', {
-        evId: urdata.evId,
-        rsrcId: urdata.rsrcId
-      });
+      UR.Publish('RESOURCES:COLLAPSE_ALL');
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: urdata.evId, rsrcId: urdata.rsrcId });
+      UR.Publish('EVLINK:ENABLE_SOURCE_SELECT', { evId: urdata.evId });
     });
   }
 
@@ -229,8 +236,8 @@ class ViewMain extends React.Component {
       targetId = selectedPropIds[1];
     }
     this.setState({
-      edgeSource: sourceId,
-      edgeTarget: targetId
+      addEdgeSource: sourceId,
+      addEdgeTarget: targetId
     });
   }
 
@@ -250,11 +257,15 @@ class ViewMain extends React.Component {
         <CssBaseline />
         <AppBar position="fixed" className={classes.appBar}>
           <Toolbar>
-            <Typography variant="h6" color="inherit" noWrap>
-              MEME PROTO
-            </Typography>
+            <TextField
+              id="projectTitle"
+              InputProps={{ className: classes.projectTitle }}
+              placeholder="Untitled Project"
+            />
           </Toolbar>
         </AppBar>
+
+        {/* Add Comonent Dialog */}
         <Drawer
           className={classes.drawer}
           variant="permanent"
@@ -275,6 +286,8 @@ class ViewMain extends React.Component {
               <AddIcon />
             </Fab>
           </Tooltip>
+          <Typography align="center" variant="caption">Add Component / Property</Typography>
+          <br />
           <Dialog
             open={this.state.addPropOpen}
             onClose={this.handleAddPropClose}
@@ -283,7 +296,14 @@ class ViewMain extends React.Component {
             <DialogTitle id="form-dialog-title">Add Component/Property</DialogTitle>
             <DialogContent>
               <DialogContentText>Type a name for your component or property.</DialogContentText>
-              <TextField autoFocus margin="dense" id="propLabel" label="Label" fullWidth />
+              <TextField
+                autoFocus
+                margin="dense"
+                id="propLabel"
+                label="Label"
+                fullWidth
+                onChange={this.HandleAddComponentDialogLabelChange}
+              />
             </DialogContent>
             <DialogActions>
               <Button onClick={this.handleAddPropClose} color="primary">
@@ -294,6 +314,7 @@ class ViewMain extends React.Component {
               </Button>
             </DialogActions>
           </Dialog>
+
           <Divider />
           {/*
             <List>
@@ -315,6 +336,7 @@ class ViewMain extends React.Component {
               <AddIcon />
             </Fab>
           </Tooltip>
+          <Typography align="center" variant="caption">Add Mechanism</Typography>
         </Drawer>
         <main className={classes.content} ref={this.refMain}>
           <div className={classes.toolbar} ref={this.refToolbar} />
@@ -352,9 +374,9 @@ class ViewMain extends React.Component {
             <Paper className={classes.edgeDialogPaper}>
               <div className={classes.edgeDialogWindowLabel}>ADD LINKS</div>
               <div className={classes.edgeDialogInput}>
-                {this.state.edgeSource !== '' ? (
+                {this.state.addEdgeSource !== '' ? (
                   <div className={classes.evidenceLinkSourcePropAvatarSelected}>
-                    {this.state.edgeSource}
+                    {this.state.addEdgeSource}
                   </div>
                 ) : (
                   <div className={classes.evidenceLinkSourceAvatarWaiting}>1. Click on a source...</div>
@@ -366,12 +388,14 @@ class ViewMain extends React.Component {
                   margin="dense"
                   id="edgeLabel"
                   label="Label"
+                  value={this.state.addEdgeLabel}
+                  onChange={this.HandleAddEdgeDialogLabelChange}
                   className={classes.edgeDialogTextField}
                 />
                 &nbsp;
-                {this.state.edgeTarget !== '' ? (
+                {this.state.addEdgeTarget !== '' ? (
                   <div className={classes.evidenceLinkSourcePropAvatarSelected}>
-                    {this.state.edgeTarget}
+                    {this.state.addEdgeTarget}
                   </div>
                 ) : (
                   <div className={classes.evidenceLinkSourceAvatarWaiting}>
@@ -473,6 +497,10 @@ class ViewMain extends React.Component {
                 margin="normal"
                 variant="outlined"
               />
+              <Typography variant="caption">OUR EVIDENCE LIST</Typography>
+              <div className={classes.resourceViewSidebarEvidenceList}>
+                <EvidenceList rsrcId={this.state.selectedResource.rsrcId} />
+              </div>
               <Button
                 className={classes.resourceViewCreatebutton}
                 variant="contained"
@@ -480,8 +508,7 @@ class ViewMain extends React.Component {
                 color="primary"
               >
                 Create Evidence
-              </Button>
-              <EvidenceList rsrcId={this.state.selectedResource.rsrcId} />
+                </Button>
             </div>
           </Paper>
         </Modal>

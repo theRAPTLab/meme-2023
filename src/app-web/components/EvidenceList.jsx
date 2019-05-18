@@ -19,13 +19,25 @@ import EvidenceLink from './EvidenceLink';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class EvidenceList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
+    UR.Sub('DATA_UPDATED', this.HandleDataUpdate);
+  }
 
   componentDidMount() {}
 
-  componentWillUnmount() {}
+  componentWillUnmount() {
+    UR.Unsub('DATA_UPDATED', this.HandleDataUpdate);
+  }
+
+  HandleDataUpdate() {
+    // If an EvidenceLink is added we need to update the list.
+    this.forceUpdate();
+  }
 
   render() {
-    const { rsrcId } = this.props;
+    const { classes, rsrcId } = this.props;
     const evLinks = DATA.GetEvLinkByResourceId(rsrcId);
     /*/ evLinks
           is an array of evidence Link objects related to the resource, e.g.

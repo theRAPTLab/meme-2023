@@ -211,18 +211,16 @@ class ViewMain extends React.Component {
   }
 
   /*/
-   *  User wants to set the source on an EvidenceLink
-   *  So close the ResourceView if open,
-   *  and then show and expand the evidence
+   *  User wants to set the source on an EvidenceLink, so:
+   *  1. Close the ResourceView if open,
+   *  2. Show and expand the evidence
+   *  3. Enable source selection on the Evidence Link
   /*/
   handleEvLinkSourceSelectRequest(urdata) {
     this.setState({ resourceViewOpen: false }, () => {
-      UR.Publish('UNEXPAND_ALL_RESOURCES');
+      UR.Publish('RESOURCES:COLLAPSE_ALL');
       UR.Publish('SHOW_EVIDENCE_LINK', { evId: urdata.evId, rsrcId: urdata.rsrcId });
-      UR.Publish('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', {
-        evId: urdata.evId,
-        rsrcId: urdata.rsrcId
-      });
+      UR.Publish('EVLINK:ENABLE_SOURCE_SELECT', { evId: urdata.evId });
     });
   }
 

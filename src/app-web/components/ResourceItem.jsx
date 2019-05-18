@@ -49,12 +49,12 @@ class ResourceItem extends React.Component {
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
     this.handleDataUpdate = this.handleDataUpdate.bind(this);
     this.handleResourceClick = this.handleResourceClick.bind(this);
-    this.handleUnexpandAll = this.handleUnexpandAll.bind(this);
+    this.handleCollapseAll = this.handleCollapseAll.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
 
     UR.Sub('SHOW_EVIDENCE_LINK', this.handleEvidenceLinkOpen);
     UR.Sub('DATA_UPDATED', this.handleDataUpdate);
-    UR.Sub('UNEXPAND_ALL_RESOURCES', this.handleUnexpandAll);
+    UR.Sub('RESOURCES:COLLAPSE_ALL', this.handleCollapseAll);
     // FIXME: Resource is getting closed before selection, force it open again
     UR.Sub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleEvidenceLinkOpen);
   }
@@ -64,14 +64,16 @@ class ResourceItem extends React.Component {
   componentWillUnmount() {
     UR.Unsub('SHOW_EVIDENCE_LINK', this.handleEvidenceLinkOpen);
     UR.Unsub('DATA_UPDATED', this.handleDataUpdate);
-    UR.Unsub('UNEXPAND_ALL_RESOURCES', this.handleUnexpandAll);
+    UR.Unsub('RESOURCES:COLLAPSE_ALL', this.handleCollapseAll);
     UR.Unsub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleEvidenceLinkOpen);
   }
 
   toggleExpanded() {
     if (DBG) console.log(PKG, 'expansion clicked');
-    this.setState({
-      isExpanded: !this.state.isExpanded
+    this.setState(prevState => {
+      return {
+        isExpanded: !prevState.isExpanded
+      };
     });
   }
 
@@ -99,7 +101,7 @@ class ResourceItem extends React.Component {
     UR.Publish('SHOW_RESOURCE', { rsrcId });
   }
 
-  handleUnexpandAll() {
+  handleCollapseAll() {
     // FIXME: Why is `this` undefined?!?
     if (this) {
       this.setState({ isExpanded: false });

@@ -28,6 +28,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import DATA from '../modules/pmc-data';
 import UR from '../../system/ursys';
+import RatingButton from './RatingButton';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -52,6 +53,7 @@ class EvidenceLink extends React.Component {
       sourceHasNotBeenSet
     };
     this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
+    this.HandleRatingUpdate = this.HandleRatingUpdate.bind(this);
     this.handleDeleteButtonClick = this.handleDeleteButtonClick.bind(this);
     this.handleEditButtonClick = this.handleEditButtonClick.bind(this);
     this.handleSaveButtonClick = this.handleSaveButtonClick.bind(this);
@@ -85,6 +87,11 @@ class EvidenceLink extends React.Component {
     this.setState({ note });
   }
 
+  HandleRatingUpdate(rating) {
+    console.log('Rating was updated to', rating);
+    //FIXME: Call PMCDatat to update evlink object
+  }
+  
   handleDeleteButtonClick() {
     alert("DELETE/CANCEL not implemented yet.");
   }
@@ -207,7 +214,7 @@ class EvidenceLink extends React.Component {
 
   render() {
     // evidenceLinks is an array of arrays because there might be more than one?!?
-    const { evId, rsrcId, propId, mechId, classes } = this.props;
+    const { evId, rsrcId, propId, mechId, rating, classes } = this.props;
     const {
       note,
       isBeingEdited,
@@ -296,6 +303,12 @@ class EvidenceLink extends React.Component {
             </div>
           )}
         </div>
+        <Divider />
+        <RatingButton
+          rating={rating}
+          isExpanded={isExpanded}
+          UpdateRating={this.HandleRatingUpdate}
+        />
         <Divider />
         <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
           <Button

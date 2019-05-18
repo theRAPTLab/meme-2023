@@ -1,4 +1,4 @@
-import { indigo, orange, red, teal, yellow } from "@material-ui/core/colors";
+import { grey, indigo, orange, red, teal, yellow } from "@material-ui/core/colors";
 import { registerMorphableType } from "@svgdotjs/svg.js/src/main";
 import { Hidden } from "@material-ui/core";
 
@@ -264,7 +264,20 @@ const styles = theme => {
     evidenceLinkSourceMechAvatarSelected: {
       color: orange[900],
       backgroundColor: orange[100],
-      padding: '0 7px'      
+      padding: '0 7px'
+    },
+    ratingIconSelected: {
+      color: yellow[800]
+    },
+    ratingIconUnselected: {
+      color: grey[500]
+    },
+    ratingButtonLarge: {
+      minWidth: '50px'
+    },
+    ratingButtonSmall: {
+      minWidth: '24px',
+      padding: '0'
     },
     badge: {
       margin: '8px'

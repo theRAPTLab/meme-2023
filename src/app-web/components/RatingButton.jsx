@@ -5,7 +5,6 @@ RatingButton
 This implements a multi-star rating system.
 
 Features:
-* The `ratingLabel` can be customized.
 * Any number of stars can be set
 * Supports an expanded and collasped (minified) view.
 
@@ -19,7 +18,6 @@ with the parent component.
 Props:
     Settings from Parent
       Values
-      *   ratingLabel
       *   max
       *   rating
       Display Settings
@@ -49,9 +47,6 @@ import MEMEStyles from './MEMEStyles';
 class RatingButton extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      rating: this.props.rating
-    };
     this.HandleClick = this.HandleClick.bind(this);
   }
 
@@ -60,13 +55,11 @@ class RatingButton extends React.Component {
   componentWillUnmount() {}
 
   HandleClick(rating) {
-    this.setState({ rating });
     this.props.UpdateRating(rating);
   }
 
   render() {
-    const { rating } = this.state;
-    const { max, isExpanded } = this.props;
+    const { max, rating, isExpanded } = this.props;
     const { classes } = this.props;
     let icons = [];
     for (let i = 1; i <= max; i++) {

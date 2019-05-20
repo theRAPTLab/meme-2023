@@ -47,6 +47,7 @@ class EvidenceLink extends React.Component {
     let sourceHasNotBeenSet = this.props.propId === undefined && this.props.mechId === undefined;
     this.state = {
       note: this.props.note,
+      rating: this.props.rating,
       canBeEdited: false,
       isBeingEdited: false,
       isExpanded: false,
@@ -82,17 +83,30 @@ class EvidenceLink extends React.Component {
   HandleDataUpdate() {
     // The same EvidenceLink can be displayed in both the Resource Library
     // and a Resource View.  If one is updated, the other needs to update itself
-    // via the DATA_UPDATED call because `note` is only set by props 
+    // via the DATA_UPDATED call because `note` is only set by props
     // during construction.
-    let note = DATA.EvidenceLinkByEvidenceId(this.props.evId).note;
-    this.setState({ note });
+
+    let evlink = DATA.EvidenceLinkByEvidenceId(this.props.evId);
+    if (evlink) {
+      this.setState({
+        note: evlink.note,
+        rating: evlink.rating
+      });
+      return;
+    }
+    throw Error(`no evidence link with evId '${this.props.evId}' exists`);
   }
 
+  /**
+   * Called by the Rating widget when the user clicks on a star.
+   * Sets the rating on the evidence link data.
+   *
+   * @param {integer} rating - number of stars selected
+   */
   HandleRatingUpdate(rating) {
-    console.log('Rating was updated to', rating);
-    //FIXME: Call PMCDatat to update evlink object
+    DATA.SetEvidenceLinkRating(this.props.evId, rating);
   }
-  
+
   handleDeleteButtonClick() {
     alert("DELETE/CANCEL not implemented yet.");
   }
@@ -215,9 +229,10 @@ class EvidenceLink extends React.Component {
 
   render() {
     // evidenceLinks is an array of arrays because there might be more than one?!?
-    const { evId, rsrcId, propId, mechId, rating, classes } = this.props;
+    const { evId, rsrcId, propId, mechId, classes } = this.props;
     const {
       note,
+      rating,
       isBeingEdited,
       isExpanded,
       sourceHasNotBeenSet,

@@ -58,6 +58,7 @@ class EvidenceList extends React.Component {
             propId={evlink.propId}
             mechId={evlink.mechId}
             note={evlink.note}
+            rating={evlink.rating}
             key={evlink.evId}
           />
         ))}

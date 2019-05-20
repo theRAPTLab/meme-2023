@@ -166,10 +166,32 @@ const styles = theme => {
       marginBottom: theme.spacing.unit,
       width: '100%'
     },
-    evidenceTitle: {
+    evidenceBody: {
       fontSize: '1em',
       fontWeight: 'normal',
       display: 'flex'
+    },
+    evidenceBodyRow: {
+      marginTop: '0.25em',
+      alignItems: 'baseline'
+    },
+    evidenceBodyRowCollapsed: {
+      height: '25px',
+      marginTop: '0.25em',
+      alignItems: 'baseline'
+    },
+    evidenceBodyRatingCollapsed: {
+      position: 'relative',
+      top: '-50px',
+      left: '170px'
+    },
+    evidenceBodyRowCentered: {
+      marginTop: '0.25em',
+      alignItems: 'center'
+    },
+    evidenceBodyRowTop: {
+      marginTop: '0.25em',
+      alignItems: 'top'
     },
     evidenceWindowLabel: {
       fontSize: '0.6em',
@@ -185,12 +207,14 @@ const styles = theme => {
       overflowY: 'auto'
     },
     evidenceLabelFieldExpanded: {
-      height: 'auto'
+      height: 'auto',
+      margin: '0'
     },
     evidenceExpandButton: {
       width: '40px',
       minWidth: '40px',
-      height: '50px',
+      height: '20px',
+      marginTop: '-5px',
       padding: '0',
       float: 'right'
     },
@@ -201,9 +225,13 @@ const styles = theme => {
       margin: '15px 0',
       color: '#999'
     },
+    evidenceScreenshotButton: {
+      padding: 0,
+      justifyContent: 'left'
+    },
     evidenceScreenshot: {
-      width: '50px',
-      margin: '10px 0'
+      width: '90%',
+      margin: '0'
     },
     evidenceBadge: {
       height: '16px',
@@ -219,7 +247,7 @@ const styles = theme => {
       margin: '50% auto'
     },
     evidenceLinkPaper: {
-      width: '230px',
+      width: '290px',
       height: '70px',
       margin: '0 auto',
       padding: '10px 0 10px 10px',
@@ -247,14 +275,14 @@ const styles = theme => {
     evidenceLinkSourceAvatarWaiting: {
       padding: '0 7px',
       color: red['A700'],
-      backgroundColor: red['100']
+      backgroundColor: red[100]
     },
     evidenceLinkSelectButton: {
       height: '25px',
       minWidth: '25px', // override material default min-width 60
       fontSize: '0.8em',
       color: '#fff',
-      backgroundColor: red['A700']
+      backgroundColor: red[700]
     },
     evidenceLinkSourcePropAvatarSelected: {
       color: indigo[900],
@@ -273,7 +301,8 @@ const styles = theme => {
       color: grey[500]
     },
     ratingButtonLarge: {
-      minWidth: '50px'
+      minWidth: '50px',
+      padding: '0'
     },
     ratingButtonSmall: {
       minWidth: '24px',

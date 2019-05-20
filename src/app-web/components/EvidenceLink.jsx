@@ -16,8 +16,10 @@ import ClassNames from 'classnames';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
+import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 // Material UI Icons
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // Material UI Theming
@@ -47,7 +49,6 @@ class EvidenceLink extends React.Component {
       note: this.props.note,
       canBeEdited: false,
       isBeingEdited: false,
-      isBeingDisplayedInResourceLibrary: true,
       isExpanded: false,
       listenForSourceSelection: false,
       sourceHasNotBeenSet
@@ -219,7 +220,6 @@ class EvidenceLink extends React.Component {
       note,
       isBeingEdited,
       isExpanded,
-      isBeingDisplayedInResourceLibrary,
       sourceHasNotBeenSet,
       listenForSourceSelection
     } = this.state;
@@ -261,54 +261,101 @@ class EvidenceLink extends React.Component {
         <Button className={classes.evidenceExpandButton} onClick={this.toggleExpanded}>
           <ExpandMoreIcon className={isExpanded ? classes.iconExpanded : ''} />
         </Button>
-        <div className={classes.evidenceWindowLabel}>EVIDENCE LINK</div>
-        <div className={classes.evidencePrompt} hidden={!isExpanded}>
+        {/* Title Bar */}
+        <Typography className={classes.evidenceWindowLabel}>EVIDENCE LINK</Typography>
+        <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
           How does this resource support this component / property / mechanism?
-        </div>
-        <div className={classes.evidenceTitle}>
-          <div style={{ width: '50px', display: 'flex', flexDirection:'column'}}>
-            {!isBeingDisplayedInResourceLibrary ? (
-              <Avatar className={classes.resourceViewAvatar}>{rsrcId}</Avatar>
-            ) : (
-              ''
-            )}
-            <div className={classes.evidenceLinkAvatar}>{sourceLabel}</div>
-            <img
-              src="../static/screenshot_sim.png"
-              alt="screenshot"
-              className={classes.evidenceScreenshot}
-              hidden={!isExpanded}
-            />
-          </div>
-          {isBeingEdited ? (
-            <TextField
-              className={ClassNames(
-                classes.evidenceLabelField,
-                isExpanded ? classes.evidenceLabelFieldExpanded : ''
-              )}
-              value={note}
-              placeholder="Click to add label..."
-              autoFocus
-              multiline
-              onChange={this.handleNoteChange}
-            />
-          ) : (
-            <div
-              className={ClassNames(
-                classes.evidenceLabelField,
-                isExpanded ? classes.evidenceLabelFieldExpanded : ''
-              )}
+        </Typography>
+        {/* Body */}
+        <Grid container className={classes.evidenceBody} spacing={8}>
+          {/* Source */}
+          <Grid item xs={isExpanded ? 12 : 3}>
+            <Grid
+              container
+              spacing={8}
+              className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
             >
-              {note}
-            </div>
-          )}
-        </div>
-        <Divider />
-        <RatingButton
-          rating={rating}
-          isExpanded={isExpanded}
-          UpdateRating={this.HandleRatingUpdate}
-        />
+              <Grid item xs={4} hidden={!isExpanded}>
+                <Typography variant="caption" align="right">
+                  SOURCE:
+                </Typography>
+              </Grid>
+              <Grid item xs>
+                <div className={classes.evidenceLinkAvatar}>{sourceLabel}</div>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={isExpanded ? 12 : 9}>
+            <Grid
+              container
+              spacing={8}
+              className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
+            >
+              <Grid item xs={4} hidden={!isExpanded}>
+                <Typography variant="caption" align="right">
+                  DESCRIPTION:
+                </Typography>
+              </Grid>
+              <Grid item xs>
+                {isExpanded ? (
+                  <TextField
+                    className={ClassNames(
+                      classes.evidenceLabelField,
+                      classes.evidenceLabelFieldExpanded
+                    )}
+                    value={note}
+                    placeholder="Click to add label..."
+                    autoFocus
+                    multiline
+                    onChange={this.handleNoteChange}
+                    InputProps={{
+                      readOnly: !isBeingEdited
+                    }}
+                  />
+                ) : (
+                  <div className={classes.evidenceLabelField}>{note}</div>
+                )}
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={isExpanded ? 12 : 3}>
+            <Grid
+              container
+              spacing={8} 
+              className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed}
+            >
+              <Grid item xs={4} hidden={!isExpanded}>
+                <Typography variant="caption" align="right">
+                  RATING:
+                </Typography>
+              </Grid>
+              <Grid item xs>
+                <RatingButton
+                  rating={rating}
+                  isExpanded={isExpanded}
+                  ratingLabel=''
+                  UpdateRating={this.HandleRatingUpdate}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid container spacing={8} hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
+            <Grid item xs={4}>
+              <Typography variant="caption" align="right">
+                SCREENSHOT:
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <Button className={classes.evidenceScreenshotButton}>
+                <img
+                  src="../static/screenshot_sim.png"
+                  alt="screenshot"
+                  className={classes.evidenceScreenshot}
+                />
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
         <Divider />
         <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
           <Button
@@ -330,6 +377,7 @@ class EvidenceLink extends React.Component {
             variant="contained"
             onClick={this.handleEditButtonClick}
             hidden={!isExpanded || isBeingEdited}
+            size="small"
           >
             Edit
           </Button>
@@ -337,6 +385,7 @@ class EvidenceLink extends React.Component {
             variant="contained"
             onClick={this.handleSaveButtonClick}
             hidden={!isExpanded || !isBeingEdited}
+            size="small"
           >
             Save
           </Button>

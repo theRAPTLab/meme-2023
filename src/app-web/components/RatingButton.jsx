@@ -34,7 +34,6 @@ Props:
 import React from 'react';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
 // Material UI Icons
 import StarRate from '@material-ui/icons/StarRate';
 // Material UI Theming
@@ -67,7 +66,7 @@ class RatingButton extends React.Component {
 
   render() {
     const { rating } = this.state;
-    const { max, ratingLabel, isExpanded } = this.props;
+    const { max, isExpanded } = this.props;
     const { classes } = this.props;
     let icons = [];
     for (let i = 1; i <= max; i++) {
@@ -86,14 +85,7 @@ class RatingButton extends React.Component {
       );
       icons.push(icon);
     }
-    return (
-      <div style={{ display: 'flex' }}>
-        <Typography variant="caption" hidden={!isExpanded}>
-          {ratingLabel}:
-        </Typography>
-        {icons}
-      </div>
-    );
+    return <div style={{ display: 'flex' }}>{icons}</div>;
   }
 }
 
@@ -101,7 +93,6 @@ RatingButton.propTypes = {
   UpdateRating: PropTypes.func,
   max: PropTypes.number,
   rating: PropTypes.number,
-  ratingLabel: PropTypes.string,
   isExpanded: PropTypes.bool
 };
 
@@ -111,7 +102,6 @@ RatingButton.defaultProps = {
   },
   max: 3,
   rating: 0,
-  ratingLabel: 'RATING:',
   isExpanded: false
 };
 

@@ -557,15 +557,23 @@ VProp.NewBadge = (id, svgRoot) => {
 
   let vbadge = myVProp.gRoot.group();
   vbadge.id = id;
+  vbadge.propId = evlink.propId;
   vbadge.Release = () => {
     // FIXME - Need to update myVProp.badgesCount?
     // FIXME - This is wrong!  How do we remove ourselves?
     return vbadge.remove();
   };
   vbadge.Update = () => {
-    // FIXME -- do we need to update text?
-    // or maybe we don't need to do ANY update?
+    const ev = DATA.EvidenceLinkByEvidenceId(vbadge.id);
+    vbadge.UpdateRating(ev.rating);
   };
+  vbadge.UpdateRating = (rating) => {
+    let ratingLabel = '';
+    for (let i = 1; i <= rating; i++) {
+      ratingLabel += '*';
+    }
+    vbadge.gRating.text(ratingLabel).attr({ x: vbadge.gCircle.cx() - rating*3.5 });
+  }
 
   const radius = m_minHeight + m_pad / 2;
   const x = myVProp.gRoot.x();
@@ -594,6 +602,14 @@ VProp.NewBadge = (id, svgRoot) => {
       if (DBG) console.log('evidenceLabel click');
       UR.Publish('SHOW_EVIDENCE_LINK', { evId: evlink.evId, rsrcId: evlink.rsrcId });
     });
+  vbadge.gRating = vbadge
+    .text('')
+    .font({ fill: '#f57f17', size: '1em', weight: 'bold' })
+    .move(
+      x + m_minWidth - badgeCount * (radius + 0.25 * m_pad) - m_pad + 0.4 * radius,
+      y + radius / 2 - m_pad + 20
+    );
+
 
   DATA.VM_VBadgeSet(id, vbadge);
   return vbadge;

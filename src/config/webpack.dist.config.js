@@ -39,6 +39,10 @@ const webConfiguration = env => {
       from: `favicon.ico`,
       to: `${DIR_OUTPUT}/favicon.ico`,
       toType: 'file'
+    },
+    {
+      from: `static/**`,
+      to: `${DIR_OUTPUT}`
     }
   ];
   // return webConfiguration

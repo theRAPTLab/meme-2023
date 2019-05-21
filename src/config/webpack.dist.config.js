@@ -69,7 +69,7 @@ const webConfiguration = env => {
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('development')
         }),
-        new CopyWebpackPlugin(copyFilesArray)
+        new CopyWebpackPlugin(copyFilesArray),
       ],
       stats: 'errors-only'
     }
@@ -97,7 +97,8 @@ const electronConfiguration = env => {
       filename: ENTRY_HTML // uses output.path
     }),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('development')
+      'process.env.NODE_ENV': JSON.stringify('development'),
+      '__REACT_DEVTOOLS_GLOBAL_HOOK__': '({ isDisabled: true })'
     }),
     new CopyWebpackPlugin([
       {

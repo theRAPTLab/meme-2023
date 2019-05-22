@@ -83,7 +83,7 @@ const styles = theme => {
       height: '100%'
     },
     resourceViewPaper: {
-      width: '95%',
+      width: '99%',
       height: '95%',
       margin: '0 auto',
       padding: '1em',
@@ -133,7 +133,7 @@ const styles = theme => {
       display: 'inline-flex',
       flexDirection: 'column',
       alignItems: 'center',
-      width: '265px',
+      width: '320px',
       height: '90%',
       paddingLeft: '10px',
       verticalAlign: 'top',

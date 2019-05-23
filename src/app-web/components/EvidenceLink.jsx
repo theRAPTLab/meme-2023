@@ -43,8 +43,6 @@ const PKG = 'EvidenceLink:';
 class EvidenceLink extends React.Component {
   constructor(props) {
     super(props);
-    // sourceHasNotBeenSet if neither propId nor mechId have been defined.
-    let sourceHasNotBeenSet = this.props.propId === undefined && this.props.mechId === undefined;
     this.state = {
       note: this.props.note,
       rating: this.props.rating,
@@ -52,7 +50,6 @@ class EvidenceLink extends React.Component {
       isBeingEdited: false,
       isExpanded: false,
       listenForSourceSelection: false,
-      sourceHasNotBeenSet
     };
     this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
     this.HandleRatingUpdate = this.HandleRatingUpdate.bind(this);
@@ -61,7 +58,7 @@ class EvidenceLink extends React.Component {
     this.handleSaveButtonClick = this.handleSaveButtonClick.bind(this);
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
     this.handleNoteChange = this.handleNoteChange.bind(this);
-    this.handleSourceSelectClick = this.handleSourceSelectClick.bind(this);
+    this.HandleSourceSelectClick = this.HandleSourceSelectClick.bind(this);
     this.EnableSourceSelect = this.EnableSourceSelect.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
@@ -169,20 +166,21 @@ class EvidenceLink extends React.Component {
      user can see the components for selection) and opening up
      the evLink
   */
-  handleSourceSelectClick(evId, rsrcId) {
-    UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId, rsrcId });
+  HandleSourceSelectClick(evId, rsrcId) {
+    if (this.state.isBeingEdited) {
+      UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId, rsrcId });
+    }
   }
 
   EnableSourceSelect(data) {
     if (data.evId === this.props.evId) {
-      this.setState({ listenForSourceSelection: true });      
+      this.setState({ listenForSourceSelection: true });
     }
   }
 
   handleSelectionChange() {
-    if (this.state.sourceHasNotBeenSet && this.state.listenForSourceSelection) {
+    if (this.state.listenForSourceSelection) {
       let sourceId;
-
       // Assume mechs are harder to select so check for them first.
       // REVIEW: Does this work well?
       let selectedMechIds = DATA.VM_SelectedMechs();
@@ -191,12 +189,14 @@ class EvidenceLink extends React.Component {
         // Get the last selection
         sourceId = selectedMechIds[selectedMechIds.length - 1];
         DATA.SetEvidenceLinkMechId(this.props.evId, sourceId);
+        // Clear the PropId in case it was set previously
+        DATA.SetEvidenceLinkPropId(this.props.evId, undefined);
         // leave it in a waiting state?  This allows you to change your mind?
         // REVIEW may want another way to exit / confirm the selection?
         // For May 1, exit as soon as something is selected to prevent
         // subsequent source selections from being applied to ALL open
         // evlinks.
-        this.setState({ sourceHasNotBeenSet: false });
+        this.setState({ listenForSourceSelection: false });
         return;
       }
 
@@ -206,12 +206,14 @@ class EvidenceLink extends React.Component {
         // Get the last selection
         sourceId = selectedPropIds[selectedPropIds.length - 1];
         DATA.SetEvidenceLinkPropId(this.props.evId, sourceId);
+        // Clear the PropId in case it was set previously
+        DATA.SetEvidenceLinkMechId(this.props.evId, undefined);
         // leave it in a waiting state?  This allows you to change your mind?
         // REVIEW may want another way to exit / confirm the selection?
         // For May 1, exit as soon as something is selected to prevent
         // subsequent source selections from being applied to ALL open
         // evlinks.
-        this.setState({ sourceHasNotBeenSet: false });
+        this.setState({ listenForSourceSelection: false });
         return;
       }
     }
@@ -234,40 +236,22 @@ class EvidenceLink extends React.Component {
   render() {
     // evidenceLinks is an array of arrays because there might be more than one?!?
     const { evId, rsrcId, propId, mechId, classes } = this.props;
-    const {
-      note,
-      rating,
-      isBeingEdited,
-      isExpanded,
-      sourceHasNotBeenSet,
-      listenForSourceSelection
-    } = this.state;
+    const { note, rating, isBeingEdited, isExpanded, listenForSourceSelection } = this.state;
     if (evId === '') return '';
     let sourceLabel;
-    if (propId !== undefined) {
-      sourceLabel = (
-        <div className={classes.evidenceLinkSourcePropAvatarSelected}>{DATA.Prop(propId).name}</div>
-      );
+    let evidenceLinkSelectButtonClass;
+    if (listenForSourceSelection) {
+      sourceLabel = 'Select';
+      evidenceLinkSelectButtonClass = classes.evidenceLinkSourceAvatarWaiting;
+    } else if (propId !== undefined) {
+      sourceLabel = DATA.Prop(propId).name;
+      evidenceLinkSelectButtonClass = classes.evidenceLinkSourcePropAvatarSelected;
     } else if (mechId !== undefined) {
-      sourceLabel = (
-        <div className={classes.evidenceLinkSourceMechAvatarSelected}>{DATA.Mech(mechId).name}</div>
-      );
-    } else if (sourceHasNotBeenSet && listenForSourceSelection) {
-      // eslint-disable-next-line prettier/prettier
-      sourceLabel = (
-        <div className={classes.evidenceLinkSourceAvatarWaiting}>select</div>
-      );
+      sourceLabel = DATA.Mech(mechId).name || 'no label mechanism';
+      evidenceLinkSelectButtonClass = classes.evidenceLinkSourceMechAvatarSelected;
     } else {
-      sourceLabel = (
-        <Button
-          onClick={() => {
-            this.handleSourceSelectClick(evId, rsrcId);
-          }}
-          className={classes.evidenceLinkSelectButton}
-        >
-          Link
-        </Button>
-      );
+      sourceLabel = 'Link';
+      evidenceLinkSelectButtonClass = classes.evidenceLinkSelectButton;
     }
     return (
       <Paper
@@ -300,7 +284,18 @@ class EvidenceLink extends React.Component {
                 </Typography>
               </Grid>
               <Grid item xs>
-                <div className={classes.evidenceLinkAvatar}>{sourceLabel}</div>
+                <div className={classes.evidenceLinkAvatar}>
+                  <Button
+                    onClick={() => {
+                      this.HandleSourceSelectClick(evId, rsrcId);
+                    }}
+                    className={evidenceLinkSelectButtonClass}
+                    disabled={!isBeingEdited}
+                    size="small"
+                  >
+                    {sourceLabel}
+                  </Button>
+                </div>
               </Grid>
             </Grid>
           </Grid>

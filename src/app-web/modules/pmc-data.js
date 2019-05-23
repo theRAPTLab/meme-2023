@@ -1046,6 +1046,15 @@ PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
   PMCData.BuildModel();
   return evId;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.PMC_DeleteEvidenceLink = evId => {
+  let i = a_evidence.findIndex(e => {
+    return e.evId === evId;
+  });
+  a_evidence.splice(i, 1);
+  PMCData.BuildModel();
+  return evId;
+};
 
 if (window.may1 === undefined) window.may1 = {};
 window.may1.PCM_Mech = PMCData.Mech;

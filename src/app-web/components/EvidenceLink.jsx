@@ -56,7 +56,7 @@ class EvidenceLink extends React.Component {
     };
     this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
     this.HandleRatingUpdate = this.HandleRatingUpdate.bind(this);
-    this.handleDeleteButtonClick = this.handleDeleteButtonClick.bind(this);
+    this.HandleDeleteButtonClick = this.HandleDeleteButtonClick.bind(this);
     this.handleEditButtonClick = this.handleEditButtonClick.bind(this);
     this.handleSaveButtonClick = this.handleSaveButtonClick.bind(this);
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);
@@ -94,7 +94,11 @@ class EvidenceLink extends React.Component {
       });
       return;
     }
-    throw Error(`no evidence link with evId '${this.props.evId}' exists`);
+    // Don't throw an error here
+    // If the EvidenceLink has been deleted, the deletion event triggers
+    // DATA_UPDATED, so this EvidenceLink may receive the event before
+    // it's been unmounted.  Just ignore missing EvidenceLink.
+    // throw Error(`no evidence link with evId '${this.props.evId}' exists`);
   }
 
   /**
@@ -107,8 +111,8 @@ class EvidenceLink extends React.Component {
     DATA.SetEvidenceLinkRating(this.props.evId, rating);
   }
 
-  handleDeleteButtonClick() {
-    alert("DELETE/CANCEL not implemented yet.");
+  HandleDeleteButtonClick() {
+    DATA.PMC_DeleteEvidenceLink(this.props.evId);
   }
 
   handleEditButtonClick() {
@@ -376,7 +380,7 @@ class EvidenceLink extends React.Component {
           <Button
             hidden={!isExpanded || isBeingEdited}
             size="small"
-            onClick={this.handleDeleteButtonClick}
+            onClick={this.HandleDeleteButtonClick}
           >
             delete
           </Button>

@@ -82,8 +82,8 @@ class ResourceItem extends React.Component {
   }
 
   handleEvidenceLinkOpen(data) {
-    if (DBG) console.log(PKG, 'comparing', data.rsrcId, 'to', this.props.resource.rsrcId);
     if (this.props.resource.rsrcId === data.rsrcId) {
+      if (DBG) console.log(PKG, 'OPENING Resource', data.rsrcId, ' data.evId is',data);
       this.setState(
         {
           isExpanded: true

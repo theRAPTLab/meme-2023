@@ -272,7 +272,9 @@ window.may1.Update = () => {
   PMCView.UpdateViewModel();
   PMCView.UpdateView();
 }
-
+window.may1.ForceUpdate = () => {
+  UR.Publish('FORCE_UPDATE');
+}
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

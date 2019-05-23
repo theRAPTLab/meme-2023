@@ -231,7 +231,7 @@ PMCData.LoadGraph = uri => {
 
   // day2_group4_model_02.JPG
   // Sample for Group 3
-  g.setNode('title', { name: 'Day 2 Group 4 Model 2: "Food Water Cleaning System' });
+//  g.setNode('title', { name: 'Day 2 Group 4 Model 2: "Food Water Cleaning System' });
   g.setNode('ammonia', { name: 'Ammonia' });
   g.setNode('dirty-water', { name: 'dirty water' });
   g.setNode('dirty-water-waste', { name: 'waste' });
@@ -257,8 +257,8 @@ PMCData.LoadGraph = uri => {
   g.setEdge('clean-water', 'fish', { name: 'live in' });
   g.setEdge('rotting-food', 'clean-water', { name: 'if rots can also make dirty' });
   // define evidence mapping: propID => evIDArray
-  a_evidence.push({ evId: 'ev1', propId: 'food', rsrcId: 'rs1', note: 'fish need food' });
-  a_evidence.push({ evId: 'ev7', propId: 'food', rsrcId: 'rs2', note: 'fish die without food' });
+  a_evidence.push({ evId: 'ev1', propId: 'food', rsrcId: 'rs1', note: 'fish need food', rating: 3 });
+  a_evidence.push({ evId: 'ev7', propId: 'food', rsrcId: 'rs2', note: 'fish die without food', rating: 1 });
   a_evidence.push({ evId: 'ev2', propId: 'clean-water', rsrcId: 'rs2', note: 'fish cant live in dirty water' });
   a_evidence.push({ evId: 'ev3', propId: 'rotting-food', rsrcId: 'rs1', note: 'fish food rots' });
   a_evidence.push({ evId: 'ev4', propId: 'ammonia', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
@@ -1041,7 +1041,8 @@ PMCData.PMC_AddMech = (sourceId, targetId, label) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
-  let evId = Math.trunc(Math.random() * 10000);
+  // HACK!  FIXME!  Need to properly generate a unique ID.
+  let evId = `ev${Math.trunc(Math.random() * 10000)}`;
   a_evidence.push({ evId, propId: undefined, rsrcId, note });
   PMCData.BuildModel();
   return evId;

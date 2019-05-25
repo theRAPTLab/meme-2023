@@ -173,7 +173,7 @@ const styles = theme => {
     },
     evidenceBodyRow: {
       marginTop: '0.25em',
-      alignItems: 'baseline'
+      alignItems: 'center'
     },
     evidenceBodyRowCollapsed: {
       height: '25px',
@@ -261,7 +261,6 @@ const styles = theme => {
       transform: 'rotate(180deg)'
     },
     evidenceLinkAvatar: {
-      maxWidth: '50px',
       minWidth: '50px',
       height: '25px',
       fontSize: '0.8em',
@@ -298,7 +297,7 @@ const styles = theme => {
       color: yellow[800]
     },
     ratingIconUnselected: {
-      color: grey[500]
+      color: 'rgba(0,0,0,0.1)'
     },
     ratingButtonLarge: {
       minWidth: '50px',

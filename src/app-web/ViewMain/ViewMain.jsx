@@ -80,7 +80,7 @@ class ViewMain extends React.Component {
     this.HandlePropertyAdd = this.HandlePropertyAdd.bind(this);
     this.handleAddPropOpen = this.handleAddPropOpen.bind(this);
     this.handleAddPropClose = this.handleAddPropClose.bind(this);
-    this.handleAddPropCreate = this.handleAddPropCreate.bind(this);
+    this.HandleAddPropCreate = this.HandleAddPropCreate.bind(this);
     this.handleAddEdge = this.handleAddEdge.bind(this);
     this.handleAddEdgeCreate = this.handleAddEdgeCreate.bind(this);
     this.handleAddEdgeClose = this.handleAddEdgeClose.bind(this);
@@ -205,6 +205,7 @@ class ViewMain extends React.Component {
   HandlePropertyAdd() {
     this.setState({
       addPropOpen: true,
+      addComponentLabel: '', // clear the old property name
       addComponentIsProperty: true
     });
   }
@@ -219,7 +220,7 @@ class ViewMain extends React.Component {
     this.setState({ addPropOpen: false });
   }
 
-  handleAddPropCreate() {
+  HandleAddPropCreate() {
     if (DBG) console.log('create prop');
     if (this.state.addComponentIsProperty) {
       // Add a property to the selected component
@@ -588,7 +589,7 @@ class ViewMain extends React.Component {
             <Button onClick={this.handleAddPropClose} color="primary">
               Cancel
               </Button>
-            <Button onClick={this.handleAddPropCreate} color="primary">
+            <Button onClick={this.HandleAddPropCreate} color="primary">
               Create
               </Button>
           </DialogActions>

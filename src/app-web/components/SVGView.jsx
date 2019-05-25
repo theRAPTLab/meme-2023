@@ -14,7 +14,7 @@ import DATA from '../modules/pmc-data';
 
 import { cssblue, cssreact, cssalert } from '../modules/console-styles';
 
-const DBG = true;
+const DBG = false;
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

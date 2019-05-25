@@ -78,7 +78,7 @@ let a_resource = [];  /*/ all resource objects to be displayed in InformationLis
                               label: 'Food Rot Simulation',
                               notes: ['water quality', 'food rotting'],
                               type: 'simulation',
-                              url: '../static/FishSpawn_Sim_5_SEEDS_v7.html',
+                              url: '../static/dlc/FishSpawn_Sim_5_SEEDS_v7.html',
                               links: 0
                             }
                           ]
@@ -356,7 +356,7 @@ PMCData.LoadGraph = uri => {
       label: 'Fish in a Tank Simulation',
       notes: 'water quality and fish deaths over time',
       type: 'simulation',
-      url: '../static/FishinaTank.html',
+      url: '../static/dlc/FishinaTank.html',
       links: 0
     },
     {
@@ -365,7 +365,7 @@ PMCData.LoadGraph = uri => {
       label: 'Raj\'s forum post.',
       notes: 'Forum post about fish deaths',
       type: 'report',
-      url: '../static/RajForumPost.pdf',
+      url: '../static/dlc/RajForumPost.pdf',
       links: 0
     },
     {
@@ -374,7 +374,7 @@ PMCData.LoadGraph = uri => {
       label: 'Autopsy Report',
       notes: 'Fighting?',
       type: 'report',
-      url: '../static/VetReport.pdf',
+      url: '../static/dlc/VetReport.pdf',
       links: 0
     },
     {
@@ -383,7 +383,7 @@ PMCData.LoadGraph = uri => {
       label: 'Fish Starving Simulation',
       notes: 'food and fish population',
       type: 'simulation',
-      url: '../static/FishStarving.html',
+      url: '../static/dlc/FishStarving.html',
       links: 0
     },
     {
@@ -392,7 +392,7 @@ PMCData.LoadGraph = uri => {
       label: 'Ammonia Testing',
       notes: 'Ammonia Testing and Water Quality',
       type: 'report',
-      url: '../static/AmmoniaTesting.pdf',
+      url: '../static/dlc/AmmoniaTesting.pdf',
       links: 0
     },
     {
@@ -401,7 +401,7 @@ PMCData.LoadGraph = uri => {
       label: 'Fish Fighting Simulation',
       notes: 'fighting, fish death',
       type: 'simulation',
-      url: '../static/FishFighting.html',
+      url: '../static/dlc/FishFighting.html',
       links: 0
     },
     {
@@ -410,7 +410,7 @@ PMCData.LoadGraph = uri => {
       label: 'Food Rot Simulation',
       notes: 'rotting, waste, fish death',
       type: 'simulation',
-      url: '../static/FoodRot.html',
+      url: '../static/dlc/FoodRot.html',
       links: 0
     },
     {
@@ -419,7 +419,7 @@ PMCData.LoadGraph = uri => {
       label: 'Ammonia in Tanks Report',
       notes: 'Ammonia, Research',
       type: 'report',
-      url: '../static/AmmoniaInTanks.pdf',
+      url: '../static/dlc/AmmoniaInTanks.pdf',
       links: 0
     },
     {
@@ -428,7 +428,7 @@ PMCData.LoadGraph = uri => {
       label: 'Fish Simulation With All Variables',
       notes: 'ammonia, waste, death, food, rotting, aggression, filter',
       type: 'simulation',
-      url: '../static/FishAllVariables.html',
+      url: '../static/dlc/FishAllVariables.html',
       links: 0
     }
   ];

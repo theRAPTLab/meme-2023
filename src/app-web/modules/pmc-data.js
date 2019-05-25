@@ -78,7 +78,7 @@ let a_resource = [];  /*/ all resource objects to be displayed in InformationLis
                               label: 'Food Rot Simulation',
                               notes: ['water quality', 'food rotting'],
                               type: 'simulation',
-                              url: '../static/FishSpawn_Sim_5_SEEDS_v7.html',
+                              url: '../static/dlc/FishSpawn_Sim_5_SEEDS_v7.html',
                               links: 0
                             }
                           ]
@@ -191,6 +191,27 @@ PMCData.LoadGraph = uri => {
    *
    */
 
+  // Tutoring Study Pilot
+  // Very Simple Graph for Testing Evidence Links
+  g.setNode('title', { name: 'What do fish need to live in a tank?' });
+
+  g.setNode('tank', { name: 'tank' });
+  g.setNode('fish', { name: 'fish' });
+  g.setNode('food', { name: 'food' });
+  g.setNode('ammonia', { name: 'Ammonia' });
+  g.setNode('clean-water', { name: 'clean water' });
+  g.setNode('dirty-water-waste', { name: 'waste' });
+
+  g.setParent('dirty-water-waste', 'tank');
+  g.setParent('clean-water', 'tank');
+
+  g.setEdge('fish', 'tank', { name: 'live in' });
+  g.setEdge('fish', 'food', { name: 'eat' });
+  g.setEdge('fish', 'dirty-water-waste', { name: 'produce' });
+
+  // define evidence mapping: propID => evIDArray
+  a_evidence.push({ evId: 'ev1', propId: 'food', rsrcId: 'rs1', note: 'fish need food' });
+
   // // 3.5.19 sample model for group 3.pdf
   // // Sample for Group 3
   // g.setNode('title', { name: 'Sample for Group 3' });
@@ -231,46 +252,46 @@ PMCData.LoadGraph = uri => {
 
   // day2_group4_model_02.JPG
   // Sample for Group 3
-//  g.setNode('title', { name: 'Day 2 Group 4 Model 2: "Food Water Cleaning System' });
-  g.setNode('ammonia', { name: 'Ammonia' });
-  g.setNode('dirty-water', { name: 'dirty water' });
-  g.setNode('dirty-water-waste', { name: 'waste' });
-  g.setNode('dirty-water-algee', { name: 'algee' });
-  g.setNode('tank', { name: 'big enough fish tank' });
-  g.setNode('fish', { name: 'fish' });
-  g.setNode('food', { name: 'food' });
-  g.setNode('rotting-food', { name: 'rotting food' });
-  g.setNode('cleaning', { name: 'cleaning system?' });
-  g.setNode('clean-water', { name: 'clean water' });
+  // g.setNode('title', { name: 'Day 2 Group 4 Model 2: "Food Water Cleaning System' });
+  // g.setNode('ammonia', { name: 'Ammonia' });
+  // g.setNode('dirty-water', { name: 'dirty water' });
+  // g.setNode('dirty-water-waste', { name: 'waste' });
+  // g.setNode('dirty-water-algee', { name: 'algee' });
+  // g.setNode('tank', { name: 'big enough fish tank' });
+  // g.setNode('fish', { name: 'fish' });
+  // g.setNode('food', { name: 'food' });
+  // g.setNode('rotting-food', { name: 'rotting food' });
+  // g.setNode('cleaning', { name: 'cleaning system?' });
+  // g.setNode('clean-water', { name: 'clean water' });
 
-  g.setParent('dirty-water-waste', 'dirty-water');
-  g.setParent('dirty-water-algee', 'dirty-water');
+  // g.setParent('dirty-water-waste', 'dirty-water');
+  // g.setParent('dirty-water-algee', 'dirty-water');
 
-  g.setEdge('ammonia', 'fish', { name: 'death' });
-  g.setEdge('fish', 'ammonia', { name: 'makes' });
-  g.setEdge('fish', 'dirty-water', { name: 'waste' });
-  g.setEdge('dirty-water', 'fish', { name: 'death' });
-  g.setEdge('tank', 'fish', { name: 'live in' });
-  g.setEdge('fish', 'food', { name: 'eat' });
-  g.setEdge('food', 'rotting-food', { name: '' });
-  g.setEdge('cleaning', 'clean-water', { name: 'clean' });
-  g.setEdge('clean-water', 'fish', { name: 'live in' });
-  g.setEdge('rotting-food', 'clean-water', { name: 'if rots can also make dirty' });
-  // define evidence mapping: propID => evIDArray
-  a_evidence.push({ evId: 'ev1', propId: 'food', rsrcId: 'rs1', note: 'fish need food', rating: 3 });
-  a_evidence.push({ evId: 'ev7', propId: 'food', rsrcId: 'rs2', note: 'fish die without food', rating: 1 });
-  a_evidence.push({ evId: 'ev2', propId: 'clean-water', rsrcId: 'rs2', note: 'fish cant live in dirty water' });
-  a_evidence.push({ evId: 'ev3', propId: 'rotting-food', rsrcId: 'rs1', note: 'fish food rots' });
-  a_evidence.push({ evId: 'ev4', propId: 'ammonia', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
-  a_evidence.push({
-    evId: 'ev5',
-    propId: undefined,
-    mechId: 'ammonia:fish',
-    rsrcId: 'rs1',
-    note:
-      'ammonia causes fish to die. This is a really long explanation so that we can test how the text wraps.'
-  });
-  a_evidence.push({ evId: 'ev6', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs2', note: 'ammonia causes fish to die' });
+  // g.setEdge('ammonia', 'fish', { name: 'death' });
+  // g.setEdge('fish', 'ammonia', { name: 'makes' });
+  // g.setEdge('fish', 'dirty-water', { name: 'waste' });
+  // g.setEdge('dirty-water', 'fish', { name: 'death' });
+  // g.setEdge('tank', 'fish', { name: 'live in' });
+  // g.setEdge('fish', 'food', { name: 'eat' });
+  // g.setEdge('food', 'rotting-food', { name: '' });
+  // g.setEdge('cleaning', 'clean-water', { name: 'clean' });
+  // g.setEdge('clean-water', 'fish', { name: 'live in' });
+  // g.setEdge('rotting-food', 'clean-water', { name: 'if rots can also make dirty' });
+  // // define evidence mapping: propID => evIDArray
+  // a_evidence.push({ evId: 'ev1', propId: 'food', rsrcId: 'rs1', note: 'fish need food' });
+  // a_evidence.push({ evId: 'ev7', propId: 'food', rsrcId: 'rs2', note: 'fish die without food' });
+  // a_evidence.push({ evId: 'ev2', propId: 'clean-water', rsrcId: 'rs2', note: 'fish cant live in dirty water' });
+  // a_evidence.push({ evId: 'ev3', propId: 'rotting-food', rsrcId: 'rs1', note: 'fish food rots' });
+  // a_evidence.push({ evId: 'ev4', propId: 'ammonia', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
+  // a_evidence.push({
+  //   evId: 'ev5',
+  //   propId: undefined,
+  //   mechId: 'ammonia:fish',
+  //   rsrcId: 'rs1',
+  //   note:
+  //     'ammonia causes fish to die. This is a really long explanation so that we can test how the text wraps.'
+  // });
+  // a_evidence.push({ evId: 'ev6', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs2', note: 'ammonia causes fish to die' });
 
   // // 3.5.19 Day 1 Group 3 Brainstomring list and Final Model.pdf
   // g.setNode('title', { name: 'Day 1 Group 3 Brainstorming List' });
@@ -332,145 +353,82 @@ PMCData.LoadGraph = uri => {
     {
       rsrcId: 'rs1',
       referenceLabel: '1',
-      label: 'Food Rot Simulation',
-      notes: 'water quality, food rotting',
+      label: 'Fish in a Tank Simulation',
+      notes: 'water quality and fish deaths over time',
       type: 'simulation',
-      url: '../static/FishSpawn_Sim_5_SEEDS_v7.html',
+      url: '../static/dlc/FishinaTank.html',
       links: 0
     },
     {
       rsrcId: 'rs2',
       referenceLabel: '2',
-      label: 'Autopsy Report',
-      notes: 'Lorem ipsum dolor sit amet enim. Etiam ullamcorper. Suspendisse a pellentesque dui, non felis. Maecenas malesuada elit lectus felis, malesuada ultricies.',
+      label: 'Raj\'s forum post.',
+      notes: 'Forum post about fish deaths',
       type: 'report',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      url: '../static/dlc/RajForumPost.pdf',
       links: 0
     },
     {
       rsrcId: 'rs3',
       referenceLabel: '3',
-      label: 'Ammonia and Food Experiment',
-      notes: 'water quality, ammonia',
+      label: 'Autopsy Report',
+      notes: 'Fighting?',
       type: 'report',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      url: '../static/dlc/VetReport.pdf',
       links: 0
     },
     {
       rsrcId: 'rs4',
       referenceLabel: '4',
-      label: 'Fish in a Tank Simulation',
-      notes: 'water quality, fish population',
+      label: 'Fish Starving Simulation',
+      notes: 'food and fish population',
       type: 'simulation',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      url: '../static/dlc/FishStarving.html',
       links: 0
     },
     {
       rsrcId: 'rs5',
       referenceLabel: '5',
-      label: 'Measuring Ammonia Experiment',
-      notes: 'water quality, ammonia',
+      label: 'Ammonia Testing',
+      notes: 'Ammonia Testing and Water Quality',
       type: 'report',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      url: '../static/dlc/AmmoniaTesting.pdf',
       links: 0
     },
     {
       rsrcId: 'rs6',
       referenceLabel: '6',
       label: 'Fish Fighting Simulation',
-      notes: 'fish agression',
+      notes: 'fighting, fish death',
       type: 'simulation',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      url: '../static/dlc/FishFighting.html',
       links: 0
     },
     {
       rsrcId: 'rs7',
       referenceLabel: '7',
-      label: 'Fish Fighting Simulation',
-      notes: 'fish agression',
+      label: 'Food Rot Simulation',
+      notes: 'rotting, waste, fish death',
       type: 'simulation',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      url: '../static/dlc/FoodRot.html',
       links: 0
     },
     {
       rsrcId: 'rs8',
       referenceLabel: '8',
-      label: 'Fish Fighting Simulation',
-      notes: 'fish agression',
-      type: 'simulation',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      label: 'Ammonia in Tanks Report',
+      notes: 'Ammonia, Research',
+      type: 'report',
+      url: '../static/dlc/AmmoniaInTanks.pdf',
       links: 0
     },
     {
       rsrcId: 'rs9',
       referenceLabel: '9',
-      label: 'Fish Fighting Simulation',
-      notes: 'fish agression',
+      label: 'Fish Simulation With All Variables',
+      notes: 'ammonia, waste, death, food, rotting, aggression, filter',
       type: 'simulation',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-      links: 0
-    },
-    {
-      rsrcId: 'rs10',
-      referenceLabel: '10',
-      label: 'Fish Fighting Simulation',
-      notes: 'fish agression',
-      type: 'simulation',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-      links: 0
-    },
-    {
-      rsrcId: 'rs11',
-      referenceLabel: '11',
-      label: 'Fish Fighting Simulation',
-      notes: 'fish agression',
-      type: 'simulation',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-      links: 0
-    },
-    {
-      rsrcId: 'rs12',
-      referenceLabel: '12',
-      label: 'Fish Fighting Simulation',
-      notes: 'fish agression',
-      type: 'simulation',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-      links: 0
-    },
-    {
-      rsrcId: 'rs13',
-      referenceLabel: '13',
-      label: 'Fish Fighting Simulation',
-      notes: 'fish agression',
-      type: 'simulation',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-      links: 0
-    },
-    {
-      rsrcId: 'rs14',
-      referenceLabel: '14',
-      label: 'Fish Fighting Simulation',
-      notes: 'fish agression',
-      type: 'simulation',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-      links: 0
-    },
-    {
-      rsrcId: 'rs15',
-      referenceLabel: '15',
-      label: 'Fish Fighting Simulation',
-      notes: 'fish agression',
-      type: 'simulation',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
-      links: 0
-    },
-    {
-      rsrcId: 'rs16',
-      referenceLabel: '16',
-      label: 'Fish Fighting Simulation',
-      notes: 'fish agression',
-      type: 'simulation',
-      url: 'https://netlogoweb.org/launch#https://netlogoweb.org/assets/modelslib/Sample%20Models/Biology/BeeSmart%20Hive%20Finding.nlogo',
+      url: '../static/dlc/FishAllVariables.html',
       links: 0
     }
   ];

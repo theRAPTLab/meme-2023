@@ -59,6 +59,27 @@ switch (param1) {
   case 'doc':
     f_DocServe();
     break;
+  case 'package':
+    /*
+      rm -fr ./dist ./built
+      webpack --mode development --config ./src/config/webpack.dist.config.js --env.HMR_MODE='none'
+      cd built
+      npm install
+      npx electron-packager . meme
+        --out ../dist
+        --overwrite
+        --app-bundle-id com.davidseah.inquirium.meme
+    */
+    console.log(`${P_SCRIPT}\n- ${P_ERR} unimplemented command '${param1}'\n`);
+    break;
+  case 'appsign':
+    /*
+      npx electron-osx-sign ./dist/meme-darwin-x64/meme.app
+        --platform=darwin
+        --type=distribution
+    */
+    console.log(`${P_SCRIPT}\n- ${P_ERR} unimplemented command '${param1}'\n`);
+    break;
   default:
     console.log(`${P_SCRIPT}\n- ${P_ERR} unknown command '${param1}'\n`);
 }

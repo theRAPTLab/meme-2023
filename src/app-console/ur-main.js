@@ -8,13 +8,17 @@
 
 // import appserver
 // Import parts of electron to use
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu } = require('electron');
+const ip = require('ip');
 const path = require('path');
 const url = require('url');
-
+//
 const PR = '[ElectronMain]';
-
-console.log(`${PR} STARTED ${path.basename(__filename)}`);
+// this is available through electron remote in console.js
+global.serverinfo = {
+  main: `http://localhost:3000`,
+  client: `http://${ip.address()}:3000`
+};
 
 // our modules
 // const UR = require('../ur');
@@ -64,6 +68,30 @@ function createWindow() {
     const URSERVER = require('./ur-server'); // eslint-disable-line
     console.log('DIRNAME', __dirname);
     URSERVER.Start({ isPackaged: __dirname.includes('/Contents/Resources/app/console') });
+    const application = {
+      label: 'MEME',
+      submenu: [
+        {
+          label: 'Quit',
+          accelerator: 'Command+Q',
+          click: () => {
+            app.quit();
+          }
+        }
+      ]
+    };
+    const edit = {
+      label: 'Edit',
+      submenu: [
+        {
+          label: 'Copy',
+          accelerator: 'CmdOrCtrl+C',
+          selector: 'copy:'
+        }
+      ]
+    }
+    const template = [application, edit];
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   });
 
   // Emitted when the window is closed.

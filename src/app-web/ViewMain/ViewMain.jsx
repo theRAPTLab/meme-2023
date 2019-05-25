@@ -308,8 +308,10 @@ class ViewMain extends React.Component {
     }
 
     // Set componentIsSelected for Component Editing
+    // If more than one component is selected, hide the component
+    // editing buttons
     let componentIsSelected = false;
-    if (selectedPropIds.length > 0) componentIsSelected = true;
+    if (selectedPropIds.length === 1) componentIsSelected = true;
 
     this.setState({
       addEdgeSource: sourceId,

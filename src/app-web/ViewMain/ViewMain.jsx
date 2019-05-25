@@ -70,6 +70,8 @@ class ViewMain extends React.Component {
     this.refView = React.createRef();
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
+    this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
+    this.HandleForceUpdate = this.HandleForceUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
     this.HandleAddComponentDialogLabelChange = this.HandleAddComponentDialogLabelChange.bind(this);
     this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
@@ -85,6 +87,8 @@ class ViewMain extends React.Component {
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.handleSnapshot = this.handleSnapshot.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
+    UR.Sub('DATA_UPDATED', this.HandleDataUpdate);
+    UR.Sub('FORCE_UPDATE', this.HandleForceUpdate);
     UR.Sub('SHOW_RESOURCE', this.handleResourceClick);
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Sub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
@@ -121,9 +125,24 @@ class ViewMain extends React.Component {
 
   componentWillUnmount() {
     UR.Unsub('WINDOW:SIZE', this.UpdateDimensions);
+    UR.Unsub('DATA_UPDATED', this.HandleDataUpdate);
+    UR.Unsub('FORCE_UPDATE', this.HandleForceUpdate);
     UR.Unsub('SHOW_RESOURCE', this.handleResourceClick);
     UR.Unsub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Unsub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
+  }
+
+  // Force update to redraw evidence link badges and quality ratings
+  HandleForceUpdate() {
+    if (DBG) console.log(PKG,'FORCE_UPDATE');
+    this.forceUpdate();
+  }
+
+  // Force a screen redraw when evidence links are added
+  // so that badges and quality ratings will draw
+  HandleDataUpdate() {
+    if (DBG) console.log(PKG,'DATA_UPDATE');
+    this.HandleForceUpdate();
   }
 
   UpdateDimensions() {
@@ -143,10 +162,17 @@ class ViewMain extends React.Component {
     const innerWidth = window.innerWidth - MEMEStyles.DRAWER_WIDTH;
     const innerHeight = window.innerHeight - this.toolRect.height;
 
-    this.setState({
-      viewWidth: Math.min(viewWidth, innerWidth),
-      viewHeight: Math.min(viewHeight, innerHeight)
-    });
+    this.setState(
+      {
+        viewWidth: Math.min(viewWidth, innerWidth),
+        viewHeight: Math.min(viewHeight, innerHeight)
+      },
+      () => {
+        // Force screen to redraw after setting size.
+        // Also forces badge redraw
+        this.HandleForceUpdate();
+      }
+    );
   }
 
   HandleAddComponentDialogLabelChange(e) {
@@ -508,7 +534,7 @@ class ViewMain extends React.Component {
                 color="primary"
               >
                 Create Evidence
-                </Button>
+              </Button>
             </div>
           </Paper>
         </Modal>

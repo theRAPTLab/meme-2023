@@ -1108,6 +1108,17 @@ PMCData.SetEvidenceLinkNote = (evId, note) => {
   ev.note = note;
   UR.Publish('DATA_UPDATED');
 };
+PMCData.SetEvidenceLinkRating = (evId, rating) => {
+  let ev = a_evidence.find(item => {
+    return item.evId === evId;
+  });
+  if (ev) {
+    ev.rating = rating;
+    UR.Publish('DATA_UPDATED');
+    return;
+  }
+  throw Error(`no evidence link with evId '${evId}' exists`);
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Given the passed resource ID, returns array of prop ids linked to the resource object.

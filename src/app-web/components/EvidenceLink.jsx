@@ -16,8 +16,10 @@ import ClassNames from 'classnames';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
+import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 // Material UI Icons
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // Material UI Theming
@@ -28,6 +30,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import DATA from '../modules/pmc-data';
 import UR from '../../system/ursys';
+import RatingButton from './RatingButton';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -44,14 +47,15 @@ class EvidenceLink extends React.Component {
     let sourceHasNotBeenSet = this.props.propId === undefined && this.props.mechId === undefined;
     this.state = {
       note: this.props.note,
+      rating: this.props.rating,
       canBeEdited: false,
       isBeingEdited: false,
-      isBeingDisplayedInResourceLibrary: true,
       isExpanded: false,
       listenForSourceSelection: false,
       sourceHasNotBeenSet
     };
     this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
+    this.HandleRatingUpdate = this.HandleRatingUpdate.bind(this);
     this.handleDeleteButtonClick = this.handleDeleteButtonClick.bind(this);
     this.handleEditButtonClick = this.handleEditButtonClick.bind(this);
     this.handleSaveButtonClick = this.handleSaveButtonClick.bind(this);
@@ -79,10 +83,28 @@ class EvidenceLink extends React.Component {
   HandleDataUpdate() {
     // The same EvidenceLink can be displayed in both the Resource Library
     // and a Resource View.  If one is updated, the other needs to update itself
-    // via the DATA_UPDATED call because `note` is only set by props 
+    // via the DATA_UPDATED call because `note` is only set by props
     // during construction.
-    let note = DATA.EvidenceLinkByEvidenceId(this.props.evId).note;
-    this.setState({ note });
+
+    let evlink = DATA.EvidenceLinkByEvidenceId(this.props.evId);
+    if (evlink) {
+      this.setState({
+        note: evlink.note,
+        rating: evlink.rating
+      });
+      return;
+    }
+    throw Error(`no evidence link with evId '${this.props.evId}' exists`);
+  }
+
+  /**
+   * Called by the Rating widget when the user clicks on a star.
+   * Sets the rating on the evidence link data.
+   *
+   * @param {integer} rating - number of stars selected
+   */
+  HandleRatingUpdate(rating) {
+    DATA.SetEvidenceLinkRating(this.props.evId, rating);
   }
 
   handleDeleteButtonClick() {
@@ -210,9 +232,9 @@ class EvidenceLink extends React.Component {
     const { evId, rsrcId, propId, mechId, classes } = this.props;
     const {
       note,
+      rating,
       isBeingEdited,
       isExpanded,
-      isBeingDisplayedInResourceLibrary,
       sourceHasNotBeenSet,
       listenForSourceSelection
     } = this.state;
@@ -254,48 +276,101 @@ class EvidenceLink extends React.Component {
         <Button className={classes.evidenceExpandButton} onClick={this.toggleExpanded}>
           <ExpandMoreIcon className={isExpanded ? classes.iconExpanded : ''} />
         </Button>
-        <div className={classes.evidenceWindowLabel}>EVIDENCE LINK</div>
-        <div className={classes.evidencePrompt} hidden={!isExpanded}>
+        {/* Title Bar */}
+        <Typography className={classes.evidenceWindowLabel}>EVIDENCE LINK</Typography>
+        <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
           How does this resource support this component / property / mechanism?
-        </div>
-        <div className={classes.evidenceTitle}>
-          <div style={{ width: '50px', display: 'flex', flexDirection:'column'}}>
-            {!isBeingDisplayedInResourceLibrary ? (
-              <Avatar className={classes.resourceViewAvatar}>{rsrcId}</Avatar>
-            ) : (
-              ''
-            )}
-            <div className={classes.evidenceLinkAvatar}>{sourceLabel}</div>
-            <img
-              src="../static/screenshot_sim.png"
-              alt="screenshot"
-              className={classes.evidenceScreenshot}
-              hidden={!isExpanded}
-            />
-          </div>
-          {isBeingEdited ? (
-            <TextField
-              className={ClassNames(
-                classes.evidenceLabelField,
-                isExpanded ? classes.evidenceLabelFieldExpanded : ''
-              )}
-              value={note}
-              placeholder="Click to add label..."
-              autoFocus
-              multiline
-              onChange={this.handleNoteChange}
-            />
-          ) : (
-            <div
-              className={ClassNames(
-                classes.evidenceLabelField,
-                isExpanded ? classes.evidenceLabelFieldExpanded : ''
-              )}
+        </Typography>
+        {/* Body */}
+        <Grid container className={classes.evidenceBody} spacing={8}>
+          {/* Source */}
+          <Grid item xs={isExpanded ? 12 : 3}>
+            <Grid
+              container
+              spacing={8}
+              className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
             >
-              {note}
-            </div>
-          )}
-        </div>
+              <Grid item xs={4} hidden={!isExpanded}>
+                <Typography variant="caption" align="right">
+                  SOURCE:
+                </Typography>
+              </Grid>
+              <Grid item xs>
+                <div className={classes.evidenceLinkAvatar}>{sourceLabel}</div>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={isExpanded ? 12 : 9}>
+            <Grid
+              container
+              spacing={8}
+              className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
+            >
+              <Grid item xs={4} hidden={!isExpanded}>
+                <Typography variant="caption" align="right">
+                  DESCRIPTION:
+                </Typography>
+              </Grid>
+              <Grid item xs>
+                {isExpanded ? (
+                  <TextField
+                    className={ClassNames(
+                      classes.evidenceLabelField,
+                      classes.evidenceLabelFieldExpanded
+                    )}
+                    value={note}
+                    placeholder="Click to add label..."
+                    autoFocus
+                    multiline
+                    onChange={this.handleNoteChange}
+                    InputProps={{
+                      readOnly: !isBeingEdited
+                    }}
+                  />
+                ) : (
+                  <div className={classes.evidenceLabelField}>{note}</div>
+                )}
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={isExpanded ? 12 : 3}>
+            <Grid
+              container
+              spacing={8} 
+              className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed}
+            >
+              <Grid item xs={4} hidden={!isExpanded}>
+                <Typography variant="caption" align="right">
+                  RATING:
+                </Typography>
+              </Grid>
+              <Grid item xs>
+                <RatingButton
+                  rating={rating}
+                  isExpanded={isExpanded}
+                  ratingLabel=''
+                  UpdateRating={this.HandleRatingUpdate}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid container spacing={8} hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
+            <Grid item xs={4}>
+              <Typography variant="caption" align="right">
+                SCREENSHOT:
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <Button className={classes.evidenceScreenshotButton}>
+                <img
+                  src="../static/screenshot_sim.png"
+                  alt="screenshot"
+                  className={classes.evidenceScreenshot}
+                />
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
         <Divider />
         <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
           <Button
@@ -317,6 +392,7 @@ class EvidenceLink extends React.Component {
             variant="contained"
             onClick={this.handleEditButtonClick}
             hidden={!isExpanded || isBeingEdited}
+            size="small"
           >
             Edit
           </Button>
@@ -324,6 +400,7 @@ class EvidenceLink extends React.Component {
             variant="contained"
             onClick={this.handleSaveButtonClick}
             hidden={!isExpanded || !isBeingEdited}
+            size="small"
           >
             Save
           </Button>

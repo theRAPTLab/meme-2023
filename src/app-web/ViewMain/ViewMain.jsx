@@ -74,12 +74,12 @@ class ViewMain extends React.Component {
     this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
     this.HandleForceUpdate = this.HandleForceUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
-    this.HandleAddComponentDialogLabelChange = this.HandleAddComponentDialogLabelChange.bind(this);
+    this.HandleAddPropLabelChange = this.HandleAddPropLabelChange.bind(this);
     this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
-    this.HandleComponentEdit = this.HandleComponentEdit.bind(this);
+    this.HandlePropEdit = this.HandlePropEdit.bind(this);
     this.HandlePropertyAdd = this.HandlePropertyAdd.bind(this);
-    this.HandleAddPropOpen = this.HandleAddPropOpen.bind(this);
-    this.handleAddPropClose = this.handleAddPropClose.bind(this);
+    this.HandleComponentAdd = this.HandleComponentAdd.bind(this);
+    this.HandleAddPropClose = this.HandleAddPropClose.bind(this);
     this.HandleAddPropCreate = this.HandleAddPropCreate.bind(this);
     this.handleAddEdge = this.handleAddEdge.bind(this);
     this.handleAddEdgeCreate = this.handleAddEdgeCreate.bind(this);
@@ -98,9 +98,9 @@ class ViewMain extends React.Component {
     this.state = {
       viewHeight: 0, // need to init this to prevent error with first render of informationList
       addPropOpen: false,
-      addComponentLabel: '',
-      addComponentPropId: '', // The prop Id of the component being edited, if new component then ''
-      addComponentIsProperty: false, // AddComponent dialog is adding a property (not a component)
+      addPropLabel: '',
+      addPropPropId: '', // The prop Id of the component being edited, if new component then ''
+      addPropIsProperty: false, // AddComponent dialog is adding a property (not a component)
       addEdgeOpen: false,
       addEdgeLabel: '',
       addEdgeSource: '',
@@ -181,74 +181,78 @@ class ViewMain extends React.Component {
     );
   }
 
-  HandleAddComponentDialogLabelChange(e) {
-    this.setState({ addComponentLabel: e.target.value });
+  HandleAddPropLabelChange(e) {
+    this.setState({ addPropLabel: e.target.value });
   }
 
   HandleAddEdgeDialogLabelChange(e) {
     this.setState({ addEdgeLabel: e.target.value });
   }
 
-  HandleComponentEdit() {
+
+  // User clicked on "(+) Add Component" drawer button
+  HandleComponentAdd() {
+    if (DBG) console.log('Add!');
+    this.setState({
+      addPropOpen: true,
+      addPropLabel: '', // clear the old property name
+      addPropPropId: '', // new prop, so clear propId
+      addPropIsProperty: false // adding component, not property
+    });
+  }
+
+  // User selected component/prop and clicked on "(/) Edit Component / Property" button
+  HandlePropEdit() {
     let selectedPropIds = DATA.VM_SelectedProps();
     if (selectedPropIds.length > 0) {
       let propId = selectedPropIds[0];
       let prop = DATA.Prop(propId);
       this.setState({
         addPropOpen: true,
-        addComponentLabel: prop.name,
-        addComponentPropId: propId,
-        addComponentIsProperty: false
+        addPropLabel: prop.name,
+        addPropPropId: propId,
+        addPropIsProperty: false
       });
     }
   }
 
+  // User selected component/prop and clicked on "(+) Add Property Button"
   HandlePropertyAdd() {
     this.setState({
       addPropOpen: true,
-      addComponentLabel: '', // clear the old property name
-      addComponentIsProperty: true
+      addPropLabel: '', // clear the old property name
+      addPropPropId: '', // new prop, so clear propId
+      addPropIsProperty: true
     });
   }
 
-  // Called by "(+) Add Component" drawer button
-  HandleAddPropOpen() {
-    if (DBG) console.log('Add!');
-    this.setState({
-      addPropOpen: true,
-      addComponentLabel: '', // clear the old property name
-      addComponentPropId: '', // new prop, so clear propId
-      addComponentIsProperty: false // adding component, not property
-    });
-  }
-
-  handleAddPropClose() {
+  HandleAddPropClose() {
     if (DBG) console.log('close');
     this.setState({ addPropOpen: false });
   }
 
   HandleAddPropCreate() {
     if (DBG) console.log('create prop');
-    if (this.state.addComponentIsProperty) {
+    if (this.state.addPropIsProperty) {
       // Add a property to the selected component
       let selectedPropIds = DATA.VM_SelectedProps();
       if (selectedPropIds.length > 0) {
         let parentPropId = selectedPropIds[0];
-        if (DBG) console.log('...setting parent of', this.state.addComponentLabel, 'to', parentPropId);
+        if (DBG) console.log('...setting parent of', this.state.addPropLabel, 'to', parentPropId);
         // Create new prop
-        DATA.PMC_AddProp(this.state.addComponentLabel);
+        DATA.PMC_AddProp(this.state.addPropLabel);
         // Add it to the parent component
-        DATA.PMC_AddPropParent(this.state.addComponentLabel, parentPropId);
+        DATA.PMC_AddPropParent(this.state.addPropLabel, parentPropId);
       }
-    } else if (this.state.addComponentPropId !== '') {
+    } else if (this.state.addPropPropId !== '') {
       // Update existing prop
-      let prop = DATA.Prop(this.state.addComponentPropId);
-      prop.name = this.state.addComponentLabel;
+      let prop = DATA.Prop(this.state.addPropPropId);
+      prop.name = this.state.addPropLabel;
     } else {
       // Create new prop
-      DATA.PMC_AddProp(this.state.addComponentLabel);
+      DATA.PMC_AddProp(this.state.addPropLabel);
     }
-    this.handleAddPropClose();
+    this.HandleAddPropClose();
   }
 
 
@@ -335,7 +339,7 @@ class ViewMain extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { addComponentLabel, componentIsSelected } = this.state;
+    const { addPropLabel, addPropPropId, componentIsSelected } = this.state;
     const resources = DATA.AllResources();
     if (DBG)
       console.log(`%crender() size ${this.state.viewWidth}x${this.state.viewHeight}`, cssreact);
@@ -367,7 +371,7 @@ class ViewMain extends React.Component {
               color="primary"
               aria-label="Add"
               className={classes.fab}
-              onClick={this.HandleAddPropOpen}
+              onClick={this.HandleComponentAdd}
             >
               <AddIcon />
             </Fab>
@@ -575,10 +579,10 @@ class ViewMain extends React.Component {
           </Paper>
         </Modal>
 
-        {/* Add Comonent Dialog */}
+        {/* Add Prop Dialog */}
         <Dialog
           open={this.state.addPropOpen}
-          onClose={this.handleAddPropClose}
+          onClose={this.HandleAddPropClose}
           aria-labelledby="form-dialog-title"
         >
           <DialogTitle id="form-dialog-title">Add Component/Property</DialogTitle>
@@ -590,24 +594,24 @@ class ViewMain extends React.Component {
               id="propLabel"
               label="Label"
               fullWidth
-              onChange={this.HandleAddComponentDialogLabelChange}
-              value={addComponentLabel}
+              onChange={this.HandleAddPropLabelChange}
+              value={addPropLabel}
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.handleAddPropClose} color="primary">
+            <Button onClick={this.HandleAddPropClose} color="primary">
               Cancel
               </Button>
             <Button onClick={this.HandleAddPropCreate} color="primary">
-              Create
-              </Button>
+              {addPropPropId === '' ? 'Create' : 'Save'}
+            </Button>
           </DialogActions>
         </Dialog>
 
         {/* Component Editing */}
         <Fab
           hidden={!componentIsSelected}
-          onClick={this.HandleComponentEdit}
+          onClick={this.HandlePropEdit}
           className={classes.editComponentButton}
           color="primary"
           variant="extended"

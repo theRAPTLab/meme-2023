@@ -78,7 +78,7 @@ class ViewMain extends React.Component {
     this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
     this.HandleComponentEdit = this.HandleComponentEdit.bind(this);
     this.HandlePropertyAdd = this.HandlePropertyAdd.bind(this);
-    this.handleAddPropOpen = this.handleAddPropOpen.bind(this);
+    this.HandleAddPropOpen = this.HandleAddPropOpen.bind(this);
     this.handleAddPropClose = this.handleAddPropClose.bind(this);
     this.HandleAddPropCreate = this.HandleAddPropCreate.bind(this);
     this.handleAddEdge = this.handleAddEdge.bind(this);
@@ -197,7 +197,8 @@ class ViewMain extends React.Component {
       this.setState({
         addPropOpen: true,
         addComponentLabel: prop.name,
-        addComponentPropId: propId
+        addComponentPropId: propId,
+        addComponentIsProperty: false
       });
     }
   }
@@ -210,9 +211,15 @@ class ViewMain extends React.Component {
     });
   }
 
-  handleAddPropOpen() {
+  // Called by "(+) Add Component" drawer button
+  HandleAddPropOpen() {
     if (DBG) console.log('Add!');
-    this.setState({ addPropOpen: true });
+    this.setState({
+      addPropOpen: true,
+      addComponentLabel: '', // clear the old property name
+      addComponentPropId: '', // new prop, so clear propId
+      addComponentIsProperty: false // adding component, not property
+    });
   }
 
   handleAddPropClose() {
@@ -360,7 +367,7 @@ class ViewMain extends React.Component {
               color="primary"
               aria-label="Add"
               className={classes.fab}
-              onClick={this.handleAddPropOpen}
+              onClick={this.HandleAddPropOpen}
             >
               <AddIcon />
             </Fab>

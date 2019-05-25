@@ -1034,6 +1034,12 @@ PMCData.PMC_AddProp = (node = "a") => {
   return `added node ${node}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.PMC_AddPropParent = (node = 'a', parent = 'b') => {
+  m_graph.setParent(node, parent);
+  PMCData.BuildModel();
+  return `added parent ${parent} to node ${node}`;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddMech = (sourceId, targetId, label) => {
   m_graph.setEdge(sourceId, targetId, { name: label });
   PMCData.BuildModel();

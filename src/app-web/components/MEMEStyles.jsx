@@ -66,6 +66,16 @@ const styles = theme => {
       height: '3em',
       alignItems: 'baseline'
     },
+    editComponentButton: {
+      position: 'absolute',
+      left: '20%',
+      bottom: '20px'
+    },
+    addPropertyButton: {
+      position: 'absolute',
+      left: '50%',
+      bottom: '20px'
+    },
     informationList: {
       width: 300,
       backgroundColor: teal[50],

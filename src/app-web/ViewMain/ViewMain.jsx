@@ -36,6 +36,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 // Material UI Icons
 import AddIcon from '@material-ui/icons/Add';
 import DescriptionIcon from '@material-ui/icons/Description';
+import EditIcon from '@material-ui/icons/Edit';
 import ImageIcon from '@material-ui/icons/Image';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
@@ -75,6 +76,8 @@ class ViewMain extends React.Component {
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
     this.HandleAddComponentDialogLabelChange = this.HandleAddComponentDialogLabelChange.bind(this);
     this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
+    this.HandleComponentEdit = this.HandleComponentEdit.bind(this);
+    this.HandlePropertyAdd = this.HandlePropertyAdd.bind(this);
     this.handleAddPropOpen = this.handleAddPropOpen.bind(this);
     this.handleAddPropClose = this.handleAddPropClose.bind(this);
     this.handleAddPropCreate = this.handleAddPropCreate.bind(this);
@@ -96,11 +99,14 @@ class ViewMain extends React.Component {
       viewHeight: 0, // need to init this to prevent error with first render of informationList
       addPropOpen: false,
       addComponentLabel: '',
+      addComponentPropId: '', // The prop Id of the component being edited, if new component then ''
+      addComponentIsProperty: false, // AddComponent dialog is adding a property (not a component)
       addEdgeOpen: false,
       addEdgeLabel: '',
       addEdgeSource: '',
       addEdgeTarget: '',
       resourceViewOpen: false,
+      componentIsSelected: false, // A component or property has been selected by user
       selectedResource: {
         id: '',
         evid: '',
@@ -183,6 +189,26 @@ class ViewMain extends React.Component {
     this.setState({ addEdgeLabel: e.target.value });
   }
 
+  HandleComponentEdit() {
+    let selectedPropIds = DATA.VM_SelectedProps();
+    if (selectedPropIds.length > 0) {
+      let propId = selectedPropIds[0];
+      let prop = DATA.Prop(propId);
+      this.setState({
+        addPropOpen: true,
+        addComponentLabel: prop.name,
+        addComponentPropId: propId
+      });
+    }
+  }
+
+  HandlePropertyAdd() {
+    this.setState({
+      addPropOpen: true,
+      addComponentIsProperty: true
+    });
+  }
+
   handleAddPropOpen() {
     if (DBG) console.log('Add!');
     this.setState({ addPropOpen: true });
@@ -195,7 +221,25 @@ class ViewMain extends React.Component {
 
   handleAddPropCreate() {
     if (DBG) console.log('create prop');
-    DATA.PMC_AddProp(this.state.addComponentLabel);
+    if (this.state.addComponentIsProperty) {
+      // Add a property to the selected component
+      let selectedPropIds = DATA.VM_SelectedProps();
+      if (selectedPropIds.length > 0) {
+        let parentPropId = selectedPropIds[0];
+        if (DBG) console.log('...setting parent of', this.state.addComponentLabel, 'to', parentPropId);
+        // Create new prop
+        DATA.PMC_AddProp(this.state.addComponentLabel);
+        // Add it to the parent component
+        DATA.PMC_AddPropParent(this.state.addComponentLabel, parentPropId);
+      }
+    } else if (this.state.addComponentPropId !== '') {
+      // Update existing prop
+      let prop = DATA.Prop(this.state.addComponentPropId);
+      prop.name = this.state.addComponentLabel;
+    } else {
+      // Create new prop
+      DATA.PMC_AddProp(this.state.addComponentLabel);
+    }
     this.handleAddPropClose();
   }
 
@@ -261,9 +305,15 @@ class ViewMain extends React.Component {
     if (selectedPropIds.length > 1) {
       targetId = selectedPropIds[1];
     }
+
+    // Set componentIsSelected for Component Editing
+    let componentIsSelected = false;
+    if (selectedPropIds.length > 0) componentIsSelected = true;
+
     this.setState({
       addEdgeSource: sourceId,
-      addEdgeTarget: targetId
+      addEdgeTarget: targetId,
+      componentIsSelected
     });
   }
 
@@ -275,6 +325,7 @@ class ViewMain extends React.Component {
 
   render() {
     const { classes } = this.props;
+    const { addComponentLabel, componentIsSelected } = this.state;
     const resources = DATA.AllResources();
     if (DBG)
       console.log(`%crender() size ${this.state.viewWidth}x${this.state.viewHeight}`, cssreact);
@@ -291,7 +342,6 @@ class ViewMain extends React.Component {
           </Toolbar>
         </AppBar>
 
-        {/* Add Comonent Dialog */}
         <Drawer
           className={classes.drawer}
           variant="permanent"
@@ -312,35 +362,10 @@ class ViewMain extends React.Component {
               <AddIcon />
             </Fab>
           </Tooltip>
-          <Typography align="center" variant="caption">Add Component / Property</Typography>
+          <Typography align="center" variant="caption">
+            Add Component
+          </Typography>
           <br />
-          <Dialog
-            open={this.state.addPropOpen}
-            onClose={this.handleAddPropClose}
-            aria-labelledby="form-dialog-title"
-          >
-            <DialogTitle id="form-dialog-title">Add Component/Property</DialogTitle>
-            <DialogContent>
-              <DialogContentText>Type a name for your component or property.</DialogContentText>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="propLabel"
-                label="Label"
-                fullWidth
-                onChange={this.HandleAddComponentDialogLabelChange}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handleAddPropClose} color="primary">
-                Cancel
-              </Button>
-              <Button onClick={this.handleAddPropCreate} color="primary">
-                Create
-              </Button>
-            </DialogActions>
-          </Dialog>
-
           <Divider />
           {/*
             <List>
@@ -364,6 +389,7 @@ class ViewMain extends React.Component {
           </Tooltip>
           <Typography align="center" variant="caption">Add Mechanism</Typography>
         </Drawer>
+ 
         <main className={classes.content} ref={this.refMain}>
           <div className={classes.toolbar} ref={this.refToolbar} />
           <div
@@ -538,6 +564,57 @@ class ViewMain extends React.Component {
             </div>
           </Paper>
         </Modal>
+
+        {/* Add Comonent Dialog */}
+        <Dialog
+          open={this.state.addPropOpen}
+          onClose={this.handleAddPropClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Add Component/Property</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Type a name for your component or property.</DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="propLabel"
+              label="Label"
+              fullWidth
+              onChange={this.HandleAddComponentDialogLabelChange}
+              value={addComponentLabel}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleAddPropClose} color="primary">
+              Cancel
+              </Button>
+            <Button onClick={this.handleAddPropCreate} color="primary">
+              Create
+              </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Component Editing */}
+        <Fab
+          hidden={!componentIsSelected}
+          onClick={this.HandleComponentEdit}
+          className={classes.editComponentButton}
+          color="primary"
+          variant="extended"
+        >
+          <EditIcon />
+          &nbsp;&nbsp;Edit Component / Property
+        </Fab>
+        <Fab
+          hidden={!componentIsSelected}
+          onClick={this.HandlePropertyAdd}
+          className={classes.addPropertyButton}
+          color="primary"
+          variant="extended"
+        >
+          <AddIcon /> Add property
+        </Fab>
+
       </div>
     );
   }

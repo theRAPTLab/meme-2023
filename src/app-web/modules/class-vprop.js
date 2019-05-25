@@ -359,6 +359,9 @@ class VProp {
     const data = DATA.Prop(this.id);
     this.data.name = data.name;
 
+    // Update the text in case it changed
+    this.gDataName.text(this.data.name.toUpperCase());
+
     // preserve layout
     const x = this.gRoot.x();
     const y = this.gRoot.y();

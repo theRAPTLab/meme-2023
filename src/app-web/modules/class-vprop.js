@@ -522,7 +522,6 @@ function u_Layout(offset, id) {
   const compVis = DATA.VM_VProp(id);
   if (!compVis.HackWasMoved()) {
     if (DBG) console.log(`moving ${compVis.id}`);
-    compVis.Move(x, y); // draw compVis where it should go in screen space
     y += compVis.DataHeight() + PAD.MIN;
     x += PAD.MIN;
     const children = DATA.Children(id);
@@ -535,6 +534,8 @@ function u_Layout(offset, id) {
       y += addH;
       if (DBG) console.log(`y + ${addH} = ${y}`);
     });
+    // Move parent component AFTER children or the children will end up with wrong offsets
+    compVis.Move(offset.x, offset.y); // draw compVis where it should go in screen space
   } else if (DBG) {
     console.log(`skipping layout of ${compVis.id}`);
   }

@@ -48,5 +48,8 @@ Thumbs.db
 *.sublime-workspace
 *.sublime-project
 
+# Ignore archives
+*.zip
+
 # Ignore JetBrains' IDEs
 .idea

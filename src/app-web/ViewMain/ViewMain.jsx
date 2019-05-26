@@ -260,7 +260,10 @@ class ViewMain extends React.Component {
     if (DBG) console.log('Add!');
     // clear the label first
     document.getElementById('edgeLabel').value = '';
-    this.setState({ addEdgeOpen: true });
+    this.setState({
+      addEdgeOpen: true,
+      componentIsSelected: false // hide component edit buttons if they were visible
+    });
   }
 
   handleAddEdgeCreate() {
@@ -322,7 +325,7 @@ class ViewMain extends React.Component {
     // If more than one component is selected, hide the component
     // editing buttons
     let componentIsSelected = false;
-    if (selectedPropIds.length === 1) componentIsSelected = true;
+    if (selectedPropIds.length === 1 && !this.state.addEdgeOpen) componentIsSelected = true;
 
     this.setState({
       addEdgeSource: sourceId,

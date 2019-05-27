@@ -99,8 +99,8 @@ let h_evidenceByProp = new Map(); /*/
                           Used by class-vprop when displaying
                           the list of evidenceLink badges for each prop.
 
-                          {propId: [{propId, rsrcId, note},
-                                 {propId, rsrcId, note},
+                          {propId: [{evId, propId, rsrcId, note},
+                                    {evId, propId, rsrcId, note},
                                 ...],
                           ...}
                       /*/
@@ -1001,6 +1001,11 @@ PMCData.PMC_AddPropParent = (node = 'a', parent = 'b') => {
 PMCData.PMC_PropDelete = (node = "a") => {
   // Deselect the prop first, otherwise the deleted prop will remain selected
   PMCData.VM_DeselectAll();
+  // Unlink any evidence
+  const evlinks = PMCData.PropEvidence(node);
+  evlinks.forEach(evlink => {
+    PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
+  });
   // Delete any children nodes
   const children = PMCData.Children(node);
   children.forEach(cid => {
@@ -1078,7 +1083,7 @@ PMCData.EvidenceLinkByEvidenceId = (evId) => {
     return item.evId === evId;
   });
 };
-// Set propId to '' to unlink
+// Set propId to `undefined` to unlink
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
   let ev = a_evidence.find(item => {
     return item.evId === evId;

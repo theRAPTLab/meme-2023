@@ -35,6 +35,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 // Material UI Icons
 import AddIcon from '@material-ui/icons/Add';
+import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
 import DescriptionIcon from '@material-ui/icons/Description';
 import EditIcon from '@material-ui/icons/Edit';
 import ImageIcon from '@material-ui/icons/Image';
@@ -76,8 +77,9 @@ class ViewMain extends React.Component {
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
     this.HandleAddPropLabelChange = this.HandleAddPropLabelChange.bind(this);
     this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
+    this.HandlePropAdd = this.HandlePropAdd.bind(this);
+    this.HandlePropDelete = this.HandlePropDelete.bind(this);
     this.HandlePropEdit = this.HandlePropEdit.bind(this);
-    this.HandlePropertyAdd = this.HandlePropertyAdd.bind(this);
     this.HandleComponentAdd = this.HandleComponentAdd.bind(this);
     this.HandleAddPropClose = this.HandleAddPropClose.bind(this);
     this.HandleAddPropCreate = this.HandleAddPropCreate.bind(this);
@@ -201,6 +203,16 @@ class ViewMain extends React.Component {
     });
   }
 
+  // User selected component/prop and clicked on "(+) Add Property Button"
+  HandlePropAdd() {
+    this.setState({
+      addPropOpen: true,
+      addPropLabel: '', // clear the old property name
+      addPropPropId: '', // new prop, so clear propId
+      addPropIsProperty: true
+    });
+  }
+
   // User selected component/prop and clicked on "(/) Edit Component / Property" button
   HandlePropEdit() {
     let selectedPropIds = DATA.VM_SelectedProps();
@@ -217,12 +229,14 @@ class ViewMain extends React.Component {
   }
 
   // User selected component/prop and clicked on "(+) Add Property Button"
-  HandlePropertyAdd() {
+  HandlePropDelete() {
+    let selectedPropIds = DATA.VM_SelectedProps();
+    if (selectedPropIds.length > 0) {
+      let propId = selectedPropIds[0];
+      DATA.PMC_PropDelete(propId);
+    }
     this.setState({
-      addPropOpen: true,
-      addPropLabel: '', // clear the old property name
-      addPropPropId: '', // new prop, so clear propId
-      addPropIsProperty: true
+      componentIsSelected: false
     });
   }
 
@@ -614,8 +628,19 @@ class ViewMain extends React.Component {
         {/* Component Editing */}
         <Fab
           hidden={!componentIsSelected}
+          onClick={this.HandlePropDelete}
+          className={classes.propertyDeleteButton}
+          color="secondary"
+          variant="extended"
+          size="small"
+        >
+          <DeleteRoundedIcon />
+          &nbsp;&nbsp;Delete&nbsp;
+        </Fab>
+        <Fab
+          hidden={!componentIsSelected}
           onClick={this.HandlePropEdit}
-          className={classes.editComponentButton}
+          className={classes.propertyEditButton}
           color="primary"
           variant="extended"
         >
@@ -624,8 +649,8 @@ class ViewMain extends React.Component {
         </Fab>
         <Fab
           hidden={!componentIsSelected}
-          onClick={this.HandlePropertyAdd}
-          className={classes.addPropertyButton}
+          onClick={this.HandlePropAdd}
+          className={classes.propertyAddButton}
           color="primary"
           variant="extended"
         >

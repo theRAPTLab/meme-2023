@@ -66,14 +66,19 @@ const styles = theme => {
       height: '3em',
       alignItems: 'baseline'
     },
-    editComponentButton: {
+    propertyDeleteButton: {
       position: 'absolute',
-      left: '20%',
+      left: '10%',
+      bottom: '30px'
+    },
+    propertyEditButton: {
+      position: 'absolute',
+      left: '30%',
       bottom: '20px'
     },
-    addPropertyButton: {
+    propertyAddButton: {
       position: 'absolute',
-      left: '50%',
+      left: '60%',
       bottom: '20px'
     },
     informationList: {

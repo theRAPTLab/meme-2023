@@ -998,6 +998,15 @@ PMCData.PMC_AddPropParent = (node = 'a', parent = 'b') => {
   return `added parent ${parent} to node ${node}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.PMC_PropDelete = (node = "a") => {
+  // Deselect the prop first, otherwise the deleted prop will remain selected
+  PMCData.VM_DeselectAll();
+  // Then remove node
+  m_graph.removeNode(node);
+  PMCData.BuildModel();
+  return `deleted node ${node}`;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddMech = (sourceId, targetId, label) => {
   m_graph.setEdge(sourceId, targetId, { name: label });
   PMCData.BuildModel();

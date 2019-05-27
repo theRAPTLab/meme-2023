@@ -233,7 +233,10 @@ class ViewMain extends React.Component {
     let selectedPropIds = DATA.VM_SelectedProps();
     if (selectedPropIds.length > 0) {
       let propId = selectedPropIds[0];
-      DATA.PMC_PropDelete(propId);
+      let result = DATA.PMC_PropDelete(propId);
+      if (result === undefined) {
+        alert('Component has properties.  Please delete all properties before deleting the component.')
+      }
     }
     this.setState({
       componentIsSelected: false

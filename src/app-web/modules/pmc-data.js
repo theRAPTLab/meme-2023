@@ -1074,11 +1074,15 @@ PMCData.PropEvidence = (nodeId) => {
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  */
 PMCData.EvidenceLinkByEvidenceId = (evId) => {
-  return a_evidence.find((item) => { return item.evId === evId });
+  return a_evidence.find(item => {
+    return item.evId === evId;
+  });
 };
-
+// Set propId to '' to unlink
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
-  let ev = a_evidence.find((item) => { return item.evId === evId });
+  let ev = a_evidence.find(item => {
+    return item.evId === evId;
+  });
   ev.propId = propId;
   // Call BuildModel to rebuild hash tables since we've added a new propId
   PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
@@ -1092,7 +1096,9 @@ PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
   PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
 };
 PMCData.SetEvidenceLinkNote = (evId, note) => {
-  let ev = a_evidence.find((item) => { return item.evId === evId });
+  let ev = a_evidence.find(item => {
+    return item.evId === evId;
+  });
   ev.note = note;
   UR.Publish('DATA_UPDATED');
 };

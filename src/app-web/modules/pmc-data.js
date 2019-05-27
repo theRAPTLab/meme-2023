@@ -1004,6 +1004,7 @@ PMCData.PMC_PropDelete = (node = "a") => {
   // Unlink any evidence
   const evlinks = PMCData.PropEvidence(node);
   evlinks.forEach(evlink => {
+    PMCData.VM_VBadgeDelete(evlink.evId);
     PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
   });
   // Delete any children nodes

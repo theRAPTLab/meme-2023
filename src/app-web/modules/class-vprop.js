@@ -527,7 +527,7 @@ function u_Layout(offset, id) {
     // coordinates.  The result is the children are drawn offset to the parent
     // rather than inside the parent. So we add a check here: if it's at 0,0, we skip the
     // move until after the children have been drawn.
-    console.error('compVis is at', compVis.X(), compVis.X());
+    if (DBG) console.log('compVis is at', compVis.X(), compVis.X());
     if (compVis.X() !== 0 && compVis.Y() !== 0) { // e.g. not adding a new property
       compVis.Move(x, y); // draw compVis where it should go in screen space
     }

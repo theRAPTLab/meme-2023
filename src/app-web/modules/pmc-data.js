@@ -999,14 +999,13 @@ PMCData.PMC_AddPropParent = (node = 'a', parent = 'b') => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_PropDelete = (node = "a") => {
-  // Don't allow delete if there's a child
-  // FUTURE: First delete children, then delete parent
-  if (PMCData.Children(node).length > 0) {
-    // no children, don't allow deletion.
-    return undefined;
-  }
   // Deselect the prop first, otherwise the deleted prop will remain selected
   PMCData.VM_DeselectAll();
+  // Delete any children nodes
+  const children = PMCData.Children(node);
+  children.forEach(cid => {
+    PMCData.PMC_PropDelete(cid);
+  });
   // Then remove node
   m_graph.removeNode(node);
   PMCData.BuildModel();

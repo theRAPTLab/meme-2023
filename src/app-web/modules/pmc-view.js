@@ -269,6 +269,7 @@ if (window.may1 === undefined) window.may1 = {};
 window.may1.Update = () => {
   PMCView.SyncPropsFromGraphData();
   PMCView.SyncMechsFromGraphData();
+  PMCView.SyncBadgesFromEvLinkData();
   PMCView.UpdateViewModel();
   PMCView.UpdateView();
 }

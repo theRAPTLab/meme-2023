@@ -228,7 +228,7 @@ class ViewMain extends React.Component {
     }
   }
 
-  // User selected component/prop and clicked on "(+) Add Property Button"
+  // User selected component/prop and clicked on "() Delete"
   HandlePropDelete() {
     let selectedPropIds = DATA.VM_SelectedProps();
     if (selectedPropIds.length > 0) {

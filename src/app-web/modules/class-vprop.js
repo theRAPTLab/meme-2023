@@ -643,7 +643,7 @@ VProp.ReleaseBadge = id => {
  */
 VProp.UpdateBadge = id => {
   const vbadge = DATA.VM_VBadge(id);
-  vbadge.Update();
+  if (vbadge) vbadge.Update(); // vbadge might have been removed
   return vbadge;
 };
 

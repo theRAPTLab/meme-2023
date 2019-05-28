@@ -534,6 +534,8 @@ PMCData.BuildModel = () => {
     let props = h_propByResource.get(resource.rsrcId);
     if (props) {
       resource.links = props.length;
+    } else {
+      resource.links = 0;
     }
   });
 

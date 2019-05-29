@@ -105,8 +105,8 @@ class ViewMain extends React.Component {
       addPropIsProperty: false, // AddComponent dialog is adding a property (not a component)
       addEdgeOpen: false,
       addEdgeLabel: '',
-      addEdgeSource: '',
-      addEdgeTarget: '',
+      addEdgeSource: '', // Add Mech Dialog
+      addEdgeTarget: '', // Add Mech Dialog
       resourceViewOpen: false,
       componentIsSelected: false, // A component or property has been selected by user
       selectedResource: {
@@ -490,7 +490,12 @@ class ViewMain extends React.Component {
                 <Button onClick={this.handleAddEdgeClose} color="primary">
                   Cancel
                 </Button>
-                <Button onClick={this.handleAddEdgeCreate} color="primary" variant="contained">
+                <Button
+                  onClick={this.handleAddEdgeCreate}
+                  color="primary"
+                  variant="contained"
+                  disabled={this.state.addEdgeSource === '' || this.state.addEdgeTarget === ''}
+                >
                   Create
                 </Button>
               </div>

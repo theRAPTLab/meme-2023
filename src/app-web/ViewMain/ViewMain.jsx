@@ -276,6 +276,7 @@ class ViewMain extends React.Component {
     document.getElementById('edgeLabel').value = '';
     this.setState({
       addEdgeOpen: true,
+      addEdgeLabel: '',
       componentIsSelected: false // hide component edit buttons if they were visible
     });
   }

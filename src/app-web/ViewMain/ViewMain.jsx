@@ -81,6 +81,7 @@ class ViewMain extends React.Component {
     this.HandlePropDelete = this.HandlePropDelete.bind(this);
     this.HandleMechDelete = this.HandleMechDelete.bind(this);
     this.HandlePropEdit = this.HandlePropEdit.bind(this);
+    this.HandleMechEdit = this.HandleMechEdit.bind(this);
     this.HandleComponentAdd = this.HandleComponentAdd.bind(this);
     this.HandleAddPropClose = this.HandleAddPropClose.bind(this);
     this.HandleAddPropCreate = this.HandleAddPropCreate.bind(this);
@@ -240,6 +241,23 @@ class ViewMain extends React.Component {
     this.setState({
       componentIsSelected: false
     });
+  }
+
+  // User selected mechanism and clicked on "(/) Edit Mechanism" button
+  HandleMechEdit() {
+    let selectedMechIds = DATA.VM_SelectedMechs();
+    if (selectedMechIds.length > 0) {
+      DATA.VM_DeselectAll(); // deselect so mech buttons disappear
+      let mechId = selectedMechIds[0];
+      let mech = DATA.Mech(mechId);
+      let vw = mechId.split(':');
+      this.setState({
+        addEdgeOpen: true,
+        addEdgeLabel: mech.name,
+        addEdgeSource: vw[0],
+        addEdgeTarget: vw[1]
+      });
+    }
   }
 
   // User selected component/prop and clicked on "() Delete"
@@ -666,14 +684,14 @@ class ViewMain extends React.Component {
           &nbsp;&nbsp;Delete&nbsp;
         </Fab>
         <Fab
-          hidden={!componentIsSelected}
-          onClick={this.HandlePropEdit}
+          hidden={!(componentIsSelected || mechIsSelected)}
+          onClick={componentIsSelected ? this.HandlePropEdit : this.HandleMechEdit}
           className={classes.propertyEditButton}
           color="primary"
           variant="extended"
         >
           <EditIcon />
-          &nbsp;&nbsp;Edit Component / Property
+          &nbsp;&nbsp;Edit {componentIsSelected ? 'Component / Property' : 'Mechanism'}
         </Fab>
         <Fab
           hidden={!componentIsSelected}

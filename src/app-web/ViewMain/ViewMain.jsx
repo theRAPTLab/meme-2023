@@ -79,6 +79,7 @@ class ViewMain extends React.Component {
     this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
     this.HandlePropAdd = this.HandlePropAdd.bind(this);
     this.HandlePropDelete = this.HandlePropDelete.bind(this);
+    this.HandleMechDelete = this.HandleMechDelete.bind(this);
     this.HandlePropEdit = this.HandlePropEdit.bind(this);
     this.HandleComponentAdd = this.HandleComponentAdd.bind(this);
     this.HandleAddPropClose = this.HandleAddPropClose.bind(this);
@@ -108,7 +109,8 @@ class ViewMain extends React.Component {
       addEdgeSource: '', // Add Mech Dialog
       addEdgeTarget: '', // Add Mech Dialog
       resourceViewOpen: false,
-      componentIsSelected: false, // A component or property has been selected by user
+      componentIsSelected: false, // A component or property has been selected by user.  Used for pro-centric actions.
+      mechIsSelected: false, // A mechanism is slected by user.  Used for mech-centric actions.
       selectedResource: {
         id: '',
         evid: '',
@@ -240,6 +242,18 @@ class ViewMain extends React.Component {
     });
   }
 
+  // User selected component/prop and clicked on "() Delete"
+  HandleMechDelete() {
+    let selectedMechIds = DATA.VM_SelectedMechs();
+    if (selectedMechIds.length > 0) {
+      let mechId = selectedMechIds[0];
+      DATA.PMC_MechDelete(mechId);
+    }
+    this.setState({
+      mechIsSelected: false
+    });
+  }
+
   HandleAddPropClose() {
     if (DBG) console.log('close');
     this.setState({ addPropOpen: false });
@@ -342,10 +356,18 @@ class ViewMain extends React.Component {
     let componentIsSelected = false;
     if (selectedPropIds.length === 1 && !this.state.addEdgeOpen) componentIsSelected = true;
 
+    // Set mechIsSelected for Mech Editing
+    // If more than one mech is selected, hide the mech
+    // editing buttons
+    let mechIsSelected = false;
+    let selectedMechIds = DATA.VM_SelectedMechs();
+    if (selectedMechIds.length === 1 && !this.state.addEdgeOpen) mechIsSelected = true;
+    
     this.setState({
       addEdgeSource: sourceId,
       addEdgeTarget: targetId,
-      componentIsSelected
+      componentIsSelected,
+      mechIsSelected
     });
   }
 
@@ -357,7 +379,7 @@ class ViewMain extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { addPropLabel, addPropPropId, componentIsSelected } = this.state;
+    const { addPropLabel, addPropPropId, componentIsSelected, mechIsSelected } = this.state;
     const resources = DATA.AllResources();
     if (DBG)
       console.log(`%crender() size ${this.state.viewWidth}x${this.state.viewHeight}`, cssreact);
@@ -633,8 +655,8 @@ class ViewMain extends React.Component {
 
         {/* Component Editing */}
         <Fab
-          hidden={!componentIsSelected}
-          onClick={this.HandlePropDelete}
+          hidden={!(componentIsSelected || mechIsSelected)}
+          onClick={componentIsSelected ? this.HandlePropDelete : this.HandleMechDelete}
           className={classes.propertyDeleteButton}
           color="secondary"
           variant="extended"

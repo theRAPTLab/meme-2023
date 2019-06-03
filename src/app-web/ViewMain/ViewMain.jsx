@@ -500,7 +500,7 @@ class ViewMain extends React.Component {
               <div className={classes.edgeDialogInput}>
                 {this.state.addEdgeSource !== '' ? (
                   <div className={classes.evidenceLinkSourcePropAvatarSelected}>
-                    {this.state.addEdgeSource}
+                    {DATA.Prop( this.state.addEdgeSource ).name}
                   </div>
                 ) : (
                   <div className={classes.evidenceLinkSourceAvatarWaiting}>1. Click on a source...</div>
@@ -519,7 +519,7 @@ class ViewMain extends React.Component {
                 &nbsp;
                 {this.state.addEdgeTarget !== '' ? (
                   <div className={classes.evidenceLinkSourcePropAvatarSelected}>
-                    {this.state.addEdgeTarget}
+                    {DATA.Prop( this.state.addEdgeTarget ).name}
                   </div>
                 ) : (
                   <div className={classes.evidenceLinkSourceAvatarWaiting}>

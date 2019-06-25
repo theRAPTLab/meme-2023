@@ -210,7 +210,8 @@ PMCData.LoadGraph = uri => {
   g.setEdge('fish', 'dirty-water-waste', { name: 'produce' });
 
   // define evidence mapping: propID => evIDArray
-  a_evidence.push({ evId: 'ev1', propId: 'food', rsrcId: 'rs1', note: 'fish need food' });
+  a_evidence.push({ evId: 'ev1', propId: "fish", mechId: undefined, rsrcId: 'rs1', note: 'fish need food' });
+  a_evidence.push({ evId: 'ev2', propId: undefined, mechId: 'fish:food', rsrcId: 'rs1', note: 'fish need food' });
 
   // // 3.5.19 sample model for group 3.pdf
   // // Sample for Group 3
@@ -483,6 +484,7 @@ PMCData.BuildModel = () => {
   /*/
   h_evidenceByProp = new Map();
   a_evidence.forEach(ev => {
+    if (ev.propId === undefined) return; // Not a prop ev link
     let evidenceLinkArray = h_evidenceByProp.get(ev.propId);
     if (evidenceLinkArray === undefined) evidenceLinkArray = [];
     if (!evidenceLinkArray.includes(ev.propId)) evidenceLinkArray.push(ev);
@@ -494,10 +496,12 @@ PMCData.BuildModel = () => {
   /*/
   h_evidenceByMech = new Map();
   a_evidence.forEach(ev => {
-    let evidenceLinkArray = h_evidenceByMech.get(ev.mechId);
-    if (evidenceLinkArray === undefined) evidenceLinkArray = [];
-    if (!evidenceLinkArray.includes(ev.mechId)) evidenceLinkArray.push(ev);
-    h_evidenceByMech.set(ev.mechId, evidenceLinkArray);
+    let mechId = ev.mechId;
+    if (mechId === undefined) return; // not a mech ev link    
+    let evidenceLinkArray = h_evidenceByMech.get(mechId); // any existing?
+    if (evidenceLinkArray === undefined) evidenceLinkArray = []; // new
+    if (!evidenceLinkArray.includes(mechId)) evidenceLinkArray.push(ev);
+    h_evidenceByMech.set(mechId, evidenceLinkArray);
   });
 
   /*/
@@ -512,6 +516,22 @@ PMCData.BuildModel = () => {
         if (propIds === undefined) propIds = [];
         if (!propIds.includes(propId)) propIds.push(propId);
         h_propByResource.set(ev.rsrcId, propIds);
+      });
+    }
+  });
+
+  /*/
+   *  Update h_propByResource lookup table to
+   *  look up props that are linked to a particular piece of evidence
+  /*/
+  h_mechByResource = new Map();
+  h_evidenceByMech.forEach((evArr, mechId) => {
+    if (evArr) {
+      evArr.forEach(ev => {
+        let mechIds = h_mechByResource.get(ev.rsrcId);
+        if (mechIds === undefined) mechIds = [];
+        if (!mechIds.includes(mechId)) mechIds.push(mechId);
+        h_mechByResource.set(ev.rsrcId, mechIds);
       });
     }
   });
@@ -536,6 +556,10 @@ PMCData.BuildModel = () => {
       resource.links = props.length;
     } else {
       resource.links = 0;
+    }
+    let mechs = h_mechByResource.get(resource.rsrcId);
+    if (mechs) {
+      resource.links += mechs.length;
     }
   });
 
@@ -1047,6 +1071,26 @@ PMCData.PMC_AddMech = (sourceId, targetId, label) => {
   return `added edge ${sourceId} ${targetId} ${label}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.PMC_MechDelete = (mechId = "v:w") => {
+  // Deselect the mech first, otherwise the deleted mech will remain selected
+  PMCData.VM_DeselectAll();
+  // Unlink any evidence
+  const evlinks = PMCData.MechEvidence(mechId);
+  evlinks.forEach(evlink => {
+    PMCData.VM_MarkBadgeForDeletion(evlink.evId);
+    PMCData.SetEvidenceLinkMechId(evlink.evId, undefined);
+  });
+  // Then remove mech
+  // FIXME / REVIEW : Do we need to use `name` to distinguish between
+  // multiple edges between the same source target?
+  // FIXME / REVIEW: Do we need add a definition for splitting a
+  // pathId to v / w ?
+  let vw = mechId.split(':');
+  m_graph.removeEdge(vw[0], vw[1]);
+  PMCData.BuildModel();
+  return `deleted edge ${mechId}`;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
   // HACK!  FIXME!  Need to properly generate a unique ID.
   let evId = `ev${Math.trunc(Math.random() * 10000)}`;
@@ -1073,6 +1117,7 @@ window.may1.PMC_AddProp = PMCData.PMC_AddProp;
 window.may1.PMC_AddMech = PMCData.PMC_AddMech;
 window.may1.PMC_AddEvidenceLink = PMCData.PMC_AddEvidenceLink;
 window.may1.VM_GetVEvLinkChanges = PMCData.VM_GetVEvLinkChanges;
+window.may1.BuildModel = PMCData.BuildModel;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:

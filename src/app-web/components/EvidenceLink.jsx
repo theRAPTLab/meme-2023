@@ -53,6 +53,7 @@ class EvidenceLink extends React.Component {
     };
     this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
     this.HandleRatingUpdate = this.HandleRatingUpdate.bind(this);
+    this.HandleCancelButtonClick = this.HandleCancelButtonClick.bind(this);
     this.HandleDeleteButtonClick = this.HandleDeleteButtonClick.bind(this);
     this.handleEditButtonClick = this.handleEditButtonClick.bind(this);
     this.handleSaveButtonClick = this.handleSaveButtonClick.bind(this);
@@ -108,6 +109,12 @@ class EvidenceLink extends React.Component {
     DATA.SetEvidenceLinkRating(this.props.evId, rating);
   }
 
+  HandleCancelButtonClick() {
+    this.setState({
+      isBeingEdited: false
+    });
+  }
+  
   HandleDeleteButtonClick() {
     DATA.PMC_DeleteEvidenceLink(this.props.evId);
   }
@@ -390,7 +397,7 @@ class EvidenceLink extends React.Component {
           <Button
             hidden={!isExpanded || !isBeingEdited}
             size="small"
-            onClick={this.handleDeleteButtonClick}
+            onClick={this.HandleCancelButtonClick}
           >
             cancel
           </Button>

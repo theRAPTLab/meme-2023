@@ -145,14 +145,14 @@ class ViewMain extends React.Component {
 
   // Force update to redraw evidence link badges and quality ratings
   HandleForceUpdate() {
-    if (DBG) console.log(PKG,'FORCE_UPDATE');
+    if (DBG) console.log(PKG, 'FORCE_UPDATE');
     this.forceUpdate();
   }
 
   // Force a screen redraw when evidence links are added
   // so that badges and quality ratings will draw
   HandleDataUpdate() {
-    if (DBG) console.log(PKG,'DATA_UPDATE');
+    if (DBG) console.log(PKG, 'DATA_UPDATE');
     this.HandleForceUpdate();
   }
 
@@ -380,7 +380,7 @@ class ViewMain extends React.Component {
     let mechIsSelected = false;
     let selectedMechIds = DATA.VM_SelectedMechs();
     if (selectedMechIds.length === 1 && !this.state.addEdgeOpen) mechIsSelected = true;
-    
+
     this.setState({
       addEdgeSource: sourceId,
       addEdgeTarget: targetId,
@@ -406,6 +406,16 @@ class ViewMain extends React.Component {
         <CssBaseline />
         <AppBar position="fixed" className={classes.appBar}>
           <Toolbar>
+            <Switch>
+              <Route
+                path="/:mode"
+                render={props => (
+                  <div style={{ fontFamily: 'monospace', margin: '0 10px 4px 0' }}>
+                    MODE:{props.match.params.mode.toUpperCase()}
+                  </div>
+                )}
+              />
+            </Switch>
             <TextField
               id="projectTitle"
               InputProps={{ className: classes.projectTitle }}
@@ -461,7 +471,7 @@ class ViewMain extends React.Component {
           </Tooltip>
           <Typography align="center" variant="caption">Add Mechanism</Typography>
         </Drawer>
- 
+
         <main className={classes.content} ref={this.refMain}>
           <div className={classes.toolbar} ref={this.refToolbar} />
           <div
@@ -500,11 +510,11 @@ class ViewMain extends React.Component {
               <div className={classes.edgeDialogInput}>
                 {this.state.addEdgeSource !== '' ? (
                   <div className={classes.evidenceLinkSourcePropAvatarSelected}>
-                    {DATA.Prop( this.state.addEdgeSource ).name}
+                    {DATA.Prop(this.state.addEdgeSource).name}
                   </div>
                 ) : (
-                  <div className={classes.evidenceLinkSourceAvatarWaiting}>1. Click on a source...</div>
-                )}
+                    <div className={classes.evidenceLinkSourceAvatarWaiting}>1. Click on a source...</div>
+                  )}
                 &nbsp;
                 <TextField
                   autoFocus
@@ -519,13 +529,13 @@ class ViewMain extends React.Component {
                 &nbsp;
                 {this.state.addEdgeTarget !== '' ? (
                   <div className={classes.evidenceLinkSourcePropAvatarSelected}>
-                    {DATA.Prop( this.state.addEdgeTarget ).name}
+                    {DATA.Prop(this.state.addEdgeTarget).name}
                   </div>
                 ) : (
-                  <div className={classes.evidenceLinkSourceAvatarWaiting}>
-                    2. Click on a target...
+                    <div className={classes.evidenceLinkSourceAvatarWaiting}>
+                      2. Click on a target...
                   </div>
-                )}
+                  )}
                 <div style={{ flexGrow: '1' }} />
                 <Button onClick={this.handleAddEdgeClose} color="primary">
                   Cancel
@@ -586,8 +596,8 @@ class ViewMain extends React.Component {
                     {this.state.selectedResource.type === 'simulation' ? (
                       <ImageIcon />
                     ) : (
-                      <DescriptionIcon />
-                    )}
+                        <DescriptionIcon />
+                      )}
                   </Typography>
                 </CardContent>
               </Card>
@@ -703,7 +713,7 @@ class ViewMain extends React.Component {
           <AddIcon /> Add property
         </Fab>
 
-      </div>
+      </div >
     );
   }
 }
@@ -715,7 +725,7 @@ ViewMain.defaultProps = {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
-/// disallowed by eslint, so use shape({ prop:ProtType })
+/// disallowed by eslint, so use shape({prop: ProtType })
 /// to describe them in more detail
 ViewMain.propTypes = {
   classes: PropTypes.shape({})

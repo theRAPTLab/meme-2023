@@ -99,8 +99,8 @@ let h_evidenceByProp = new Map(); /*/
                           Used by class-vprop when displaying
                           the list of evidenceLink badges for each prop.
 
-                          {propId: [{propId, rsrcId, note},
-                                 {propId, rsrcId, note},
+                          {propId: [{evId, propId, rsrcId, note},
+                                    {evId, propId, rsrcId, note},
                                 ...],
                           ...}
                       /*/
@@ -534,6 +534,8 @@ PMCData.BuildModel = () => {
     let props = h_propByResource.get(resource.rsrcId);
     if (props) {
       resource.links = props.length;
+    } else {
+      resource.links = 0;
     }
   });
 
@@ -785,6 +787,15 @@ PMCData.VM_GetVBadgeChanges = () => {
   const added = [];
   const updated = [];
   const removed = [];
+  // removed
+  map_vbadges.forEach((val_badge, key_evId) => {
+    // if both propId and mechId are undefined, then this evidenceLink
+    // is not linking to any prop or mech, so delete the badge.
+    if (val_badge.propId === undefined && val_badge.mechId === undefined) {
+      removed.push(key_evId);
+      if (DBG) console.log('removed', key_evId);
+    }
+  });
   // find what matches and what is new by pathid
   a_evidence.forEach(evLink => {
     const evId = evLink.evId;
@@ -794,13 +805,6 @@ PMCData.VM_GetVBadgeChanges = () => {
     } else {
       added.push(evId);
       if (DBG) console.log('added', evId);
-    }
-  });
-  // removed
-  map_vbadges.forEach((val_badge, key_evId) => {
-    if (!updated.includes(key_evId)) {
-      removed.push(key_evId);
-      if (DBG) console.log('removed', key_evId);
     }
   });
   return { added, removed, updated };
@@ -822,6 +826,25 @@ PMCData.VM_VBadge = evId => {
 PMCData.VM_VBadgeDelete = evId => {
   map_vbadges.delete(evId);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  Marks the VBadge for deletion with the next update loop.
+ *  We mark it by setting the propId and mechId to undefined,
+ *  since that is the link from the EvidenceLink object to the
+ *  prop/mech object.  In VM_GetVBadgeChanges, if it finds
+ *  both propId and mechId are undefined, it marks the badge
+ *  for removal.
+ *  The actual deletion happens with class_vprop / class_vmech
+ *  @param {string} evId - the property/mech with evId to delete
+ */
+PMCData.VM_MarkBadgeForDeletion = evId => {
+  let badge = PMCData.VM_VBadge(evId);
+  if (badge) {
+    badge.propId = undefined;
+    badge.mechId = undefined;
+  }
+};
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
  *  sets the vobj (either a vprop or a vmech) corresponding to the designated
@@ -998,6 +1021,26 @@ PMCData.PMC_AddPropParent = (node = 'a', parent = 'b') => {
   return `added parent ${parent} to node ${node}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.PMC_PropDelete = (node = "a") => {
+  // Deselect the prop first, otherwise the deleted prop will remain selected
+  PMCData.VM_DeselectAll();
+  // Unlink any evidence
+  const evlinks = PMCData.PropEvidence(node);
+  evlinks.forEach(evlink => {
+    PMCData.VM_MarkBadgeForDeletion(evlink.evId);
+    PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
+  });
+  // Delete any children nodes
+  const children = PMCData.Children(node);
+  children.forEach(cid => {
+    PMCData.PMC_PropDelete(cid);
+  });
+  // Then remove node
+  m_graph.removeNode(node);
+  PMCData.BuildModel();
+  return `deleted node ${node}`;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddMech = (sourceId, targetId, label) => {
   m_graph.setEdge(sourceId, targetId, { name: label });
   PMCData.BuildModel();
@@ -1013,6 +1056,9 @@ PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_DeleteEvidenceLink = evId => {
+  // Delete badges first
+  PMCData.VM_MarkBadgeForDeletion(evId);
+  // Then delete the link(s)
   let i = a_evidence.findIndex(e => {
     return e.evId === evId;
   });
@@ -1060,11 +1106,15 @@ PMCData.PropEvidence = (nodeId) => {
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  */
 PMCData.EvidenceLinkByEvidenceId = (evId) => {
-  return a_evidence.find((item) => { return item.evId === evId });
+  return a_evidence.find(item => {
+    return item.evId === evId;
+  });
 };
-
+// Set propId to `undefined` to unlink
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
-  let ev = a_evidence.find((item) => { return item.evId === evId });
+  let ev = a_evidence.find(item => {
+    return item.evId === evId;
+  });
   ev.propId = propId;
   // Call BuildModel to rebuild hash tables since we've added a new propId
   PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
@@ -1078,7 +1128,9 @@ PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
   PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
 };
 PMCData.SetEvidenceLinkNote = (evId, note) => {
-  let ev = a_evidence.find((item) => { return item.evId === evId });
+  let ev = a_evidence.find(item => {
+    return item.evId === evId;
+  });
   ev.note = note;
   UR.Publish('DATA_UPDATED');
 };

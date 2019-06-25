@@ -167,6 +167,14 @@ class EvidenceLink extends React.Component {
      the evLink
   */
   HandleSourceSelectClick(evId, rsrcId) {
+    // Deselect the prop first, otherwise the deleted prop will remain selected
+    DATA.VM_DeselectAll();
+    // Remove any existing evidence links
+    DATA.VM_MarkBadgeForDeletion(evId);
+    DATA.SetEvidenceLinkPropId(evId, undefined);
+    DATA.SetEvidenceLinkMechId(evId, undefined);
+    DATA.BuildModel();
+    // Then trigger editing
     if (this.state.isBeingEdited) {
       UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId, rsrcId });
     }

@@ -13,7 +13,8 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import TeacherSelector from '../components/AdmTeacherSelector'
+import TeacherSelector from '../components/AdmTeacherSelector';
+import ClassroomsList from '../components/AdmClassroomsList';
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import 'bootstrap/dist/css/bootstrap.css';
@@ -40,10 +41,19 @@ class ViewAdmin extends React.Component {
     this.cstrName = this.constructor.name;
 
     this.HandleTeacherSelect = this.HandleTeacherSelect.bind(this);
+    this.HandleClassroomSelect = this.HandleClassroomSelect.bind(this);
 
     this.state = {
       selectedTeacherId: '',
-      teachers: [{ id: 'brown', name: 'Ms Brown' }, { id: 'smith', name: 'Mr Smith' }]
+      // FIXME: This should be replaced with a data call
+      teachers: [{ id: 'brown', name: 'Ms Brown' }, { id: 'smith', name: 'Mr Smith' }],
+      classrooms: [
+          { id: 'cl01', name: 'Period 1', teacherId: 'brown'},
+	     		{ id: 'cl02', name: 'Period 3', teacherId: 'brown'},
+          { id: 'cl03', name: 'Period 2', teacherId: 'smith'},
+          { id: 'cl04', name: 'Period 3', teacherId: 'smith'}
+      ],
+      selectedClassroomId: ''
     }
   }
 
@@ -56,21 +66,31 @@ class ViewAdmin extends React.Component {
     this.setState({ selectedTeacherId: teacherId });
   }
 
+  HandleClassroomSelect(classroomId) {
+    console.log('Classroom selected', classroomId);
+    this.setState({ selectedClassroomId: classroomId });
+  }
+
   render() {
     const { classes } = this.props;
 
     return (
       <div className={classes.root}>
         <Grid container spacing={24}>
-          <Grid item xs={12}>
+          <Grid item xs={2}>
             <TeacherSelector
               teachers={this.state.teachers}
               selectedTeacherId={this.state.selectedTeacherId}
               UpdateTeacher={this.HandleTeacherSelect}
             />
           </Grid>
-          <Grid item xs={6}>
-            <Paper className={classes.paper}>xs=6</Paper>
+          <Grid item xs={2}>
+            <ClassroomsList
+              classrooms={this.state.classrooms}
+              selectedTeacherId={this.state.selectedTeacherId}
+              selectedClassroomId={this.state.selectedClassroomId}
+              UpdateClassroom={this.HandleClassroomSelect}
+            />
           </Grid>
           <Grid item xs={6}>
             <Paper className={classes.paper}>xs=6</Paper>

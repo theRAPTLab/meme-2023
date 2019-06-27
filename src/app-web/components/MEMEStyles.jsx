@@ -326,7 +326,7 @@ const styles = theme => {
       margin: '8px'
     },
     admTeacherSelector: {
-      minWidth: '250px'
+      minWidth: '100%'
     }
   };
 };

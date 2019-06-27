@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import ViewMain from '../ViewMain/ViewMain';
 import ViewBasic from '../ViewBasic/ViewBasic';
+import ViewAdmin from '../ViewAdmin/ViewAdmin';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -36,6 +37,11 @@ const SystemRoutes = [
     path: '/basic',
     exact: true,
     component: ViewBasic
+  },
+  {
+    path: '/admin',
+    exact: true,
+    component: ViewAdmin
   },
   {
     path: '/',

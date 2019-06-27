@@ -17,6 +17,7 @@ import TeacherSelector from '../components/AdmTeacherSelector';
 import ClassroomsList from '../components/AdmClassroomsList';
 import CriteriaList from '../components/AdmCriteriaList';
 import GroupsList from '../components/AdmGroupsList';
+import ModelsList from '../components/AdmModelsList';
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import 'bootstrap/dist/css/bootstrap.css';
@@ -87,6 +88,15 @@ class ViewAdmin extends React.Component {
         { id: 'gr02', name: 'Green', students: 'Ginger, Gail, Greg', classroomId: 'cl01' },
         { id: 'gr03', name: 'Red', students: 'Rob, Reese, Randy', classroomId: 'cl01' },
         { id: 'gr04', name: 'Purple', students: 'Peter, Paul, Penelope', classroomId: 'cl02' },
+      ],
+      models: [
+        { id: 'mo01', title: 'Fish Sim', groupId: 'gr01', dateCreated:'', dateModified:'', data:''},
+        { id: 'mo02', title: 'Tank Sim', groupId: 'gr01', dateCreated:'', dateModified:'', data:''},
+        { id: 'mo03', title: 'Ammonia Sim', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
+        { id: 'mo04', title: 'Fish Sim', groupId: 'gr02', dateCreated: '', dateModified: '', data: '' },
+        { id: 'mo05', title: 'Tank Sim', groupId: 'gr02', dateCreated: '', dateModified: '', data: '' },
+        { id: 'mo06', title: 'Fish Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' },
+        { id: 'mo07', title: 'No Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' }
       ]
     }
   }
@@ -140,8 +150,12 @@ class ViewAdmin extends React.Component {
               groups={this.state.groups}
             />
           </Grid>
-          <Grid item xs={3}>
-            <Paper className={classes.paper}>xs=3</Paper>
+          <Grid item xs={6}>
+            <ModelsList
+              selectedClassroomId={this.state.selectedClassroomId}
+              models={this.state.models}
+              groups={this.state.groups}
+            />
           </Grid>
           <Grid item xs={3}>
             <Paper className={classes.paper}>xs=3</Paper>

@@ -324,6 +324,9 @@ const styles = theme => {
     },
     badge: {
       margin: '8px'
+    },
+    admTeacherSelector: {
+      minWidth: '250px'
     }
   };
 };

@@ -11,7 +11,9 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-
+/// COMPONENTS ////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+import TeacherSelector from '../components/AdmTeacherSelector'
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import 'bootstrap/dist/css/bootstrap.css';
@@ -36,10 +38,22 @@ class ViewAdmin extends React.Component {
   constructor(props) {
     super(props);
     this.cstrName = this.constructor.name;
+
+    this.HandleTeacherSelect = this.HandleTeacherSelect.bind(this);
+
+    this.state = {
+      selectedTeacherId: '',
+      teachers: [{ id: 'brown', name: 'Ms Brown' }, { id: 'smith', name: 'Mr Smith' }]
+    }
   }
 
   componentDidMount() {
     console.log(`<${this.cstrName}> mounted`);
+  }
+
+  HandleTeacherSelect(teacherId) {
+    console.log('Teacher selected', teacherId);
+    this.setState({ selectedTeacherId: teacherId });
   }
 
   render() {
@@ -49,7 +63,11 @@ class ViewAdmin extends React.Component {
       <div className={classes.root}>
         <Grid container spacing={24}>
           <Grid item xs={12}>
-            <Paper className={classes.paper}>xs=12</Paper>
+            <TeacherSelector
+              teachers={this.state.teachers}
+              selectedTeacherId={this.state.selectedTeacherId}
+              UpdateTeacher={this.HandleTeacherSelect}
+            />
           </Grid>
           <Grid item xs={6}>
             <Paper className={classes.paper}>xs=6</Paper>

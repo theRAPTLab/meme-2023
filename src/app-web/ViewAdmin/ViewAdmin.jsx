@@ -15,6 +15,7 @@ import Grid from '@material-ui/core/Grid';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import TeacherSelector from '../components/AdmTeacherSelector';
 import ClassroomsList from '../components/AdmClassroomsList';
+import CriteriaList from '../components/AdmCriteriaList';
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import 'bootstrap/dist/css/bootstrap.css';
@@ -44,16 +45,42 @@ class ViewAdmin extends React.Component {
     this.HandleClassroomSelect = this.HandleClassroomSelect.bind(this);
 
     this.state = {
-      selectedTeacherId: '',
       // FIXME: This should be replaced with a data call
       teachers: [{ id: 'brown', name: 'Ms Brown' }, { id: 'smith', name: 'Mr Smith' }],
+      selectedTeacherId: '',
       classrooms: [
-          { id: 'cl01', name: 'Period 1', teacherId: 'brown'},
-	     		{ id: 'cl02', name: 'Period 3', teacherId: 'brown'},
-          { id: 'cl03', name: 'Period 2', teacherId: 'smith'},
-          { id: 'cl04', name: 'Period 3', teacherId: 'smith'}
+        { id: 'cl01', name: 'Period 1', teacherId: 'brown'},
+        { id: 'cl02', name: 'Period 3', teacherId: 'brown'},
+        { id: 'cl03', name: 'Period 2', teacherId: 'smith'},
+        { id: 'cl04', name: 'Period 3', teacherId: 'smith'}
       ],
-      selectedClassroomId: ''
+      selectedClassroomId: '',
+      criteria: [
+        {
+          id: 'cr01',
+          label: 'Clarity',
+          description: 'How clear is the explanation?',
+          classroomId: 'cl01'
+        },
+        {
+          id: 'cr02',
+          label: 'Visuals',
+          description: 'Does the layout make sense?',
+          classroomId: 'cl01'
+        },
+        {
+          id: 'cr03',
+          label: 'Clarity',
+          description: 'How clear is the evidence link?',
+          classroomId: 'cl02'
+        },
+        {
+          id: 'cr04',
+          label: 'Layout',
+          description: 'Does the layout make sense?',
+          classroomId: 'cl02'
+        }
+      ]
     }
   }
 
@@ -92,8 +119,13 @@ class ViewAdmin extends React.Component {
               UpdateClassroom={this.HandleClassroomSelect}
             />
           </Grid>
+        </Grid>
+        <Grid container spacing={24}>
           <Grid item xs={6}>
-            <Paper className={classes.paper}>xs=6</Paper>
+            <CriteriaList
+              selectedClassroomId={this.state.selectedClassroomId}
+              criteria={this.state.criteria}
+            />
           </Grid>
           <Grid item xs={3}>
             <Paper className={classes.paper}>xs=3</Paper>

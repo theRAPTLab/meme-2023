@@ -16,6 +16,7 @@ import Grid from '@material-ui/core/Grid';
 import TeacherSelector from '../components/AdmTeacherSelector';
 import ClassroomsList from '../components/AdmClassroomsList';
 import CriteriaList from '../components/AdmCriteriaList';
+import GroupsList from '../components/AdmGroupsList';
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import 'bootstrap/dist/css/bootstrap.css';
@@ -80,6 +81,12 @@ class ViewAdmin extends React.Component {
           description: 'Does the layout make sense?',
           classroomId: 'cl02'
         }
+      ],
+      groups: [
+        { id: 'gr01', name: 'Blue', students: 'Bob, Bessie, Bill', classroomId: 'cl01' },
+        { id: 'gr02', name: 'Green', students: 'Ginger, Gail, Greg', classroomId: 'cl01' },
+        { id: 'gr03', name: 'Red', students: 'Rob, Reese, Randy', classroomId: 'cl01' },
+        { id: 'gr04', name: 'Purple', students: 'Peter, Paul, Penelope', classroomId: 'cl02' },
       ]
     }
   }
@@ -127,8 +134,11 @@ class ViewAdmin extends React.Component {
               criteria={this.state.criteria}
             />
           </Grid>
-          <Grid item xs={3}>
-            <Paper className={classes.paper}>xs=3</Paper>
+          <Grid item xs={6}>
+            <GroupsList
+              selectedClassroomId={this.state.selectedClassroomId}
+              groups={this.state.groups}
+            />
           </Grid>
           <Grid item xs={3}>
             <Paper className={classes.paper}>xs=3</Paper>

@@ -25,7 +25,9 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../components/MEMEStyles';
+import UR from '../../../system/ursys';
 import DATA from '../../modules/pmc-data';
+import ADM from '../../modules/adm-data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,46 +35,34 @@ import DATA from '../../modules/pmc-data';
 class ResourcesList extends React.Component {
   constructor(props) {
     super(props);
+    this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
     this.OnResourceCheck = this.OnResourceCheck.bind(this);
+
+    this.state = { classroomResources: [] };
+
+    UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect);
   }
 
   componentDidMount() { }
 
   componentWillUnmount() { }
 
+  DoClassroomSelect(data) {
+    this.setState({
+      classroomResources: ADM.GetResourcesByClassroom(data.classroomId)
+    });
+  }
+
   OnResourceCheck(e) {
     alert('"Select Checkbox" not implemented yet!');
   }
 
   render() {
-    const { classroomResources, selectedClassroomId, classes } = this.props;
+    const { classes } = this.props;
+    const { classroomResources } = this.state;
+
     DATA.LoadGraph();  // FIXME: Hack for now to force loading data
     const resources = DATA.AllResources();
-    const thisClassroomsResources = classroomResources.find(classRsrc => {
-      return classRsrc.classroomId === selectedClassroomId;
-    });
-    let resourceList = [];
-    if (thisClassroomsResources) {
-      resourceList = thisClassroomsResources.resources;
-    }
-    const rows = resources.map(resource => {
-      return (
-        <TableRow key={resource.rsrcId}>
-          <TableCell>
-            <Checkbox
-              checked={resourceList.includes(resource.rsrcId)}
-              color="primary"
-              onChange={this.HandleCheck}
-            />
-          </TableCell>
-          <TableCell>{resource.rsrcId}</TableCell>
-          <TableCell>{resource.label}</TableCell>
-          <TableCell>{resource.notes}</TableCell>
-          <TableCell>{resource.type}</TableCell>
-          <TableCell>{resource.url}</TableCell>
-        </TableRow>
-      );
-    });
 
     return (
       <Paper className={classes.admResourceListPaper}>
@@ -88,7 +78,24 @@ class ResourcesList extends React.Component {
               <TableCell>URL</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>{rows}</TableBody>
+          <TableBody>
+            {resources.map(resource => (
+              <TableRow key={resource.rsrcId}>
+                <TableCell>
+                  <Checkbox
+                    checked={classroomResources.includes(resource.rsrcId)}
+                    color="primary"
+                    onChange={this.HandleCheck}
+                  />
+                </TableCell>
+                <TableCell>{resource.rsrcId}</TableCell>
+                <TableCell>{resource.label}</TableCell>
+                <TableCell>{resource.notes}</TableCell>
+                <TableCell>{resource.type}</TableCell>
+                <TableCell>{resource.url}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
         </Table>
       </Paper>
     );
@@ -97,16 +104,11 @@ class ResourcesList extends React.Component {
 
 ResourcesList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
-  selectedClassroomId: PropTypes.string,
-  // eslint-disable-next-line react/forbid-prop-types
-  classroomResources: PropTypes.array
+  classes: PropTypes.object
 };
 
 ResourcesList.defaultProps = {
-  classes: {},
-  selectedClassroomId: '',
-  classroomResources: []
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

@@ -79,6 +79,12 @@ ADMData.Load = () => {
       classroomId: 'cl02'
     }
   ];
+  a_classroomResources = [
+    { classroomId: 'cl01', resources: ['rs1', 'rs2'] },
+    { classroomId: 'cl02', resources: ['rs2', 'rs3'] },
+    { classroomId: 'cl03', resources: ['rs4', 'rs5'] },
+    { classroomId: 'cl04', resources: ['rs6', 'rs7'] }
+  ]
 };
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
@@ -142,6 +148,13 @@ ADMData.GetModelsByClassroom = classroomId => {
 /// CRITERIA
 ADMData.GetCriteriaByClassroom = classroomId => {
   return a_criteria.filter(crit => crit.classroomId === classroomId);
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// RESOURCES
+ADMData.GetResourcesByClassroom = classroomId => {
+  let classroomResources = a_classroomResources.find(rsrc => rsrc.classroomId === classroomId);
+  return classroomResources ? classroomResources.resources : [];
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

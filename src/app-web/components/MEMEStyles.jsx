@@ -327,7 +327,13 @@ const styles = theme => {
     },
     admTeacherSelector: {
       minWidth: '100%'
-    }
+    },
+    admResourceListPaper: {
+      margin: '0 auto',
+      padding: '1em',
+      backgroundColor: teal[50]
+    },
+
   };
 };
 styles.DRAWER_WIDTH = m_drawerWidth;

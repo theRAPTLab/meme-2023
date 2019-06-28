@@ -1121,7 +1121,7 @@ window.may1.BuildModel = PMCData.BuildModel;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Returns all of the evidence objects.
+ *  Returns all of the resource objects.
  */
 PMCData.AllResources = () => {
   return a_resource;

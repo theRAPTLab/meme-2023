@@ -18,6 +18,7 @@ import ClassroomsList from '../components/AdmClassroomsList';
 import CriteriaList from '../components/AdmCriteriaList';
 import GroupsList from '../components/AdmGroupsList';
 import ModelsList from '../components/AdmModelsList';
+import ResourcesList from '../components/AdmResourcesList';
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import 'bootstrap/dist/css/bootstrap.css';
@@ -97,6 +98,12 @@ class ViewAdmin extends React.Component {
         { id: 'mo05', title: 'Tank Sim', groupId: 'gr02', dateCreated: '', dateModified: '', data: '' },
         { id: 'mo06', title: 'Fish Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' },
         { id: 'mo07', title: 'No Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' }
+      ],
+      classroomResources: [
+        { classroomId: 'cl01', resources: ['rs1', 'rs2'] },
+        { classroomId: 'cl02', resources: ['rs2', 'rs3'] },
+        { classroomId: 'cl03', resources: ['rs4', 'rs5'] },
+        { classroomId: 'cl04', resources: ['rs6', 'rs7'] }
       ]
     }
   }
@@ -139,12 +146,6 @@ class ViewAdmin extends React.Component {
         </Grid>
         <Grid container spacing={24}>
           <Grid item xs={6}>
-            <CriteriaList
-              selectedClassroomId={this.state.selectedClassroomId}
-              criteria={this.state.criteria}
-            />
-          </Grid>
-          <Grid item xs={6}>
             <GroupsList
               selectedClassroomId={this.state.selectedClassroomId}
               groups={this.state.groups}
@@ -157,8 +158,19 @@ class ViewAdmin extends React.Component {
               groups={this.state.groups}
             />
           </Grid>
-          <Grid item xs={3}>
-            <Paper className={classes.paper}>xs=3</Paper>
+        </Grid>
+        <Grid container spacing={24}>
+          <Grid item xs={6}>
+            <CriteriaList
+              selectedClassroomId={this.state.selectedClassroomId}
+              criteria={this.state.criteria}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <ResourcesList
+              selectedClassroomId={this.state.selectedClassroomId}
+              classroomResources={this.state.classroomResources}
+            />
           </Grid>
           <Grid item xs={3}>
             <Paper className={classes.paper}>xs=3</Paper>

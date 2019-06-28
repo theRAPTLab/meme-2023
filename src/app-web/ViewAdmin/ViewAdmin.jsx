@@ -15,7 +15,7 @@ import Grid from '@material-ui/core/Grid';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import UR from '../../system/ursys';
 import TeacherSelector from './components/AdmTeacherSelector';
-import ClassroomsList from './components/AdmClassroomsList';
+import ClassroomsSelector from './components/AdmClassroomsSelector';
 import CriteriaList from './components/AdmCriteriaList';
 import GroupsList from './components/AdmGroupsList';
 import ModelsList from './components/AdmModelsList';
@@ -46,9 +46,10 @@ class ViewAdmin extends React.Component {
     this.cstrName = this.constructor.name;
 
     this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
-    this.HandleClassroomSelect = this.HandleClassroomSelect.bind(this);
+    this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
 
     UR.Sub('TEACHER_SELECT', this.DoTeacherSelect);
+    UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect);
 
     this.state = {
       // FIXME: This should be replaced with a data call
@@ -112,17 +113,17 @@ class ViewAdmin extends React.Component {
   }
 
   componentDidMount() {
-    console.log(`<${this.cstrName}> mounted`);
+    if (DBG) console.log(`<${this.cstrName}> mounted`);
   }
 
   DoTeacherSelect(data) {
-    console.log('Teacher selected', data.teacherId);
+    if (DBG) console.log('Teacher selected', data.teacherId);
     this.setState({ selectedTeacherId: data.teacherId });
   }
 
-  HandleClassroomSelect(classroomId) {
-    console.log('Classroom selected', classroomId);
-    this.setState({ selectedClassroomId: classroomId });
+  DoClassroomSelect(data) {
+    if (DBG) console.log('Classroom selected', data.classroomId);
+    this.setState({ selectedClassroomId: data.classroomId });
   }
 
   render() {
@@ -138,11 +139,10 @@ class ViewAdmin extends React.Component {
             />
           </Grid>
           <Grid item xs={2}>
-            <ClassroomsList
+            <ClassroomsSelector
               classrooms={this.state.classrooms}
               selectedTeacherId={this.state.selectedTeacherId}
               selectedClassroomId={this.state.selectedClassroomId}
-              UpdateClassroom={this.HandleClassroomSelect}
             />
           </Grid>
         </Grid>

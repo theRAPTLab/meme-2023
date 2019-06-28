@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-Classrooms List View
+Classrooms Selector
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -19,40 +19,41 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../components/MEMEStyles';
+import UR from '../../../system/ursys';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-class ClassroomsList extends React.Component {
+class ClassroomsSelector extends React.Component {
   constructor(props) {
     super(props);
-    this.HandleChange = this.HandleChange.bind(this);
+    this.OnClassroomSelect = this.OnClassroomSelect.bind(this);
   }
 
   componentDidMount() { }
 
   componentWillUnmount() { }
 
-  HandleChange(e) {
+  OnClassroomSelect(e) {
     if (e.target.value === 'new') {
       alert('"Add New" not implemented yet!');
     } else {
-      this.props.UpdateClassroom(e.target.value);
+      UR.Publish('CLASSROOM_SELECT', { classroomId: e.target.value });
     }
   }
 
   render() {
-    const { classes } = this.props;
+    const { selectedTeacherId, selectedClassroomId, classrooms, classes } = this.props;
     return (
       <FormControl variant="outlined" className={classes.admTeacherSelector}>
         <InputLabel>CLASSROOMS</InputLabel>
         <Select
-          value={this.props.selectedClassroomId}
-          onChange={this.HandleChange}
+          value={selectedClassroomId}
+          onChange={this.OnClassroomSelect}
           input={<OutlinedInput name="classroom" id="classroom" labelWidth={120} />}
         >
-          {this.props.classrooms.map(classroom => (
-            classroom.teacherId === this.props.selectedTeacherId ? (
+          {classrooms.map(classroom => (
+            classroom.teacherId === selectedTeacherId ? (
               <MenuItem value={classroom.id} key={classroom.id}>
                 {classroom.name}
               </MenuItem>
@@ -69,26 +70,22 @@ class ClassroomsList extends React.Component {
   }
 }
 
-ClassroomsList.propTypes = {
+ClassroomsSelector.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object,
   selectedTeacherId: PropTypes.string,
   selectedClassroomId: PropTypes.string,
   // eslint-disable-next-line react/forbid-prop-types
-  classrooms: PropTypes.array,
-  UpdateClassroom: PropTypes.func
+  classrooms: PropTypes.array
 };
 
-ClassroomsList.defaultProps = {
+ClassroomsSelector.defaultProps = {
   classes: {},
   selectedTeacherId: '',
   selectedClassroomId: '',
-  classrooms: [],
-  UpdateClassroom: () => {
-    console.error('Missing UpdateClassroom Handler!');
-  },
+  classrooms: []
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(ClassroomsList);
+export default withStyles(MEMEStyles)(ClassroomsSelector);

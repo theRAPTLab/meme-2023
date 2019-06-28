@@ -57,7 +57,7 @@ class CriteriaList extends React.Component {
     });
 
     return (
-      <Paper>
+      <Paper className={classes.admPaper}>
         <InputLabel>CRITERIA</InputLabel>
         <Table>
           <TableHead>

@@ -69,7 +69,7 @@ class ModelsList extends React.Component {
     });
 
     return (
-      <Paper>
+      <Paper className={classes.admPaper}>
         <InputLabel>MODELS</InputLabel>
         <Table>
           <TableHead>

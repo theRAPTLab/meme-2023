@@ -325,6 +325,10 @@ const styles = theme => {
     badge: {
       margin: '8px'
     },
+    admPaper: {
+      margin: '0 auto',
+      padding: '1em'      
+    },
     admTeacherSelector: {
       minWidth: '100%'
     },

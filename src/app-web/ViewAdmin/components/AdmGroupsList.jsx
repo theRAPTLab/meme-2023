@@ -55,7 +55,7 @@ class GroupsList extends React.Component {
     });
 
     return (
-      <Paper>
+      <Paper className={classes.admPaper}>
         <InputLabel>GROUPS</InputLabel>
         <Table>
           <TableHead>

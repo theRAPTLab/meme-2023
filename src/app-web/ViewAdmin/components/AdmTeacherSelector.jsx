@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
+import Paper from '@material-ui/core/Paper';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Select from '@material-ui/core/Select';
 // Material UI Theming
@@ -41,21 +42,23 @@ class TeacherSelector extends React.Component {
   render() {
     const { selectedTeacherId, teachers, classes } = this.props;
     return (
-      <FormControl variant="outlined" className={classes.admTeacherSelector}>
-        <InputLabel>TEACHER</InputLabel>
-        <Select
-          value={selectedTeacherId}
-          onChange={this.OnTeacherSelect}
-          input={<OutlinedInput name="teacher" id="teacher" labelWidth={120} />}
-        >
-          <MenuItem value="" />
-          {teachers.map(teacher => (
-            <MenuItem value={teacher.id} key={teacher.id}>
-              {teacher.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Paper className={classes.admPaper}>
+        <FormControl variant="outlined" className={classes.admTeacherSelector}>
+          <InputLabel>TEACHER</InputLabel>
+          <Select
+            value={selectedTeacherId}
+            onChange={this.OnTeacherSelect}
+            input={<OutlinedInput name="teacher" id="teacher" labelWidth={120} />}
+          >
+            <MenuItem value="" />
+            {teachers.map(teacher => (
+              <MenuItem value={teacher.id} key={teacher.id}>
+                {teacher.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Paper>
     );
   }
 }

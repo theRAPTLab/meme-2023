@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
+import Paper from '@material-ui/core/Paper';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Select from '@material-ui/core/Select';
 // Material UI Theming
@@ -45,27 +46,29 @@ class ClassroomsSelector extends React.Component {
   render() {
     const { selectedTeacherId, selectedClassroomId, classrooms, classes } = this.props;
     return (
-      <FormControl variant="outlined" className={classes.admTeacherSelector}>
-        <InputLabel>CLASSROOMS</InputLabel>
-        <Select
-          value={selectedClassroomId}
-          onChange={this.OnClassroomSelect}
-          input={<OutlinedInput name="classroom" id="classroom" labelWidth={120} />}
-        >
-          {classrooms.map(classroom => (
-            classroom.teacherId === selectedTeacherId ? (
-              <MenuItem value={classroom.id} key={classroom.id}>
-                {classroom.name}
-              </MenuItem>
-            ) : (
-              ''
-            )
-          ))}
-          <MenuItem value="new">
-            <i>Add New...</i>
-          </MenuItem>
-        </Select>
-      </FormControl>
+      <Paper className={classes.admPaper}>
+        <FormControl variant="outlined" className={classes.admTeacherSelector}>
+          <InputLabel>CLASSROOMS</InputLabel>
+          <Select
+            value={selectedClassroomId}
+            onChange={this.OnClassroomSelect}
+            input={<OutlinedInput name="classroom" id="classroom" labelWidth={120} />}
+          >
+            {classrooms.map(classroom => (
+              classroom.teacherId === selectedTeacherId ? (
+                <MenuItem value={classroom.id} key={classroom.id}>
+                  {classroom.name}
+                </MenuItem>
+              ) : (
+                ''
+              )
+            ))}
+            <MenuItem value="new">
+              <i>Add New...</i>
+            </MenuItem>
+          </Select>
+        </FormControl>
+      </Paper>
     );
   }
 }

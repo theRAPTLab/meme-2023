@@ -61,32 +61,6 @@ class ViewAdmin extends React.Component {
     this.state = {
       selectedTeacherId: '',
       selectedClassroomId: '',
-      criteria: [
-        {
-          id: 'cr01',
-          label: 'Clarity',
-          description: 'How clear is the explanation?',
-          classroomId: 'cl01'
-        },
-        {
-          id: 'cr02',
-          label: 'Visuals',
-          description: 'Does the layout make sense?',
-          classroomId: 'cl01'
-        },
-        {
-          id: 'cr03',
-          label: 'Clarity',
-          description: 'How clear is the evidence link?',
-          classroomId: 'cl02'
-        },
-        {
-          id: 'cr04',
-          label: 'Layout',
-          description: 'Does the layout make sense?',
-          classroomId: 'cl02'
-        }
-      ],
       classroomResources: [
         { classroomId: 'cl01', resources: ['rs1', 'rs2'] },
         { classroomId: 'cl02', resources: ['rs2', 'rs3'] },
@@ -133,10 +107,7 @@ class ViewAdmin extends React.Component {
         </Grid>
         <Grid container spacing={24}>
           <Grid item xs={6}>
-            <CriteriaList
-              selectedClassroomId={this.state.selectedClassroomId}
-              criteria={this.state.criteria}
-            />
+            <CriteriaList />
           </Grid>
           <Grid item xs={12}>
             <ResourcesList

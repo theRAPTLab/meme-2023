@@ -22,6 +22,8 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../components/MEMEStyles';
+import UR from '../../../system/ursys';
+import ADM from '../../modules/adm-data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -29,32 +31,31 @@ import MEMEStyles from '../../components/MEMEStyles';
 class CriteriaList extends React.Component {
   constructor(props) {
     super(props);
+    this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
     this.OnAddClick = this.OnAddClick.bind(this);
+
+    this.state = { criteria: [] };
+
+    UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect);
   }
 
   componentDidMount() { }
 
   componentWillUnmount() { }
 
+  DoClassroomSelect(data) {
+    this.setState({
+      criteria: ADM.GetCriteriaByClassroom(data.classroomId)
+    });
+  }
+
   OnAddClick(e) {
     alert('"Add Criteria" not implemented yet!');
   }
 
   render() {
-    const { selectedClassroomId, criteria, classes } = this.props;
-    let rows = criteria.map(crit => {
-      let result;
-      if (crit.classroomId === selectedClassroomId) {
-        result = (
-          <TableRow key={crit.id}>
-            <TableCell>{crit.id}</TableCell>
-            <TableCell>{crit.label}</TableCell>
-            <TableCell>{crit.description}</TableCell>
-          </TableRow>
-        );
-      }
-      return result;
-    });
+    const { classes } = this.props;
+    const { criteria } = this.state;
 
     return (
       <Paper className={classes.admPaper}>
@@ -67,7 +68,15 @@ class CriteriaList extends React.Component {
               <TableCell>DESCRIPTION</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>{rows}</TableBody>
+          <TableBody>
+            {criteria.map(crit => (
+              <TableRow key={crit.id}>
+                <TableCell>{crit.id}</TableCell>
+                <TableCell>{crit.label}</TableCell>
+                <TableCell>{crit.description}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
         </Table>
         <Button variant="contained" className={classes.button} onClick={this.OnAddClick}>
           Add Criteria
@@ -79,16 +88,11 @@ class CriteriaList extends React.Component {
 
 CriteriaList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
-  selectedClassroomId: PropTypes.string,
-  // eslint-disable-next-line react/forbid-prop-types
-  criteria: PropTypes.array
+  classes: PropTypes.object
 };
 
 CriteriaList.defaultProps = {
-  classes: {},
-  selectedClassroomId: '',
-  criteria: []
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

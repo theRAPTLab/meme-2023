@@ -52,7 +52,33 @@ ADMData.Load = () => {
     { id: 'mo05', title: 'Tank Sim', groupId: 'gr02', dateCreated: '', dateModified: '', data: '' },
     { id: 'mo06', title: 'Fish Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' },
     { id: 'mo07', title: 'No Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' }
-  ]
+  ];
+  a_criteria = [
+    {
+      id: 'cr01',
+      label: 'Clarity',
+      description: 'How clear is the explanation?',
+      classroomId: 'cl01'
+    },
+    {
+      id: 'cr02',
+      label: 'Visuals',
+      description: 'Does the layout make sense?',
+      classroomId: 'cl01'
+    },
+    {
+      id: 'cr03',
+      label: 'Clarity',
+      description: 'How clear is the evidence link?',
+      classroomId: 'cl02'
+    },
+    {
+      id: 'cr04',
+      label: 'Layout',
+      description: 'Does the layout make sense?',
+      classroomId: 'cl02'
+    }
+  ];
 };
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
@@ -110,6 +136,12 @@ ADMData.GetGroupIdsByClassroom = classroomId => {
 ADMData.GetModelsByClassroom = classroomId => {
   const groupIdsInClassroom = ADMData.GetGroupIdsByClassroom(classroomId);
   return a_models.filter(mdl => groupIdsInClassroom.includes(mdl.groupId));
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// CRITERIA
+ADMData.GetCriteriaByClassroom = classroomId => {
+  return a_criteria.filter(crit => crit.classroomId === classroomId);
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

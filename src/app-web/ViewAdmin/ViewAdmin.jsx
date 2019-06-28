@@ -49,33 +49,12 @@ class ViewAdmin extends React.Component {
     super(props);
     this.cstrName = this.constructor.name;
 
-    this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
-    this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
-
     // Initialize Admin Data
     ADM.Load();
-
-    UR.Sub('TEACHER_SELECT', this.DoTeacherSelect);
-    UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect);
-
-    this.state = {
-      selectedTeacherId: '',
-      selectedClassroomId: ''
-    }
   }
 
   componentDidMount() {
     if (DBG) console.log(`<${this.cstrName}> mounted`);
-  }
-
-  DoTeacherSelect(data) {
-    if (DBG) console.log('Teacher selected', data.teacherId);
-    this.setState({ selectedTeacherId: data.teacherId });
-  }
-
-  DoClassroomSelect(data) {
-    if (DBG) console.log('Classroom selected', data.classroomId);
-    this.setState({ selectedClassroomId: data.classroomId });
   }
 
   render() {

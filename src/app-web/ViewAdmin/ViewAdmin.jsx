@@ -13,6 +13,7 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+import UR from '../../system/ursys';
 import TeacherSelector from './components/AdmTeacherSelector';
 import ClassroomsList from './components/AdmClassroomsList';
 import CriteriaList from './components/AdmCriteriaList';
@@ -44,8 +45,10 @@ class ViewAdmin extends React.Component {
     super(props);
     this.cstrName = this.constructor.name;
 
-    this.HandleTeacherSelect = this.HandleTeacherSelect.bind(this);
+    this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
     this.HandleClassroomSelect = this.HandleClassroomSelect.bind(this);
+
+    UR.Sub('TEACHER_SELECT', this.DoTeacherSelect);
 
     this.state = {
       // FIXME: This should be replaced with a data call
@@ -112,9 +115,9 @@ class ViewAdmin extends React.Component {
     console.log(`<${this.cstrName}> mounted`);
   }
 
-  HandleTeacherSelect(teacherId) {
-    console.log('Teacher selected', teacherId);
-    this.setState({ selectedTeacherId: teacherId });
+  DoTeacherSelect(data) {
+    console.log('Teacher selected', data.teacherId);
+    this.setState({ selectedTeacherId: data.teacherId });
   }
 
   HandleClassroomSelect(classroomId) {
@@ -132,7 +135,6 @@ class ViewAdmin extends React.Component {
             <TeacherSelector
               teachers={this.state.teachers}
               selectedTeacherId={this.state.selectedTeacherId}
-              UpdateTeacher={this.HandleTeacherSelect}
             />
           </Grid>
           <Grid item xs={2}>

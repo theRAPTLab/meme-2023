@@ -19,6 +19,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../components/MEMEStyles';
+import UR from '../../../system/ursys';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -26,29 +27,29 @@ import MEMEStyles from '../../components/MEMEStyles';
 class TeacherSelector extends React.Component {
   constructor(props) {
     super(props);
-    this.HandleChange = this.HandleChange.bind(this);
+    this.OnTeacherSelect = this.OnTeacherSelect.bind(this);
   }
 
   componentDidMount() { }
 
   componentWillUnmount() { }
 
-  HandleChange(e) {
-    this.props.UpdateTeacher(e.target.value);
+  OnTeacherSelect(e) {
+    UR.Publish('TEACHER_SELECT', { teacherId: e.target.value });
   }
 
   render() {
-    const { classes } = this.props;
+    const { selectedTeacherId, teachers, classes } = this.props;
     return (
       <FormControl variant="outlined" className={classes.admTeacherSelector}>
         <InputLabel>TEACHER</InputLabel>
         <Select
-          value={this.props.selectedTeacherId}
-          onChange={this.HandleChange}
+          value={selectedTeacherId}
+          onChange={this.OnTeacherSelect}
           input={<OutlinedInput name="teacher" id="teacher" labelWidth={120} />}
         >
           <MenuItem value="" />
-          {this.props.teachers.map(teacher => (
+          {teachers.map(teacher => (
             <MenuItem value={teacher.id} key={teacher.id}>
               {teacher.name}
             </MenuItem>
@@ -64,17 +65,13 @@ TeacherSelector.propTypes = {
   classes: PropTypes.object,
   selectedTeacherId: PropTypes.string,
   // eslint-disable-next-line react/forbid-prop-types
-  teachers: PropTypes.array,
-  UpdateTeacher: PropTypes.func
+  teachers: PropTypes.array
 };
 
 TeacherSelector.defaultProps = {
   classes: {},
   selectedTeacherId: '',
-  teachers: [],
-  UpdateTeacher: () => {
-    console.error('Missing UpdateTeacher Handler!');
-  },
+  teachers: []
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

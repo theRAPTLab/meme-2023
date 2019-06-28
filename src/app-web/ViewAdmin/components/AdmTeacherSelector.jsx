@@ -30,7 +30,10 @@ class TeacherSelector extends React.Component {
   constructor(props) {
     super(props);
     this.OnTeacherSelect = this.OnTeacherSelect.bind(this);
-    this.state = { teachers: [] };
+    this.state = {
+      teachers: [],
+      selectedTeacherId: ''
+    };
   }
 
   componentDidMount() {
@@ -40,12 +43,14 @@ class TeacherSelector extends React.Component {
   componentWillUnmount() { }
 
   OnTeacherSelect(e) {
-    UR.Publish('TEACHER_SELECT', { teacherId: e.target.value });
+    let selectedTeacherId = e.target.value;
+    this.setState({ selectedTeacherId })
+    UR.Publish('TEACHER_SELECT', { teacherId: selectedTeacherId });
   }
 
   render() {
-    const { selectedTeacherId, classes } = this.props;
-    const { teachers } = this.state;
+    const { classes } = this.props;
+    const { teachers, selectedTeacherId } = this.state;
     return (
       <Paper className={classes.admPaper}>
         <FormControl variant="outlined" className={classes.admTeacherSelector}>
@@ -70,13 +75,11 @@ class TeacherSelector extends React.Component {
 
 TeacherSelector.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
-  selectedTeacherId: PropTypes.string
+  classes: PropTypes.object
 };
 
 TeacherSelector.defaultProps = {
-  classes: {},
-  selectedTeacherId: ''
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

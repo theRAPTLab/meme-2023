@@ -138,7 +138,7 @@ class ViewAdmin extends React.Component {
       <div className={classes.root}>
         <Grid container spacing={24}>
           <Grid item xs={2}>
-            <TeacherSelector selectedTeacherId={this.state.selectedTeacherId} />
+            <TeacherSelector />
           </Grid>
           <Grid item xs={2}>
             <ClassroomsSelector

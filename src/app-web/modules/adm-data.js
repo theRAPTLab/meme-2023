@@ -42,6 +42,9 @@ ADMData.Load = () => {
  *  component is just a property that isn't a child of any other property.
  *  @returns {array} - array of nodeId strings
  */
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// TEACHERS
 ADMData.GetAllTeachers = () => {
   return a_teachers;
 };

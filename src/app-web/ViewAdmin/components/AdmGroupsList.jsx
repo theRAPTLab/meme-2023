@@ -29,21 +29,21 @@ import MEMEStyles from '../../components/MEMEStyles';
 class GroupsList extends React.Component {
   constructor(props) {
     super(props);
-    this.HandleAddClick = this.HandleAddClick.bind(this);
+    this.OnAddClick = this.OnAddClick.bind(this);
   }
 
   componentDidMount() { }
 
   componentWillUnmount() { }
 
-  HandleAddClick(e) {
+  OnAddClick(e) {
     alert('"Add Group" not implemented yet!');
   }
 
   render() {
-    const { classes } = this.props;
-    let rows = this.props.groups.map(group => {
-      if (group.classroomId === this.props.selectedClassroomId) {
+    const { selectedClassroomId, groups, classes } = this.props;
+    let rows = groups.map(group => {
+      if (group.classroomId === selectedClassroomId) {
         return (
           <TableRow key={group.id}>
             <TableCell>{group.id}</TableCell>
@@ -68,7 +68,7 @@ class GroupsList extends React.Component {
           </TableHead>
           <TableBody>{rows}</TableBody>
         </Table>
-        <Button variant="contained" className={classes.button} onClick={this.HandleAddClick}>
+        <Button variant="contained" className={classes.button} onClick={this.OnAddClick}>
           Add Group
         </Button>
       </Paper>

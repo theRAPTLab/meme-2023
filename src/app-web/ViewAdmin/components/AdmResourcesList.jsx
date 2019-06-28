@@ -33,28 +33,23 @@ import DATA from '../../modules/pmc-data';
 class ResourcesList extends React.Component {
   constructor(props) {
     super(props);
-    this.HandleAddClick = this.HandleAddClick.bind(this);
-    this.HandleCheck = this.HandleCheck.bind(this);
+    this.OnResourceCheck = this.OnResourceCheck.bind(this);
   }
 
   componentDidMount() { }
 
   componentWillUnmount() { }
 
-  HandleAddClick(e) {
-    alert('"Add Criteria" not implemented yet!');
-  }
-
-  HandleCheck(e) {
+  OnResourceCheck(e) {
     alert('"Select Checkbox" not implemented yet!');
   }
 
   render() {
-    const { classes } = this.props;
+    const { classroomResources, selectedClassroomId, classes } = this.props;
     DATA.LoadGraph();  // FIXME: Hack for now to force loading data
     const resources = DATA.AllResources();
-    const thisClassroomsResources = this.props.classroomResources.find(classRsrc => {
-      return classRsrc.classroomId === this.props.selectedClassroomId;
+    const thisClassroomsResources = classroomResources.find(classRsrc => {
+      return classRsrc.classroomId === selectedClassroomId;
     });
     let resourceList = [];
     if (thisClassroomsResources) {

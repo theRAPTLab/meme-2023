@@ -8,6 +8,7 @@ Models List View
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
+import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -28,34 +29,37 @@ import MEMEStyles from '../../components/MEMEStyles';
 class ModelsList extends React.Component {
   constructor(props) {
     super(props);
-    this.HandleAddClick = this.HandleAddClick.bind(this);
+
+    this.OnModelSelect = this.OnModelSelect.bind(this);
   }
 
   componentDidMount() { }
 
   componentWillUnmount() { }
 
-  HandleAddClick(e) {
-    alert('"Add Group" not implemented yet!');
+  OnModelSelect(e) {
+    alert('Model Selection is not implmented yet!');
   }
 
   render() {
-    const { classes } = this.props;
-    let rows = this.props.models.map(model => {
+    const { selectedClassroomId, models, groups, classes } = this.props;
+    let rows = models.map(model => {
       // FIXME: This should probably be turned into a data lookup method in groups
-      let group = this.props.groups.find(grp => {
+      let group = groups.find(grp => {
         return grp.id === model.groupId;
       });
       let result;
       if (!group) {
         return result;
       }
-      if (group.classroomId === this.props.selectedClassroomId) {
+      if (group.classroomId === selectedClassroomId) {
         result = (
           <TableRow key={model.id}>
             <TableCell>{model.id}</TableCell>
             <TableCell>
-              <a href="#">{model.title}</a>
+              <Button color="primary" onClick={this.OnModelSelect}>
+                {model.title}
+              </Button>
             </TableCell>
             <TableCell>{model.groupId}</TableCell>
           </TableRow>

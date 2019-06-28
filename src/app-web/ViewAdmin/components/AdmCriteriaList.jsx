@@ -29,29 +29,31 @@ import MEMEStyles from '../../components/MEMEStyles';
 class CriteriaList extends React.Component {
   constructor(props) {
     super(props);
-    this.HandleAddClick = this.HandleAddClick.bind(this);
+    this.OnAddClick = this.OnAddClick.bind(this);
   }
 
   componentDidMount() { }
 
   componentWillUnmount() { }
 
-  HandleAddClick(e) {
+  OnAddClick(e) {
     alert('"Add Criteria" not implemented yet!');
   }
 
   render() {
-    const { classes } = this.props;
-    let rows = this.props.criteria.map(criteria => {
-      if (criteria.classroomId === this.props.selectedClassroomId) {
-        return (
-          <TableRow key={criteria.id}>
-            <TableCell>{criteria.id}</TableCell>
-            <TableCell>{criteria.label}</TableCell>
-            <TableCell>{criteria.description}</TableCell>
+    const { selectedClassroomId, criteria, classes } = this.props;
+    let rows = criteria.map(crit => {
+      let result;
+      if (crit.classroomId === selectedClassroomId) {
+        result = (
+          <TableRow key={crit.id}>
+            <TableCell>{crit.id}</TableCell>
+            <TableCell>{crit.label}</TableCell>
+            <TableCell>{crit.description}</TableCell>
           </TableRow>
         );
       }
+      return result;
     });
 
     return (
@@ -67,7 +69,7 @@ class CriteriaList extends React.Component {
           </TableHead>
           <TableBody>{rows}</TableBody>
         </Table>
-        <Button variant="contained" className={classes.button} onClick={this.HandleAddClick}>
+        <Button variant="contained" className={classes.button} onClick={this.OnAddClick}>
           Add Criteria
         </Button>
       </Paper>

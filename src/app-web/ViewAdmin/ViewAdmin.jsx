@@ -87,15 +87,6 @@ class ViewAdmin extends React.Component {
           classroomId: 'cl02'
         }
       ],
-      models: [
-        { id: 'mo01', title: 'Fish Sim', groupId: 'gr01', dateCreated:'', dateModified:'', data:''},
-        { id: 'mo02', title: 'Tank Sim', groupId: 'gr01', dateCreated:'', dateModified:'', data:''},
-        { id: 'mo03', title: 'Ammonia Sim', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
-        { id: 'mo04', title: 'Fish Sim', groupId: 'gr02', dateCreated: '', dateModified: '', data: '' },
-        { id: 'mo05', title: 'Tank Sim', groupId: 'gr02', dateCreated: '', dateModified: '', data: '' },
-        { id: 'mo06', title: 'Fish Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' },
-        { id: 'mo07', title: 'No Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' }
-      ],
       classroomResources: [
         { classroomId: 'cl01', resources: ['rs1', 'rs2'] },
         { classroomId: 'cl02', resources: ['rs2', 'rs3'] },
@@ -137,11 +128,7 @@ class ViewAdmin extends React.Component {
             <GroupsList />
           </Grid>
           <Grid item xs={6}>
-            <ModelsList
-              selectedClassroomId={this.state.selectedClassroomId}
-              models={this.state.models}
-              groups={this.state.groups}
-            />
+            <ModelsList />
           </Grid>
         </Grid>
         <Grid container spacing={24}>

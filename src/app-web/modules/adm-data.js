@@ -43,6 +43,15 @@ ADMData.Load = () => {
     { id: 'gr02', name: 'Green', students: 'Ginger, Gail, Greg', classroomId: 'cl01' },
     { id: 'gr03', name: 'Red', students: 'Rob, Reese, Randy', classroomId: 'cl01' },
     { id: 'gr04', name: 'Purple', students: 'Peter, Paul, Penelope', classroomId: 'cl02' },
+  ];
+  a_models = [
+    { id: 'mo01', title: 'Fish Sim', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
+    { id: 'mo02', title: 'Tank Sim', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
+    { id: 'mo03', title: 'Ammonia', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
+    { id: 'mo04', title: 'Fish Sim', groupId: 'gr02', dateCreated: '', dateModified: '', data: '' },
+    { id: 'mo05', title: 'Tank Sim', groupId: 'gr02', dateCreated: '', dateModified: '', data: '' },
+    { id: 'mo06', title: 'Fish Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' },
+    { id: 'mo07', title: 'No Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' }
   ]
 };
 
@@ -74,8 +83,33 @@ ADMData.GetClassroomsByTeacher = teacherId => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// GROUPS
+/**
+ *  Returns array of group objects associated the classroom e.g.
+ *    [
+ *       { id: 'gr01', name: 'Blue', students: 'Bob, Bessie, Bill', classroomId: 'cl01' },
+ *       { id: 'gr02', name: 'Green', students: 'Ginger, Gail, Greg', classroomId: 'cl01' },
+ *       { id: 'gr03', name: 'Red', students: 'Rob, Reese, Randy', classroomId: 'cl01' },
+ *    ]
+ */
 ADMData.GetGroupsByClassroom = classroomId => {
-  return a_groups.filter(cls => cls.classroomId === classroomId);
+  return a_groups.filter(grp => grp.classroomId === classroomId);
+};
+/**
+ *  Returns array of group ids associated with the classroom, e.g.
+ *    [ 'gr01', 'gr02', 'gr03' ]
+ *  This is primarily used by ADMData.GetModelsByClassroom to check if 
+ *  a model is from a particular classsroom.
+ */
+ADMData.GetGroupIdsByClassroom = classroomId => {
+  const groups = ADMData.GetGroupsByClassroom(classroomId);
+  return groups.map(grp => grp.id);
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// MODELS
+ADMData.GetModelsByClassroom = classroomId => {
+  const groupIdsInClassroom = ADMData.GetGroupIdsByClassroom(classroomId);
+  return a_models.filter(mdl => groupIdsInClassroom.includes(mdl.groupId));
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

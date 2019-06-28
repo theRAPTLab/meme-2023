@@ -22,6 +22,8 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../components/MEMEStyles';
+import UR from '../../../system/ursys';
+import ADM from '../../modules/adm-data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -29,44 +31,31 @@ import MEMEStyles from '../../components/MEMEStyles';
 class ModelsList extends React.Component {
   constructor(props) {
     super(props);
-
+    this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
     this.OnModelSelect = this.OnModelSelect.bind(this);
+
+    this.state = { models: [] };
+
+    UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect);
   }
 
   componentDidMount() { }
 
   componentWillUnmount() { }
 
+  DoClassroomSelect(data) {
+    this.setState({
+      models: ADM.GetModelsByClassroom(data.classroomId)
+    });
+  }
+
   OnModelSelect(e) {
     alert('Model Selection is not implmented yet!');
   }
 
   render() {
-    const { selectedClassroomId, models, groups, classes } = this.props;
-    let rows = models.map(model => {
-      // FIXME: This should probably be turned into a data lookup method in groups
-      let group = groups.find(grp => {
-        return grp.id === model.groupId;
-      });
-      let result;
-      if (!group) {
-        return result;
-      }
-      if (group.classroomId === selectedClassroomId) {
-        result = (
-          <TableRow key={model.id}>
-            <TableCell>{model.id}</TableCell>
-            <TableCell>
-              <Button color="primary" onClick={this.OnModelSelect}>
-                {model.title}
-              </Button>
-            </TableCell>
-            <TableCell>{model.groupId}</TableCell>
-          </TableRow>
-        );
-      }
-      return result;
-    });
+    const { classes } = this.props;
+    const { models } = this.state;
 
     return (
       <Paper className={classes.admPaper}>
@@ -80,7 +69,19 @@ class ModelsList extends React.Component {
               <TableCell>CREATED</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>{rows}</TableBody>
+          <TableBody>
+            {models.map(model => (
+              <TableRow key={model.id}>
+                <TableCell>{model.id}</TableCell>
+                <TableCell>
+                  <Button color="primary" onClick={this.OnModelSelect}>
+                    {model.title}
+                  </Button>
+                </TableCell>
+                <TableCell>{model.groupId}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
         </Table>
       </Paper>
     );
@@ -89,19 +90,11 @@ class ModelsList extends React.Component {
 
 ModelsList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
-  selectedClassroomId: PropTypes.string,
-  // eslint-disable-next-line react/forbid-prop-types
-  models: PropTypes.array,
-  // eslint-disable-next-line react/forbid-prop-types
-  groups: PropTypes.array
+  classes: PropTypes.object
 };
 
 ModelsList.defaultProps = {
-  classes: {},
-  selectedClassroomId: '',
-  models: [],
-  groups: []
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

@@ -21,6 +21,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
+import ADM from '../../modules/adm-data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -29,9 +30,12 @@ class TeacherSelector extends React.Component {
   constructor(props) {
     super(props);
     this.OnTeacherSelect = this.OnTeacherSelect.bind(this);
+    this.state = { teachers: [] };
   }
 
-  componentDidMount() { }
+  componentDidMount() {
+    this.setState({ teachers: ADM.GetAllTeachers() });
+  }
 
   componentWillUnmount() { }
 
@@ -40,7 +44,8 @@ class TeacherSelector extends React.Component {
   }
 
   render() {
-    const { selectedTeacherId, teachers, classes } = this.props;
+    const { selectedTeacherId, classes } = this.props;
+    const { teachers } = this.state;
     return (
       <Paper className={classes.admPaper}>
         <FormControl variant="outlined" className={classes.admTeacherSelector}>
@@ -66,15 +71,12 @@ class TeacherSelector extends React.Component {
 TeacherSelector.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object,
-  selectedTeacherId: PropTypes.string,
-  // eslint-disable-next-line react/forbid-prop-types
-  teachers: PropTypes.array
+  selectedTeacherId: PropTypes.string
 };
 
 TeacherSelector.defaultProps = {
   classes: {},
-  selectedTeacherId: '',
-  teachers: []
+  selectedTeacherId: ''
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

@@ -20,6 +20,10 @@ import CriteriaList from './components/AdmCriteriaList';
 import GroupsList from './components/AdmGroupsList';
 import ModelsList from './components/AdmModelsList';
 import ResourcesList from './components/AdmResourcesList';
+/// MODULES ///////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+import ADM from '../modules/adm-data';
+
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import 'bootstrap/dist/css/bootstrap.css';
@@ -48,12 +52,13 @@ class ViewAdmin extends React.Component {
     this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
 
+    // Initialize Admin Data
+    ADM.Load();
+
     UR.Sub('TEACHER_SELECT', this.DoTeacherSelect);
     UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect);
 
     this.state = {
-      // FIXME: This should be replaced with a data call
-      teachers: [{ id: 'brown', name: 'Ms Brown' }, { id: 'smith', name: 'Mr Smith' }],
       selectedTeacherId: '',
       classrooms: [
         { id: 'cl01', name: 'Period 1', teacherId: 'brown'},
@@ -133,10 +138,7 @@ class ViewAdmin extends React.Component {
       <div className={classes.root}>
         <Grid container spacing={24}>
           <Grid item xs={2}>
-            <TeacherSelector
-              teachers={this.state.teachers}
-              selectedTeacherId={this.state.selectedTeacherId}
-            />
+            <TeacherSelector selectedTeacherId={this.state.selectedTeacherId} />
           </Grid>
           <Grid item xs={2}>
             <ClassroomsSelector

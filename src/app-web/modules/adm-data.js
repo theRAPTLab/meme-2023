@@ -32,7 +32,12 @@ ADMData.Load = () => {
     { id: 'smith', name: 'Mr Smith' },
     { id: 'gordon', name: 'Ms Gordon' }
   ];
-
+  a_classrooms = [
+    { id: 'cl01', name: 'Period 1', teacherId: 'brown' },
+    { id: 'cl02', name: 'Period 3', teacherId: 'brown' },
+    { id: 'cl03', name: 'Period 2', teacherId: 'smith' },
+    { id: 'cl04', name: 'Period 3', teacherId: 'smith' }
+  ];
 };
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
@@ -53,6 +58,12 @@ ADMData.GetTeacherName = teacherId => {
     return tch.id === teacherId;
   });
   return teacher ? teacher.name : '';
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// CLASSROOMS
+ADMData.GetClassroomsByTeacher = teacherId => {
+  return a_classrooms.filter(cls => cls.teacherId === teacherId);
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

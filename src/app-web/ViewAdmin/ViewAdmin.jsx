@@ -60,12 +60,6 @@ class ViewAdmin extends React.Component {
 
     this.state = {
       selectedTeacherId: '',
-      classrooms: [
-        { id: 'cl01', name: 'Period 1', teacherId: 'brown'},
-        { id: 'cl02', name: 'Period 3', teacherId: 'brown'},
-        { id: 'cl03', name: 'Period 2', teacherId: 'smith'},
-        { id: 'cl04', name: 'Period 3', teacherId: 'smith'}
-      ],
       selectedClassroomId: '',
       criteria: [
         {
@@ -141,11 +135,7 @@ class ViewAdmin extends React.Component {
             <TeacherSelector />
           </Grid>
           <Grid item xs={2}>
-            <ClassroomsSelector
-              classrooms={this.state.classrooms}
-              selectedTeacherId={this.state.selectedTeacherId}
-              selectedClassroomId={this.state.selectedClassroomId}
-            />
+            <ClassroomsSelector />
           </Grid>
         </Grid>
         <Grid container spacing={24}>

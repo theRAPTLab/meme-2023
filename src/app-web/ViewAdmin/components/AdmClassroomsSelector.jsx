@@ -21,6 +21,11 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
+import ADM from '../../modules/adm-data';
+
+/// DECLARATIONS //////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = false;
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -28,23 +33,40 @@ import UR from '../../../system/ursys';
 class ClassroomsSelector extends React.Component {
   constructor(props) {
     super(props);
+
+    this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
     this.OnClassroomSelect = this.OnClassroomSelect.bind(this);
+
+    UR.Sub('TEACHER_SELECT', this.DoTeacherSelect);
+
+    this.state = {
+      classrooms: [],
+      selectedClassroomId: ''
+    };
   }
 
   componentDidMount() { }
 
   componentWillUnmount() { }
 
+  DoTeacherSelect(data) {
+    if (DBG) console.log('loading classrooms with teacher', data.teacherId);
+    this.setState({ classrooms: ADM.GetClassroomsByTeacher(data.teacherId) });
+  }
+
   OnClassroomSelect(e) {
-    if (e.target.value === 'new') {
+    let classroomId = e.target.value;
+    if (classroomId === 'new') {
       alert('"Add New" not implemented yet!');
     } else {
-      UR.Publish('CLASSROOM_SELECT', { classroomId: e.target.value });
+      this.setState({ selectedClassroomId: classroomId });
+      UR.Publish('CLASSROOM_SELECT', { classroomId });
     }
   }
 
   render() {
-    const { selectedTeacherId, selectedClassroomId, classrooms, classes } = this.props;
+    const { classes } = this.props;
+    const { classrooms, selectedClassroomId } = this.state;
     return (
       <Paper className={classes.admPaper}>
         <FormControl variant="outlined" className={classes.admTeacherSelector}>
@@ -55,13 +77,9 @@ class ClassroomsSelector extends React.Component {
             input={<OutlinedInput name="classroom" id="classroom" labelWidth={120} />}
           >
             {classrooms.map(classroom => (
-              classroom.teacherId === selectedTeacherId ? (
-                <MenuItem value={classroom.id} key={classroom.id}>
-                  {classroom.name}
-                </MenuItem>
-              ) : (
-                ''
-              )
+              <MenuItem value={classroom.id} key={classroom.id}>
+                {classroom.name}
+              </MenuItem>
             ))}
             <MenuItem value="new">
               <i>Add New...</i>
@@ -75,18 +93,11 @@ class ClassroomsSelector extends React.Component {
 
 ClassroomsSelector.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
-  selectedTeacherId: PropTypes.string,
-  selectedClassroomId: PropTypes.string,
-  // eslint-disable-next-line react/forbid-prop-types
-  classrooms: PropTypes.array
+  classes: PropTypes.object
 };
 
 ClassroomsSelector.defaultProps = {
-  classes: {},
-  selectedTeacherId: '',
-  selectedClassroomId: '',
-  classrooms: []
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

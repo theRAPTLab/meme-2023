@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-Models List View
+Groups List View
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -8,6 +8,7 @@ Models List View
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
+import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -20,12 +21,12 @@ import { withStyles } from '@material-ui/core/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import MEMEStyles from './MEMEStyles';
+import MEMEStyles from '../../components/MEMEStyles';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-class ModelsList extends React.Component {
+class GroupsList extends React.Component {
   constructor(props) {
     super(props);
     this.HandleAddClick = this.HandleAddClick.bind(this);
@@ -41,65 +42,54 @@ class ModelsList extends React.Component {
 
   render() {
     const { classes } = this.props;
-    let rows = this.props.models.map(model => {
-      // FIXME: This should probably be turned into a data lookup method in groups
-      let group = this.props.groups.find(grp => {
-        return grp.id === model.groupId;
-      });
-      let result;
-      if (!group) {
-        return result;
-      }
+    let rows = this.props.groups.map(group => {
       if (group.classroomId === this.props.selectedClassroomId) {
-        result = (
-          <TableRow key={model.id}>
-            <TableCell>{model.id}</TableCell>
-            <TableCell>
-              <a href="#">{model.title}</a>
-            </TableCell>
-            <TableCell>{model.groupId}</TableCell>
+        return (
+          <TableRow key={group.id}>
+            <TableCell>{group.id}</TableCell>
+            <TableCell>{group.name}</TableCell>
+            <TableCell>{group.students}</TableCell>
           </TableRow>
         );
       }
-      return result;
     });
 
     return (
       <Paper>
-        <InputLabel>MODELS</InputLabel>
+        <InputLabel>GROUPS</InputLabel>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell>TITLE</TableCell>
-              <TableCell>GROUP</TableCell>
-              <TableCell>CREATED</TableCell>
+              <TableCell>NAME</TableCell>
+              <TableCell>STUDENTS</TableCell>
+              <TableCell>TOKEN</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>{rows}</TableBody>
         </Table>
+        <Button variant="contained" className={classes.button} onClick={this.HandleAddClick}>
+          Add Group
+        </Button>
       </Paper>
     );
   }
 }
 
-ModelsList.propTypes = {
+GroupsList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object,
   selectedClassroomId: PropTypes.string,
   // eslint-disable-next-line react/forbid-prop-types
-  models: PropTypes.array,
-  // eslint-disable-next-line react/forbid-prop-types
   groups: PropTypes.array
 };
 
-ModelsList.defaultProps = {
+GroupsList.defaultProps = {
   classes: {},
   selectedClassroomId: '',
-  models: [],
   groups: []
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(ModelsList);
+export default withStyles(MEMEStyles)(GroupsList);

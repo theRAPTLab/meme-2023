@@ -13,12 +13,12 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import TeacherSelector from '../components/AdmTeacherSelector';
-import ClassroomsList from '../components/AdmClassroomsList';
-import CriteriaList from '../components/AdmCriteriaList';
-import GroupsList from '../components/AdmGroupsList';
-import ModelsList from '../components/AdmModelsList';
-import ResourcesList from '../components/AdmResourcesList';
+import TeacherSelector from './components/AdmTeacherSelector';
+import ClassroomsList from './components/AdmClassroomsList';
+import CriteriaList from './components/AdmCriteriaList';
+import GroupsList from './components/AdmGroupsList';
+import ModelsList from './components/AdmModelsList';
+import ResourcesList from './components/AdmResourcesList';
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import 'bootstrap/dist/css/bootstrap.css';

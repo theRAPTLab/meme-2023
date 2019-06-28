@@ -24,8 +24,8 @@ import { withStyles } from '@material-ui/core/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import MEMEStyles from './MEMEStyles';
-import DATA from '../modules/pmc-data';
+import MEMEStyles from '../../components/MEMEStyles';
+import DATA from '../../modules/pmc-data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-Groups List View
+Criteria List View
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -21,12 +21,12 @@ import { withStyles } from '@material-ui/core/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import MEMEStyles from './MEMEStyles';
+import MEMEStyles from '../../components/MEMEStyles';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-class GroupsList extends React.Component {
+class CriteriaList extends React.Component {
   constructor(props) {
     super(props);
     this.HandleAddClick = this.HandleAddClick.bind(this);
@@ -37,18 +37,18 @@ class GroupsList extends React.Component {
   componentWillUnmount() { }
 
   HandleAddClick(e) {
-    alert('"Add Group" not implemented yet!');
+    alert('"Add Criteria" not implemented yet!');
   }
 
   render() {
     const { classes } = this.props;
-    let rows = this.props.groups.map(group => {
-      if (group.classroomId === this.props.selectedClassroomId) {
+    let rows = this.props.criteria.map(criteria => {
+      if (criteria.classroomId === this.props.selectedClassroomId) {
         return (
-          <TableRow key={group.id}>
-            <TableCell>{group.id}</TableCell>
-            <TableCell>{group.name}</TableCell>
-            <TableCell>{group.students}</TableCell>
+          <TableRow key={criteria.id}>
+            <TableCell>{criteria.id}</TableCell>
+            <TableCell>{criteria.label}</TableCell>
+            <TableCell>{criteria.description}</TableCell>
           </TableRow>
         );
       }
@@ -56,40 +56,39 @@ class GroupsList extends React.Component {
 
     return (
       <Paper>
-        <InputLabel>GROUPS</InputLabel>
+        <InputLabel>CRITERIA</InputLabel>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell>NAME</TableCell>
-              <TableCell>STUDENTS</TableCell>
-              <TableCell>TOKEN</TableCell>
+              <TableCell>LABEL</TableCell>
+              <TableCell>DESCRIPTION</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>{rows}</TableBody>
         </Table>
         <Button variant="contained" className={classes.button} onClick={this.HandleAddClick}>
-          Add Group
+          Add Criteria
         </Button>
       </Paper>
     );
   }
 }
 
-GroupsList.propTypes = {
+CriteriaList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object,
   selectedClassroomId: PropTypes.string,
   // eslint-disable-next-line react/forbid-prop-types
-  groups: PropTypes.array
+  criteria: PropTypes.array
 };
 
-GroupsList.defaultProps = {
+CriteriaList.defaultProps = {
   classes: {},
   selectedClassroomId: '',
-  groups: []
+  criteria: []
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(GroupsList);
+export default withStyles(MEMEStyles)(CriteriaList);

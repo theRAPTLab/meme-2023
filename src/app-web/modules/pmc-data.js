@@ -1086,24 +1086,24 @@ PMCData.PMC_AddPropParent = (node = 'a', parent = 'b') => {
   return `added parent ${parent} to node ${node}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_PropDelete = (node = "a") => {
+PMCData.PMC_PropDelete = (propid = "a") => {
   // Deselect the prop first, otherwise the deleted prop will remain selected
   PMCData.VM_DeselectAll();
   // Unlink any evidence
-  const evlinks = PMCData.PropEvidence(node);
+  const evlinks = PMCData.PropEvidence(propid);
   evlinks.forEach(evlink => {
     PMCData.VM_MarkBadgeForDeletion(evlink.evId);
     PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
   });
   // Delete any children nodes
-  const children = PMCData.Children(node);
+  const children = PMCData.Children(propid);
   children.forEach(cid => {
     PMCData.PMC_PropDelete(cid);
   });
-  // Then remove node
-  m_graph.removeNode(node);
+  // Then remove propid
+  m_graph.removeNode(propid);
   PMCData.BuildModel();
-  return `deleted node ${node}`;
+  return `deleted propid ${propid}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddMech = (sourceId, targetId, label) => {
@@ -1178,12 +1178,12 @@ PMCData.Resource = rsrcId => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Given the passed nodeID (prop object), returns evidence linked to the prop object.
+ *  Given the passed propid (prop data object), returns evidence linked to the prop object.
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
  *  @param {string|undefined} nodeId - if defined, nodeId string of the prop (aka `propId`)
  */
-PMCData.PropEvidence = (nodeId) => {
-  return h_evidenceByProp.get(nodeId);
+PMCData.PropEvidence = propid => {
+  return h_evidenceByProp.get(propid);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

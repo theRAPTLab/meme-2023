@@ -5,7 +5,6 @@ import UR from '../../system/ursys';
 import { VisualState } from './classes-visual';
 
 const { VPROP, PAD, COLOR } = DEFAULTS;
-console.log('%cWARN: using VProp Refactor', cssalert);
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -8,7 +8,6 @@ import UR from '../../system/ursys';
 import DEFAULTS from './defaults';
 
 const { SVGDEFS, COLOR } = DEFAULTS;
-console.log('%cWARN: using PMCView Refactor', cssalert);
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

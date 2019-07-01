@@ -16,7 +16,6 @@ import DATA from '../modules/pmc-data';
 import { cssreact, cssalert } from '../modules/console-styles';
 
 const DBG = true;
-console.log('%cWARN: using SVGView Refactor', cssalert);
 
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////

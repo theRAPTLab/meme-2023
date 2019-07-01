@@ -1,20 +1,22 @@
 import SVGJS from '@svgdotjs/svg.js/src/svg';
 import DATA from './pmc-data';
-import VProp from './class-vprop';
+import VProp from './class-vprop-refactor';
+import VBadge from './class-vbadge-refactor';
 import VMech from './class-vmech';
-import { cssinfo, cssdraw, csstab, csstab2 } from './console-styles';
+import { cssinfo, cssalert, csstab, cssdraw } from './console-styles';
 import UR from '../../system/ursys';
 import DEFAULTS from './defaults';
 
-const { PAD, SVGDEFS, COLOR, UTIL } = DEFAULTS;
+const { SVGDEFS, COLOR } = DEFAULTS;
+console.log('%cWARN: using PMCView Refactor', cssalert);
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- * @module PMCView
+ * @module PMCViewRefactor
  * @desc
  * Manages the SVGJS instance that is contained by SVGView.
- *
+ * It also maintains the list of
  */
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PMCView = {};
@@ -23,16 +25,15 @@ const PMCView = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let m_element;
 let m_svgroot;
-const DBG = false;
-
-/// REFLECT DUMP
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-console.log(`Reflection test`, UTIL.DumpObj(DATA));
+//
+const DBG = true;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 UR.Sub('PROP:MOVED', data => {
-  VMech.DrawEdges();
+  if (data) {
+    VMech.DrawEdges();
+  }
 });
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
@@ -45,10 +46,74 @@ PMCView.InitializeViewgraph = container => {
   m_element = container;
   m_svgroot = SVGJS(m_element);
   m_svgroot.mousedown(() => {
-    DATA.VM_DeselectAll();
+    DATA.VM_DeselectAllProps();
+    DATA.VM_DeselectAllMechs();
+    UR.Publish('SELECTION_CHANGED');
   });
   PMCView.DefineDefs(m_svgroot);
   PMCView.DefineSymbols(m_svgroot);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCView.TestGroups = () => {
+  m_svgroot.clear();
+  const gt = m_svgroot.group();
+  const gm = m_svgroot.group();
+
+  console.group('%cTEST GROUP TRANSFORMS', cssdraw);
+  /* TEST TRANSFORM on GROUP, MOVE on ELEMENTS */
+  gt.text(add => {
+    add.tspan('group using transform').newLine();
+    add.tspan('added elements using move').newLine();
+  }).move(0, 110);
+  // create a rect at 0,0 with width 100,100
+  gt.rect(100, 100).fill({ color: `#550000` });
+  /* TRANSFORM GROUP */
+  gt.transform({ translateX: 50, translateY: 100 });
+  // add another small rect at 0,0, size 10, transform to 10,10
+  gt.rect(10, 10)
+    .fill({ color: 'red' })
+    .transform({ translateX: 10, translateY: 10 });
+  /* TRANSFORM GROUP AGAIN */
+  gt.transform({ translateX: 50, translateY: 200 });
+  // add a circle on root svg at 0,0 radius 20, centered at 50,50
+  // then add to group
+  const gtc = m_svgroot
+    .circle(20, 20)
+    .fill({ color: 'red' })
+    .center(50, 50);
+  gt.add(gtc);
+  /* BECAUSE TRANSFORM IS ADDED TO GROUP, ALL CHILDREN INHERIT */
+
+  /* TEST MOVE on GROUP, MOVE on ELEMENTS */
+  gm.text(add => {
+    add.tspan('group using move').newLine();
+    add.tspan('added elements using move').newLine();
+  }).move(0, 110);
+  // create a rect at 0,0 with width 100,100
+  gm.rect(100, 100).fill({ color: '#005500' });
+  /* MOVE GROUP */
+  gm.move(200, 50);
+  // add another small rect at 0,0, size 10, transform to 10,10
+  gm.rect(10, 10)
+    .fill({ color: 'green' })
+    .move(10, 10);
+  /* MOVE GROUP AGAIN */
+  gm.move(300, 50);
+  // add a circle on root svg at 0,0 radius 20, centered at 50,50
+  // then add to group
+  const gmc = m_svgroot
+    .circle(20, 20)
+    .fill({ color: 'green' })
+    .center(50, 50);
+  gm.add(gmc);
+  /* BECAUSE GROUP IS MOVED BUT TRANSFORM ISN'T SHARED, ALL CHILDREN
+     ARE DRAWN RELATIVE TO ORIGIN
+  */
+
+  console.groupEnd();
+  /* GLOBALS */
+  window.gt = gt;
+  window.gm = gm;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -80,8 +145,9 @@ PMCView.DefineDefs = svg => {
  * It shouldn't be called externally.
  * @param {SVGJSinstance} svg - SVGJS instance to add DEFs to
  */
-PMCView.DefineSymbols = svg => { };
-
+PMCView.DefineSymbols = svg => {
+  console.log('no symbols to add to', svg);
+};
 
 /// LIFECYCLE /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -108,23 +174,17 @@ PMCView.SyncModeSettings = () => {
  * structures that are used to *display* the data (viewmodel) is updated.
  */
 PMCView.SyncPropsFromGraphData = () => {
-  if (DBG) console.groupCollapsed(`%c:SyncPropsFromGraphData()`, cssinfo);
+  // if (DBG) console.groupCollapsed(`%c:SyncPropsFromGraphData()`, cssinfo);
   const { added, removed, updated } = DATA.VM_GetVPropChanges();
-  removed.forEach(id => {
-    VProp.Release(id);
-  });
-  added.forEach(id => {
-    const vprop = VProp.New(id, m_svgroot);
-  });
-  updated.forEach(id => {
-    VProp.Update(id);
-  });
+  removed.forEach(id => VProp.Release(id));
+  added.forEach(id => VProp.New(id, m_svgroot)); // returns vprop instance but not using
+  updated.forEach(id => VProp.Update(id));
   if (DBG) {
     if (removed.length) console.log(`%c:Removing ${removed.length} dead nodes`, csstab);
     if (added.length) console.log(`%c:Adding ${added.length} new nodes`, csstab);
     if (updated.length) console.log(`%c:Updating ${updated.length} nodes`, csstab);
-    console.groupEnd();
   }
+  // if (DBG) console.groupEnd();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -133,26 +193,18 @@ PMCView.SyncPropsFromGraphData = () => {
  * structures (the viewmodel) is updated to reflect it.
  */
 PMCView.SyncMechsFromGraphData = () => {
-  if (DBG) console.groupCollapsed(`%c:SyncMechsFromGraphData()`, cssinfo);
+  // if (DBG) console.groupCollapsed(`%c:SyncMechsFromGraphData()`, cssinfo);
   // the following arrays contain pathIds
   const { added, removed, updated } = DATA.VM_GetVMechChanges();
-  removed.forEach(pathId => {
-    VMech.Release(pathId);
-    DATA.VM_VMechDelete(pathId);
-  });
-  added.forEach(pathId => {
-    const vmech = VMech.New(pathId, m_svgroot);
-    DATA.VM_VMechSet(vmech, pathId);
-  });
-  updated.forEach(pathId => {
-    VMech.Update(pathId);
-  });
+  removed.forEach(pathId => VMech.Release(pathId));
+  added.forEach(pathId => VMech.New(pathId, m_svgroot));
+  updated.forEach(pathId => VMech.Update(pathId));
   if (DBG) {
     if (removed.length) console.log(`%c:Removing ${removed.length} dead edgeObjs`, csstab);
     if (added.length) console.log(`%c:Adding ${added.length} new edgeObjs`, csstab);
     if (updated.length) console.log(`%c:Updating ${updated.length} edgeObjs`, csstab);
-    console.groupEnd();
   }
+  // if (DBG) console.groupEnd();
 };
 /**
  * LIFECYCLE: Syncs PMC property changes from model to the
@@ -160,24 +212,26 @@ PMCView.SyncMechsFromGraphData = () => {
  * structures that are used to *display* the data (viewmodel) is updated.
  */
 PMCView.SyncBadgesFromEvLinkData = () => {
-  if (DBG) console.groupCollapsed(`%c:SyncBadgesFromEvLinkData()`, cssinfo);
-  const { added, removed, updated } = DATA.VM_GetVBadgeChanges();
+  // if (DBG) console.groupCollapsed(`%c:SyncBadgesFromEvLinkData()`, cssinfo);
+  const { added, removed, updated } = DATA.VM_GetVBadgeChangesRefactor();
   removed.forEach(id => {
-    VProp.ReleaseBadge(id);
+    VBadge.Release(id);
   });
   added.forEach(id => {
-    const vprop = VProp.NewBadge(id, m_svgroot);
+    VBadge.New(id, m_svgroot); // returns vbadge but not using
   });
   updated.forEach(id => {
-    VProp.UpdateBadge(id);
+    VBadge.Update(id);
   });
   if (DBG) {
     if (removed.length) console.log(`%c:Removing ${removed.length} dead badges`, csstab);
     if (added.length) console.log(`%c:Adding ${added.length} new badges`, csstab);
     if (updated.length) console.log(`%c:Updating ${updated.length} badges`, csstab);
-    console.groupEnd();
   }
+  // if (DBG) console.groupEnd();
+
 };
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * LIFECYCLE: Update the model and dependent derived model structures.
@@ -186,96 +240,32 @@ PMCView.SyncBadgesFromEvLinkData = () => {
 PMCView.UpdateModel = () => {
   console.log(`UpdateModel() unimplemented`);
 };
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * LIFECYCLE: Update the viewmodel based on the model. It walks the component
  * list and calculates how to resize them so they are properly drawn nested.
  */
 PMCView.UpdateViewModel = () => {
-  if (DBG) console.groupCollapsed(`%c:UpdateViewModel()`, cssinfo);
-
-  // first get the list of component ids to walk through
-  const components = DATA.Components();
-
-  // walk through every component
-  components.forEach(compId => {
-    VProp.MoveToRoot(compId);
-    u_Recurse(compId); // returns bbox { id, w, h } but not used here
-  });
-  if (DBG) console.groupEnd();
+  // if (DBG) console.groupCollapsed(`%c:UpdateViewModel()`, cssinfo);
+  VProp.SizeComponents();
+  // if (DBG) console.groupEnd();
 };
 
-// given a propId, set dimension data for each property
-// set the component directly
-// return struct { id, w, h } w/out padding
-function u_Recurse(propId) {
-  const propVis = DATA.VM_VProp(propId);
-  const self = propVis.GetDataBBox();
-  self.h += PAD.MIN;
-  if (DBG) console.group(`${propId} recurse`);
-  /* WALK CHILD PROPS */
-  const childIds = DATA.Children(propId);
-  // if there are no children, break recursion
-  if (childIds.length === 0) {
-    propVis.SetSize(self);
-    propVis.SetKidsBBox({ w: 0, h: 0 });
-    if (DBG) console.groupEnd();
-    return self;
-  }
-  // otherwise, let's recurse!
-  let sizes = [];
-  childIds.forEach(childId => {
-    const childVis = DATA.VM_VProp(childId);
-    childVis.ToParent(propId);
-    const size = u_Recurse(childId);
-    childVis.SetKidsBBox(size);
-    sizes.push(size);
-  });
-  //
-  const pbox = sizes.reduce((accbox, item) => {
-    return {
-      id: propId,
-      w: Math.max(accbox.w, item.w),
-      h: accbox.h + item.h
-    };
-  });
-  // adjust size
-  const all = {
-    id: pbox.id,
-    w: Math.max(self.w, pbox.w) + PAD.MIN2,
-    h: self.h + pbox.h
-  };
-  all.h += childIds.length > 1 ? PAD.MIN2 : PAD.MIN;
-  propVis.SetSize(all);
-  propVis.SetKidsBBox(all);
-  if (DBG) console.groupEnd();
-  return all;
-}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * LIFECYCLE: Draws the current view from the updated viewmodel. Currently
  * handles layout and edge drawing.
  */
 PMCView.UpdateView = () => {
-  if (DBG) console.groupCollapsed(`%c:UpdateView()`, cssinfo);
+  // if (DBG) console.groupCollapsed(`%c:UpdateView()`, cssinfo);
   VProp.LayoutComponents();
   VMech.DrawEdges();
-  if (DBG) console.groupEnd();
+  // if (DBG) console.groupEnd();
 };
 
+/*/ DEBUG OBJECT /*/
 window.PMC = PMCView;
-
-if (window.may1 === undefined) window.may1 = {};
-window.may1.Update = () => {
-  PMCView.SyncPropsFromGraphData();
-  PMCView.SyncMechsFromGraphData();
-  PMCView.SyncBadgesFromEvLinkData();
-  PMCView.UpdateViewModel();
-  PMCView.UpdateView();
-}
-window.may1.ForceUpdate = () => {
-  UR.Publish('FORCE_UPDATE');
-}
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -69,7 +69,7 @@ class EvidenceLink extends React.Component {
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
   }
 
-  componentDidMount() {}
+  componentDidMount() { }
 
   componentWillUnmount() {
     UR.Unsub('DATA_UPDATED', this.HandleDataUpdate);
@@ -90,7 +90,6 @@ class EvidenceLink extends React.Component {
         note: evlink.note,
         rating: evlink.rating
       });
-      return;
     }
     // Don't throw an error here
     // If the EvidenceLink has been deleted, the deletion event triggers
@@ -114,7 +113,7 @@ class EvidenceLink extends React.Component {
       isBeingEdited: false
     });
   }
-  
+
   HandleDeleteButtonClick() {
     DATA.PMC_DeleteEvidenceLink(this.props.evId);
   }
@@ -176,6 +175,7 @@ class EvidenceLink extends React.Component {
   HandleSourceSelectClick(evId, rsrcId) {
     // Deselect the prop first, otherwise the deleted prop will remain selected
     DATA.VM_DeselectAll();
+    UR.Publish('SELECTION_CHANGED');
     // Remove any existing evidence links
     DATA.VM_MarkBadgeForDeletion(evId);
     DATA.SetEvidenceLinkPropId(evId, undefined);
@@ -229,13 +229,12 @@ class EvidenceLink extends React.Component {
         // subsequent source selections from being applied to ALL open
         // evlinks.
         this.setState({ listenForSourceSelection: false });
-        return;
       }
     }
   }
 
   toggleExpanded() {
-    if (DBG) console.log(PKG,'evidence link clicked');
+    if (DBG) console.log(PKG, 'evidence link clicked');
     if (this.state.isExpanded) {
       this.setState({
         isExpanded: false,
@@ -342,15 +341,15 @@ class EvidenceLink extends React.Component {
                     }}
                   />
                 ) : (
-                  <div className={classes.evidenceLabelField}>{note}</div>
-                )}
+                    <div className={classes.evidenceLabelField}>{note}</div>
+                  )}
               </Grid>
             </Grid>
           </Grid>
           <Grid item xs={isExpanded ? 12 : 3}>
             <Grid
               container
-              spacing={8} 
+              spacing={8}
               className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed}
             >
               <Grid item xs={4} hidden={!isExpanded}>

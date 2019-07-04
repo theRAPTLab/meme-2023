@@ -1091,10 +1091,11 @@ PMCData.PMC_PropDelete = (propid = "a") => {
   PMCData.VM_DeselectAll();
   // Unlink any evidence
   const evlinks = PMCData.PropEvidence(propid);
-  evlinks.forEach(evlink => {
-    PMCData.VM_MarkBadgeForDeletion(evlink.evId);
-    PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
-  });
+  if (evlinks)
+    evlinks.forEach(evlink => {
+      PMCData.VM_MarkBadgeForDeletion(evlink.evId);
+      PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
+    });
   // Delete any children nodes
   const children = PMCData.Children(propid);
   children.forEach(cid => {

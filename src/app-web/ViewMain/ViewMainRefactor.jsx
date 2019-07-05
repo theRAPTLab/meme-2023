@@ -293,14 +293,15 @@ class ViewMain extends React.Component {
       // Update existing prop
       let prop = DATA.Prop(this.state.addPropPropId);
       prop.name = this.state.addPropLabel;
+      // IF YOU UPDATE THE MODEL THEN BUILD IT SO VIEW UPDATES
+      // MOST PMCDATA MODEL METHODS CALLS THIS AUTOMATICALLY
+      // BUT IN THIS CASE YOU'RE MUTATING THE PROP DIRECTLY
+      DATA.BuildModel();
     } else {
       // Create new prop
       DATA.PMC_AddProp(this.state.addPropLabel);
     }
     this.HandleAddPropClose();
-    // IF YOU UPDATE THE MODEL
-    // THEN BUILD IT
-    DATA.BuildModel();
   }
 
   handleAddEdge() {

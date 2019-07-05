@@ -13,6 +13,7 @@ import '@svgdotjs/svg.draggable.js';
 import PMCView from '../modules/pmc-view-refactor';
 import DATA from '../modules/pmc-data';
 
+import UR from '../../system/ursys';
 import { cssreact, cssalert } from '../modules/console-styles';
 
 const DBG = true;
@@ -30,6 +31,8 @@ class SVGView extends React.Component {
     this.DoAppLoop = this.DoAppLoop.bind(this);
     // LIFECYCLE: Initialize DataGraph
     DATA.LoadGraph();
+    // Look for Data Updates
+    UR.Sub('DATA_UPDATED', this.DoAppLoop)
   }
 
   componentDidMount() {
@@ -41,17 +44,24 @@ class SVGView extends React.Component {
     } else if (DBG) console.log(`%ccomponentDidMount() skip draw`, cssalert);
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     // placeholder to trap resizing
     let dimChanged = prevProps.viewWidth !== this.props.viewWidth;
     dimChanged = dimChanged || prevProps.viewHeight !== this.props.viewHeight;
     if (dimChanged) {
       if (DBG)
-        console.log(`%ccomponentDidUpdate() winsize ${this.props.viewWidth}x${this.props.viewHeight}`, cssreact);
+        console.log(
+          `%ccomponentDidUpdate() winsize ${this.props.viewWidth}x${this.props.viewHeight}`,
+          cssreact
+        );
       this.DoAppLoop();
       // DEBUG WINDOW UPDATE
       // PMCView.DrawTestScene(this.props.viewWidth, this.props.viewHeight);
     }
+  }
+
+  componentWillUnmount() {
+    UR.Unsub('DATA_UPDATED', this.DoAppLoop);
   }
 
   DoAppLoop() {

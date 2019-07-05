@@ -298,6 +298,9 @@ class ViewMain extends React.Component {
       DATA.PMC_AddProp(this.state.addPropLabel);
     }
     this.HandleAddPropClose();
+    // IF YOU UPDATE THE MODEL
+    // THEN BUILD IT
+    DATA.BuildModel();
   }
 
   handleAddEdge() {
@@ -652,7 +655,7 @@ class ViewMain extends React.Component {
           </Paper>
         </Modal>
 
-        {/* Add Prop Dialog */}
+        {/* Component/Mech label editing dialog */}
         <Dialog
           open={this.state.addPropOpen}
           onClose={this.HandleAddPropClose}
@@ -681,7 +684,7 @@ class ViewMain extends React.Component {
           </DialogActions>
         </Dialog>
 
-        {/* Component Editing */}
+        {/* Component/Mech add/edit/delete buttons */}
         <Fab
           hidden={!(componentIsSelected || mechIsSelected)}
           onClick={componentIsSelected ? this.HandlePropDelete : this.HandleMechDelete}

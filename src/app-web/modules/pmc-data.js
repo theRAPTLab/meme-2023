@@ -1114,15 +1114,17 @@ PMCData.PMC_AddMech = (sourceId, targetId, label) => {
   return `added edge ${sourceId} ${targetId} ${label}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_MechDelete = (mechId = "v:w") => {
+PMCData.PMC_MechDelete = (mechId) => {
+  // mechId is of form "v:w"
   // Deselect the mech first, otherwise the deleted mech will remain selected
   PMCData.VM_DeselectAll();
   // Unlink any evidence
   const evlinks = PMCData.MechEvidence(mechId);
-  evlinks.forEach(evlink => {
-    PMCData.VM_MarkBadgeForDeletion(evlink.evId);
-    PMCData.SetEvidenceLinkMechId(evlink.evId, undefined);
-  });
+  if (evlinks)
+    evlinks.forEach(evlink => {
+      PMCData.VM_MarkBadgeForDeletion(evlink.evId);
+      PMCData.SetEvidenceLinkMechId(evlink.evId, undefined);
+    });
   // Then remove mech
   // FIXME / REVIEW : Do we need to use `name` to distinguish between
   // multiple edges between the same source target?

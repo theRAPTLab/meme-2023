@@ -59,7 +59,7 @@ const PMCData = {};
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 
 /// MODEL /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1074,13 +1074,13 @@ PMCData.VM_SelectedMechs = () => {
   return Array.from(selected_vmechs.values());
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddProp = (node = "a") => {
+PMCData.PMC_AddProp = (node) => {
   m_graph.setNode(node, { name: `${node}` });
   PMCData.BuildModel();
   return `added node ${node}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddPropParent = (node = 'a', parent = 'b') => {
+PMCData.PMC_SetPropParent = (node, parent) => {
   m_graph.setParent(node, parent);
   PMCData.BuildModel();
   return `added parent ${parent} to node ${node}`;
@@ -1098,9 +1098,10 @@ PMCData.PMC_PropDelete = (propid = "a") => {
     });
   // Delete any children nodes
   const children = PMCData.Children(propid);
-  children.forEach(cid => {
-    PMCData.PMC_PropDelete(cid);
-  });
+  if (children)
+    children.forEach(cid => {
+      PMCData.PMC_SetPropParent(cid, undefined);
+    });
   // Then remove propid
   m_graph.removeNode(propid);
   PMCData.BuildModel();

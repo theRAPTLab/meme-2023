@@ -237,6 +237,11 @@ class ViewMain extends React.Component {
     if (selectedPropIds.length > 0) {
       let propId = selectedPropIds[0];
       DATA.PMC_PropDelete(propId);
+      if (this.state.addEdgeSource === propId) {
+        this.setState({
+          addEdgeSource: ''
+        });
+      }
     }
     this.setState({
       componentIsSelected: false

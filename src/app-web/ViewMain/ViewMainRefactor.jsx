@@ -73,7 +73,6 @@ class ViewMain extends React.Component {
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
     this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
-    this.HandleForceUpdate = this.HandleForceUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
     this.HandleAddPropLabelChange = this.HandleAddPropLabelChange.bind(this);
     this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
@@ -95,7 +94,6 @@ class ViewMain extends React.Component {
     this.handleSnapshot = this.handleSnapshot.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
     UR.Sub('DATA_UPDATED', this.HandleDataUpdate);
-    UR.Sub('FORCE_UPDATE', this.HandleForceUpdate);
     UR.Sub('SHOW_RESOURCE', this.handleResourceClick);
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Sub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
@@ -138,23 +136,28 @@ class ViewMain extends React.Component {
   componentWillUnmount() {
     UR.Unsub('WINDOW:SIZE', this.UpdateDimensions);
     UR.Unsub('DATA_UPDATED', this.HandleDataUpdate);
-    UR.Unsub('FORCE_UPDATE', this.HandleForceUpdate);
     UR.Unsub('SHOW_RESOURCE', this.handleResourceClick);
     UR.Unsub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Unsub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
   }
 
-  // Force update to redraw evidence link badges and quality ratings
-  HandleForceUpdate() {
-    if (DBG) console.log(PKG, 'FORCE_UPDATE');
-    this.forceUpdate();
-  }
 
+  // CODE REVIEW: THIS IS VESTIGIAL CODE
   // Force a screen redraw when evidence links are added
   // so that badges and quality ratings will draw
   HandleDataUpdate() {
     if (DBG) console.log(PKG, 'DATA_UPDATE');
-    this.HandleForceUpdate();
+    /*
+      CODE REVIEW: originally this code called "forceupdate" methods via a "data
+      update" handler, which called React.Component's forceUpdate method. But
+      updating the SVGView isn't part of ReactComponent...it's an SVGView! I've
+      removed all mention of this call because it's not necessary when the React
+      rendering is setup for proper dataflow (e.g. use of ONLY state and props
+      in the render() function)
+
+      SVGView used to require a manual call to DoAppLoop(), but now it's hooked
+      the DATA_UPDATED messages so it will redraw its view.
+    */
   }
 
   UpdateDimensions() {
@@ -172,19 +175,10 @@ class ViewMain extends React.Component {
 
     // debugging: double-refresh issue
     console.log('%cUpdateDimensions Fired', cssdraw);
-    this.setState(
-      {
-        viewWidth: Math.min(viewWidth, innerWidth),
-        viewHeight: Math.min(viewHeight, innerHeight)
-      },
-      () => {
-        // Force screen to redraw after setting size.
-        // Also forces badge redraw
-        // debug: this seems like a hack, so removing it to see
-        // what the issue is
-        // this.HandleForceUpdate();
-      }
-    );
+    this.setState({
+      viewWidth: Math.min(viewWidth, innerWidth),
+      viewHeight: Math.min(viewHeight, innerHeight)
+    });
   }
 
   HandleAddPropLabelChange(e) {

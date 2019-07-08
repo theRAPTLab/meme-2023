@@ -1,5 +1,6 @@
 /*//////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
+The root of the SVG-based application!
 should be a child of RoutedView
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
@@ -12,9 +13,11 @@ import '@svgdotjs/svg.draggable.js';
 import PMCView from '../modules/pmc-view';
 import DATA from '../modules/pmc-data';
 
-import { cssblue, cssreact, cssalert } from '../modules/console-styles';
+import UR from '../../system/ursys';
+import { cssreact, cssalert } from '../modules/console-styles';
 
-const DBG = false;
+const DBG = true;
+
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -28,6 +31,8 @@ class SVGView extends React.Component {
     this.DoAppLoop = this.DoAppLoop.bind(this);
     // LIFECYCLE: Initialize DataGraph
     DATA.LoadGraph();
+    // Look for Data Updates
+    UR.Sub('DATA_UPDATED', this.DoAppLoop)
   }
 
   componentDidMount() {
@@ -39,24 +44,29 @@ class SVGView extends React.Component {
     } else if (DBG) console.log(`%ccomponentDidMount() skip draw`, cssalert);
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     // placeholder to trap resizing
-    let dimChanged = prevProps.viewWidth !== this.viewWidth;
-    dimChanged = dimChanged || prevProps.viewHeight !== this.viewHeight;
+    let dimChanged = prevProps.viewWidth !== this.props.viewWidth;
+    dimChanged = dimChanged || prevProps.viewHeight !== this.props.viewHeight;
     if (dimChanged) {
-      const prompt = `componentDidUpdate()`;
       if (DBG)
-        console.log(`%c${prompt} props ${this.props.viewWidth} ${this.props.viewHeight}`, cssreact);
+        console.log(
+          `%ccomponentDidUpdate() winsize ${this.props.viewWidth}x${this.props.viewHeight}`,
+          cssreact
+        );
       this.DoAppLoop();
       // DEBUG WINDOW UPDATE
       // PMCView.DrawTestScene(this.props.viewWidth, this.props.viewHeight);
     }
   }
 
+  componentWillUnmount() {
+    UR.Unsub('DATA_UPDATED', this.DoAppLoop);
+  }
+
   DoAppLoop() {
     // TEST DRAWING
-    // PMCView.DrawSystemDiagram();
-    // PMCView.DrawRects();
+    // PMCView.TestGroups();
 
     // LIFECYCLE: handle changes to underlying data and queued user inputs
     PMCView.SyncPropsFromGraphData();
@@ -82,7 +92,7 @@ class SVGView extends React.Component {
     // for dimensions to begin valid
     if (DBG) {
       const css = this.props.viewWidth && this.props.viewHeight ? cssreact : cssalert;
-      console.log(`%crender() props ${this.props.viewWidth}x${this.props.viewHeight}`, css);
+      console.log(`%crender() called. winsize ${this.props.viewWidth}x${this.props.viewHeight}`, css);
     }
     // returns a root svg that is the PARENT of the SVGJS-created draw surface
     return (

@@ -1,5 +1,5 @@
 import DATA from './pmc-data';
-import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
+import { cssinfo, cssalert, cssdata } from './console-styles';
 import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
 import { VisualState } from './classes-visual';
@@ -18,17 +18,6 @@ const COL_BG = COLOR.PROP;
 const DIM_RADIUS = 3;
 //
 const DBG = false;
-
-/// PRIVATE HELPERS ///////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// accepts either edgeObj or v,w as parameters
-function m_Norm(aObj, bNum) {
-  if (typeof aObj === 'object') {
-    if (bNum === undefined) return aObj.keys();
-    throw Error(`can't normalize aObj ${aObj}, bNum ${bNum}`);
-  }
-  return [aObj, bNum];
-}
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -66,12 +55,14 @@ class VProp {
     this.mechPoints = []; // array of points available for mechanism connections
     // hacked items
     this.hack = { wasMoved: false };
+    // hacked vbadge support
     this.badgesCount = 0; // number of badges attached to this prop
+
     // higher order display properties
     this.gRoot.draggable();
     this.gRoot.on('dragstart.propmove', event => {
       event.preventDefault();
-      console.log(`dragstart.propmove ${this.id}`);
+      // console.log(`dragstart.propmove ${this.id}`);
       this.dragStartBox = event.detail.box;
     });
     this.gRoot.on('dragmove.propmove', event => {
@@ -84,7 +75,7 @@ class VProp {
     });
     this.gRoot.on('dragend.propmove', event => {
       event.stopPropagation();
-      console.log(`dragend.propmove ${this.id}`);
+      // console.log(`dragend.propmove ${this.id}`);
       const { x: x1, y: y1 } = this.dragStartBox;
       const { x: x2, y: y2 } = this.dragMoveBox;
       if (Math.abs(x1 - x2) < 5 && Math.abs(y1 - y2) < 5) {
@@ -153,7 +144,7 @@ class VProp {
     this.gRoot.move(x, y);
   }
 
-  //
+  // this is the size of the entire component
   SetSize(wObj, h) {
     if (typeof wObj === 'object') {
       this.width = wObj.w;
@@ -302,14 +293,6 @@ class VProp {
     return { id: this.id, w: this.kidsWidth, h: this.kidsHeight };
   }
 
-  MoveKids(xObj, yNum) {
-    const [xx, yy] = m_Norm(xObj, yNum);
-    if (typeof xx !== 'number') throw Error(`x ${xx} is not an number`, xx);
-    if (typeof yy !== 'number') throw Error(`y ${yy} is not an number`, yy);
-    console.log(`${this.id} moving kids to ${xx},${yy}`);
-    this.gKids.move(xx, yy);
-  }
-
   /**
    * Redraw svg elements from properties that may have been updated by
    * Update().
@@ -401,98 +384,83 @@ VProp.Update = id => {
   vprop.Update();
   return vprop;
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- *  Given a nodeId, add its associated VProp to the designated parent. After
- *  this is done, moving the parent VProp will also move its children.
- *  `parentId`. Transformations are preserved so it will not "jump".
- *  @param {string} id - the key for getting the associated VProp
- *  @param {string} parentId - the key for the parent VProp. If null, will move
- *  to the root SVG canvas.
- */
-VProp.MoveToParent = (id, parentId) => {
-  if (!id) throw Error(`arg1 must be valid string id`);
-  if (!DATA.VM_VPropExists(id)) throw Error(`${id} isn't allocated, so can't set parent`);
-  const child = DATA.VM_VProp(id);
-  if (!parentId) {
-    child.ToRoot();
-    return child;
-  }
-  if (typeof parentId !== 'string') throw Error(`arg2 parentId must be a string`);
-  child.ToParent(parentId);
-  return child;
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * Given a nodeId, move the associated VProp to the svg root canvas, All PMC
- * properties that are also a Component are drawn on the root canvas.
- *  @param {string} id - the key for getting the associated VProp
- */
-VProp.MoveToRoot = id => {
-  VProp.MoveToParent(id);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * Return the VProp associated with the passed nodeId
- * @param {string} id - the key for getting the associated VProp
- * @returns {VProp} - the retrieved VProp instance
- */
-VProp.GetVisual = id => {
-  return DATA.VM_VProp(id);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * Move a VProp to the x,y screen location. The origin is set by the root SVG canvas' transform.
- * @param {string} id - the key for getting the associated VProp
- * @param {number} x - the x coordinate
- * @param {number} y - the y coordinate
- * @returns {VProp} - the VProp instance that was moved
- */
-VProp.Move = (id, x, y) => {
-  if (!id) throw Error(`arg1 must be valid string id`);
-  const vprop = DATA.VM_VProp(id);
-  vprop.Move({ x, y });
-  return vprop;
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * Set the size of a VProp, which is the size of its background rect. This call
- * is used by the layout pass and probably should be changed so the size is set
- * explicitly by the VProps data fields, not externally.
- * @param {string} id - the key for getting the associated VProp
- * @param {number} w - the width to set
- * @param {number} h - the height to set
- * @returns {VProp} - the VProp instance that was sized
- */
-VProp.SetSize = (id, w, h) => {
-  if (!id) throw Error(`arg1 must be valid string id`);
-  const vprop = DATA.VM_VProp(id);
-  vprop.SetSize(w, h);
-  return vprop;
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * Retrieve the size of a VProp in width and height
- * @param {string} id - the key for getting the associated VProp
- * @returns {object} - { id, w, h }
- * @example
- * const {id, w, h} = VProp.GetSize('a');
- */
-VProp.GetSize = id => {
-  if (!id) throw Error(`arg1 must be valid string id`);
-  const vprop = DATA.VM_VProp(id);
-  return { id: vprop.Id(), w: vprop.Width(), h: vprop.Height() };
-};
+
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  LIFECYCLE: Sizes all the properties to fit their contained props
  *  based on their display state
+ */
+VProp.SizeComponents = () => {
+  // first get the list of component ids to walk through
+  const components = DATA.Components();
+
+  // walk through every component
+  components.forEach(compId => {
+    recursePropSize(compId); // note: returns bbox, but we're not using it here
+  });
+  if (DBG) console.groupEnd();
+
+  /// RECURSION ///////////////////////////////////////////////////////////////
+  /// given a propId, updates dimension data for each VProp so they are sized
+  /// to contain their data and child VProps
+  /// return struct { id, w, h } w/out padding
+  function recursePropSize(propId) {
+    const vprop = DATA.VM_VProp(propId);
+    // first get base size of vprop's data
+    const databbox = vprop.GetDataBBox();
+    databbox.h += PAD.MIN; // add vertical padding
+    /*** WALK CHILD PROPS ***/
+    const childIds = DATA.Children(propId);
+    /*** CASE 1: THERE ARE NO CHILDREN */
+    if (childIds.length === 0) {
+      // terminal nodes have no children
+      // so the calculation of size is easy
+      databbox.w += PAD.MIN2; // add horizontal padding
+      vprop.SetSize(databbox); // store calculated overall size
+      vprop.SetKidsBBox({ w: 0, h: 0 }); // no children, so no dimension
+      return databbox; // end recursion by returning known value
+    }
+    /*** CASE 2: THERE ARE CHILDREN */
+    let childSizes = []; // collect sizes of each child
+    childIds.forEach(childId => {
+      const cvprop = DATA.VM_VProp(childId);
+      const csize = recursePropSize(childId);
+      cvprop.SetKidsBBox(csize);
+      childSizes.push(csize);
+    });
+    // find the widest box while adding all the heights of children
+    // note: returned widths have MINx2 padding, heights have MIN
+    const kidsbbox = childSizes.reduce((accbox, item) => {
+      return {
+        w: Math.max(accbox.w, item.w),
+        h: accbox.h + item.h
+      };
+    });
+    vprop.SetKidsBBox(kidsbbox); // set size of children area
+    // compute minimum bounding box of vprop including child area
+    const bbox = {
+      id: propId,
+      w: Math.max(databbox.w, kidsbbox.w) + PAD.MIN2,
+      h: databbox.h + kidsbbox.h
+    };
+    // add additional vertical padding
+    bbox.h += childIds.length > 1 ? PAD.MIN2 : PAD.MIN;
+    vprop.SetSize(bbox);
+    return bbox;
+  }
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  LIFECYCLE: Draws properties into layout. Assumes they have been sized
+ *  already based on their display state
  */
 VProp.LayoutComponents = () => {
   const components = DATA.Components();
   // then dp ;aupit
   let xCounter = PAD.MIN2;
   let yCounter = PAD.MIN2;
+  let rowHeight = 0;
 
   // walk through all components
   // for each component, get the size of all children
@@ -500,37 +468,33 @@ VProp.LayoutComponents = () => {
   components.forEach(id => {
     // get the Visual
     if (DBG) console.groupCollapsed(`%c:layout component ${id}`, cssinfo);
-    u_Layout({ x: xCounter, y: yCounter }, id);
+    recurseLayout({ x: xCounter, y: yCounter }, id);
     const compVis = DATA.VM_VProp(id);
     const compHeight = compVis.Height();
-    highHeight = Math.max(compHeight, highHeight);
+    rowHeight = Math.max(compHeight, rowHeight);
     xCounter += compVis.GetSize().width + PAD.MIN2;
     if (xCounter > 700) {
-      yCounter += highHeight + PAD.MIN2;
+      yCounter += rowHeight + PAD.MIN2;
       xCounter = PAD.MIN2;
-      highHeight = 0;
+      rowHeight = 0;
     }
+    DATA.VM_VProp(id).ToRoot(); // components are always on the root svg
+
     if (DBG) console.groupEnd();
   });
 };
 
-let highHeight = 0;
-
-function u_Layout(offset, id) {
-  let { x, y } = offset;
+/// RECURSION ///////////////////////////////////////////////////////////////
+/// given a propId and starting x,y, draw the components spread on the
+/// screen
+function recurseLayout(pos, id) {
+  let { x, y } = pos;
   if (DBG) console.group(`${id} draw at (${x},${y})`);
   const compVis = DATA.VM_VProp(id);
   if (!compVis.HackWasMoved()) {
     if (DBG) console.log(`moving ${compVis.id}`);
-    // HACK: For some reason when adding a property, the parent component
-    // ends up at 0,0 again, while the children get drawn to the right screen
-    // coordinates.  The result is the children are drawn offset to the parent
-    // rather than inside the parent. So we add a check here: if it's at 0,0, we skip the
-    // move until after the children have been drawn.
+    compVis.Move(pos.x, pos.y); // draw compVis where it should go in screen space
     if (DBG) console.log('compVis is at', compVis.X(), compVis.X());
-    if (compVis.X() !== 0 && compVis.Y() !== 0) { // e.g. not adding a new property
-      compVis.Move(x, y); // draw compVis where it should go in screen space
-    }
     y += compVis.DataHeight() + PAD.MIN;
     x += PAD.MIN;
     const children = DATA.Children(id);
@@ -538,114 +502,17 @@ function u_Layout(offset, id) {
     children.forEach(cid => {
       const childVis = DATA.VM_VProp(cid);
       widest = Math.max(widest, childVis.GetKidsBBox()).w;
-      u_Layout({ x, y }, cid);
+      recurseLayout({ x, y }, cid);
       const addH = childVis.Height() + PAD.MIN;
       y += addH;
       if (DBG) console.log(`y + ${addH} = ${y}`);
+      childVis.ToParent(id); // nest child in parent
     });
-    // HACK for Add Property
-    // Move parent component AFTER children or the children will end up with wrong offsets
-    compVis.Move(offset.x, offset.y); // draw compVis where it should go in screen space
   } else if (DBG) {
     console.log(`skipping layout of ${compVis.id}`);
   }
   if (DBG) console.groupEnd();
 }
-
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- *  Allocate VProp instances through this static method. It maintains
- *  the collection of all allocated visuals
- *  @param {string} id = evId of the evidence link
- */
-VProp.NewBadge = (id, svgRoot) => {
-  if (DATA.VM_VBadge(id)) throw Error(`${id} is already allocated`);
-  if (svgRoot.constructor.name !== 'Svg') throw Error(`arg2 must be SVGJS draw instance`);
-
-  // Find my corresponding VProp
-  const evlink = DATA.EvidenceLinkByEvidenceId(id);
-  if (evlink.propId === undefined) return; // Not evidence for a property, probably a vmech
-  const myVProp = DATA.VM_VProp(evlink.propId);
-  myVProp.badgesCount++;
-  const badgeCount = myVProp.badgesCount;
-
-  let vbadge = myVProp.gRoot.group();
-  vbadge.id = id;
-  vbadge.propId = evlink.propId;
-  vbadge.Release = () => {
-    // FIXME - Need to update myVProp.badgesCount?
-    // FIXME - This is wrong!  How do we remove ourselves?
-    return vbadge.remove();
-  };
-  vbadge.Update = () => {
-    const ev = DATA.EvidenceLinkByEvidenceId(vbadge.id);
-    vbadge.UpdateRating(ev.rating);
-  };
-  vbadge.UpdateRating = (rating) => {
-    let ratingLabel = '';
-    for (let i = 1; i <= rating; i++) {
-      ratingLabel += '*';
-    }
-    vbadge.gRating.text(ratingLabel).attr({ x: vbadge.gCircle.cx() - rating*3.5 });
-  }
-
-  const radius = m_minHeight + m_pad / 2;
-  const x = myVProp.gRoot.x();
-  const y = myVProp.gRoot.y() + (badgeCount - 1) * 7.5; // FIXME hack -- for some reason Y on subsequent badges is decreased
-  const referenceLabel = DATA.Resource(evlink.rsrcId).referenceLabel;
-  vbadge.gCircle = vbadge
-    .circle(radius)
-    .fill('#b2dfdb')
-    .move(x + m_minWidth - badgeCount * (radius + 0.25 * m_pad) - m_pad, y - m_pad / 2)
-    .mousedown(e => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (DBG) console.log('badge click');
-      UR.Publish('SHOW_EVIDENCE_LINK', { evId: evlink.evId, rsrcId: evlink.rsrcId });
-    });
-  vbadge.gLabel = vbadge
-    .text(referenceLabel)
-    .font({ fill: '#366', size: '0.8em', weight: 'bold' })
-    .move(
-      x + m_minWidth - badgeCount * (radius + 0.25 * m_pad) - m_pad + 0.4 * radius,
-      y + radius / 2 - m_pad
-    )
-    .mousedown(e => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (DBG) console.log('evidenceLabel click');
-      UR.Publish('SHOW_EVIDENCE_LINK', { evId: evlink.evId, rsrcId: evlink.rsrcId });
-    });
-  vbadge.gRating = vbadge
-    .text('')
-    .font({ fill: '#f57f17', size: '1em', weight: 'bold' })
-    .move(
-      x + m_minWidth - badgeCount * (radius + 0.25 * m_pad) - m_pad + 0.4 * radius,
-      y + radius / 2 - m_pad + 20
-    );
-
-
-  DATA.VM_VBadgeSet(id, vbadge);
-  return vbadge;
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- *  De-allocate VProp instance by id.
- */
-VProp.ReleaseBadge = id => {
-  const vbadge = DATA.VM_VBadge(id);
-  DATA.VM_VBadgeDelete(id);
-  return vbadge.Release();
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- *  Update instance from associated data id
- */
-VProp.UpdateBadge = id => {
-  const vbadge = DATA.VM_VBadge(id);
-  if (vbadge) vbadge.Update(); // vbadge might have been removed
-  return vbadge;
-};
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -673,7 +540,6 @@ window.meme.dumpid = id => {
   function recurse(propId) {
     const vis = DATA.VM_VProp(propId);
     const visHeight = vis.Height();
-    const visY = vis.Y();
     console.group(`[${propId}] y=${visHeight} (${visHeight})`);
     const kids = DATA.Children(propId);
     kids.forEach(kid => {

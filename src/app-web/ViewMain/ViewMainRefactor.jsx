@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  ViewMain - Main Application View
+  ViewMainRefactor - Main Application View
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -52,7 +52,8 @@ import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
 import EvidenceList from '../components/EvidenceList';
 import ResourceItem from '../components/ResourceItem';
-import { cssreact, cssdraw } from '../modules/console-styles';
+import { cssreact, cssdraw, cssalert } from '../modules/console-styles';
+
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -72,7 +73,6 @@ class ViewMain extends React.Component {
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
     this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
-    this.HandleForceUpdate = this.HandleForceUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
     this.HandleAddPropLabelChange = this.HandleAddPropLabelChange.bind(this);
     this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
@@ -94,7 +94,6 @@ class ViewMain extends React.Component {
     this.handleSnapshot = this.handleSnapshot.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
     UR.Sub('DATA_UPDATED', this.HandleDataUpdate);
-    UR.Sub('FORCE_UPDATE', this.HandleForceUpdate);
     UR.Sub('SHOW_RESOURCE', this.handleResourceClick);
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Sub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
@@ -125,6 +124,7 @@ class ViewMain extends React.Component {
 
   componentDidMount() {
     console.log(`%ccomponentDidMount()`, cssreact);
+    console.log('%cWARN: ViewMainRefactor', cssalert);
     //
     // child components need to know the dimensions
     // of this component, but they are invalid until
@@ -136,23 +136,28 @@ class ViewMain extends React.Component {
   componentWillUnmount() {
     UR.Unsub('WINDOW:SIZE', this.UpdateDimensions);
     UR.Unsub('DATA_UPDATED', this.HandleDataUpdate);
-    UR.Unsub('FORCE_UPDATE', this.HandleForceUpdate);
     UR.Unsub('SHOW_RESOURCE', this.handleResourceClick);
     UR.Unsub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Unsub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
   }
 
-  // Force update to redraw evidence link badges and quality ratings
-  HandleForceUpdate() {
-    if (DBG) console.log(PKG, 'FORCE_UPDATE');
-    this.forceUpdate();
-  }
 
+  // CODE REVIEW: THIS IS VESTIGIAL CODE
   // Force a screen redraw when evidence links are added
   // so that badges and quality ratings will draw
   HandleDataUpdate() {
     if (DBG) console.log(PKG, 'DATA_UPDATE');
-    this.HandleForceUpdate();
+    /*
+      CODE REVIEW: originally this code called "forceupdate" methods via a "data
+      update" handler, which called React.Component's forceUpdate method. But
+      updating the SVGView isn't part of ReactComponent...it's an SVGView! I've
+      removed all mention of this call because it's not necessary when the React
+      rendering is setup for proper dataflow (e.g. use of ONLY state and props
+      in the render() function)
+
+      SVGView used to require a manual call to DoAppLoop(), but now it's hooked
+      the DATA_UPDATED messages so it will redraw its view.
+    */
   }
 
   UpdateDimensions() {
@@ -170,19 +175,10 @@ class ViewMain extends React.Component {
 
     // debugging: double-refresh issue
     console.log('%cUpdateDimensions Fired', cssdraw);
-    this.setState(
-      {
-        viewWidth: Math.min(viewWidth, innerWidth),
-        viewHeight: Math.min(viewHeight, innerHeight)
-      },
-      () => {
-        // Force screen to redraw after setting size.
-        // Also forces badge redraw
-        // debug: this seems like a hack, so removing it to see
-        // what the issue is
-        // this.HandleForceUpdate();
-      }
-    );
+    this.setState({
+      viewWidth: Math.min(viewWidth, innerWidth),
+      viewHeight: Math.min(viewHeight, innerHeight)
+    });
   }
 
   HandleAddPropLabelChange(e) {
@@ -297,6 +293,10 @@ class ViewMain extends React.Component {
       // Update existing prop
       let prop = DATA.Prop(this.state.addPropPropId);
       prop.name = this.state.addPropLabel;
+      // IF YOU UPDATE THE MODEL THEN BUILD IT SO VIEW UPDATES
+      // MOST PMCDATA MODEL METHODS CALLS THIS AUTOMATICALLY
+      // BUT IN THIS CASE YOU'RE MUTATING THE PROP DIRECTLY
+      DATA.BuildModel();
     } else {
       // Create new prop
       DATA.PMC_AddProp(this.state.addPropLabel);
@@ -399,19 +399,20 @@ class ViewMain extends React.Component {
 
   render() {
     const { classes } = this.props;
+
     const { addPropLabel, addPropPropId, componentIsSelected, mechIsSelected } = this.state;
     const resources = DATA.AllResources();
     return (
       <div className={classes.root}>
         <CssBaseline />
-        <AppBar position="fixed" className={classes.appBar}>
+        <AppBar position="fixed" className={classes.appBar} style={{backgroundColor:'maroon'}}>
           <Toolbar>
             <Switch>
               <Route
                 path="/:mode"
                 render={props => (
                   <div style={{ fontFamily: 'monospace', margin: '0 10px 4px 0' }}>
-                    MODE:{props.match.params.mode.toUpperCase()}
+                    mode[{props.match.params.mode.toUpperCase()}]
                   </div>
                 )}
               />
@@ -655,7 +656,7 @@ class ViewMain extends React.Component {
           </Paper>
         </Modal>
 
-        {/* Add Prop Dialog */}
+        {/* Component/Mech label editing dialog */}
         <Dialog
           open={this.state.addPropOpen}
           onClose={this.HandleAddPropClose}
@@ -684,7 +685,7 @@ class ViewMain extends React.Component {
           </DialogActions>
         </Dialog>
 
-        {/* Component Editing */}
+        {/* Component/Mech add/edit/delete buttons */}
         <Fab
           hidden={!(componentIsSelected || mechIsSelected)}
           onClick={componentIsSelected ? this.HandlePropDelete : this.HandleMechDelete}

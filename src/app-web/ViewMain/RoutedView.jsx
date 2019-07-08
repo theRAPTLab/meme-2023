@@ -8,6 +8,7 @@ import SVGView from '../components/SVGView';
 import SVGViewRefactor from '../components/SVGViewRefactor';
 import PaperView from '../components/PaperView';
 import DB from '../modules/prototype.model';
+import { cssalert } from '../modules/console-styles';
 
 const DBG = false;
 

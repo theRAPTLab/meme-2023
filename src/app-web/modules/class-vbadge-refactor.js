@@ -4,7 +4,6 @@ import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
 
 const { VPROP, PAD } = DEFAULTS;
-console.log('%cWARN: using VBadge Refactor', cssalert);
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

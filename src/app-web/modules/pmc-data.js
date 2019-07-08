@@ -59,7 +59,7 @@ const PMCData = {};
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 
 /// MODEL /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1074,36 +1074,38 @@ PMCData.VM_SelectedMechs = () => {
   return Array.from(selected_vmechs.values());
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddProp = (node = "a") => {
+PMCData.PMC_AddProp = (node) => {
   m_graph.setNode(node, { name: `${node}` });
   PMCData.BuildModel();
   return `added node ${node}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddPropParent = (node = 'a', parent = 'b') => {
+PMCData.PMC_SetPropParent = (node, parent) => {
   m_graph.setParent(node, parent);
   PMCData.BuildModel();
   return `added parent ${parent} to node ${node}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_PropDelete = (node = "a") => {
+PMCData.PMC_PropDelete = (propid = "a") => {
   // Deselect the prop first, otherwise the deleted prop will remain selected
   PMCData.VM_DeselectAll();
   // Unlink any evidence
-  const evlinks = PMCData.PropEvidence(node);
-  evlinks.forEach(evlink => {
-    PMCData.VM_MarkBadgeForDeletion(evlink.evId);
-    PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
-  });
+  const evlinks = PMCData.PropEvidence(propid);
+  if (evlinks)
+    evlinks.forEach(evlink => {
+      PMCData.VM_MarkBadgeForDeletion(evlink.evId);
+      PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
+    });
   // Delete any children nodes
-  const children = PMCData.Children(node);
-  children.forEach(cid => {
-    PMCData.PMC_PropDelete(cid);
-  });
-  // Then remove node
-  m_graph.removeNode(node);
+  const children = PMCData.Children(propid);
+  if (children)
+    children.forEach(cid => {
+      PMCData.PMC_SetPropParent(cid, undefined);
+    });
+  // Then remove propid
+  m_graph.removeNode(propid);
   PMCData.BuildModel();
-  return `deleted node ${node}`;
+  return `deleted propid ${propid}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddMech = (sourceId, targetId, label) => {
@@ -1112,15 +1114,17 @@ PMCData.PMC_AddMech = (sourceId, targetId, label) => {
   return `added edge ${sourceId} ${targetId} ${label}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_MechDelete = (mechId = "v:w") => {
+PMCData.PMC_MechDelete = (mechId) => {
+  // mechId is of form "v:w"
   // Deselect the mech first, otherwise the deleted mech will remain selected
   PMCData.VM_DeselectAll();
   // Unlink any evidence
   const evlinks = PMCData.MechEvidence(mechId);
-  evlinks.forEach(evlink => {
-    PMCData.VM_MarkBadgeForDeletion(evlink.evId);
-    PMCData.SetEvidenceLinkMechId(evlink.evId, undefined);
-  });
+  if (evlinks)
+    evlinks.forEach(evlink => {
+      PMCData.VM_MarkBadgeForDeletion(evlink.evId);
+      PMCData.SetEvidenceLinkMechId(evlink.evId, undefined);
+    });
   // Then remove mech
   // FIXME / REVIEW : Do we need to use `name` to distinguish between
   // multiple edges between the same source target?
@@ -1178,12 +1182,12 @@ PMCData.Resource = rsrcId => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Given the passed nodeID (prop object), returns evidence linked to the prop object.
+ *  Given the passed propid (prop data object), returns evidence linked to the prop object.
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
  *  @param {string|undefined} nodeId - if defined, nodeId string of the prop (aka `propId`)
  */
-PMCData.PropEvidence = (nodeId) => {
-  return h_evidenceByProp.get(nodeId);
+PMCData.PropEvidence = propid => {
+  return h_evidenceByProp.get(propid);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

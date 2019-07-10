@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  ViewMain - Main Application View
+  ViewMainRefactor - Main Application View
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -124,6 +124,7 @@ class ViewMain extends React.Component {
 
   componentDidMount() {
     console.log(`%ccomponentDidMount()`, cssreact);
+    console.log('%cWARN: ViewMainRefactor', cssalert);
     //
     // child components need to know the dimensions
     // of this component, but they are invalid until
@@ -404,7 +405,7 @@ class ViewMain extends React.Component {
     return (
       <div className={classes.root}>
         <CssBaseline />
-        <AppBar position="fixed" className={classes.appBar}>
+        <AppBar position="fixed" className={classes.appBar} style={{backgroundColor:'maroon'}}>
           <Toolbar>
             <Switch>
               <Route

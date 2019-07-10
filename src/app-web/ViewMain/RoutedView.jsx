@@ -8,6 +8,7 @@ import SVGView from '../components/SVGView';
 import SVGViewRefactor from '../components/SVGViewRefactor';
 import PaperView from '../components/PaperView';
 import DB from '../modules/prototype.model';
+import { cssalert } from '../modules/console-styles';
 
 const DBG = false;
 
@@ -47,7 +48,7 @@ class RoutedView extends React.Component {
         return <SVGView {...routedProps} />;
       case 'paper':
         return <PaperView {...routedProps} />;
-      case 'svgrx':
+      case 'refactor':
         return <SVGViewRefactor {...routedProps} />;
       default:
         return <div>unrecognized display mode:{mode}</div>;

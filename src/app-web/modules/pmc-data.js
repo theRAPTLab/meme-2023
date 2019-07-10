@@ -497,7 +497,7 @@ PMCData.BuildModel = () => {
   h_evidenceByMech = new Map();
   a_evidence.forEach(ev => {
     let mechId = ev.mechId;
-    if (mechId === undefined) return; // not a mech ev link    
+    if (mechId === undefined) return; // not a mech ev link
     let evidenceLinkArray = h_evidenceByMech.get(mechId); // any existing?
     if (evidenceLinkArray === undefined) evidenceLinkArray = []; // new
     if (!evidenceLinkArray.includes(mechId)) evidenceLinkArray.push(ev);
@@ -833,6 +833,53 @@ PMCData.VM_GetVBadgeChanges = () => {
   });
   return { added, removed, updated };
 };
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  returns an object containing added, updated, removed string arrays
+ *  containing evIds.
+ */
+PMCData.VM_GetVBadgeChangesRefactor = () => {
+  /*\
+    is there something wrong with this detecting code?
+
+    * map_vbadges maps evId to vbadge
+    * a_evidence contains { evId, propId: undefined, rsrcId, note }
+    * resources and pmc elements are linked by evidence
+    * any change in a piece of evidence potentially changes the vbadge
+    * vbadges are associated with a vprop currently, holding a reference to its id
+
+    vbadge update: this is a rating change or a vpropid change
+    evidence deleted: vbadge should be removed
+    evidence added: vbadge should be added
+  \*/
+  const added = [];
+  const updated = [];
+  const removed = [];
+  // removed
+  map_vbadges.forEach((val_badge, key_evId) => {
+
+    // if both propId and mechId are undefined, then this evidenceLink
+    // is not linking to any prop or mech, so delete the badge.
+    if (val_badge.evlink.propId === undefined && val_badge.evlink.mechId === undefined) {
+      removed.push(key_evId);
+      if (DBG) console.log('removed', key_evId);
+    }
+  });
+  // find what matches and what is new by pathid
+  a_evidence.forEach(evLink => {
+    const evId = evLink.evId;
+    if (map_vbadges.has(evId)) {
+      updated.push(evId);
+      if (DBG) console.log('updated', evId);
+    } else {
+      added.push(evId);
+      if (DBG) console.log('added', evId);
+    }
+  });
+  return { added, removed, updated };
+};
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
  *  returns the VBadge corresponding to evId if it exists
@@ -952,7 +999,6 @@ PMCData.VM_DeselectAllProps = () => {
   // clear selection viewmodel
   selected_vprops.clear();
   if (DBG) console.log(`global selection`, selected_vprops);
-  UR.Publish('SELECTION_CHANGED');
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
@@ -969,7 +1015,10 @@ PMCData.VM_DeselectAllMechs = () => {
   // clear selection viewmodel
   selected_vmechs.clear();
   if (DBG) console.log(`global selection`, selected_vmechs);
-  UR.Publish('SELECTION_CHANGED');
+};
+PMCData.VM_DeselectAll = () => {
+  PMCData.VM_DeselectAllProps();
+  PMCData.VM_DeselectAllMechs();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
@@ -1005,14 +1054,6 @@ PMCData.VM_ToggleMech = vmech => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- * select ALL selected visuals, property or mechanism alike
- */
-PMCData.VM_DeselectAll = () => {
-  PMCData.VM_DeselectAllMechs();
-  PMCData.VM_DeselectAllProps();
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
  return array of all string ids that are currently selected PROPERTIES
  in order of insertion.
  Use VProp.visualState.IsSelected('first') to determine what the first
@@ -1033,36 +1074,38 @@ PMCData.VM_SelectedMechs = () => {
   return Array.from(selected_vmechs.values());
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddProp = (node = "a") => {
+PMCData.PMC_AddProp = (node) => {
   m_graph.setNode(node, { name: `${node}` });
   PMCData.BuildModel();
   return `added node ${node}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddPropParent = (node = 'a', parent = 'b') => {
+PMCData.PMC_SetPropParent = (node, parent) => {
   m_graph.setParent(node, parent);
   PMCData.BuildModel();
   return `added parent ${parent} to node ${node}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_PropDelete = (node = "a") => {
+PMCData.PMC_PropDelete = (propid = "a") => {
   // Deselect the prop first, otherwise the deleted prop will remain selected
   PMCData.VM_DeselectAll();
   // Unlink any evidence
-  const evlinks = PMCData.PropEvidence(node);
-  evlinks.forEach(evlink => {
-    PMCData.VM_MarkBadgeForDeletion(evlink.evId);
-    PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
-  });
+  const evlinks = PMCData.PropEvidence(propid);
+  if (evlinks)
+    evlinks.forEach(evlink => {
+      PMCData.VM_MarkBadgeForDeletion(evlink.evId);
+      PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
+    });
   // Delete any children nodes
-  const children = PMCData.Children(node);
-  children.forEach(cid => {
-    PMCData.PMC_PropDelete(cid);
-  });
-  // Then remove node
-  m_graph.removeNode(node);
+  const children = PMCData.Children(propid);
+  if (children)
+    children.forEach(cid => {
+      PMCData.PMC_SetPropParent(cid, undefined);
+    });
+  // Then remove propid
+  m_graph.removeNode(propid);
   PMCData.BuildModel();
-  return `deleted node ${node}`;
+  return `deleted propid ${propid}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddMech = (sourceId, targetId, label) => {
@@ -1071,15 +1114,17 @@ PMCData.PMC_AddMech = (sourceId, targetId, label) => {
   return `added edge ${sourceId} ${targetId} ${label}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_MechDelete = (mechId = "v:w") => {
+PMCData.PMC_MechDelete = (mechId) => {
+  // mechId is of form "v:w"
   // Deselect the mech first, otherwise the deleted mech will remain selected
   PMCData.VM_DeselectAll();
   // Unlink any evidence
   const evlinks = PMCData.MechEvidence(mechId);
-  evlinks.forEach(evlink => {
-    PMCData.VM_MarkBadgeForDeletion(evlink.evId);
-    PMCData.SetEvidenceLinkMechId(evlink.evId, undefined);
-  });
+  if (evlinks)
+    evlinks.forEach(evlink => {
+      PMCData.VM_MarkBadgeForDeletion(evlink.evId);
+      PMCData.SetEvidenceLinkMechId(evlink.evId, undefined);
+    });
   // Then remove mech
   // FIXME / REVIEW : Do we need to use `name` to distinguish between
   // multiple edges between the same source target?
@@ -1137,12 +1182,12 @@ PMCData.Resource = rsrcId => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Given the passed nodeID (prop object), returns evidence linked to the prop object.
+ *  Given the passed propid (prop data object), returns evidence linked to the prop object.
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
  *  @param {string|undefined} nodeId - if defined, nodeId string of the prop (aka `propId`)
  */
-PMCData.PropEvidence = (nodeId) => {
-  return h_evidenceByProp.get(nodeId);
+PMCData.PropEvidence = propid => {
+  return h_evidenceByProp.get(propid);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1151,40 +1196,45 @@ PMCData.PropEvidence = (nodeId) => {
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  */
 PMCData.EvidenceLinkByEvidenceId = (evId) => {
-  return a_evidence.find(item => {
+  const evlink = a_evidence.find(item => {
     return item.evId === evId;
   });
+  return evlink;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Set propId to `undefined` to unlink
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
-  let ev = a_evidence.find(item => {
+  let evlink = a_evidence.find(item => {
     return item.evId === evId;
   });
-  ev.propId = propId;
+  evlink.propId = propId;
   // Call BuildModel to rebuild hash tables since we've added a new propId
   PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
-  let ev = a_evidence.find(item => {
+  let evlink = a_evidence.find(item => {
     return item.evId === evId;
   });
-  ev.mechId = mechId;
+  evlink.mechId = mechId;
   // Call BuildModel to rebuild hash tables since we've added a new mechId
   PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkNote = (evId, note) => {
-  let ev = a_evidence.find(item => {
+  let evlink = a_evidence.find(item => {
     return item.evId === evId;
   });
-  ev.note = note;
+  evlink.note = note;
   UR.Publish('DATA_UPDATED');
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkRating = (evId, rating) => {
-  let ev = a_evidence.find(item => {
+  let evlink = a_evidence.find(item => {
     return item.evId === evId;
   });
-  if (ev) {
-    ev.rating = rating;
+  if (evlink) {
+    evlink.rating = rating;
     UR.Publish('DATA_UPDATED');
     return;
   }

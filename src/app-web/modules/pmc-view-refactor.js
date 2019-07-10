@@ -1,7 +1,7 @@
 import SVGJS from '@svgdotjs/svg.js/src/svg';
 import DATA from './pmc-data';
-import VProp from './class-vprop';
-import VBadge from './class-vbadge';
+import VProp from './class-vprop-refactor';
+import VBadge from './class-vbadge-refactor';
 import VMech from './class-vmech';
 import { cssinfo, cssalert, csstab, cssdraw } from './console-styles';
 import UR from '../../system/ursys';
@@ -12,10 +12,10 @@ const { SVGDEFS, COLOR } = DEFAULTS;
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- * @module PMCView
+ * @module PMCViewRefactor
  * @desc
  * Manages the SVGJS instance that is contained by SVGView.
- *
+ * It also maintains the list of
  */
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PMCView = {};

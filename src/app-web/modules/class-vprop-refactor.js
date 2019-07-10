@@ -238,7 +238,7 @@ class VProp {
     });
     if (DBG) {
       const out = `${this.Id()} sees ${distances.length} potential outedges to ${targetId}`;
-      // console.log(out, distances);
+      console.log(out, distances);
     }
 
     // if no drawable line (e.g. overlapping) then return no line

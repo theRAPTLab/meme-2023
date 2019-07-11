@@ -24,6 +24,8 @@ let a_models = [];
 let a_criteria = [];
 let a_classroomResources = []; // List of resources enabled for each classroom
 
+let selectedClassroomId = '';
+
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.Load = () => {
@@ -87,6 +89,13 @@ ADMData.Load = () => {
   ]
 };
 
+/// PRIVATE METHODS ////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// FIXME: This really oought to check to makes ure the id is unique
+const GenerateUID = (prefix = '', suffix = '') => {
+  return prefix + Math.trunc(Math.random() * 10000000000).toString() + suffix;
+}
+
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -112,9 +121,25 @@ ADMData.GetTeacherName = teacherId => {
 ADMData.GetClassroomsByTeacher = teacherId => {
   return a_classrooms.filter(cls => cls.teacherId === teacherId);
 };
+ADMData.SelectClassroom = classroomId => {
+  selectedClassroomId = classroomId;
+}
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// GROUPS
+/**
+ *  Add a new group
+ */
+ADMData.AddGroup = (groupName) => {
+  let group = {};
+  group.id = GenerateUID('gr');
+  group.name = groupName;
+  group.students = [];
+  group.classroomId = selectedClassroomId;
+  a_groups.push(group);
+  UR.Publish('ADM_DATA_UPDATED');
+};
+
 /**
  *  Returns a group object
  */

@@ -47,20 +47,27 @@ class GroupsList extends React.Component {
   constructor(props) {
     super(props);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
-    this.OnAddClick = this.OnAddClick.bind(this);
+    this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
+    this.OnAddGroupClick = this.OnAddGroupClick.bind(this);
+    this.OnAddGroupName = this.OnAddGroupName.bind(this);
+    this.OnAddGroupDialogClose = this.OnAddGroupDialogClose.bind(this);
     this.OnAddStudentClick = this.OnAddStudentClick.bind(this);
     this.OnDeleteStudent = this.OnDeleteStudent.bind(this);
     this.OnAddStudentName = this.OnAddStudentName.bind(this);
-    this.OnDialogClose = this.OnDialogClose.bind(this);
+    this.OnAddStudentDialogClose = this.OnAddStudentDialogClose.bind(this);
 
     this.state = {
       groups: [],
+      addGroupDialogOpen: false,
+      addGroupDialogName: '',
       addStudentDialogOpen: false,
       addStudentDialogGroupId: '',
-      addStudentDialogName: ''
+      addStudentDialogName: '',
+      classroomId: ''
     };
 
     UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect);
+    UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate); // Broadcast when a group is added.
   }
 
   componentDidMount() { }
@@ -69,13 +76,40 @@ class GroupsList extends React.Component {
 
   DoClassroomSelect(data) {
     if (DBG) console.log('AdmGroupsList: DoClassroomSelect', data);
-    this.setState({
-      groups: ADM.GetGroupsByClassroom(data.classroomId)
-    });
+    if (data && data.classroomId) {
+      this.setState({
+        groups: ADM.GetGroupsByClassroom(data.classroomId),
+        classroomId: data.classroomId
+      });
+    } else {
+      this.setState({
+        groups: [],
+        classroomId: ''
+      })
+    }
   }
 
-  OnAddClick(e) {
-    alert('"Add Group" not implemented yet!');
+  // Update the groups list from ADMData in case a new group was added
+  DoADMDataUpdate() {
+    const classroomId = this.state.classroomId;
+    if (classroomId) {
+      this.setState({
+        groups: ADM.GetGroupsByClassroom(classroomId)
+      });
+    }
+  }
+
+  OnAddGroupClick(e) {
+    this.setState({ addGroupDialogOpen: true });
+  }
+
+  OnAddGroupName() {
+    ADM.AddGroup(this.state.addGroupDialogName);
+    this.OnAddGroupDialogClose();
+  }
+
+  OnAddGroupDialogClose() {
+    this.setState({ addGroupDialogOpen: false });
   }
 
   OnAddStudentClick(e, groupId) {
@@ -93,16 +127,16 @@ class GroupsList extends React.Component {
   OnAddStudentName() {
     const names = this.state.addStudentDialogName.split(',').map(name => name.trim());
     ADMData.AddStudents(this.state.addStudentDialogGroupId, names);
-    this.OnDialogClose();
+    this.OnAddStudentDialogClose();
   }
 
-  OnDialogClose() {
+  OnAddStudentDialogClose() {
     this.setState({ addStudentDialogOpen: false });
   }
 
   render() {
     const { classes } = this.props;
-    const { groups, addStudentDialogOpen } = this.state;
+    const { groups, addGroupDialogOpen, addStudentDialogOpen, classroomId } = this.state;
 
     // FIXME: Fake token generator placeholder
     const generateToken = (groupId, student) => `BR-${groupId}-XYZ-${student}\n`;
@@ -154,10 +188,36 @@ class GroupsList extends React.Component {
             ))}
           </TableBody>
         </Table>
-        <Button variant="contained" className={classes.button} onClick={this.OnAddClick}>
+        <Button
+          variant="contained"
+          className={classes.button}
+          onClick={this.OnAddGroupClick}
+          disabled={classroomId === ''}
+        >
           Add Group
         </Button>
-        <Dialog open={addStudentDialogOpen} onClose={this.OnDialogClose}>
+        <Dialog open={addGroupDialogOpen} onClose={this.OnAddGroupDialogClose}>
+          <DialogTitle>Add Group</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Add a group.</DialogContentText>
+            <TextField
+              autoFocus
+              id="groupName"
+              label="Group Name"
+              fullWidth
+              onChange={e => this.setState({ addGroupDialogName: e.target.value })}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.OnAddGroupDialogClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={this.OnAddGroupName} color="primary">
+              Add
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog open={addStudentDialogOpen} onClose={this.OnAddStudentDialogClose}>
           <DialogTitle>Add Student(s)</DialogTitle>
           <DialogContent>
             <DialogContentText>
@@ -173,7 +233,7 @@ class GroupsList extends React.Component {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.OnDialogClose} color="primary">
+            <Button onClick={this.OnAddStudentDialogClose} color="primary">
               Cancel
             </Button>
             <Button onClick={this.OnAddStudentName} color="primary">

@@ -35,11 +35,9 @@ class ClassroomsSelector extends React.Component {
     super(props);
 
     this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
-    this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.OnClassroomSelect = this.OnClassroomSelect.bind(this);
 
     UR.Sub('TEACHER_SELECT', this.DoTeacherSelect);
-    UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate);
 
     this.state = {
       classrooms: [],
@@ -53,24 +51,26 @@ class ClassroomsSelector extends React.Component {
 
   DoTeacherSelect(data) {
     if (DBG) console.log('AdmClassroomsSelector: loading classrooms with teacher', data.teacherId);
-    this.setState({ classrooms: ADM.GetClassroomsByTeacher(data.teacherId) });
+    this.setState({
+      classrooms: ADM.GetClassroomsByTeacher(data.teacherId)
+    });
+    this.DoClassroomSelect(''); // When a teacher is selected, clear the classroom selection
   }
 
-  DoADMDataUpdate() {
-    if (DBG) console.log('AdmClassroomsSelector: DoADMDataUpdate!');
-    this.DoClassroomSelect(this.state.selectedClassroomId);
-  }
-
+  // Update the state and inform subscribers (groupList, models, criteria, resources
   DoClassroomSelect(classroomId) {
+    if (DBG) console.log('AdmClassroomsSelector: Setting classroom to',classroomId);
     this.setState({ selectedClassroomId: classroomId });
     UR.Publish('CLASSROOM_SELECT', { classroomId });
   }
 
+  // User has selected a classroom from the dropdown menu
   OnClassroomSelect(e) {
     let classroomId = e.target.value;
     if (classroomId === 'new') {
       alert('"Add New" not implemented yet!');
     } else {
+      ADM.SelectClassroom(classroomId);
       this.DoClassroomSelect(classroomId);
     }
   }

@@ -67,7 +67,7 @@ class GroupsList extends React.Component {
     };
 
     UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect);
-    UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+    UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate); // Broadcast when a group is added.
   }
 
   componentDidMount() { }
@@ -89,6 +89,7 @@ class GroupsList extends React.Component {
     }
   }
 
+  // Update the groups list from ADMData in case a new group was added
   DoADMDataUpdate() {
     const classroomId = this.state.classroomId;
     if (classroomId) {

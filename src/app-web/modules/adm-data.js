@@ -24,6 +24,8 @@ let a_models = [];
 let a_criteria = [];
 let a_classroomResources = []; // List of resources enabled for each classroom
 
+let selectedClassroomId = '';
+
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.Load = () => {
@@ -112,6 +114,9 @@ ADMData.GetTeacherName = teacherId => {
 ADMData.GetClassroomsByTeacher = teacherId => {
   return a_classrooms.filter(cls => cls.teacherId === teacherId);
 };
+ADMData.SelectClassroom = classroomId => {
+  selectedClassroomId = classroomId;
+}
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// GROUPS

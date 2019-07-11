@@ -39,10 +39,10 @@ ADMData.Load = () => {
     { id: 'cl04', name: 'Period 3', teacherId: 'smith' }
   ];
   a_groups = [
-    { id: 'gr01', name: 'Blue', students: 'Bob, Bessie, Bill', classroomId: 'cl01' },
-    { id: 'gr02', name: 'Green', students: 'Ginger, Gail, Greg', classroomId: 'cl01' },
-    { id: 'gr03', name: 'Red', students: 'Rob, Reese, Randy', classroomId: 'cl01' },
-    { id: 'gr04', name: 'Purple', students: 'Peter, Paul, Penelope', classroomId: 'cl02' },
+    { id: 'gr01', name: 'Blue', students: ['Bob', 'Bessie', 'Bill'], classroomId: 'cl01' },
+    { id: 'gr02', name: 'Green', students: ['Ginger', 'Gail', 'Greg'], classroomId: 'cl01' },
+    { id: 'gr03', name: 'Red', students: ['Rob', 'Reese', 'Randy'], classroomId: 'cl01' },
+    { id: 'gr04', name: 'Purple', students: ['Peter', 'Paul', 'Penelope'], classroomId: 'cl02' },
   ];
   a_models = [
     { id: 'mo01', title: 'Fish Sim', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
@@ -116,6 +116,14 @@ ADMData.GetClassroomsByTeacher = teacherId => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// GROUPS
 /**
+ *  Returns a group object
+ */
+ADMData.GetGroup = groupId => {
+  return a_groups.find(group => {
+    return group.id === groupId;
+  });
+};
+/**
  *  Returns array of group objects associated the classroom e.g.
  *    [
  *       { id: 'gr01', name: 'Blue', students: 'Bob, Bessie, Bill', classroomId: 'cl01' },
@@ -136,7 +144,58 @@ ADMData.GetGroupIdsByClassroom = classroomId => {
   const groups = ADMData.GetGroupsByClassroom(classroomId);
   return groups.map(grp => grp.id);
 };
-
+/**
+ *  Updates a_groups with latest group info
+ */
+ADMData.UpdateGroup = (groupId, group) => {
+  let i = a_groups.findIndex(grp => grp.id === groupId);
+  a_groups.splice(i, 1, group);
+};
+ADMData.AddStudents = (groupId, students) => {
+  let studentsArr;
+  if (typeof students === 'string') {
+    studentsArr = [students];
+  } else {
+    studentsArr = students;
+  }
+  // Update the group
+  let group = ADMData.GetGroup(groupId);
+  if (group === undefined) {
+    console.error('ADMData.AddStudent could not find group', groupId);
+    return;
+  }
+  studentsArr.map(student => {
+    if (student === undefined || student === '') {
+      console.error('ADMData.AddStudent adding blank student', groupId);
+      return;
+    }
+    group.students.push(student);
+  });
+  // Now update a_groups
+  ADMData.UpdateGroup(groupId, group);
+  // Tell components to update
+  UR.Publish('ADM_DATA_UPDATED');
+};
+ADMData.DeleteStudent = (groupId, student) => {
+  // Get the group
+  const group = ADMData.GetGroup(groupId);
+  if (group === undefined) {
+    console.error('ADMData.AddStudent could not find group', groupId);
+    return;
+  }
+  const students = group.students;
+  if (students === undefined) {
+    console.error('ADMData.AddStudent could not find any students in group', groupId);
+    return;
+  }
+  // Remove the student
+  const filteredStudents = students.filter(stu => student !== stu);
+  group.students = filteredStudents;
+  // Now update a_groups
+  ADMData.UpdateGroup(groupId, group);
+  // Tell components to update
+  UR.Publish('ADM_DATA_UPDATED');
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// MODELS
 ADMData.GetModelsByClassroom = classroomId => {

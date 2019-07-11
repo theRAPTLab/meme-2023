@@ -25,7 +25,7 @@ import ADM from '../../modules/adm-data';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = false;
+const DBG = true;
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -35,9 +35,11 @@ class ClassroomsSelector extends React.Component {
     super(props);
 
     this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
+    this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.OnClassroomSelect = this.OnClassroomSelect.bind(this);
 
     UR.Sub('TEACHER_SELECT', this.DoTeacherSelect);
+    UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate);
 
     this.state = {
       classrooms: [],
@@ -50,8 +52,18 @@ class ClassroomsSelector extends React.Component {
   componentWillUnmount() { }
 
   DoTeacherSelect(data) {
-    if (DBG) console.log('loading classrooms with teacher', data.teacherId);
+    if (DBG) console.log('AdmClassroomsSelector: loading classrooms with teacher', data.teacherId);
     this.setState({ classrooms: ADM.GetClassroomsByTeacher(data.teacherId) });
+  }
+
+  DoADMDataUpdate() {
+    if (DBG) console.log('AdmClassroomsSelector: DoADMDataUpdate!');
+    this.DoClassroomSelect(this.state.selectedClassroomId);
+  }
+
+  DoClassroomSelect(classroomId) {
+    this.setState({ selectedClassroomId: classroomId });
+    UR.Publish('CLASSROOM_SELECT', { classroomId });
   }
 
   OnClassroomSelect(e) {
@@ -59,8 +71,7 @@ class ClassroomsSelector extends React.Component {
     if (classroomId === 'new') {
       alert('"Add New" not implemented yet!');
     } else {
-      this.setState({ selectedClassroomId: classroomId });
-      UR.Publish('CLASSROOM_SELECT', { classroomId });
+      this.DoClassroomSelect(classroomId);
     }
   }
 

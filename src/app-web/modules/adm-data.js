@@ -116,6 +116,14 @@ ADMData.GetClassroomsByTeacher = teacherId => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// GROUPS
 /**
+ *  Returns a group object
+ */
+ADMData.GetGroup = groupId => {
+  return a_groups.find(group => {
+    return group.id === groupId;
+  });
+};
+/**
  *  Returns array of group objects associated the classroom e.g.
  *    [
  *       { id: 'gr01', name: 'Blue', students: 'Bob, Bessie, Bill', classroomId: 'cl01' },
@@ -136,7 +144,33 @@ ADMData.GetGroupIdsByClassroom = classroomId => {
   const groups = ADMData.GetGroupsByClassroom(classroomId);
   return groups.map(grp => grp.id);
 };
-
+ADMData.AddStudents = (groupId, students) => {
+  let studentsArr;
+  if (typeof students === 'string') {
+    studentsArr = [students];
+  } else {
+    studentsArr = students;
+  }
+  // Update the gruop
+  let group = ADMData.GetGroup(groupId);
+  if (group === undefined) {
+    console.error('ADMData.AddStudent could not find group', groupId);
+    return;
+  }
+  studentsArr.map(student => {
+    if (student === undefined || student === '') {
+      console.error('ADMData.AddStudent adding blank student', groupId);
+      return;
+    }
+    group.students.push(student);
+  });
+  // Now update a_groups
+  let i = a_groups.findIndex(grp => grp.id === groupId);
+  a_groups.splice(i, 1, group);
+  console.log(a_groups);
+  // Tell components to update
+  UR.Publish('ADM_DATA_UPDATED');
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// MODELS
 ADMData.GetModelsByClassroom = classroomId => {

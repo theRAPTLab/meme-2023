@@ -89,6 +89,13 @@ ADMData.Load = () => {
   ]
 };
 
+/// PRIVATE METHODS ////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// FIXME: This really oought to check to makes ure the id is unique
+const GenerateUID = (prefix = '', suffix = '') => {
+  return prefix + Math.trunc(Math.random() * 10000000000).toString() + suffix;
+}
+
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -120,6 +127,19 @@ ADMData.SelectClassroom = classroomId => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// GROUPS
+/**
+ *  Add a new group
+ */
+ADMData.AddGroup = (groupName) => {
+  let group = {};
+  group.id = GenerateUID('gr');
+  group.name = groupName;
+  group.students = [];
+  group.classroomId = selectedClassroomId;
+  a_groups.push(group);
+  UR.Publish('ADM_DATA_UPDATED');
+};
+
 /**
  *  Returns a group object
  */

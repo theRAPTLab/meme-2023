@@ -48,11 +48,19 @@ class GroupsList extends React.Component {
     super(props);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
     this.OnAddClick = this.OnAddClick.bind(this);
+    this.OnAddStudentClick = this.OnAddStudentClick.bind(this);
+    this.OnDeleteStudent = this.OnDeleteStudent.bind(this);
+    this.OnAddStudentName = this.OnAddStudentName.bind(this);
+    this.OnDialogClose = this.OnDialogClose.bind(this);
 
-    this.state = { groups: [] };
+    this.state = {
+      groups: [],
+      addStudentDialogOpen: false,
+      addStudentDialogGroupId: '',
+      addStudentDialogName: ''
+    };
 
     UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect);
-
   }
 
   componentDidMount() { }
@@ -68,6 +76,27 @@ class GroupsList extends React.Component {
 
   OnAddClick(e) {
     alert('"Add Group" not implemented yet!');
+  }
+
+  OnAddStudentClick(e, groupId) {
+    this.setState({
+      addStudentDialogOpen: true,
+      addStudentDialogGroupId: groupId
+    });
+  }
+
+  OnDeleteStudent(e) {
+    alert('Student deletion requested.  Not implemented yet!');
+  }
+
+  OnAddStudentName() {
+    const names = this.state.addStudentDialogName.split(',').map(name => name.trim());
+    ADMData.AddStudents(this.state.addStudentDialogGroupId, names);
+    this.OnDialogClose();
+  }
+
+  OnDialogClose() {
+    this.setState({ addStudentDialogOpen: false });
   }
 
   render() {
@@ -123,6 +152,30 @@ class GroupsList extends React.Component {
         <Button variant="contained" className={classes.button} onClick={this.OnAddClick}>
           Add Group
         </Button>
+        <Dialog open={addStudentDialogOpen} onClose={this.OnDialogClose}>
+          <DialogTitle>Add Student(s)</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Add a student first name, or add multiple students separated by a comma. Please use
+              first names only. (e.g. 'Bob, Brianna, Brenda')
+            </DialogContentText>
+            <TextField
+              autoFocus
+              id="studentNames"
+              label="Name(s)"
+              fullWidth
+              onChange={e => this.setState({ addStudentDialogName: e.target.value })}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.OnDialogClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={this.OnAddStudentName} color="primary">
+              Add
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Paper>
     );
   }

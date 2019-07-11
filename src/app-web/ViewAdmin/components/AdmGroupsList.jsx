@@ -85,8 +85,9 @@ class GroupsList extends React.Component {
     });
   }
 
-  OnDeleteStudent(e) {
-    alert('Student deletion requested.  Not implemented yet!');
+  OnDeleteStudent(e, groupId, student) {
+    if (DBG) console.log('AdmGroupsList: Deleting student', student);
+    ADMData.DeleteStudent(groupId, student);
   }
 
   OnAddStudentName() {
@@ -127,7 +128,11 @@ class GroupsList extends React.Component {
                   &nbsp;
                   {group.students.map((student, i) => {
                     return (
-                      <Chip key={group.id + student} label={student} onDelete={this.OnDeleteStudent} />
+                      <Chip
+                        key={group.id + student}
+                        label={student}
+                        onDelete={e => this.OnDeleteStudent(e, group.id, student)}
+                      />
                     );
                   })}
                   <IconButton size="small" onClick={e => this.OnAddStudentClick(e, group.id)}>

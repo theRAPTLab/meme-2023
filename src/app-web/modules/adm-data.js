@@ -272,7 +272,13 @@ ADMData.UpdateCriteria = criteria => {
   a_criteria.splice(i, 1, criteria);
 };
 ADMData.UpdateCriteriaList = criteriaList => {
-  criteriaList.map(criteria => ADMData.UpdateCriteria(criteria));
+  // Remove any deleted criteria
+  const updatedCriteriaIds = criteriaList.map(criteria => criteria.id);
+  a_criteria = a_criteria.filter(
+    crit => crit.classroomId !== selectedClassroomId || updatedCriteriaIds.includes(crit.id)
+  );
+  // Update existing criteria
+  criteriaList.forEach(criteria => ADMData.UpdateCriteria(criteria));
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

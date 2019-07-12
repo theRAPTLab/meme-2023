@@ -20,6 +20,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
 // Material UI Icons
 import AddIcon from '@material-ui/icons/Add';
+import DeleteIcon from '@material-ui/icons/Delete';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -45,6 +46,7 @@ class CriteriaList extends React.Component {
     this.OnEditCriteriaSave = this.OnEditCriteriaSave.bind(this);
     this.OnEditCriteriaClose = this.OnEditCriteriaClose.bind(this);
     this.OnAddCriteriaClick = this.OnAddCriteriaClick.bind(this);
+    this.OnDeleteCriteriaClick = this.OnDeleteCriteriaClick.bind(this);
     this.UpdateField = this.UpdateField.bind(this);
 
     this.state = {
@@ -95,6 +97,16 @@ class CriteriaList extends React.Component {
     });
   }
 
+  OnDeleteCriteriaClick(critId) {
+    this.setState(state => {
+      const criteria = state.criteria;
+      const result = criteria.filter(crit => crit.id !== critId);
+      return {
+        criteria: result
+      };
+    });
+  }
+
   UpdateField(critId, fieldName, value) {
     // Save the changes locally first
     // Store the whole object when "Save" is presssed.
@@ -129,6 +141,7 @@ class CriteriaList extends React.Component {
             <TableRow>
               <TableCell>LABEL</TableCell>
               <TableCell>DESCRIPTION</TableCell>
+              <TableCell>{isInEditMode ? 'DELETE' : ''}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -148,6 +161,11 @@ class CriteriaList extends React.Component {
                       placeholder="Description"
                       onChange={e => this.UpdateField(crit.id, 'description', e.target.value)}
                     />
+                  </TableCell>
+                  <TableCell>
+                    <IconButton size="small" onClick={() => this.OnDeleteCriteriaClick(crit.id)}>
+                      <DeleteIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ) : (

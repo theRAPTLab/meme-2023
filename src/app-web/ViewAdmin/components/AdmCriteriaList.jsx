@@ -34,13 +34,12 @@ const PKG = 'AdminCriteriaList';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class CriteriaList extends React.Component {
-
-  componentDidMount() { }
+  componentDidMount() {}
 
   componentWillUnmount() { }
 
   render() {
-    const { classes, Criteria, IsInEditMode, UpdateField, OnDeleteCriteriaClick } = this.props;
+    const { Criteria, IsInEditMode, UpdateField, OnDeleteCriteriaClick } = this.props;
 
     return (
       <Table>
@@ -52,7 +51,7 @@ class CriteriaList extends React.Component {
           </TableRow>
         </TableHead>
         <TableBody>
-          {Criteria.map(crit => (
+          {Criteria.map(crit =>
             IsInEditMode ? (
               <TableRow key={crit.id}>
                 <TableCell>
@@ -82,7 +81,7 @@ class CriteriaList extends React.Component {
                 <TableCell>{crit.description}</TableCell>
               </TableRow>
             )
-          ))}
+          )}
         </TableBody>
       </Table>
     );
@@ -91,11 +90,21 @@ class CriteriaList extends React.Component {
 
 CriteriaList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  Criteria: PropTypes.array,
+  IsInEditMode: PropTypes.bool,
+  UpdateField: PropTypes.func,
+  OnDeleteCriteriaClick: PropTypes.func
 };
 
 CriteriaList.defaultProps = {
-  classes: {}
+  Criteria: [],
+  IsInEditMode: false,
+  UpdateField: () => {
+    console.error('Missing UpdateField handler');
+  },
+  OnDeleteCriteriaClick: () => {
+    console.error('Missing OnDeleteCriteriaClick handler');
+  }
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

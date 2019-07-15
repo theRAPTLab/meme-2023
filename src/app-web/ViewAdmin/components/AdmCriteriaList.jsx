@@ -41,9 +41,11 @@ const PKG = 'AdminCriteriaList';
 class CriteriaList extends React.Component {
   constructor(props) {
     super(props);
+    this.CloneCriteria = this.CloneCriteria.bind(this);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
     this.OnEditCriteriaClick = this.OnEditCriteriaClick.bind(this);
     this.OnEditCriteriaSave = this.OnEditCriteriaSave.bind(this);
+    this.OnEditCriteriaCancel = this.OnEditCriteriaCancel.bind(this);
     this.OnEditCriteriaClose = this.OnEditCriteriaClose.bind(this);
     this.OnAddCriteriaClick = this.OnAddCriteriaClick.bind(this);
     this.OnDeleteCriteriaClick = this.OnDeleteCriteriaClick.bind(this);
@@ -62,9 +64,19 @@ class CriteriaList extends React.Component {
 
   componentWillUnmount() { }
 
+  // Used to create a local copy for editing and support cancelling edit.
+  // NOTE: This is a shallow copy
+  CloneCriteria(criteria) {
+    return criteria.map(crit => {
+      return Object.assign({}, crit);
+    });
+  }
+
   DoClassroomSelect(data) {
+    // Clone the criteria objects so that field updates do not change the original objects
+    let criteria = this.CloneCriteria(ADM.GetCriteriaByClassroom(data.classroomId));
     this.setState({
-      criteria: ADM.GetCriteriaByClassroom(data.classroomId),
+      criteria,
       classroomId: data.classroomId
     });
   }
@@ -77,6 +89,12 @@ class CriteriaList extends React.Component {
 
   OnEditCriteriaSave(e) {
     ADM.UpdateCriteriaList(this.state.criteria);
+    this.OnEditCriteriaClose();
+  }
+
+  OnEditCriteriaCancel() {
+    // Restore original values.
+    this.DoClassroomSelect({ classroomId: this.state.classroomId });
     this.OnEditCriteriaClose();
   }
 
@@ -197,7 +215,7 @@ class CriteriaList extends React.Component {
         <Button
           variant="contained"
           className={classes.button}
-          onClick={this.OnEditCriteriaClose}
+          onClick={this.OnEditCriteriaCancel}
           hidden={!isInEditMode}
         >
           Cancel

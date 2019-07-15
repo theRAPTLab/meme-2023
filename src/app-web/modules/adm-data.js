@@ -237,8 +237,7 @@ ADMData.GetModelsByClassroom = classroomId => {
 /**
  *  NewCriteria
  *  1. Creates a new empty criteria object with a unqiue ID.
- *  2. Adds the criteria object to the a_criteria array
- *  3. Returns the criteria object.
+ *  2. Returns the criteria object.
  * 
  *  Calling `NewCriteria()` will automatically use the currently
  *  selectedClassssroomId as the classroomId.
@@ -249,7 +248,7 @@ ADMData.NewCriteria = (classroomId = selectedClassroomId) => {
   const id = GenerateUID('cr');
   if (classroomId === undefined) {
     console.error(PKG, '.NewCriteria called with bad classroomId:', classroomId);
-    return;
+    return undefined;
   }
   const crit = {
     id,
@@ -257,7 +256,8 @@ ADMData.NewCriteria = (classroomId = selectedClassroomId) => {
     description: '',
     classroomId
   };
-  a_criteria.push(crit);
+  // Don't add it to a_criteria -- user might cancel the edit
+  // a_criteria.push(crit);
   return crit;
 };
 ADMData.GetCriteriaByClassroom = classroomId => {
@@ -266,7 +266,8 @@ ADMData.GetCriteriaByClassroom = classroomId => {
 ADMData.UpdateCriteria = criteria => {
   const i = a_criteria.findIndex(cr => cr.id === criteria.id);
   if (i < 0) {
-    console.error(PKG, '.UpdateCriteria could not find criteria with id', criteria.id);
+    // Criteria not found, so it must be a new criteria.
+    a_criteria.push(criteria);
     return;
   }
   a_criteria.splice(i, 1, criteria);

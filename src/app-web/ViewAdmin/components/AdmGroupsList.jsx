@@ -34,7 +34,6 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
 import ADM from '../../modules/adm-data';
-import ADMData from '../../modules/adm-data';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -121,12 +120,12 @@ class GroupsList extends React.Component {
 
   OnDeleteStudent(e, groupId, student) {
     if (DBG) console.log('AdmGroupsList: Deleting student', student);
-    ADMData.DeleteStudent(groupId, student);
+    ADM.DeleteStudent(groupId, student);
   }
 
   OnAddStudentName() {
     const names = this.state.addStudentDialogName.split(',').map(name => name.trim());
-    ADMData.AddStudents(this.state.addStudentDialogGroupId, names);
+    ADM.AddStudents(this.state.addStudentDialogGroupId, names);
     this.OnAddStudentDialogClose();
   }
 

@@ -52,7 +52,7 @@ class TeacherSelector extends React.Component {
 
   OnTeacherSelect(e) {
     let selectedTeacherId = e.target.value;
-    UR.Publish('TEACHER_SELECT', { teacherId: selectedTeacherId });
+    ADM.SelectTeacher(selectedTeacherId);
   }
 
   render() {

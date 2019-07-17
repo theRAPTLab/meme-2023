@@ -146,6 +146,10 @@ ADMData.GetTeacherName = teacherId => {
   });
   return teacher ? teacher.name : '';
 };
+ADMData.SelectTeacher = teacherId => {
+  adm_settings.selectedTeacherId = teacherId;
+  UR.Publish('TEACHER_SELECT', { teacherId });
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// CLASSROOMS

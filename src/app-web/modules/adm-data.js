@@ -18,36 +18,61 @@ const PKG = 'adm-data';
 
 /// MODEL /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-let a_teachers = []; // all properties (strings)
-let a_classrooms = []; // all mechanisms (pathId strings)
-let a_groups = [];
-let a_models = [];
-let a_criteria = [];
-let a_classroomResources = []; // List of resources enabled for each classroom
+let adm_db = {}; // server database object by reference
+let adm_settings = {}; // local settings, state of the admin view (current displayed class/teacher)
 
-let selectedClassroomId = '';
+UR.DB_Subscribe = () => { }; // Fake for now
+UR.DB_Subscribe('ADMIN:UPDATED', ADMData.AdmDataUpdated); // active
+ADMData.AdmDataUpdated = (data) => {
+  adm_db = data.adm_db;
+};
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*/
+lifecycle position: "configuration" LOAD_ASSETS (URSYS Lifecycle)
+
+Server Use Model is a shared laptop between a couple of teachers. data is local
+to who the user. The need for editing teachers, class periods is as yet
+undwefined.
+
+The admin interface is accessed from LOCALHOST ONLY, so no need for network
+sync. However, it should implement a UR.Message-style REACTIVE RENDER:
+
+1. React subscribes to data changes, and only then rerenders (no forced renders)
+2. React changes its internal data-dependent display elements by publishing data
+   and letting 1. actually trigger the rerender
+
+TODO:
+o Resources LIst into ADMDATA here.
+o How to represent 
+o A "stickynote" is a container for comments, "linked" to a PMC element
+
+/*/
 ADMData.Load = () => {
-  a_teachers = [
+  // NO UI YET (see use model above)
+  adm_db.a_teachers = [
     { id: 'brown', name: 'Ms Brown' },
     { id: 'smith', name: 'Mr Smith' },
     { id: 'gordon', name: 'Ms Gordon' }
   ];
-  a_classrooms = [
+  // NO UI YET (see use model above)
+  adm_db.a_classrooms = [
     { id: 'cl01', name: 'Period 1', teacherId: 'brown' },
     { id: 'cl02', name: 'Period 3', teacherId: 'brown' },
     { id: 'cl03', name: 'Period 2', teacherId: 'smith' },
     { id: 'cl04', name: 'Period 3', teacherId: 'smith' }
   ];
-  a_groups = [
+  // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
+  adm_db.a_groups = [
     { id: 'gr01', name: 'Blue', students: ['Bob', 'Bessie', 'Bill'], classroomId: 'cl01' },
     { id: 'gr02', name: 'Green', students: ['Ginger', 'Gail', 'Greg'], classroomId: 'cl01' },
     { id: 'gr03', name: 'Red', students: ['Rob', 'Reese', 'Randy'], classroomId: 'cl01' },
     { id: 'gr04', name: 'Purple', students: ['Peter', 'Paul', 'Penelope'], classroomId: 'cl02' },
   ];
-  a_models = [
+  // LIST SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS AND STUDENTS
+  // ids here are relevant to PMCData / SVGView operation
+  adm_db.a_models = [
     { id: 'mo01', title: 'Fish Sim', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
     { id: 'mo02', title: 'Tank Sim', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
     { id: 'mo03', title: 'Ammonia', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
@@ -56,7 +81,9 @@ ADMData.Load = () => {
     { id: 'mo06', title: 'Fish Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' },
     { id: 'mo07', title: 'No Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' }
   ];
-  a_criteria = [
+  // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
+  // ViewMain will eventually show a link that shows criteria
+  adm_db.a_criteria = [
     {
       id: 'cr01',
       label: 'Clarity',
@@ -82,12 +109,15 @@ ADMData.Load = () => {
       classroomId: 'cl02'
     }
   ];
-  a_classroomResources = [
-    { classroomId: 'cl01', resources: ['rs1', 'rs2'] },
+  // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
+  adm_db.a_classroomResources = [
+    { classroomId: 'cl01', resources: ['rs1', 'rs2'] }, // PMCData Rsources
     { classroomId: 'cl02', resources: ['rs2', 'rs3'] },
     { classroomId: 'cl03', resources: ['rs4', 'rs5'] },
     { classroomId: 'cl04', resources: ['rs6', 'rs7'] }
-  ]
+  ];
+
+  adm_settings = {};
 };
 
 /// PRIVATE METHODS ////////////////////////////////////////////////////////////
@@ -108,10 +138,10 @@ const GenerateUID = (prefix = '', suffix = '') => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// TEACHERS
 ADMData.GetAllTeachers = () => {
-  return a_teachers;
+  return adm_db.a_teachers;
 };
 ADMData.GetTeacherName = teacherId => {
-  let teacher = a_teachers.find(tch => {
+  let teacher = adm_db.a_teachers.find(tch => {
     return tch.id === teacherId;
   });
   return teacher ? teacher.name : '';
@@ -120,10 +150,10 @@ ADMData.GetTeacherName = teacherId => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// CLASSROOMS
 ADMData.GetClassroomsByTeacher = teacherId => {
-  return a_classrooms.filter(cls => cls.teacherId === teacherId);
+  return adm_db.a_classrooms.filter(cls => cls.teacherId === teacherId);
 };
 ADMData.SelectClassroom = classroomId => {
-  selectedClassroomId = classroomId;
+  adm_settings.selectedClassroomId = classroomId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// GROUPS
@@ -135,8 +165,10 @@ ADMData.AddGroup = (groupName) => {
   group.id = GenerateUID('gr');
   group.name = groupName;
   group.students = [];
-  group.classroomId = selectedClassroomId;
-  a_groups.push(group);
+  group.classroomId = adm_settings.selectedClassroomId;
+
+  adm_db.a_groups.push(group);
+
   UR.Publish('ADM_DATA_UPDATED');
 };
 
@@ -144,7 +176,7 @@ ADMData.AddGroup = (groupName) => {
  *  Returns a group object
  */
 ADMData.GetGroup = groupId => {
-  return a_groups.find(group => {
+  return adm_db.a_groups.find(group => {
     return group.id === groupId;
   });
 };
@@ -157,7 +189,7 @@ ADMData.GetGroup = groupId => {
  *    ]
  */
 ADMData.GetGroupsByClassroom = classroomId => {
-  return a_groups.filter(grp => grp.classroomId === classroomId);
+  return adm_db.a_groups.filter(grp => grp.classroomId === classroomId);
 };
 /**
  *  Returns array of group ids associated with the classroom, e.g.
@@ -173,12 +205,12 @@ ADMData.GetGroupIdsByClassroom = classroomId => {
  *  Updates a_groups with latest group info
  */
 ADMData.UpdateGroup = (groupId, group) => {
-  let i = a_groups.findIndex(grp => grp.id === groupId);
+  let i = adm_db.a_groups.findIndex(grp => grp.id === groupId);
   if (i < 0) {
     console.error(PKG, '.UpdateGroup could not find group with id', groupId);
     return;
   }
-  a_groups.splice(i, 1, group);
+  adm_db.a_groups.splice(i, 1, group);
 };
 ADMData.AddStudents = (groupId, students) => {
   let studentsArr;
@@ -222,6 +254,9 @@ ADMData.DeleteStudent = (groupId, student) => {
   group.students = filteredStudents;
   // Now update a_groups
   ADMData.UpdateGroup(groupId, group);
+  /*/
+
+  /*/
   // Tell components to update
   UR.Publish('ADM_DATA_UPDATED');
 };
@@ -229,7 +264,7 @@ ADMData.DeleteStudent = (groupId, student) => {
 /// MODELS
 ADMData.GetModelsByClassroom = classroomId => {
   const groupIdsInClassroom = ADMData.GetGroupIdsByClassroom(classroomId);
-  return a_models.filter(mdl => groupIdsInClassroom.includes(mdl.groupId));
+  return adm_db.a_models.filter(mdl => groupIdsInClassroom.includes(mdl.groupId));
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -244,7 +279,7 @@ ADMData.GetModelsByClassroom = classroomId => {
  * 
  *  Call `NewCriteria('xxId')` to set the classroomId manually.
  */
-ADMData.NewCriteria = (classroomId = selectedClassroomId) => {
+ADMData.NewCriteria = (classroomId = adm_settings.selectedClassroomId) => {
   const id = GenerateUID('cr');
   if (classroomId === undefined) {
     console.error(PKG, '.NewCriteria called with bad classroomId:', classroomId);
@@ -261,22 +296,22 @@ ADMData.NewCriteria = (classroomId = selectedClassroomId) => {
   return crit;
 };
 ADMData.GetCriteriaByClassroom = classroomId => {
-  return a_criteria.filter(crit => crit.classroomId === classroomId);
+  return adm_db.a_criteria.filter(crit => crit.classroomId === classroomId);
 };
 ADMData.UpdateCriteria = criteria => {
-  const i = a_criteria.findIndex(cr => cr.id === criteria.id);
+  const i = adm_db.a_criteria.findIndex(cr => cr.id === criteria.id);
   if (i < 0) {
     // Criteria not found, so it must be a new criteria.
-    a_criteria.push(criteria);
+    adm_db.a_criteria.push(criteria);
     return;
   }
-  a_criteria.splice(i, 1, criteria);
+  adm_db.a_criteria.splice(i, 1, criteria);
 };
 ADMData.UpdateCriteriaList = criteriaList => {
   // Remove any deleted criteria
   const updatedCriteriaIds = criteriaList.map(criteria => criteria.id);
-  a_criteria = a_criteria.filter(
-    crit => crit.classroomId !== selectedClassroomId || updatedCriteriaIds.includes(crit.id)
+  adm_db.a_criteria = adm_db.a_criteria.filter(
+    crit => crit.classroomId !== adm_settings.selectedClassroomId || updatedCriteriaIds.includes(crit.id)
   );
   // Update existing criteria
   criteriaList.forEach(criteria => ADMData.UpdateCriteria(criteria));
@@ -285,7 +320,7 @@ ADMData.UpdateCriteriaList = criteriaList => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// RESOURCES
 ADMData.GetResourcesByClassroom = classroomId => {
-  let classroomResources = a_classroomResources.find(rsrc => rsrc.classroomId === classroomId);
+  let classroomResources = adm_db.a_classroomResources.find(rsrc => rsrc.classroomId === classroomId);
   return classroomResources ? classroomResources.resources : [];
 };
 

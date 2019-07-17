@@ -2,6 +2,12 @@
 
 Criteria View
 
+
+Unlike the other components, which send all data updates directly to ADM,
+Criteria are editted locally first, and the whole set of changes is sent
+to ADM after the user clicks "Save".  This is necessary to let users "Cancel"
+out of a criteria edit to revert to the previous state.
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////

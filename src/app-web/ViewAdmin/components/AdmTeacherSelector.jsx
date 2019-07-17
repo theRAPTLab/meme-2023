@@ -29,7 +29,11 @@ import ADM from '../../modules/adm-data';
 class TeacherSelector extends React.Component {
   constructor(props) {
     super(props);
+    this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
     this.OnTeacherSelect = this.OnTeacherSelect.bind(this);
+
+    UR.Sub('TEACHER_SELECT', this.DoTeacherSelect);
+
     this.state = {
       teachers: [],
       selectedTeacherId: ''
@@ -42,9 +46,12 @@ class TeacherSelector extends React.Component {
 
   componentWillUnmount() { }
 
+  DoTeacherSelect(data) {
+    this.setState({ selectedTeacherId: data.teacherId });
+  }
+
   OnTeacherSelect(e) {
     let selectedTeacherId = e.target.value;
-    this.setState({ selectedTeacherId })
     UR.Publish('TEACHER_SELECT', { teacherId: selectedTeacherId });
   }
 

@@ -158,6 +158,7 @@ ADMData.GetClassroomsByTeacher = teacherId => {
 };
 ADMData.SelectClassroom = classroomId => {
   adm_settings.selectedClassroomId = classroomId;
+  UR.Publish('CLASSROOM_SELECT', { classroomId });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// GROUPS

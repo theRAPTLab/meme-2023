@@ -35,9 +35,11 @@ class ClassroomsSelector extends React.Component {
     super(props);
 
     this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
+    this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
     this.OnClassroomSelect = this.OnClassroomSelect.bind(this);
 
     UR.Sub('TEACHER_SELECT', this.DoTeacherSelect);
+    UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect);
 
     this.state = {
       classrooms: [],
@@ -54,14 +56,13 @@ class ClassroomsSelector extends React.Component {
     this.setState({
       classrooms: ADM.GetClassroomsByTeacher(data.teacherId)
     });
-    this.DoClassroomSelect(''); // When a teacher is selected, clear the classroom selection
+    this.DoClassroomSelect({ classroomId: '' }); // When a teacher is selected, clear the classroom selection
   }
 
   // Update the state and inform subscribers (groupList, models, criteria, resources
-  DoClassroomSelect(classroomId) {
-    if (DBG) console.log('AdmClassroomsSelector: Setting classroom to',classroomId);
-    this.setState({ selectedClassroomId: classroomId });
-    UR.Publish('CLASSROOM_SELECT', { classroomId });
+  DoClassroomSelect(data) {
+    if (DBG) console.log('AdmClassroomsSelector: Setting classroom to', data);
+    this.setState({ selectedClassroomId: data.classroomId });
   }
 
   // User has selected a classroom from the dropdown menu
@@ -71,7 +72,6 @@ class ClassroomsSelector extends React.Component {
       alert('"Add New" not implemented yet!');
     } else {
       ADM.SelectClassroom(classroomId);
-      this.DoClassroomSelect(classroomId);
     }
   }
 

@@ -16,7 +16,7 @@ import Grid from '@material-ui/core/Grid';
 import UR from '../../system/ursys';
 import TeacherSelector from './components/AdmTeacherSelector';
 import ClassroomsSelector from './components/AdmClassroomsSelector';
-import CriteriaList from './components/AdmCriteriaList';
+import CriteriaView from './components/AdmCriteriaView';
 import GroupsList from './components/AdmGroupsList';
 import ModelsList from './components/AdmModelsList';
 import ResourcesList from './components/AdmResourcesList';
@@ -80,7 +80,7 @@ class ViewAdmin extends React.Component {
         </Grid>
         <Grid container spacing={24}>
           <Grid item xs={6}>
-            <CriteriaList />
+            <CriteriaView />
           </Grid>
           <Grid item xs={12}>
             <ResourcesList />

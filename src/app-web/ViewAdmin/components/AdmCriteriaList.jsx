@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-Criteria List View
+Criteria List
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -8,14 +8,15 @@ Criteria List View
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import InputLabel from '@material-ui/core/InputLabel';
-import Paper from '@material-ui/core/Paper';
+import IconButton from '@material-ui/core/IconButton';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import TextField from '@material-ui/core/TextField';
+// Material UI Icons
+import DeleteIcon from '@material-ui/icons/Delete';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -23,76 +24,87 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
-import ADM from '../../modules/adm-data';
+
+/// DECLARATIONS //////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = false;
+const PKG = 'AdminCriteriaList';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class CriteriaList extends React.Component {
-  constructor(props) {
-    super(props);
-    this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
-    this.OnAddClick = this.OnAddClick.bind(this);
-
-    this.state = { criteria: [] };
-
-    UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect);
-  }
-
-  componentDidMount() { }
+  componentDidMount() {}
 
   componentWillUnmount() { }
 
-  DoClassroomSelect(data) {
-    this.setState({
-      criteria: ADM.GetCriteriaByClassroom(data.classroomId)
-    });
-  }
-
-  OnAddClick(e) {
-    alert('"Add Criteria" not implemented yet!');
-  }
-
   render() {
-    const { classes } = this.props;
-    const { criteria } = this.state;
+    const { Criteria, IsInEditMode, UpdateField, OnDeleteCriteriaClick } = this.props;
 
     return (
-      <Paper className={classes.admPaper}>
-        <InputLabel>CRITERIA</InputLabel>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>LABEL</TableCell>
-              <TableCell>DESCRIPTION</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {criteria.map(crit => (
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>LABEL</TableCell>
+            <TableCell>DESCRIPTION</TableCell>
+            <TableCell>{IsInEditMode ? 'DELETE' : ''}</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {Criteria.map(crit =>
+            IsInEditMode ? (
               <TableRow key={crit.id}>
-                <TableCell>{crit.id}</TableCell>
+                <TableCell>
+                  <TextField
+                    value={crit.label}
+                    placeholder="Label"
+                    onChange={e => UpdateField(crit.id, 'label', e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    value={crit.description}
+                    placeholder="Description"
+                    style={{ width: '20em' }}
+                    onChange={e => UpdateField(crit.id, 'description', e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <IconButton size="small" onClick={() => OnDeleteCriteriaClick(crit.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ) : (
+              <TableRow key={crit.id}>
                 <TableCell>{crit.label}</TableCell>
                 <TableCell>{crit.description}</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <Button variant="contained" className={classes.button} onClick={this.OnAddClick}>
-          Add Criteria
-        </Button>
-      </Paper>
+            )
+          )}
+        </TableBody>
+      </Table>
     );
   }
 }
 
 CriteriaList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  Criteria: PropTypes.array,
+  IsInEditMode: PropTypes.bool,
+  UpdateField: PropTypes.func,
+  OnDeleteCriteriaClick: PropTypes.func
 };
 
 CriteriaList.defaultProps = {
-  classes: {}
+  Criteria: [],
+  IsInEditMode: false,
+  UpdateField: () => {
+    console.error('Missing UpdateField handler');
+  },
+  OnDeleteCriteriaClick: () => {
+    console.error('Missing OnDeleteCriteriaClick handler');
+  }
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

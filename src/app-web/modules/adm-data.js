@@ -21,9 +21,9 @@ const PKG = 'adm-data';
 let adm_db = {}; // server database object by reference
 let adm_settings = {}; // local settings, state of the admin view (current displayed class/teacher)
 
-UR.DB_Subscribe = () => { }; // Fake for now
+UR.DB_Subscribe = () => { }; // FIXME: Cover for now. Remove when implemented.
 UR.DB_Subscribe('ADMIN:UPDATED', ADMData.AdmDataUpdated); // active
-ADMData.AdmDataUpdated = (data) => {
+ADMData.AdmDataUpdated = data => {
   adm_db = data.adm_db;
 };
 
@@ -165,7 +165,7 @@ ADMData.SelectClassroom = classroomId => {
 /**
  *  Add a new group
  */
-ADMData.AddGroup = (groupName) => {
+ADMData.AddGroup = groupName => {
   let group = {};
   group.id = GenerateUID('gr');
   group.name = groupName;
@@ -306,7 +306,7 @@ ADMData.GetCriteriaByClassroom = classroomId => {
 ADMData.UpdateCriteria = criteria => {
   const i = adm_db.a_criteria.findIndex(cr => cr.id === criteria.id);
   if (i < 0) {
-    // Criteria not found, so it must be a new criteria.
+    // Criteria not found, so it must be a new criteria.  Add it.
     adm_db.a_criteria.push(criteria);
     return;
   }
@@ -316,7 +316,8 @@ ADMData.UpdateCriteriaList = criteriaList => {
   // Remove any deleted criteria
   const updatedCriteriaIds = criteriaList.map(criteria => criteria.id);
   adm_db.a_criteria = adm_db.a_criteria.filter(
-    crit => crit.classroomId !== adm_settings.selectedClassroomId || updatedCriteriaIds.includes(crit.id)
+    crit =>
+      crit.classroomId !== adm_settings.selectedClassroomId || updatedCriteriaIds.includes(crit.id)
   );
   // Update existing criteria
   criteriaList.forEach(criteria => ADMData.UpdateCriteria(criteria));
@@ -325,7 +326,9 @@ ADMData.UpdateCriteriaList = criteriaList => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// RESOURCES
 ADMData.GetResourcesByClassroom = classroomId => {
-  let classroomResources = adm_db.a_classroomResources.find(rsrc => rsrc.classroomId === classroomId);
+  let classroomResources = adm_db.a_classroomResources.find(
+    rsrc => rsrc.classroomId === classroomId
+  );
   return classroomResources ? classroomResources.resources : [];
 };
 

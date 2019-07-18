@@ -150,6 +150,13 @@ ADMData.SelectTeacher = teacherId => {
   adm_settings.selectedTeacherId = teacherId;
   UR.Publish('TEACHER_SELECT', { teacherId });
 };
+ADMData.AddTeacher = name => {
+  const teacher = {};
+  teacher.id = GenerateUID('tc');
+  teacher.name = name;
+  adm_db.a_teachers.push(teacher);
+  UR.Publish('ADM_DATA_UPDATED');
+}
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// CLASSROOMS

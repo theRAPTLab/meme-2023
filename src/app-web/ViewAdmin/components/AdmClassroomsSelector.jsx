@@ -41,6 +41,7 @@ class ClassroomsSelector extends React.Component {
   constructor(props) {
     super(props);
 
+    this.DoClassroomListUpdate = this.DoClassroomListUpdate.bind(this);
     this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
     this.OnClassroomSelect = this.OnClassroomSelect.bind(this);
@@ -62,17 +63,26 @@ class ClassroomsSelector extends React.Component {
 
   componentWillUnmount() { }
 
+  DoClassroomListUpdate() {
+    this.setState({
+      classrooms: ADM.GetClassroomsByTeacher()
+    });
+  }
+
   DoTeacherSelect(data) {
     if (DBG) console.log('AdmClassroomsSelector: loading classrooms with teacher', data.teacherId);
-    this.setState({
-      classrooms: ADM.GetClassroomsByTeacher(data.teacherId)
-    });
+    this.DoClassroomListUpdate(data.teacherId);
     this.DoClassroomSelect({ classroomId: '' }); // When a teacher is selected, clear the classroom selection
   }
 
   // Update the state and inform subscribers (groupList, models, criteria, resources
   DoClassroomSelect(data) {
     if (DBG) console.log('AdmClassroomsSelector: Setting classroom to', data);
+    if (data.classroomListNeedsUpdating) {
+      // REVIEW: Instead of doing two set staes in a row (selectedCLassroomId below)
+      // we might want to use the setState callback to set one then the other?
+      this.DoClassroomListUpdate();
+    }
     this.setState({ selectedClassroomId: data.classroomId });
   }
 
@@ -85,13 +95,13 @@ class ClassroomsSelector extends React.Component {
       ADM.SelectClassroom(classroomId);
     }
   }
-  
+
   OnAddClasssroomName(e) {
     let name = this.state.addClassroomDialogName;
     ADM.AddClassroom(name);
     this.OnAddClassroomDialogClose();
   }
-  
+
   OnAddClassroomDialogClose() {
     this.setState({ addClassroomDialogOpen: false });
   }

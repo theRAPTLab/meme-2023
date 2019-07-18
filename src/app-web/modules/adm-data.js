@@ -155,12 +155,15 @@ ADMData.AddTeacher = name => {
   teacher.id = GenerateUID('tc');
   teacher.name = name;
   adm_db.a_teachers.push(teacher);
-  UR.Publish('ADM_DATA_UPDATED');
+  // Select the new teacher
+  adm_settings.selectedTeacherId = teacher.id;
+  UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// CLASSROOMS
-ADMData.GetClassroomsByTeacher = teacherId => {
+// Retreive currently selected teacher's classrooms by default if no teacherId is defined
+ADMData.GetClassroomsByTeacher = (teacherId = adm_settings.selectedTeacherId) => {
   return adm_db.a_classrooms.filter(cls => cls.teacherId === teacherId);
 };
 ADMData.SelectClassroom = classroomId => {
@@ -173,7 +176,15 @@ ADMData.AddClassroom = name => {
   classroom.name = name;
   classroom.teacherId = adm_settings.selectedTeacherId;
   adm_db.a_classrooms.push(classroom);
-  UR.Publish('TEACHER_SELECT', { teacherId: adm_settings.selectedTeacherId });
+  // Select the new classroom
+  adm_settings.selectedClassroomId = classroom.id;
+  // Special case of CLASSROOM_SELECT: We need to update the list of classrooms
+  // when a new classroom is added, so we pass the flag and let the component
+  // do the updating.
+  UR.Publish('CLASSROOM_SELECT', {
+    classroomId: classroom.id,
+    classroomListNeedsUpdating: true
+  });
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

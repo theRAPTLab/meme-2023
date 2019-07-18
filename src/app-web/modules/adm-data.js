@@ -352,11 +352,26 @@ ADMData.UpdateCriteriaList = criteriaList => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// RESOURCES
+// returns `resources` not `classroomResources`
 ADMData.GetResourcesByClassroom = classroomId => {
   let classroomResources = adm_db.a_classroomResources.find(
     rsrc => rsrc.classroomId === classroomId
   );
   return classroomResources ? classroomResources.resources : [];
+};
+ADMData.SetClassroomResource = (rsrcId, checked, classroomId) => {
+  let classroomResources = adm_db.a_classroomResources.find(
+    rsrc => rsrc.classroomId === classroomId
+  );
+
+  if (checked) {
+    // Add resource
+    classroomResources.resources.push(rsrcId);
+  } else {
+    // Remove resource
+    classroomResources.resources = classroomResources.resources.filter(rsrc => rsrc.id !== rsrcId);
+  }
+  UR.Publish('ADM_DATA_UPDATED');
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

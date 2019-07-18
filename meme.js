@@ -169,7 +169,7 @@ function f_DebugApp() {
 }
 
 function f_DocServe() {
-  const loc = `${TY}localhost:4001${TR}`;
+  const loc = `${CY}localhost:4001${TR}`;
 
   console.log(`${PR}: Point your browser to "${loc}" to read JSDoc-generate documentation.`);
   console.log(
@@ -189,5 +189,5 @@ function f_Clean(opt) {
     shell.rm('-rf', 'node_modules');
   }
   console.log(`${PR}: directories removed!`);
-  if (opt.all) console.log(`${PR}: Make sure to use ${TY}npm ci${TR} to reinstall packages!!!`);
+  if (opt.all) console.log(`${PR}: Make sure to use ${CY}npm ci${TR} to reinstall packages!!!`);
 }

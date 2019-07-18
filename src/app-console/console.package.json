@@ -2,7 +2,7 @@
   "name": "ur",
   "version": "1.0.0",
   "description": "An UR Desktop App built with Electron",
-  "main": "console/ur-main.js",
+  "main": "console/console-main.js",
   "dependencies": {
     "ajv": "^6.5.5",
     "cookie-parser": "^1.4.3",

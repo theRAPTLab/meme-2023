@@ -65,7 +65,7 @@ function createWindow() {
     mainWindow.show();
     mainWindow.webContents.openDevTools();
     // load webserver
-    const URSERVER = require('./ur-server'); // eslint-disable-line
+    const URSERVER = require('./console-wds'); // eslint-disable-line
     console.log('DIRNAME', __dirname);
     URSERVER.Start({ isPackaged: __dirname.includes('/Contents/Resources/app/console') });
     const application = {
@@ -89,7 +89,7 @@ function createWindow() {
           selector: 'copy:'
         }
       ]
-    }
+    };
     const template = [application, edit];
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   });

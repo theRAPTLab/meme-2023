@@ -41,6 +41,7 @@ const styles = theme => ({
     color: theme.palette.text.secondary
   }
 });
+
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class ViewAdmin extends React.Component {
@@ -49,7 +50,9 @@ class ViewAdmin extends React.Component {
     super(props);
     this.cstrName = this.constructor.name;
 
-    // Initialize Admin Data
+    // FIXME: This will go away when UR.DB_Susbscribe('ADMIN:UPDATED') is implemented
+    //        in adm-data.js.
+    // Initialize Admin Data, but for now still need this
     ADM.Load();
   }
 

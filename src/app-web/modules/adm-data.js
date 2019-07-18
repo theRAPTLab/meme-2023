@@ -156,7 +156,7 @@ ADMData.AddTeacher = name => {
   teacher.name = name;
   adm_db.a_teachers.push(teacher);
   UR.Publish('ADM_DATA_UPDATED');
-}
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// CLASSROOMS
@@ -167,6 +167,15 @@ ADMData.SelectClassroom = classroomId => {
   adm_settings.selectedClassroomId = classroomId;
   UR.Publish('CLASSROOM_SELECT', { classroomId });
 };
+ADMData.AddClassroom = name => {
+  const classroom = {};
+  classroom.id = GenerateUID('tc');
+  classroom.name = name;
+  classroom.teacherId = adm_settings.selectedTeacherId;
+  adm_db.a_classrooms.push(classroom);
+  UR.Publish('TEACHER_SELECT', { teacherId: adm_settings.selectedTeacherId });
+};
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// GROUPS
 /**

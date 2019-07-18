@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  ViewMain - Main Application View
+  ViewMainRefactor - Main Application View
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -124,6 +124,7 @@ class ViewMain extends React.Component {
 
   componentDidMount() {
     console.log(`%ccomponentDidMount()`, cssreact);
+    console.log('%cWARN: ViewMainRefactor', cssalert);
     //
     // child components need to know the dimensions
     // of this component, but they are invalid until
@@ -404,7 +405,7 @@ class ViewMain extends React.Component {
     return (
       <div className={classes.root}>
         <CssBaseline />
-        <AppBar position="fixed" className={classes.appBar}>
+        <AppBar position="fixed" className={classes.appBar} style={{ backgroundColor: 'maroon' }}>
           <Toolbar>
             <Switch>
               <Route
@@ -419,7 +420,7 @@ class ViewMain extends React.Component {
             <TextField
               id="projectTitle"
               InputProps={{ className: classes.projectTitle }}
-              placeholder="Untitled Project"
+              placeholder="Untitled Model"
             />
           </Toolbar>
         </AppBar>
@@ -515,10 +516,10 @@ class ViewMain extends React.Component {
                     {DATA.Prop(this.state.addEdgeSource).name}
                   </div>
                 ) : (
-                  <div className={classes.evidenceLinkSourceAvatarWaiting}>
-                    1. Click on a source...
+                    <div className={classes.evidenceLinkSourceAvatarWaiting}>
+                      1. Click on a source...
                   </div>
-                )}
+                  )}
                 &nbsp;
                 <TextField
                   autoFocus
@@ -536,10 +537,10 @@ class ViewMain extends React.Component {
                     {DATA.Prop(this.state.addEdgeTarget).name}
                   </div>
                 ) : (
-                  <div className={classes.evidenceLinkSourceAvatarWaiting}>
-                    2. Click on a target...
+                    <div className={classes.evidenceLinkSourceAvatarWaiting}>
+                      2. Click on a target...
                   </div>
-                )}
+                  )}
                 <div style={{ flexGrow: '1' }} />
                 <Button onClick={this.handleAddEdgeClose} color="primary">
                   Cancel
@@ -599,8 +600,8 @@ class ViewMain extends React.Component {
                     {this.state.selectedResource.type === 'simulation' ? (
                       <ImageIcon />
                     ) : (
-                      <DescriptionIcon />
-                    )}
+                        <DescriptionIcon />
+                      )}
                   </Typography>
                 </CardContent>
               </Card>

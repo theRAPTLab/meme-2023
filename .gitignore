@@ -20,6 +20,7 @@ npm-debug.log
 # Ignore generated files in output folder
 /dist
 /built
+/runtime
 /src/app-web/static/dlc
 
 # Numerous always-ignore extensions

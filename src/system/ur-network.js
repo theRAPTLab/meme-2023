@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 if (window.NC_DBG) console.log(`inc ${module.id}`);
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
@@ -10,20 +11,25 @@ const DBG = { connect: true, handle: false };
 
 /// LOAD LIBRARIES ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const SETTINGS = require("settings");
-const NetMessage = require("unisys/common-netmessage-class");
-const PROMPTS = require("system/util/prompts");
-const PR = PROMPTS.Pad("NETWORK");
-const WARN = PROMPTS.Pad("!!!");
-const ERR_NM_REQ = "arg1 must be NetMessage instance";
-const ERR_NO_SOCKET = "Network socket has not been established yet";
+const SETTINGS = {
+  EJSProp: key => {
+    console.log(`key ${key} request`);
+  }
+};
+const NetMessage = require('./common-netmessage');
+const PROMPTS = require('./util/prompts');
+
+const PR = PROMPTS.Pad('NETWORK');
+const WARN = PROMPTS.Pad('!!!');
+const ERR_NM_REQ = 'arg1 must be NetMessage instance';
+const ERR_NO_SOCKET = 'Network socket has not been established yet';
 const ERR_BAD_UDATA = "An instance of 'client-datalink-class' is required";
 
 /// GLOBAL NETWORK INFO (INJECTED ON INDEX) ///////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-var NETSOCK = SETTINGS.EJSProp("socket");
-var NETCLIENT = SETTINGS.EJSProp("client");
-var NETSERVER = SETTINGS.EJSProp("server");
+let NETSOCK = SETTINGS.EJSProp('socket');
+let NETCLIENT = SETTINGS.EJSProp('client');
+let NETSERVER = SETTINGS.EJSProp('server');
 
 /// NETWORK ID VALUES /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -34,13 +40,13 @@ const M3_REGISTERED = 3;
 const M4_READY = 4;
 const M_STANDALONE = 5;
 const M_NOCONNECT = 6;
-var m_status = M0_INIT;
-var m_options = {};
+let m_status = M0_INIT;
+let m_options = {};
 
 /// API METHODS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-var NETWORK = {};
-var UDATA = null; // assigned during NETWORK.Connect()
+let NETWORK = {};
+let UDATA = null; // assigned during NETWORK.Connect()
 
 /// CONNECT ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -48,14 +54,14 @@ var UDATA = null; // assigned during NETWORK.Connect()
     NetworkInitialize(), which itself fires after the application has rendered
     completely.
 /*/
-NETWORK.Connect = function(datalink, opt) {
+NETWORK.Connect = (datalink, opt) => {
   // special case: STANDALONE mode is set by a different set of magical
   // window.NC_UNISYS properties
-  if (window.NC_UNISYS.server.ip==='standalone') {
+  if (window.NC_UNISYS.server.ip === 'standalone') {
     m_status = M_STANDALONE;
-    console.warn(PR,"STANDALONE MODE: NETWORK.Connect() suppressed!");
+    console.warn(PR, 'STANDALONE MODE: NETWORK.Connect() suppressed!');
     NetMessage.GlobalOfflineMode();
-    if (typeof opt.success === "function") opt.success();
+    if (typeof opt.success === 'function') opt.success();
     return;
   }
 
@@ -63,15 +69,14 @@ NETWORK.Connect = function(datalink, opt) {
   // warning: don't modify this unless you have a deep knowledge of how
   // the webapp system works or you might break something
   if (m_status > 0) {
-    let err =
-      "called twice...other views may be calling UNISYS outside of lifecycle";
+    let err = 'called twice...other views may be calling UNISYS outside of lifecycle';
     console.error(WARN, err);
     return;
   }
   m_status = M1_CONNECTING;
 
   // check and save parms
-  if (datalink.constructor.name !== "UnisysDataLink") {
+  if (datalink.constructor.name !== 'UnisysDataLink') {
     throw Error(ERR_BAD_UDATA);
   }
   if (!UDATA) UDATA = datalink;
@@ -81,22 +86,22 @@ NETWORK.Connect = function(datalink, opt) {
   // uses values that were embedded in index.ejs on load
   let wsURI = `ws://${NETSOCK.uaddr}:${NETSOCK.uport}`;
   NETSOCK.ws = new WebSocket(wsURI);
-  if (DBG.connect) console.log(PR, "OPEN SOCKET TO", wsURI);
+  if (DBG.connect) console.log(PR, 'OPEN SOCKET TO', wsURI);
 
   // create listeners
-  NETWORK.AddListener("open", function(event) {
-    if (DBG.connect) console.log(PR, "..OPEN", event.target.url);
+  NETWORK.AddListener('open', event => {
+    if (DBG.connect) console.log(PR, '..OPEN', event.target.url);
     m_status = M2_CONNECTED;
     // message handling continues in 'message' handler
     // the first message is assumed to be registration data
   });
-  NETWORK.AddListener("close", function(event) {
-    if (DBG.connect) console.log(PR, "..CLOSE", event.target.url);
+  NETWORK.AddListener('close', event => {
+    if (DBG.connect) console.log(PR, '..CLOSE', event.target.url);
     NetMessage.GlobalOfflineMode();
     m_status = M_STANDALONE;
   });
   // handle socket errors
-  NETWORK.AddListener("error", function(event) {
+  NETWORK.AddListener('error', event => {
     /*/ DSHACK: For Spring 2019, adding manifest support to try to
         avoid rewriting the app with service workers
     /*/
@@ -104,29 +109,27 @@ NETWORK.Connect = function(datalink, opt) {
     switch (appCache.status) {
       case appCache.UNCACHED:
         // this occurs if there is not a cached page
-        console.warn(WARN, "ERROR opening command socket", event);
-        throw Error("error with command socket");
-        break;
+        console.warn(WARN, 'ERROR opening command socket', event);
+        throw Error('error with command socket');
       case appCache.IDLE: /* falls-through */
       case appCache.CHECKING: /* falls-through */
       case appCache.DOWNLOADING: /* falls-through */
       case appCache.UPDATEREADY: /* falls-through */
       case appCache.OBSOLETE:
         // this occurs
-        console.info(WARN, "STANDALONE MODE. USING CACHED DATA");
+        console.info(WARN, 'STANDALONE MODE. USING CACHED DATA');
         m_status = M_STANDALONE;
         NetMessage.GlobalOfflineMode(); // deregister socket
         // force promise to succeed
-        if (typeof m_options.success === "function") m_options.success();
+        if (typeof m_options.success === 'function') m_options.success();
         break;
       default:
         m_status = M_NOCONNECT;
-        throw Error("unknown appcache status. dumping", appCache);
-        break;
+        throw Error('unknown appcache status. dumping', appCache);
     }
   });
   // handle incoming messages
-  NETWORK.AddListener("message", m_HandleRegistrationMessage);
+  NETWORK.AddListener('message', m_HandleRegistrationMessage);
 }; // Connect()
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -138,36 +141,36 @@ function m_HandleRegistrationMessage(msgEvent) {
   let { HELLO, UADDR } = regData;
   // (1) after receiving the initial message, switch over to regular
   // message handler
-  NETWORK.RemoveListener("message", m_HandleRegistrationMessage);
+  NETWORK.RemoveListener('message', m_HandleRegistrationMessage);
   m_status = M3_REGISTERED;
   // (2) initialize global settings for netmessage
   if (DBG.connect) console.log(PR, `connected to ${UADDR}`, NETSOCK);
   NETSOCK.ws.UADDR = NetMessage.DefaultServerUADDR();
   NetMessage.GlobalSetup({ uaddr: UADDR, netsocket: NETSOCK.ws });
   // (3) connect regular message handler
-  NETWORK.AddListener("message", m_HandleMessage);
+  NETWORK.AddListener('message', m_HandleMessage);
   m_status = M4_READY;
   // (4) network is initialized
-  if (typeof m_options.success === "function") m_options.success();
+  if (typeof m_options.success === 'function') m_options.success();
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function m_HandleMessage(msgEvent) {
   let pkt = new NetMessage(msgEvent.data);
   let msg = pkt.Message();
   if (pkt.IsOwnResponse()) {
-    if (DBG.handle) console.log(PR, "completing transaction", msg);
+    if (DBG.handle) console.log(PR, 'completing transaction', msg);
     pkt.CompleteTransaction();
     return;
   }
   let data = pkt.Data();
   let type = pkt.Type();
-  let dbgout = DBG.handle && !msg.startsWith("SRV_");
+  let dbgout = DBG.handle && !msg.startsWith('SRV_');
   /// otherwise, incoming invocation from network
   switch (type) {
-    case "state":
-      if (dbgout) console.log(PR, "received state change", msg);
+    case 'state':
+      if (dbgout) console.log(PR, 'received state change', msg);
       break;
-    case "msig":
+    case 'msig':
       if (dbgout) {
         console.warn(
           PR,
@@ -178,7 +181,7 @@ function m_HandleMessage(msgEvent) {
       UDATA.LocalSignal(msg, data);
       pkt.ReturnTransaction();
       break;
-    case "msend":
+    case 'msend':
       if (dbgout) {
         console.warn(
           PR,
@@ -189,7 +192,7 @@ function m_HandleMessage(msgEvent) {
       UDATA.LocalSend(msg, data);
       pkt.ReturnTransaction();
       break;
-    case "mcall":
+    case 'mcall':
       if (dbgout) {
         console.warn(
           PR,
@@ -199,9 +202,7 @@ function m_HandleMessage(msgEvent) {
       UDATA.LocalCall(msg, data).then(result => {
         if (dbgout) {
           console.log(
-            `ME_${NetMessage.SocketUADDR()} forwarded '${msg}', returning ${JSON.stringify(
-              result
-            )}`
+            `ME_${NetMessage.SocketUADDR()} forwarded '${msg}', returning ${JSON.stringify(result)}`
           );
         }
         // now return the packet
@@ -210,46 +211,46 @@ function m_HandleMessage(msgEvent) {
       });
       break;
     default:
-      throw Error("unknown packet type", type);
+      throw Error('unknown packet type', type);
   }
 }
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Send a packet on socket connection, assuming it is valid
 /*/
-NETWORK.Send = function(pkt) {
+NETWORK.Send = pkt => {
   if (!(pkt instanceof NetMessage)) throw Error(ERR_NM_REQ);
   if (NETSOCK.ws.readyState === 1) {
     let json = pkt.JSON();
-    if (DBG) console.log("SENDING", pkt.Message(), pkt.Data(), pkt.SeqNum());
+    if (DBG) console.log('SENDING', pkt.Message(), pkt.Data(), pkt.SeqNum());
     NETSOCK.ws.send(json);
   } else {
-    console.log("Socket not ReadyState 1, is", NETSOCK.ws.readyState);
+    console.log('Socket not ReadyState 1, is', NETSOCK.ws.readyState);
   }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Send a packet on socket connection, return Promise
 /*/
-NETWORK.Call = function(pkt) {
+NETWORK.Call = pkt => {
   if (!(pkt instanceof NetMessage)) throw Error(ERR_NM_REQ);
   if (NETSOCK.ws.readyState === 1) {
     let json = pkt.JSON();
-    if (DBG) console.log("CALLING", pkt.Message(), json);
+    if (DBG) console.log('CALLING', pkt.Message(), json);
     NETSOCK.ws.send(json);
   } else {
-    console.log("Socket not ReadyState 1, is", NETSOCK.ws.readyState);
+    console.log('Socket not ReadyState 1, is', NETSOCK.ws.readyState);
   }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Force close of connection, for example if UNISYS.AppReady() fails
 /*/
-NETWORK.Close = function(code, reason) {
+NETWORK.Close = (code, reason) => {
   code = code || 1000;
-  reason = reason || "unisys forced close";
+  reason = reason || 'unisys forced close';
   NETSOCK.ws.close(code, reason);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NETWORK.AddListener = function(event, handlerFunction) {
+NETWORK.AddListener = (event, handlerFunction) => {
   if (NETSOCK.ws instanceof WebSocket) {
     NETSOCK.ws.addEventListener(event, handlerFunction);
   } else {
@@ -257,7 +258,7 @@ NETWORK.AddListener = function(event, handlerFunction) {
   }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NETWORK.RemoveListener = function(event, handlerFunction) {
+NETWORK.RemoveListener = (event, handlerFunction) => {
   if (NETSOCK.ws instanceof WebSocket) {
     NETSOCK.ws.removeEventListener(event, handlerFunction);
   } else {
@@ -265,23 +266,23 @@ NETWORK.RemoveListener = function(event, handlerFunction) {
   }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NETWORK.LocalInfo = function() {
+NETWORK.LocalInfo = () => {
   return NETCLIENT;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NETWORK.ServerInfo = function() {
+NETWORK.ServerInfo = () => {
   return NETSERVER;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NETWORK.ServerSocketInfo = function() {
+NETWORK.ServerSocketInfo = () => {
   return NETSOCK;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NETWORK.SocketUADDR = function() {
+NETWORK.SocketUADDR = () => {
   return NetMessage.SocketUADDR();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NETWORK.IsStandaloneMode = function() {
+NETWORK.IsStandaloneMode = () => {
   return m_status === M_STANDALONE;
 };
 

@@ -7,6 +7,7 @@ alternatively you'll just write your own script that does it
 /*/
 const path = require('path');
 const ip = require('ip');
+const URSERVER = require('./src/system/server.js');
 
 let shell;
 let argv;
@@ -79,17 +80,22 @@ function f_RunDevServer() {
   console.log(`${PR}: running Development Server`);
   // git branch information
   const { error, stdout } = shell.exec('git symbolic-ref --short -q HEAD', { silent: true });
-  if (error) console.log(`${PR}: ON ${CY}<DETACHED>${TR} BRANCH`);
-  if (stdout) console.log(`${PR}: ON BRANCH ${CY}${stdout.trim()}${TR}`);
+  if (error) console.log(`${PR}: on ${CY}detached${TR} head`);
+  if (stdout) console.log(`${PR}: on branch ${CY}${stdout.trim()}${TR}`);
   console.log(`---`);
   console.log(`${PR}: ${CY}GO TO ONE OF THESE URLS in CHROME WEB BROWSER${TR}`);
   console.log(`${PR}: MAINAPP - http://localhost:3000`);
   console.log(`${PR}: CLIENTS - http://${ip.address()}:3000`);
   console.log(`---\n`);
+  // run webpack development server
   shell.exec(
     `${PATH_WDS}/webpack-dev-server.js --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'`,
     { silent: true }
   );
+  // run ursys socket server
+  // note: in electron mode, this server is loaded from inside electron's console-main.js
+  // console.log('Starting URSERVER');
+  // URSERVER.StartNetwork();
 }
 
 function f_RunElectron() {

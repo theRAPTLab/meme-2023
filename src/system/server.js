@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
   UNISYS server loader
@@ -14,7 +15,7 @@ const LOGGER = require('./server-logger');
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const PROMPTS = require('../system/util/prompts');
+const PROMPTS = require('./util/prompts');
 
 const PR = PROMPTS.Pad('SRV');
 
@@ -25,17 +26,16 @@ const PR = PROMPTS.Pad('SRV');
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let UNISYS = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ Initialize() is called by brunch-server.js to define the default UNISYS
-    network values, so it can embed them in the index.ejs file for webapps
-    override = { port }
-/*/ UNISYS.InitializeNetwork = override => {
+/**
+ */
+UNISYS.InitializeNetwork = override => {
   UDB.InitializeDatabase(override);
   return UNET.InitializeNetwork(override);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ RegisterHandlers() is called before network is started, so they're
-    ready to run. These are server-implemented reserved messages.
-/*/ UNISYS.RegisterHandlers = () => {
+/**
+ */
+UNISYS.RegisterHandlers = () => {
   UNET.HandleMessage('SRV_REFLECT', pkt => {
     pkt.Data().serverSays = 'REFLECTING';
     pkt.Data().stack.push('SRV_01');
@@ -132,8 +132,9 @@ let UNISYS = {};
   }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/	StartNetwork() is called by brunch-server after the Express webserver
-/*/ UNISYS.StartNetwork = () => {
+/**
+ */
+UNISYS.StartNetwork = () => {
   UNET.StartNetwork();
 };
 

@@ -18,6 +18,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /** MODULE DECLARATIONS *******************************************************/
+console.log(`common-netmessage.js`);
 
 const DBG = { send: false, transact: false };
 
@@ -35,7 +36,7 @@ const M_ERROR = 'error';
 let m_mode = M_INIT;
 
 // constants
-const PROMPTS = require('../system/util/prompts');
+const PROMPTS = require('./util/prompts');
 
 const PR = PROMPTS.Pad('PKT');
 const ERR = ':ERR:';

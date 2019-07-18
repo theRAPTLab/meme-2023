@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
     Session Utilities
@@ -5,17 +6,17 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
+const HashIds = require('hashids');
+const PROMPTS = require('../system/util/prompts');
+
 /// DEBUGGING /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
-//
-const PROMPTS = require('../system/util/prompts');
-
 const PR = PROMPTS.Pad('SESSUTIL');
+console.log(`common-session.js`);
 
 /// SYSTEM LIBRARIES //////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const HashIds = require('hashids');
 
 /// MODULE DEFS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -30,7 +31,7 @@ let m_current_groupid = null;
     containing as many decoded values as possible. Check isValid for
     complete decode succes. groupId is also set if successful
 /*/
-SESUTIL.DecodeToken = function(token) {
+SESUTIL.DecodeToken = token => {
   if (token === undefined) return {};
   let tokenBits = token.split('-');
   let classId;
@@ -90,7 +91,7 @@ SESUTIL.DecodeToken = function(token) {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Return TRUE if the token decodes into an expected range of values
 /*/
-SESUTIL.IsValidToken = function(token) {
+SESUTIL.IsValidToken = token => {
   let decoded = SESUTIL.DecodeToken(token);
   return decoded && Number.isInteger(decoded.groupId);
 };
@@ -99,7 +100,7 @@ SESUTIL.IsValidToken = function(token) {
     classId and projId should be short and are case-insensitive.
     groupId must be a non-negative integer
 /*/
-SESUTIL.MakeToken = function(classId, projId, groupId) {
+SESUTIL.MakeToken = (classId, projId, groupId) => {
   // type checking
   if (typeof classId !== 'string') throw Error(`classId arg1 '${classId}' must be string`);
   if (typeof projId !== 'string') throw Error(`projId arg2 '${projId}' must be string`);
@@ -121,13 +122,13 @@ SESUTIL.MakeToken = function(classId, projId, groupId) {
 /*/ Set the global GROUPID, which is included in all NetMessage
     packets that are sent to server.
 /*/
-SESUTIL.SetGroupID = function(token) {
+SESUTIL.SetGroupID = token => {
   let good = SESUTIL.DecodeToken(token).isValid;
   if (good) m_current_groupid = token;
   return good;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SESUTIL.GroupID = function() {
+SESUTIL.GroupID = () => {
   return m_current_groupid;
 };
 

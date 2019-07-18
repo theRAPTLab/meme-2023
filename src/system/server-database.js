@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
 DATABASE SERVER
@@ -8,20 +9,21 @@ const DBG = false;
 
 /// LOAD LIBRARIES ////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-const Loki = require("lokijs");
-const PATH = require("path");
-const FS = require("fs-extra");
+const Loki = require('lokijs');
+const PATH = require('path');
+const FS = require('fs-extra');
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-const SESSION = require("../unisys/common-session");
-const LOGGER = require("../unisys/server-logger");
-const PROMPTS = require("../system/util/prompts");
-const PR = PROMPTS.Pad("ServerDB");
+const SESSION = require('./common-session');
+const LOGGER = require('./server-logger');
+const PROMPTS = require('../system/util/prompts');
+
+const PR = PROMPTS.Pad('ServerDB');
 const RUNTIMEPATH = './runtime/';
 const TEMPLATEPATH = './app/assets/templates/';
-const DB_CLONEMASTER = "blank.loki";
-const NC_CONFIG = require("../assets/netcreate-config");
+const DB_CLONEMASTER = 'blank.loki';
+console.log(`${__filename}`);
 
 /// MODULE-WIDE VARS //////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -35,6 +37,7 @@ let EDGES; // loki "edges" collection
 let m_locked_nodes;
 let m_locked_edges;
 let TEMPLATE;
+let NC_CONFIG;
 
 /// API METHODS ///////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -42,8 +45,7 @@ let DB = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ API: Initialize the database
 /*/
-DB.InitializeDatabase = function (options = {}) {
-
+DB.InitializeDatabase = (options = {}) => {
   let dataset = NC_CONFIG.dataset;
   let db_file = m_GetValidDBFilePath(dataset);
   FS.ensureDirSync(PATH.dirname(db_file));
@@ -56,23 +58,23 @@ DB.InitializeDatabase = function (options = {}) {
     autoloadCallback: f_DatabaseInitialize,
     autosave: true,
     autosaveCallback: f_AutosaveStatus,
-    autosaveInterval: 4000, // save every four seconds
+    autosaveInterval: 4000 // save every four seconds
   };
   ropt = Object.assign(ropt, options);
   m_db = new Loki(db_file, ropt);
   m_options = ropt;
-  m_options.db_file = db_file;        // store for use by DB.WriteJSON
+  m_options.db_file = db_file; // store for use by DB.WriteJSON
 
   // callback on load
   function f_DatabaseInitialize() {
     // on the first load of (non-existent database), we will have no
     // collections so we can detect the absence of our collections and
     // add (and configure) them now.
-    NODES = m_db.getCollection("nodes");
-    if (NODES === null) NODES = m_db.addCollection("nodes");
+    NODES = m_db.getCollection('nodes');
+    if (NODES === null) NODES = m_db.addCollection('nodes');
     m_locked_nodes = new Set();
-    EDGES = m_db.getCollection("edges");
-    if (EDGES === null) EDGES = m_db.addCollection("edges");
+    EDGES = m_db.getCollection('edges');
+    if (EDGES === null) EDGES = m_db.addCollection('edges');
     m_locked_edges = new Set();
 
     // initialize unique set manager
@@ -82,9 +84,9 @@ DB.InitializeDatabase = function (options = {}) {
     // find highest NODE ID
     if (NODES.count() > 0) {
       m_max_nodeID = NODES.mapReduce(
-        (obj) => {
+        obj => {
           // side-effect: make sure ids are numbers
-          m_CleanObjID('node.id',obj);
+          m_CleanObjID('node.id', obj);
           // side-effect: check for duplicate ids
           if (m_dupe_set.has(obj.id)) {
             dupeNodes.push(obj);
@@ -94,45 +96,48 @@ DB.InitializeDatabase = function (options = {}) {
           // return value
           return obj.id;
         },
-        (arr) => {
+        arr => {
           return Math.max(...arr);
         }
-      )
+      );
     } else {
       m_max_nodeID = 0;
     }
     // remap duplicate NODE IDs
-    dupeNodes.forEach( (obj) => {
-      m_max_nodeID+=1;
-      LOGGER.Write(PR,`# rewriting duplicate nodeID ${obj.id} to ${m_max_nodeID}`);
+    dupeNodes.forEach(obj => {
+      m_max_nodeID += 1;
+      LOGGER.Write(PR, `# rewriting duplicate nodeID ${obj.id} to ${m_max_nodeID}`);
       obj.id = m_max_nodeID;
     });
 
     // find highest EDGE ID
     if (EDGES.count() > 0) {
       m_max_edgeID = EDGES.mapReduce(
-        (obj) => {
-          m_CleanObjID('edge.id',obj);
-          m_CleanEdgeEndpoints(obj.id,obj);
+        obj => {
+          m_CleanObjID('edge.id', obj);
+          m_CleanEdgeEndpoints(obj.id, obj);
           return obj.id;
         },
-        (arr) => {
+        arr => {
           return Math.max(...arr);
         }
       ); // end mapReduce edge ids
     } else {
       m_max_edgeID = 0;
     }
-    console.log(PR,`DATABASE LOADED! m_max_nodeID '${m_max_nodeID}', m_max_edgeID '${m_max_edgeID}'`);
+    console.log(
+      PR,
+      `DATABASE LOADED! m_max_nodeID '${m_max_nodeID}', m_max_edgeID '${m_max_edgeID}'`
+    );
     m_db.saveDatabase();
 
     // LOAD TEMPLATE  - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    let templatePath = RUNTIMEPATH + NC_CONFIG.dataset + ".template";
+    let templatePath = `${RUNTIMEPATH + NC_CONFIG.dataset}.template`;
     FS.ensureDirSync(PATH.dirname(templatePath));
     // Does the template exist?
     if (!FS.existsSync(templatePath)) {
       console.log(PR, `NO EXISTING TEMPLATE ${templatePath}, so cloning default template...`);
-      FS.copySync(TEMPLATEPATH+'_default.template', templatePath);
+      FS.copySync(`${TEMPLATEPATH}_default.template`, templatePath);
     }
     console.log(PR, `LOADING TEMPLATE ${templatePath}`);
     // Now load it
@@ -148,7 +153,7 @@ DB.InitializeDatabase = function (options = {}) {
   function f_AutosaveStatus() {
     let nodeCount = NODES.count();
     let edgeCount = EDGES.count();
-    console.log(PR,`AUTOSAVING! ${nodeCount} NODES / ${edgeCount} EDGES <3`);
+    console.log(PR, `AUTOSAVING! ${nodeCount} NODES / ${edgeCount} EDGES <3`);
   }
 }; // InitializeDatabase()
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -156,22 +161,26 @@ DB.InitializeDatabase = function (options = {}) {
     note: InitializeDatabase() was already called on system initialization
     to populate the NODES and EDGES structures.
 /*/
-DB.PKT_GetDatabase = function(pkt) {
+DB.PKT_GetDatabase = pkt => {
   let nodes = NODES.chain().data({ removeMeta: true });
   let edges = EDGES.chain().data({ removeMeta: true });
-  if (DBG) console.log(PR,`PKT_GetDatabase ${pkt.Info()} (loaded ${nodes.length} nodes, ${edges.length} edges)`);
+  if (DBG)
+    console.log(
+      PR,
+      `PKT_GetDatabase ${pkt.Info()} (loaded ${nodes.length} nodes, ${edges.length} edges)`
+    );
   LOGGER.Write(pkt.Info(), `getdatabase`);
   return { d3data: { nodes, edges }, template: TEMPLATE };
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ API: reset database from scratch
 /*/
-DB.PKT_SetDatabase = function(pkt) {
+DB.PKT_SetDatabase = pkt => {
   if (DBG) console.log(PR, `PKT_SetDatabase`);
   let { nodes = [], edges = [] } = pkt.Data();
-  if (!nodes.length) console.log(PR, "WARNING: empty nodes array");
+  if (!nodes.length) console.log(PR, 'WARNING: empty nodes array');
   else console.log(PR, `setting ${nodes.length} nodes...`);
-  if (!edges.length) console.log(PR, "WARNING: empty edges array");
+  if (!edges.length) console.log(PR, 'WARNING: empty edges array');
   else console.log(PR, `setting ${edges.length} edges...`);
   NODES.clear();
   NODES.insert(nodes);
@@ -190,55 +199,56 @@ DB.PKT_GetNewNodeID = function(pkt) {
   return { nodeID: m_max_nodeID };
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_GetNewEdgeID = function(pkt) {
+DB.PKT_GetNewEdgeID = pkt => {
   m_max_edgeID += 1;
   if (DBG) console.log(PR, `PKT_GetNewEdgeID ${pkt.Info()} edgeID ${m_max_edgeID}`);
   return { edgeID: m_max_edgeID };
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_RequestLockNode = function(pkt) {
+DB.PKT_RequestLockNode = pkt => {
   let { nodeID } = pkt.Data();
-  let errcode = m_IsInvalidNode( nodeID );
+  let errcode = m_IsInvalidNode(nodeID);
   if (errcode) return errcode;
   // check if node is already locked
   if (m_locked_nodes.has(nodeID)) return m_MakeLockError(`nodeID ${nodeID} is already locked`);
   // SUCCESS
   // single matching node exists and is not yet locked, so lock it
   m_locked_nodes.add(nodeID);
-  return { nodeID, locked : true };
+  return { nodeID, locked: true };
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_RequestUnlockNode = function(pkt) {
+DB.PKT_RequestUnlockNode = pkt => {
   let { nodeID } = pkt.Data();
-  let errcode = m_IsInvalidNode( nodeID );
+  let errcode = m_IsInvalidNode(nodeID);
   if (errcode) return errcode;
   // check that node is already locked
   if (m_locked_nodes.has(nodeID)) {
     m_locked_nodes.delete(nodeID);
-    return { nodeID, unlocked:true };
+    return { nodeID, unlocked: true };
   }
   // this is an error because nodeID wasn't in the lock table
   return m_MakeLockError(`nodeID ${nodeID} was not locked so can't unlock`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function m_IsInvalidNode ( nodeID ) {
+function m_IsInvalidNode(nodeID) {
   if (!nodeID) return m_MakeLockError(`undefined nodeID`);
-  nodeID = Number.parseInt(nodeID,10);
-  if (isNaN(nodeID)) return m_MakeLockError(`nodeID was not a number`);
-  if (nodeID<0) return m_MakeLockError(`nodeID ${nodeID} must be positive integer`);
-  if (nodeID>m_max_nodeID) return m_MakeLockError(`nodeID ${nodeID} is out of range`);
-    // find if the node exists
+  nodeID = Number.parseInt(nodeID, 10);
+  if (Number.isNaN(nodeID)) return m_MakeLockError(`nodeID was not a number`);
+  if (nodeID < 0) return m_MakeLockError(`nodeID ${nodeID} must be positive integer`);
+  if (nodeID > m_max_nodeID) return m_MakeLockError(`nodeID ${nodeID} is out of range`);
+  // find if the node exists
   let matches = NODES.find({ id: nodeID });
-  if (matches.length===0) return m_MakeLockError(`nodeID ${nodeID} not found`);
-  if (matches.length>1) return m_MakeLockError(`nodeID ${nodeID} matches multiple entries...critical error!`);
+  if (matches.length === 0) return m_MakeLockError(`nodeID ${nodeID} not found`);
+  if (matches.length > 1)
+    return m_MakeLockError(`nodeID ${nodeID} matches multiple entries...critical error!`);
   // no retval is no error!
   return undefined;
 }
-function m_MakeLockError( info ) {
-  return { NOP:`ERR`, INFO:info };
+function m_MakeLockError(info) {
+  return { NOP: `ERR`, INFO: info };
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_RequestLockEdge = function (pkt) {
+DB.PKT_RequestLockEdge = pkt => {
   let { edgeID } = pkt.Data();
   let errcode = m_IsInvalidEdge(edgeID);
   if (errcode) return errcode;
@@ -250,7 +260,7 @@ DB.PKT_RequestLockEdge = function (pkt) {
   return { edgeID, locked: true };
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_RequestUnlockEdge = function (pkt) {
+DB.PKT_RequestUnlockEdge = pkt => {
   let { edgeID } = pkt.Data();
   let errcode = m_IsInvalidEdge(edgeID);
   if (errcode) return errcode;
@@ -266,93 +276,106 @@ DB.PKT_RequestUnlockEdge = function (pkt) {
 function m_IsInvalidEdge(edgeID) {
   if (!edgeID) return m_MakeLockError(`undefined edgeID`);
   edgeID = Number.parseInt(edgeID, 10);
-  if (isNaN(edgeID)) return m_MakeLockError(`edgeID was not a number`);
+  if (Number.isNaN(edgeID)) return m_MakeLockError(`edgeID was not a number`);
   if (edgeID < 0) return m_MakeLockError(`edgeID ${edgeID} must be positive integer`);
   if (edgeID > m_max_edgeID) return m_MakeLockError(`edgeID ${edgeID} is out of range`);
   // find if the node exists
   let matches = EDGES.find({ id: edgeID });
   if (matches.length === 0) return m_MakeLockError(`edgeID ${edgeID} not found`);
-  if (matches.length > 1) return m_MakeLockError(`edgeID ${edgeID} matches multiple entries...critical error!`);
+  if (matches.length > 1)
+    return m_MakeLockError(`edgeID ${edgeID} matches multiple entries...critical error!`);
   // no retval is no error!
   return undefined;
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_RequestUnlockAllNodes = function (pkt) {
+DB.PKT_RequestUnlockAllNodes = pkt => {
   m_locked_nodes = new Set();
   return { unlocked: true };
-}
-DB.PKT_RequestUnlockAllEdges = function (pkt) {
+};
+DB.PKT_RequestUnlockAllEdges = pkt => {
   m_locked_edges = new Set();
   return { unlocked: true };
-}
-DB.PKT_RequestUnlockAll = function (pkt) {
+};
+DB.PKT_RequestUnlockAll = pkt => {
   m_locked_nodes = new Set();
   m_locked_edges = new Set();
   return { unlocked: true };
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_Update = function(pkt) {
+DB.PKT_Update = pkt => {
   let { node, edge, nodeID, replacementNodeID, edgeID } = pkt.Data();
   let retval = {};
   // PROCESS NODE INSERT/UPDATE
   if (node) {
-    m_CleanObjID(`${pkt.Info()} node.id`,node);
+    m_CleanObjID(`${pkt.Info()} node.id`, node);
     let matches = NODES.find({ id: node.id });
     if (matches.length === 0) {
       // if there was no node, then this is an insert new operation
-      if (DBG) console.log(PR,`PKT_Update ${pkt.Info()} INSERT nodeID ${JSON.stringify(node)}`);
+      if (DBG) console.log(PR, `PKT_Update ${pkt.Info()} INSERT nodeID ${JSON.stringify(node)}`);
       LOGGER.Write(pkt.Info(), `insert node`, node.id, JSON.stringify(node));
       DB.AppendNodeLog(node, pkt); // log GroupId to node stored in database
       NODES.insert(node);
-      retval = { op: "insert", node };
+      retval = { op: 'insert', node };
     } else if (matches.length === 1) {
       // there was one match to update
       NODES.findAndUpdate({ id: node.id }, n => {
-        if (DBG) console.log(PR,`PKT_Update ${pkt.Info()} UPDATE nodeID ${node.id} ${JSON.stringify(node)}`);
+        if (DBG)
+          console.log(
+            PR,
+            `PKT_Update ${pkt.Info()} UPDATE nodeID ${node.id} ${JSON.stringify(node)}`
+          );
         LOGGER.Write(pkt.Info(), `update node`, node.id, JSON.stringify(node));
         DB.AppendNodeLog(n, pkt); // log GroupId to node stored in database
         Object.assign(n, node);
       });
-      retval = { op: "update", node };
+      retval = { op: 'update', node };
     } else {
-      if (DBG) console.log(PR,`WARNING: multiple nodeID ${node.id} x${matches.length}`);
-      LOGGER.Write(pkt.Info(), `ERROR`, node.id, "duplicate node id");
-      retval = { op: "error-multinodeid" };
+      if (DBG) console.log(PR, `WARNING: multiple nodeID ${node.id} x${matches.length}`);
+      LOGGER.Write(pkt.Info(), `ERROR`, node.id, 'duplicate node id');
+      retval = { op: 'error-multinodeid' };
     }
     return retval;
   } // if node
 
   // PROCESS EDGE INSERT/UPDATE
   if (edge) {
-    m_CleanObjID(`${pkt.Info()} edge.id`,edge);
+    m_CleanObjID(`${pkt.Info()} edge.id`, edge);
     let matches = EDGES.find({ id: edge.id });
     if (matches.length === 0) {
       // this is a new edge
-      if (DBG) console.log(PR,`PKT_Update ${pkt.Info()} INSERT edgeID ${edge.id} ${JSON.stringify(edge)}`);
+      if (DBG)
+        console.log(
+          PR,
+          `PKT_Update ${pkt.Info()} INSERT edgeID ${edge.id} ${JSON.stringify(edge)}`
+        );
       LOGGER.Write(pkt.Info(), `insert edge`, edge.id, JSON.stringify(edge));
       DB.AppendEdgeLog(edge, pkt); // log GroupId to edge stored in database
       EDGES.insert(edge);
-      retval = { op: "insert", edge };
+      retval = { op: 'insert', edge };
     } else if (matches.length === 1) {
       // update this edge
       EDGES.findAndUpdate({ id: edge.id }, e => {
-        if (DBG) console.log(PR,`PKT_Update ${pkt.SourceGroupID()} UPDATE edgeID ${edge.id} ${JSON.stringify(edge)}`);
+        if (DBG)
+          console.log(
+            PR,
+            `PKT_Update ${pkt.SourceGroupID()} UPDATE edgeID ${edge.id} ${JSON.stringify(edge)}`
+          );
         LOGGER.Write(pkt.Info(), `update edge`, edge.id, JSON.stringify(edge));
         DB.AppendEdgeLog(e, pkt); // log GroupId to edge stored in database
         Object.assign(e, edge);
       });
-      retval = { op: "update", edge };
+      retval = { op: 'update', edge };
     } else {
       console.log(PR, `WARNING: multiple edgeID ${edge.id} x${matches.length}`);
-      LOGGER.Write(pkt.Info(), `ERROR`, node.id, "duplicate edge id");
-      retval = { op: "error-multiedgeid" };
+      LOGGER.Write(pkt.Info(), `ERROR`, node.id, 'duplicate edge id');
+      retval = { op: 'error-multiedgeid' };
     }
     return retval;
   } // if edge
 
   // DELETE NODE
   if (nodeID !== undefined) {
-    nodeID = m_CleanID(`${pkt.Info()} nodeID`,nodeID);
+    nodeID = m_CleanID(`${pkt.Info()} nodeID`, nodeID);
     if (DBG) console.log(PR, `PKT_Update ${pkt.Info()} DELETE nodeID ${nodeID}`);
     // Log first so it's apparent what is triggering the edge changes
     LOGGER.Write(pkt.Info(), `delete node`, nodeID);
@@ -363,42 +386,44 @@ DB.PKT_Update = function(pkt) {
     });
 
     // handle linked nodes
-    replacementNodeID = m_CleanID(`${pkt.Info()} replacementNodeID`,replacementNodeID);
+    replacementNodeID = m_CleanID(`${pkt.Info()} replacementNodeID`, replacementNodeID);
     if (replacementNodeID !== -1) {
       // re-link edges to replacementNodeID...
       EDGES.findAndUpdate({ source: nodeID }, e => {
-        LOGGER.Write(pkt.Info(),`relinking edge`,e.id,`to`,replacementNodeID);
+        LOGGER.Write(pkt.Info(), `relinking edge`, e.id, `to`, replacementNodeID);
         e.source = replacementNodeID;
       });
       EDGES.findAndUpdate({ target: nodeID }, e => {
-        LOGGER.Write(pkt.Info(),`relinking edge`,e.id,`to`,replacementNodeID);
+        LOGGER.Write(pkt.Info(), `relinking edge`, e.id, `to`, replacementNodeID);
         e.target = replacementNodeID;
       });
     } else {
       // ... or delete edges completely
       let sourceEdges = EDGES.find({ source: nodeID });
       EDGES.findAndRemove({ source: nodeID });
-      if (sourceEdges.length) LOGGER.Write(pkt.Info(), `deleting ${sourceEdges.length} sources matching ${nodeID}`);
+      if (sourceEdges.length)
+        LOGGER.Write(pkt.Info(), `deleting ${sourceEdges.length} sources matching ${nodeID}`);
       let targetEdges = EDGES.find({ target: nodeID });
       EDGES.findAndRemove({ target: nodeID });
-      if (targetEdges.length) LOGGER.Write(pkt.Info(), `deleting ${targetEdges.length} targets matching ${nodeID}`);
+      if (targetEdges.length)
+        LOGGER.Write(pkt.Info(), `deleting ${targetEdges.length} targets matching ${nodeID}`);
     }
     // ...finally remove the node itself
     NODES.findAndRemove({ id: nodeID });
-    return { op: "delete", nodeID, replacementNodeID };
+    return { op: 'delete', nodeID, replacementNodeID };
   }
 
   // DELETE EDGES
   if (edgeID !== undefined) {
-    edgeID = m_CleanID(`${pkt.Info()} edgeID`,edgeID);
+    edgeID = m_CleanID(`${pkt.Info()} edgeID`, edgeID);
     if (DBG) console.log(PR, `PKT_Update ${pkt.Info()} DELETE edgeID ${edgeID}`);
     LOGGER.Write(pkt.Info(), `delete edge`, edgeID);
     EDGES.findAndRemove({ id: edgeID });
-    return { op: "delete", edgeID };
+    return { op: 'delete', edgeID };
   }
 
   // return update value
-  return { op: "error-noaction" };
+  return { op: 'error-noaction' };
 };
 
 /// NODE ANNOTATION ///////////////////////////////////////////////////////////
@@ -406,21 +431,21 @@ DB.PKT_Update = function(pkt) {
 /*/ write/remove packet SourceGroupID() information into the node before writing
     the first entry is the insert, subsequent operations are updates
 /*/
-DB.AppendNodeLog = function(node, pkt) {
+DB.AppendNodeLog = (node, pkt) => {
   if (!node._nlog) node._nlog = [];
   let gid = pkt.SourceGroupID() || pkt.SourceAddress();
   node._nlog.push(gid);
   if (DBG) {
-    let out = "";
+    let out = '';
     node._nlog.forEach(el => {
       out += `[${el}] `;
     });
-    console.log(PR, "nodelog", out);
+    console.log(PR, 'nodelog', out);
   }
 };
-DB.FilterNodeLog = function(node) {
+DB.FilterNodeLog = node => {
   let newNode = Object.assign({}, node);
-  Reflect.deleteProperty(newNode, "_nlog");
+  Reflect.deleteProperty(newNode, '_nlog');
   return newNode;
 };
 /// EDGE ANNOTATION ///////////////////////////////////////////////////////////
@@ -428,21 +453,21 @@ DB.FilterNodeLog = function(node) {
 /*/ write/remove packet SourceGroupID() information into the node before writing
     the first entry is the insert, subsequent operations are updates
 /*/
-DB.AppendEdgeLog = function(edge, pkt) {
+DB.AppendEdgeLog = (edge, pkt) => {
   if (!edge._elog) edge._elog = [];
   let gid = pkt.SourceGroupID() || pkt.SourceAddress();
   edge._elog.push(gid);
   if (DBG) {
-    let out = "";
+    let out = '';
     edge._elog.forEach(el => {
       out += `[${el}] `;
     });
-    console.log(PR, "edgelog", out);
+    console.log(PR, 'edgelog', out);
   }
 };
-DB.FilterEdgeLog = function(edge) {
+DB.FilterEdgeLog = edge => {
   let newEdge = Object.assign({}, edge);
-  Reflect.deleteProperty(newEdge, "_elog");
+  Reflect.deleteProperty(newEdge, '_elog');
   return newEdge;
 };
 
@@ -451,41 +476,44 @@ DB.FilterEdgeLog = function(edge) {
 /*/ called by brunch to generate an up-to-date JSON file to path.
     creates the path if it doesn't exist
 /*/
-DB.WriteDbJSON = function (filePath) {
+DB.WriteDbJSON = filePath => {
   let dataset = NC_CONFIG.dataset;
 
   // Ideally we should use m_otions value, but in standlone mode,
   // m_options might not be defined.
   let db_file = m_options ? m_options.db_file : m_GetValidDBFilePath(dataset);
-  let db = new Loki(db_file,{
-      autoload: true,
-      autoloadCallback: () => {
-        if (typeof filePath==='string') {
-          if (DBG) console.log(PR,`writing { nodes, edges } to '${filePath}'`);
-          let nodes = db.getCollection("nodes").chain()
-            .data({ removeMeta: true });
-          let edges = db.getCollection("edges").chain()
-            .data({ removeMeta: true });
-          let data = { nodes, edges };
-          let json = JSON.stringify(data);
-          if (DBG) console.log(PR,`ensuring DIR ${PATH.dirname(filePath)}`);
-          FS.ensureDirSync(PATH.dirname( filePath ));
-          if (DBG) console.log(PR,`writing file ${filePath}`);
-          FS.writeFileSync( filePath, json );
-          console.log(PR, `*** WROTE JSON DATABASE ${filePath}`);
-        } else {
-          console.log(PR,`ERR path ${filePath} must be a pathname`);
-        }
+  let db = new Loki(db_file, {
+    autoload: true,
+    autoloadCallback: () => {
+      if (typeof filePath === 'string') {
+        if (DBG) console.log(PR, `writing { nodes, edges } to '${filePath}'`);
+        let nodes = db
+          .getCollection('nodes')
+          .chain()
+          .data({ removeMeta: true });
+        let edges = db
+          .getCollection('edges')
+          .chain()
+          .data({ removeMeta: true });
+        let data = { nodes, edges };
+        let json = JSON.stringify(data);
+        if (DBG) console.log(PR, `ensuring DIR ${PATH.dirname(filePath)}`);
+        FS.ensureDirSync(PATH.dirname(filePath));
+        if (DBG) console.log(PR, `writing file ${filePath}`);
+        FS.writeFileSync(filePath, json);
+        console.log(PR, `*** WROTE JSON DATABASE ${filePath}`);
+      } else {
+        console.log(PR, `ERR path ${filePath} must be a pathname`);
       }
     }
-  );
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ called by brunch to generate an up-to-date Template file to path.
     creates the path if it doesn't exist
 /*/
-DB.WriteTemplateJSON = function (filePath) {
-  let templatePath = RUNTIMEPATH + NC_CONFIG.dataset + ".template";
+DB.WriteTemplateJSON = filePath => {
+  let templatePath = `${RUNTIMEPATH + NC_CONFIG.dataset}.template`;
   FS.ensureDirSync(PATH.dirname(templatePath));
   // Does the template exist?
   if (!FS.existsSync(templatePath)) {
@@ -499,30 +527,30 @@ DB.WriteTemplateJSON = function (filePath) {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// utility function for cleaning nodes with numeric id property
 function m_CleanObjID(prompt, obj) {
-  if (typeof obj.id==='string') {
-    let int = parseInt(obj.id,10);
-    LOGGER.Write(PR,`! ${prompt} "${obj.id}" is string; converting to ${int}`);
-    obj.id=int;
+  if (typeof obj.id === 'string') {
+    let int = parseInt(obj.id, 10);
+    LOGGER.Write(PR, `! ${prompt} "${obj.id}" is string; converting to ${int}`);
+    obj.id = int;
   }
   return obj;
 }
-function  m_CleanEdgeEndpoints(prompt, edge) {
-  if (typeof edge.source==='string') {
-    let int = parseInt(edge.source,10);
-    LOGGER.Write(PR,`  edge ${prompt} source "${edge.source}" is string; converting to ${int}`);
+function m_CleanEdgeEndpoints(prompt, edge) {
+  if (typeof edge.source === 'string') {
+    let int = parseInt(edge.source, 10);
+    LOGGER.Write(PR, `  edge ${prompt} source "${edge.source}" is string; converting to ${int}`);
     edge.source = int;
   }
-  if (typeof edge.target==='string') {
-    let int = parseInt(edge.target,10);
-    LOGGER.Write(PR,`  edge ${prompt} target "${edge.target}" is string; converting to ${int}`);
+  if (typeof edge.target === 'string') {
+    let int = parseInt(edge.target, 10);
+    LOGGER.Write(PR, `  edge ${prompt} target "${edge.target}" is string; converting to ${int}`);
     edge.target = int;
   }
   return edge;
 }
 function m_CleanID(prompt, id) {
-  if (typeof id==='string') {
-    let int = parseInt(id,10);
-    LOGGER.Write(PR,`! ${prompt} "${id}" is string; converting to number ${int}`);
+  if (typeof id === 'string') {
+    let int = parseInt(id, 10);
+    LOGGER.Write(PR, `! ${prompt} "${id}" is string; converting to number ${int}`);
     id = int;
   }
   return id;
@@ -536,7 +564,7 @@ function m_GetValidDBFilePath(dataset) {
     console.error(PR, `Trying to initialize database with bad dataset name: ${dataset}`);
   }
 
-  return RUNTIMEPATH + dataset + ".loki";
+  return `${RUNTIMEPATH + dataset}.loki`;
 }
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////

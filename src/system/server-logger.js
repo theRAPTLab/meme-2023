@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
   LOGGER - WIP
@@ -8,16 +9,17 @@
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
 const DBG = false;
+console.log(`${__filename}`);
 
 /// LOAD LIBRARIES ////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-const Loki = require('lokijs');
 const PATH = require('path');
 const FSE = require('fs-extra');
+const Tracer = require('tracer');
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-const PROMPTS = require('../system/util/prompts');
+const PROMPTS = require('./util/prompts');
 
 const PR = PROMPTS.Pad('SRV-LOG');
 
@@ -25,7 +27,6 @@ const PR = PROMPTS.Pad('SRV-LOG');
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 const LOG_DIR = '../../runtime/logs';
-const Tracer = require('tracer');
 
 const LOG_DELIMITER = '\t';
 const LOG_CONFIG = {
@@ -112,7 +113,8 @@ function str_TimeDatedFilename(...args) {
 let LOG = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ API: Handle incoming log events
-/*/ LOG.PKT_LogEvent = function(pkt) {
+/*/
+LOG.PKT_LogEvent = pkt => {
   let { event, items } = pkt.Data();
   if (DBG) console.log(PR, pkt.Info(), event, ...items);
   LogLine(pkt.Info(), event || '-', ...items);

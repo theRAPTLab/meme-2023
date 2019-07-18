@@ -150,16 +150,43 @@ ADMData.SelectTeacher = teacherId => {
   adm_settings.selectedTeacherId = teacherId;
   UR.Publish('TEACHER_SELECT', { teacherId });
 };
+ADMData.AddTeacher = name => {
+  const teacher = {};
+  teacher.id = GenerateUID('tc');
+  teacher.name = name;
+  adm_db.a_teachers.push(teacher);
+  // Select the new teacher
+  adm_settings.selectedTeacherId = teacher.id;
+  UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// CLASSROOMS
-ADMData.GetClassroomsByTeacher = teacherId => {
+// Retreive currently selected teacher's classrooms by default if no teacherId is defined
+ADMData.GetClassroomsByTeacher = (teacherId = adm_settings.selectedTeacherId) => {
   return adm_db.a_classrooms.filter(cls => cls.teacherId === teacherId);
 };
 ADMData.SelectClassroom = classroomId => {
   adm_settings.selectedClassroomId = classroomId;
   UR.Publish('CLASSROOM_SELECT', { classroomId });
 };
+ADMData.AddClassroom = name => {
+  const classroom = {};
+  classroom.id = GenerateUID('tc');
+  classroom.name = name;
+  classroom.teacherId = adm_settings.selectedTeacherId;
+  adm_db.a_classrooms.push(classroom);
+  // Select the new classroom
+  adm_settings.selectedClassroomId = classroom.id;
+  // Special case of CLASSROOM_SELECT: We need to update the list of classrooms
+  // when a new classroom is added, so we pass the flag and let the component
+  // do the updating.
+  UR.Publish('CLASSROOM_SELECT', {
+    classroomId: classroom.id,
+    classroomListNeedsUpdating: true
+  });
+};
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// GROUPS
 /**
@@ -325,11 +352,26 @@ ADMData.UpdateCriteriaList = criteriaList => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// RESOURCES
+// returns `resources` not `classroomResources`
 ADMData.GetResourcesByClassroom = classroomId => {
   let classroomResources = adm_db.a_classroomResources.find(
     rsrc => rsrc.classroomId === classroomId
   );
   return classroomResources ? classroomResources.resources : [];
+};
+ADMData.SetClassroomResource = (rsrcId, checked, classroomId) => {
+  let classroomResources = adm_db.a_classroomResources.find(
+    rsrc => rsrc.classroomId === classroomId
+  );
+
+  if (checked) {
+    // Add resource
+    classroomResources.resources.push(rsrcId);
+  } else {
+    // Remove resource
+    classroomResources.resources = classroomResources.resources.filter(rsrc => rsrc.id !== rsrcId);
+  }
+  UR.Publish('ADM_DATA_UPDATED');
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

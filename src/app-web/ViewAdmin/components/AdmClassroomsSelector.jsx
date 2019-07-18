@@ -72,7 +72,7 @@ class ClassroomsSelector extends React.Component {
   DoTeacherSelect(data) {
     if (DBG) console.log('AdmClassroomsSelector: loading classrooms with teacher', data.teacherId);
     this.DoClassroomListUpdate(data.teacherId);
-    this.DoClassroomSelect({ classroomId: '' }); // When a teacher is selected, clear the classroom selection
+    ADM.SelectClassroom('');
   }
 
   // Update the state and inform subscribers (groupList, models, criteria, resources

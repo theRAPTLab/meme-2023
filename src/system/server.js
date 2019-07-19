@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  UNISYS server loader
+  UR server loader
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
@@ -16,26 +16,27 @@ const LOGGER = require('./server-logger');
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PROMPTS = require('./util/prompts');
-
-const PR = PROMPTS.Pad('SRV');
+//
+const { CS, CR } = PROMPTS;
+const PR = `${CS}${PROMPTS.Pad('URSYS')}${CR}`;
 
 /// MODULE VARS ///////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// API CREATE MODULE /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-let UNISYS = {};
+let URSYS = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  */
-UNISYS.InitializeNetwork = override => {
+URSYS.InitializeNetwork = override => {
   UDB.InitializeDatabase(override);
   return UNET.InitializeNetwork(override);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  */
-UNISYS.RegisterHandlers = () => {
+URSYS.RegisterHandlers = () => {
   UNET.HandleMessage('SRV_REFLECT', pkt => {
     pkt.Data().serverSays = 'REFLECTING';
     pkt.Data().stack.push('SRV_01');
@@ -78,49 +79,6 @@ UNISYS.RegisterHandlers = () => {
     return { OK: true, info: 'SRC_DBUPDATE' };
   });
 
-  UNET.HandleMessage('SRV_DBGETNODEID', pkt => {
-    if (DBG) console.log(PR, sprint_message(pkt));
-    return UDB.PKT_GetNewNodeID(pkt);
-  });
-
-  UNET.HandleMessage('SRV_DBLOCKNODE', pkt => {
-    if (DBG) console.log(PR, sprint_message(pkt));
-    return UDB.PKT_RequestLockNode(pkt);
-  });
-
-  UNET.HandleMessage('SRV_DBUNLOCKNODE', pkt => {
-    if (DBG) console.log(PR, sprint_message(pkt));
-    return UDB.PKT_RequestUnlockNode(pkt);
-  });
-
-  UNET.HandleMessage('SRV_DBLOCKEDGE', pkt => {
-    if (DBG) console.log(PR, sprint_message(pkt));
-    return UDB.PKT_RequestLockEdge(pkt);
-  });
-
-  UNET.HandleMessage('SRV_DBUNLOCKEDGE', pkt => {
-    if (DBG) console.log(PR, sprint_message(pkt));
-    return UDB.PKT_RequestUnlockEdge(pkt);
-  });
-
-  UNET.HandleMessage('SRV_DBUNLOCKALLNODES', pkt => {
-    if (DBG) console.log(PR, sprint_message(pkt));
-    return UDB.PKT_RequestUnlockAllNodes(pkt);
-  });
-  UNET.HandleMessage('SRV_DBUNLOCKALLEDGES', pkt => {
-    if (DBG) console.log(PR, sprint_message(pkt));
-    return UDB.PKT_RequestUnlockAllEdges(pkt);
-  });
-  UNET.HandleMessage('SRV_DBUNLOCKALL', pkt => {
-    if (DBG) console.log(PR, sprint_message(pkt));
-    return UDB.PKT_RequestUnlockAll(pkt);
-  });
-
-  UNET.HandleMessage('SRV_DBGETEDGEID', pkt => {
-    if (DBG) console.log(PR, sprint_message(pkt));
-    return UDB.PKT_GetNewEdgeID(pkt);
-  });
-
   UNET.HandleMessage('SRV_LOG_EVENT', pkt => {
     if (DBG) console.log(PR, sprint_message(pkt));
     return LOGGER.PKT_LogEvent(pkt);
@@ -134,10 +92,10 @@ UNISYS.RegisterHandlers = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  */
-UNISYS.StartNetwork = () => {
+URSYS.StartNetwork = () => {
   UNET.StartNetwork();
 };
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-module.exports = UNISYS;
+module.exports = URSYS;

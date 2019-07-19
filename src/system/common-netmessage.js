@@ -18,7 +18,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /** MODULE DECLARATIONS *******************************************************/
-console.log(`common-netmessage.js`);
 
 const DBG = { send: false, transact: false };
 

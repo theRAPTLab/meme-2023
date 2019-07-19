@@ -2,7 +2,7 @@
 if (window.NC_DBG) console.log(`inc ${module.id}`);
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-    UNISYS NETWORK implements network controls and synchronization.
+    URSYS NETWORK implements network controls and synchronization.
     It initializes a network connection on the CONNECT lifecycle.
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
@@ -50,7 +50,7 @@ let UDATA = null; // assigned during NETWORK.Connect()
 
 /// CONNECT ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ Establish connection to UNISYS server. This is called by client.js during
+/*/ Establish connection to URSYS server. This is called by client.js during
     NetworkInitialize(), which itself fires after the application has rendered
     completely.
 /*/
@@ -69,7 +69,7 @@ NETWORK.Connect = (datalink, opt) => {
   // warning: don't modify this unless you have a deep knowledge of how
   // the webapp system works or you might break something
   if (m_status > 0) {
-    let err = 'called twice...other views may be calling UNISYS outside of lifecycle';
+    let err = 'called twice...other views may be calling URSYS outside of lifecycle';
     console.error(WARN, err);
     return;
   }

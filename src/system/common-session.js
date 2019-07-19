@@ -13,7 +13,6 @@ const PROMPTS = require('../system/util/prompts');
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PR = PROMPTS.Pad('SESSUTIL');
-console.log(`common-session.js`);
 
 /// SYSTEM LIBRARIES //////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

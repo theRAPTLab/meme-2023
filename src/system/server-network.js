@@ -14,7 +14,6 @@
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
 const DBG = true;
-console.log(`${__filename}`);
 
 ///	LOAD LIBRARIES ////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -28,7 +27,8 @@ const DB = require('./server-database');
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PROMPTS = require('./util/prompts');
 
-const PR = PROMPTS.Pad('SRV-NET');
+const { CS, CR } = PROMPTS;
+const PR = `${CS}${PROMPTS.Pad('URSYS.NET')}${CR}`;
 const ERR = PROMPTS.Pad('!!!');
 const ERR_SS_EXISTS = 'socket server already created';
 const ERR_NULL_SOCKET = 'require valid socket';
@@ -57,7 +57,8 @@ const SERVER_UADDR = NetMessage.DefaultServerUADDR(); // is 'SVR_01'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Initialize() is called by brunch-server.js to define the default UNISYS
     network values, so it can embed them in the index.ejs file for webapps
-/*/ UNET.InitializeNetwork = options => {
+/*/
+UNET.InitializeNetwork = options => {
   options = options || {};
   options.port = options.port || DEFAULT_NET_PORT;
   options.uaddr = options.uaddr || SERVER_UADDR;
@@ -72,7 +73,7 @@ const SERVER_UADDR = NetMessage.DefaultServerUADDR(); // is 'SVR_01'
 /*/
 UNET.StartNetwork = () => {
   // create listener.
-  if (DBG) console.log(PR, `UNISYS NETWORK initialized on port ${mu_options.port}`);
+  if (DBG) console.log(PR, `initializing web socket server on port ${mu_options.port}`);
   mu_wss = new WSS(mu_options);
   mu_wss.on('listening', () => {
     if (DBG) console.log(PR, `listening on port ${mu_options.port}`);

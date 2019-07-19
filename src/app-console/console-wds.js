@@ -19,17 +19,19 @@ const path = require('path');
 const IP = require('ip');
 const cookiep = require('cookie-parser');
 const { exec } = require('child_process');
+const PROMPTS = require('../system/util/prompts');
 
-const app = express();
-const PR = '  [AppServer]';
+const PR = PROMPTS.Pad('WebServer');
+
 const DP = '***';
 const GIT = 'GIT';
 
+const app = express();
 const configWebApp = require('../config/webpack.webapp.config');
 
 function Start(options) {
   const { isPackaged } = options;
-  console.log(`${PR} STARTED ${path.basename(__filename)}`);
+  console.log(`${PR} starting webpack hot server`);
 
   let PATH_BUILT;
 
@@ -47,7 +49,7 @@ function Start(options) {
 
     // eslint-disable-next-line
     compiler.hooks.done.tap('DetectCompileDone', stats => {
-      console.log('*** tapped done compilation so do something');
+      console.log(PR, 'NOTICE: DetectCompileDone tap was fired');
     });
 
     console.log(`${PR} setting up webpack-middleware`);
@@ -65,9 +67,9 @@ function Start(options) {
     PATH_BUILT = path.resolve(__dirname, '../../built/web');
   }
   /// serve everything else out of public as static files
-  console.log(`${PR} PATH_BUILT ${PATH_BUILT}`);
+  console.log(`${PR} docroot is ${PATH_BUILT}`);
   app.use('/', express.static(PATH_BUILT));
-  app.listen(3000, () => console.log(`${PR} listening to port 3000`));
+  app.listen(3000, () => console.log(`${PR} listening for http on port 3000`));
 }
 
 // THIS IS ALL UNISYS STUFF TO BE PORTED AND ACTIVATED AS URSYS
@@ -165,10 +167,6 @@ function Run() {
             console.log(GIT, `You are running the ${out} branch`);
           }
         });
-        // now start the UNISYS network
-        // UNISYS.RegisterHandlers();
-        // UNISYS.StartNetwork();
-        // invoke brunch callback
         callback();
       })
       .on('error', err => {
@@ -193,7 +191,5 @@ function Run() {
     return app;
   };
 }
-
-console.log(`${PR} UR/APPSERVER INITALIZE COMPLETE`);
 
 module.exports = { Start, Run, Listen };

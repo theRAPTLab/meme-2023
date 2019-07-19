@@ -9,7 +9,6 @@ module.exports = env => {
   // Any directories you will be adding code/files into, need to be added to this array so webpack will pick them up
   // this ensures if it's running from built/ (electron mode) or src/ (wds mode) the include path is correct
   const defaultInclude = [path.join(__dirname, '../../src')];
-  console.log('base.config defaultInclude:', defaultInclude);
 
   return merge([
     {

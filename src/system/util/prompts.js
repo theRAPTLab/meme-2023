@@ -5,14 +5,13 @@
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
 let PROMPTS = {};
-console.log(`${__filename}`);
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// detect node environment and set padsize accordingly
 const IS_NODE =
   typeof process !== 'undefined' && process.release && process.release.name === 'node';
 let PAD_SIZE = IS_NODE
-  ? 9 // nodejs
+  ? 13 // nodejs
   : 0; // not nodejs
 
 /// PROMPT STRING HELPERS /////////////////////////////////////////////////////
@@ -38,6 +37,9 @@ let PAD_SIZE = IS_NODE
   if (count !== undefined) return ''.padEnd(count, '*');
   return ''.padEnd(PAD_SIZE, '*');
 };
+
+PROMPTS.CS = '\x1b[34m\x1b[1m';
+PROMPTS.CR = '\x1b[0m';
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

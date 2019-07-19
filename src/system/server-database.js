@@ -19,11 +19,9 @@ const SESSION = require('./common-session');
 const LOGGER = require('./server-logger');
 const PROMPTS = require('../system/util/prompts');
 
-const PR = PROMPTS.Pad('ServerDB');
+const { CS, CR } = PROMPTS;
+const PR = `${CS}${PROMPTS.Pad('URSYS.DB')}${CR}`;
 const RUNTIMEPATH = './runtime/';
-const TEMPLATEPATH = './app/assets/templates/';
-const DB_CLONEMASTER = 'blank.loki';
-console.log(`${__filename}`);
 
 /// MODULE-WIDE VARS //////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -31,28 +29,28 @@ let m_options; // saved initialization options
 let m_db; // loki database
 let m_max_edgeID;
 let m_max_nodeID;
-let m_dupe_set; // set of nodeIDs for determine whether there are duplicates
 let NODES; // loki "nodes" collection
 let EDGES; // loki "edges" collection
 let m_locked_nodes;
 let m_locked_edges;
 let TEMPLATE;
-let NC_CONFIG;
 
 /// API METHODS ///////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-let DB = {};
+const DB_CONFIG = {};
+const DB = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ API: Initialize the database
+    dataset
 /*/
 DB.InitializeDatabase = (options = {}) => {
-  let dataset = NC_CONFIG.dataset;
+  let dataset = DB_CONFIG.dataset || 'test';
   let db_file = m_GetValidDBFilePath(dataset);
   FS.ensureDirSync(PATH.dirname(db_file));
   if (!FS.existsSync(db_file)) {
     console.log(PR, `NO EXISTING DATABASE ${db_file}, so creating BLANK DATABASE...`);
   }
-  console.log(PR, `LOADING DATABASE ${db_file}`);
+  console.log(PR, `loading database ${db_file}`);
   let ropt = {
     autoload: true,
     autoloadCallback: f_DatabaseInitialize,
@@ -77,71 +75,8 @@ DB.InitializeDatabase = (options = {}) => {
     if (EDGES === null) EDGES = m_db.addCollection('edges');
     m_locked_edges = new Set();
 
-    // initialize unique set manager
-    m_dupe_set = new Set();
-    let dupeNodes = [];
-
-    // find highest NODE ID
-    if (NODES.count() > 0) {
-      m_max_nodeID = NODES.mapReduce(
-        obj => {
-          // side-effect: make sure ids are numbers
-          m_CleanObjID('node.id', obj);
-          // side-effect: check for duplicate ids
-          if (m_dupe_set.has(obj.id)) {
-            dupeNodes.push(obj);
-          } else {
-            m_dupe_set.add(obj.id);
-          }
-          // return value
-          return obj.id;
-        },
-        arr => {
-          return Math.max(...arr);
-        }
-      );
-    } else {
-      m_max_nodeID = 0;
-    }
-    // remap duplicate NODE IDs
-    dupeNodes.forEach(obj => {
-      m_max_nodeID += 1;
-      LOGGER.Write(PR, `# rewriting duplicate nodeID ${obj.id} to ${m_max_nodeID}`);
-      obj.id = m_max_nodeID;
-    });
-
-    // find highest EDGE ID
-    if (EDGES.count() > 0) {
-      m_max_edgeID = EDGES.mapReduce(
-        obj => {
-          m_CleanObjID('edge.id', obj);
-          m_CleanEdgeEndpoints(obj.id, obj);
-          return obj.id;
-        },
-        arr => {
-          return Math.max(...arr);
-        }
-      ); // end mapReduce edge ids
-    } else {
-      m_max_edgeID = 0;
-    }
-    console.log(
-      PR,
-      `DATABASE LOADED! m_max_nodeID '${m_max_nodeID}', m_max_edgeID '${m_max_edgeID}'`
-    );
+    console.log(PR, `database ready`);
     m_db.saveDatabase();
-
-    // LOAD TEMPLATE  - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    let templatePath = `${RUNTIMEPATH + NC_CONFIG.dataset}.template`;
-    FS.ensureDirSync(PATH.dirname(templatePath));
-    // Does the template exist?
-    if (!FS.existsSync(templatePath)) {
-      console.log(PR, `NO EXISTING TEMPLATE ${templatePath}, so cloning default template...`);
-      FS.copySync(`${TEMPLATEPATH}_default.template`, templatePath);
-    }
-    console.log(PR, `LOADING TEMPLATE ${templatePath}`);
-    // Now load it
-    TEMPLATE = FS.readJsonSync(templatePath);
 
     // Call complete callback
     if (typeof m_options.onLoadComplete === 'function') {
@@ -477,7 +412,7 @@ DB.FilterEdgeLog = edge => {
     creates the path if it doesn't exist
 /*/
 DB.WriteDbJSON = filePath => {
-  let dataset = NC_CONFIG.dataset;
+  let dataset = DB_CONFIG.dataset;
 
   // Ideally we should use m_otions value, but in standlone mode,
   // m_options might not be defined.
@@ -513,7 +448,7 @@ DB.WriteDbJSON = filePath => {
     creates the path if it doesn't exist
 /*/
 DB.WriteTemplateJSON = filePath => {
-  let templatePath = `${RUNTIMEPATH + NC_CONFIG.dataset}.template`;
+  let templatePath = `${RUNTIMEPATH + DB_CONFIG.dataset}.template`;
   FS.ensureDirSync(PATH.dirname(templatePath));
   // Does the template exist?
   if (!FS.existsSync(templatePath)) {

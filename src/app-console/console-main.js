@@ -12,8 +12,11 @@ const { app, BrowserWindow, Menu } = require('electron');
 const ip = require('ip');
 const path = require('path');
 const url = require('url');
-//
-const PR = '[ElectronMain]';
+const URSERVER = require('../system/server.js');
+
+const PROMPTS = require('../system/util/prompts');
+
+const PR = PROMPTS.Pad('ElectronHost');
 // this is available through electron remote in console.js
 global.serverinfo = {
   main: `http://localhost:3000`,
@@ -38,7 +41,7 @@ if (process.platform === 'win32') {
 
 function createWindow() {
   // Create the browser window.
-  console.log(`${PR} creating mainwindow with electron-preload.js`);
+  console.log(`${PR} creating mainwindow with console-preload.js`);
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
@@ -50,24 +53,24 @@ function createWindow() {
   });
 
   // and load the index.html of the app.
+  const pathname = path.resolve(__dirname, './console.html');
   const indexPath = url.format({
     protocol: 'file:',
-    pathname: path.resolve(__dirname, './console.html'),
+    pathname,
     slashes: true
   });
 
-  console.log(`${PR} LOADING ${indexPath} into MAINWINDOW`);
+  console.log(`${PR} loading ${path.basename(pathname)} into mainwindow`);
   mainWindow.loadURL(indexPath);
 
   // Don't show until we are ready and loaded
   mainWindow.once('ready-to-show', () => {
-    console.log(`${PR} SHOWING MAINWINDOW`);
+    console.log(`${PR} displaying mainwindow`);
     mainWindow.show();
     mainWindow.webContents.openDevTools();
     // load webserver
-    const URSERVER = require('./console-wds'); // eslint-disable-line
-    console.log('DIRNAME', __dirname);
-    URSERVER.Start({ isPackaged: __dirname.includes('/Contents/Resources/app/console') });
+    const RENDERER = require('./console-wds'); // eslint-disable-line
+    RENDERER.Start({ isPackaged: __dirname.includes('/Contents/Resources/app/console') });
     const application = {
       label: 'MEME',
       submenu: [
@@ -92,6 +95,11 @@ function createWindow() {
     };
     const template = [application, edit];
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+
+    // launch UR server
+    console.log(PR, 'Starting URSYS');
+    URSERVER.InitializeNetwork();
+    URSERVER.StartNetwork();
   });
 
   // Emitted when the window is closed.

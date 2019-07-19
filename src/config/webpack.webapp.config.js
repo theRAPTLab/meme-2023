@@ -33,7 +33,6 @@ const webConfiguration = env => {
       wdsOptions = wdsConfig(env);
       break;
     case 'electron':
-      console.log('*** WEBAPP.CONFIG', 'RUNNING FROM ELECTRON');
       // in web-index.js, using module.hot.decline() requires reload=true set here
       entryFiles = ['./web-index.js', 'webpack-hot-middleware/client?reload=true'];
       outputDir = path.resolve(__dirname, '../../built/web');

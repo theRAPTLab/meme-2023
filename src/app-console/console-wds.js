@@ -22,6 +22,8 @@ const { exec } = require('child_process');
 const PROMPTS = require('../system/util/prompts');
 
 const PR = PROMPTS.Pad('WebServer');
+const TR = '\x1b[0m';
+const CR = '\x1b[44m';
 
 const DP = '***';
 const GIT = 'GIT';
@@ -35,7 +37,7 @@ function Start(options) {
   let PATH_BUILT;
 
   if (isPackaged) {
-    console.log(`${PR} using pre-bundled webpack for standalone app`);
+    console.log(`${PR} using pre-compiled webpack bundle in standalone app`);
     PATH_BUILT = path.resolve(__dirname, '../web');
   } else {
     // THIS IS WEBPACK STUFF
@@ -51,12 +53,11 @@ function Start(options) {
       console.log(PR, 'NOTICE: DetectCompileDone tap was fired');
     });
 
-    console.log(`${PR} starting electron host environment w/ hot-reload`);
+    console.log(`${PR} ${CR}hot reloading${TR} is enabled for all web files`);
     // webpack middleware to enable file serving
     const instance = middleware(compiler, {
-      // stats: 'errors-only',
       publicPath: webConfig.output.publicPath,
-      stats: 'errors-only' // quiet webpack middleware output
+      stats: 'errors-only' // see https://webpack.js.org/configuration/stats/
     });
     app.use(instance);
     // enable hot middleware with compiler instance

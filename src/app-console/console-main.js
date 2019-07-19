@@ -13,7 +13,6 @@ const ip = require('ip');
 const path = require('path');
 const url = require('url');
 const URSERVER = require('../system/server.js');
-
 const PROMPTS = require('../system/util/prompts');
 
 const PR = PROMPTS.Pad('ElectronHost');
@@ -107,7 +106,7 @@ function createWindow() {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    console.log(`${PR} CLOSING\n\n`);
+    console.log(`${PR} mainwindow closed\n\n`);
     mainWindow = null;
   });
 }

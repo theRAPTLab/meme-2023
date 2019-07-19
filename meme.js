@@ -111,7 +111,7 @@ function f_RunDevServer() {
 
 function f_RunElectron() {
   console.log(`\n`);
-  console.log(PR, `running ${CY}Electron${TR} Development Server`);
+  console.log(PR, `running ${CY}Electron Host with Live Reload${TR}`);
   console.log(PR, `compiling webapp with webpack.console.config`);
   shell.exec(
     `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.console.config.js --env.HMR_MODE='electron'`,
@@ -123,33 +123,31 @@ function f_RunElectron() {
 
 function f_PackageApp() {
   console.log(`\n`);
-  console.log(PR, `packaging ${CY}Mac Electron App${TR}`);
-  console.log(PR, `cleaning ./dist and ./built`);
+  console.log(PR, `packaging ${CY}mac electron app${TR} 'meme.app'`);
+  console.log(PR, `erasing ./built and ./dist directories`);
   shell.rm('-rf', './dist', './built');
-  console.log(PR, `compiling console and web apps with webpack.dist.config`);
+  console.log(PR, `compiling console, web, system files into ./built`);
 
   shell.exec(
     `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.dist.config.js --env.HMR_MODE='none'`,
     { silent: true }
   );
-  console.log(PR, `installing node dependencies for electron app bundle`);
+  console.log(PR, `installing node dependencies into ./built`);
   shell.cd('built');
   shell.exec('npm install', { silent: true });
-  console.log(PR, `creating meme.app with electron packager`);
+  console.log(PR, `using electron-packager to write 'meme.app' to ./dist`);
   shell.exec(
     'npx electron-packager . meme --out ../dist --overwrite --app-bundle-id com.davidseah.inquirium.meme',
     { silent: true }
   );
-  console.log(PR, `the ${CY}meme.app${TR} binary is in ${CY}dist/meme-darwin-x64${TR}`);
-  console.log(
-    PR,
-    `${CR}code sign${TR} with ${CY}npm run appsign${TR} so macos will run the binary\n`
-  );
+  console.log(PR, `electron app written to ${CY}dist/meme-darwin-x64$/meme.app${TR}`);
+  console.log(PR, `NOTE: default macos security requires ${CR}code signing${TR} to run app.`);
+  console.log(PR, `use ${CY}npm run appsign${TR} to use default developer id (if installed)\n`);
 }
 
 function f_SignApp() {
   console.log(`\n`);
-  console.log(PR, `${CY}code signing${TR} macos meme.app`);
+  console.log(PR, `using electron-osx-sign to ${CY}securely sign${TR} 'meme.app'`);
   const { stderr, stdout } = shell.exec(
     `npx electron-osx-sign ./dist/meme-darwin-x64/meme.app --platform=darwin --type=distribution`,
     { silent: true }

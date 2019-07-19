@@ -22,6 +22,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DIR_CONFIG = path.join(__dirname, '../config/');
 const DIR_SOURCE = path.join(__dirname, '../app-console/');
+const DIR_SYSTEM = path.join(__dirname, '../system/');
 const DIR_OUTPUT = path.join(__dirname, '../../built/');
 const ENTRY_MODULE = 'console.js';
 const FILE_BUNDLE = 'console.bundle.js';
@@ -62,6 +63,13 @@ const electronRendererConfig = env => {
         // ignore console.html and console.js (built by webpack)
         // ignore console.package.json (renamed to built/package.json)
         ignore: ['.*', 'console.*']
+      },
+      {
+        from: DIR_SYSTEM,
+        to: `${DIR_OUTPUT}/system`
+        // have to also copy the system directory
+        // that contains URSYS, because this will be
+        // served from the built directory as well
       },
       {
         from: `${DIR_SOURCE}/console.package.json`,

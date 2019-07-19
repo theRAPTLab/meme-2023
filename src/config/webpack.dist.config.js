@@ -3,6 +3,9 @@
   DIST CONFIGURATION for WEBPACK
   create built/web and built/console WITHOUT hot module reloading
 
+  NOTE:
+  This config file is a combination of both webapp.config and console.config
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 console.log('!!! BUILDING PACKAGE');
 
@@ -73,7 +76,7 @@ const webConfiguration = env => {
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('development')
         }),
-        new CopyWebpackPlugin(copyFilesArray),
+        new CopyWebpackPlugin(copyFilesArray)
       ],
       stats: 'errors-only'
     }
@@ -88,6 +91,7 @@ const electronConfiguration = env => {
 
   const DIR_CONFIG = path.join(__dirname, '../config/');
   const DIR_SOURCE = path.join(__dirname, '../app-console/');
+  const DIR_SYSTEM = path.resolve(__dirname, '../../src/system');
   const DIR_OUTPUT = path.join(__dirname, '../../built/');
   const ENTRY_MODULE = 'console.js';
   const FILE_BUNDLE = 'console.bundle.js';
@@ -102,7 +106,7 @@ const electronConfiguration = env => {
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('development'),
-      '__REACT_DEVTOOLS_GLOBAL_HOOK__': '({ isDisabled: true })'
+      __REACT_DEVTOOLS_GLOBAL_HOOK__: '({ isDisabled: true })'
     }),
     new CopyWebpackPlugin([
       {
@@ -111,6 +115,13 @@ const electronConfiguration = env => {
         // ignore console.html and console.js (built by webpack)
         // ignore console.package.json (renamed to built/package.json)
         ignore: ['.*', 'console.*']
+      },
+      {
+        from: DIR_SYSTEM,
+        to: `${DIR_OUTPUT}/system`
+        // have to also copy the system directory
+        // that contains URSYS, because this will be
+        // served from the built directory as well
       },
       {
         from: `${DIR_SOURCE}/console.package.json`,

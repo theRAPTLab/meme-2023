@@ -306,6 +306,7 @@ ADMData.DeleteStudent = (groupId, student) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// STUDENTS
 ADMData.Login = loginId => {
+  // FIXME: Replace this with a proper token check and lookup
   // This assumes we already did validation
   adm_settings.selectedStudentId = loginId;
   UR.Publish('ADM_DATA_UPDATED');
@@ -314,6 +315,7 @@ ADMData.IsLoggedOut = () => {
   return adm_settings.selectedStudentId === undefined || adm_settings.selectedStudentId === '';
 };
 ADMData.IsValidLogin = loginId => {
+  // FIXME: Replace this with a proper token check
   let isValid = ADMData.GetGroupByStudent(loginId) !== undefined;
   return isValid;
 };

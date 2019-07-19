@@ -33,17 +33,16 @@ if (!shell.which('git')) {
   shell.exit(0);
 }
 
-const { TERM } = MTERM;
-
 const pathBits = path.parse(argv._[0]);
 const param1 = argv._[1];
 
+const { TERM } = MTERM;
 const TR = TERM.Reset;
 const TB = TERM.Bright;
 const CY = TERM.FgYellow;
 const CR = TERM.BgRed;
 
-const PR = PROMPTS.Pad('MEME RUN');
+const PR = PROMPTS.Pad('MEME EXEC');
 
 const P_ERR = `${TB}${CR}!ERROR!${TR}`;
 
@@ -133,8 +132,11 @@ function f_PackageApp() {
     'npx electron-packager . meme --out ../dist --overwrite --app-bundle-id com.davidseah.inquirium.meme',
     { silent: true }
   );
-  console.log(PR, `${CY}meme.app${TR} is in ${CY}dist/meme-darwin-x64${TR}`);
-  console.log(PR, `you must ${CR}code sign${TR} before app can run on macos\n`);
+  console.log(PR, `the ${CY}meme.app${TR} binary is in ${CY}dist/meme-darwin-x64${TR}`);
+  console.log(
+    PR,
+    `${CR}code sign${TR} with ${CY}npm run appsign${TR} so macos will run the binary\n`
+  );
 }
 
 function f_SignApp() {
@@ -180,12 +182,12 @@ function f_DebugApp() {
 function f_DocServe() {
   const loc = `${CY}localhost:4001${TR}`;
 
-  console.log(PR, `Point your browser to "${loc}" to read JSDoc-generate documentation.`);
+  console.log(PR, `point your browser to "${loc}" to read JSDoc-generate documentation.`);
   console.log(
     PR,
-    `You can edit source and the documentation will live-update (browser refresh required).`
+    `you can edit source and the documentation will live-update (browser refresh required).`
   );
-  console.log(PR, `When you're done, type CTRL-C to stop the documentation server`);
+  console.log(PR, `when you're done, type CTRL-C to stop the documentation server`);
   shell.exec(
     `npx documentation serve --config meme-documentation.yml --watch ./src/app-web/web-index.js`
   );

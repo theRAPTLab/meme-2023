@@ -31,11 +31,11 @@ const configWebApp = require('../config/webpack.webapp.config');
 
 function Start(options) {
   const { isPackaged } = options;
-  console.log(`${PR} starting webpack hot server`);
 
   let PATH_BUILT;
 
   if (isPackaged) {
+    console.log(`${PR} using pre-bundled webpack for standalone app`);
     PATH_BUILT = path.resolve(__dirname, '../web');
   } else {
     // THIS IS WEBPACK STUFF
@@ -44,7 +44,6 @@ function Start(options) {
     const env = { HMR_MODE: 'electron' };
     const webConfig = configWebApp(env);
 
-    console.log(`${PR} setting up webpack`);
     const compiler = webpack(webConfig);
 
     // eslint-disable-next-line
@@ -52,7 +51,7 @@ function Start(options) {
       console.log(PR, 'NOTICE: DetectCompileDone tap was fired');
     });
 
-    console.log(`${PR} setting up webpack-middleware`);
+    console.log(`${PR} starting electron host environment w/ hot-reload`);
     // webpack middleware to enable file serving
     const instance = middleware(compiler, {
       // stats: 'errors-only',

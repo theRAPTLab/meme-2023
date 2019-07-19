@@ -40,7 +40,6 @@ class ModelsListTable extends React.Component {
 
     return (
       <Paper className={classes.admPaper}>
-        <InputLabel>MODELS</InputLabel>
         <Table>
           <TableHead>
             <TableRow>

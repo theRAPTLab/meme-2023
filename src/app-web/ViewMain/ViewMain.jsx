@@ -53,6 +53,7 @@ import DATA from '../modules/pmc-data';
 import ADM from '../modules/adm-data';
 import EvidenceList from '../components/EvidenceList';
 import Login from '../components/Login';
+import ModelSelect from '../components/ModelSelect';
 import ResourceItem from '../components/ResourceItem';
 import { cssreact, cssdraw, cssalert } from '../modules/console-styles';
 
@@ -412,6 +413,7 @@ class ViewMain extends React.Component {
     return (
       <div className={classes.root}>
         <Login />
+        <ModelSelect />
         <CssBaseline />
         <AppBar position="fixed" className={classes.appBar} style={{ backgroundColor: 'maroon' }}>
           <Toolbar>

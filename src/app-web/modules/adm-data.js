@@ -14,7 +14,7 @@ const ADMData = {};
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
-const PKG = 'adm-data';
+const PKG = 'adm-data.';
 
 /// MODEL /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -181,6 +181,9 @@ ADMData.SelectClassroom = classroomId => {
   adm_settings.selectedClassroomId = classroomId;
   UR.Publish('CLASSROOM_SELECT', { classroomId });
 };
+ADMData.GetSelectedClassroomId = () => {
+  return adm_settings.selectedClassroomId;
+};
 ADMData.AddClassroom = name => {
   const classroom = {};
   classroom.id = GenerateUID('tc');
@@ -245,12 +248,34 @@ ADMData.GetGroupIdsByClassroom = classroomId => {
   return groups.map(grp => grp.id);
 };
 /**
+ *  Finds the first group with a matching student id
+ *  Used to validate student login
+ *  As well as to look up models associated with student.
+ */
+ADMData.GetGroupByStudent = (studentId = adm_settings.selectedStudentId) => {
+  if (studentId === '' || adm_db.a_groups === undefined) return undefined;
+  return adm_db.a_groups.find(grp => {
+    if (DBG)
+      console.log(
+        'GetGroupByStudent: studentId',
+        studentId,
+        'grp',
+        grp.id,
+        'grp.students',
+        grp.students,
+        'includes',
+        grp.students.includes(studentId)
+      );
+    return grp.students.includes(studentId);
+  });
+};
+/**
  *  Updates a_groups with latest group info
  */
 ADMData.UpdateGroup = (groupId, group) => {
   let i = adm_db.a_groups.findIndex(grp => grp.id === groupId);
   if (i < 0) {
-    console.error(PKG, '.UpdateGroup could not find group with id', groupId);
+    console.error(PKG, 'UpdateGroup could not find group with id', groupId);
     return;
   }
   adm_db.a_groups.splice(i, 1, group);
@@ -265,12 +290,12 @@ ADMData.AddStudents = (groupId, students) => {
   // Update the group
   let group = ADMData.GetGroup(groupId);
   if (group === undefined) {
-    console.error('ADMData.AddStudent could not find group', groupId);
+    console.error(PKG,'AddStudent could not find group', groupId);
     return;
   }
   studentsArr.map(student => {
     if (student === undefined || student === '') {
-      console.error('ADMData.AddStudent adding blank student', groupId);
+      console.error(PKG,'AddStudent adding blank student', groupId);
       return;
     }
     group.students.push(student);
@@ -284,12 +309,12 @@ ADMData.DeleteStudent = (groupId, student) => {
   // Get the group
   const group = ADMData.GetGroup(groupId);
   if (group === undefined) {
-    console.error('ADMData.AddStudent could not find group', groupId);
+    console.error(PKG,'AddStudent could not find group', groupId);
     return;
   }
   const students = group.students;
   if (students === undefined) {
-    console.error('ADMData.AddStudent could not find any students in group', groupId);
+    console.error(PKG,'AddStudent could not find any students in group', groupId);
     return;
   }
   // Remove the student
@@ -309,6 +334,14 @@ ADMData.Login = loginId => {
   // FIXME: Replace this with a proper token check and lookup
   // This assumes we already did validation
   adm_settings.selectedStudentId = loginId;
+  // FIXME hack in classroom selection
+  // After logging in, we need to tell ADM what the default classroom is
+  ADMData.SelectClassroom('cl01');
+  UR.Publish('ADM_DATA_UPDATED');
+};
+ADMData.Logout = () => {
+  adm_settings.selectedStudentId = '';
+  ADMData.SelectClassroom('');
   UR.Publish('ADM_DATA_UPDATED');
 };
 ADMData.IsLoggedOut = () => {
@@ -322,12 +355,37 @@ ADMData.IsValidLogin = loginId => {
 ADMData.GetSelectedStudentId = () => {
   return adm_settings.selectedStudentId;
 };
+ADMData.GetStudentName = () => {
+  // FIXME: Eventually use actual name instead of ID?
+  return adm_settings.selectedStudentId;
+};
+ADMData.GetStudentGroupName = (studentId = adm_settings.selectedStudentId) => {
+  const grp = ADMData.GetGroupByStudent(studentId);
+  let result;
+  if (grp) {
+    result = grp.name;
+  }
+  return result;
+};
+ADMData.GetSelectedModelId = () => {
+  return 'm01';
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// MODELS
 ADMData.GetModelsByClassroom = classroomId => {
   const groupIdsInClassroom = ADMData.GetGroupIdsByClassroom(classroomId);
   return adm_db.a_models.filter(mdl => groupIdsInClassroom.includes(mdl.groupId));
 };
+ADMData.GetModelsByStudent = (studentId = adm_settings.selectedStudentId) => {
+  const group = ADMData.GetGroupByStudent(studentId);
+  if (group === undefined) return [];
 
+  return adm_db.a_models.filter(mdl => mdl.groupId === group.id);
+};
+// Gets the gropuId of the currently selected Student ID
+ADMData.GetModelsByGroup = (group = ADMData.GetGroupByStudent()) => {
+  return adm_db.a_models.filter(mdl => mdl.groupId === group.id);
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// CRITERIA
 /**
@@ -343,7 +401,7 @@ ADMData.GetModelsByClassroom = classroomId => {
 ADMData.NewCriteria = (classroomId = adm_settings.selectedClassroomId) => {
   const id = GenerateUID('cr');
   if (classroomId === undefined) {
-    console.error(PKG, '.NewCriteria called with bad classroomId:', classroomId);
+    console.error(PKG, 'NewCriteria called with bad classroomId:', classroomId);
     return undefined;
   }
   const crit = {

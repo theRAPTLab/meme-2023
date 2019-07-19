@@ -117,7 +117,11 @@ ADMData.Load = () => {
     { classroomId: 'cl04', resources: ['rs6', 'rs7'] }
   ];
 
-  adm_settings = {};
+  adm_settings = {
+    selectedTeacherId: '',
+    selectedClassroomId: '',
+    selectedStudentId: ''
+  };
 };
 
 /// PRIVATE METHODS ////////////////////////////////////////////////////////////
@@ -293,6 +297,23 @@ ADMData.DeleteStudent = (groupId, student) => {
   UR.Publish('ADM_DATA_UPDATED');
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// STUDENTS
+ADMData.Login = loginId => {
+  // This assumes we already did validation
+  adm_settings.selectedStudentId = loginId;
+  UR.Publish('ADM_DATA_UPDATED');
+};
+ADMData.IsLoggedOut = () => {
+  return adm_settings.selectedStudentId === undefined || adm_settings.selectedStudentId === '';
+};
+ADMData.IsValidLogin = loginId => {
+  let isValid = false;
+  // pseudo check for now
+  if (loginId === 'ben') {
+    isValid = true;
+  }
+  return isValid;
+};
 /// MODELS
 ADMData.GetModelsByClassroom = classroomId => {
   const groupIdsInClassroom = ADMData.GetGroupIdsByClassroom(classroomId);

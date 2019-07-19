@@ -73,7 +73,8 @@ class Login extends React.Component {
     });
   }
 
-  OnLogin() {
+  OnLogin(e) {
+    e.preventDefault();
     if (ADM.IsValidLogin(this.state.loginId)) {
       this.setState({ isValidLogin: true });
       ADM.Login(this.state.loginId);
@@ -100,25 +101,27 @@ class Login extends React.Component {
         open={loginDialogOpen}
         onClose={this.OnLoginDialogClose}
       >
-        <DialogTitle>MEME Login</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Please enter your login token:</DialogContentText>
-          <TextField
-            autoFocus
-            error={!isValidLogin}
-            id="loginId"
-            label="Token"
-            placeholder="XXX-XXXX-XX"
-            fullWidth
-            value={loginId}
-            onChange={this.OnLoginIdChange}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={this.OnLogin} color="primary" disabled={!isValidLogin}>
-            Login
-          </Button>
-        </DialogActions>
+        <form onSubmit={this.OnLogin}>
+          <DialogTitle>MEME Login</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Please enter your login token:</DialogContentText>
+            <TextField
+              autoFocus
+              error={!isValidLogin}
+              id="loginId"
+              label="Token"
+              placeholder="XXX-XXXX-XX"
+              fullWidth
+              value={loginId}
+              onChange={this.OnLoginIdChange}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button color="primary" disabled={!isValidLogin} type="submit">
+              Login
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
     );
   }

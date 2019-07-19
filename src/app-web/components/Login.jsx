@@ -82,7 +82,12 @@ class Login extends React.Component {
     const { classes } = this.props;
     const { loginId, loginDialogOpen, isInvalidLogin } = this.state;
     return (
-      <Dialog open={loginDialogOpen} onClose={this.OnLoginDialogClose}>
+      <Dialog
+        disableBackdropClick
+        disableEscapeKeyDown
+        open={loginDialogOpen}
+        onClose={this.OnLoginDialogClose}
+      >
         <DialogTitle>MEME Login</DialogTitle>
         <DialogContent>
           <DialogContentText>Please enter your login token:</DialogContentText>

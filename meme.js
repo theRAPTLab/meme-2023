@@ -88,17 +88,25 @@ function f_RunDevServer() {
   console.log(PR, `MAINAPP - http://localhost:3000`);
   console.log(PR, `CLIENTS - http://${ip.address()}:3000`);
   console.log(`---\n`);
+
+  // run webpack development server
+  const wds = shell.exec(
+    `${PATH_WDS}/webpack-dev-server.js --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'`,
+    { silent: true, async: true }
+  );
+  wds.on('exit', () => {
+    console.log(`\n${PR} webpack-dev-server has been terminated\n`);
+    process.exit();
+  });
   // run ursys socket server
   // note: in electron mode, this server is loaded from inside electron's console-main.js
-  console.log(PR, 'Starting URSERVER');
+  console.log(PR, 'starting URSYS');
   URSERVER.InitializeNetwork();
   URSERVER.StartNetwork();
 
-  // run webpack development server
-  shell.exec(
-    `${PATH_WDS}/webpack-dev-server.js --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'`,
-    { silent: true }
-  );
+  process.on('SIGINT', () => {
+    wds.kill('SIGHUP');
+  });
 }
 
 function f_RunElectron() {

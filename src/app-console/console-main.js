@@ -97,7 +97,7 @@ function createWindow() {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
     // launch UR server
-    console.log(PR, 'Starting URSYS');
+    console.log(PR, 'starting URSYS');
     URSERVER.InitializeNetwork();
     URSERVER.StartNetwork();
   });

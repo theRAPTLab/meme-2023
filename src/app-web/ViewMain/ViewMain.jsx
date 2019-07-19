@@ -51,6 +51,7 @@ import MEMEStyles from '../components/MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
 import EvidenceList from '../components/EvidenceList';
+import Login from '../components/Login';
 import ResourceItem from '../components/ResourceItem';
 import { cssreact, cssdraw, cssalert } from '../modules/console-styles';
 
@@ -404,6 +405,7 @@ class ViewMain extends React.Component {
     const resources = DATA.AllResources();
     return (
       <div className={classes.root}>
+        <Login />
         <CssBaseline />
         <AppBar position="fixed" className={classes.appBar} style={{ backgroundColor: 'maroon' }}>
           <Toolbar>

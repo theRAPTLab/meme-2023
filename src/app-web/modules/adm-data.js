@@ -307,12 +307,11 @@ ADMData.IsLoggedOut = () => {
   return adm_settings.selectedStudentId === undefined || adm_settings.selectedStudentId === '';
 };
 ADMData.IsValidLogin = loginId => {
-  let isValid = false;
-  // pseudo check for now
-  if (loginId === 'ben') {
-    isValid = true;
-  }
+  let isValid = ADMData.GetGroupByStudent(loginId) !== undefined;
   return isValid;
+};
+ADMData.GetSelectedStudentId = () => {
+  return adm_settings.selectedStudentId;
 };
 /// MODELS
 ADMData.GetModelsByClassroom = classroomId => {

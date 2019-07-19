@@ -31,6 +31,7 @@ class Login extends React.Component {
   constructor(props) {
     super(props);
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
+    this.OnLoginIdChange = this.OnLoginIdChange.bind(this);
     this.OnLoginDialogClose = this.OnLoginDialogClose.bind(this);
     this.OnLogin = this.OnLogin.bind(this);
 
@@ -39,7 +40,7 @@ class Login extends React.Component {
     this.state = {
       loginId: '',
       loginDialogOpen: true,
-      isInvalidLogin: false
+      isValidLogin: true
     };
   }
 
@@ -57,20 +58,31 @@ class Login extends React.Component {
       });
     } else {
       this.setState({
-        loginId: ADM.GetStudentId(),
+        loginId: ADM.GetSelectedStudentId(),
         loginDialogOpen: false
       })
     }
   }
 
+  OnLoginIdChange(e) {
+    const loginId = e.target.value;
+    let isValidLogin = ADM.IsValidLogin(loginId);
+    this.setState({
+      loginId,
+      isValidLogin
+    });
+  }
+
   OnLogin() {
     if (ADM.IsValidLogin(this.state.loginId)) {
-      this.setState({ isInvalidLogin: false });
+      this.setState({ isValidLogin: true });
       ADM.Login(this.state.loginId);
       this.OnLoginDialogClose();
     } else {
       // invalid login
-      this.setState({ isInvalidLogin: true });
+      this.setState({
+        isValidLogin: false
+      });
     }
   }
 
@@ -80,7 +92,7 @@ class Login extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { loginId, loginDialogOpen, isInvalidLogin } = this.state;
+    const { loginId, loginDialogOpen, isValidLogin } = this.state;
     return (
       <Dialog
         disableBackdropClick
@@ -93,19 +105,17 @@ class Login extends React.Component {
           <DialogContentText>Please enter your login token:</DialogContentText>
           <TextField
             autoFocus
-            error={isInvalidLogin}
+            error={!isValidLogin}
             id="loginId"
             label="Token"
             placeholder="XXX-XXXX-XX"
             fullWidth
-            onChange={e => this.setState({ loginId: e.target.value })}
+            value={loginId}
+            onChange={this.OnLoginIdChange}
           />
-          <DialogContentText hidden={!isInvalidLogin} style={{ color: 'red' }}>
-            Bad token. Please try again...
-          </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={this.OnLogin} color="primary">
+          <Button onClick={this.OnLogin} color="primary" disabled={!isValidLogin}>
             Login
           </Button>
         </DialogActions>

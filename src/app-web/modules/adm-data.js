@@ -18,7 +18,14 @@ const PKG = 'adm-data';
 
 /// MODEL /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-let adm_db = {}; // server database object by reference
+let adm_db = {
+  a_teacher: [],
+  a_classrooms: [],
+  a_groups: [],
+  a_models: [],
+  a_criteria: [],
+  a_classroomResources: []
+}; // server database object by reference
 let adm_settings = {}; // local settings, state of the admin view (current displayed class/teacher)
 
 UR.DB_Subscribe = () => { }; // FIXME: Cover for now. Remove when implemented.

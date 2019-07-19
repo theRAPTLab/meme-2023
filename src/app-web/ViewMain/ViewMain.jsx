@@ -76,6 +76,7 @@ class ViewMain extends React.Component {
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
     this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
+    this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
     this.HandleAddPropLabelChange = this.HandleAddPropLabelChange.bind(this);
     this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
@@ -97,10 +98,13 @@ class ViewMain extends React.Component {
     this.handleSnapshot = this.handleSnapshot.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
     UR.Sub('DATA_UPDATED', this.HandleDataUpdate);
+    UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Sub('SHOW_RESOURCE', this.handleResourceClick);
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Sub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
     this.state = {
+      studentName: '',
+      studentGroup: '',
       viewHeight: 0, // need to init this to prevent error with first render of informationList
       addPropOpen: false,
       addPropLabel: '',
@@ -166,6 +170,14 @@ class ViewMain extends React.Component {
       SVGView used to require a manual call to DoAppLoop(), but now it's hooked
       the DATA_UPDATED messages so it will redraw its view.
     */
+  }
+
+  DoADMDataUpdate() {
+    this.setState({
+      studentName: ADM.GetStudentName(),
+      studentGroup: ADM.GetStudentGroupName()
+    });
+    // FIXME: This should update the model eventually.
   }
 
   UpdateDimensions() {
@@ -408,7 +420,7 @@ class ViewMain extends React.Component {
   render() {
     const { classes } = this.props;
 
-    const { addPropLabel, addPropPropId, componentIsSelected, mechIsSelected } = this.state;
+    const { studentName, studentGroup, addPropLabel, addPropPropId, componentIsSelected, mechIsSelected } = this.state;
     const resources = DATA.AllResources();
     return (
       <div className={classes.root}>
@@ -430,8 +442,18 @@ class ViewMain extends React.Component {
             <TextField
               id="projectTitle"
               InputProps={{ className: classes.projectTitle }}
+              style={{ flexGrow: 1 }}
               placeholder="Untitled Model"
             />
+            <div className={classes.appBarRight}>
+              <Button onClick={ADM.CloseModel}>Models</Button>
+              &nbsp;|&nbsp;
+              <div>{studentName}</div>
+              &nbsp;:&nbsp;
+              <div>{studentGroup}</div>
+              &nbsp;|&nbsp;
+              <Button onClick={ADM.Logout}>Logout</Button>
+            </div>
           </Toolbar>
         </AppBar>
 
@@ -527,9 +549,9 @@ class ViewMain extends React.Component {
                   </div>
                 ) : (
                     <div className={classes.evidenceLinkSourceAvatarWaiting}>
-                      1. Click on a source...
+                    1. Click on a source...
                   </div>
-                  )}
+                )}
                 &nbsp;
                 <TextField
                   autoFocus
@@ -550,7 +572,7 @@ class ViewMain extends React.Component {
                     <div className={classes.evidenceLinkSourceAvatarWaiting}>
                       2. Click on a target...
                   </div>
-                  )}
+                )}
                 <div style={{ flexGrow: '1' }} />
                 <Button onClick={this.handleAddEdgeClose} color="primary">
                   Cancel
@@ -610,8 +632,8 @@ class ViewMain extends React.Component {
                     {this.state.selectedResource.type === 'simulation' ? (
                       <ImageIcon />
                     ) : (
-                        <DescriptionIcon />
-                      )}
+                      <DescriptionIcon />
+                    )}
                   </Typography>
                 </CardContent>
               </Card>

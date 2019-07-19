@@ -23,7 +23,7 @@ const PROMPTS = require('../system/util/prompts');
 
 const PR = PROMPTS.Pad('WebServer');
 const TR = '\x1b[0m';
-const CR = '\x1b[44m';
+const CR = '\x1b[44m\x1b[37m';
 
 const DP = '***';
 const GIT = 'GIT';

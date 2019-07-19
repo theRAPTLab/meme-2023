@@ -40,7 +40,7 @@ const { TERM } = MTERM;
 const TR = TERM.Reset;
 const TB = TERM.Bright;
 const CY = TERM.FgYellow;
-const CR = TERM.BgRed;
+const CR = `${TERM.BgRed}${TERM.FgWhite}`;
 
 const PR = PROMPTS.Pad('MEME EXEC');
 

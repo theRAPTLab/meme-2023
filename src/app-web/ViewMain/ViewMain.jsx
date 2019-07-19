@@ -50,6 +50,7 @@ import RoutedView from './RoutedView';
 import MEMEStyles from '../components/MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
+import ADM from '../modules/adm-data';
 import EvidenceList from '../components/EvidenceList';
 import Login from '../components/Login';
 import ResourceItem from '../components/ResourceItem';
@@ -121,6 +122,11 @@ class ViewMain extends React.Component {
         links: -1
       }
     };
+
+
+    // FIXME
+    // Hack load in ADM data for now.  Eventually ADM will be loaded by system startup.
+    ADM.Load();
   }
 
   componentDidMount() {

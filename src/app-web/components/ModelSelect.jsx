@@ -36,6 +36,8 @@ class ModelSelect extends React.Component {
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.OnModelDialogClose = this.OnModelDialogClose.bind(this);
     this.OnNewModel = this.OnNewModel.bind(this);
+    this.OnModelEdit = this.OnModelEdit.bind(this);
+    this.OnModelView = this.OnModelView.bind(this);
     this.OnLogout = this.OnLogout.bind(this);
 
     UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate);
@@ -76,7 +78,18 @@ class ModelSelect extends React.Component {
   }
 
   OnNewModel() {
+    this.OnModelDialogClose();
     alert('new model not implemented yet');
+  }
+
+  OnModelEdit(modelId) {
+    ADM.SelectModel(modelId);
+    this.OnModelDialogClose();
+  }
+
+  OnModelView() {
+    this.OnModelDialogClose();
+    alert('view model not implemented yet');
   }
 
   OnLogout() {
@@ -98,7 +111,7 @@ class ModelSelect extends React.Component {
         <DialogTitle>Hi {ADM.GetStudentName()}! Select a Model:</DialogTitle>
         <DialogContent>
           <DialogContentText>{ADM.GetStudentGroupName()} Group&lsquo;s Models</DialogContentText>
-          <ModelsListTable models={myModels} />
+          <ModelsListTable models={myModels} OnModelSelect={this.OnModelEdit} />
           <Button
             onClick={this.OnNewModel}
             color="primary"
@@ -109,7 +122,7 @@ class ModelSelect extends React.Component {
           </Button>
           <Divider style={{ margin: '2em' }} />
           <DialogContentText>My Classes&lsquo; Models</DialogContentText>
-          <ModelsListTable models={ourModels} />
+          <ModelsListTable models={ourModels} OnModelSelect={this.OnModelView} />
         </DialogContent>
         <DialogActions>
           <Button onClick={this.OnLogout} color="primary">

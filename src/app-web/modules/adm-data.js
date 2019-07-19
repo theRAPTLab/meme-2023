@@ -127,7 +127,8 @@ ADMData.Load = () => {
   adm_settings = {
     selectedTeacherId: '',
     selectedClassroomId: '',
-    selectedStudentId: ''
+    selectedStudentId: '',
+    selectedModelId: ''
   };
 };
 
@@ -367,8 +368,15 @@ ADMData.GetStudentGroupName = (studentId = adm_settings.selectedStudentId) => {
   }
   return result;
 };
+ADMData.SelectModel = modelId => {
+  // verify it's valid
+  if (adm_db.a_models.find(mdl => mdl.id === modelId) === undefined) {
+    console.error(PKG, 'SelectModel could not find valid modelId', modelId);
+  }
+  adm_settings.selectedModelId = modelId;
+};
 ADMData.GetSelectedModelId = () => {
-  return 'm01';
+  return adm_settings.selectedModelId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// MODELS
@@ -386,6 +394,11 @@ ADMData.GetModelsByStudent = (studentId = adm_settings.selectedStudentId) => {
 ADMData.GetModelsByGroup = (group = ADMData.GetGroupByStudent()) => {
   return adm_db.a_models.filter(mdl => mdl.groupId === group.id);
 };
+// 
+ADMData.CloseModel = () => {
+  adm_settings.selectedModelId = '';
+  UR.Publish('ADM_DATA_UPDATED');
+}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// CRITERIA
 /**

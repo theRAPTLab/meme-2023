@@ -31,8 +31,8 @@ class ModelsListTable extends React.Component {
 
   componentWillUnmount() { }
 
-  OnModelSelect(e) {
-    alert('Model Selection is not implmented yet!');
+  OnModelSelect(modelId) {
+    this.props.OnModelSelect(modelId);
   }
 
   render() {
@@ -53,7 +53,7 @@ class ModelsListTable extends React.Component {
             {models.map(model => (
               <TableRow key={model.id}>
                 <TableCell>
-                  <Button color="primary" onClick={this.OnModelSelect}>
+                  <Button color="primary" onClick={e => this.OnModelSelect(model.id)}>
                     {model.title}
                   </Button>
                 </TableCell>
@@ -71,12 +71,16 @@ ModelsListTable.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
-  models: PropTypes.array
+  models: PropTypes.array,
+  OnModelSelect: PropTypes.func
 };
 
 ModelsListTable.defaultProps = {
   classes: {},
-  models: []
+  models: [],
+  OnModelSelect: () => {
+    console.error('Missing OnModeSelect handler');
+  }
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

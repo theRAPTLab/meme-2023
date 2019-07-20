@@ -420,7 +420,14 @@ class ViewMain extends React.Component {
   render() {
     const { classes } = this.props;
 
-    const { studentName, studentGroup, addPropLabel, addPropPropId, componentIsSelected, mechIsSelected } = this.state;
+    const {
+      studentName,
+      studentGroup,
+      addPropLabel,
+      addPropPropId,
+      componentIsSelected,
+      mechIsSelected
+    } = this.state;
     const resources = DATA.AllResources();
     return (
       <div className={classes.root}>
@@ -548,7 +555,7 @@ class ViewMain extends React.Component {
                     {DATA.Prop(this.state.addEdgeSource).name}
                   </div>
                 ) : (
-                    <div className={classes.evidenceLinkSourceAvatarWaiting}>
+                  <div className={classes.evidenceLinkSourceAvatarWaiting}>
                     1. Click on a source...
                   </div>
                 )}
@@ -569,8 +576,8 @@ class ViewMain extends React.Component {
                     {DATA.Prop(this.state.addEdgeTarget).name}
                   </div>
                 ) : (
-                    <div className={classes.evidenceLinkSourceAvatarWaiting}>
-                      2. Click on a target...
+                  <div className={classes.evidenceLinkSourceAvatarWaiting}>
+                    2. Click on a target...
                   </div>
                 )}
                 <div style={{ flexGrow: '1' }} />

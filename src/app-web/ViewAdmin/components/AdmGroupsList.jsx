@@ -137,9 +137,6 @@ class GroupsList extends React.Component {
     const { classes } = this.props;
     const { groups, addGroupDialogOpen, addStudentDialogOpen, classroomId } = this.state;
 
-    // FIXME: Fake token generator placeholder
-    const generateToken = (groupId, student) => `BR-${groupId}-XYZ-${student}\n`;
-
     return (
       <Paper className={classes.admPaper}>
         <InputLabel>GROUPS</InputLabel>
@@ -178,7 +175,7 @@ class GroupsList extends React.Component {
                     readOnly
                     style={{ fontFamily: 'monospace' }}
                     value={group.students.reduce(
-                      (accumulator, student) => accumulator + generateToken(group.id, student),
+                      (accumulator, student) => accumulator + ADM.GetToken(group.id, student),
                       '' // initialValue to force start at index=0
                     )}
                   />

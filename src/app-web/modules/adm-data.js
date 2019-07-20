@@ -336,6 +336,12 @@ ADMData.DeleteStudent = (groupId, student) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// STUDENTS
+/**
+ *  Call with no 'studentName' to get the group token
+ */
+ADMData.GetToken = (groupId, studentName) => {
+  return `BR-${groupId}-XYZ${studentName ? '-' : ''}${studentName}\n`;
+};
 ADMData.Login = loginId => {
   // FIXME: Replace this with a proper token check and lookup
   // This assumes we already did validation

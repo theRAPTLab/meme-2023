@@ -9,6 +9,9 @@ const m_resourceListWidth = 300;
 
 const styles = theme => {
   return {
+    oneEmBefore: {
+      marginTop: '1em'
+    },
     root: {
       display: 'flex'
     },

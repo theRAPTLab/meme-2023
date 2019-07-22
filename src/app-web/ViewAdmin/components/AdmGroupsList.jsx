@@ -15,6 +15,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import IconButton from '@material-ui/core/IconButton';
 import InputLabel from '@material-ui/core/InputLabel';
 import Paper from '@material-ui/core/Paper';
@@ -54,6 +56,7 @@ class GroupsList extends React.Component {
     this.OnDeleteStudent = this.OnDeleteStudent.bind(this);
     this.OnAddStudentName = this.OnAddStudentName.bind(this);
     this.OnAddStudentDialogClose = this.OnAddStudentDialogClose.bind(this);
+    this.OnUpdateAddStudentName = this.OnUpdateAddStudentName.bind(this);
 
     this.state = {
       groups: [],
@@ -62,6 +65,7 @@ class GroupsList extends React.Component {
       addStudentDialogOpen: false,
       addStudentDialogGroupId: '',
       addStudentDialogName: '',
+      addStudentDialogInvalidNames: undefined,
       classroomId: ''
     };
 
@@ -133,9 +137,32 @@ class GroupsList extends React.Component {
     this.setState({ addStudentDialogOpen: false });
   }
 
+  CheckForDuplicates(names) {
+    let namesArr = names.split(',');
+    let duplicateNamesArr = namesArr.filter(name => {
+      return ADM.GetGroupByStudent(name.trim());
+    });
+    return duplicateNamesArr.length > 0 ? duplicateNamesArr.join(', ') : undefined;
+  }
+
+  OnUpdateAddStudentName(e) {
+    // Check for duplicates
+    let duplicateNames = this.CheckForDuplicates(e.target.value);
+    this.setState({
+      addStudentDialogName: e.target.value,
+      addStudentDialogInvalidNames: duplicateNames
+    });
+  }
+
   render() {
     const { classes } = this.props;
-    const { groups, addGroupDialogOpen, addStudentDialogOpen, classroomId } = this.state;
+    const {
+      groups,
+      addGroupDialogOpen,
+      addStudentDialogOpen,
+      addStudentDialogInvalidNames,
+      classroomId
+    } = this.state;
 
     return (
       <Paper className={classes.admPaper}>
@@ -214,28 +241,43 @@ class GroupsList extends React.Component {
           </DialogActions>
         </Dialog>
         <Dialog open={addStudentDialogOpen} onClose={this.OnAddStudentDialogClose}>
-          <DialogTitle>Add Student(s)</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Add a student first name, or add multiple students separated by a comma. Please use
-              first names only. (e.g. 'Bob, Brianna, Brenda')
-            </DialogContentText>
-            <TextField
-              autoFocus
-              id="studentNames"
-              label="Name(s)"
-              fullWidth
-              onChange={e => this.setState({ addStudentDialogName: e.target.value })}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.OnAddStudentDialogClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={this.OnAddStudentName} color="primary">
-              Add
-            </Button>
-          </DialogActions>
+          <form onSubmit={this.OnAddStudentName}>
+            <DialogTitle>Add Student(s)</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Add a student first name, or add multiple students separated by a comma. Please use
+                first names only. (e.g. 'Bob, Brianna, Brenda').
+              </DialogContentText>
+              <FormControl
+                error={addStudentDialogInvalidNames !== undefined}
+                fullWidth
+                className={classes.oneEmBefore}
+              >
+                <TextField
+                  autoFocus
+                  id="studentNames"
+                  label="Name(s)"
+                  fullWidth
+                  onChange={this.OnUpdateAddStudentName}
+                />
+                <FormHelperText hidden={addStudentDialogInvalidNames === undefined}>
+                  {addStudentDialogInvalidNames} is already in this group. Please use a unique name.
+                </FormHelperText>
+              </FormControl>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.OnAddStudentDialogClose} color="primary">
+                Cancel
+              </Button>
+              <Button
+                color="primary"
+                type="submit"
+                disabled={addStudentDialogInvalidNames !== undefined}
+              >
+                Add
+              </Button>
+            </DialogActions>
+          </form>
         </Dialog>
       </Paper>
     );

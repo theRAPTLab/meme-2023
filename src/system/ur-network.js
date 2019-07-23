@@ -13,7 +13,13 @@ const DBG = { connect: true, handle: false };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const SETTINGS = {
   EJSProp: key => {
-    console.log(`key ${key} request`);
+    const v = SETTINGS[key];
+    console.warn(`FAKED SETTINGS[${key}]:${v}`);
+    return v;
+  },
+  socket: {
+    uaddr: 'localhost',
+    uport: '2929'
   }
 };
 const NetMessage = require('./common-netmessage');
@@ -57,13 +63,13 @@ let UDATA = null; // assigned during NETWORK.Connect()
 NETWORK.Connect = (datalink, opt) => {
   // special case: STANDALONE mode is set by a different set of magical
   // window.NC_UNISYS properties
-  if (window.NC_UNISYS.server.ip === 'standalone') {
-    m_status = M_STANDALONE;
-    console.warn(PR, 'STANDALONE MODE: NETWORK.Connect() suppressed!');
-    NetMessage.GlobalOfflineMode();
-    if (typeof opt.success === 'function') opt.success();
-    return;
-  }
+  // if (window.NC_UNISYS.server.ip === 'standalone') {
+  //   m_status = M_STANDALONE;
+  //   console.warn(PR, 'STANDALONE MODE: NETWORK.Connect() suppressed!');
+  //   NetMessage.GlobalOfflineMode();
+  //   if (typeof opt.success === 'function') opt.success();
+  //   return;
+  // }
 
   // if multiple network connections occur, emit warning
   // warning: don't modify this unless you have a deep knowledge of how
@@ -90,7 +96,7 @@ NETWORK.Connect = (datalink, opt) => {
 
   // create listeners
   NETWORK.AddListener('open', event => {
-    if (DBG.connect) console.log(PR, '..OPEN', event.target.url);
+    if (DBG.connect) console.log(PR, '...OPEN', event.target.url);
     m_status = M2_CONNECTED;
     // message handling continues in 'message' handler
     // the first message is assumed to be registration data

@@ -5,6 +5,8 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import { Dirname } from './util/path';
+import URNET from './ur-network';
+import DataLink from './ur-class-datalink';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -29,10 +31,12 @@ const PHASES = [
   'UNLOADASSETS', // system releases any connections
   'SHUTDOWN' // system wants to shut down
 ];
-let PHASE = `${PHASES[0]}_PENDING`;
+
 const DBG = false;
 const MOD = { name: 'LifeCycle', scope: 'system/booting' };
 const BAD_PATH = "module_path must be a string derived from the module's module.id";
+
+const URDATA = new DataLink(module);
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -198,7 +202,7 @@ const SetupDOM = () => {
 const JoinNet = () => {
   return new Promise((resolve, reject) => {
     try {
-      NETWORK.Connect(UDATA, { success: resolve, failure: reject });
+      URNET.Connect(URDATA, { success: resolve, failure: reject });
     } catch (e) {
       console.error(
         'EnterNet() Lifecycle Error. Check phase execution order effect on data validity.\n',
@@ -307,7 +311,7 @@ const ExitApp = () => {
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export {
+export default {
   Hook,
   Execute,
   SetScope,

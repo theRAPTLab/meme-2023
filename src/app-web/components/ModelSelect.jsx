@@ -17,6 +17,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Divider from '@material-ui/core/Divider';
+import Grid from '@material-ui/core/Grid';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -107,14 +108,23 @@ class ModelSelect extends React.Component {
         disableEscapeKeyDown
         open={modelSelectDialogOpen}
         onClose={this.OnLoginDialogClose}
+        fullScreen
       >
         <DialogTitle>Hi {ADM.GetStudentName()}! Select a Model:</DialogTitle>
         <DialogContent>
-          <DialogContentText>{ADM.GetStudentGroupName()} Group&lsquo;s Models</DialogContentText>
-          <ModelsListTable models={myModels} OnModelSelect={this.OnModelEdit} />
-          <Divider style={{ margin: '2em' }} />
-          <DialogContentText>My Classes&lsquo; Models</DialogContentText>
-          <ModelsListTable models={ourModels} OnModelSelect={this.OnModelView} />
+          <Grid container spacing={32}>
+            <Grid item>
+              <DialogContentText>
+                {ADM.GetStudentGroupName()} Group&lsquo;s Models
+              </DialogContentText>
+              <ModelsListTable models={myModels} OnModelSelect={this.OnModelEdit} />
+              <Divider style={{ margin: '2em' }} />
+            </Grid>
+            <Grid item>
+              <DialogContentText>My Classes&lsquo; Models</DialogContentText>
+              <ModelsListTable models={ourModels} OnModelSelect={this.OnModelView} />
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={this.OnNewModel} color="primary" variant="outlined">

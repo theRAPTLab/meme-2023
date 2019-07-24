@@ -30,7 +30,10 @@ class SVGView extends React.Component {
     // bindings
     this.DoAppLoop = this.DoAppLoop.bind(this);
     // LIFECYCLE: Initialize DataGraph
-    DATA.LoadGraph();
+    
+    // Graph is now loaded by ADM.LoadModel.
+    // DATA.LoadGraph();
+    
     // Look for Data Updates
     UR.Sub('DATA_UPDATED', this.DoAppLoop)
   }

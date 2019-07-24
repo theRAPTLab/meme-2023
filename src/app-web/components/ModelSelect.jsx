@@ -79,18 +79,18 @@ class ModelSelect extends React.Component {
   }
 
   OnNewModel() {
+    ADM.NewModel();
     this.OnModelDialogClose();
-    alert('new model not implemented yet');
   }
 
   OnModelEdit(modelId) {
-    ADM.SelectModel(modelId);
+    ADM.LoadModel(modelId);
     this.OnModelDialogClose();
   }
 
-  OnModelView() {
+  OnModelView(modelId) {
+    ADM.LoadModel(modelId);
     this.OnModelDialogClose();
-    alert('view model not implemented yet');
   }
 
   OnLogout() {

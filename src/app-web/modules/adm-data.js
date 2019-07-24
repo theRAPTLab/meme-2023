@@ -1,5 +1,6 @@
 import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
+import PMCData from './pmc-data';
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -273,7 +274,16 @@ ADMData.AddTeacher = name => {
 ADMData.GetClassroomsByTeacher = (teacherId = adm_settings.selectedTeacherId) => {
   return adm_db.a_classrooms.filter(cls => cls.teacherId === teacherId);
 };
-ADMData.SelectClassroom = classroomId => {
+ADMData.GetClassroomByGroup = groupId => {
+  let group = ADMData.GetGroup(groupId);
+  return group ? group.classroomid : undefined;
+};
+ADMData.GetClassroomByStudent = (studentId = adm_settings.selectedStudentId) => {
+  const groupId = ADMData.GetGroupIdByStudent(studentId);
+  return ADMData.GetClassroomByGroup(groupId);
+};
+ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomByStudent()) => {
+  if (DBG) console.log(PKG, 'SelectClassroom: Selecting classroom', classroomId);
   adm_settings.selectedClassroomId = classroomId;
   UR.Publish('CLASSROOM_SELECT', { classroomId });
 };
@@ -336,7 +346,7 @@ ADMData.GetGroupsByClassroom = classroomId => {
 /**
  *  Returns array of group ids associated with the classroom, e.g.
  *    [ 'gr01', 'gr02', 'gr03' ]
- *  This is primarily used by ADMData.GetModelsByClassroom to check if 
+ *  This is primarily used by ADMData.GetModelsByClassroom to check if
  *  a model is from a particular classsroom.
  */
 ADMData.GetGroupIdsByClassroom = classroomId => {
@@ -351,19 +361,16 @@ ADMData.GetGroupIdsByClassroom = classroomId => {
 ADMData.GetGroupByStudent = (studentId = adm_settings.selectedStudentId) => {
   if (studentId === '' || adm_db.a_groups === undefined) return undefined;
   return adm_db.a_groups.find(grp => {
-    if (DBG)
-      console.log(
-        'GetGroupByStudent: studentId',
-        studentId,
-        'grp',
-        grp.id,
-        'grp.students',
-        grp.students,
-        'includes',
-        grp.students.includes(studentId)
-      );
     return grp.students.includes(studentId);
   });
+};
+ADMData.GetGroupIdByStudent = studentId => {
+  let group = ADMData.GetGroupByStudent(studentId);
+  return group ? group.id : undefined;
+};
+ADMData.GetSelectedGroupId = () => {
+  const studentId = ADMData.GetSelectedStudentId();
+  return ADMData.GetGroupIdByStudent(studentId);
 };
 /**
  *  Updates a_groups with latest group info
@@ -469,18 +476,12 @@ ADMData.GetStudentGroupName = (studentId = adm_settings.selectedStudentId) => {
   }
   return result;
 };
-ADMData.SelectModel = modelId => {
-  // verify it's valid
-  if (adm_db.a_models.find(mdl => mdl.id === modelId) === undefined) {
-    console.error(PKG, 'SelectModel could not find valid modelId', modelId);
-  }
-  adm_settings.selectedModelId = modelId;
-};
-ADMData.GetSelectedModelId = () => {
-  return adm_settings.selectedModelId;
-};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// MODELS
+///
+ADMData.GetModelById = modelId => {
+  return adm_db.a_models.find(model => model.id === modelId);
+};
 ADMData.GetModelsByClassroom = classroomId => {
   const groupIdsInClassroom = ADMData.GetGroupIdsByClassroom(classroomId);
   return adm_db.a_models.filter(mdl => groupIdsInClassroom.includes(mdl.groupId));
@@ -495,11 +496,42 @@ ADMData.GetModelsByStudent = (studentId = adm_settings.selectedStudentId) => {
 ADMData.GetModelsByGroup = (group = ADMData.GetGroupByStudent()) => {
   return adm_db.a_models.filter(mdl => mdl.groupId === group.id);
 };
-// 
+ADMData.NewModel = (groupId = ADMData.GetSelectedGroupId()) => {
+  let model = {
+    id: GenerateUID('mo'),
+    title: 'new',
+    groupId,
+    dateCreated: new Date(),
+    dateModified: new Date(),
+    data: {}
+  };
+  adm_db.a_models.push(model);
+  UR.Publish('ADM_DATA_UPDATED');
+  ADMData.LoadModel(model.id, groupId);
+};
+ADMData.LoadModel = modelId => {
+  let model = ADMData.GetModelById(modelId);
+  if (model === undefined) {
+    console.error(PKG, 'LoadModel could not find a valid modelId', modelId);
+  }
+  PMCData.LoadModel(model, adm_db.a_resources);
+  ADMData.SetSelectedModelId(modelId); // Remember the selected modelId locally
+};
+// This does not load the model, it just sets the currently selected model id
+ADMData.SetSelectedModelId = modelId => {
+  // verify it's valid
+  if (adm_db.a_models.find(mdl => mdl.id === modelId) === undefined) {
+    console.error(PKG, 'SetSelectedModelId could not find valid modelId', modelId);
+  }
+  adm_settings.selectedModelId = modelId;
+};
+ADMData.GetSelectedModelId = () => {
+  return adm_settings.selectedModelId;
+};
 ADMData.CloseModel = () => {
   adm_settings.selectedModelId = '';
   UR.Publish('ADM_DATA_UPDATED');
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// CRITERIA
 /**
@@ -528,8 +560,13 @@ ADMData.NewCriteria = (classroomId = adm_settings.selectedClassroomId) => {
   // a_criteria.push(crit);
   return crit;
 };
-ADMData.GetCriteriaByClassroom = classroomId => {
+ADMData.GetCriteriaByClassroom = (classroomId = adm_settings.selectedClassroomId) => {
   return adm_db.a_criteria.filter(crit => crit.classroomId === classroomId);
+};
+ADMData.GetCriteriaLabel = (criteriaId, classroomId = ADMData.GetSelectedClassroomId()) => {
+  let criteriaArr = ADMData.GetCriteriaByClassroom(classroomId);
+  let criteria = criteriaArr.find(crit => crit.id === criteriaId);
+  return criteria ? criteria.label : '';
 };
 ADMData.UpdateCriteria = criteria => {
   const i = adm_db.a_criteria.findIndex(cr => cr.id === criteria.id);

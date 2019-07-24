@@ -220,6 +220,40 @@ ADMData.Load = () => {
       links: 0
     }
   ];
+
+  // HACK IN TEMPORARY DATA
+  let model = ADMData.GetModelById('mo01');
+  model.data = {
+    // components is a 'component' or a 'property' (if it has a parent)
+    components: [
+      { id: 'tank', name: 'tank' },
+      { id: 'fish', name: 'fish' },
+      { id: 'food', name: 'food' },
+      { id: 'ammonia', name: 'Ammonia' },
+      { id: 'clean-water', name: 'clean water', parent: 'tank' },
+      { id: 'dirty-water-waste', name: 'waste', parent: 'tank' },
+      { id: 'poop', name: 'poop', parent: 'dirty-water-waste' }
+    ],
+    mechanisms: [
+      { source: 'fish', target: 'tank', name: 'live in' },
+      { source: 'fish', target: 'food', name: 'eat' },
+      { source: 'fish', target: 'dirty-water-waste', name: 'produce' }
+    ],
+    evidence: [
+      { evId: 'ev1', propId: 'fish', mechId: undefined, rsrcId: 'rs1', note: 'fish need food' },
+      { evId: 'ev2', propId: undefined, mechId: 'fish:food', rsrcId: 'rs1', note: 'fish need food' }
+    ]
+  };
+  let model2 = ADMData.GetModelById('mo02');
+  model2.data = {
+    // components is a 'component' or a 'property' (if it has a parent)
+    components: [
+      { id: 'tank', name: 'tank' },
+      { id: 'fish', name: 'fish' },
+      { id: 'ammonia', name: 'Ammonia' }
+    ]
+  };
+
   adm_settings = {
     selectedTeacherId: '',
     selectedClassroomId: '',

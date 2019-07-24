@@ -112,19 +112,15 @@ class ModelSelect extends React.Component {
         <DialogContent>
           <DialogContentText>{ADM.GetStudentGroupName()} Group&lsquo;s Models</DialogContentText>
           <ModelsListTable models={myModels} OnModelSelect={this.OnModelEdit} />
-          <Button
-            onClick={this.OnNewModel}
-            color="primary"
-            variant="outlined"
-            style={{ marginTop: '1em' }}
-          >
-            Create New Model
-          </Button>
           <Divider style={{ margin: '2em' }} />
           <DialogContentText>My Classes&lsquo; Models</DialogContentText>
           <ModelsListTable models={ourModels} OnModelSelect={this.OnModelView} />
         </DialogContent>
         <DialogActions>
+          <Button onClick={this.OnNewModel} color="primary" variant="outlined">
+            Create New Model
+          </Button>
+          <div style={{ flexGrow: 1 }} />
           <Button onClick={this.OnLogout} color="primary">
             Logout
           </Button>

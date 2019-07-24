@@ -1,3 +1,4 @@
+import ADM from './adm-data';
 import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
 import UR from '../../system/ursys';
@@ -113,7 +114,7 @@ class VMech {
     const evArr = DATA.MechEvidence(this.id);
     if (evArr) {
       evArr.forEach((ev) => {
-        let label = DATA.Resource(ev.rsrcId).referenceLabel;
+        let label = ADM.Resource(ev.rsrcId).referenceLabel;
         evString += `[${label}]`;
       });
     }

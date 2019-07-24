@@ -26,7 +26,6 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
-import DATA from '../../modules/pmc-data';
 import ADM from '../../modules/adm-data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -76,9 +75,7 @@ class ResourcesList extends React.Component {
   render() {
     const { classes } = this.props;
     const { classroomResources, classroomId } = this.state;
-
-    DATA.LoadGraph();  // FIXME: Hack for now to force loading data
-    const resources = DATA.AllResources();
+    const resources = ADM.AllResources();
 
     return (
       <Paper className={classes.admResourceListPaper}>

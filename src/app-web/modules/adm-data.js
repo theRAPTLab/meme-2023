@@ -443,9 +443,8 @@ ADMData.Login = loginId => {
   // FIXME: Replace this with a proper token check and lookup
   // This assumes we already did validation
   adm_settings.selectedStudentId = loginId;
-  // FIXME hack in classroom selection
   // After logging in, we need to tell ADM what the default classroom is
-  ADMData.SelectClassroom('cl01');
+  ADMData.SelectClassroom();
   UR.Publish('ADM_DATA_UPDATED');
 };
 ADMData.Logout = () => {

@@ -1,11 +1,6 @@
 /*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  copied as-is from src/app-console
-
-  ur-server is launched from the ur-main.js Electron mainprocess
-
-  It currently also manages the live-reload of the web app through webpack-dev-middleware
-  The live-reload for the electron app is handled by npm script running webpack
+  server-express creates an express instance and
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 
@@ -21,7 +16,8 @@ const cookiep = require('cookie-parser');
 const { exec } = require('child_process');
 const PROMPTS = require('../system/util/prompts');
 
-const PR = PROMPTS.Pad('WebServer');
+const PR = PROMPTS.Pad('URSYS.WEB');
+const CY = '\x1b[33m';
 const TR = '\x1b[0m';
 const CR = '\x1b[44m\x1b[37m';
 
@@ -31,15 +27,15 @@ const GIT = 'GIT';
 const app = express();
 const configWebApp = require('../config/webpack.webapp.config');
 
-function Start(options) {
-  const { isPackaged } = options;
+function Start() {
+  let PATH_WEBSOURCE;
 
-  let PATH_BUILT;
-
+  const isPackaged = __dirname.includes('/Contents/Resources/app/system');
   if (isPackaged) {
-    console.log(`${PR} using pre-compiled webpack bundle in standalone app`);
-    PATH_BUILT = path.resolve(__dirname, '../web');
+    console.log(`${PR}${CY}using pre-compiled webpack bundle in standalone app${TR}`);
+    PATH_WEBSOURCE = path.resolve(__dirname, '../web');
   } else {
+    console.log(`${PR}${CY} using webpack middleware to compile changes on-the-fly${TR}`);
     // THIS IS WEBPACK STUFF
     //
     // note we need the object, not a function, when using webpack API
@@ -64,11 +60,11 @@ function Start(options) {
     app.use(hot(compiler));
     // theoreticically changes to this should cause a hot reload?
     // ONLY with webapp, not with appserver changes!
-    PATH_BUILT = path.resolve(__dirname, '../../built/web');
+    PATH_WEBSOURCE = path.resolve(__dirname, '../../built/web');
   }
   /// serve everything else out of public as static files
-  console.log(`${PR} docroot is ${PATH_BUILT}`);
-  app.use('/', express.static(PATH_BUILT));
+  console.log(`${PR} docroot is ${PATH_WEBSOURCE}`);
+  app.use('/', express.static(PATH_WEBSOURCE));
   app.listen(3000, () => console.log(`${PR} listening for http on port 3000`));
 }
 

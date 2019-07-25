@@ -68,8 +68,9 @@ function createWindow() {
     mainWindow.show();
     mainWindow.webContents.openDevTools();
     // load webserver
-    const RENDERER = require('./console-wds'); // eslint-disable-line
-    RENDERER.Start({ isPackaged: __dirname.includes('/Contents/Resources/app/console') });
+    // const MEMESERVER = require('./console-wds'); // eslint-disable-line
+    URSERVER.StartWebServer();
+    // set application menu
     const application = {
       label: 'MEME',
       submenu: [

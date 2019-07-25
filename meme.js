@@ -90,34 +90,36 @@ function f_RunDevServer() {
   console.log(`---\n`);
 
   // run webpack development server
-  const wds = shell.exec(
-    `${PATH_WDS}/webpack-dev-server.js --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'`,
-    { silent: true, async: true }
-  );
-  wds.on('exit', () => {
-    console.log(`\n${PR} webpack-dev-server has been terminated\n`);
-    process.exit();
-  });
+  // const wds = shell.exec(
+  //   `${PATH_WDS}/webpack-dev-server.js --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'`,
+  //   { silent: true, async: true }
+  // );
+  // wds.on('exit', () => {
+  //   console.log(`\n${PR} webpack-dev-server has been terminated\n`);
+  //   process.exit();
+  // });
+  // process.on('SIGINT', () => {
+  //   wds.kill('SIGHUP');
+  // });
+
   // run ursys socket server
   // note: in electron mode, this server is loaded from inside electron's console-main.js
   console.log(PR, 'starting URSYS');
+
   URSERVER.InitializeNetwork();
   URSERVER.StartNetwork();
-
-  process.on('SIGINT', () => {
-    wds.kill('SIGHUP');
-  });
+  URSERVER.StartWebServer();
 }
 
 function f_RunElectron() {
   console.log(`\n`);
   console.log(PR, `running ${CY}Electron Host with Live Reload${TR}`);
-  console.log(PR, `compiling webapp with webpack.console.config`);
+  console.log(PR, `compiling electron renderprocess files with webpack.console.config`);
   shell.exec(
     `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.console.config.js --env.HMR_MODE='electron'`,
     { silent: true }
   );
-  console.log(PR, `launching app through electron WDS host...\n`);
+  console.log(PR, `launching electron binary host through console-main.js...\n`);
   shell.exec(`npx electron ./built/console/console-main`);
 }
 

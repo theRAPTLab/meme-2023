@@ -12,6 +12,7 @@ const DBG = false;
 const UNET = require('./server-network');
 const UDB = require('./server-database');
 const LOGGER = require('./server-logger');
+const EXPRESS = require('./server-express');
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -88,6 +89,10 @@ URSYS.RegisterHandlers = () => {
   function sprint_message(pkt) {
     return `got '${pkt.Message()}' data=${JSON.stringify(pkt.Data())}`;
   }
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+URSYS.StartWebServer = () => {
+  EXPRESS.Start();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**

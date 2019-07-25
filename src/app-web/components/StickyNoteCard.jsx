@@ -48,11 +48,14 @@ class StickyNoteCard extends React.Component {
     this.OnEditFinished = this.OnEditFinished.bind(this);
     this.OnCriteriaSelect = this.OnCriteriaSelect.bind(this);
     this.OnCommentTextChange = this.OnCommentTextChange.bind(this);
+    this.OnShowEditButtons = this.OnShowEditButtons.bind(this);
+    this.OnHideEditButtons = this.OnHideEditButtons.bind(this);
 
     this.state = {
       isBeingEdited: false,
       allowedToEdit: false,
       allowedToDelete: false,
+      showEditButtons: false,
       criteria: [],
       selectedCriteriaId: '',
       comment: this.props.comment
@@ -100,11 +103,24 @@ class StickyNoteCard extends React.Component {
     });
   }
 
+  OnShowEditButtons() {
+    this.setState({
+      showEditButtons: true
+    });
+  }
+
+  OnHideEditButtons() {
+    this.setState({
+      showEditButtons: false
+    });
+  }
+
   render() {
     const {
       isBeingEdited,
       allowedToEdit,
       allowedToDelete,
+      showEditButtons,
       criteria,
       selectedCriteriaId,
       comment
@@ -152,7 +168,11 @@ class StickyNoteCard extends React.Component {
     }
     return (
       <ClickAwayListener onClickAway={this.OnEditFinished}>
-        <Paper className={classes.stickynoteCard}>
+        <Paper
+          className={classes.stickynoteCard}
+          onMouseEnter={this.OnShowEditButtons}
+          onMouseLeave={this.OnHideEditButtons}
+        >
           <Grid container>
             <Grid item style={{ flexGrow: 1 }}>
               <InputLabel className={classes.stickynoteCardLabel}>CRITERIA:&nbsp;</InputLabel>
@@ -188,7 +208,7 @@ class StickyNoteCard extends React.Component {
             <Grid item style={{ flexGrow: '1', alignItems: 'center', textAlign: 'center' }}>
               <IconButton
                 size="small"
-                hidden={!allowedToDelete}
+                hidden={!showEditButtons || !allowedToDelete}
                 onClick={this.OnDeleteCard}
                 className={classes.stickynoteCardEditBtn}
               >
@@ -198,7 +218,7 @@ class StickyNoteCard extends React.Component {
             <Grid item xs={1}>
               <IconButton
                 size="small"
-                hidden={!allowedToEdit}
+                hidden={!showEditButtons || (!allowedToEdit || isBeingEdited)}
                 onClick={this.OnEditClick}
                 className={classes.stickynoteCardEditBtn}
               >

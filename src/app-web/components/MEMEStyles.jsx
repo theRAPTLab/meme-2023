@@ -356,6 +356,7 @@ const styles = theme => {
     stickynoteCard: {
       backgroundColor: 'rgba(255,255,255,0.3)',
       margin: '5px',
+      padding: '5px',
       width: '325px'
     },
     stickynoteCardAuthor: {
@@ -372,14 +373,15 @@ const styles = theme => {
       width: '100%'
     },
     criteriaSelectorMenu: {
-      fontSize: '0.8em'
+      fontSize: '0.9em',
+      padding: '2px 4px'
     },
     stickynoteCardLabel: {
-      fontSize: '0.7em',
+      fontSize: '0.8em',
       color: m_systemLabelTextColor
     },
     stickynoteCardCriteria: {
-      fontSize: '0.7em',
+      fontSize: '0.8em',
       display: 'inline-flex'
     }
   };

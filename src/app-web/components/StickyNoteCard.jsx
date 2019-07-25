@@ -16,13 +16,16 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
-import Input from '@material-ui/core/Input';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import InputBase from '@material-ui/core/InputBase';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
+import Paper from '@material-ui/core/Paper';
 import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 // Material UI Icons
+import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
@@ -40,29 +43,30 @@ class StickyNoteCard extends React.Component {
   constructor(props) {
     super(props);
 
-    this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
+    this.DoOpenSticky = this.DoOpenSticky.bind(this);
     this.OnEditClick = this.OnEditClick.bind(this);
     this.OnEditFinished = this.OnEditFinished.bind(this);
     this.OnCriteriaSelect = this.OnCriteriaSelect.bind(this);
     this.OnCommentTextChange = this.OnCommentTextChange.bind(this);
 
     this.state = {
-      isBeingEdited: true,
-      allowedToEdit: true,
-      allowedToDelete: true,
+      isBeingEdited: false,
+      allowedToEdit: false,
+      allowedToDelete: false,
       criteria: [],
       selectedCriteriaId: '',
       comment: this.props.comment
     };
-
-    UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect); // Broadcast when a group is added.
   }
 
-  componentDidMount() { }
+  componentDidMount() { 
+    this.DoOpenSticky();
+  }
 
   componentWillUnmount() { }
 
-  DoClassroomSelect() {
+  DoOpenSticky() {
+    console.error('stickyhotecard do sticky open')
     const criteria = ADM.GetCriteriaByClassroom();
     const currentGroup = ADM.GetGroupByStudent();
     const authorGroup = ADM.GetGroupByStudent(this.props.comment.author);
@@ -89,11 +93,11 @@ class StickyNoteCard extends React.Component {
 
   OnCommentTextChange(e) {
     const text = e.target.value;
-    this.setState(state => { 
+    this.setState(state => {
       let comment = state.comment;
       comment.text = text;
-      return ({ comment });
-    })
+      return { comment };
+    });
   }
 
   render() {
@@ -107,85 +111,98 @@ class StickyNoteCard extends React.Component {
     } = this.state;
     const { classes } = this.props;
     const date = new Date(comment.time);
-    const time = date.toLocaleTimeString();
+    const timestring = date.toLocaleTimeString('en-Us', {
+      hour: '2-digit', minute: '2-digit'
+    });
+    const datestring = date.toLocaleDateString('en-US', {
+      month: 'short', day: 'numeric'
+    });
 
     let criteriaDisplay = ADM.GetCriteriaLabel(selectedCriteriaId);
     if (isBeingEdited) {
       criteriaDisplay = (
-        <FormControl>
-          <Select
-            value={comment.criteriaId}
-            onChange={this.OnCriteriaSelect}
-            input={<Input name="criteriaSelector" id="criteriaSelector-helper" />}
-            className={classes.criteriaSelectorMenu}
-            autoWidth
-          >
-            {criteria.map(crit => (
-              <MenuItem value={crit.id} key={crit.id} className={classes.criteriaSelectorMenu}>
-                {crit.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <select value={comment.criteriaId} onChange={this.OnCriteriaSelect}>
+          {criteria.map(crit => (
+            <option value={crit.id} key={crit.id} className={classes.criteriaSelectorMenu}>
+              {crit.label}
+            </option>
+          ))}
+        </select>
       );
+      // Material UI Select is too large and clunky!
+      // criteriaDisplay = (
+      //   <FormControl variant="outlined">
+      //     <Select
+      //       value={comment.criteriaId}
+      //       onChange={this.OnCriteriaSelect}
+      //       input={
+      //         <OutlinedInput name="criteriaSelector" id="criteriaSelector-helper" labelWidth={0} />
+      //       }
+      //       className={classes.criteriaSelectorMenu}
+      //       autoWidth
+      //     >
+      //       {criteria.map(crit => (
+      //         <MenuItem value={crit.id} key={crit.id} className={classes.criteriaSelectorMenu}>
+      //           {crit.label}
+      //         </MenuItem>
+      //       ))}
+      //     </Select>
+      //   </FormControl>
+      // );
     }
     return (
       <ClickAwayListener onClickAway={this.OnEditFinished}>
-        <Card className={classes.stickynoteCard}>
-          <CardContent>
-            <Grid container>
-              <Grid item xs className={classes.stickynoteCardAuthor}>
-                <Typography variant="subtitle2">
-                  {`${comment.author} ${ADM.GetGroupByStudent(comment.author).name}`}
-                </Typography>
-              </Grid>
-              <Grid item>
-                <InputLabel className={classes.stickynoteCardLabel}>CRITERIA:&nbsp;</InputLabel>
-                <div className={classes.stickynoteCardCriteria}>{criteriaDisplay}</div>
-              </Grid>
+        <Paper className={classes.stickynoteCard}>
+          <Grid container>
+            <Grid item style={{ flexGrow: 1 }}>
+              <InputLabel className={classes.stickynoteCardLabel}>CRITERIA:&nbsp;</InputLabel>
+              <div className={classes.stickynoteCardCriteria}>{criteriaDisplay}</div>
             </Grid>
-            <Grid container>
+            <Grid item>
               <Typography variant="caption" className={classes.stickynoteCardLabel}>
-                {`${time} ${date.toDateString()}`}
+                {`${timestring} ${datestring}`}
               </Typography>
             </Grid>
-            <Grid container>
-              <TextField
-                className={classes.stickynoteCardInput}
-                value={comment.text}
-                onChange={this.OnCommentTextChange}
-                multiline
-                InputProps={{
-                  readOnly: !allowedToEdit && isBeingEdited
-                }}
-              />
+          </Grid>
+          <Grid container>
+            <InputBase
+              className={classes.stickynoteCardInput}
+              value={comment.text}
+              onChange={this.OnCommentTextChange}
+              multiline
+              inputProps={{
+                readOnly: !allowedToEdit && isBeingEdited
+              }}
+            />
+          </Grid>
+          <Grid container style={{ alignItems: 'flex-end' }}>
+            <Grid item xs className={classes.stickynoteCardAuthor}>
+              <Typography variant="subtitle2" style={{ color: 'gray' }}>
+                {`by ${comment.author} ${ADM.GetGroupByStudent(comment.author).name}`}
+              </Typography>
             </Grid>
-          </CardContent>
-          <CardActions>
-            <Grid container>
-              <Grid item style={{ flexGrow: '1', alignItems: 'center' }}>
-                <Button
-                  onClick={this.OnDeleteCard}
-                  size="small"
-                  hidden={!allowedToDelete}
-                  color="primary"
-                >
-                  Delete Card
-                </Button>
-              </Grid>
-              <Grid item xs={1}>
-                <IconButton
-                  size="small"
-                  hidden={!allowedToEdit}
-                  onClick={this.OnEditClick}
-                  className={classes.stickynoteCardEditBtn}
-                >
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              </Grid>
+            <Grid item style={{ flexGrow: '1', alignItems: 'center', textAlign: 'center' }}>
+              <IconButton
+                size="small"
+                hidden={!allowedToDelete}
+                onClick={this.OnDeleteCard}
+                className={classes.stickynoteCardEditBtn}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
             </Grid>
-          </CardActions>
-        </Card>
+            <Grid item xs={1}>
+              <IconButton
+                size="small"
+                hidden={!allowedToEdit}
+                onClick={this.OnEditClick}
+                className={classes.stickynoteCardEditBtn}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Grid>
+          </Grid>
+        </Paper>
       </ClickAwayListener>
     );
   }

@@ -914,13 +914,6 @@ PMCData.PMC_DeleteEvidenceLink = evId => {
   return evId;
 };
 
-if (window.may1 === undefined) window.may1 = {};
-window.may1.PCM_Mech = PMCData.Mech;
-window.may1.PMC_AddProp = PMCData.PMC_AddProp;
-window.may1.PMC_AddMech = PMCData.PMC_AddMech;
-window.may1.PMC_AddEvidenceLink = PMCData.PMC_AddEvidenceLink;
-window.may1.VM_GetVEvLinkChanges = PMCData.VM_GetVEvLinkChanges;
-window.may1.BuildModel = PMCData.BuildModel;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -1007,6 +1000,50 @@ PMCData.GetEvLinkByResourceId = (rsrcId) => {
  */
 PMCData.MechEvidence = (mechId) => {
   return h_evidenceByMech.get(mechId);
+};
+
+/// DEBUG UTILS //////////////////////////////////////////////////////////////
+if (window.may1 === undefined) window.may1 = {};
+window.may1.PCM_Mech = PMCData.Mech;
+window.may1.PMC_AddProp = PMCData.PMC_AddProp;
+window.may1.PMC_AddMech = PMCData.PMC_AddMech;
+window.may1.PMC_AddEvidenceLink = PMCData.PMC_AddEvidenceLink;
+window.may1.VM_GetVEvLinkChanges = PMCData.VM_GetVEvLinkChanges;
+window.may1.BuildModel = PMCData.BuildModel;
+window.may1.OpenSticky = () => {
+  UR.Publish('STICKY:OPEN', {
+    targetType: 'component',
+    targetId: 'tank',
+    comments: [
+      {
+        id: 0,
+        time: 0,
+        author: 'Bob',
+        date: new Date(),
+        text: 'I like this',
+        criteriaId: 'cr01',
+        readBy: ['Bob', 'Bill']
+      },
+      {
+        id: 1,
+        time: 10,
+        author: 'Bill',
+        date: new Date(),
+        text: 'I DONT like this',
+        criteriaId: 'cr02',
+        readBy: []
+      },
+      {
+        id: 2,
+        time: 11,
+        author: 'Mary',
+        date: new Date(),
+        text: 'This is not mine!',
+        criteriaId: 'cr02',
+        readBy: []
+      }
+    ]
+  });
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -358,14 +358,14 @@ const styles = theme => {
       left: '300px',
     },
     stickynoteCard: {
-      backgroundColor: 'rgba(255,255,255,0.3)',
+      backgroundColor: 'rgba(255,255,0,0.5)',
       margin: '5px',
       padding: '5px 10px',
       width: '325px'
     },
     stickynoteCardRead: {
       color: m_systemTextColor,
-      backgroundColor: 'rgba(0,0,0,0.2)',
+      backgroundColor: 'rgba(0,0,0,0.05)',
       margin: '5px',
       padding: '5px 10px',
       width: '325px'

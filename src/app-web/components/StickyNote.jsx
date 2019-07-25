@@ -18,7 +18,7 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 // Material UI Icons
-import DeleteIcon from '@material-ui/icons/Delete';
+import CloseIcon from '@material-ui/icons/Close';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -75,7 +75,7 @@ class StickyNote extends React.Component {
     this.setState({ isHidden: true });
   }
 
-  OnCloseClick() {
+  DoMarkCommentsRead() {
     // Mark all comments read
     this.setState(state => {
       const author = ADM.GetSelectedStudentId();
@@ -84,8 +84,12 @@ class StickyNote extends React.Component {
         if (comment.readBy.includes(author)) return;
         comment.readBy.push(author);
       })
-      return { comments }
+      return { comments };
     });
+  }
+
+  OnCloseClick() {
+    this.DoMarkCommentsRead();
     this.DoCloseSticky();
   }
 
@@ -100,11 +104,11 @@ class StickyNote extends React.Component {
         })}
         <Button
           size="small"
-          style={{ float: 'right', margin: '5px' }}
+          style={{ margin: '5px' }}
           variant="outlined"
           onClick={this.OnCloseClick}
         >
-          Close
+          <CloseIcon /> Close
         </Button>
         <Button size="small" style={{ float: 'right', margin: '5px' }} variant="outlined">
           Add Comment

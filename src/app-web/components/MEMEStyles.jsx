@@ -363,6 +363,13 @@ const styles = theme => {
       padding: '5px 10px',
       width: '325px'
     },
+    stickynoteCardRead: {
+      color: m_systemTextColor,
+      backgroundColor: 'rgba(0,0,0,0.2)',
+      margin: '5px',
+      padding: '5px 10px',
+      width: '325px'
+    },
     stickynoteCardAuthor: {
       alignItems: 'baseline',
       flexGrow: '1',

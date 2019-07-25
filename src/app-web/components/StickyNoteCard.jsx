@@ -52,6 +52,7 @@ class StickyNoteCard extends React.Component {
     this.OnHideEditButtons = this.OnHideEditButtons.bind(this);
 
     this.state = {
+      hasBeenRead: false,
       isBeingEdited: false,
       allowedToEdit: false,
       allowedToDelete: false,
@@ -78,7 +79,8 @@ class StickyNoteCard extends React.Component {
       criteria,
       selectedCriteriaId: this.props.comment.criteriaId,
       allowedToEdit: isAuthor,
-      allowedToDelete: isAuthor
+      allowedToDelete: isAuthor,
+      hasBeenRead: this.props.comment.readBy.includes(ADM.GetSelectedStudentId())
     });
   }
 
@@ -117,6 +119,7 @@ class StickyNoteCard extends React.Component {
 
   render() {
     const {
+      hasBeenRead,
       isBeingEdited,
       allowedToEdit,
       allowedToDelete,
@@ -169,7 +172,7 @@ class StickyNoteCard extends React.Component {
     return (
       <ClickAwayListener onClickAway={this.OnEditFinished}>
         <Paper
-          className={classes.stickynoteCard}
+          className={ hasBeenRead ? classes.stickynoteCardRead : classes.stickynoteCard }
           onMouseEnter={this.OnShowEditButtons}
           onMouseLeave={this.OnHideEditButtons}
         >

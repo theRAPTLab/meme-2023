@@ -39,6 +39,8 @@ class StickyNote extends React.Component {
 
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.DoOpenSticky = this.DoOpenSticky.bind(this);
+    this.DoCloseSticky = this.DoCloseSticky.bind(this);
+    this.OnCloseClick = this.OnCloseClick.bind(this);
 
     this.state = {
       isHidden: true,
@@ -69,6 +71,24 @@ class StickyNote extends React.Component {
     });
   }
 
+  DoCloseSticky() {
+    this.setState({ isHidden: true });
+  }
+
+  OnCloseClick() {
+    // Mark all comments read
+    this.setState(state => {
+      const author = ADM.GetSelectedStudentId();
+      let comments = state.comments;
+      comments.forEach(comment => {
+        if (comment.readBy.includes(author)) return;
+        comment.readBy.push(author);
+      })
+      return { comments }
+    });
+    this.DoCloseSticky();
+  }
+
   render() {
     const { classes } = this.props;
     const { comments, isHidden } = this.state;
@@ -78,8 +98,16 @@ class StickyNote extends React.Component {
         {comments.map(comment => {
           return <StickyNoteCard comment={comment} key={comment.id} />;
         })}
+        <Button
+          size="small"
+          style={{ float: 'right', margin: '5px' }}
+          variant="outlined"
+          onClick={this.OnCloseClick}
+        >
+          Close
+        </Button>
         <Button size="small" style={{ float: 'right', margin: '5px' }} variant="outlined">
-          Reply
+          Add Comment
         </Button>
       </Paper>
     );

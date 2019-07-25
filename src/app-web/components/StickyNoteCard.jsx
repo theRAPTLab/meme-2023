@@ -165,19 +165,23 @@ class StickyNoteCard extends React.Component {
             </Grid>
           </Grid>
           <Grid container>
-            <InputBase
+            <TextField
               className={classes.stickynoteCardInput}
               value={comment.text}
               onChange={this.OnCommentTextChange}
+              margin="dense"
+              hiddenLabel
+              variant="filled"
+              rowsMax="4"
               multiline
               inputProps={{
-                readOnly: !allowedToEdit && isBeingEdited
+                readOnly: allowedToEdit && !isBeingEdited
               }}
             />
           </Grid>
           <Grid container style={{ alignItems: 'flex-end' }}>
-            <Grid item xs className={classes.stickynoteCardAuthor}>
-              <Typography variant="subtitle2" style={{ color: 'gray' }}>
+            <Grid item xs>
+              <Typography variant="subtitle2" className={classes.stickynoteCardAuthor}>
                 {`by ${comment.author} ${ADM.GetGroupByStudent(comment.author).name}`}
               </Typography>
             </Grid>
@@ -188,7 +192,7 @@ class StickyNoteCard extends React.Component {
                 onClick={this.OnDeleteCard}
                 className={classes.stickynoteCardEditBtn}
               >
-                <DeleteIcon fontSize="small" />
+                <DeleteIcon fontSize="small" className={classes.stickynoteCardAuthor}/>
               </IconButton>
             </Grid>
             <Grid item xs={1}>
@@ -198,7 +202,7 @@ class StickyNoteCard extends React.Component {
                 onClick={this.OnEditClick}
                 className={classes.stickynoteCardEditBtn}
               >
-                <EditIcon fontSize="small" />
+                <EditIcon fontSize="small" className={classes.stickynoteCardAuthor}/>
               </IconButton>
             </Grid>
           </Grid>

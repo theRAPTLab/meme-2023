@@ -55,6 +55,7 @@ import EvidenceList from '../components/EvidenceList';
 import Login from '../components/Login';
 import ModelSelect from '../components/ModelSelect';
 import ResourceItem from '../components/ResourceItem';
+import StickyNote from '../components/StickyNote';
 import { cssreact, cssdraw, cssalert } from '../modules/console-styles';
 
 
@@ -128,7 +129,6 @@ class ViewMain extends React.Component {
       }
     };
 
-
     // FIXME
     // Hack load in ADM data for now.  Eventually ADM will be loaded by system startup.
     ADM.Load();
@@ -152,7 +152,6 @@ class ViewMain extends React.Component {
     UR.Unsub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Unsub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
   }
-
 
   // CODE REVIEW: THIS IS VESTIGIAL CODE
   // Force a screen redraw when evidence links are added
@@ -544,6 +543,8 @@ class ViewMain extends React.Component {
               />
             </Switch>
           </div>
+
+          <StickyNote />
 
           {/* Add Edge Dialog */}
           <Card className={classes.edgeDialog} hidden={!this.state.addEdgeOpen}>

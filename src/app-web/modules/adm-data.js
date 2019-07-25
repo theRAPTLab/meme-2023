@@ -58,13 +58,13 @@ o A "stickynote" is a container for comments, "linked" to a PMC element
 
 /*/
 ADMData.Load = () => {
-  // NO UI YET (see use model above)
+  // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
   adm_db.a_teachers = [
     { id: 'brown', name: 'Ms Brown' },
     { id: 'smith', name: 'Mr Smith' },
     { id: 'gordon', name: 'Ms Gordon' }
   ];
-  // NO UI YET (see use model above)
+  // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
   adm_db.a_classrooms = [
     { id: 'cl01', name: 'Period 1', teacherId: 'brown' },
     { id: 'cl02', name: 'Period 3', teacherId: 'brown' },
@@ -254,6 +254,7 @@ ADMData.Load = () => {
     ]
   };
 
+  // INITIALIZE SETTINGS
   adm_settings = {
     selectedTeacherId: '',
     selectedClassroomId: '',
@@ -267,7 +268,7 @@ ADMData.Load = () => {
 // FIXME: This really oought to check to makes ure the id is unique
 const GenerateUID = (prefix = '', suffix = '') => {
   return prefix + Math.trunc(Math.random() * 10000000000).toString() + suffix;
-}
+};
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -278,7 +279,8 @@ const GenerateUID = (prefix = '', suffix = '') => {
  */
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// TEACHERS
+/// TEACHERS //////////////////////////////////////////////////////////////////
+///
 ADMData.GetAllTeachers = () => {
   return adm_db.a_teachers;
 };
@@ -303,7 +305,8 @@ ADMData.AddTeacher = name => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// CLASSROOMS
+/// CLASSROOMS ////////////////////////////////////////////////////////////////
+///
 // Retreive currently selected teacher's classrooms by default if no teacherId is defined
 ADMData.GetClassroomsByTeacher = (teacherId = adm_settings.selectedTeacherId) => {
   return adm_db.a_classrooms.filter(cls => cls.teacherId === teacherId);
@@ -342,7 +345,8 @@ ADMData.AddClassroom = name => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// GROUPS
+/// GROUPS ////////////////////////////////////////////////////////////////////
+///
 /**
  *  Add a new group
  */
@@ -465,8 +469,10 @@ ADMData.DeleteStudent = (groupId, student) => {
   // Tell components to update
   UR.Publish('ADM_DATA_UPDATED');
 };
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// STUDENTS
+/// STUDENTS //////////////////////////////////////////////////////////////////
+///
 /**
  *  Call with no 'studentName' to get the group token
  */
@@ -503,14 +509,11 @@ ADMData.GetStudentName = () => {
 };
 ADMData.GetStudentGroupName = (studentId = adm_settings.selectedStudentId) => {
   const grp = ADMData.GetGroupByStudent(studentId);
-  let result;
-  if (grp) {
-    result = grp.name;
-  }
-  return result;
+  return grp ? grp.name : '';
 };
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// MODELS
+/// MODELS ////////////////////////////////////////////////////////////////////
 ///
 ADMData.GetModelById = modelId => {
   return adm_db.a_models.find(model => model.id === modelId);
@@ -565,8 +568,10 @@ ADMData.CloseModel = () => {
   adm_settings.selectedModelId = '';
   UR.Publish('ADM_DATA_UPDATED');
 };
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// CRITERIA
+/// CRITERIA //////////////////////////////////////////////////////////////////
+///
 /**
  *  NewCriteria
  *  1. Creates a new empty criteria object with a unqiue ID.

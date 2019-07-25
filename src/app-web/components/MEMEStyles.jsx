@@ -5,6 +5,7 @@ import { Hidden } from "@material-ui/core";
 const m_drawerWidth = 100;
 const m_edgeDialogWidth = 750;
 const m_systemTextColor = '#999';
+const m_systemLabelTextColor = 'rgba(0,0,0,0.25)';
 const m_resourceListWidth = 300;
 
 const styles = theme => {
@@ -336,7 +337,7 @@ const styles = theme => {
     },
     admPaper: {
       margin: '0 auto',
-      padding: '1em'      
+      padding: '1em'
     },
     admTeacherSelector: {
       minWidth: '100%'
@@ -346,7 +347,41 @@ const styles = theme => {
       padding: '1em',
       backgroundColor: teal[50]
     },
-
+    stickynotePaper: {
+      backgroundColor: '#fe3',
+      position: 'absolute',
+      top: '200px',
+      left: '300px',
+    },
+    stickynoteCard: {
+      backgroundColor: 'rgba(255,255,255,0.3)',
+      margin: '5px',
+      width: '325px'
+    },
+    stickynoteCardAuthor: {
+      alignItems: 'baseline',
+      flexGrow: '1',
+      fontWeight: 'bold'
+    },
+    stickynoteCardEditBtn: {
+      padding: 0
+    },
+    stickynoteCardInput: {
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      marginTop: '0.3em',
+      width: '100%'
+    },
+    criteriaSelectorMenu: {
+      fontSize: '0.8em'
+    },
+    stickynoteCardLabel: {
+      fontSize: '0.7em',
+      color: m_systemLabelTextColor
+    },
+    stickynoteCardCriteria: {
+      fontSize: '0.7em',
+      display: 'inline-flex'
+    }
   };
 };
 styles.DRAWER_WIDTH = m_drawerWidth;

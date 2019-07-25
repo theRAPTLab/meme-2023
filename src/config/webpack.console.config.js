@@ -1,12 +1,14 @@
 /*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  Webpack Configuration for Electron-based Console/Server App
-  Takes files in src/app-console and transforms them to built/console for loading
-  by the Electron main process
+  CONSOLE CONFIGURATION is used to build the console web bundle that is rendered
+  in the mainWindow of the electron app. This is not the same as the webapp
+  bundle, which is served by server-express to devices that connect. The console
+  web bundle is what makes the Electron App look like something.
 
-  NOTES:
-  This configuration is invoked by package.json "scripts" with env.HMR_MODE='electron'
-  to indicate that livereload is handled by electron, not WDS
+  notable features:
+  * entry point is console.js loaded by console.html
+  * copies its own 'console.json' package configuration for use in building
+
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 
@@ -17,6 +19,10 @@ const merge = require('webpack-merge');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const PROMPTS = require('../system/util/prompts');
+//
+const { CW, CR } = PROMPTS;
+const PR = `${CW}${PROMPTS.Pad('webpack')}${CR}`;
 
 /// CONSTANTS ///////////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,6 +39,7 @@ const ENTRY_HTML = 'console.html';
 /*/
 /*/
 const electronRendererConfig = env => {
+  console.log(`${PR} console.config electronRendererConfig loaded`);
   const { HMR_MODE } = env;
 
   // handle special cases of our HMR_MODE
@@ -54,7 +61,8 @@ const electronRendererConfig = env => {
       filename: ENTRY_HTML // uses output.path
     }),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('development')
+      'process.env.NODE_ENV': JSON.stringify('development'),
+      COMPILED_BY: JSON.stringify('console.config.js')
     }),
     new CopyWebpackPlugin([
       {

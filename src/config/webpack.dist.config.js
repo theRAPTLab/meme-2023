@@ -1,10 +1,21 @@
 /*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  DIST CONFIGURATION for WEBPACK
-  create built/web and built/console WITHOUT hot module reloading
+  DIST CONFIGURATION is used to create electron package for distribution. It is
+  called by meme.js for the 'package' script as one of several steps.
 
-  NOTE:
-  This config file is a combination of both webapp.config and console.config
+  notable features:
+  * webapp js files are bundled into built/web
+  * webapp static files are copied from assets as-is
+  * electron js files are bundled into built/console
+
+  The contents of the resulting built/ directory are then handled by the rest of
+  the meme.js 'package' script.
+
+  When the electron app runs, server-express.js checks to see if it is running
+  from a standalone app. If it is, the webserver uses the files created by this
+  config file. Otherwise, server-express will load the developer it serves the
+  webapp from the bundle created by this config file. Otherwise, server-js loads
+  webpack and does the bundling on-the-fly.
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 console.log('!!! BUILDING PACKAGE');
@@ -18,16 +29,19 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const baseConfig = require('./webpack.base.config');
-
+const PROMPTS = require('../system/util/prompts');
+//
+const { CW, CR } = PROMPTS;
+const PR = `${CW}${PROMPTS.Pad('webpack')}${CR}`;
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard
 const webConfiguration = env => {
+  console.log(`${PR} dist.config webConfiguration loaded`);
   // these paths might be relative to built/ not src/
   // depending on who is loading this file (wds or electron)
   const DIR_SOURCE = path.resolve(__dirname, '../../src/app-web');
   const DIR_OUTPUT = path.resolve(__dirname, '../../built/web');
 
-  console.log('... EXEC WEBAPP BUILD CONFIGURATION', [DIR_SOURCE, DIR_OUTPUT]);
   // passed via npm script -env.HMR_MODE='string'
   const { HMR_MODE } = env;
 
@@ -74,7 +88,8 @@ const webConfiguration = env => {
           filename: path.join(outputDir, 'index.html')
         }),
         new webpack.DefinePlugin({
-          'process.env.NODE_ENV': JSON.stringify('development')
+          'process.env.NODE_ENV': JSON.stringify('development'),
+          COMPILED_BY: JSON.stringify('dist.config.js')
         }),
         new CopyWebpackPlugin(copyFilesArray)
       ],
@@ -84,7 +99,7 @@ const webConfiguration = env => {
 }; // const webConfiguration
 
 const electronConfiguration = env => {
-  console.log('... EXEC ELECTRON APP BUILD CONFIGURATION');
+  console.log(`${PR} dist.config electronConfiguration loaded`);
   const { HMR_MODE } = env;
 
   if (HMR_MODE !== 'none') throw new Error(ERR);

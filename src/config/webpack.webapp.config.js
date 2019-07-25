@@ -1,8 +1,15 @@
 /*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  WEBAPP CONFIGURATION for WEBPACK
-  This is intended to build the web application purely with webpack,
-  no electron support
+  WEBAPP CONFIGURATION is used to create the bundle files suitable for serving
+  through a webserver. This config is used by server-express.js when the code
+  is NOT running as a stand-alone app:
+
+  * when running as a pure Node application
+  * when running as an Electron-hosted application (Electron is a wrapper around Node)
+
+  notable features:
+  * uses webpack-middleware-hot for hot module replacement
+
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 const path = require('path');
@@ -15,9 +22,16 @@ const WriteFilePlugin = require('write-file-webpack-plugin');
 const baseConfig = require('./webpack.base.config');
 const wdsConfig = require('./wds.config');
 
+const PROMPTS = require('../system/util/prompts');
+//
+const { CW, CR } = PROMPTS;
+const PR = `${CW}${PROMPTS.Pad('webpack')}${CR}`;
+
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard
 const webConfiguration = env => {
+  console.log(`${PR} webapp.config webConfiguration loaded`);
+
   // passed via npm script -env.HMR_MODE='string'
   const { HMR_MODE } = env;
 
@@ -81,7 +95,8 @@ const webConfiguration = env => {
           filename: path.join(outputDir, 'index.html')
         }),
         new webpack.DefinePlugin({
-          'process.env.NODE_ENV': JSON.stringify('development')
+          'process.env.NODE_ENV': JSON.stringify('development'),
+          COMPILED_BY: JSON.stringify('webapp.config.js')
         }),
         new WriteFilePlugin({
           test: /^(.(?!.*\.hot-update.js$|.*\.hot-update.*))*$/ // don't write hot-updates at all, just bundles

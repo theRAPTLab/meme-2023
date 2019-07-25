@@ -39,6 +39,7 @@ let PAD_SIZE = IS_NODE
 };
 
 PROMPTS.CS = '\x1b[34m\x1b[1m';
+PROMPTS.CW = '\x1b[32m';
 PROMPTS.CR = '\x1b[0m';
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////

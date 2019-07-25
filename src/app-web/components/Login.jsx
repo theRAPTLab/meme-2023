@@ -100,6 +100,11 @@ class Login extends React.Component {
         disableEscapeKeyDown
         open={loginDialogOpen}
         onClose={this.OnLoginDialogClose}
+        BackdropProps={{
+          classes: {
+            root: classes.loginBackdrop
+          }
+        }}
       >
         <form onSubmit={this.OnLogin}>
           <DialogTitle>MEME Login</DialogTitle>

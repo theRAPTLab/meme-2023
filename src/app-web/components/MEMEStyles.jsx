@@ -4,6 +4,7 @@ import { Hidden } from "@material-ui/core";
 
 const m_drawerWidth = 100;
 const m_edgeDialogWidth = 750;
+const m_primary = indigo[500];
 const m_systemTextColor = '#999';
 const m_systemLabelTextColor = 'rgba(0,0,0,0.25)';
 const m_resourceListWidth = 300;
@@ -15,6 +16,9 @@ const styles = theme => {
     },
     root: {
       display: 'flex'
+    },
+    loginBackdrop: {
+      backgroundColor: m_primary
     },
     appBar: {
       width: `calc(100% - ${m_drawerWidth}px)`,

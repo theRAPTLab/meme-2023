@@ -20,8 +20,6 @@
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 console.log('!!! BUILDING PACKAGE');
 
-const ERR = `webpack.dist.config only runs for HMR_MODE='none'`;
-
 const path = require('path');
 const merge = require('webpack-merge');
 
@@ -41,12 +39,6 @@ const webConfiguration = env => {
   // depending on who is loading this file (wds or electron)
   const DIR_SOURCE = path.resolve(__dirname, '../../src/app-web');
   const DIR_OUTPUT = path.resolve(__dirname, '../../built/web');
-
-  // passed via npm script -env.HMR_MODE='string'
-  const { HMR_MODE } = env;
-
-  // handle special cases of our HMR_MODE
-  if (HMR_MODE !== 'none') throw new Error(ERR);
 
   // otherwise we're good
   const entryFiles = ['./web-index.js'];
@@ -100,9 +92,6 @@ const webConfiguration = env => {
 
 const electronConfiguration = env => {
   console.log(`${PR} dist.config electronConfiguration loaded`);
-  const { HMR_MODE } = env;
-
-  if (HMR_MODE !== 'none') throw new Error(ERR);
 
   const DIR_CONFIG = path.join(__dirname, '../config/');
   const DIR_SOURCE = path.join(__dirname, '../app-console/');

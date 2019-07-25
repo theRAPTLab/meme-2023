@@ -40,20 +40,6 @@ const ENTRY_HTML = 'console.html';
 /*/
 const electronRendererConfig = env => {
   console.log(`${PR} console.config electronRendererConfig loaded`);
-  const { HMR_MODE } = env;
-
-  // handle special cases of our HMR_MODE
-  switch (HMR_MODE) {
-    case 'wds':
-      // don't load webpack-hot-middleware
-      break;
-    case 'electron':
-      // don't do anything yet
-      // entryFiles.push('webpack-hot-middleware/client?reload=true');
-      break;
-    default:
-    // do nothing
-  }
 
   const plugins = [
     new HtmlWebpackPlugin({
@@ -90,8 +76,6 @@ const electronRendererConfig = env => {
       }
     ])
   ];
-  // only add hot module reloading in wds mode
-  if (HMR_MODE === 'wds') plugins.push(new webpack.HotModuleReplacementPlugin({}));
 
   return merge([
     {

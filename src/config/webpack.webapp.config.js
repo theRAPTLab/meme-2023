@@ -32,43 +32,22 @@ const PR = `${CW}${PROMPTS.Pad('webpack')}${CR}`;
 const webConfiguration = env => {
   console.log(`${PR} webapp.config webConfiguration loaded`);
 
-  // passed via npm script -env.HMR_MODE='string'
-  const { HMR_MODE } = env;
-
-  let entryFiles;
-  let outputDir;
-  let wdsOptions;
-  // handle special cases of our HMR_MODE
-  switch (HMR_MODE) {
-    case 'wds':
-      // don't load webpack-hot-middleware
-      entryFiles = ['./web-index.js'];
-      outputDir = path.resolve(__dirname, '../../built/web');
-      wdsOptions = wdsConfig(env);
-      break;
-    case 'electron':
-      // in web-index.js, using module.hot.decline() requires reload=true set here
-      entryFiles = ['./web-index.js', 'webpack-hot-middleware/client?reload=true'];
-      outputDir = path.resolve(__dirname, '../../built/web');
-      wdsOptions = {};
-      break;
-    default:
-    // do nothing
-  }
+  let entryFiles = ['./web-index.js', 'webpack-hot-middleware/client?reload=true'];
+  const DIR_SOURCE = path.resolve(__dirname, '../../src/app-web');
+  let DIR_OUT = path.resolve(__dirname, '../../built/web');
+  let wdsOptions = {};
   const copyFilesArray = [
     {
       from: `favicon.ico`,
-      to: `${outputDir}/favicon.ico`,
+      to: `${DIR_OUT}/favicon.ico`,
       toType: 'file'
     },
     {
       from: `static`,
-      to: `${outputDir}/static`,
+      to: `${DIR_OUT}/static`,
       toType: 'dir'
     }
   ];
-
-  const DIR_SOURCE = path.resolve(__dirname, '../../src/app-web');
 
   // return webConfiguration
   return merge([
@@ -82,7 +61,7 @@ const webConfiguration = env => {
       entry: entryFiles,
       // bundle file name
       output: {
-        path: outputDir,
+        path: DIR_OUT,
         filename: 'web-bundle.js',
         pathinfo: false // this speeds up compilation (https://webpack.js.org/guides/build-performance/#output-without-path-info)
         // publicPath: 'web',
@@ -92,7 +71,7 @@ const webConfiguration = env => {
       plugins: [
         new HtmlWebpackPlugin({
           template: 'web-index.html',
-          filename: path.join(outputDir, 'index.html')
+          filename: path.join(DIR_OUT, 'index.html')
         }),
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('development'),

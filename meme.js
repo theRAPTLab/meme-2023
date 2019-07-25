@@ -116,7 +116,8 @@ function f_RunElectron() {
   console.log(PR, `running ${CY}Electron Host with Live Reload${TR}`);
   console.log(PR, `compiling electron renderprocess files with webpack.console.config`);
   shell.exec(
-    `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.console.config.js --env.HMR_MODE='electron'`,
+    // note: to pass an enviroment setting to the webpack config script, add --env.MYSETTING='value'
+    `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.console.config.js`,
     { silent: true }
   );
   console.log(PR, `launching electron binary host through console-main.js...\n`);
@@ -131,7 +132,8 @@ function f_PackageApp() {
   console.log(PR, `compiling console, web, system files into ./built`);
 
   shell.exec(
-    `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.dist.config.js --env.HMR_MODE='none'`,
+    // note: to pass an enviroment setting to the webpack config script, add --env.MYSETTING='value'
+    `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.dist.config.js`,
     { silent: true }
   );
   console.log(PR, `installing node dependencies into ./built`);

@@ -8,6 +8,9 @@ STickey Note
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
+// Material UI system utilities
+import { positions } from '@material-ui/system';
+// Material UI components
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -47,6 +50,8 @@ class StickyNote extends React.Component {
     this.state = {
       isHidden: true,
       comments: [],
+      top: 0,
+      left: 0
     };
 
     UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate); // Broadcast when a group is added.
@@ -62,10 +67,14 @@ class StickyNote extends React.Component {
   }
 
   DoOpenSticky(data) {
-    let { targetType, targetId, comments } = data;
+    let { comments, x, y } = data;
     this.setState({
       isHidden: false,
       comments,
+      top: y,
+      left: x - 325 // width of stickyonotecard HACK!!!
+    });
+  }
 
   DoAddComment() {
     let comment = ADM.NewComment();
@@ -102,10 +111,10 @@ class StickyNote extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { comments, isHidden } = this.state;
+    const { comments, isHidden, top, left } = this.state;
 
     return (
-      <Paper className={classes.stickynotePaper} hidden={isHidden}>
+      <Paper className={classes.stickynotePaper} hidden={isHidden} style={{ top: top, left: left }}>
         {comments.map(comment => {
           return <StickyNoteCard comment={comment} key={comment.id} />;
         })}

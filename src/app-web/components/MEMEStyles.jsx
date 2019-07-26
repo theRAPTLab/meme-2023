@@ -358,6 +358,7 @@ const styles = theme => {
       position: 'absolute',
       top: '200px',
       left: '300px',
+      zIndex: 1500
     },
     stickynoteCard: {
       backgroundColor: 'rgba(255,255,0,0.5)',

@@ -65,6 +65,8 @@ class EvidenceLink extends React.Component {
     this.EnableSourceSelect = this.EnableSourceSelect.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
+    this.OnCommentClick = this.OnCommentClick.bind(this);
+    
     UR.Sub('DATA_UPDATED', this.HandleDataUpdate);
     UR.Sub('SHOW_EVIDENCE_LINK_SECONDARY', this.handleEvidenceLinkOpen);
     UR.Sub('EVLINK:ENABLE_SOURCE_SELECT', this.EnableSourceSelect);
@@ -249,6 +251,13 @@ class EvidenceLink extends React.Component {
         isExpanded: true
       });
     }
+  }
+
+  OnCommentClick() {
+    console.error('comments click evlink:',this.props.evlink, 'props:', this.props.evlink.comments,'state:',this.state.comments)
+    UR.Publish('STICKY:OPEN', {
+      comments: this.props.evlink.comments
+    });
   }
 
   render() {

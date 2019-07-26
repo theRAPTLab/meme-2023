@@ -71,6 +71,7 @@ PROMPTS.CINFO = TERM.BgBlue + TERM.FgWhite;
 PROMPTS.TERM_DB = TERM.FgBlue + TERM.Bright; // server-database
 PROMPTS.TERM_NET = TERM.FgBlue; // server-network
 PROMPTS.TERM_EXP = TERM.FgMagenta; // server-express
+PROMPTS.TERM_WPACK = TERM.FgGreen; // webpack configurations
 PROMPTS.CW = TERM.FgGreen; // webpack configurations
 PROMPTS.CY = TERM.FgYellow;
 PROMPTS.TERM = TERM;

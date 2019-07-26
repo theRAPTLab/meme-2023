@@ -263,7 +263,6 @@ ADMData.Load = () => {
         comments: [
           {
             id: 0,
-            time: 0,
             author: 'Bessie',
             date: new Date(),
             text: 'What is this',
@@ -272,7 +271,6 @@ ADMData.Load = () => {
           },
           {
             id: 1,
-            time: 10,
             author: 'Bill',
             date: new Date(),
             text: 'I DONT like this',
@@ -298,7 +296,6 @@ ADMData.Load = () => {
         comments: [
           {
             id: 0,
-            time: 0,
             author: 'Bessie',
             date: new Date(),
             text: 'What is this',
@@ -307,7 +304,6 @@ ADMData.Load = () => {
           },
           {
             id: 1,
-            time: 10,
             author: 'Bill',
             date: new Date(),
             text: 'I DONT like this',

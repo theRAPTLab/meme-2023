@@ -129,7 +129,7 @@ class StickyNoteCard extends React.Component {
       comment
     } = this.state;
     const { classes } = this.props;
-    const date = new Date(comment.time);
+    const date = new Date(comment.date);
     const timestring = date.toLocaleTimeString('en-Us', {
       hour: '2-digit', minute: '2-digit'
     });
@@ -246,7 +246,6 @@ StickyNoteCard.defaultProps = {
   classes: {},
   comment: {
     id: -1,
-    time: -1,
     author: '',
     date: new Date(),
     text: '',

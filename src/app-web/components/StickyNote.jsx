@@ -44,8 +44,6 @@ class StickyNote extends React.Component {
 
     this.state = {
       isHidden: true,
-      targetType: 'component',
-      targetId: 'tank',
       comments: [],
     };
 
@@ -65,9 +63,7 @@ class StickyNote extends React.Component {
     let { targetType, targetId, comments } = data;
     this.setState({
       isHidden: false,
-      targetType,
-      targetId,
-      comments
+      comments,
     });
   }
 

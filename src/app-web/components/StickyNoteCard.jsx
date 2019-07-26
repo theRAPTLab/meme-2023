@@ -141,6 +141,9 @@ class StickyNoteCard extends React.Component {
     if (isBeingEdited) {
       criteriaDisplay = (
         <select value={comment.criteriaId} onChange={this.OnCriteriaSelect}>
+          <option value="" key="empty">
+            Select one...
+          </option>
           {criteria.map(crit => (
             <option value={crit.id} key={crit.id} className={classes.criteriaSelectorMenu}>
               {crit.label}

@@ -7,6 +7,7 @@
     "ajv": "^6.5.5",
     "cookie-parser": "^1.4.3",
     "copy-webpack-plugin": "^4.5.4",
+    "ejs": "^2.6.2",
     "express": "^4.16.4",
     "fs-extra": "^8.1.0",
     "html-webpack-plugin": "^3.2.0",

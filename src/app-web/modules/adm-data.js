@@ -226,8 +226,61 @@ ADMData.Load = () => {
   model.data = {
     // components is a 'component' or a 'property' (if it has a parent)
     components: [
-      { id: 'tank', name: 'tank' },
-      { id: 'fish', name: 'fish' },
+      {
+        id: 'tank', name: 'tank',
+        comments: [
+          {
+            id: 0,
+            time: 0,
+            author: 'Bob',
+            date: new Date(),
+            text: 'I like this',
+            criteriaId: 'cr01',
+            readBy: ['Bob', 'Bill']
+          },
+          {
+            id: 1,
+            time: 10,
+            author: 'Bill',
+            date: new Date(),
+            text: 'I DONT like this',
+            criteriaId: 'cr02',
+            readBy: []
+          },
+          {
+            id: 2,
+            time: 11,
+            author: 'Mary',
+            date: new Date(),
+            text: 'This is not mine!',
+            criteriaId: 'cr02',
+            readBy: []
+          }
+        ]
+      },
+      {
+        id: 'fish', name: 'fish',
+        comments: [
+          {
+            id: 0,
+            time: 0,
+            author: 'Bessie',
+            date: new Date(),
+            text: 'What is this',
+            criteriaId: 'cr01',
+            readBy: ['Bob', 'Bill']
+          },
+          {
+            id: 1,
+            time: 10,
+            author: 'Bill',
+            date: new Date(),
+            text: 'I DONT like this',
+            criteriaId: 'cr02',
+            readBy: []
+          }
+        ]
+      },
       { id: 'food', name: 'food' },
       { id: 'ammonia', name: 'Ammonia' },
       { id: 'clean-water', name: 'clean water', parent: 'tank' },
@@ -240,7 +293,29 @@ ADMData.Load = () => {
       { source: 'fish', target: 'dirty-water-waste', name: 'produce' }
     ],
     evidence: [
-      { evId: 'ev1', propId: 'fish', mechId: undefined, rsrcId: 'rs1', note: 'fish need food' },
+      {
+        evId: 'ev1', propId: 'fish', mechId: undefined, rsrcId: 'rs1', note: 'fish need food',
+        comments: [
+          {
+            id: 0,
+            time: 0,
+            author: 'Bessie',
+            date: new Date(),
+            text: 'What is this',
+            criteriaId: 'cr01',
+            readBy: ['Bob', 'Bill']
+          },
+          {
+            id: 1,
+            time: 10,
+            author: 'Bill',
+            date: new Date(),
+            text: 'I DONT like this',
+            criteriaId: 'cr02',
+            readBy: []
+          }
+        ]
+      },
       { evId: 'ev2', propId: undefined, mechId: 'fish:food', rsrcId: 'rs1', note: 'fish need food' }
     ]
   };
@@ -313,14 +388,13 @@ ADMData.GetClassroomsByTeacher = (teacherId = adm_settings.selectedTeacherId) =>
 };
 ADMData.GetClassroomByGroup = groupId => {
   let group = ADMData.GetGroup(groupId);
-  return group ? group.classroomid : undefined;
+  return group ? group.classroomId : undefined;
 };
 ADMData.GetClassroomByStudent = (studentId = adm_settings.selectedStudentId) => {
   const groupId = ADMData.GetGroupIdByStudent(studentId);
   return ADMData.GetClassroomByGroup(groupId);
 };
 ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomByStudent()) => {
-  if (DBG) console.log(PKG, 'SelectClassroom: Selecting classroom', classroomId);
   adm_settings.selectedClassroomId = classroomId;
   UR.Publish('CLASSROOM_SELECT', { classroomId });
 };

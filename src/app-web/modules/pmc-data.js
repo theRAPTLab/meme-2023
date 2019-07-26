@@ -178,13 +178,15 @@ PMCData.LoadModel = (model, resources) => {
   // Load Evidence Links
   m.data.evidence = m.data.evidence || [];
   m.data.evidence.forEach(ev => {
-    let { evId, propId, mechId, rsrcId, note } = ev;
+    let { evId, propId, mechId, rsrcId, note, comments } = ev;
+    comments = comments || []; // allow empty comments
     a_evidence.push({
       evId,
       propId,
       mechId,
       rsrcId,
-      note
+      note,
+      comments
     });
   });
 

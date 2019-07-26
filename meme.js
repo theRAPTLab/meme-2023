@@ -46,7 +46,6 @@ const PR = PROMPTS.Pad('MEME EXEC');
 
 const P_ERR = `${TB}${CR}!ERROR!${TR}`;
 
-const PATH_WDS = `./node_modules/webpack-dev-server/bin`;
 const PATH_WEBPACK = `./node_modules/webpack/bin`;
 
 switch (param1) {
@@ -71,6 +70,7 @@ switch (param1) {
   case 'debugapp':
     f_DebugApp();
     break;
+
   default:
     console.log(`${PR}\n- ${P_ERR} unknown command '${param1}'\n`);
 }

@@ -35,8 +35,8 @@ const PHASES = [
 const DBG = false;
 const MOD = { name: 'LifeCycle', scope: 'system/booting' };
 const BAD_PATH = "module_path must be a string derived from the module's module.id";
-
 const URDATA = new DataLink(module);
+let PHASE;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

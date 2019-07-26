@@ -39,7 +39,9 @@ class StickyNote extends React.Component {
 
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.DoOpenSticky = this.DoOpenSticky.bind(this);
+    this.DoAddComment = this.DoAddComment.bind(this);
     this.DoCloseSticky = this.DoCloseSticky.bind(this);
+    this.OnAddClick = this.OnAddClick.bind(this);
     this.OnCloseClick = this.OnCloseClick.bind(this);
 
     this.state = {
@@ -64,6 +66,11 @@ class StickyNote extends React.Component {
     this.setState({
       isHidden: false,
       comments,
+
+  DoAddComment() {
+    let comment = ADM.NewComment();
+    this.setState(state => {
+      return { comments: state.comments.concat([comment]) };
     });
   }
 
@@ -82,6 +89,10 @@ class StickyNote extends React.Component {
       })
       return { comments };
     });
+  }
+
+  OnAddClick() {
+    this.DoAddComment();
   }
 
   OnCloseClick() {
@@ -106,7 +117,9 @@ class StickyNote extends React.Component {
         >
           <CloseIcon /> Close
         </Button>
-        <Button size="small" style={{ float: 'right', margin: '5px' }} variant="outlined">
+        <Button size="small" style={{ float: 'right', margin: '5px' }} variant="outlined"
+          onClick={this.OnAddClick}
+        >
           Add Comment
         </Button>
       </Paper>

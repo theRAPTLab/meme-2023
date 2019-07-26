@@ -254,10 +254,13 @@ class EvidenceLink extends React.Component {
     }
   }
 
-  OnCommentClick() {
-    console.error('comments click evlink:',this.props.evlink, 'props:', this.props.evlink.comments,'state:',this.state.comments)
+  OnCommentClick(e) {
     UR.Publish('STICKY:OPEN', {
-      comments: this.props.evlink.comments
+      comments: this.props.evlink.comments,
+      x: e.clientX,
+      y: e.clientY,
+      windowWidth: e.view.window.innerWidth, // not used
+      windowHeight: e.view.window.innerHeight // not used
     });
   }
 

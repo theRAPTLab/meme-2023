@@ -19,8 +19,8 @@ const SESSION = require('./common-session');
 const LOGGER = require('./server-logger');
 const PROMPTS = require('../system/util/prompts');
 
-const { CS, CR } = PROMPTS;
-const PR = `${CS}${PROMPTS.Pad('URSYS.DB')}${CR}`;
+const { TERM_DB: CLR, TR } = PROMPTS;
+const PR = `${CLR}${PROMPTS.Pad('URSYS.DB')}${TR}`;
 const RUNTIMEPATH = './runtime/';
 
 /// MODULE-WIDE VARS //////////////////////////////////////////////////////////

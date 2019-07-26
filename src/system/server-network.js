@@ -28,8 +28,8 @@ const DB = require('./server-database');
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PROMPTS = require('./util/prompts');
 
-const { CS, CR } = PROMPTS;
-const PR = `${CS}${PROMPTS.Pad('URSYS.NET')}${CR}`;
+const { TERM_NET: CLR, TR } = PROMPTS;
+const PR = `${CLR}${PROMPTS.Pad('URSYS.NET')}${TR}`;
 const ERR = PROMPTS.Pad('!!!');
 const ERR_SS_EXISTS = 'socket server already created';
 const ERR_NULL_SOCKET = 'require valid socket';

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <base href="/" />
+    <title>MEME</title>
+    <script type="javascript">
+      if (window.URSYS) {
+        window.URSYS.SERVER = {
+          host: <%=URHost%>,
+          port: <%=URPort%>
+        };
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="app-container"></div>
+  </body>
+  <!-- manually insert webpack bundle -->
+  <script src='./web-bundle.js' defer></script>
+</html>

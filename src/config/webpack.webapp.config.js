@@ -9,7 +9,7 @@
 
   notable features:
   * uses webpack-middleware-hot for hot module replacement
-
+  * if you change webConfiguration here, mirror to webpack.dist.config.js as well
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 const path = require('path');
@@ -20,7 +20,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const baseConfig = require('./webpack.base.config');
-const wdsConfig = require('./wds.config');
 
 const PROMPTS = require('../system/util/prompts');
 //
@@ -35,8 +34,12 @@ const webConfiguration = env => {
   let entryFiles = ['./web-index.js', 'webpack-hot-middleware/client?reload=true'];
   const DIR_SOURCE = path.resolve(__dirname, '../../src/app-web');
   let DIR_OUT = path.resolve(__dirname, '../../built/web');
-  let wdsOptions = {};
   const copyFilesArray = [
+    {
+      from: `web-index.html.ejs`,
+      to: `${DIR_OUT}/index.ejs`,
+      toType: 'file'
+    },
     {
       from: `favicon.ico`,
       to: `${DIR_OUT}/favicon.ico`,
@@ -69,10 +72,6 @@ const webConfiguration = env => {
       devtool: 'source-map',
       // apply these additional plugins
       plugins: [
-        new HtmlWebpackPlugin({
-          template: 'web-index.html',
-          filename: path.join(DIR_OUT, 'index.html')
-        }),
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('development'),
           COMPILED_BY: JSON.stringify('webapp.config.js')
@@ -83,10 +82,7 @@ const webConfiguration = env => {
         new CopyWebpackPlugin(copyFilesArray),
         new webpack.HotModuleReplacementPlugin()
       ]
-    },
-    // config webpack-dev-server when run from CLI
-    // these options don't all work for the API middleware version
-    wdsOptions
+    }
   ]);
 }; // const webConfiguration
 

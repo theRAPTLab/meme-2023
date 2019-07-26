@@ -6,68 +6,99 @@
 
 /// LIBRARIES ///////////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const webpack = require('webpack');
-const middleware = require('webpack-dev-middleware'); //webpack hot reloading middleware
-const hot = require('webpack-hot-middleware');
+const wpack = require('webpack');
+const wpack_mid = require('webpack-dev-middleware'); //webpack hot reloading middleware
+const wpack_hot = require('webpack-hot-middleware');
 const express = require('express'); //your original BE server
 const path = require('path');
 const IP = require('ip');
 const cookiep = require('cookie-parser');
 const { exec } = require('child_process');
+//
+const configWebApp = require('../config/webpack.webapp.config');
 const PROMPTS = require('../system/util/prompts');
 
-const PR = PROMPTS.Pad('URSYS.WEB');
-const CY = '\x1b[33m';
-const TR = '\x1b[0m';
-const CR = '\x1b[44m\x1b[37m';
-
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const { TERM_EXP: CLR, TERM_WPACK, TR } = PROMPTS;
+const PORT = 3000;
+const PR = `${CLR}${PROMPTS.Pad('URSYS.WEB')}${TR}`;
 const DP = '***';
 const GIT = 'GIT';
 
+/// API MEHTHODS //////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const app = express();
-const configWebApp = require('../config/webpack.webapp.config');
+let server;
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function Start() {
   let PATH_WEBSOURCE;
 
   const isPackaged = __dirname.includes('/Contents/Resources/app/system');
   if (isPackaged) {
-    console.log(`${PR}${CY}using pre-compiled webpack bundle in standalone app${TR}`);
+    // if server-express is running inside an Electron instance, don't use
+    // webpack to bundle the webapp on-the-fly.
     PATH_WEBSOURCE = path.resolve(__dirname, '../web');
-  } else {
-    console.log(`${PR}${CY} using webpack middleware to compile changes on-the-fly${TR}`);
-    // THIS IS WEBPACK STUFF
-    //
-    // note we need the object, not a function, when using webpack API
-    const env = { HMR_MODE: 'electron' };
-    const webConfig = configWebApp(env);
-
-    const compiler = webpack(webConfig);
-
-    // eslint-disable-next-line
-    compiler.hooks.done.tap('DetectCompileDone', stats => {
-      console.log(PR, 'NOTICE: DetectCompileDone tap was fired');
+    console.log(PR, `${CLR}package mode${TR} serving precompiled web bundle`);
+    console.log(PR, `from '${PATH_WEBSOURCE}'`);
+    server = app.listen(PORT, () => {
+      console.log(PR, `http on port ${PORT} from '${PATH_WEBSOURCE}'`);
     });
+  } else {
+    // otherwise, we are running as straight node out of npm scripts, or
+    // a generic Electron binary was used to load us (Electron works just
+    // as a node interpreter ya know!
+    console.log(PR, `${CLR}dev mode${TR} serving with ${CLR}live code reloading${TR}`);
+    PATH_WEBSOURCE = path.resolve(__dirname, '../../built/web');
 
-    console.log(`${PR} ${CR}hot reloading${TR} is enabled for all web files`);
-    // webpack middleware to enable file serving
-    const instance = middleware(compiler, {
+    // RUN WEBPACK THROUGH API
+    // first create a webpack instance with our chosen config file
+    const webConfig = configWebApp();
+    const compiler = wpack(webConfig);
+
+    // add webpack middleware to express
+    // also add the hot module reloading middleware
+    const instance = wpack_mid(compiler, {
+      // logLevel: 'silent', // turns off [wdm] messages
       publicPath: webConfig.output.publicPath,
       stats: 'errors-only' // see https://webpack.js.org/configuration/stats/
     });
     app.use(instance);
-    // enable hot middleware with compiler instance
-    app.use(hot(compiler));
-    // theoreticically changes to this should cause a hot reload?
-    // ONLY with webapp, not with appserver changes!
-    PATH_WEBSOURCE = path.resolve(__dirname, '../../built/web');
+    app.use(wpack_hot(compiler));
+
+    // compilation start message
+    // we'll start the server after webpack bundling is complete
+    // but we still have some configuration to do
+    compiler.hooks.afterEmit.tap('StartServer', () => {
+      if (!server) {
+        server = app.listen(PORT, () => {
+          console.log(PR, `http on port ${PORT} from '${PATH_WEBSOURCE}'`);
+        });
+      } else {
+        console.log(`${TERM_WPACK}webpack`, `bundle recompiled${TR}`);
+      }
+    });
   }
-  /// serve everything else out of public as static files
-  console.log(`${PR} docroot is ${PATH_WEBSOURCE}`);
+
+  // FINALLY, TELL EXPRESS HOW TO SERVE OUR FILES
+
+  // set the templating engine
+  app.set('view engine', 'ejs');
+  // handle special case for root url to serve our ejs template
+  app.get('/', (req, res) => {
+    res.render(`${PATH_WEBSOURCE}/index`, {
+      URHost: 'host',
+      URPort: '3000'
+    });
+  });
+  // for everything else...
   app.use('/', express.static(PATH_WEBSOURCE));
-  app.listen(3000, () => console.log(`${PR} listening for http on port 3000`));
 }
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // THIS IS ALL UNISYS STUFF TO BE PORTED AND ACTIVATED AS URSYS
 //
 //

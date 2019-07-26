@@ -17,6 +17,9 @@
   webapp from the bundle created by this config file. Otherwise, server-js loads
   webpack and does the bundling on-the-fly.
 
+  if you change webConfiguration here, check webpack.webapp.config.js to see
+  if you need to apply those changes there too.
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 console.log('!!! BUILDING PACKAGE');
 
@@ -30,7 +33,8 @@ const baseConfig = require('./webpack.base.config');
 const PROMPTS = require('../system/util/prompts');
 //
 const { CW, CR } = PROMPTS;
-const PR = `${CW}${PROMPTS.Pad('webpack')}${CR}`;
+const PR = `${CW}${PROMPTS.Pad('webpack')}${CR}
+`;
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard
 const webConfiguration = env => {
@@ -44,6 +48,11 @@ const webConfiguration = env => {
   const entryFiles = ['./web-index.js'];
   const outputDir = DIR_OUTPUT;
   const copyFilesArray = [
+    {
+      from: `web-index.html.ejs`,
+      to: `${DIR_OUTPUT}/index.ejs`,
+      toType: 'file'
+    },
     {
       from: `favicon.ico`,
       to: `${DIR_OUTPUT}/favicon.ico`,
@@ -75,10 +84,6 @@ const webConfiguration = env => {
       devtool: 'source-map',
       // apply these additional plugins
       plugins: [
-        new HtmlWebpackPlugin({
-          template: 'web-index.html',
-          filename: path.join(outputDir, 'index.html')
-        }),
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('development'),
           COMPILED_BY: JSON.stringify('dist.config.js')

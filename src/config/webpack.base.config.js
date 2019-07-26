@@ -8,8 +8,7 @@ const PR = `${CW}${PROMPTS.Pad('webpack')}${CR}`;
 // see https://webpack.js.org/configuration/module/#rule-use for better 'use' options syntax
 
 module.exports = env => {
-  console.log(`${PR} base.config requested`);
-  const { HMR_MODE } = env; // eslint-disable-line
+  console.log(PR, `base.config requested`);
 
   // Any directories you will be adding code/files into, need to be added to this array so webpack will pick them up
   // this ensures if it's running from built/ (electron mode) or src/ (wds mode) the include path is correct

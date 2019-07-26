@@ -89,7 +89,7 @@ class EvidenceLink extends React.Component {
     // via the DATA_UPDATED call because `note` is only set by props
     // during construction.
 
-    let evlink = DATA.EvidenceLinkByEvidenceId(this.props.evId);
+    let evlink = DATA.EvidenceLinkByEvidenceId(this.props.evlink.evId);
     if (evlink) {
       this.setState({
         note: evlink.note,

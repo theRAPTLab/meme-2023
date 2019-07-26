@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-if (window.NC_DBG) console.log(`inc ${module.id}`);
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
     URSYS NETWORK implements network controls and synchronization.
@@ -7,23 +6,16 @@ if (window.NC_DBG) console.log(`inc ${module.id}`);
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
-const DBG = { connect: true, handle: false };
-
 /// LOAD LIBRARIES ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const SETTINGS = {
-  EJSProp: key => {
-    const v = SETTINGS[key];
-    console.warn(`FAKED SETTINGS[${key}]:${v}`);
-    return v;
-  },
-  socket: {
-    uaddr: 'localhost',
-    uport: '2929'
-  }
-};
-const NetMessage = require('./common-netmessage');
-const PROMPTS = require('./util/prompts');
+import CENTRAL from './ur-central';
+import NetMessage from './common-netmessage';
+import PROMPTS from './util/prompts';
+
+const DBG = { connect: true, handle: false };
+
+/// DECLARATIONS /////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 const PR = PROMPTS.Pad('NETWORK');
 const WARN = PROMPTS.Pad('!!!');
@@ -33,9 +25,7 @@ const ERR_BAD_UDATA = "An instance of 'client-datalink-class' is required";
 
 /// GLOBAL NETWORK INFO (INJECTED ON INDEX) ///////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-let NETSOCK = SETTINGS.EJSProp('socket');
-let NETCLIENT = SETTINGS.EJSProp('client');
-let NETSERVER = SETTINGS.EJSProp('server');
+const NETSOCK = {};
 
 /// NETWORK ID VALUES /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -51,7 +41,7 @@ let m_options = {};
 
 /// API METHODS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-let NETWORK = {};
+const NETWORK = {};
 let UDATA = null; // assigned during NETWORK.Connect()
 
 /// CONNECT ///////////////////////////////////////////////////////////////////
@@ -90,7 +80,8 @@ NETWORK.Connect = (datalink, opt) => {
 
   // create websocket
   // uses values that were embedded in index.ejs on load
-  let wsURI = `ws://${NETSOCK.uaddr}:${NETSOCK.uport}`;
+  const { USRV_Host, USRV_MsgPort } = CENTRAL.GetVal('ur-session');
+  let wsURI = `ws://${USRV_Host}:${USRV_MsgPort}`;
   NETSOCK.ws = new WebSocket(wsURI);
   if (DBG.connect) console.log(PR, 'OPEN SOCKET TO', wsURI);
 
@@ -272,18 +263,6 @@ NETWORK.RemoveListener = (event, handlerFunction) => {
   }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NETWORK.LocalInfo = () => {
-  return NETCLIENT;
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NETWORK.ServerInfo = () => {
-  return NETSERVER;
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NETWORK.ServerSocketInfo = () => {
-  return NETSOCK;
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NETWORK.SocketUADDR = () => {
   return NetMessage.SocketUADDR();
 };
@@ -294,4 +273,4 @@ NETWORK.IsStandaloneMode = () => {
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-module.exports = NETWORK;
+export default NETWORK;

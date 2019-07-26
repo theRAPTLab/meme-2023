@@ -25,9 +25,9 @@ function u_CheckKey(key) {
   if (!key) return `key must be defined`;
   if (typeof key !== 'string') return `key must be a string, not ${typeof key}`;
   // check for non-conforming key names
-  const stripped = key.replace(/[^a-zA-Z0-9.]/g, '');
-  if (stripped !== key) return `only use characters and '.' in key, (got '${key}')`;
-  if (stripped != stripped.toLowerCase()) return `key '${key}' must be all lowercase`;
+  const stripped = key.replace(/[^a-zA-Z0-9.-]/g, '');
+  if (stripped !== key) return `only use characters, '-' and '.' in key, (got '${key}')`;
+  if (stripped !== stripped.toLowerCase()) return `key '${key}' must be all lowercase`;
   // now try to store it
   return ''; // emptystring no error detected
 } // u_CheckKey()
@@ -82,14 +82,21 @@ const SetVal = (key, value) => {
 
 /// TESTS /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Define('bananafried', 'bananasplit');
-console.log('getval', GetVal('bananafried'));
-SetVal('bananafried', 'pika');
-console.log('getval', GetVal('bananafried'));
-SetVal('bananafried', 'error');
-const bananaBinding = GetBinding('bananafried');
-bananaBinding.setValue('hola');
+// Define('bananafried', 'bananasplit');
+// console.log('getval', GetVal('bananafried'));
+// SetVal('bananafried', 'pika');
+// console.log('getval', GetVal('bananafried'));
+// SetVal('bananafried', 'error');
+// const bananaBinding = GetBinding('bananafried');
+// bananaBinding.setValue('hola');
 
+/// INITIALIZE UR PARAMS //////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// URSYS parameters are defined in the startup html.
+/// Copy them into URCENTRAL officially
+if (window.URSESSION) {
+  Define('ur-session', window.URSESSION);
+}
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default { Define, GetBinding, GetVal, SetVal };

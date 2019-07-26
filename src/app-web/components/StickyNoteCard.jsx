@@ -237,11 +237,21 @@ class StickyNoteCard extends React.Component {
 
 StickyNoteCard.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
+  // eslint-disable-next-line react/forbid-prop-types
+  comment: PropTypes.object
 };
 
 StickyNoteCard.defaultProps = {
-  classes: {}
+  classes: {},
+  comment: {
+    id: -1,
+    time: -1,
+    author: '',
+    date: new Date(),
+    text: '',
+    criteriaId: ''
+  }
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

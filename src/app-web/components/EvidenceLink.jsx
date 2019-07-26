@@ -51,8 +51,9 @@ class EvidenceLink extends React.Component {
       canBeEdited: false,
       isBeingEdited: false,
       isExpanded: false,
-      listenForSourceSelection: false,
+      listenForSourceSelection: false
     };
+
     this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
     this.HandleRatingUpdate = this.HandleRatingUpdate.bind(this);
     this.HandleCancelButtonClick = this.HandleCancelButtonClick.bind(this);
@@ -66,7 +67,7 @@ class EvidenceLink extends React.Component {
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
     this.OnCommentClick = this.OnCommentClick.bind(this);
-    
+
     UR.Sub('DATA_UPDATED', this.HandleDataUpdate);
     UR.Sub('SHOW_EVIDENCE_LINK_SECONDARY', this.handleEvidenceLinkOpen);
     UR.Sub('EVLINK:ENABLE_SOURCE_SELECT', this.EnableSourceSelect);

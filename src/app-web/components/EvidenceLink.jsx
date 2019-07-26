@@ -169,7 +169,7 @@ class EvidenceLink extends React.Component {
   handleNoteChange(e) {
     if (DBG) console.log(PKG, 'Note Change:', e.target.value);
     this.setState({ note: e.target.value });
-    DATA.SetEvidenceLinkNote(this.props.evId, e.target.value);
+    DATA.SetEvidenceLinkNote(this.props.evlink.evId, e.target.value);
   }
 
   /* User has clicked on the 'link' button, so we want to

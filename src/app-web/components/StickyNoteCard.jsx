@@ -63,24 +63,26 @@ class StickyNoteCard extends React.Component {
     };
   }
 
-  componentDidMount() { 
+  componentDidMount() {
     this.DoOpenSticky();
   }
 
   componentWillUnmount() { }
 
   DoOpenSticky() {
-    console.error('stickyhotecard do sticky open')
     const criteria = ADM.GetCriteriaByClassroom();
     const currentGroup = ADM.GetGroupByStudent();
     const authorGroup = ADM.GetGroupByStudent(this.props.comment.author);
     const isAuthor = currentGroup === authorGroup;
+    const hasBeenRead = this.props.comment.readBy
+      ? this.props.comment.readBy.includes(ADM.GetSelectedStudentId())
+      : false;
     this.setState({
       criteria,
+      hasBeenRead,
       selectedCriteriaId: this.props.comment.criteriaId,
       allowedToEdit: isAuthor,
       allowedToDelete: isAuthor,
-      hasBeenRead: this.props.comment.readBy.includes(ADM.GetSelectedStudentId())
     });
   }
 

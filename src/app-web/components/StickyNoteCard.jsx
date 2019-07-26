@@ -210,7 +210,7 @@ class StickyNoteCard extends React.Component {
           <Grid container style={{ alignItems: 'flex-end' }}>
             <Grid item xs>
               <Typography variant="subtitle2" className={classes.stickynoteCardAuthor}>
-                {`by ${comment.author} ${ADM.GetGroupByStudent(comment.author).name}`}
+                {`by ${comment.author} ${ADM.GetGroupNameByStudent(comment.author)}`}
               </Typography>
             </Grid>
             <Grid item style={{ flexGrow: '1', alignItems: 'center', textAlign: 'center' }}>

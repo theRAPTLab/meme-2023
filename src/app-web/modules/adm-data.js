@@ -476,6 +476,10 @@ ADMData.GetGroupIdByStudent = studentId => {
   let group = ADMData.GetGroupByStudent(studentId);
   return group ? group.id : undefined;
 };
+ADMData.GetGroupNameByStudent = studentId => {
+  let group = ADMData.GetGroupByStudent(studentId);
+  return group ? group.name : '';
+};
 ADMData.GetSelectedGroupId = () => {
   const studentId = ADMData.GetSelectedStudentId();
   return ADMData.GetGroupIdByStudent(studentId);

@@ -348,7 +348,7 @@ class ViewMain extends React.Component {
   handleResourceClick(urdata) {
     if (DBG) console.log('ViewMain: clicked on ', urdata.rsrcId);
     // Look up resource
-    let selectedResource = DATA.Resource(urdata.rsrcId);
+    let selectedResource = ADM.Resource(urdata.rsrcId);
     if (selectedResource) {
       this.setState({
         resourceViewOpen: true,

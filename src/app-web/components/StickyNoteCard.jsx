@@ -77,9 +77,11 @@ class StickyNoteCard extends React.Component {
     const hasBeenRead = this.props.comment.readBy
       ? this.props.comment.readBy.includes(ADM.GetSelectedStudentId())
       : false;
+    const isBeingEdited = this.props.comment.text === ''; // automatically turn on editing if emtpy?
     this.setState({
       criteria,
       hasBeenRead,
+      isBeingEdited,
       selectedCriteriaId: this.props.comment.criteriaId,
       allowedToEdit: isAuthor,
       allowedToDelete: isAuthor,

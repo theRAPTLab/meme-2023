@@ -46,6 +46,7 @@ class StickyNoteCard extends React.Component {
     this.DoOpenSticky = this.DoOpenSticky.bind(this);
     this.OnEditClick = this.OnEditClick.bind(this);
     this.OnEditFinished = this.OnEditFinished.bind(this);
+    this.OnDeleteClick = this.OnDeleteClick.bind(this);
     this.OnCriteriaSelect = this.OnCriteriaSelect.bind(this);
     this.OnCommentTextChange = this.OnCommentTextChange.bind(this);
     this.OnShowEditButtons = this.OnShowEditButtons.bind(this);
@@ -84,7 +85,7 @@ class StickyNoteCard extends React.Component {
       isBeingEdited,
       selectedCriteriaId: this.props.comment.criteriaId,
       allowedToEdit: isAuthor,
-      allowedToDelete: isAuthor,
+      allowedToDelete: isAuthor // REVIEW: Only teachers are allowed to delete?
     });
   }
 
@@ -94,6 +95,10 @@ class StickyNoteCard extends React.Component {
 
   OnEditFinished() {
     this.setState({ isBeingEdited: false });
+  }
+
+  OnDeleteClick() {
+    
   }
 
   OnCriteriaSelect(e) {
@@ -219,7 +224,7 @@ class StickyNoteCard extends React.Component {
               <IconButton
                 size="small"
                 hidden={!showEditButtons || !allowedToDelete}
-                onClick={this.OnDeleteCard}
+                onClick={this.OnDeleteClick}
                 className={classes.stickynoteCardEditBtn}
               >
                 <DeleteIcon fontSize="small" className={classes.stickynoteCardAuthor}/>

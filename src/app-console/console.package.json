@@ -5,7 +5,7 @@
   "main": "console/console-main.js",
   "dependencies": {
     "ajv": "^6.5.5",
-    "cookie-parser": "^1.4.3",
+    "cookie-parser": "^1.4.4",
     "copy-webpack-plugin": "^4.5.4",
     "ejs": "^2.6.2",
     "express": "^4.16.4",

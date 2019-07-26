@@ -5,6 +5,8 @@ import { Hidden } from "@material-ui/core";
 const m_drawerWidth = 100;
 const m_edgeDialogWidth = 750;
 const m_primary = indigo[500];
+const m_stickynoteIconColor = `#ffc904`;
+const m_stickynoteColor = `#ffe25a`;
 const m_systemTextColor = 'rgba(0,0,0,0.35)';
 const m_systemLabelTextColor = 'rgba(0,0,0,0.25)';
 const m_resourceListWidth = 300;
@@ -352,7 +354,7 @@ const styles = theme => {
       backgroundColor: teal[50]
     },
     stickynotePaper: {
-      backgroundColor: '#fe3',
+      backgroundColor: m_stickynoteColor,
       position: 'absolute',
       top: '200px',
       left: '300px',
@@ -369,6 +371,9 @@ const styles = theme => {
       margin: '5px',
       padding: '5px 10px',
       width: '325px'
+    },
+    stickynoteIcon: {
+      color: m_stickynoteIconColor
     },
     stickynoteCardAuthor: {
       alignItems: 'baseline',

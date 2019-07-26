@@ -22,6 +22,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 // Material UI Icons
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -296,6 +297,11 @@ class EvidenceLink extends React.Component {
               spacing={8}
               className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
             >
+              <Grid item xs>
+                <Button onClick={this.OnCommentClick}>
+                  <ChatBubbleIcon className={classes.stickynoteIcon} />
+                </Button>
+              </Grid>
               <Grid item xs={4} hidden={!isExpanded}>
                 <Typography variant="caption" align="right">
                   SOURCE:

@@ -81,7 +81,7 @@ function Init() {
     SetLifecycleScope();
     // asynchronous code startup
     (async () => {
-      // await URSYS.JoinNet(); // URSYS socket connection (that is all)
+      await UR.EXEC.JoinNet(); // URSYS socket connection (that is all)
       // await URSYS.EnterApp(); // TEST_CONF, INITIALIZE, LOADASSETS, CONFIGURE
       // await RenderApp(); // compose React view
       // ReactDOM.render(

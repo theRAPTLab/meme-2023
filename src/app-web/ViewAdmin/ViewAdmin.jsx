@@ -16,7 +16,7 @@ import Grid from '@material-ui/core/Grid';
 import UR from '../../system/ursys';
 import TeacherSelector from './components/AdmTeacherSelector';
 import ClassroomsSelector from './components/AdmClassroomsSelector';
-import CriteriaList from './components/AdmCriteriaList';
+import CriteriaView from './components/AdmCriteriaView';
 import GroupsList from './components/AdmGroupsList';
 import ModelsList from './components/AdmModelsList';
 import ResourcesList from './components/AdmResourcesList';
@@ -36,11 +36,12 @@ const styles = theme => ({
     flexGrow: 1
   },
   paper: {
-    padding: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
     textAlign: 'center',
     color: theme.palette.text.secondary
   }
 });
+
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class ViewAdmin extends React.Component {
@@ -49,7 +50,9 @@ class ViewAdmin extends React.Component {
     super(props);
     this.cstrName = this.constructor.name;
 
-    // Initialize Admin Data
+    // FIXME: This will go away when UR.DB_Susbscribe('ADMIN:UPDATED') is implemented
+    //        in adm-data.js.
+    // Initialize Admin Data, but for now still need this
     ADM.Load();
   }
 
@@ -62,7 +65,7 @@ class ViewAdmin extends React.Component {
 
     return (
       <div className={classes.root}>
-        <Grid container spacing={24}>
+        <Grid container spacing={2}>
           <Grid item xs={2}>
             <TeacherSelector />
           </Grid>
@@ -70,7 +73,7 @@ class ViewAdmin extends React.Component {
             <ClassroomsSelector />
           </Grid>
         </Grid>
-        <Grid container spacing={24}>
+        <Grid container spacing={2}>
           <Grid item xs={6}>
             <GroupsList />
           </Grid>
@@ -78,9 +81,9 @@ class ViewAdmin extends React.Component {
             <ModelsList />
           </Grid>
         </Grid>
-        <Grid container spacing={24}>
+        <Grid container spacing={2}>
           <Grid item xs={6}>
-            <CriteriaList />
+            <CriteriaView />
           </Grid>
           <Grid item xs={12}>
             <ResourcesList />

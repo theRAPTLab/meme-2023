@@ -1,3 +1,4 @@
+import ADM from './adm-data';
 import DATA from './pmc-data';
 import { cssalert, cssinfo } from './console-styles';
 import DEFAULTS from './defaults';
@@ -58,7 +59,7 @@ class VBadge {
     const radius = m_minHeight + m_pad / 2;
     const x = myVProp.gRoot.x();
     const y = myVProp.gRoot.y() + (badgeCount - 1) * 7.5; // FIXME hack -- for some reason Y on subsequent badges is decreased
-    const referenceLabel = DATA.Resource(evlink.rsrcId).referenceLabel;
+    const referenceLabel = ADM.Resource(evlink.rsrcId).referenceLabel;
 
     // create vbadge sub elements
     this.gCircle = this.gBadge

@@ -5,6 +5,7 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -42,7 +43,7 @@ class EvidenceList extends React.Component {
     /*/ evLinks
           is an array of evidence Link objects related to the resource, e.g.
           [
-            {evId: "ev1", propId: "food", mechId: "fish:ammonia", rsrcId: "rs1", note: "fish need food"},
+            {evId: "ev1", propId: "food", mechId: "fish:ammonia", rsrcId: "rs1", note: "fish need food", comments: []},
             {evId: "ev3", propId: "rotting-food", mechId: "fish:ammonia", rsrcId: "rs1", note: "fish food rots"},
             {evId: "ev4", propId: "ammonia", mechId: "fish:ammonia", rsrcId: "rs1", note: "ammonia causes fish to die"}
           ]
@@ -51,21 +52,24 @@ class EvidenceList extends React.Component {
 
     return (
       <div key={this.props.rsrcId}>
-        {evLinks.map((evlink) => (
-          <EvidenceLink
-            evId={evlink.evId}
-            rsrcId={evlink.rsrcId}
-            propId={evlink.propId}
-            mechId={evlink.mechId}
-            note={evlink.note}
-            rating={evlink.rating}
-            key={evlink.evId}
-          />
+        {evLinks.map(evlink => (
+          <EvidenceLink evlink={evlink} key={evlink.evId} />
         ))}
       </div>
     );
   }
 }
+
+EvidenceList.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
+  classes: PropTypes.object,
+  rsrcId: PropTypes.string
+};
+
+EvidenceList.defaultProps = {
+  classes: {},
+  rsrcId: ''
+};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

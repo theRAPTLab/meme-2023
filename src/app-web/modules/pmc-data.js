@@ -71,8 +71,8 @@ let a_components = []; // top-level props with no parents
 let h_children = new Map(); // children hash of each prop by id
 let h_outedges = new Map(); // outedges hash of each prop by id
 //
-let a_resource = [];  /*/ all resource objects to be displayed in InformationList
-                          a_resource = [
+let a_resources = [];  /*/ all resource objects to be displayed in InformationList
+                         a_resource = [
                             {
                               rsrcId: '1',
                               label: 'Food Rot Simulation',
@@ -139,300 +139,58 @@ const selected_vmechs = new Set();
 PMCData.Graph = () => {
   return m_graph;
 };
-
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.DATASTORE:
- * Loads GraphLib data into data store (currently hardcoded)
- * @param {string} uri - (unimplemented) URI pointing to browser-accessible JSON-formatted data file
+/**
+ *  Loads a graph from model data and saves a local copy.  Replaces PMCData.LoadGraph.
+ *  This will self repair bad data, but model.id and model.groupID MUST be defined.
+ *  This should be only be called by ADMData.LoadModel. Never call this direcly.
  */
-PMCData.LoadGraph = uri => {
+PMCData.LoadModel = (model, resources) => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
 
-  // /// g.setNode('a', { name: 'a node' });
-  // g.setNode('a', { name: 'a node' });
-  // g.setNode('b', { name: 'b node' });
-  // g.setNode('c', { name: 'c node' });
-  // g.setNode('d', { name: 'd node' });
-  // g.setNode('e', { name: 'e node' });
-  // g.setNode('f', { name: 'f node' });
-  // g.setNode('g', { name: 'g node' });
-  // g.setNode('x', { name: 'x node' });
-  // g.setNode('y', { name: 'y node' });
-  // g.setNode('z', { name: 'z node' });
-  // /// g.setParent('a','b')
-  // g.setParent('a', 'b');
-  // g.setParent('c', 'd');
-  // g.setParent('e', 'd');
-  // g.setParent('f', 'd');
-  // g.setParent('g', 'a');
-  // g.setParent('y', 'd');
-  // /// g.setEdge('a', 'b', { name: 'a-b' });
-  // g.setEdge('z', 'x', { name: 'zexxxxy!' });
-  // g.setEdge('g', 'd', { name: 'alpha>' });
-  // g.setEdge('y', 'z', { name: 'datum' });
-  // g.setEdge('a', 'g', { name: 'atog' });
+  // Self repair bad data
+  let m = model;
+  if (m.id === undefined || m.groupId === undefined) {
+    console.error(
+      `PMCData.LoadModel called with either bad id (${m.id})or bad groupId (${m.groupId})`
+    );
+  }
+  m.data = model.data || {};
 
-  // // define evidence mapping: propID => evIDArray
-  // a_evidence.push({ evId: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
-  // a_evidence.push({ evId: '2', propId: 'b', rsrcId: '2', note: 'fish cant live in dirty water' });
-  // a_evidence.push({ evId: '3', propId: 'b', rsrcId: '3', note: 'fish heads' });
-  // a_evidence.push({ evId: '4', propId: 'g', rsrcId: '2', note: 'fish fish fish' });
-  // a_evidence.push({ evId: '5', propId: 'g', rsrcId: '5', note: 'fishy fishy fishy' });
-  // a_evidence.push({ evId: '6', propId: 'g', rsrcId: '1', note: 'fish cant live in dirty water' });
-  // a_evidence.push({ evId: '7', propId: 'y', rsrcId: '1', note: 'fish poop in water' });
-  // a_evidence.push({ evId: '8', propId: 'z', rsrcId: '1', note: 'fish food rots' });
+  // Load Components/Properties
+  m.data.properties = m.data.properties || [];
+  m.data.properties.forEach(obj => {
+    g.setNode(obj.id, { name: obj.name });
+  });
 
-  /**
-   *    Student Examples
-   *
-   *    These are four examples of student work based on student sketches.
-   *    To use them, first comment out the nodes above that you're not interested in,
-   *    then uncomment the section below that you ARE interested in and save to reload.
-   *
-   */
-
-  // Tutoring Study Pilot
-  // Very Simple Graph for Testing Evidence Links
-  g.setNode('title', { name: 'What do fish need to live in a tank?' });
-
-  g.setNode('tank', { name: 'tank' });
-  g.setNode('fish', { name: 'fish' });
-  g.setNode('food', { name: 'food' });
-  g.setNode('ammonia', { name: 'Ammonia' });
-  g.setNode('clean-water', { name: 'clean water' });
-  g.setNode('dirty-water-waste', { name: 'waste' });
-
-  g.setParent('dirty-water-waste', 'tank');
-  g.setParent('clean-water', 'tank');
-
-  g.setEdge('fish', 'tank', { name: 'live in' });
-  g.setEdge('fish', 'food', { name: 'eat' });
-  g.setEdge('fish', 'dirty-water-waste', { name: 'produce' });
-
-  // define evidence mapping: propID => evIDArray
-  a_evidence.push({ evId: 'ev1', propId: "fish", mechId: undefined, rsrcId: 'rs1', note: 'fish need food' });
-  a_evidence.push({ evId: 'ev2', propId: undefined, mechId: 'fish:food', rsrcId: 'rs1', note: 'fish need food' });
-
-  // // 3.5.19 sample model for group 3.pdf
-  // // Sample for Group 3
-  // g.setNode('title', { name: 'Sample for Group 3' });
-  // g.setNode('foxes', { name: 'Fox' });
-  // g.setNode('foxes-amount', { name: 'amount' });
-  // g.setNode('rabbit', { name: 'Rabbit' });
-  // g.setNode('rabbit-furcolor', { name: 'fur color' });
-  // g.setNode('rabbit-amount', { name: 'amount' });
-  // g.setNode('rabbits', { name: 'Rabbits' });
-  // g.setNode('rabbits-furcolor', { name: 'fur color' });
-  // g.setNode('plants', { name: 'Thicket' });
-  // g.setNode('bacteria', { name: 'Bacteria?' });
-  // g.setNode('oldage', { name: 'Old age?' });
-  // g.setNode('properties', { name: 'Make sure to talk properties' });
-  // g.setParent('foxes-amount', 'foxes');
-  // g.setParent('rabbit-furcolor', 'rabbit');
-  // g.setParent('rabbit-amount', 'rabbit');
-  // g.setParent('rabbits-furcolor', 'rabbits');
-  // g.setEdge('foxes', 'rabbit', { name: 'eat' });
-  // g.setEdge('rabbit', 'rabbits', { name: 'tries to hide' });
-  // g.setEdge('rabbits', 'plants', { name: 'hiding' });
-
-  // 3.5.19 Day 1 Group 4 sample model.pdf
-  // // Sample for Group 4
-  // g.setNode('title', { name: 'Sample for Group 4' });
-  // g.setNode('foxes', { name: 'Foxes' });
-  // g.setNode('foxes-amount', { name: 'amount: 2' });
-  // g.setNode('rabbits', { name: 'Rabbits' });
-  // g.setNode('rabbits-amount', { name: 'amount: 20' });
-  // g.setNode('plants', { name: 'Plants' });
-  // g.setNode('forest', { name: 'Forest' });
-  // g.setParent('foxes-amount', 'foxes');
-  // g.setParent('rabbits-amount', 'rabbits');
-  // g.setEdge('foxes', 'rabbits', { name: 'eat' });
-  // g.setEdge('rabbits', 'plants', { name: 'eat' });
-  // g.setEdge('forest', 'foxes', { name: 'live in' });
-  // g.setEdge('forest', 'rabbits', { name: 'live in' });
-
-  // day2_group4_model_02.JPG
-  // Sample for Group 3
-  // g.setNode('title', { name: 'Day 2 Group 4 Model 2: "Food Water Cleaning System' });
-  // g.setNode('ammonia', { name: 'Ammonia' });
-  // g.setNode('dirty-water', { name: 'dirty water' });
-  // g.setNode('dirty-water-waste', { name: 'waste' });
-  // g.setNode('dirty-water-algee', { name: 'algee' });
-  // g.setNode('tank', { name: 'big enough fish tank' });
-  // g.setNode('fish', { name: 'fish' });
-  // g.setNode('food', { name: 'food' });
-  // g.setNode('rotting-food', { name: 'rotting food' });
-  // g.setNode('cleaning', { name: 'cleaning system?' });
-  // g.setNode('clean-water', { name: 'clean water' });
-
-  // g.setParent('dirty-water-waste', 'dirty-water');
-  // g.setParent('dirty-water-algee', 'dirty-water');
-
-  // g.setEdge('ammonia', 'fish', { name: 'death' });
-  // g.setEdge('fish', 'ammonia', { name: 'makes' });
-  // g.setEdge('fish', 'dirty-water', { name: 'waste' });
-  // g.setEdge('dirty-water', 'fish', { name: 'death' });
-  // g.setEdge('tank', 'fish', { name: 'live in' });
-  // g.setEdge('fish', 'food', { name: 'eat' });
-  // g.setEdge('food', 'rotting-food', { name: '' });
-  // g.setEdge('cleaning', 'clean-water', { name: 'clean' });
-  // g.setEdge('clean-water', 'fish', { name: 'live in' });
-  // g.setEdge('rotting-food', 'clean-water', { name: 'if rots can also make dirty' });
-  // // define evidence mapping: propID => evIDArray
-  // a_evidence.push({ evId: 'ev1', propId: 'food', rsrcId: 'rs1', note: 'fish need food' });
-  // a_evidence.push({ evId: 'ev7', propId: 'food', rsrcId: 'rs2', note: 'fish die without food' });
-  // a_evidence.push({ evId: 'ev2', propId: 'clean-water', rsrcId: 'rs2', note: 'fish cant live in dirty water' });
-  // a_evidence.push({ evId: 'ev3', propId: 'rotting-food', rsrcId: 'rs1', note: 'fish food rots' });
-  // a_evidence.push({ evId: 'ev4', propId: 'ammonia', rsrcId: 'rs1', note: 'ammonia causes fish to die' });
-  // a_evidence.push({
-  //   evId: 'ev5',
-  //   propId: undefined,
-  //   mechId: 'ammonia:fish',
-  //   rsrcId: 'rs1',
-  //   note:
-  //     'ammonia causes fish to die. This is a really long explanation so that we can test how the text wraps.'
-  // });
-  // a_evidence.push({ evId: 'ev6', propId: undefined, mechId: 'ammonia:fish', rsrcId: 'rs2', note: 'ammonia causes fish to die' });
-
-  // // 3.5.19 Day 1 Group 3 Brainstomring list and Final Model.pdf
-  // g.setNode('title', { name: 'Day 1 Group 3 Brainstorming List' });
-  // g.setNode('fish', { name: 'Fish' });
-  // g.setNode('fish-how-many', { name: 'how many' });
-  // g.setNode('fish-how-big', { name: 'how big' });
-  // g.setNode('fish-camo', { name: 'camo' });
-  // g.setNode('fish-how-healthy', { name: 'how healthy' });
-  // g.setNode('food', { name: 'food' });
-  // g.setNode('aquarium', { name: 'aquarium' });
-  // g.setNode('water-type', { name: 'water type' });
-  // g.setNode('water-how-clean', { name: 'how clean water is' });
-  // g.setNode('aquarium-setup', { name: 'setup' });
-  // g.setNode('aquarium-space', { name: 'space in aquarium' });
-  // /**
-  //  * Comment out the setParents to show graph as students originally drew it
-  //  * The setParents reworks the items as propoerties of fish and aquarium
-  //  *  */
-  // // g.setParent('fish-how-big', 'fish');
-  // // g.setParent('fish-how-many', 'fish');
-  // // g.setParent('fish-camo', 'fish');
-  // // g.setParent('fish-how-healthy', 'fish');
-  // // g.setParent('water-type', 'aquarium');
-  // // g.setParent('aquarium-setup', 'aquarium');
-  // // g.setParent('aquarium-space', 'aquarium');
-  // // g.setParent('water-how-clean', 'water-type');
-  // g.setEdge('fish', 'fish-how-big', { name: '' });
-  // g.setEdge('fish', 'fish-how-many', { name: '' });
-  // g.setEdge('fish', 'fish-camo', { name: 'what type' });
-  // g.setEdge('fish', 'fish-how-healthy', { name: '' });
-  // g.setEdge('fish', 'food', { name: '' });
-  // g.setEdge('fish', 'aquarium', { name: 'Live in it' });
-  // g.setEdge('fish-how-big', 'aquarium-space', { name: '' });
-  // g.setEdge('fish-how-healthy', 'fish-how-many', { name: '' });
-  // g.setEdge('fish-how-healthy', 'food', { name: '' });
-  // g.setEdge('fish-how-healthy', 'water-how-clean', { name: '' });
-  // g.setEdge('fish-how-healthy', 'aquarium-setup', { name: '' });
-  // g.setEdge('fish-how-healthy', 'aquarium-space', { name: '' });
-  // g.setEdge('food', 'water-type', { name: 'stays at top or rot' });
-  // g.setEdge('water-how-clean', 'fish', { name: 'how long they live could depend on this' });
-  // g.setEdge('aquarium', 'water-type', { name: 'water in aquarium' });
-  // g.setEdge('aquarium', 'aquarium-setup', { name: '' });
-  // g.setEdge('aquarium', 'aquarium-space', { name: '' });
-  // g.setEdge('water-type', 'water-how-clean', { name: '' });
-  // g.setEdge('water-type', 'aquarium-space', { name: 'more or less water purifier' });
-  // g.setEdge('aquarium-setup', 'aquarium-space', { name: 'more or less decoration depends on size' });
-
-
-  /***************************************************************************/
-
-  /**
-   *    Resources
-   *
-   *    Currently resources use a placeholder screenshot as the default image.
-   *    (Screenshot-creation and saving have not been implemented yet).
-   *
-   */
-  a_resource = [
-    {
-      rsrcId: 'rs1',
-      referenceLabel: '1',
-      label: 'Fish in a Tank Simulation',
-      notes: 'water quality and fish deaths over time',
-      type: 'simulation',
-      url: '../static/dlc/FishinaTank.html',
-      links: 0
-    },
-    {
-      rsrcId: 'rs2',
-      referenceLabel: '2',
-      label: 'Raj\'s forum post.',
-      notes: 'Forum post about fish deaths',
-      type: 'report',
-      url: '../static/dlc/RajForumPost.pdf',
-      links: 0
-    },
-    {
-      rsrcId: 'rs3',
-      referenceLabel: '3',
-      label: 'Autopsy Report',
-      notes: 'Fighting?',
-      type: 'report',
-      url: '../static/dlc/VetReport.pdf',
-      links: 0
-    },
-    {
-      rsrcId: 'rs4',
-      referenceLabel: '4',
-      label: 'Fish Starving Simulation',
-      notes: 'food and fish population',
-      type: 'simulation',
-      url: '../static/dlc/FishStarving.html',
-      links: 0
-    },
-    {
-      rsrcId: 'rs5',
-      referenceLabel: '5',
-      label: 'Ammonia Testing',
-      notes: 'Ammonia Testing and Water Quality',
-      type: 'report',
-      url: '../static/dlc/AmmoniaTesting.pdf',
-      links: 0
-    },
-    {
-      rsrcId: 'rs6',
-      referenceLabel: '6',
-      label: 'Fish Fighting Simulation',
-      notes: 'fighting, fish death',
-      type: 'simulation',
-      url: '../static/dlc/FishFighting.html',
-      links: 0
-    },
-    {
-      rsrcId: 'rs7',
-      referenceLabel: '7',
-      label: 'Food Rot Simulation',
-      notes: 'rotting, waste, fish death',
-      type: 'simulation',
-      url: '../static/dlc/FoodRot.html',
-      links: 0
-    },
-    {
-      rsrcId: 'rs8',
-      referenceLabel: '8',
-      label: 'Ammonia in Tanks Report',
-      notes: 'Ammonia, Research',
-      type: 'report',
-      url: '../static/dlc/AmmoniaInTanks.pdf',
-      links: 0
-    },
-    {
-      rsrcId: 'rs9',
-      referenceLabel: '9',
-      label: 'Fish Simulation With All Variables',
-      notes: 'ammonia, waste, death, food, rotting, aggression, filter',
-      type: 'simulation',
-      url: '../static/dlc/FishAllVariables.html',
-      links: 0
+  // Set Parents
+  m.data.properties.forEach(obj => {
+    if (obj.parent !== undefined) {
+      g.setParent(obj.id, obj.parent);
     }
-  ];
+  });
+
+  // Load Mechanisms
+  m.data.mechanisms = m.data.mechanisms || [];
+  m.data.mechanisms.forEach(mech => {
+    g.setEdge(mech.source, mech.target, { name: mech.name });
+  });
+
+  // Load Evidence Links
+  m.data.evidence = m.data.evidence || [];
+  m.data.evidence.forEach(ev => {
+    let { evId, propId, mechId, rsrcId, note, comments } = ev;
+    comments = comments || []; // allow empty comments
+    a_evidence.push({
+      evId,
+      propId,
+      mechId,
+      rsrcId,
+      note,
+      comments
+    });
+  });
+
+  a_resources = resources || [];
 
   /***************************************************************************/
   // test serial write out, then serial read back in
@@ -440,7 +198,9 @@ PMCData.LoadGraph = uri => {
   const json = JSON.stringify(cleanGraphObj);
   m_graph = GraphJSON.read(JSON.parse(json));
   PMCData.BuildModel();
-}; // LoadGraph()
+
+  return m;
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -540,7 +300,7 @@ PMCData.BuildModel = () => {
    *  Used by EvidenceList to look up all evidence related to a resource
   /*/
   h_evlinkByResource = new Map();
-  a_resource.forEach(resource => {
+  a_resources.forEach(resource => {
     let evlinkArray = a_evidence.filter(evlink => evlink.rsrcId === resource.rsrcId);
     if (evlinkArray === undefined) evlinkArray = [];
     h_evlinkByResource.set(resource.rsrcId, evlinkArray);
@@ -550,7 +310,7 @@ PMCData.BuildModel = () => {
   /*/
    *  Now update all evidence link counts
   /*/
-  a_resource.forEach(resource => {
+  a_resources.forEach(resource => {
     let props = h_propByResource.get(resource.rsrcId);
     if (props) {
       resource.links = props.length;
@@ -983,7 +743,7 @@ PMCData.VM_ToggleProp = vprop => {
   }
   if (DBG) console.log(`vprop selection`, selected_vprops);
   UR.Publish('SELECTION_CHANGED');
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
  * erase the selected properties set. Also calls affected vprops to
@@ -1156,29 +916,6 @@ PMCData.PMC_DeleteEvidenceLink = evId => {
   return evId;
 };
 
-if (window.may1 === undefined) window.may1 = {};
-window.may1.PCM_Mech = PMCData.Mech;
-window.may1.PMC_AddProp = PMCData.PMC_AddProp;
-window.may1.PMC_AddMech = PMCData.PMC_AddMech;
-window.may1.PMC_AddEvidenceLink = PMCData.PMC_AddEvidenceLink;
-window.may1.VM_GetVEvLinkChanges = PMCData.VM_GetVEvLinkChanges;
-window.may1.BuildModel = PMCData.BuildModel;
-
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.MODEL:
- *  Returns all of the resource objects.
- */
-PMCData.AllResources = () => {
-  return a_resource;
-};
-
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.MODEL:
- *  Returns the resource object matching the evId.
- */
-PMCData.Resource = rsrcId => {
-  return a_resource.find((item) => { return item.rsrcId === rsrcId });
-};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -1265,6 +1002,50 @@ PMCData.GetEvLinkByResourceId = (rsrcId) => {
  */
 PMCData.MechEvidence = (mechId) => {
   return h_evidenceByMech.get(mechId);
+};
+
+/// DEBUG UTILS //////////////////////////////////////////////////////////////
+if (window.may1 === undefined) window.may1 = {};
+window.may1.PCM_Mech = PMCData.Mech;
+window.may1.PMC_AddProp = PMCData.PMC_AddProp;
+window.may1.PMC_AddMech = PMCData.PMC_AddMech;
+window.may1.PMC_AddEvidenceLink = PMCData.PMC_AddEvidenceLink;
+window.may1.VM_GetVEvLinkChanges = PMCData.VM_GetVEvLinkChanges;
+window.may1.BuildModel = PMCData.BuildModel;
+window.may1.OpenSticky = () => {
+  UR.Publish('STICKY:OPEN', {
+    targetType: 'component',
+    targetId: 'tank',
+    comments: [
+      {
+        id: 0,
+        time: 0,
+        author: 'Bob',
+        date: new Date(),
+        text: 'I like this',
+        criteriaId: 'cr01',
+        readBy: ['Bob', 'Bill']
+      },
+      {
+        id: 1,
+        time: 10,
+        author: 'Bill',
+        date: new Date(),
+        text: 'I DONT like this',
+        criteriaId: 'cr02',
+        readBy: []
+      },
+      {
+        id: 2,
+        time: 11,
+        author: 'Mary',
+        date: new Date(),
+        text: 'This is not mine!',
+        criteriaId: 'cr02',
+        readBy: []
+      }
+    ]
+  });
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

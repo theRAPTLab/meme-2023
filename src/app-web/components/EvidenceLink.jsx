@@ -22,6 +22,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 // Material UI Icons
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -30,6 +31,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import DATA from '../modules/pmc-data';
 import UR from '../../system/ursys';
+import StickyNoteButton from './StickyNoteButton';
 import RatingButton from './RatingButton';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -44,13 +46,15 @@ class EvidenceLink extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      note: this.props.note,
-      rating: this.props.rating,
+      note: this.props.evlink.note,
+      rating: this.props.evlink.rating,
+      comments: this.props.evlink.comments,
       canBeEdited: false,
       isBeingEdited: false,
       isExpanded: false,
-      listenForSourceSelection: false,
+      listenForSourceSelection: false
     };
+
     this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
     this.HandleRatingUpdate = this.HandleRatingUpdate.bind(this);
     this.HandleCancelButtonClick = this.HandleCancelButtonClick.bind(this);
@@ -63,6 +67,8 @@ class EvidenceLink extends React.Component {
     this.EnableSourceSelect = this.EnableSourceSelect.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
+    this.OnCommentClick = this.OnCommentClick.bind(this);
+
     UR.Sub('DATA_UPDATED', this.HandleDataUpdate);
     UR.Sub('SHOW_EVIDENCE_LINK_SECONDARY', this.handleEvidenceLinkOpen);
     UR.Sub('EVLINK:ENABLE_SOURCE_SELECT', this.EnableSourceSelect);
@@ -84,11 +90,12 @@ class EvidenceLink extends React.Component {
     // via the DATA_UPDATED call because `note` is only set by props
     // during construction.
 
-    let evlink = DATA.EvidenceLinkByEvidenceId(this.props.evId);
+    let evlink = DATA.EvidenceLinkByEvidenceId(this.props.evlink.evId);
     if (evlink) {
       this.setState({
         note: evlink.note,
-        rating: evlink.rating
+        rating: evlink.rating,
+        comments: evlink.comments
       });
     }
     // Don't throw an error here
@@ -105,7 +112,7 @@ class EvidenceLink extends React.Component {
    * @param {integer} rating - number of stars selected
    */
   HandleRatingUpdate(rating) {
-    DATA.SetEvidenceLinkRating(this.props.evId, rating);
+    DATA.SetEvidenceLinkRating(this.props.evlink.evId, rating);
   }
 
   HandleCancelButtonClick() {
@@ -115,7 +122,7 @@ class EvidenceLink extends React.Component {
   }
 
   HandleDeleteButtonClick() {
-    DATA.PMC_DeleteEvidenceLink(this.props.evId);
+    DATA.PMC_DeleteEvidenceLink(this.props.evlink.evId);
   }
 
   handleEditButtonClick() {
@@ -133,15 +140,15 @@ class EvidenceLink extends React.Component {
   }
 
   handleEvidenceLinkOpen(data) {
-    if (this.props.evId === data.evId) {
+    if (this.props.evlink.evId === data.evId) {
       if (DBG) console.log(PKG, 'Expanding', data.evId);
 
       // If we're being opened for the first time, notes is empty
       // and no links have been set, so automatically go into edit mode
       let activateEditState = false;
       if (
-        this.props.note === '' ||
-        (this.props.propId === undefined && this.props.mechId === undefined)
+        this.props.evlink.note === '' ||
+        (this.props.evlink.propId === undefined && this.props.evlink.mechId === undefined)
       ) {
         activateEditState = true;
       }
@@ -163,7 +170,7 @@ class EvidenceLink extends React.Component {
   handleNoteChange(e) {
     if (DBG) console.log(PKG, 'Note Change:', e.target.value);
     this.setState({ note: e.target.value });
-    DATA.SetEvidenceLinkNote(this.props.evId, e.target.value);
+    DATA.SetEvidenceLinkNote(this.props.evlink.evId, e.target.value);
   }
 
   /* User has clicked on the 'link' button, so we want to
@@ -188,11 +195,12 @@ class EvidenceLink extends React.Component {
   }
 
   EnableSourceSelect(data) {
-    if (data.evId === this.props.evId) {
+    if (data.evId === this.props.evlink.evId) {
       this.setState({ listenForSourceSelection: true });
     }
   }
 
+  // User has clicked on a different component/property/mechanism
   handleSelectionChange() {
     if (this.state.listenForSourceSelection) {
       let sourceId;
@@ -203,9 +211,9 @@ class EvidenceLink extends React.Component {
       if (selectedMechIds.length > 0) {
         // Get the last selection
         sourceId = selectedMechIds[selectedMechIds.length - 1];
-        DATA.SetEvidenceLinkMechId(this.props.evId, sourceId);
+        DATA.SetEvidenceLinkMechId(this.props.evlink.evId, sourceId);
         // Clear the PropId in case it was set previously
-        DATA.SetEvidenceLinkPropId(this.props.evId, undefined);
+        DATA.SetEvidenceLinkPropId(this.props.evlink.evId, undefined);
         // leave it in a waiting state?  This allows you to change your mind?
         // REVIEW may want another way to exit / confirm the selection?
         // For May 1, exit as soon as something is selected to prevent
@@ -220,9 +228,9 @@ class EvidenceLink extends React.Component {
       if (selectedPropIds.length > 0) {
         // Get the last selection
         sourceId = selectedPropIds[selectedPropIds.length - 1];
-        DATA.SetEvidenceLinkPropId(this.props.evId, sourceId);
+        DATA.SetEvidenceLinkPropId(this.props.evlink.evId, sourceId);
         // Clear the PropId in case it was set previously
-        DATA.SetEvidenceLinkMechId(this.props.evId, undefined);
+        DATA.SetEvidenceLinkMechId(this.props.evlink.evId, undefined);
         // leave it in a waiting state?  This allows you to change your mind?
         // REVIEW may want another way to exit / confirm the selection?
         // For May 1, exit as soon as something is selected to prevent
@@ -247,9 +255,21 @@ class EvidenceLink extends React.Component {
     }
   }
 
+  OnCommentClick(e) {
+    UR.Publish('STICKY:OPEN', {
+      comments: this.props.evlink.comments,
+      parent: this.props.evlink,
+      x: e.clientX,
+      y: e.clientY,
+      windowWidth: e.view.window.innerWidth, // not used
+      windowHeight: e.view.window.innerHeight // not used
+    });
+  }
+
   render() {
     // evidenceLinks is an array of arrays because there might be more than one?!?
-    const { evId, rsrcId, propId, mechId, classes } = this.props;
+    const { classes, evlink } = this.props;
+    const { evId, rsrcId, propId, mechId, comments } = evlink;
     const { note, rating, isBeingEdited, isExpanded, listenForSourceSelection } = this.state;
     if (evId === '') return '';
     let sourceLabel;
@@ -267,6 +287,7 @@ class EvidenceLink extends React.Component {
       sourceLabel = 'Link';
       evidenceLinkSelectButtonClass = classes.evidenceLinkSelectButton;
     }
+
     return (
       <Paper
         className={ClassNames(
@@ -289,9 +310,15 @@ class EvidenceLink extends React.Component {
           <Grid item xs={isExpanded ? 12 : 3}>
             <Grid
               container
-              spacing={8}
+              spacing={1}
               className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
             >
+              <Grid item xs>
+                <StickyNoteButton
+                  comments={this.props.evlink.comments}
+                  OnClick={this.OnCommentClick}
+                />
+              </Grid>
               <Grid item xs={4} hidden={!isExpanded}>
                 <Typography variant="caption" align="right">
                   SOURCE:
@@ -316,7 +343,7 @@ class EvidenceLink extends React.Component {
           <Grid item xs={isExpanded ? 12 : 9}>
             <Grid
               container
-              spacing={8}
+              spacing={1}
               className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
             >
               <Grid item xs={4} hidden={!isExpanded}>
@@ -341,15 +368,15 @@ class EvidenceLink extends React.Component {
                     }}
                   />
                 ) : (
-                    <div className={classes.evidenceLabelField}>{note}</div>
-                  )}
+                  <div className={classes.evidenceLabelField}>{note}</div>
+                )}
               </Grid>
             </Grid>
           </Grid>
           <Grid item xs={isExpanded ? 12 : 3}>
             <Grid
               container
-              spacing={8}
+              spacing={1}
               className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed}
             >
               <Grid item xs={4} hidden={!isExpanded}>

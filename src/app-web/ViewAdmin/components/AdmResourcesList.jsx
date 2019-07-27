@@ -26,7 +26,6 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
-import DATA from '../../modules/pmc-data';
 import ADM from '../../modules/adm-data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -36,11 +35,16 @@ class ResourcesList extends React.Component {
   constructor(props) {
     super(props);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
+    this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.OnResourceCheck = this.OnResourceCheck.bind(this);
 
-    this.state = { classroomResources: [] };
+    this.state = {
+      classroomResources: [],
+      classroomId: ''
+    };
 
     UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect);
+    UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate); // Broadcast when a resource is updated.
   }
 
   componentDidMount() { }
@@ -49,20 +53,29 @@ class ResourcesList extends React.Component {
 
   DoClassroomSelect(data) {
     this.setState({
-      classroomResources: ADM.GetResourcesByClassroom(data.classroomId)
+      classroomResources: ADM.GetResourcesByClassroom(data.classroomId),
+      classroomId: data.classroomId
     });
   }
 
-  OnResourceCheck(e) {
-    alert('"Select Checkbox" not implemented yet!');
+  // Update the groups list from ADMData in case a new group was added
+  DoADMDataUpdate() {
+    const classroomId = this.state.classroomId;
+    if (classroomId) {
+      this.setState({
+        classroomResources: ADM.GetResourcesByClassroom(classroomId)
+      });
+    }
+  }
+
+  OnResourceCheck(rsrcId, checked) {
+    ADM.SetClassroomResource(rsrcId, checked, this.state.classroomId);
   }
 
   render() {
     const { classes } = this.props;
-    const { classroomResources } = this.state;
-
-    DATA.LoadGraph();  // FIXME: Hack for now to force loading data
-    const resources = DATA.AllResources();
+    const { classroomResources, classroomId } = this.state;
+    const resources = ADM.AllResources();
 
     return (
       <Paper className={classes.admResourceListPaper}>
@@ -85,7 +98,8 @@ class ResourcesList extends React.Component {
                   <Checkbox
                     checked={classroomResources.includes(resource.rsrcId)}
                     color="primary"
-                    onChange={this.HandleCheck}
+                    onChange={e => this.OnResourceCheck(resource.rsrcId, e.target.checked)}
+                    disabled={classroomId === ''}
                   />
                 </TableCell>
                 <TableCell>{resource.rsrcId}</TableCell>

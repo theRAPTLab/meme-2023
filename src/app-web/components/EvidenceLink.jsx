@@ -31,6 +31,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import DATA from '../modules/pmc-data';
 import UR from '../../system/ursys';
+import StickyNoteButton from './StickyNoteButton';
 import RatingButton from './RatingButton';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -286,6 +287,7 @@ class EvidenceLink extends React.Component {
       sourceLabel = 'Link';
       evidenceLinkSelectButtonClass = classes.evidenceLinkSelectButton;
     }
+
     return (
       <Paper
         className={ClassNames(
@@ -312,9 +314,10 @@ class EvidenceLink extends React.Component {
               className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
             >
               <Grid item xs>
-                <Button onClick={this.OnCommentClick}>
-                  <ChatBubbleIcon className={classes.stickynoteIcon} />
-                </Button>
+                <StickyNoteButton
+                  comments={this.props.evlink.comments}
+                  OnClick={this.OnCommentClick}
+                />
               </Grid>
               <Grid item xs={4} hidden={!isExpanded}>
                 <Typography variant="caption" align="right">

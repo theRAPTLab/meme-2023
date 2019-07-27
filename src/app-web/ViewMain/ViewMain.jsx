@@ -428,7 +428,7 @@ class ViewMain extends React.Component {
       componentIsSelected,
       mechIsSelected
     } = this.state;
-    const resources = DATA.AllResources();
+    const resources = ADM.AllResources();
     return (
       <div className={classes.root}>
         <Login />

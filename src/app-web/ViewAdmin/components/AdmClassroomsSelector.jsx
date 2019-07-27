@@ -19,8 +19,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
-import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
+import TextField from '@material-ui/core/TextField';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 

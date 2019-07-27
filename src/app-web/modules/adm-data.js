@@ -1,5 +1,6 @@
 import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
+import PMCData from './pmc-data';
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -129,6 +130,130 @@ ADMData.Load = () => {
     { classroomId: 'cl04', resources: ['rs6', 'rs7'] }
   ];
 
+  /**
+   *    Resources
+   *
+   *    Currently resources use a placeholder screenshot as the default image.
+   *    (Screenshot-creation and saving have not been implemented yet).
+   *
+   */
+  adm_db.a_resources = [
+    {
+      rsrcId: 'rs1',
+      referenceLabel: '1',
+      label: 'Fish in a Tank Simulation',
+      notes: 'water quality and fish deaths over time',
+      type: 'simulation',
+      url: '../static/dlc/FishinaTank.html',
+      links: 0
+    },
+    {
+      rsrcId: 'rs2',
+      referenceLabel: '2',
+      label: 'Raj\'s forum post.',
+      notes: 'Forum post about fish deaths',
+      type: 'report',
+      url: '../static/dlc/RajForumPost.pdf',
+      links: 0
+    },
+    {
+      rsrcId: 'rs3',
+      referenceLabel: '3',
+      label: 'Autopsy Report',
+      notes: 'Fighting?',
+      type: 'report',
+      url: '../static/dlc/VetReport.pdf',
+      links: 0
+    },
+    {
+      rsrcId: 'rs4',
+      referenceLabel: '4',
+      label: 'Fish Starving Simulation',
+      notes: 'food and fish population',
+      type: 'simulation',
+      url: '../static/dlc/FishStarving.html',
+      links: 0
+    },
+    {
+      rsrcId: 'rs5',
+      referenceLabel: '5',
+      label: 'Ammonia Testing',
+      notes: 'Ammonia Testing and Water Quality',
+      type: 'report',
+      url: '../static/dlc/AmmoniaTesting.pdf',
+      links: 0
+    },
+    {
+      rsrcId: 'rs6',
+      referenceLabel: '6',
+      label: 'Fish Fighting Simulation',
+      notes: 'fighting, fish death',
+      type: 'simulation',
+      url: '../static/dlc/FishFighting.html',
+      links: 0
+    },
+    {
+      rsrcId: 'rs7',
+      referenceLabel: '7',
+      label: 'Food Rot Simulation',
+      notes: 'rotting, waste, fish death',
+      type: 'simulation',
+      url: '../static/dlc/FoodRot.html',
+      links: 0
+    },
+    {
+      rsrcId: 'rs8',
+      referenceLabel: '8',
+      label: 'Ammonia in Tanks Report',
+      notes: 'Ammonia, Research',
+      type: 'report',
+      url: '../static/dlc/AmmoniaInTanks.pdf',
+      links: 0
+    },
+    {
+      rsrcId: 'rs9',
+      referenceLabel: '9',
+      label: 'Fish Simulation With All Variables',
+      notes: 'ammonia, waste, death, food, rotting, aggression, filter',
+      type: 'simulation',
+      url: '../static/dlc/FishAllVariables.html',
+      links: 0
+    }
+  ];
+
+  // HACK IN TEMPORARY DATA
+  let model = ADMData.GetModelById('mo01');
+  model.data = {
+    // components is a 'component' or a 'property' (if it has a parent)
+    components: [
+      { id: 'tank', name: 'tank' },
+      { id: 'fish', name: 'fish' },
+      { id: 'food', name: 'food' },
+      { id: 'ammonia', name: 'Ammonia' },
+      { id: 'clean-water', name: 'clean water', parent: 'tank' },
+      { id: 'dirty-water-waste', name: 'waste', parent: 'tank' },
+      { id: 'poop', name: 'poop', parent: 'dirty-water-waste' }
+    ],
+    mechanisms: [
+      { source: 'fish', target: 'tank', name: 'live in' },
+      { source: 'fish', target: 'food', name: 'eat' },
+      { source: 'fish', target: 'dirty-water-waste', name: 'produce' }
+    ],
+    evidence: [
+      { evId: 'ev1', propId: 'fish', mechId: undefined, rsrcId: 'rs1', note: 'fish need food' },
+      { evId: 'ev2', propId: undefined, mechId: 'fish:food', rsrcId: 'rs1', note: 'fish need food' }
+    ]
+  };
+  let model2 = ADMData.GetModelById('mo02');
+  model2.data = {
+    // components is a 'component' or a 'property' (if it has a parent)
+    components: [
+      { id: 'tank', name: 'tank' },
+      { id: 'fish', name: 'fish' },
+      { id: 'ammonia', name: 'Ammonia' }
+    ]
+  };
+
   adm_settings = {
     selectedTeacherId: '',
     selectedClassroomId: '',
@@ -183,7 +308,16 @@ ADMData.AddTeacher = name => {
 ADMData.GetClassroomsByTeacher = (teacherId = adm_settings.selectedTeacherId) => {
   return adm_db.a_classrooms.filter(cls => cls.teacherId === teacherId);
 };
-ADMData.SelectClassroom = classroomId => {
+ADMData.GetClassroomByGroup = groupId => {
+  let group = ADMData.GetGroup(groupId);
+  return group ? group.classroomid : undefined;
+};
+ADMData.GetClassroomByStudent = (studentId = adm_settings.selectedStudentId) => {
+  const groupId = ADMData.GetGroupIdByStudent(studentId);
+  return ADMData.GetClassroomByGroup(groupId);
+};
+ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomByStudent()) => {
+  if (DBG) console.log(PKG, 'SelectClassroom: Selecting classroom', classroomId);
   adm_settings.selectedClassroomId = classroomId;
   UR.Publish('CLASSROOM_SELECT', { classroomId });
 };
@@ -246,7 +380,7 @@ ADMData.GetGroupsByClassroom = classroomId => {
 /**
  *  Returns array of group ids associated with the classroom, e.g.
  *    [ 'gr01', 'gr02', 'gr03' ]
- *  This is primarily used by ADMData.GetModelsByClassroom to check if 
+ *  This is primarily used by ADMData.GetModelsByClassroom to check if
  *  a model is from a particular classsroom.
  */
 ADMData.GetGroupIdsByClassroom = classroomId => {
@@ -261,19 +395,16 @@ ADMData.GetGroupIdsByClassroom = classroomId => {
 ADMData.GetGroupByStudent = (studentId = adm_settings.selectedStudentId) => {
   if (studentId === '' || adm_db.a_groups === undefined) return undefined;
   return adm_db.a_groups.find(grp => {
-    if (DBG)
-      console.log(
-        'GetGroupByStudent: studentId',
-        studentId,
-        'grp',
-        grp.id,
-        'grp.students',
-        grp.students,
-        'includes',
-        grp.students.includes(studentId)
-      );
     return grp.students.includes(studentId);
   });
+};
+ADMData.GetGroupIdByStudent = studentId => {
+  let group = ADMData.GetGroupByStudent(studentId);
+  return group ? group.id : undefined;
+};
+ADMData.GetSelectedGroupId = () => {
+  const studentId = ADMData.GetSelectedStudentId();
+  return ADMData.GetGroupIdByStudent(studentId);
 };
 /**
  *  Updates a_groups with latest group info
@@ -346,9 +477,8 @@ ADMData.Login = loginId => {
   // FIXME: Replace this with a proper token check and lookup
   // This assumes we already did validation
   adm_settings.selectedStudentId = loginId;
-  // FIXME hack in classroom selection
   // After logging in, we need to tell ADM what the default classroom is
-  ADMData.SelectClassroom('cl01');
+  ADMData.SelectClassroom();
   UR.Publish('ADM_DATA_UPDATED');
 };
 ADMData.Logout = () => {
@@ -379,18 +509,12 @@ ADMData.GetStudentGroupName = (studentId = adm_settings.selectedStudentId) => {
   }
   return result;
 };
-ADMData.SelectModel = modelId => {
-  // verify it's valid
-  if (adm_db.a_models.find(mdl => mdl.id === modelId) === undefined) {
-    console.error(PKG, 'SelectModel could not find valid modelId', modelId);
-  }
-  adm_settings.selectedModelId = modelId;
-};
-ADMData.GetSelectedModelId = () => {
-  return adm_settings.selectedModelId;
-};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// MODELS
+///
+ADMData.GetModelById = modelId => {
+  return adm_db.a_models.find(model => model.id === modelId);
+};
 ADMData.GetModelsByClassroom = classroomId => {
   const groupIdsInClassroom = ADMData.GetGroupIdsByClassroom(classroomId);
   return adm_db.a_models.filter(mdl => groupIdsInClassroom.includes(mdl.groupId));
@@ -405,11 +529,42 @@ ADMData.GetModelsByStudent = (studentId = adm_settings.selectedStudentId) => {
 ADMData.GetModelsByGroup = (group = ADMData.GetGroupByStudent()) => {
   return adm_db.a_models.filter(mdl => mdl.groupId === group.id);
 };
-// 
+ADMData.NewModel = (groupId = ADMData.GetSelectedGroupId()) => {
+  let model = {
+    id: GenerateUID('mo'),
+    title: 'new',
+    groupId,
+    dateCreated: new Date(),
+    dateModified: new Date(),
+    data: {}
+  };
+  adm_db.a_models.push(model);
+  UR.Publish('ADM_DATA_UPDATED');
+  ADMData.LoadModel(model.id, groupId);
+};
+ADMData.LoadModel = modelId => {
+  let model = ADMData.GetModelById(modelId);
+  if (model === undefined) {
+    console.error(PKG, 'LoadModel could not find a valid modelId', modelId);
+  }
+  PMCData.LoadModel(model, adm_db.a_resources);
+  ADMData.SetSelectedModelId(modelId); // Remember the selected modelId locally
+};
+// This does not load the model, it just sets the currently selected model id
+ADMData.SetSelectedModelId = modelId => {
+  // verify it's valid
+  if (adm_db.a_models.find(mdl => mdl.id === modelId) === undefined) {
+    console.error(PKG, 'SetSelectedModelId could not find valid modelId', modelId);
+  }
+  adm_settings.selectedModelId = modelId;
+};
+ADMData.GetSelectedModelId = () => {
+  return adm_settings.selectedModelId;
+};
 ADMData.CloseModel = () => {
   adm_settings.selectedModelId = '';
   UR.Publish('ADM_DATA_UPDATED');
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// CRITERIA
 /**
@@ -438,8 +593,13 @@ ADMData.NewCriteria = (classroomId = adm_settings.selectedClassroomId) => {
   // a_criteria.push(crit);
   return crit;
 };
-ADMData.GetCriteriaByClassroom = classroomId => {
+ADMData.GetCriteriaByClassroom = (classroomId = adm_settings.selectedClassroomId) => {
   return adm_db.a_criteria.filter(crit => crit.classroomId === classroomId);
+};
+ADMData.GetCriteriaLabel = (criteriaId, classroomId = ADMData.GetSelectedClassroomId()) => {
+  let criteriaArr = ADMData.GetCriteriaByClassroom(classroomId);
+  let criteria = criteriaArr.find(crit => crit.id === criteriaId);
+  return criteria ? criteria.label : '';
 };
 ADMData.UpdateCriteria = criteria => {
   const i = adm_db.a_criteria.findIndex(cr => cr.id === criteria.id);
@@ -463,6 +623,18 @@ ADMData.UpdateCriteriaList = criteriaList => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// RESOURCES
+///
+
+// Returns all of the resource objects.
+ADMData.AllResources = () => {
+  return adm_db.a_resources;
+};
+// Returns the resource object matching the rsrccId.
+ADMData.Resource = rsrcId => {
+  return adm_db.a_resources.find(item => {
+    return item.rsrcId === rsrcId;
+  });
+};
 // returns `resources` not `classroomResources`
 ADMData.GetResourcesByClassroom = classroomId => {
   let classroomResources = adm_db.a_classroomResources.find(

@@ -45,13 +45,15 @@ class StickyNote extends React.Component {
     this.DoAddComment = this.DoAddComment.bind(this);
     this.DoCloseSticky = this.DoCloseSticky.bind(this);
     this.OnAddClick = this.OnAddClick.bind(this);
+    this.OnUpdateComment = this.OnUpdateComment.bind(this);
     this.OnCloseClick = this.OnCloseClick.bind(this);
 
     this.state = {
       isHidden: true,
       comments: [],
       top: 0,
-      left: 0
+      left: 0,
+      parent: {}
     };
 
     UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate); // Broadcast when a group is added.
@@ -67,7 +69,7 @@ class StickyNote extends React.Component {
   }
 
   DoOpenSticky(data) {
-    let { comments, x, y } = data;
+    let { comments, x, y, parent } = data;
     if (comments.length === 0) {
       // no comments yet, so add an empty comment
       comments = [ADM.NewComment()];
@@ -76,7 +78,8 @@ class StickyNote extends React.Component {
       isHidden: false,
       comments,
       top: y,
-      left: x - 325 // width of stickyonotecard HACK!!!
+      left: x - 325, // width of stickyonotecard HACK!!!
+      parent
     });
   }
 
@@ -108,6 +111,15 @@ class StickyNote extends React.Component {
     this.DoAddComment();
   }
 
+  OnUpdateComment() {
+    // Comments were passed byRef from us to StickyNoteCard component.
+    // So when StickyNoteCard is finished editing, our state.comments should
+    // point to the updated text.
+    // However, our parent object (e.g. property, mechanism, evidence link) is
+    // passed via the URSYS call, so we have to update that explicitly.
+    this.state.parent.comments = this.state.comments;
+  }
+
   OnCloseClick() {
     this.DoMarkCommentsRead();
     this.DoCloseSticky();
@@ -120,7 +132,13 @@ class StickyNote extends React.Component {
     return (
       <Paper className={classes.stickynotePaper} hidden={isHidden} style={{ top: top, left: left }}>
         {comments.map(comment => {
-          return <StickyNoteCard comment={comment} key={comment.id} />;
+          return (
+            <StickyNoteCard
+              comment={comment}
+              key={comment.id}
+              onUpdateComment={this.OnUpdateComment}
+            />
+          );
         })}
         <Button
           size="small"

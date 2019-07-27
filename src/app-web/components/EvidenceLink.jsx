@@ -257,6 +257,7 @@ class EvidenceLink extends React.Component {
   OnCommentClick(e) {
     UR.Publish('STICKY:OPEN', {
       comments: this.props.evlink.comments,
+      parent: this.props.evlink,
       x: e.clientX,
       y: e.clientY,
       windowWidth: e.view.window.innerWidth, // not used

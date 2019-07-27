@@ -68,7 +68,10 @@ class StickyNoteCard extends React.Component {
     this.DoOpenSticky();
   }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {
+    // Save data just in case?
+    this.OnEditFinished();
+  }
 
   DoOpenSticky() {
     const criteria = ADM.GetCriteriaByClassroom();
@@ -95,6 +98,7 @@ class StickyNoteCard extends React.Component {
 
   OnEditFinished() {
     this.setState({ isBeingEdited: false });
+    this.props.onUpdateComment();
   }
 
   OnDeleteClick() {
@@ -102,7 +106,15 @@ class StickyNoteCard extends React.Component {
   }
 
   OnCriteriaSelect(e) {
-    this.setState({ selectedCriteriaId: e.target.value });
+    let criteriaId = e.target.value;
+    this.setState(state => {
+      let comment = state.comment;
+      comment.criteriaId = criteriaId;
+      return {
+        selectedCriteriaId: criteriaId,
+        comment
+      };
+    });
   }
 
   OnCommentTextChange(e) {
@@ -184,7 +196,7 @@ class StickyNoteCard extends React.Component {
     return (
       <ClickAwayListener onClickAway={this.OnEditFinished}>
         <Paper
-          className={ hasBeenRead ? classes.stickynoteCardRead : classes.stickynoteCard }
+          className={hasBeenRead ? classes.stickynoteCardRead : classes.stickynoteCard}
           onMouseEnter={this.OnShowEditButtons}
           onMouseLeave={this.OnHideEditButtons}
         >
@@ -251,7 +263,8 @@ StickyNoteCard.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
-  comment: PropTypes.object
+  comment: PropTypes.object,
+  onUpdateComment: PropTypes.func
 };
 
 StickyNoteCard.defaultProps = {
@@ -262,6 +275,9 @@ StickyNoteCard.defaultProps = {
     date: new Date(),
     text: '',
     criteriaId: ''
+  },
+  onUpdateComment: () => {
+    console.error('StickyNoteCard: onUpdateComment prop was not defined!');
   }
 };
 

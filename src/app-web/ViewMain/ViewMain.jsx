@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  ViewMain - Main Application View
+  ViewMainRefactor - Main Application View
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -50,7 +50,10 @@ import RoutedView from './RoutedView';
 import MEMEStyles from '../components/MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
+import ADM from '../modules/adm-data';
 import EvidenceList from '../components/EvidenceList';
+import Login from '../components/Login';
+import ModelSelect from '../components/ModelSelect';
 import ResourceItem from '../components/ResourceItem';
 import { cssreact, cssdraw, cssalert } from '../modules/console-styles';
 
@@ -73,6 +76,7 @@ class ViewMain extends React.Component {
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
     this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
+    this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
     this.HandleAddPropLabelChange = this.HandleAddPropLabelChange.bind(this);
     this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
@@ -94,10 +98,13 @@ class ViewMain extends React.Component {
     this.handleSnapshot = this.handleSnapshot.bind(this);
     UR.Sub('WINDOW:SIZE', this.UpdateDimensions);
     UR.Sub('DATA_UPDATED', this.HandleDataUpdate);
+    UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Sub('SHOW_RESOURCE', this.handleResourceClick);
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Sub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
     this.state = {
+      studentName: '',
+      studentGroup: '',
       viewHeight: 0, // need to init this to prevent error with first render of informationList
       addPropOpen: false,
       addPropLabel: '',
@@ -120,10 +127,16 @@ class ViewMain extends React.Component {
         links: -1
       }
     };
+
+
+    // FIXME
+    // Hack load in ADM data for now.  Eventually ADM will be loaded by system startup.
+    ADM.Load();
   }
 
   componentDidMount() {
     console.log(`%ccomponentDidMount()`, cssreact);
+    console.log('%cWARN: ViewMainRefactor', cssalert);
     //
     // child components need to know the dimensions
     // of this component, but they are invalid until
@@ -157,6 +170,14 @@ class ViewMain extends React.Component {
       SVGView used to require a manual call to DoAppLoop(), but now it's hooked
       the DATA_UPDATED messages so it will redraw its view.
     */
+  }
+
+  DoADMDataUpdate() {
+    this.setState({
+      studentName: ADM.GetStudentName(),
+      studentGroup: ADM.GetStudentGroupName()
+    });
+    // FIXME: This should update the model eventually.
   }
 
   UpdateDimensions() {
@@ -399,12 +420,21 @@ class ViewMain extends React.Component {
   render() {
     const { classes } = this.props;
 
-    const { addPropLabel, addPropPropId, componentIsSelected, mechIsSelected } = this.state;
+    const {
+      studentName,
+      studentGroup,
+      addPropLabel,
+      addPropPropId,
+      componentIsSelected,
+      mechIsSelected
+    } = this.state;
     const resources = DATA.AllResources();
     return (
       <div className={classes.root}>
+        <Login />
+        <ModelSelect />
         <CssBaseline />
-        <AppBar position="fixed" className={classes.appBar}>
+        <AppBar position="fixed" className={classes.appBar} style={{ backgroundColor: 'maroon' }}>
           <Toolbar>
             <Switch>
               <Route
@@ -419,8 +449,18 @@ class ViewMain extends React.Component {
             <TextField
               id="projectTitle"
               InputProps={{ className: classes.projectTitle }}
-              placeholder="Untitled Project"
+              style={{ flexGrow: 1 }}
+              placeholder="Untitled Model"
             />
+            <div className={classes.appBarRight}>
+              <Button onClick={ADM.CloseModel}>Models</Button>
+              &nbsp;|&nbsp;
+              <div>{studentName}</div>
+              &nbsp;:&nbsp;
+              <div>{studentGroup}</div>
+              &nbsp;|&nbsp;
+              <Button onClick={ADM.Logout}>Logout</Button>
+            </div>
           </Toolbar>
         </AppBar>
 

@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-Models List View
+Models List Table
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -21,61 +21,68 @@ import { withStyles } from '@material-ui/core/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import MEMEStyles from '../../components/MEMEStyles';
-import UR from '../../../system/ursys';
-import ADM from '../../modules/adm-data';
-import ModelsListTable from '../../components/ModelsListTable';
+import MEMEStyles from './MEMEStyles';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-class ModelsList extends React.Component {
-  constructor(props) {
-    super(props);
-    this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
-    this.OnModelSelect = this.OnModelSelect.bind(this);
-
-    this.state = { models: [] };
-
-    UR.Sub('CLASSROOM_SELECT', this.DoClassroomSelect);
-  }
-
+class ModelsListTable extends React.Component {
   componentDidMount() { }
 
   componentWillUnmount() { }
 
-  DoClassroomSelect(data) {
-    this.setState({
-      models: ADM.GetModelsByClassroom(data.classroomId)
-    });
-  }
-
-  OnModelSelect(e) {
-    alert('Model Selection is not implmented yet!');
+  OnModelSelect(modelId) {
+    this.props.OnModelSelect(modelId);
   }
 
   render() {
-    const { classes } = this.props;
-    const { models } = this.state;
+    const { classes, models } = this.props;
 
     return (
       <Paper className={classes.admPaper}>
-        <InputLabel>MODELS</InputLabel>
-        <ModelsListTable models={models} />
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>TITLE</TableCell>
+              <TableCell>GROUP</TableCell>
+              <TableCell>UPDATED</TableCell>
+              <TableCell>CREATED</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {models.map(model => (
+              <TableRow key={model.id}>
+                <TableCell>
+                  <Button color="primary" onClick={e => this.OnModelSelect(model.id)}>
+                    {model.title}
+                  </Button>
+                </TableCell>
+                <TableCell>{model.groupId}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </Paper>
     );
   }
 }
 
-ModelsList.propTypes = {
+ModelsListTable.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
+  // eslint-disable-next-line react/forbid-prop-types
+  models: PropTypes.array,
+  OnModelSelect: PropTypes.func
 };
 
-ModelsList.defaultProps = {
-  classes: {}
+ModelsListTable.defaultProps = {
+  classes: {},
+  models: [],
+  OnModelSelect: () => {
+    console.error('Missing OnModeSelect handler');
+  }
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(ModelsList);
+export default withStyles(MEMEStyles)(ModelsListTable);

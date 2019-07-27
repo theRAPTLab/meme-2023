@@ -4,15 +4,28 @@ import { Hidden } from "@material-ui/core";
 
 const m_drawerWidth = 100;
 const m_edgeDialogWidth = 750;
+const m_primary = indigo[500];
 const m_systemTextColor = '#999';
+const m_resourceListWidth = 300;
+
 const styles = theme => {
   return {
+    oneEmBefore: {
+      marginTop: '1em'
+    },
     root: {
       display: 'flex'
+    },
+    loginBackdrop: {
+      backgroundColor: m_primary
     },
     appBar: {
       width: `calc(100% - ${m_drawerWidth}px)`,
       marginLeft: m_drawerWidth
+    },
+    appBarRight: {
+      display: 'inline-flex',
+      marginRight: m_resourceListWidth
     },
     drawer: {
       width: m_drawerWidth,
@@ -82,7 +95,7 @@ const styles = theme => {
       bottom: '20px'
     },
     informationList: {
-      width: 300,
+      width: m_resourceListWidth,
       backgroundColor: teal[50],
       zIndex: 1250  // above drawer, below modal
     },

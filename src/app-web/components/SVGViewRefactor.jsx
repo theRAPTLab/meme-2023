@@ -18,7 +18,6 @@ import { cssreact, cssalert } from '../modules/console-styles';
 
 const DBG = true;
 
-
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class SVGView extends React.Component {

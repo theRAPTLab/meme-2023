@@ -58,13 +58,13 @@ o A "stickynote" is a container for comments, "linked" to a PMC element
 
 /*/
 ADMData.Load = () => {
-  // NO UI YET (see use model above)
+  // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
   adm_db.a_teachers = [
     { id: 'brown', name: 'Ms Brown' },
     { id: 'smith', name: 'Mr Smith' },
     { id: 'gordon', name: 'Ms Gordon' }
   ];
-  // NO UI YET (see use model above)
+  // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
   adm_db.a_classrooms = [
     { id: 'cl01', name: 'Period 1', teacherId: 'brown' },
     { id: 'cl02', name: 'Period 3', teacherId: 'brown' },
@@ -225,9 +225,60 @@ ADMData.Load = () => {
   let model = ADMData.GetModelById('mo01');
   model.data = {
     // components is a 'component' or a 'property' (if it has a parent)
-    components: [
-      { id: 'tank', name: 'tank' },
-      { id: 'fish', name: 'fish' },
+    properties: [
+      {
+        id: 'tank', name: 'tank',
+        comments: [
+          {
+            id: 0,
+            time: 0,
+            author: 'Bob',
+            date: new Date(),
+            text: 'I like this',
+            criteriaId: 'cr01',
+            readBy: ['Bob', 'Bill']
+          },
+          {
+            id: 1,
+            time: 10,
+            author: 'Bill',
+            date: new Date(),
+            text: 'I DONT like this',
+            criteriaId: 'cr02',
+            readBy: []
+          },
+          {
+            id: 2,
+            time: 11,
+            author: 'Mary',
+            date: new Date(),
+            text: 'This is not mine!',
+            criteriaId: 'cr02',
+            readBy: []
+          }
+        ]
+      },
+      {
+        id: 'fish', name: 'fish',
+        comments: [
+          {
+            id: 0,
+            author: 'Bessie',
+            date: new Date(),
+            text: 'What is this',
+            criteriaId: 'cr01',
+            readBy: ['Bob', 'Bill']
+          },
+          {
+            id: 1,
+            author: 'Bill',
+            date: new Date(),
+            text: 'I DONT like this',
+            criteriaId: 'cr02',
+            readBy: []
+          }
+        ]
+      },
       { id: 'food', name: 'food' },
       { id: 'ammonia', name: 'Ammonia' },
       { id: 'clean-water', name: 'clean water', parent: 'tank' },
@@ -240,7 +291,27 @@ ADMData.Load = () => {
       { source: 'fish', target: 'dirty-water-waste', name: 'produce' }
     ],
     evidence: [
-      { evId: 'ev1', propId: 'fish', mechId: undefined, rsrcId: 'rs1', note: 'fish need food' },
+      {
+        evId: 'ev1', propId: 'fish', mechId: undefined, rsrcId: 'rs1', note: 'fish need food',
+        comments: [
+          {
+            id: 0,
+            author: 'Bessie',
+            date: new Date(),
+            text: 'What is this',
+            criteriaId: 'cr01',
+            readBy: ['Bob', 'Bill']
+          },
+          {
+            id: 1,
+            author: 'Bill',
+            date: new Date(),
+            text: 'I DONT like this',
+            criteriaId: 'cr02',
+            readBy: []
+          }
+        ]
+      },
       { evId: 'ev2', propId: undefined, mechId: 'fish:food', rsrcId: 'rs1', note: 'fish need food' }
     ]
   };
@@ -254,6 +325,7 @@ ADMData.Load = () => {
     ]
   };
 
+  // INITIALIZE SETTINGS
   adm_settings = {
     selectedTeacherId: '',
     selectedClassroomId: '',
@@ -267,7 +339,7 @@ ADMData.Load = () => {
 // FIXME: This really oought to check to makes ure the id is unique
 const GenerateUID = (prefix = '', suffix = '') => {
   return prefix + Math.trunc(Math.random() * 10000000000).toString() + suffix;
-}
+};
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -278,7 +350,8 @@ const GenerateUID = (prefix = '', suffix = '') => {
  */
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// TEACHERS
+/// TEACHERS //////////////////////////////////////////////////////////////////
+///
 ADMData.GetAllTeachers = () => {
   return adm_db.a_teachers;
 };
@@ -303,21 +376,21 @@ ADMData.AddTeacher = name => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// CLASSROOMS
+/// CLASSROOMS ////////////////////////////////////////////////////////////////
+///
 // Retreive currently selected teacher's classrooms by default if no teacherId is defined
 ADMData.GetClassroomsByTeacher = (teacherId = adm_settings.selectedTeacherId) => {
   return adm_db.a_classrooms.filter(cls => cls.teacherId === teacherId);
 };
 ADMData.GetClassroomByGroup = groupId => {
   let group = ADMData.GetGroup(groupId);
-  return group ? group.classroomid : undefined;
+  return group ? group.classroomId : undefined;
 };
 ADMData.GetClassroomByStudent = (studentId = adm_settings.selectedStudentId) => {
   const groupId = ADMData.GetGroupIdByStudent(studentId);
   return ADMData.GetClassroomByGroup(groupId);
 };
 ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomByStudent()) => {
-  if (DBG) console.log(PKG, 'SelectClassroom: Selecting classroom', classroomId);
   adm_settings.selectedClassroomId = classroomId;
   UR.Publish('CLASSROOM_SELECT', { classroomId });
 };
@@ -342,7 +415,8 @@ ADMData.AddClassroom = name => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// GROUPS
+/// GROUPS ////////////////////////////////////////////////////////////////////
+///
 /**
  *  Add a new group
  */
@@ -401,6 +475,10 @@ ADMData.GetGroupByStudent = (studentId = adm_settings.selectedStudentId) => {
 ADMData.GetGroupIdByStudent = studentId => {
   let group = ADMData.GetGroupByStudent(studentId);
   return group ? group.id : undefined;
+};
+ADMData.GetGroupNameByStudent = studentId => {
+  let group = ADMData.GetGroupByStudent(studentId);
+  return group ? group.name : '';
 };
 ADMData.GetSelectedGroupId = () => {
   const studentId = ADMData.GetSelectedStudentId();
@@ -465,8 +543,10 @@ ADMData.DeleteStudent = (groupId, student) => {
   // Tell components to update
   UR.Publish('ADM_DATA_UPDATED');
 };
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// STUDENTS
+/// STUDENTS //////////////////////////////////////////////////////////////////
+///
 /**
  *  Call with no 'studentName' to get the group token
  */
@@ -503,14 +583,11 @@ ADMData.GetStudentName = () => {
 };
 ADMData.GetStudentGroupName = (studentId = adm_settings.selectedStudentId) => {
   const grp = ADMData.GetGroupByStudent(studentId);
-  let result;
-  if (grp) {
-    result = grp.name;
-  }
-  return result;
+  return grp ? grp.name : '';
 };
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// MODELS
+/// MODELS ////////////////////////////////////////////////////////////////////
 ///
 ADMData.GetModelById = modelId => {
   return adm_db.a_models.find(model => model.id === modelId);
@@ -565,8 +642,10 @@ ADMData.CloseModel = () => {
   adm_settings.selectedModelId = '';
   UR.Publish('ADM_DATA_UPDATED');
 };
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// CRITERIA
+/// CRITERIA //////////////////////////////////////////////////////////////////
+///
 /**
  *  NewCriteria
  *  1. Creates a new empty criteria object with a unqiue ID.
@@ -655,6 +734,24 @@ ADMData.SetClassroomResource = (rsrcId, checked, classroomId) => {
     classroomResources.resources = classroomResources.resources.filter(rsrc => rsrc.id !== rsrcId);
   }
   UR.Publish('ADM_DATA_UPDATED');
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// STICKIES
+///
+
+// Returns an empty sticky with the current student info
+ADMData.NewComment = () => {
+  const id = `co${new Date().getTime()}`;
+  const author = ADMData.GetSelectedStudentId();
+  return {
+    id,
+    author,
+    date: new Date(),
+    text: '',
+    criteriaId: '',
+    readBy: []
+  };
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

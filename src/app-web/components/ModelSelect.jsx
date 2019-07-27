@@ -85,6 +85,7 @@ class ModelSelect extends React.Component {
 
   OnModelEdit(modelId) {
     ADM.LoadModel(modelId);
+    UR.Publish('MODEL:ALLOW_EDIT');
     this.OnModelDialogClose();
   }
 
@@ -112,7 +113,7 @@ class ModelSelect extends React.Component {
       >
         <DialogTitle>Hi {ADM.GetStudentName()}! Select a Model:</DialogTitle>
         <DialogContent>
-          <Grid container spacing={32}>
+          <Grid container spacing={2}>
             <Grid item>
               <DialogContentText>
                 {ADM.GetStudentGroupName()} Group&lsquo;s Models

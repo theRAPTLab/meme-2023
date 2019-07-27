@@ -5,7 +5,10 @@ import { Hidden } from "@material-ui/core";
 const m_drawerWidth = 100;
 const m_edgeDialogWidth = 750;
 const m_primary = indigo[500];
-const m_systemTextColor = '#999';
+const m_stickynoteIconColor = `#ffc904`;
+const m_stickynoteColor = `#ffe25a`;
+const m_systemTextColor = 'rgba(0,0,0,0.35)';
+const m_systemLabelTextColor = 'rgba(0,0,0,0.25)';
 const m_resourceListWidth = 300;
 
 const styles = theme => {
@@ -46,7 +49,7 @@ const styles = theme => {
       backgroundColor: '#f0f0ff'
     },
     fab: {
-      margin: theme.spacing.unit * 2
+      margin: theme.spacing(2)
     },
     projectTitle: {
       color: '#fff'
@@ -121,7 +124,7 @@ const styles = theme => {
       fontSize: '0.8em',
       color: m_systemTextColor,
       marginBottom: '5px',
-      marginRight: theme.spacing.unit * 2,
+      marginRight: theme.spacing(2),
       alignSelf: 'flex-start'
     },
     resourceViewTitle: {
@@ -135,7 +138,7 @@ const styles = theme => {
     resourceViewAvatar: {
       color: '#366',
       backgroundColor: teal[100],
-      marginRight: theme.spacing.unit
+      marginRight: theme.spacing(1)
     },
     resourceViewLabel: {
       paddingLeft: '0',
@@ -191,7 +194,7 @@ const styles = theme => {
       backgroundColor: yellow[50]
     },
     resourceViewCreatebutton: {
-      marginBottom: theme.spacing.unit,
+      marginBottom: theme.spacing(1),
       width: '100%'
     },
     evidenceBody: {
@@ -340,7 +343,7 @@ const styles = theme => {
     },
     admPaper: {
       margin: '0 auto',
-      padding: '1em'      
+      padding: '1em'
     },
     admTeacherSelector: {
       minWidth: '100%'
@@ -350,7 +353,54 @@ const styles = theme => {
       padding: '1em',
       backgroundColor: teal[50]
     },
-
+    stickynotePaper: {
+      backgroundColor: m_stickynoteColor,
+      position: 'absolute',
+      top: '200px',
+      left: '300px',
+      zIndex: 1500
+    },
+    stickynoteCard: {
+      backgroundColor: 'rgba(255,255,0,0.5)',
+      margin: '5px',
+      padding: '5px 10px',
+      width: '325px'
+    },
+    stickynoteCardRead: {
+      color: m_systemTextColor,
+      backgroundColor: 'rgba(0,0,0,0.05)',
+      margin: '5px',
+      padding: '5px 10px',
+      width: '325px'
+    },
+    stickynoteIcon: {
+      color: m_stickynoteIconColor
+    },
+    stickynoteCardAuthor: {
+      alignItems: 'baseline',
+      flexGrow: '1',
+      color: m_systemTextColor
+    },
+    stickynoteCardEditBtn: {
+      padding: 0
+    },
+    stickynoteCardInput: {
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      width: '100%',
+      overflow: 'hidden' // hide scrollbar
+    },
+    criteriaSelectorMenu: {
+      fontSize: '0.9em',
+      padding: '2px 4px'
+    },
+    stickynoteCardLabel: {
+      fontSize: '0.8em',
+      color: m_systemLabelTextColor
+    },
+    stickynoteCardCriteria: {
+      fontSize: '0.8em',
+      display: 'inline-flex'
+    }
   };
 };
 styles.DRAWER_WIDTH = m_drawerWidth;

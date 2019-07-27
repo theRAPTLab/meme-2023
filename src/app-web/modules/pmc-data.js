@@ -157,13 +157,13 @@ PMCData.LoadModel = (model, resources) => {
   m.data = model.data || {};
 
   // Load Components/Properties
-  m.data.components = m.data.components || [];
-  m.data.components.forEach(obj => {
+  m.data.properties = m.data.properties || [];
+  m.data.properties.forEach(obj => {
     g.setNode(obj.id, { name: obj.name });
   });
 
   // Set Parents
-  m.data.components.forEach(obj => {
+  m.data.properties.forEach(obj => {
     if (obj.parent !== undefined) {
       g.setParent(obj.id, obj.parent);
     }

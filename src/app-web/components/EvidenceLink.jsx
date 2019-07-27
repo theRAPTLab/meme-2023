@@ -307,7 +307,7 @@ class EvidenceLink extends React.Component {
           <Grid item xs={isExpanded ? 12 : 3}>
             <Grid
               container
-              spacing={8}
+              spacing={1}
               className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
             >
               <Grid item xs>
@@ -339,7 +339,7 @@ class EvidenceLink extends React.Component {
           <Grid item xs={isExpanded ? 12 : 9}>
             <Grid
               container
-              spacing={8}
+              spacing={1}
               className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
             >
               <Grid item xs={4} hidden={!isExpanded}>
@@ -372,7 +372,7 @@ class EvidenceLink extends React.Component {
           <Grid item xs={isExpanded ? 12 : 3}>
             <Grid
               container
-              spacing={8}
+              spacing={1}
               className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed}
             >
               <Grid item xs={4} hidden={!isExpanded}>

@@ -36,7 +36,7 @@ const styles = theme => ({
     flexGrow: 1
   },
   paper: {
-    padding: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
     textAlign: 'center',
     color: theme.palette.text.secondary
   }
@@ -65,7 +65,7 @@ class ViewAdmin extends React.Component {
 
     return (
       <div className={classes.root}>
-        <Grid container spacing={24}>
+        <Grid container spacing={2}>
           <Grid item xs={2}>
             <TeacherSelector />
           </Grid>
@@ -73,7 +73,7 @@ class ViewAdmin extends React.Component {
             <ClassroomsSelector />
           </Grid>
         </Grid>
-        <Grid container spacing={24}>
+        <Grid container spacing={2}>
           <Grid item xs={6}>
             <GroupsList />
           </Grid>
@@ -81,7 +81,7 @@ class ViewAdmin extends React.Component {
             <ModelsList />
           </Grid>
         </Grid>
-        <Grid container spacing={24}>
+        <Grid container spacing={2}>
           <Grid item xs={6}>
             <CriteriaView />
           </Grid>

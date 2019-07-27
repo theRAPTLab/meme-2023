@@ -49,7 +49,7 @@ const styles = theme => {
       backgroundColor: '#f0f0ff'
     },
     fab: {
-      margin: theme.spacing.unit * 2
+      margin: theme.spacing(2)
     },
     projectTitle: {
       color: '#fff'
@@ -124,7 +124,7 @@ const styles = theme => {
       fontSize: '0.8em',
       color: m_systemTextColor,
       marginBottom: '5px',
-      marginRight: theme.spacing.unit * 2,
+      marginRight: theme.spacing(2),
       alignSelf: 'flex-start'
     },
     resourceViewTitle: {
@@ -138,7 +138,7 @@ const styles = theme => {
     resourceViewAvatar: {
       color: '#366',
       backgroundColor: teal[100],
-      marginRight: theme.spacing.unit
+      marginRight: theme.spacing(1)
     },
     resourceViewLabel: {
       paddingLeft: '0',
@@ -194,7 +194,7 @@ const styles = theme => {
       backgroundColor: yellow[50]
     },
     resourceViewCreatebutton: {
-      marginBottom: theme.spacing.unit,
+      marginBottom: theme.spacing(1),
       width: '100%'
     },
     evidenceBody: {

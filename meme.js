@@ -1,35 +1,31 @@
 #!/usr/bin/env node
-
 /*/
 to pass a parameter via npm run script, you have to use -- as in
 npm run myscript -- --myoptions=something
 alternatively you'll just write your own script that does it
 /*/
-const path = require('path');
-const ip = require('ip');
-const PROMPTS = require('./src/system/util/prompts');
-const URSERVER = require('./src/system/server.js');
-
-let shell;
-let argv;
-let MTERM;
-const ESC = '\x1b';
-try {
-  /* eslint-disable global-require */
-  shell = require('shelljs');
-  argv = require('minimist')(process.argv.slice(1));
-  MTERM = require('./src/cli/meme-term');
-  /* eslint-enable global-require */
-} catch (e) {
-  const { code } = e;
-  console.log(`\n${ESC}[30;41m NODE RUNTIME ERROR: ${code} ${ESC}[0m`);
-  console.log(`\nIf you ran 'clean:all', you need to execute the command...\n`);
-  console.log(`  ${ESC}[1mnpm ci${ESC}[0m`);
-  console.log(`\n...to reinstall the modules you just removed!!!\n`);
+const fs = require('fs');
+if (!fs.existsSync('./node_modules/ip')) {
+  console.log(`\x1b[30;41m\x1b[37m MEME STARTUP ERROR \x1b[0m\n`);
+  let out = '';
+  out += `MISSING CRITICAL MODULE\n`;
+  out += `is this the \x1b[33mfirst time running MEME\x1b[0m `;
+  out += `or did you just run \x1b[33mnpm clean:all\x1b[0m?\n`;
+  out += `run \x1b[33mnpm ci\x1b[0m to install all node_modules\n`;
+  console.log(out);
   process.exit(0);
 }
+
+const path = require('path');
+const ip = require('ip');
+const shell = require('shelljs');
+const argv = require('minimist')(process.argv.slice(1));
+const PROMPTS = require('./src/system/util/prompts');
+const URSERVER = require('./src/system/server.js');
+const MTERM = require('./src/cli/meme-term');
+
 if (!shell.which('git')) {
-  shell.echo(`${ESC}[30;41m You must have git installed to run the MEME devtool ${ESC}[0m`);
+  shell.echo(`\x1b[30;41m You must have git installed to run the MEME devtool \x1b[0m`);
   shell.exit(0);
 }
 
@@ -206,10 +202,13 @@ function f_DocServe() {
 function f_Clean(opt) {
   console.log(PR, `removing dist/ and built/ directories...`);
   shell.rm('-rf', 'dist', 'built');
-  if (opt.all) {
-    console.log(PR, `also cleaning node_modules`);
-    shell.rm('-rf', 'node_modules');
-  }
   console.log(PR, `directories removed!`);
-  if (opt.all) console.log(PR, `Make sure to use ${CY}npm ci${TR} to reinstall packages!!!`);
+  if (opt.all) {
+    console.log(PR, `also removing node_modules/`);
+    shell.rm('-rf', 'node_modules');
+    console.log(PR, `you will have to reinstall them with the`);
+    console.log(PR, `${TERM.FgYellow}npm ci${TERM.Reset} command.`);
+    // shell.exec('npm ci', { silent: true });
+  }
+  console.log(PR, `operation complete!`);
 }

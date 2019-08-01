@@ -36,6 +36,7 @@ class ViewBasic extends React.Component {
   // constructor
   constructor(props) {
     super(props);
+    UR.ReloadOnViewChange();
     this.cstrName = this.constructor.name;
   }
 

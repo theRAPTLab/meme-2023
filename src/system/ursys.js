@@ -24,6 +24,7 @@
 import CENTRAL from './ur-central';
 import { Publish, Sub, Unsub } from './ur-pubsub';
 import EXEC from './ur-exec';
+import ReloadOnViewChange from './util/reload';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -46,4 +47,4 @@ const DBG = true; // module-wide debug flag
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default { EXEC, CENTRAL, Publish, Sub, Unsub };
+export default { EXEC, CENTRAL, Publish, Sub, Unsub, ReloadOnViewChange };

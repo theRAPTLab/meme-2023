@@ -69,6 +69,8 @@ class ViewMain extends React.Component {
   // constructor
   constructor(props) {
     super(props);
+    UR.ReloadOnViewChange();
+
     this.displayName = this.constructor.name;
     this.refMain = React.createRef();
     this.refToolbar = React.createRef();

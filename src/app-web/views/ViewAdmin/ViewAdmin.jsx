@@ -48,6 +48,7 @@ class ViewAdmin extends React.Component {
   // constructor
   constructor(props) {
     super(props);
+    UR.ReloadOnViewChange();
     this.cstrName = this.constructor.name;
 
     // FIXME: This will go away when UR.DB_Susbscribe('ADMIN:UPDATED') is implemented

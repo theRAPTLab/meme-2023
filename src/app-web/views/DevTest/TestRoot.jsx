@@ -1,6 +1,7 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
   ViewBasic - Basic Starter Layout
+  Uses BOOTSTRAP, not MATERIAL UI
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -11,10 +12,10 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import UR from '../../../system/ursys';
 
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import 'bootstrap/dist/css/bootstrap.css';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -87,6 +88,16 @@ ViewBasic.defaultProps = {
 ViewBasic.propTypes = {
   classes: PropTypes.shape({})
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// required for UR EXEC phase filtering by view path
+ViewBasic.UMOD = __dirname;
+UR.EXEC.Hook(
+  'INITIALIZE',
+  () => {
+    console.log('TestRoot Init');
+  },
+  __dirname
+);
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  ViewMain - Main Application View
+  ViewMainRefactor - For Modifying!
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -47,16 +47,16 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import RoutedView from './RoutedView';
-import MEMEStyles from '../components/MEMEStyles';
-import UR from '../../system/ursys';
-import DATA from '../modules/pmc-data';
-import ADM from '../modules/adm-data';
-import EvidenceList from '../components/EvidenceList';
-import Login from '../components/Login';
-import ModelSelect from '../components/ModelSelect';
-import ResourceItem from '../components/ResourceItem';
-import StickyNote from '../components/StickyNote';
-import { cssreact, cssdraw, cssalert } from '../modules/console-styles';
+import MEMEStyles from '../../components/MEMEStyles';
+import UR from '../../../system/ursys';
+import DATA from '../../modules/pmc-data';
+import ADM from '../../modules/adm-data';
+import EvidenceList from '../../components/EvidenceList';
+import Login from '../../components/Login';
+import ModelSelect from '../../components/ModelSelect';
+import ResourceItem from '../../components/ResourceItem';
+import StickyNote from '../../components/StickyNote';
+import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -433,10 +433,17 @@ class ViewMain extends React.Component {
         <Login />
         <ModelSelect />
         <CssBaseline />
-        <AppBar position="fixed" className={classes.appBar}>
+        <AppBar position="fixed" className={classes.appBar} style={{ backgroundColor: 'maroon' }}>
           <Toolbar>
             <Switch>
-              <Route path="/:mode"/>
+              <Route
+                path="/:mode"
+                render={props => (
+                  <div style={{ fontFamily: 'monospace', margin: '0 10px 4px 0' }}>
+                    mode[{props.match.params.mode.toUpperCase()}]
+                  </div>
+                )}
+              />
             </Switch>
             <TextField
               id="projectTitle"

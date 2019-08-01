@@ -13,7 +13,7 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import UR from '../../system/ursys';
+import UR from '../../../system/ursys';
 import TeacherSelector from './components/AdmTeacherSelector';
 import ClassroomsSelector from './components/AdmClassroomsSelector';
 import CriteriaView from './components/AdmCriteriaView';
@@ -22,7 +22,7 @@ import ModelsList from './components/AdmModelsList';
 import ResourcesList from './components/AdmResourcesList';
 /// MODULES ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import ADM from '../modules/adm-data';
+import ADM from '../../modules/adm-data';
 
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -109,7 +109,16 @@ ViewAdmin.defaultProps = {
 ViewAdmin.propTypes = {
   classes: PropTypes.shape({})
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// required for UR EXEC phase filtering by view path
+ViewAdmin.UMOD = __dirname;
+UR.EXEC.Hook(
+  'INITIALIZE',
+  () => {
+    console.log('ViewAdmin Init');
+  },
+  __dirname
+);
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default withStyles(styles)(ViewAdmin);

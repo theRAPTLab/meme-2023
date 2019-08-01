@@ -21,10 +21,10 @@ import { withStyles } from '@material-ui/core/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import MEMEStyles from '../../components/MEMEStyles';
-import UR from '../../../system/ursys';
-import ADM from '../../modules/adm-data';
-import ModelsListTable from '../../components/ModelsListTable';
+import MEMEStyles from '../../../components/MEMEStyles';
+import UR from '../../../../system/ursys';
+import ADM from '../../../modules/adm-data';
+import ModelsListTable from '../../../components/ModelsListTable';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

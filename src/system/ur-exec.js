@@ -197,8 +197,12 @@ const SetScopePath = view_path => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ API: The scope
 /*/
-const ScopePath = () => {
+const CurrentScope = () => {
   return EXEC_SCOPE;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const MatchScope = check => {
+  return EXEC_SCOPE.includes(check);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ API: application startup
@@ -357,7 +361,8 @@ export default {
   Hook,
   Execute,
   SetScopePath,
-  ScopePath,
+  CurrentScope,
+  MatchScope,
   EnterApp,
   SetupDOM,
   JoinNet,

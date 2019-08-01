@@ -35,6 +35,11 @@ class Login extends React.Component {
     this.OnLoginDialogClose = this.OnLoginDialogClose.bind(this);
     this.OnLogin = this.OnLogin.bind(this);
 
+    // wedge-in an indicator in case we need one
+    if (props.memo) {
+      this.memo = <p style={{ color: 'maroon' }}>{props.memo}</p>;
+    }
+
     UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate);
 
     this.state = {
@@ -48,7 +53,7 @@ class Login extends React.Component {
     this.DoADMDataUpdate();
   }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {}
 
   DoADMDataUpdate() {
     if (ADM.IsLoggedOut()) {
@@ -60,7 +65,7 @@ class Login extends React.Component {
       this.setState({
         loginId: ADM.GetSelectedStudentId(),
         loginDialogOpen: false
-      })
+      });
     }
   }
 
@@ -109,6 +114,7 @@ class Login extends React.Component {
         <form onSubmit={this.OnLogin}>
           <DialogTitle>MEME Login</DialogTitle>
           <DialogContent>
+            {this.memo}
             <DialogContentText>Please enter your login token:</DialogContentText>
             <TextField
               autoFocus

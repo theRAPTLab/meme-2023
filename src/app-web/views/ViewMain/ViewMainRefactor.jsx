@@ -58,7 +58,6 @@ import ResourceItem from '../../components/ResourceItem';
 import StickyNote from '../../components/StickyNote';
 import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 
-
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
@@ -70,6 +69,8 @@ class ViewMain extends React.Component {
   // constructor
   constructor(props) {
     super(props);
+    UR.ReloadOnViewChange();
+
     this.displayName = this.constructor.name;
     this.refMain = React.createRef();
     this.refToolbar = React.createRef();
@@ -430,9 +431,9 @@ class ViewMain extends React.Component {
     const resources = ADM.AllResources();
     return (
       <div className={classes.root}>
-        <Login />
-        <ModelSelect />
         <CssBaseline />
+        <Login memo="USING DEV MODE ROUTE" />
+        <ModelSelect />
         <AppBar position="fixed" className={classes.appBar} style={{ backgroundColor: 'maroon' }}>
           <Toolbar>
             <Switch>

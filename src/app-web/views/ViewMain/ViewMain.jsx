@@ -430,9 +430,9 @@ class ViewMain extends React.Component {
     const resources = ADM.AllResources();
     return (
       <div className={classes.root}>
+        <CssBaseline />
         <Login />
         <ModelSelect />
-        <CssBaseline />
         <AppBar position="fixed" className={classes.appBar}>
           <Toolbar>
             <Switch>

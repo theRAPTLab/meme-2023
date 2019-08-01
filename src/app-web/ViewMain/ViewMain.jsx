@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  ViewMainRefactor - Main Application View
+  ViewMain - Main Application View
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -433,17 +433,10 @@ class ViewMain extends React.Component {
         <Login />
         <ModelSelect />
         <CssBaseline />
-        <AppBar position="fixed" className={classes.appBar} style={{ backgroundColor: 'maroon' }}>
+        <AppBar position="fixed" className={classes.appBar}>
           <Toolbar>
             <Switch>
-              <Route
-                path="/:mode"
-                render={props => (
-                  <div style={{ fontFamily: 'monospace', margin: '0 10px 4px 0' }}>
-                    mode[{props.match.params.mode.toUpperCase()}]
-                  </div>
-                )}
-              />
+              <Route path="/:mode"/>
             </Switch>
             <TextField
               id="projectTitle"

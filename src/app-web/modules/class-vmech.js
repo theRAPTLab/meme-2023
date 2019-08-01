@@ -113,7 +113,7 @@ class VMech {
     let evString = ' ';
     const evArr = DATA.MechEvidence(this.id);
     if (evArr) {
-      evArr.forEach((ev) => {
+      evArr.forEach(ev => {
         let label = ADM.Resource(ev.rsrcId).referenceLabel;
         evString += `[${label}]`;
       });
@@ -148,7 +148,7 @@ class VMech {
 
       // update visual paths
       const srcVProp = DATA.VM_VProp(srcId);
-      const { pt1: srcPt, pt2: tgtPt } = srcVProp.GetEdgeConnectionPoints(tgtId);
+      const { pt1: srcPt, pt2: tgtPt } = srcVProp.FindEdgePointConnectionTo(tgtId);
       // pt1 and pt2 contain x,y, and d (distance between pt1 and pt2)
       // pt1 and pt2 also have a source or target property set
       if (srcPt && tgtPt && this.path) {

@@ -9,6 +9,7 @@ const DBG = false;
 
 ///	LOAD LIBRARIES ////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const ip = require('ip');
 const UNET = require('./server-network');
 const UDB = require('./server-database');
 const LOGGER = require('./server-logger');
@@ -18,8 +19,12 @@ const EXPRESS = require('./server-express');
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PROMPTS = require('./util/prompts');
 //
-const { CS, CR } = PROMPTS;
+const { TERM_URSYS: CS, CR } = PROMPTS;
 const PR = `${CS}${PROMPTS.Pad('URSYS')}${CR}`;
+const SERVER_INFO = {
+  main: `http://localhost:3000`,
+  client: `http://${ip.address()}:3000`
+};
 
 /// MODULE VARS ///////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -28,9 +33,10 @@ const PR = `${CS}${PROMPTS.Pad('URSYS')}${CR}`;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let URSYS = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
+/** API: Main Entry Point
  */
 URSYS.InitializeNetwork = override => {
+  console.log(`${CS}STARTING UR SOCKET SERVER${CR}`);
   UDB.InitializeDatabase(override);
   return UNET.InitializeNetwork(override);
 };
@@ -91,8 +97,20 @@ URSYS.RegisterHandlers = () => {
   }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-URSYS.StartWebServer = () => {
-  EXPRESS.Start();
+URSYS.StartWebServer = callback => {
+  // returns an optional promise hook
+  console.log(`${CS}STARTING UR WEB SERVER${CR}`);
+  (async () => {
+    await EXPRESS.Start();
+    let out = `\n---\n`;
+    out += `${CS}SYSTEM INITIALIZATION COMPLETE${CR}\n`;
+    out += `GO TO ONE OF THESE URLS in CHROME WEB BROWSER\n`;
+    out += `MAINAPP - http://localhost:3000\n`;
+    out += `CLIENTS - http://${ip.address()}:3000\n`;
+    out += `---\n`;
+    if (typeof callback === 'function') callback(out);
+    console.log(out);
+  })();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**

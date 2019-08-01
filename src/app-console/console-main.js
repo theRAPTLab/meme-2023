@@ -67,9 +67,6 @@ function createWindow() {
     console.log(`${PR} displaying mainwindow`);
     mainWindow.show();
     mainWindow.webContents.openDevTools();
-    // load webserver
-    // const MEMESERVER = require('./console-wds'); // eslint-disable-line
-    URSERVER.StartWebServer();
     // set application menu
     const application = {
       label: 'MEME',
@@ -97,9 +94,9 @@ function createWindow() {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
     // launch UR server
-    console.log(PR, 'starting URSYS');
     URSERVER.InitializeNetwork();
     URSERVER.StartNetwork();
+    URSERVER.StartWebServer();
   });
 
   // Emitted when the window is closed.

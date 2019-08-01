@@ -29,7 +29,7 @@ const DB = require('./server-database');
 const PROMPTS = require('./util/prompts');
 
 const { TERM_NET: CLR, TR } = PROMPTS;
-const PR = `${CLR}${PROMPTS.Pad('URSYS.NET')}${TR}`;
+const PR = `${CLR}${PROMPTS.Pad('UR_NET')}${TR}`;
 const ERR = PROMPTS.Pad('!!!');
 const ERR_SS_EXISTS = 'socket server already created';
 const ERR_NULL_SOCKET = 'require valid socket';
@@ -77,7 +77,7 @@ UNET.StartNetwork = () => {
   if (DBG) console.log(PR, `initializing web socket server on port ${mu_options.port}`);
   mu_wss = new WSS(mu_options);
   mu_wss.on('listening', () => {
-    if (DBG) console.log(PR, `listening on port ${mu_options.port}`);
+    if (DBG) console.log(PR, `socket server listening on port ${mu_options.port}`);
     mu_wss.on('connection', m_NewSocketConnected);
   });
 }; // end CreateNetwork()
@@ -414,7 +414,7 @@ function m_SocketDelete(socket) {
 /*/
 /*/
 function m_ListSockets(change) {
-  console.log(PR, 'SocketList change:', change);
+  console.log(PR, `socketlist changed: '${change}'`);
   // let's use iterators! for..of
   let values = mu_sockets.values();
   let count = 1;

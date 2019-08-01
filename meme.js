@@ -5,6 +5,7 @@ npm run myscript -- --myoptions=something
 alternatively you'll just write your own script that does it
 /*/
 const fs = require('fs');
+
 if (!fs.existsSync('./node_modules/ip')) {
   console.log(`\x1b[30;41m\x1b[37m MEME STARTUP ERROR \x1b[0m\n`);
   let out = '';
@@ -79,11 +80,6 @@ function f_RunDevServer() {
   const { error, stdout } = shell.exec('git symbolic-ref --short -q HEAD', { silent: true });
   if (error) console.log(PR, `on ${CY}detached${TR} head`);
   if (stdout) console.log(PR, `on branch ${CY}${stdout.trim()}${TR}`);
-  console.log(`---`);
-  console.log(PR, `${CY}GO TO ONE OF THESE URLS in CHROME WEB BROWSER${TR}`);
-  console.log(PR, `MAINAPP - http://localhost:3000`);
-  console.log(PR, `CLIENTS - http://${ip.address()}:3000`);
-  console.log(`---\n`);
 
   // run webpack development server
   // const wds = shell.exec(
@@ -100,8 +96,6 @@ function f_RunDevServer() {
 
   // run ursys socket server
   // note: in electron mode, this server is loaded from inside electron's console-main.js
-  console.log(PR, 'starting URSYS');
-
   URSERVER.InitializeNetwork();
   URSERVER.StartNetwork();
   URSERVER.StartWebServer();

@@ -2,13 +2,13 @@ const merge = require('webpack-merge');
 const path = require('path');
 const PROMPTS = require('../system/util/prompts');
 //
-const { CW, CR } = PROMPTS;
-const PR = `${CW}${PROMPTS.Pad('webpack')}${CR}`;
+const { TERM_EXP: CW, CR } = PROMPTS;
+const PR = `${CW}${PROMPTS.Pad('WEBPACK')}${CR}`;
 
 // see https://webpack.js.org/configuration/module/#rule-use for better 'use' options syntax
 
 module.exports = env => {
-  console.log(PR, `base.config requested`);
+  console.log(PR, `... using webpack.base.config`);
 
   // Any directories you will be adding code/files into, need to be added to this array so webpack will pick them up
   // this ensures if it's running from built/ (electron mode) or src/ (wds mode) the include path is correct

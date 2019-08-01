@@ -23,13 +23,13 @@ const baseConfig = require('./webpack.base.config');
 
 const PROMPTS = require('../system/util/prompts');
 //
-const { CW, CR } = PROMPTS;
-const PR = `${CW}${PROMPTS.Pad('webpack')}${CR}`;
+const { TERM_EXP: CW, CR } = PROMPTS;
+const PR = `${CW}${PROMPTS.Pad('WEBPACK')}${CR}`;
 
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard
 const webConfiguration = env => {
-  console.log(`${PR} webapp.config webConfiguration loaded`);
+  console.log(PR, `... using webpack.webapp.config`);
 
   let entryFiles = ['./web-index.js', 'webpack-hot-middleware/client?reload=true'];
   const DIR_SOURCE = path.resolve(__dirname, '../../src/app-web');

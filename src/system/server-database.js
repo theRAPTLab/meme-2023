@@ -20,7 +20,7 @@ const LOGGER = require('./server-logger');
 const PROMPTS = require('../system/util/prompts');
 
 const { TERM_DB: CLR, TR } = PROMPTS;
-const PR = `${CLR}${PROMPTS.Pad('URSYS.DB')}${TR}`;
+const PR = `${CLR}${PROMPTS.Pad('UR_DB')}${TR}`;
 const RUNTIMEPATH = './runtime/';
 
 /// MODULE-WIDE VARS //////////////////////////////////////////////////////////

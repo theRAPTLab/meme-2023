@@ -21,7 +21,7 @@ const PROMPTS = require('../system/util/prompts');
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const { TERM_EXP: CLR, TERM_WPACK, TR } = PROMPTS;
 const PORT = 3000;
-const PR = `${CLR}${PROMPTS.Pad('URSYS.WEB')}${TR}`;
+const PR = `${CLR}${PROMPTS.Pad('UR_EXPRESS')}${TR}`;
 
 /// SERVER DECLARATIONS ///////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -36,21 +36,23 @@ const USRV_START = new Date(Date.now()).toISOString(); // server startup time
 /// API MEHTHODS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function Start() {
+  let promise; // promise object to return
   const isPackaged = __dirname.includes('/Contents/Resources/app/system');
   if (isPackaged) {
     // if server-express is running inside an Electron instance, don't use
     // webpack to bundle the webapp on-the-fly.
     DOCROOT = path.resolve(__dirname, '../web');
-    console.log(PR, `${CLR}package mode${TR} serving precompiled web bundle`);
-    console.log(PR, `from '${DOCROOT}'`);
+    console.log(PR, `SERVING PRECOMPILED WEB BUNDLE FROM VIRTUAL DIRECTORY`);
     server = app.listen(PORT, () => {
-      console.log(PR, `http on port ${PORT} from '${DOCROOT}'`);
+      console.log(PR, `WEBSERVER LISTENING ON PORT ${PORT}`);
+      console.log(PR, `SERVING '${DOCROOT}'`);
     });
+    promise = Promise.resolve();
   } else {
     // otherwise, we are running as straight node out of npm scripts, or
     // a generic Electron binary was used to load us (Electron works just
     // as a node interpreter ya know!
-    console.log(PR, `${CLR}dev mode${TR} serving with ${CLR}live code reloading${TR}`);
+    console.log(PR, `COMPILING WEBSERVER w/ WEBPACK - THIS MAY TAKE SEVERAL SECONDS...`);
     DOCROOT = path.resolve(__dirname, '../../built/web');
 
     // RUN WEBPACK THROUGH API
@@ -71,14 +73,27 @@ function Start() {
     // compilation start message
     // we'll start the server after webpack bundling is complete
     // but we still have some configuration to do
-    compiler.hooks.afterEmit.tap('StartServer', () => {
+    compiler.hooks.afterCompile.tap('StartServer', () => {
       if (!server) {
         server = app.listen(PORT, () => {
-          console.log(PR, `http on port ${PORT} from '${DOCROOT}'`);
+          console.log(PR, `WEBSERVER LISTENING ON PORT ${PORT}`);
+          console.log(PR, `SERVING '${DOCROOT}'`);
+          console.log(PR, `LIVE RELOAD ENABLED`);
         });
       } else {
-        console.log(`${TERM_WPACK}webpack`, `bundle recompiled${TR}`);
+        console.log(PR, `RECOMPILED SOURCE CODE and RELOADING `);
       }
+    });
+    // return promise when server starts
+    promise = new Promise((resolve, reject) => {
+      const TIMEOUT = 10 * 1000; // milliseconds
+      setTimeout(() => {
+        reject(Error('failure to compile timeout'));
+        reject();
+      }, TIMEOUT);
+      compiler.hooks.afterCompile.tap('ResolvePromise', () => {
+        resolve();
+      });
     });
   }
 
@@ -102,6 +117,9 @@ function Start() {
   });
   // for everything else...
   app.use('/', express.static(DOCROOT));
+
+  // return promise for async users
+  return promise;
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function GetTemplateValues(req) {

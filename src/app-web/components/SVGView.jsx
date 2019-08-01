@@ -16,8 +16,7 @@ import DATA from '../modules/pmc-data';
 import UR from '../../system/ursys';
 import { cssreact, cssalert } from '../modules/console-styles';
 
-const DBG = true;
-
+const DBG = false;
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -30,10 +29,10 @@ class SVGView extends React.Component {
     // bindings
     this.DoAppLoop = this.DoAppLoop.bind(this);
     // LIFECYCLE: Initialize DataGraph
-    
+
     // Graph is now loaded by ADM.LoadModel.
     // DATA.LoadGraph();
-    
+
     // Look for Data Updates
     UR.Sub('DATA_UPDATED', this.DoAppLoop)
   }

@@ -1,7 +1,7 @@
 import DATA from './pmc-data';
-import { cssinfo, cssalert, cssdata } from './console-styles';
+import { cssinfo } from './console-styles';
 import DEFAULTS from './defaults';
-import UR from '../../system/ursys';
+import { AddDragDropHandlers } from './class-vprop-dragdrop';
 import { VisualState } from './classes-visual';
 
 const { VPROP, PAD, COLOR } = DEFAULTS;
@@ -41,8 +41,9 @@ class VProp {
     // this order is important
     this.visBG = this.gRoot.rect(this.width, this.height); // background
     this.gData = this.gRoot.group(); // main data properties
-    this.gKids = this.gRoot.group(); // child components group
     this.gDataName = this.gData.text(this.data.name.toUpperCase()); // label
+    this.gDataName.attr('pointer-events', 'none');
+    this.gKids = this.gRoot.group(); // child components group
     // other default properties
     this.fill = COL_BG;
     this.width = m_minWidth;
@@ -54,37 +55,16 @@ class VProp {
     this.displayMode = {};
     this.mechPoints = []; // array of points available for mechanism connections
     // hacked items
-    this.hack = { wasMoved: false };
+    this.posMode = { wasMoved: false };
+    this.dragStartBox = { x: 0, y: 0 };
+    this.dragMoveBox = { x: 0, y: 0 };
+    this.dragEndBox = { x: 0, y: 0 };
     // hacked vbadge support
     this.badgesCount = 0; // number of badges attached to this prop
 
-    // higher order display properties
-    this.gRoot.draggable();
-    this.gRoot.on('dragstart.propmove', event => {
-      event.preventDefault();
-      // console.log(`dragstart.propmove ${this.id}`);
-      this.dragStartBox = event.detail.box;
-    });
-    this.gRoot.on('dragmove.propmove', event => {
-      event.preventDefault();
-      const { handler, box } = event.detail;
-      const { x, y } = box;
-      this.dragMoveBox = box;
-      handler.move(x, y);
-      UR.Publish('PROP:MOVED', { prop: this.id });
-    });
-    this.gRoot.on('dragend.propmove', event => {
-      event.stopPropagation();
-      // console.log(`dragend.propmove ${this.id}`);
-      const { x: x1, y: y1 } = this.dragStartBox;
-      const { x: x2, y: y2 } = this.dragMoveBox;
-      if (Math.abs(x1 - x2) < 5 && Math.abs(y1 - y2) < 5) {
-        DATA.VM_ToggleProp(this);
-      } else {
-        console.log(`${this.id} was moved, setting 'dont move' hack flag`);
-        this.HackSetMoved(true);
-      }
-    });
+    // add VProp extensions
+    VProp.AddDragDropHandlers(this);
+
     // initial drawing
     this.Draw();
   }
@@ -97,39 +77,40 @@ class VProp {
   }
 
   /** was moved */
-  HackWasMoved() {
-    return this.hack.wasMoved;
+  LayoutDisabled(flag) {
+    if (flag !== undefined) this.posMode.wasMoved = flag;
+    return this.posMode.wasMoved;
   }
 
-  /** set was moved */
-  HackSetMoved(flag = true) {
-    this.hack.wasMoved = flag;
+  HoverState(visible) {
+    if (typeof visible !== 'boolean') throw Error('must specific true or false');
+    this.hovering = visible;
+
+    if (this.hovering) {
+      this.visBG.stroke({ color: this.fill, width: 1, dasharray: '2 2' });
+    } else {
+      this.visBG.stroke({ color: this.fill, width: 0 });
+    }
   }
 
-  /** return upper-left X coordinate */
+  /**
+   * Return upper-left X coordinate
+   */
   X() {
     return this.gRoot.x();
   }
 
-  /** return upper-left y coordinate */
+  /**
+   * Return the upper-left Y coordinate
+   */
   Y() {
     return this.gRoot.y();
   }
 
-  /** return width of element */
-  Width() {
-    return this.width;
-  }
-
-  Height() {
-    return this.height;
-  }
-
-  DataHeight() {
-    return this.GetDataBBox().h;
-  }
-
-  //
+  /**
+   * Move to coordinate
+   * @param {pt | x,y} - {x,y} or x,y
+   */
   Move(xObj, y) {
     if (typeof xObj === 'object') {
       const { x: xx, y: yy } = xObj;
@@ -144,8 +125,20 @@ class VProp {
     this.gRoot.move(x, y);
   }
 
-  // this is the size of the entire component
-  SetSize(wObj, h) {
+  /**
+   * Utility to get or set the VProp overall size
+   * @param { sizeObj | w, h} - { w, h } or w,h
+   * @returns { id, w, h }
+   */
+  PropSize(wObj, h) {
+    // return it
+    if (wObj === undefined)
+      return {
+        id: this.id,
+        w: this.width,
+        h: this.height
+      };
+    // set it
     if (typeof wObj === 'object') {
       this.width = wObj.w;
       this.height = wObj.h;
@@ -155,28 +148,17 @@ class VProp {
     }
     // set the background size
     this.visBG.size(this.width, this.height);
+    return { id: this.id, w: this.width, h: this.height };
   }
 
-  //
-  GetCenter() {
-    return {
-      id: this.id,
-      x: this.visBG.cx(),
-      y: this.visBG.cy()
-    };
-  }
-
-  //
-  GetSize() {
-    return {
-      width: this.width,
-      height: this.height
-    };
-  }
-
-  // return the size requirment of the layout
-  // minium size, but no additional padding
-  GetDataBBox() {
+  /**
+   * Return the calculated size of the DATA area of the VProp
+   * with no additional padding
+   * @returns { id, w, h }
+   */
+  DataSize(novar) {
+    if (novar)
+      throw Error('DataSize() only reports size of the data elements, and can not be overridden');
     let { w, h } = this.gDataName.rbox();
     if (w < m_minWidth) w = m_minWidth;
     if (h < m_minHeight) h = m_minHeight;
@@ -187,15 +169,46 @@ class VProp {
     };
   }
 
-  // return position bbox in screen coordinardinates
-  // x,y,x2,y2,w,h,cx,cy
-  GetScreenBBox() {
+  /**
+   * Utility to get or set the size of the descendent children vprops of this vprop.
+   * @param {sizeObj | w,h} - { w, h } or w,h
+   * @returns { id, w, h }
+   */
+  KidsSize(wObj, h) {
+    if (wObj === undefined) return { id: this.id, w: this.kidsWidth, h: this.kidsHeight };
+    if (typeof wObj === 'object') {
+      const { w: ww, h: hh } = wObj;
+      if (typeof ww !== 'number') throw Error(`x ${ww} is not an number`, ww);
+      if (typeof hh !== 'number') throw Error(`y ${hh} is not an number`, hh);
+      this.kidsWidth = ww;
+      this.kidsHeight = hh;
+      return { id: this.id, w: ww, h: hh };
+    }
+    const w = wObj;
+    if (typeof w !== 'number') throw Error(`x ${w} is not an number`, w);
+    if (typeof h !== 'number') throw Error(`y ${h} is not an number`, h);
+    this.kidsWidth = w;
+    this.kidsHeight = h;
+    return { id: this.id, w, h };
+  }
+
+  /**
+   * Utility to get the bounding box of the vprop
+   * by measuring sound of visBG rect
+   * @returns { x, y, x2, y2, w, h, cx, cy }
+   */
+  ScreenBBox(novar) {
+    if (novar) throw Error('ScreenBBox() is READONLY');
     return this.visBG.bbox();
   }
 
-  // return a point to connect to
-  GetEdgePoint(loc = 'c') {
-    const { x, y, x2, y2, cx, cy } = this.visBG.bbox();
+  /**
+   * Return a specified point on the edge of the vprop
+   * c = center, t = top, r = right, b = bottom, l = left
+   * @param { loc } - string c, t, r, b, or l
+   */
+  RequestEdgePoint(loc = 'c') {
+    const { x, y, x2, y2, cx, cy } = this.ScreenBBox();
     switch (loc) {
       case 'c':
         return { x: cx, y: cy };
@@ -212,14 +225,16 @@ class VProp {
     }
   }
 
-  // figures out what points to return
-  // returns empty object if no path is possible (e.g. completely contained paths
-  // returns { pt1: {x,y}, pt2:{x,y} } if possible
-  GetEdgeConnectionPoints(targetId) {
+  /**
+   * Finds closest edges between this vprop and the target vprop. If found, returns the points
+   * @param { id } - id of remote VProp to connect to
+   * @returns { ptsObj } - {pt1:{x,y,d,up}, pt2:{x,y,d,up}}
+   */
+  FindEdgePointConnectionTo(targetId) {
     const target = DATA.VM_VProp(targetId);
     if (!target) throw Error(`VProp with targetId '${targetId}' doesn't exist`);
-    const { x: Aleft, y: Atop, x2: Aright, y2: Abot, cx: Acx, cy: Acy } = this.GetScreenBBox();
-    const { x: Bleft, y: Btop, x2: Bright, y2: Bbot, cx: Bcx, cy: Bcy } = target.GetScreenBBox();
+    const { x: Aleft, y: Atop, x2: Aright, y2: Abot, cx: Acx, cy: Acy } = this.ScreenBBox();
+    const { x: Bleft, y: Btop, x2: Bright, y2: Bbot, cx: Bcx, cy: Bcy } = target.ScreenBBox();
     // find shortest distance between THIS and TARGET
     // eliminate negative values
     const distances = [
@@ -238,7 +253,7 @@ class VProp {
     });
     if (DBG) {
       const out = `${this.Id()} sees ${distances.length} potential outedges to ${targetId}`;
-      // console.log(out, distances);
+      console.log(out, distances);
     }
 
     // if no drawable line (e.g. overlapping) then return no line
@@ -273,26 +288,6 @@ class VProp {
     }
   }
 
-  SetKidsBBox(wObj, h) {
-    if (typeof wObj === 'object') {
-      const { w: ww, h: hh } = wObj;
-      if (typeof ww !== 'number') throw Error(`x ${ww} is not an number`, ww);
-      if (typeof hh !== 'number') throw Error(`y ${hh} is not an number`, hh);
-      this.kidsWidth = ww;
-      this.kidsHeight = hh;
-      return;
-    }
-    const w = wObj;
-    if (typeof w !== 'number') throw Error(`x ${w} is not an number`, w);
-    if (typeof h !== 'number') throw Error(`y ${h} is not an number`, h);
-    this.kidsWidth = w;
-    this.kidsHeight = h;
-  }
-
-  GetKidsBBox() {
-    return { id: this.id, w: this.kidsWidth, h: this.kidsHeight };
-  }
-
   /**
    * Redraw svg elements from properties that may have been updated by
    * Update().
@@ -310,25 +305,26 @@ class VProp {
     if (point) this.gRoot.move(point.x, point.y);
   }
 
-  // "destructor"
+  /**
+   * Remove  gRoot svg element and all its children
+   */
   Release() {
     return this.gRoot.remove();
   }
 
-  //
+  /**
+   * Make this VProp a child of another VProp
+   */
   ToParent(id) {
-    const vparent = DATA.VM_VProp(id);
     if (DBG) console.log(`${id} <- ${this.id}`);
+    const vparent = DATA.VM_VProp(id);
+    if (!vparent) throw Error(`${id} does not have a matching VProp`);
     this.gRoot.toParent(vparent.gKids);
   }
 
-  AddTo(id) {
-    const vparent = DATA.VM_VProp(id);
-    if (DBG) console.log(`${id} ++ ${this.id}`);
-    this.gRoot.addTo(vparent.gKids);
-  }
-
-  //
+  /**
+   * Make this VProp a child of the main svg element
+   */
   ToRoot() {
     if (DBG) console.log(`%croot <- ${this.id}`, `font-weight:bold`);
     this.gRoot.toRoot();
@@ -385,7 +381,6 @@ VProp.Update = id => {
   return vprop;
 };
 
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  LIFECYCLE: Sizes all the properties to fit their contained props
@@ -408,7 +403,7 @@ VProp.SizeComponents = () => {
   function recursePropSize(propId) {
     const vprop = DATA.VM_VProp(propId);
     // first get base size of vprop's data
-    const databbox = vprop.GetDataBBox();
+    const databbox = vprop.DataSize();
     databbox.h += PAD.MIN; // add vertical padding
     /*** WALK CHILD PROPS ***/
     const childIds = DATA.Children(propId);
@@ -417,8 +412,8 @@ VProp.SizeComponents = () => {
       // terminal nodes have no children
       // so the calculation of size is easy
       databbox.w += PAD.MIN2; // add horizontal padding
-      vprop.SetSize(databbox); // store calculated overall size
-      vprop.SetKidsBBox({ w: 0, h: 0 }); // no children, so no dimension
+      vprop.PropSize(databbox); // store calculated overall size
+      vprop.KidsSize({ w: 0, h: 0 }); // no children, so no dimension
       return databbox; // end recursion by returning known value
     }
     /*** CASE 2: THERE ARE CHILDREN */
@@ -426,7 +421,7 @@ VProp.SizeComponents = () => {
     childIds.forEach(childId => {
       const cvprop = DATA.VM_VProp(childId);
       const csize = recursePropSize(childId);
-      cvprop.SetKidsBBox(csize);
+      cvprop.KidsSize(csize);
       childSizes.push(csize);
     });
     // find the widest box while adding all the heights of children
@@ -437,7 +432,7 @@ VProp.SizeComponents = () => {
         h: accbox.h + item.h
       };
     });
-    vprop.SetKidsBBox(kidsbbox); // set size of children area
+    vprop.KidsSize(kidsbbox); // set size of children area
     // compute minimum bounding box of vprop including child area
     const bbox = {
       id: propId,
@@ -445,8 +440,8 @@ VProp.SizeComponents = () => {
       h: databbox.h + kidsbbox.h
     };
     // add additional vertical padding
-    bbox.h += childIds.length > 1 ? PAD.MIN2 : PAD.MIN;
-    vprop.SetSize(bbox);
+    bbox.h += childIds.length > 1 ? childIds.length * PAD.MIN : PAD.MIN;
+    vprop.PropSize(bbox);
     return bbox;
   }
 };
@@ -470,9 +465,9 @@ VProp.LayoutComponents = () => {
     if (DBG) console.groupCollapsed(`%c:layout component ${id}`, cssinfo);
     recurseLayout({ x: xCounter, y: yCounter }, id);
     const compVis = DATA.VM_VProp(id);
-    const compHeight = compVis.Height();
+    const compHeight = compVis.PropSize().h;
     rowHeight = Math.max(compHeight, rowHeight);
-    xCounter += compVis.GetSize().width + PAD.MIN2;
+    xCounter += compVis.PropSize().w + PAD.MIN2;
     if (xCounter > 700) {
       yCounter += rowHeight + PAD.MIN2;
       xCounter = PAD.MIN2;
@@ -491,19 +486,19 @@ function recurseLayout(pos, id) {
   let { x, y } = pos;
   if (DBG) console.group(`${id} draw at (${x},${y})`);
   const compVis = DATA.VM_VProp(id);
-  if (!compVis.HackWasMoved()) {
+  if (!compVis.LayoutDisabled()) {
     if (DBG) console.log(`moving ${compVis.id}`);
     compVis.Move(pos.x, pos.y); // draw compVis where it should go in screen space
     if (DBG) console.log('compVis is at', compVis.X(), compVis.X());
-    y += compVis.DataHeight() + PAD.MIN;
+    y += compVis.DataSize().h + PAD.MIN;
     x += PAD.MIN;
     const children = DATA.Children(id);
     let widest = 0;
     children.forEach(cid => {
       const childVis = DATA.VM_VProp(cid);
-      widest = Math.max(widest, childVis.GetKidsBBox()).w;
+      widest = Math.max(widest, childVis.KidsSize()).w;
       recurseLayout({ x, y }, cid);
-      const addH = childVis.Height() + PAD.MIN;
+      const addH = childVis.PropSize().h + PAD.MIN;
       y += addH;
       if (DBG) console.log(`y + ${addH} = ${y}`);
       childVis.ToParent(id); // nest child in parent
@@ -513,42 +508,28 @@ function recurseLayout(pos, id) {
   }
   if (DBG) console.groupEnd();
 }
-
-/// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if (!window.meme) window.meme = {};
-window.meme.vprops = () => {
-  console.log(`%cattaching props to window by [id]`, cssdata);
-  let props = DATA.AllProps();
-  props.forEach(propId => {
-    window[propId] = DATA.VM_VProp(propId);
-  });
-  return `${props} attached to window object`;
-};
-window.meme.comps = () => {
-  console.log(`%cshowing components`, cssdata);
-  let comps = DATA.Components();
-  comps.forEach(id => {
-    console.log(`[${id}]`);
-  });
-  return `${comps.length} components listed`;
-};
-window.meme.dumpid = id => {
-  console.log(`%cdumping id [${id}] child hierarchy`, cssdata);
-  recurse(id);
-  /* helper */
-  function recurse(propId) {
-    const vis = DATA.VM_VProp(propId);
-    const visHeight = vis.Height();
-    console.group(`[${propId}] y=${visHeight} (${visHeight})`);
-    const kids = DATA.Children(propId);
-    kids.forEach(kid => {
-      recurse(kid);
-    });
-    console.groupEnd();
+VProp.StaticMethod = (method, methodName) => {
+  /* CHECK FOR BAD PARAMETERS */
+  if (typeof method !== 'function') throw Error('arg1 must be a function');
+  if (methodName) {
+    if (typeof methodName !== 'string') throw Error('arg2 must be a string');
+    const firstChar = methodName.charAt(0);
+    if (firstChar.toUpperCase() !== firstChar.toLowerCase())
+      throw Error('arg2 function name must begin with a letter');
   }
-  return `finished dumping id [${id}]`;
+  /* eslint-disable-next-line no-param-reassign */
+  methodName = methodName || method.name;
+  if (VProp[methodName]) throw Error(`VProp already has static method '${methodName}'`);
+
+  /* IF WE GOT THIS FAR LET'S DO IT */
+  VProp[methodName] = method;
+  console.log(`extension: %cVProp.${methodName}()`, cssinfo);
 };
+
+/// LINK EXTENSIONS ///////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+VProp.StaticMethod(AddDragDropHandlers);
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

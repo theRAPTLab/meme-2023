@@ -71,7 +71,7 @@ let a_components = []; // top-level props with no parents
 let h_children = new Map(); // children hash of each prop by id
 let h_outedges = new Map(); // outedges hash of each prop by id
 //
-let a_resources = [];  /*/ all resource objects to be displayed in InformationList
+let a_resources = []; /*/ all resource objects to be displayed in InformationList
                          a_resource = [
                             {
                               rsrcId: '1',
@@ -104,7 +104,7 @@ let h_evidenceByProp = new Map(); /*/
                                 ...],
                           ...}
                       /*/
-let h_evlinkByResource = new Map();  /*/
+let h_evlinkByResource = new Map(); /*/
                           Used by EvidenceList to look up all evidence related to a resource
                       /*/
 let h_evidenceByMech = new Map(); // links to evidence by mechanism id
@@ -125,6 +125,7 @@ const map_vmechs = new Map(); // our mechanism viewmodel data stored by pathid
 const map_vbadges = new Map(); // our evidence badge viewmodel data stored by evId
 const selected_vprops = new Set();
 const selected_vmechs = new Set();
+const map_rollover = new Map();
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -305,7 +306,6 @@ PMCData.BuildModel = () => {
     if (evlinkArray === undefined) evlinkArray = [];
     h_evlinkByResource.set(resource.rsrcId, evlinkArray);
   });
-
 
   /*/
    *  Now update all evidence link counts
@@ -618,7 +618,6 @@ PMCData.VM_GetVBadgeChangesRefactor = () => {
   const removed = [];
   // removed
   map_vbadges.forEach((val_badge, key_evId) => {
-
     // if both propId and mechId are undefined, then this evidenceLink
     // is not linking to any prop or mech, so delete the badge.
     if (val_badge.evlink.propId === undefined && val_badge.evlink.mechId === undefined) {
@@ -707,6 +706,25 @@ PMCData.VM_SelectProp = vprop => {
   vprop.Draw();
   // update viewmodel
   selected_vprops.add(vprop.id);
+};
+
+/* API.VIEWMODEL: Tracking Rollovers */
+PMCData.VM_PropMouseEnter = vprop => {
+  map_rollover.set(vprop.Id());
+  const topPropId = PMCData.VM_PropsMouseOver().pop();
+  if (vprop.Id() === topPropId) vprop.HoverState(true);
+};
+PMCData.VM_PropMouseExit = vprop => {
+  if (vprop.posMode.isDragging) return;
+  map_rollover.delete(vprop.Id());
+  vprop.HoverState(false);
+};
+/**
+ * Return the array of targets that are "hovered" over
+ * @returns {array} propId array
+ */
+PMCData.VM_PropsMouseOver = () => {
+  return [...map_rollover.keys()];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
@@ -834,7 +852,7 @@ PMCData.VM_SelectedMechs = () => {
   return Array.from(selected_vmechs.values());
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddProp = (node) => {
+PMCData.PMC_AddProp = node => {
   m_graph.setNode(node, { name: `${node}` });
   PMCData.BuildModel();
   return `added node ${node}`;
@@ -846,7 +864,7 @@ PMCData.PMC_SetPropParent = (node, parent) => {
   return `added parent ${parent} to node ${node}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_PropDelete = (propid = "a") => {
+PMCData.PMC_PropDelete = (propid = 'a') => {
   // Deselect the prop first, otherwise the deleted prop will remain selected
   PMCData.VM_DeselectAll();
   // Unlink any evidence
@@ -874,7 +892,7 @@ PMCData.PMC_AddMech = (sourceId, targetId, label) => {
   return `added edge ${sourceId} ${targetId} ${label}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_MechDelete = (mechId) => {
+PMCData.PMC_MechDelete = mechId => {
   // mechId is of form "v:w"
   // Deselect the mech first, otherwise the deleted mech will remain selected
   PMCData.VM_DeselectAll();
@@ -916,7 +934,6 @@ PMCData.PMC_DeleteEvidenceLink = evId => {
   return evId;
 };
 
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Given the passed propid (prop data object), returns evidence linked to the prop object.
@@ -932,7 +949,7 @@ PMCData.PropEvidence = propid => {
  *  Given the passed evidence ID, returns the EvidenceLink object.
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  */
-PMCData.EvidenceLinkByEvidenceId = (evId) => {
+PMCData.EvidenceLinkByEvidenceId = evId => {
   const evlink = a_evidence.find(item => {
     return item.evId === evId;
   });
@@ -982,7 +999,7 @@ PMCData.SetEvidenceLinkRating = (evId, rating) => {
  *  Given the passed resource ID, returns array of prop ids linked to the resource object.
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  */
-PMCData.GetPropIdsByResourceId = (rsrcId) => {
+PMCData.GetPropIdsByResourceId = rsrcId => {
   return h_propByResource.get(rsrcId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -990,7 +1007,7 @@ PMCData.GetPropIdsByResourceId = (rsrcId) => {
  *  Given the passed resource ID, returns array of prop ids linked to the resource object.
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  */
-PMCData.GetEvLinkByResourceId = (rsrcId) => {
+PMCData.GetEvLinkByResourceId = rsrcId => {
   return h_evlinkByResource.get(rsrcId);
 };
 
@@ -1000,7 +1017,7 @@ PMCData.GetEvLinkByResourceId = (rsrcId) => {
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
  *  @param {string|undefined} mechId - if defined, mechId string of the prop (aka `propId`)
  */
-PMCData.MechEvidence = (mechId) => {
+PMCData.MechEvidence = mechId => {
   return h_evidenceByMech.get(mechId);
 };
 

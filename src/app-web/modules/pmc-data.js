@@ -406,6 +406,19 @@ PMCData.Prop = nodeId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
+ *  Given the passed nodeId string, returns the parent nodeId if it exists
+ *  or undefined if it does not.
+ *  This object is not a copy, so changing its properties will change the
+ *  underlying data. If it the requested nodeId doesn't exist, an error is
+ *  thrown.
+ *  @param {string} nodeId - the nodeId you want
+ *  @returns {boolean} - the property object
+ */
+PMCData.PropParent = nodeId => {
+  return m_graph.parent(nodeId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
  *  Given the passed edge selector, returns the requested mechanism object.
  *  This object is not a copy, so changing it will change the
  *  underlying data. If it the requested edge doesn't exist, an error is
@@ -861,7 +874,7 @@ PMCData.PMC_AddProp = node => {
 PMCData.PMC_SetPropParent = (node, parent) => {
   m_graph.setParent(node, parent);
   PMCData.BuildModel();
-  return `added parent ${parent} to node ${node}`;
+  return `set parent ${parent} to node ${node}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_PropDelete = (propid = 'a') => {

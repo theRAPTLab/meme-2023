@@ -1,7 +1,11 @@
 /* eslint-disable func-names */
 /* eslint-disable no-param-reassign */
-if (window.NC_DBG) console.log(`inc ${module.id}`);
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
+
+    ** TEMPORARY PORT **
+    using this as-is within URSYS until figure out best way to combine
+
+    - - -
 
     UNISYS DATALINK CLASS
 
@@ -32,8 +36,10 @@ const PR = 'UDATA:';
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// const STATE = require('unisys/client-state');
+// NOTE: This module uses the COMMONJS module format for compatibility
+// between node and browser-side Javascript.
 const Messager = require('./common-messager');
+// const STATE = require('unisys/client-state');
 
 /// NODE MANAGEMENT ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -52,15 +58,13 @@ let MESSAGER = new Messager();
     purposes
 /*/
 class UnisysDataLink {
-  /*/ CONSTRUCTOR
-      A messager creates a unique ID within the webapp instance. Since
-      messagers are "owned" by an object, we want the ID to reflect
-      the owner's identity too while also allowing multiple instances per
-      owner.
-  /*/ constructor(
-    owner,
-    optName
-  ) {
+  /** constructor
+   * @param {object} owner the class instance or code module object
+   * @param {string} owner.name code module name set manually
+   * @param {string} [owner.constructor.name] for classes
+   * @param {string} optName optional name to use instead owner.name or owner.constructor.name
+   */
+  constructor(owner, optName) {
     let msgr_type = '?TYPE';
     let msgr_name = '?NAME';
 
@@ -81,6 +85,13 @@ class UnisysDataLink {
     } else {
       throw Error(BAD_OWNER);
     }
+
+    /*/
+      A messager creates a unique ID within the webapp instance. Since
+      messagers are "owned" by an object, we want the ID to reflect
+      the owner's identity too while also allowing multiple instances per
+      owner.
+    /*/
 
     // generate and save unique id
     this.uid = `${msgr_type}_${UNODE_COUNTER++}`;

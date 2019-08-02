@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  ViewMainRefactor - For Modifying!
+  ViewMainDev - For Modifying!
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -137,7 +137,9 @@ class ViewMain extends React.Component {
 
   componentDidMount() {
     console.log(`%ccomponentDidMount()`, cssreact);
-    console.log('%cWARN: ViewMainRefactor', cssalert);
+    console.log('%cWARN: You are running ViewMainDev', cssalert);
+    console.log('%cWARN: You are running ViewMainDev', cssalert);
+    console.log('%cWARN: You are running ViewMainDev', cssalert);
     //
     // child components need to know the dimensions
     // of this component, but they are invalid until
@@ -432,7 +434,7 @@ class ViewMain extends React.Component {
     return (
       <div className={classes.root}>
         <CssBaseline />
-        <Login memo="USING DEV MODE ROUTE" />
+        <Login memo="[ViewMainDev]" />
         <ModelSelect />
         <AppBar position="fixed" className={classes.appBar} style={{ backgroundColor: 'maroon' }}>
           <Toolbar>

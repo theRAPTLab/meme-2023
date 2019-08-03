@@ -115,6 +115,10 @@ class UnisysDataLink {
     return this.name;
   }
 
+  UADDR() {
+    return URNET.SocketUADDR();
+  }
+
   /// GLOBAL STATE ACCESS
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /// global STATE module calls are wrapped by unisys node so the unique

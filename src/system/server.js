@@ -71,7 +71,6 @@ URSYS.RegisterHandlers = () => {
     if (DBG) console.log(PR, sprint_message(pkt));
     // now need to store the handlers somehow.
     let data = UNET.RegisterRemoteHandlers(pkt);
-    console.log(PR, `${pkt.SourceAddress()} registered ${pkt.Data('messages')}`);
     // or return a new data object that will replace pkt.data
     return data;
   });

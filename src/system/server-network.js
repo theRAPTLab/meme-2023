@@ -340,7 +340,7 @@ async function m_HandleMessage(socket, pkt) {
 
   // output the condition BEFORE async block runs
   const DBG_NOSRV = !pkt.Message().startsWith('SRV_');
-  if (DBG) console_PktDirection(pkt, 'forward', promises);
+  if (DBG) console_PktDirection(pkt, 'call', promises);
   if (DBG && DBG_NOSRV) console_PktTransaction(pkt, 'queuing', promises);
 
   /* MAGICAL ASYNC/AWAIT BLOCK *****************************/
@@ -349,7 +349,7 @@ async function m_HandleMessage(socket, pkt) {
 
   // output the condition AFTER async block ran
   if (DBG && DBG_NOSRV) console_PktTransaction(pkt, 'resolved');
-  if (DBG) console_PktDirection(pkt, 'return', promises);
+  if (DBG) console_PktDirection(pkt, 'rtrn', promises);
 
   // (4) only the packet type for call needs to collect the return data
   if (!pkt.IsType('mcall')) return;
@@ -498,7 +498,7 @@ function console_ListSockets(change) {
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // used by m_HandleMessage()
 function console_PktDirection(pkt, direction, promises) {
-  console.log(PR, `${pkt.Info()} ${direction} '${pkt.Message()}' to ${promises.length} remotes`);
+  console.log(PR, `${pkt.Info()} ${direction} '${pkt.Message()}' (${promises.length} remotes)`);
 }
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // used by m_HandleMessage()

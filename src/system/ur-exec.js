@@ -255,7 +255,7 @@ const JoinNet = () => {
       URNET.Connect(UDATA, { success: resolve, failure: reject });
     } catch (e) {
       console.error(
-        'EnterNet() Execution Error. Check phase execution order effect on data validity.\n',
+        'JoinNet() Execution Error. Check phase execution order effect on data validity.\n',
         e
       );
       debugger;

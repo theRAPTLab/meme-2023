@@ -7,7 +7,7 @@ import UR from '../../../system/ursys';
 import { cssur } from '../../modules/console-styles';
 
 const MOD = {
-  name: 'network-tests'
+  name: 'netTest'
 };
 
 const UDATA = new UR.DataLink(MOD);
@@ -16,8 +16,8 @@ function DefineHandlers() {
   console.log(`%c${UDATA.Name()}.RegisterHandlers()`, cssur);
   UDATA.HandleMessage('MYSTERY', data => {
     console.log(`%c${UDATA.Name()}.MYSTERY got `, cssur, data);
-    console.log('returning new data', data.todos);
-    return { memo: 'I got your data', todos: data.todos };
+    data.todos.push(`buy ${UDATA.UADDR()} presents`);
+    return data;
   });
 }
 
@@ -41,7 +41,7 @@ function UndefinedCall() {
 
 function NetCall() {
   UDATA.NetCall('MYSTERY', { todos: ['take out garbage', 'clean basement'] }).then(data => {
-    console.log(`%c${UDATA.Name()}.LocalCall('MYSTERY') received`, cssur, data);
+    console.log(`%c${UDATA.UADDR()}.NetCall('MYSTERY') received`, cssur, data);
   });
 }
 

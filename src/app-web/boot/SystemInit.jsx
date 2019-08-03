@@ -52,7 +52,6 @@ function Init() {
     // so URSYS will not execute lifecycle phases in any module
     // that exists outside those key directories
     UR.EXEC.SetScopeFromRoutes(SystemRoutes);
-    // m_SetLifecycleScope();
     // asynchronous code startup
     (async () => {
       await UR.EXEC.JoinNet(); // URSYS socket connection (that is all)
@@ -60,7 +59,7 @@ function Init() {
       await m_PromiseRenderApp(); // compose React view
       await m_BrokenPromiseWindowResize();
       await UR.EXEC.SetupDOM(); // DOM_READY
-      await UR.EXEC.SetupRun(); // RESET, START, APP_READY, RUN
+      await UR.EXEC.SetupRun(); // RESET, START, REG_MESSAGE, APP_READY, RUN
       /* everything is done, system is running */
       if (DBG)
         console.log('%cINIT %cURSYS Lifecycle Initialization Complete', 'color:blue', 'color:auto');

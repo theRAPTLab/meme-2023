@@ -13,6 +13,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import UR from '../../../system/ursys';
+import NETTEST from './network-tests';
 
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -20,6 +21,7 @@ import UR from '../../../system/ursys';
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true;
+
 const styles = theme => ({
   root: {
     flexGrow: 1
@@ -30,6 +32,7 @@ const styles = theme => ({
     color: theme.palette.text.secondary
   }
 });
+
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class ViewBasic extends React.Component {
@@ -38,10 +41,20 @@ class ViewBasic extends React.Component {
     super(props);
     UR.ReloadOnViewChange();
     this.cstrName = this.constructor.name;
+    // SERVER messages are accessible after JoinNet
+    NETTEST.Reflect();
+    // define message handlers, which are
+    // autoregistered after componentDidMount
+    NETTEST.DefineHandlers();
   }
 
   componentDidMount() {
     console.log(`<${this.cstrName}> mounted`);
+    // this is available
+    NETTEST.LocalCall();
+    // these are not network available yet
+    // unless another instance was already running
+    NETTEST.NetCall();
   }
 
   render() {

@@ -37,6 +37,7 @@ let URSYS = {};
  */
 URSYS.InitializeNetwork = override => {
   console.log(`${CS}STARTING UR SOCKET SERVER${CR}`);
+  URSYS.RegisterHandlers();
   UDB.InitializeDatabase(override);
   return UNET.InitializeNetwork(override);
 };
@@ -44,9 +45,23 @@ URSYS.InitializeNetwork = override => {
 /**
  */
 URSYS.RegisterHandlers = () => {
+  // basic reflection test
   UNET.HandleMessage('SRV_REFLECT', pkt => {
-    pkt.Data().serverSays = 'REFLECTING';
-    pkt.Data().stack.push('SRV_01');
+    // get reference to modify
+    const data = pkt.Data();
+    const props = Object.keys(data);
+    data.serverSays = 'REFLECTING';
+    data.serverFound = `Found ${props.length} props in pkt.Data()`;
+    data.serverError = '';
+    if (props.length < 1) data.serverFound += `. Try adding data to see it come back!`;
+    if (data.stack === undefined) {
+      data.serverError += `Please define 'stack' array prop`;
+    }
+    if (data.stack) {
+      if (!Array.isArray(data.stack))
+        data.serverError += `The 'stack' prop should be an array, not a ${typeof data.stack}`;
+      else pkt.Data().stack.push('SERVER WAS HERE ^_^');
+    }
     if (DBG) console.log(PR, sprint_message(pkt));
     // return the original packet
     return pkt;

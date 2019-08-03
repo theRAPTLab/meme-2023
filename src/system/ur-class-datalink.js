@@ -39,6 +39,8 @@ const PR = 'UDATA:';
 // NOTE: This module uses the COMMONJS module format for compatibility
 // between node and browser-side Javascript.
 const Messager = require('./common-messager');
+const URNET = require('./ur-network').default; // workaround for require
+
 // const STATE = require('unisys/client-state');
 
 /// NODE MANAGEMENT ///////////////////////////////////////////////////////////
@@ -277,6 +279,24 @@ class UnisysDataLink {
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   NullCallback() {
     if (DBG.send) console.log(`${this.uid}_${PR}`, 'null_callback', this.UID());
+  }
+
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  PromiseRegisterMessages(messages = []) {
+    if (URNET.IsStandaloneMode()) {
+      console.warn(PR, 'STANDALONE MODE: RegisterMessagesPromise() suppressed!');
+      return Promise.resolve();
+    }
+    if (messages.length) {
+      try {
+        messages = UnisysDataLink.ValidateMessageNames(messages);
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      messages = UnisysDataLink.MessageNames();
+    }
+    return this.Call('SRV_REG_HANDLERS', { messages });
   }
 } // class UnisysNode
 

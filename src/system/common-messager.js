@@ -199,7 +199,7 @@ class Messager {
     if (toNet) {
       type = type || 'mcall';
       let pkt = new NetMessage(mesgName, inData, type);
-      let p = pkt.QueueTransaction();
+      let p = pkt.PromiseTransaction();
       promises.push(p);
     } // end toNetwork
 
@@ -210,7 +210,7 @@ class Messager {
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** Messager.MessageNames()
    * Get list of messages that are handled by this Messager instance.
-   * @returns {Array} message name strings
+   * @returns {Array<string>} message name strings
    */
   MessageNames() {
     let handlers = [];

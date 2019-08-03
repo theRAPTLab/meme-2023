@@ -154,7 +154,7 @@ function m_HandleRegistrationMessage(msgEvent) {
 function m_HandleMessage(msgEvent) {
   let pkt = new NetMessage(msgEvent.data);
   let msg = pkt.Message();
-  if (pkt.IsOwnResponse()) {
+  if (pkt.IsResponse()) {
     if (DBG.handle) console.log(PR, 'completing transaction', msg);
     pkt.CompleteTransaction();
     return;

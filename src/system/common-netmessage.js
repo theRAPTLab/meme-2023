@@ -14,19 +14,14 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
-/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// DEPENDENCIES //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const M_INIT = 'init';
-const M_ONLINE = 'online';
-const M_STANDALONE = 'offline';
-const M_CLOSED = 'closed';
-const M_ERROR = 'error';
+const PROMPTS = require('./util/prompts');
 
 /// DEBUG MESSAGES ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = { send: false, transact: false };
 
-const PROMPTS = require('./util/prompts');
 const PR = PROMPTS.Pad('PKT');
 const ERR = ':ERR:';
 const ERR_NOT_NETMESG = `${ERR + PR}obj does not seem to be a NetMessage`;
@@ -39,6 +34,14 @@ const ERR_UNKNOWN_TYPE = `${ERR + PR}packet type is unknown:`;
 const ERR_NOT_PACKET = `${ERR + PR}passed object is not a NetMessage`;
 const ERR_UNKNOWN_RMODE = `${ERR + PR}packet routine mode is unknown:`;
 
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const M_INIT = 'init';
+const M_ONLINE = 'online';
+const M_STANDALONE = 'offline';
+const M_CLOSED = 'closed';
+const M_ERROR = 'error';
+
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let m_id_counter = 0;
@@ -46,8 +49,9 @@ let m_id_prefix = 'PKT';
 let m_transactions = {};
 let m_netsocket = null;
 let m_group_id = null;
+let m_mode = M_INIT;
 
-/// ENUM //////////////////////////////////////////////////////////////////////
+/// ENUMS /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PACKET_TYPES = [
   'msend', // a 'send' message returns no data
@@ -59,10 +63,6 @@ const TRANSACTION_MODE = [
   'req', // packet in initial 'request' mode
   'res' // packet in returned 'response' mode
 ];
-
-/// INITIALIZATION ////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-let m_mode = M_INIT;
 
 /// UNISYS NETMESSAGE CLASS ///////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -270,8 +270,10 @@ class NetMessage {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** NetMessage.CopySourceAddress() sets the current address to the originating
-   * URSYS browser address.
+  /** NetMessage.CopySourceAddress() copies the source address of sets the
+   * current address to the originating URSYS browser address. Used by server
+   * forwarding and returning packets between remotes.
+   * @param {NetMessage} pkt - the packet to copy source from
    */
   CopySourceAddress(pkt) {
     if (pkt.constructor.name !== 'NetMessage') throw Error(ERR_NOT_PACKET);
@@ -334,20 +336,20 @@ class NetMessage {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** NetMessage.QueueTransaction() maps a packet to a return handler using a
+  /** NetMessage.PromiseTransaction() maps a packet to a return handler using a
    * unique key. This key allows an incoming packet to be mapped back to the
-   * caller even if it is technicall a different object received over the
+   * caller even if it is technically a different object received over the
    * network.
    * @param {Object=m_socket} socket - web socket object. m_socket is defined
    * only on browsers; see NetMessage.GlobalSetup()
    */
-  QueueTransaction(socket = m_netsocket) {
+  PromiseTransaction(socket = m_netsocket) {
     if (m_mode === M_STANDALONE) {
-      console.warn(PR, 'STANDALONE MODE: QueueTransaction() suppressed!');
+      console.warn(PR, 'STANDALONE MODE: PromiseTransaction() suppressed!');
       return Promise.resolve();
     }
     // global m_netsocket is not defined on server, since packets arrive on multiple sockets
-    if (!socket) throw Error('QueueTransaction(sock) requires a valid socket');
+    if (!socket) throw Error('PromiseTransaction(sock) requires a valid socket');
     // save our current UADDR
     this.seqlog.push(NetMessage.UADDR);
     let dbg = DBG.transact && !this.IsServerMessage();
@@ -358,7 +360,7 @@ class NetMessage {
       } else {
         // save the resolve function in transactions table;
         // promise will resolve on remote invocation with data
-        m_transactions[hash] = function(data) {
+        m_transactions[hash] = data => {
           if (dbg) {
             console.log(PR, 'resolving promise with', JSON.stringify(data));
           }
@@ -378,7 +380,7 @@ class NetMessage {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** NetMessage.IsRequest() returns true if this is a packet that is being sent
+  /** NetMessage.IsRequest() returns true if this packet is one being sent
    * to a remote handler
    */
   IsRequest() {
@@ -386,11 +388,14 @@ class NetMessage {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** NetMessage.IsOwnResponse() returns true if this is a packet being returned
-   * by a remote handler
+  /** NetMessage.IsResponse() returns true if this is a packet
+   * being returned from a remote handler
+   * @returns {boolean} true if this is a transaction response
    */
-  IsOwnResponse() {
+  IsResponse() {
     return this.rmode === 'res';
+    // more bulletproof check, but unnecessary
+    // return this.rmove ==='res' && this.SourceAddress() === NetMessage.UADDR;
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -423,7 +428,7 @@ class NetMessage {
   /** NetMessage.CompleteTransaction() is called when a packet is received back
    * from the remote handler. At this point, the original caller needs to be
    * informed via the saved function handler created in
-   * NetMessage.QueueTransaction().
+   * NetMessage.PromiseTransaction().
    */
   CompleteTransaction() {
     let dbg = DBG.transact && !this.IsServerMessage();
@@ -464,6 +469,7 @@ NetMessage.GlobalSetup = (config = {}) => {
     m_mode = M_ONLINE;
   }
 };
+NetMessage.UADDR = 'UNASSIGNED';
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** NetMessage.GlobalCleanup() is a static method called only by the client,
@@ -544,7 +550,7 @@ function m_SeqIncrement(pkt) {
 }
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Utility to create a unique hash key from packet information. Used by
- * QueueTransaction().
+ * PromiseTransaction().
  * @param {NetMessage} pkt - packet to use
  * @return {string} hash key string
  */

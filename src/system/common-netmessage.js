@@ -14,9 +14,20 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const M_INIT = 'init';
+const M_ONLINE = 'online';
+const M_STANDALONE = 'offline';
+const M_CLOSED = 'closed';
+const M_ERROR = 'error';
+
 /// DEBUG MESSAGES ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = { send: false, transact: false };
+
+const PROMPTS = require('./util/prompts');
+const PR = PROMPTS.Pad('PKT');
 const ERR = ':ERR:';
 const ERR_NOT_NETMESG = `${ERR + PR}obj does not seem to be a NetMessage`;
 const ERR_BAD_PROP = `${ERR + PR}property argument must be a string`;
@@ -27,19 +38,6 @@ const ERR_NO_GLOB_UADDR = `${ERR + PR}packet sending attempted before UADDR is s
 const ERR_UNKNOWN_TYPE = `${ERR + PR}packet type is unknown:`;
 const ERR_NOT_PACKET = `${ERR + PR}passed object is not a NetMessage`;
 const ERR_UNKNOWN_RMODE = `${ERR + PR}packet routine mode is unknown:`;
-
-/// LIBRARIES /////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const PROMPTS = require('./util/prompts');
-
-/// CONSTANTS /////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const M_INIT = 'init';
-const M_ONLINE = 'online';
-const M_STANDALONE = 'offline';
-const M_CLOSED = 'closed';
-const M_ERROR = 'error';
-const PR = PROMPTS.Pad('PKT');
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -509,9 +507,8 @@ NetMessage.SocketUADDR = () => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** NetMessage.DefaultServerUADDR() is a static method returning a hardcoded
- * URSYS browser address referring to the URSYS server. It is used only in
- * browser code. In the future, this will be provided via the initial network
- * conection.
+ * URSYS address referring to the URSYS server. It is used by the server-side
+ * code to set the server address, and the browser can rely on it as well.
  * @returns {string} URSYS address of the server
  */
 NetMessage.DefaultServerUADDR = () => {

@@ -10,9 +10,16 @@
     "[json]": {
       "editor.formatOnSave": true
     },
+    "[javascriptreact]": {
+      "editor.formatOnSave": true
+    },
+    "[javascript]": {
+      "editor.formatOnSave": true
+    },
     "typescript.suggest.completeJSDocs": false,
     "typescript.validate.enable": false,
     "typescript.surveys.enabled": false,
+    "typescript.autoClosingTags": false,
     "workbench.colorCustomizations": {},
     "search.exclude": {
       "**/node_modules": true,
@@ -20,8 +27,6 @@
       "**/dist": true,
       "**/built": true,
       "**/runtime": true
-    },
-    "editor.formatOnSave": true,
-    "typescript.autoClosingTags": false
+    }
   }
 }

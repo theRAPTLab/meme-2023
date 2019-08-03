@@ -1,0 +1,27 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "prettier.eslintIntegration": true,
+    "prettier.arrowParens": "always",
+    "[json]": {
+      "editor.formatOnSave": true
+    },
+    "typescript.suggest.completeJSDocs": false,
+    "typescript.validate.enable": false,
+    "typescript.surveys.enabled": false,
+    "workbench.colorCustomizations": {},
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/bower_components": true,
+      "**/dist": true,
+      "**/built": true,
+      "**/runtime": true
+    },
+    "editor.formatOnSave": true,
+    "typescript.autoClosingTags": false
+  }
+}

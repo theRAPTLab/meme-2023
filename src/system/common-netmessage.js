@@ -458,11 +458,11 @@ class NetMessage {
  * @param {Object} [config.uaddr] - URSYS browser address
  */
 NetMessage.GlobalSetup = (config = {}) => {
-  let { netsocket, uaddr } = config;
+  let { uaddr, netsocket } = config;
   if (uaddr) NetMessage.UADDR = uaddr;
-  // NOTE: m_netsocket is set only on clients since on server, there are
-  // multiple sockets
   if (netsocket) {
+    // NOTE: m_netsocket is set only on clients since on server, there are
+    // multiple sockets
     if (typeof netsocket.send !== 'function') throw ERR_BAD_SOCKET;
     console.log(PR, 'GlobalSetup: netsocket set, mode online');
     m_netsocket = netsocket;

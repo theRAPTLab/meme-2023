@@ -772,7 +772,7 @@ ViewMain.UMOD = __dirname;
 UR.EXEC.Hook(
   'INITIALIZE',
   () => {
-    console.log('ViewMain Init');
+    console.log(`ViewMain UR.EXEC.Hook('INITIALIZE')`);
   },
   __dirname
 );

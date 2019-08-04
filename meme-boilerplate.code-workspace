@@ -5,6 +5,7 @@
     }
   ],
   "settings": {
+    "editor.formatOnSave": true,
     "prettier.eslintIntegration": true,
     "prettier.arrowParens": "always",
     "[json]": {
@@ -26,7 +27,8 @@
       "**/bower_components": true,
       "**/dist": true,
       "**/built": true,
-      "**/runtime": true
+      "**/runtime": true,
+      "**/.vscode": true
     }
   }
 }

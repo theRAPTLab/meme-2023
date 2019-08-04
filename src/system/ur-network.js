@@ -72,7 +72,7 @@ NETWORK.Connect = (datalink, opt) => {
   m_status = M1_CONNECTING;
 
   // check and save parms
-  if (datalink.constructor.name !== 'UnisysDataLink') {
+  if (datalink.constructor.name !== 'URDataLink') {
     throw Error(ERR_BAD_UDATA);
   }
   if (!UDATA) UDATA = datalink;

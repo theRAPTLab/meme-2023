@@ -142,7 +142,7 @@ function f_PackageApp() {
     'npx electron-packager . meme --out ../dist --overwrite --app-bundle-id com.davidseah.inquirium.meme',
     { silent: true }
   );
-  u_checkError(res);
+  // u_checkError(res); // electron-packager stupidly emits status to stderr
   console.log(PR, `electron app written to ${CY}dist/meme-darwin-x64$/meme.app${TR}`);
   console.log(PR, `NOTE: default macos security requires ${CR}code signing${TR} to run app.`);
   console.log(PR, `use ${CY}npm run appsign${TR} to use default developer id (if installed)\n`);

@@ -41,25 +41,17 @@ class ViewBasic extends React.Component {
     super(props);
     UR.ReloadOnViewChange();
     this.cstrName = this.constructor.name;
-    // SERVER messages are accessible after JoinNet
-    NETTEST.Reflect();
-    // define message handlers, which are
-    // autoregistered after componentDidMount
-    NETTEST.DefineHandlers();
+    NETTEST.DoConstructionTests();
   }
 
   componentDidMount() {
     console.log(`<${this.cstrName}> mounted`);
-    // this is available
-    NETTEST.LocalCall();
-    // these are not network available yet
-    // unless another instance was already running
-    NETTEST.NetCall();
+    NETTEST.DoMountTests();
   }
 
   render() {
     const { classes } = this.props;
-
+    NETTEST.DoRenderTests();
     return (
       <div className={classes.root}>
         <Grid container spacing={2}>

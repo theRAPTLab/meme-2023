@@ -21,7 +21,7 @@ function DefineHandlers() {
   });
 }
 
-function Reflect() {
+function ServerReflect() {
   UDATA.Call('SRV_REFLECT', { stack: ['me'] }).then(data => {
     console.log(`%c${UDATA.Name()}.Reflect() got`, cssur, data);
   });
@@ -45,6 +45,30 @@ function NetCall() {
   });
 }
 
+function GetDB() {
+  UDATA.NetCall('SRV_DBGET', {}).then(data => {
+    console.log(data);
+  });
+}
+
+function DoConstructionTests() {
+  ServerReflect();
+  // define message handlers, which are
+  // autoregistered after componentDidMount
+  DefineHandlers();
+}
+
+function DoMountTests() {
+  LocalCall();
+  // these are not network available yet
+  // unless another instance was already running
+  NetCall();
+  //
+  GetDB();
+}
+
+function DoRenderTests() {}
+
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default { Reflect, LocalCall, NetCall, UndefinedCall, DefineHandlers };
+export default { DoConstructionTests, DoMountTests, DoRenderTests };

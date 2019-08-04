@@ -72,6 +72,13 @@ switch (param1) {
     console.log(`${PR}\n- ${P_ERR} unknown command '${param1}'\n`);
 }
 
+function u_checkError(execResults) {
+  if (!execResults.stderr) return;
+  console.log(`${CR}*** ERROR IN MEME EXEC ***${TR}`);
+  console.log(execResults.stderr);
+  process.exit(0);
+}
+
 function f_RunDevServer() {
   //    "dev": "echo '\n*** USING WEBPACK HOT DEV SERVER' && webpack-dev-server  --mode development --inline --hot --host 0.0.0.0 --config=./src/config/webpack.webapp.config.js --env.HMR_MODE='wds'",
   console.log(`\n`);
@@ -105,12 +112,12 @@ function f_RunElectron() {
   console.log(`\n`);
   console.log(PR, `running ${CY}Electron Host with Live Reload${TR}`);
   console.log(PR, `compiling electron renderprocess files with webpack.console.config`);
-  shell.exec(
+  let res = shell.exec(
     // note: to pass an enviroment setting to the webpack config script, add --env.MYSETTING='value'
     `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.console.config.js`,
     { silent: true }
   );
-  console.log(PR, `launching electron binary host through console-main.js...\n`);
+  u_checkError(res);
   shell.exec(`npx electron ./built/console/console-main`);
 }
 
@@ -121,19 +128,21 @@ function f_PackageApp() {
   shell.rm('-rf', './dist', './built');
   console.log(PR, `compiling console, web, system files into ./built`);
 
-  shell.exec(
+  let res = shell.exec(
     // note: to pass an enviroment setting to the webpack config script, add --env.MYSETTING='value'
     `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.dist.config.js`,
     { silent: true }
   );
+  u_checkError(res);
   console.log(PR, `installing node dependencies into ./built`);
   shell.cd('built');
   shell.exec('npm install', { silent: true });
   console.log(PR, `using electron-packager to write 'meme.app' to ./dist`);
-  shell.exec(
+  res = shell.exec(
     'npx electron-packager . meme --out ../dist --overwrite --app-bundle-id com.davidseah.inquirium.meme',
     { silent: true }
   );
+  u_checkError(res);
   console.log(PR, `electron app written to ${CY}dist/meme-darwin-x64$/meme.app${TR}`);
   console.log(PR, `NOTE: default macos security requires ${CR}code signing${TR} to run app.`);
   console.log(PR, `use ${CY}npm run appsign${TR} to use default developer id (if installed)\n`);

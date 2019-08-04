@@ -24,6 +24,9 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
+/** implements endpoints for talking to the URSYS network
+ * @module URDataLink
+ */
 /// DEBUGGING /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = { send: false, return: false, register: false };
@@ -54,12 +57,13 @@ let MESSAGER = new Messager();
 
 /// UNISYS NODE CLASS /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ Instances of this class can register/unregister message handlers and also
+/** Instances of this class can register/unregister message handlers and also
     send messages. Constructor receives an owner, which is inspected for
     properties to determine how to classify the created messager for debugging
     purposes
-/*/
-class UnisysDataLink {
+    @memberof URDataLink
+*/
+class URDataLink {
   /** constructor
    * @param {object} owner the class instance or code module object
    * @param {string} owner.name code module name set manually
@@ -293,12 +297,12 @@ class UnisysDataLink {
     }
     if (messages.length) {
       try {
-        messages = UnisysDataLink.ValidateMessageNames(messages);
+        messages = URDataLink.ValidateMessageNames(messages);
       } catch (e) {
         console.error(e);
       }
     } else {
-      messages = UnisysDataLink.MessageNames();
+      messages = URDataLink.MessageNames();
     }
     return this.Call('SRV_REG_HANDLERS', { messages });
   }
@@ -308,13 +312,13 @@ class UnisysDataLink {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ There's a single MESSAGER object that handles all registered messages for
     UNISYS.
-/*/ UnisysDataLink.MessageNames = function() {
+/*/ URDataLink.MessageNames = function() {
   return MESSAGER.MessageNames();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Filter any bad messages from the passed array of strings
 /*/
-UnisysDataLink.ValidateMessageNames = function(msgs = []) {
+URDataLink.ValidateMessageNames = function(msgs = []) {
   let valid = [];
   msgs.forEach(name => {
     if (MESSAGER.HasMessageName(name)) valid.push(name);
@@ -325,4 +329,4 @@ UnisysDataLink.ValidateMessageNames = function(msgs = []) {
 
 /// EXPORT CLASS DEFINITION ///////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-module.exports = UnisysDataLink;
+module.exports = URDataLink;

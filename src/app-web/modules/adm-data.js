@@ -29,7 +29,7 @@ let adm_db = {
 }; // server database object by reference
 let adm_settings = {}; // local settings, state of the admin view (current displayed class/teacher)
 
-UR.DB_Subscribe = () => { }; // FIXME: Cover for now. Remove when implemented.
+UR.DB_Subscribe = () => {}; // FIXME: Cover for now. Remove when implemented.
 UR.DB_Subscribe('ADMIN:UPDATED', ADMData.AdmDataUpdated); // active
 ADMData.AdmDataUpdated = data => {
   adm_db = data.adm_db;
@@ -53,7 +53,7 @@ sync. However, it should implement a UR.Message-style REACTIVE RENDER:
 
 TODO:
 o Resources LIst into ADMDATA here.
-o How to represent 
+o How to represent
 o A "stickynote" is a container for comments, "linked" to a PMC element
 
 /*/
@@ -77,7 +77,7 @@ ADMData.Load = () => {
     { id: 'gr02', name: 'Green', students: ['Ginger', 'Gail', 'Greg'], classroomId: 'cl01' },
     { id: 'gr03', name: 'Red', students: ['Rob', 'Reese', 'Randy'], classroomId: 'cl01' },
     { id: 'gr04', name: 'Purple', students: ['Peter', 'Paul', 'Penelope'], classroomId: 'cl01' },
-    { id: 'gr05', name: 'Mackerel', students: ['Mary', 'Mavis', 'Maddy'], classroomId: 'cl02' },
+    { id: 'gr05', name: 'Mackerel', students: ['Mary', 'Mavis', 'Maddy'], classroomId: 'cl02' }
   ];
   // LIST SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS AND STUDENTS
   // ids here are relevant to PMCData / SVGView operation
@@ -130,13 +130,13 @@ ADMData.Load = () => {
     { classroomId: 'cl04', resources: ['rs6', 'rs7'] }
   ];
 
-  /**
+  /*/
    *    Resources
    *
    *    Currently resources use a placeholder screenshot as the default image.
    *    (Screenshot-creation and saving have not been implemented yet).
    *
-   */
+  /*/
   adm_db.a_resources = [
     {
       rsrcId: 'rs1',
@@ -150,7 +150,7 @@ ADMData.Load = () => {
     {
       rsrcId: 'rs2',
       referenceLabel: '2',
-      label: 'Raj\'s forum post.',
+      label: "Raj's forum post.",
       notes: 'Forum post about fish deaths',
       type: 'report',
       url: '../static/dlc/RajForumPost.pdf',
@@ -227,7 +227,8 @@ ADMData.Load = () => {
     // components is a 'component' or a 'property' (if it has a parent)
     properties: [
       {
-        id: 'tank', name: 'tank',
+        id: 'tank',
+        name: 'tank',
         comments: [
           {
             id: 0,
@@ -259,7 +260,8 @@ ADMData.Load = () => {
         ]
       },
       {
-        id: 'fish', name: 'fish',
+        id: 'fish',
+        name: 'fish',
         comments: [
           {
             id: 0,
@@ -292,7 +294,11 @@ ADMData.Load = () => {
     ],
     evidence: [
       {
-        evId: 'ev1', propId: 'fish', mechId: undefined, rsrcId: 'rs1', note: 'fish need food',
+        evId: 'ev1',
+        propId: 'fish',
+        mechId: undefined,
+        rsrcId: 'rs1',
+        note: 'fish need food',
         comments: [
           {
             id: 0,
@@ -505,12 +511,12 @@ ADMData.AddStudents = (groupId, students) => {
   // Update the group
   let group = ADMData.GetGroup(groupId);
   if (group === undefined) {
-    console.error(PKG,'AddStudent could not find group', groupId);
+    console.error(PKG, 'AddStudent could not find group', groupId);
     return;
   }
   studentsArr.map(student => {
     if (student === undefined || student === '') {
-      console.error(PKG,'AddStudent adding blank student', groupId);
+      console.error(PKG, 'AddStudent adding blank student', groupId);
       return;
     }
     group.students.push(student);
@@ -524,12 +530,12 @@ ADMData.DeleteStudent = (groupId, student) => {
   // Get the group
   const group = ADMData.GetGroup(groupId);
   if (group === undefined) {
-    console.error(PKG,'AddStudent could not find group', groupId);
+    console.error(PKG, 'AddStudent could not find group', groupId);
     return;
   }
   const students = group.students;
   if (students === undefined) {
-    console.error(PKG,'AddStudent could not find any students in group', groupId);
+    console.error(PKG, 'AddStudent could not find any students in group', groupId);
     return;
   }
   // Remove the student
@@ -650,10 +656,10 @@ ADMData.CloseModel = () => {
  *  NewCriteria
  *  1. Creates a new empty criteria object with a unqiue ID.
  *  2. Returns the criteria object.
- * 
+ *
  *  Calling `NewCriteria()` will automatically use the currently
  *  selectedClassssroomId as the classroomId.
- * 
+ *
  *  Call `NewCriteria('xxId')` to set the classroomId manually.
  */
 ADMData.NewCriteria = (classroomId = adm_settings.selectedClassroomId) => {

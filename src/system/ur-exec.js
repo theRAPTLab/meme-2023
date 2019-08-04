@@ -2,6 +2,9 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
+/**
+ * @module URExec
+ */
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import { Dirname } from './util/path';
@@ -158,7 +161,7 @@ const Execute = async phase => {
 /**
  * Called during SystemInit to determine what the dynamic path is
  * by matching
- *
+ * @memberof URExec
  * @param {Object[]} routes list of route objects
  * @param {String} routes[].path the /path to match
  * @param {Object} routes[].component the loaded view

@@ -453,6 +453,7 @@ class NetMessage {
  * If no netsocket property is defined, then NetMessage instances will surpress
  * sending of network messages while allowing local messages to work normally.
  * See NetMessage.GlobalOfflineMode() for more information.
+ * @function
  * @param {Object} [config] - configuration object
  * @param {Object} [config.netsocket] - valid websocket to URSYS server
  * @param {Object} [config.uaddr] - URSYS browser address
@@ -476,6 +477,7 @@ NetMessage.UADDR = 'UNASSIGNED';
  * which drops the current socket and puts the app in 'closed' state. In
  * practice this call doesn't accomplish much, but is here for symmetry to
  * GlobalSetup().
+ * @function
  */
 NetMessage.GlobalCleanup = () => {
   if (m_netsocket) {
@@ -490,6 +492,7 @@ NetMessage.GlobalCleanup = () => {
  * actively suppresses remote network communication without throwing errors.
  * It's used for static code snapshots of the webapp that don't need the
  * network.
+ * @function
  */
 NetMessage.GlobalOfflineMode = () => {
   m_mode = M_STANDALONE;
@@ -505,6 +508,7 @@ NetMessage.GlobalOfflineMode = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** NetMessage.SocketUADDR() is a static method returning the class-wide setting
  * of the browser UADDR. This is only used on browser code.
+ * @function
  * @returns {string} URSYS address of the current browser, a URSYS address
  */
 NetMessage.SocketUADDR = () => {
@@ -515,6 +519,7 @@ NetMessage.SocketUADDR = () => {
 /** NetMessage.DefaultServerUADDR() is a static method returning a hardcoded
  * URSYS address referring to the URSYS server. It is used by the server-side
  * code to set the server address, and the browser can rely on it as well.
+ * @function
  * @returns {string} URSYS address of the server
  */
 NetMessage.DefaultServerUADDR = () => {
@@ -524,6 +529,7 @@ NetMessage.DefaultServerUADDR = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** NetMessage.GlobalGroupID() is a static method returning the session key
  * (aka group-id) set for this browser instance
+ * @function
  * @returns {string} session key
  */
 NetMessage.GlobalGroupID = () => {
@@ -533,6 +539,7 @@ NetMessage.GlobalGroupID = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** NetMessage.GlobalSetGroupID() is a static method that stores the passed
  * token as the GroupID
+ * @function
  * @param {string} token - special session key data
  */
 NetMessage.GlobalSetGroupID = token => {
@@ -541,29 +548,29 @@ NetMessage.GlobalSetGroupID = token => {
 
 /// PRIVATE CLASS HELPERS /////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** DEPRECATE? Utility function to increment the packet's sequence number
- * @param {NetMessage} pkt - packet to modify
- */
+/*/ DEPRECATE? Utility function to increment the packet's sequence number
+ *  @param {NetMessage} pkt - packet to modify
+/*/
 function m_SeqIncrement(pkt) {
   pkt.seqnum++;
   return pkt;
 }
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** Utility to create a unique hash key from packet information. Used by
- * PromiseTransaction().
- * @param {NetMessage} pkt - packet to use
- * @return {string} hash key string
- */
+/*/ Utility to create a unique hash key from packet information. Used by
+ *  PromiseTransaction().
+ *  @param {NetMessage} pkt - packet to use
+ *  @return {string} hash key string
+/*/
 function m_GetHashKey(pkt) {
   let hash = `${pkt.SourceAddress()}:${pkt.id}`;
   return hash;
 }
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** Utility to ensure that the passed type is one of the allowed packet types.
- * Throws an error if it is not.
- * @param {string} type - a string to be matched against PACKET_TYPES
- * @returns {string} the string that passed the type check
- */
+/*/ Utility to ensure that the passed type is one of the allowed packet types.
+ *  Throws an error if it is not.
+ *  @param {string} type - a string to be matched against PACKET_TYPES
+ *  @returns {string} the string that passed the type check
+/*/
 function m_CheckType(type) {
   if (type === undefined) {
     throw new Error(`must pass a type string, not ${type}`);
@@ -572,13 +579,11 @@ function m_CheckType(type) {
   return type;
 }
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ is this an allowed mode? throw error if not
+/*/ Utility to ensure the passed transaction mode is one of the allowed
+ *  types. Throws an error if it is not.
+ *  @param {string} mode - a string to be matched against TRANSACTION_MODE
+ *  @returns {string} the string the passed the mode check
 /*/
-/** Utility to ensure the passed transaction mode is one of the allowed
- * types. Throws an error if it is not.
- * @param {string} mode - a string to be matched against TRANSACTION_MODE
- * @returns {string} the string the passed the mode check
- */
 function m_CheckRMode(mode) {
   if (mode === undefined) {
     throw new Error(`must pass a mode string, not ${mode}`);

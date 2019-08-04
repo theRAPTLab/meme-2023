@@ -41,7 +41,9 @@ const PKG = 'EvidenceLink:';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+/**
+ * @class
+ */
 class EvidenceLink extends React.Component {
   constructor(props) {
     super(props);
@@ -75,7 +77,7 @@ class EvidenceLink extends React.Component {
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
   }
 
-  componentDidMount() { }
+  componentDidMount() {}
 
   componentWillUnmount() {
     UR.Unsub('DATA_UPDATED', this.HandleDataUpdate);
@@ -388,7 +390,7 @@ class EvidenceLink extends React.Component {
                 <RatingButton
                   rating={rating}
                   isExpanded={isExpanded}
-                  ratingLabel=''
+                  ratingLabel=""
                   UpdateRating={this.HandleRatingUpdate}
                 />
               </Grid>

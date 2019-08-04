@@ -19,7 +19,7 @@ const EXPRESS = require('./server-express');
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PROMPTS = require('./util/prompts');
 //
-const { TERM_URSYS: CS, CR } = PROMPTS;
+const { TERM_URSYS: CS, CCRIT: CC, CR } = PROMPTS;
 const PR = `${CS}${PROMPTS.Pad('URSYS')}${CR}`;
 const SERVER_INFO = {
   main: `http://localhost:3000`,
@@ -116,15 +116,21 @@ URSYS.StartWebServer = callback => {
   // returns an optional promise hook
   console.log(`${CS}STARTING UR WEB SERVER${CR}`);
   (async () => {
-    await EXPRESS.Start();
-    let out = `\n---\n`;
-    out += `${CS}SYSTEM INITIALIZATION COMPLETE${CR}\n`;
-    out += `GO TO ONE OF THESE URLS in CHROME WEB BROWSER\n`;
-    out += `MAINAPP - http://localhost:3000\n`;
-    out += `CLIENTS - http://${ip.address()}:3000\n`;
-    out += `---\n`;
-    if (typeof callback === 'function') callback(out);
-    console.log(out);
+    try {
+      await EXPRESS.Start();
+      let out = `\n---\n`;
+      out += `${CS}SYSTEM INITIALIZATION COMPLETE${CR}\n`;
+      out += `GO TO ONE OF THESE URLS in CHROME WEB BROWSER\n`;
+      out += `MAINAPP - ${SERVER_INFO.main}\n`;
+      out += `CLIENTS - ${SERVER_INFO.client}\n`;
+      out += `---\n`;
+      if (typeof callback === 'function') callback(out);
+      console.log(out);
+    } catch (err) {
+      console.log(PR, `${CC}${err}${CR}`);
+      console.log(PR, `... exiting with errors\n`);
+      process.exit(0);
+    }
   })();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

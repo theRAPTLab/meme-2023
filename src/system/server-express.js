@@ -80,19 +80,37 @@ function Start() {
           console.log(PR, `SERVING '${DOCROOT}'`);
           console.log(PR, `LIVE RELOAD ENABLED`);
         });
-      } else {
-        console.log(PR, `RECOMPILED SOURCE CODE and RELOADING `);
       }
     });
+
     // return promise when server starts
     promise = new Promise((resolve, reject) => {
-      const TIMEOUT = 10 * 1000; // milliseconds
-      setTimeout(() => {
-        reject(Error('failure to compile timeout'));
-        reject();
-      }, TIMEOUT);
+      let INTERVAL_COUNT = 0;
+      const INTERVAL_MAX = 15;
+      let COMPILE_RESOLVED = false;
+      const INTERVAL_PERIOD = 2000;
+      const COMPILE_TIME = Math.floor((INTERVAL_MAX * INTERVAL_PERIOD) / 1000);
+      // start compile status update timer
+      let INTERVAL = setInterval(() => {
+        if (++INTERVAL_COUNT < INTERVAL_MAX) {
+          console.log(PR, `... webpack compiling`);
+        } else {
+          clearInterval(INTERVAL);
+          const emsg = `webpack compile time > INTERVAL_MAX (${COMPILE_TIME} seconds)`;
+          const err = new Error(emsg);
+          reject(err);
+        }
+      }, INTERVAL_PERIOD);
+      // set resolver
       compiler.hooks.afterCompile.tap('ResolvePromise', () => {
-        resolve();
+        if (!COMPILE_RESOLVED) {
+          console.log(PR, `... webpack done`);
+          clearInterval(INTERVAL);
+            resolve();
+          COMPILE_RESOLVED = true;
+        } else {
+          console.log(PR, `RECOMPILED SOURCE CODE and RELOADING`);
+        }
       });
     });
   }

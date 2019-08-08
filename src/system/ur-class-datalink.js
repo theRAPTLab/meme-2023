@@ -1,7 +1,11 @@
 /* eslint-disable func-names */
 /* eslint-disable no-param-reassign */
-if (window.NC_DBG) console.log(`inc ${module.id}`);
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
+
+    ** TEMPORARY PORT **
+    using this as-is within URSYS until figure out best way to combine
+
+    - - -
 
     UNISYS DATALINK CLASS
 
@@ -20,6 +24,9 @@ if (window.NC_DBG) console.log(`inc ${module.id}`);
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
+/** implements endpoints for talking to the URSYS network
+ * @module URDataLink
+ */
 /// DEBUGGING /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = { send: false, return: false, register: false };
@@ -32,8 +39,12 @@ const PR = 'UDATA:';
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// const STATE = require('unisys/client-state');
+// NOTE: This module uses the COMMONJS module format for compatibility
+// between node and browser-side Javascript.
 const Messager = require('./common-messager');
+const URNET = require('./ur-network').default; // workaround for require
+
+// const STATE = require('unisys/client-state');
 
 /// NODE MANAGEMENT ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -46,21 +57,20 @@ let MESSAGER = new Messager();
 
 /// UNISYS NODE CLASS /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ Instances of this class can register/unregister message handlers and also
+/** Instances of this class can register/unregister message handlers and also
     send messages. Constructor receives an owner, which is inspected for
     properties to determine how to classify the created messager for debugging
     purposes
-/*/
-class UnisysDataLink {
-  /*/ CONSTRUCTOR
-      A messager creates a unique ID within the webapp instance. Since
-      messagers are "owned" by an object, we want the ID to reflect
-      the owner's identity too while also allowing multiple instances per
-      owner.
-  /*/ constructor(
-    owner,
-    optName
-  ) {
+    @memberof URDataLink
+*/
+class URDataLink {
+  /** constructor
+   * @param {object} owner the class instance or code module object
+   * @param {string} owner.name code module name set manually
+   * @param {string} [owner.constructor.name] for classes
+   * @param {string} optName optional name to use instead owner.name or owner.constructor.name
+   */
+  constructor(owner, optName) {
     let msgr_type = '?TYPE';
     let msgr_name = '?NAME';
 
@@ -82,6 +92,13 @@ class UnisysDataLink {
       throw Error(BAD_OWNER);
     }
 
+    /*/
+      A messager creates a unique ID within the webapp instance. Since
+      messagers are "owned" by an object, we want the ID to reflect
+      the owner's identity too while also allowing multiple instances per
+      owner.
+    /*/
+
     // generate and save unique id
     this.uid = `${msgr_type}_${UNODE_COUNTER++}`;
     this.name = msgr_name;
@@ -100,6 +117,10 @@ class UnisysDataLink {
 
   Name() {
     return this.name;
+  }
+
+  UADDR() {
+    return URNET.SocketUADDR();
   }
 
   /// GLOBAL STATE ACCESS
@@ -267,19 +288,37 @@ class UnisysDataLink {
   NullCallback() {
     if (DBG.send) console.log(`${this.uid}_${PR}`, 'null_callback', this.UID());
   }
+
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  PromiseRegisterMessages(messages = []) {
+    if (URNET.IsStandaloneMode()) {
+      console.warn(PR, 'STANDALONE MODE: RegisterMessagesPromise() suppressed!');
+      return Promise.resolve();
+    }
+    if (messages.length) {
+      try {
+        messages = URDataLink.ValidateMessageNames(messages);
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      messages = URDataLink.MessageNames();
+    }
+    return this.Call('SRV_REG_HANDLERS', { messages });
+  }
 } // class UnisysNode
 
 /// STATIC CLASS METHODS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ There's a single MESSAGER object that handles all registered messages for
     UNISYS.
-/*/ UnisysDataLink.MessageNames = function() {
+/*/ URDataLink.MessageNames = function() {
   return MESSAGER.MessageNames();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Filter any bad messages from the passed array of strings
 /*/
-UnisysDataLink.ValidateMessageNames = function(msgs = []) {
+URDataLink.ValidateMessageNames = function(msgs = []) {
   let valid = [];
   msgs.forEach(name => {
     if (MESSAGER.HasMessageName(name)) valid.push(name);
@@ -290,4 +329,4 @@ UnisysDataLink.ValidateMessageNames = function(msgs = []) {
 
 /// EXPORT CLASS DEFINITION ///////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-module.exports = UnisysDataLink;
+module.exports = URDataLink;

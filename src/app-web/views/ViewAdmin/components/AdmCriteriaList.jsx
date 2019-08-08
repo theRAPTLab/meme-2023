@@ -22,8 +22,8 @@ import { withStyles } from '@material-ui/core/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import MEMEStyles from '../../components/MEMEStyles';
-import UR from '../../../system/ursys';
+import MEMEStyles from '../../../components/MEMEStyles';
+import UR from '../../../../system/ursys';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

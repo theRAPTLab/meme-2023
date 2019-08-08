@@ -1,6 +1,6 @@
-import { grey, indigo, orange, red, teal, yellow } from "@material-ui/core/colors";
-import { registerMorphableType } from "@svgdotjs/svg.js/src/main";
-import { Hidden } from "@material-ui/core";
+import { grey, indigo, orange, red, teal, yellow } from '@material-ui/core/colors';
+import { registerMorphableType } from '@svgdotjs/svg.js/src/main';
+import { Hidden } from '@material-ui/core';
 
 const m_drawerWidth = 100;
 const m_edgeDialogWidth = 750;
@@ -100,7 +100,7 @@ const styles = theme => {
     informationList: {
       width: m_resourceListWidth,
       backgroundColor: teal[50],
-      zIndex: 1250  // above drawer, below modal
+      zIndex: 1250 // above drawer, below modal
     },
     resourceListLabel: {
       fontSize: '0.8em',
@@ -186,7 +186,7 @@ const styles = theme => {
       width: '40px',
       minWidth: '40px',
       height: '50px',
-      padding: '0',
+      padding: '0'
     },
     resourceViewNote: {
       width: '100%',
@@ -304,7 +304,7 @@ const styles = theme => {
     },
     evidenceLinkSourceAvatarWaiting: {
       padding: '0 7px',
-      color: red['A700'],
+      color: red.A700,
       backgroundColor: red[100]
     },
     evidenceLinkSelectButton: {

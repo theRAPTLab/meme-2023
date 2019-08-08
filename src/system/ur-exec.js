@@ -2,11 +2,15 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
+/**
+ * @module URExec
+ */
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import { Dirname } from './util/path';
 import URNET from './ur-network';
 import DataLink from './ur-class-datalink';
+import { cssuri } from '../app-web/modules/console-styles';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -19,49 +23,61 @@ const PHASES = [
   'DOM_READY', // when viewsystem has completely composed
   'RESET', // reset runtime data structures
   'START', // start normal execution run
-  'APP_READY', // synchronize to UNISYS network server
+  'REG_MESSAGE', // last chance to register a network message
+  'APP_READY', // app connected to UNISYS network server
   'RUN', // system starts running
   'UPDATE', // system is running (periodic call w/ time)
   'PREPAUSE', // system wants to pause run
   'PAUSE', // system has paused (periodic call w/ time)
   'POSTPAUSE', // system wants to resume running
   'STOP', // system wants to stop current run
-  'DISCONNECT', // unisys server has gone offline
-  'RECONNECT', // unisys server has reconnected
+  'DISCONNECT', // ursys server has gone offline
+  'RECONNECT', // ursys server has reconnected
   'UNLOADASSETS', // system releases any connections
   'SHUTDOWN' // system wants to shut down
 ];
 
 const DBG = false;
-const MOD = { name: 'LifeCycle', scope: 'system/booting' };
 const BAD_PATH = "module_path must be a string derived from the module's module.id";
-const URDATA = new DataLink(module);
-let PHASE;
+const UDATA = new DataLink(module);
+
+let EXEC_PHASE; // current execution phase (the name of the phase)
+let EXEC_SCOPE; // current execution scope (the path of active view)
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ UTILITY: compare the destination scope with the acceptable scope (the
-    module.id of the root JSX component in a view). Any module not in the
-    system directory will not get called
+/*/ UTILITY: compare the destination scope with the acceptable scope.
+    if the scope starts with view, check it. otherwise just run it.
 /*/
 function m_ExecuteScopedPhase(phase, o) {
-  // check for special unisys or system directory
-  if (o.scope.indexOf('system') === 0) return o.f();
-  if (o.scope.indexOf('unisys') === 0) return o.f();
-  // check for subdirectory
-  if (o.scope.includes(MOD.scope, 0)) return o.f();
-  // else do nothing
-  if (DBG)
-    console.info(`LIFECYCLE: skipping [${phase}] for ${o.scope} because scope is ${MOD.scope}`);
-  return undefined;
+  // handle 'view' directory specially
+  if (o.scope.indexOf('view') === 0) {
+    // if it's the current scope, run it!
+    if (o.scope.includes(EXEC_SCOPE, 0)) return o.f();
+    // otherwise don't run it
+    if (DBG)
+      console.info(`EXEC: skipping [${phase}] for ${o.scope} because scope is ${EXEC_SCOPE}`);
+    return undefined;
+  }
+  // if we got this far, then it's something not in the view path
+  return o.f();
 }
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*/ UTILITY: maintain current phase status (not used for anything currently)
+/*/
+function m_UpdateCurrentPhase(phase) {
+  EXEC_PHASE = phase;
+  if (DBG) console.log(`PHASE UPDATED ${EXEC_PHASE}`);
+}
+
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-/// LIFECYCLE METHODS /////////////////////////////////////////////////////////
+/// EXEC METHODS /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ API: register a Phase Handler which is invoked by MOD.Execute()
     phase is a string constant from PHASES array above
@@ -72,7 +88,7 @@ const Hook = (phase, f, scope) => {
   if (typeof scope !== 'string') throw Error(`<arg3> scope is required (set to module.id)`);
   // does this phase exist?
   if (typeof phase !== 'string') throw Error("<arg1> must be PHASENAME (e.g. 'LOADASSETS')");
-  if (!PHASES.includes(phase)) throw Error(phase, 'is not a recognized lifecycle phase');
+  if (!PHASES.includes(phase)) throw Error(phase, 'is not a recognized exec phase');
   // did we also get a promise?
   if (!(f instanceof Function))
     throw Error('<arg2> must be a function optionally returning Promise');
@@ -91,11 +107,11 @@ const Hook = (phase, f, scope) => {
 /*/
 const Execute = async phase => {
   // require scope to be set
-  if (MOD.scope === false)
-    throw Error(`UNISYS.SetScope() must be set to RootJSX View's module.id. Aborting.`);
+  if (EXEC_SCOPE === false)
+    throw Error(`UNISYS.SetScopePath() must be set to RootJSX View's module.id. Aborting.`);
 
   // note: contents of PHASE_HOOKs are promise-generating functions
-  if (!PHASES.includes(phase)) throw Error(`${phase} is not a recognized lifecycle phase`);
+  if (!PHASES.includes(phase)) throw Error(`${phase} is not a recognized EXEC phase`);
   let hooks = PHASE_HOOKS.get(phase);
   if (hooks === undefined) {
     if (DBG) console.log(`[${phase}] no subscribers`);
@@ -103,7 +119,7 @@ const Execute = async phase => {
   }
 
   // phase housekeeping
-  PHASE = `${phase}_PENDING`;
+  m_UpdateCurrentPhase(`${phase}_PENDING`);
 
   // now execute handlers and promises
   let icount = 0;
@@ -139,24 +155,61 @@ const Execute = async phase => {
     });
 
   // phase housekeeping
-  PHASE = phase;
+  m_UpdateCurrentPhase(phase);
 };
 
+/**
+ * Called during SystemInit to determine what the dynamic path is
+ * by matching
+ * @memberof URExec
+ * @param {Object[]} routes list of route objects
+ * @param {String} routes[].path the /path to match
+ * @param {Object} routes[].component the loaded view
+ * @returns true if scope was set successfully, false otherwise
+ */
+const SetScopeFromRoutes = routes => {
+  // get current hash, without trailing parameters and # char
+  let hashbits = window.location.hash.split('/');
+  const hash = hashbits[0].substring(1);
+  const loc = `/${hash}`;
+  const matches = routes.filter(route => {
+    return route.path === loc;
+  });
+  if (matches.length) {
+    const { component } = matches[0];
+    /*/
+    to set the scope, we need to have a unique name to set. this scope is probably
+    a directory. we can set the UMOD property using the __dirname config for webpack
+    /*/
+    if (component.UMOD === undefined)
+      console.log(`%cWARNING: root view '${loc}' has no UMOD property, so can not set URSYS scope`);
+    const viewpath = component.UMOD || 'boot';
+    SetScopePath(viewpath);
+  } else {
+    /*/
+    NO MATCHES
+    /*/
+    console.log(`%cSetScopeFromRoutes() no match for ${loc}`, cssuri);
+  }
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: The scope is used to filter lifecycle events within a particular
+/*/ API: The scope is used to filter EXEC events within a particular
     application path, which are defined under the view directory.
 /*/
-const SetScope = module_path => {
-  if (typeof module_path !== 'string') throw Error(BAD_PATH);
-  if (DBG) console.log(`setting lifecycle scope to ${module_path}`);
-  // strip out filename, if one exists
-  MOD.scope = Dirname(module_path);
+const SetScopePath = view_path => {
+  if (typeof view_path !== 'string') throw Error(BAD_PATH);
+  EXEC_SCOPE = view_path;
+  if (DBG) console.log(`SetScopePath() EXEC_SCOPE is now '${EXEC_SCOPE}'`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ API: The scope
 /*/
-const Scope = () => {
-  return MOD.scope;
+const CurrentScope = () => {
+  return EXEC_SCOPE;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const MatchScope = check => {
+  return EXEC_SCOPE.includes(check);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ API: application startup
@@ -171,7 +224,7 @@ const EnterApp = () => {
       resolve();
     } catch (e) {
       console.error(
-        'EnterApp() Lifecycle Error. Check phase execution order effect on data validity.\n',
+        'EnterApp() Execution Error. Check phase execution order effect on data validity.\n',
         e
       );
       debugger;
@@ -189,7 +242,7 @@ const SetupDOM = () => {
       resolve();
     } catch (e) {
       console.error(
-        'SetupDOM() Lifecycle Error. Check phase execution order effect on data validity.\n',
+        'SetupDOM() Execution Error. Check phase execution order effect on data validity.\n',
         e
       );
       debugger;
@@ -202,10 +255,10 @@ const SetupDOM = () => {
 const JoinNet = () => {
   return new Promise((resolve, reject) => {
     try {
-      URNET.Connect(URDATA, { success: resolve, failure: reject });
+      URNET.Connect(UDATA, { success: resolve, failure: reject });
     } catch (e) {
       console.error(
-        'EnterNet() Lifecycle Error. Check phase execution order effect on data validity.\n',
+        'JoinNet() Execution Error. Check phase execution order effect on data validity.\n',
         e
       );
       debugger;
@@ -220,12 +273,14 @@ const SetupRun = () => {
     try {
       await Execute('RESET'); // RESET runtime datastructures
       await Execute('START'); // START running
-      await Execute('APP_READY'); // tell network APP_READY
+      await Execute('REG_MESSAGE'); // register messages
+      await UDATA.PromiseRegisterMessages(); // send messages
+      await Execute('APP_READY'); // app is connected
       await Execute('RUN'); // tell network APP_READY
       resolve();
     } catch (e) {
       console.error(
-        'SetupRun() Lifecycle Error. Check phase execution order effect on data validity.\n',
+        'SetupRun() Execution Error. Check phase execution order effect on data validity.\n',
         e
       );
       debugger;
@@ -246,7 +301,7 @@ const Run = () => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: do the Shutdown lifecycle
+/*/ API: do the Shutdown EXEC
     NOTE ASYNC ARROW FUNCTION (necessary?)
 /*/
 const BeforePause = () => {
@@ -256,7 +311,7 @@ const BeforePause = () => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: do the Shutdown lifecycle
+/*/ API: do the Shutdown EXEC
     NOTE ASYNC ARROW FUNCTION (necessary?)
 /*/
 const Paused = () => {
@@ -266,7 +321,7 @@ const Paused = () => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: do the Shutdown lifecycle
+/*/ API: do the Shutdown EXEC
     NOTE ASYNC ARROW FUNCTION (necessary?)
 /*/
 const PostPause = () => {
@@ -276,7 +331,7 @@ const PostPause = () => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: do the Shutdown lifecycle
+/*/ API: do the Shutdown EXEC
     NOTE ASYNC ARROW FUNCTION (necessary?)
 /*/
 const CleanupRun = () => {
@@ -314,8 +369,9 @@ const ExitApp = () => {
 export default {
   Hook,
   Execute,
-  SetScope,
-  Scope,
+  SetScopePath,
+  CurrentScope,
+  MatchScope,
   EnterApp,
   SetupDOM,
   JoinNet,
@@ -326,5 +382,6 @@ export default {
   PostPause,
   CleanupRun,
   ServerDisconnect,
-  ExitApp
+  ExitApp,
+  SetScopeFromRoutes
 };

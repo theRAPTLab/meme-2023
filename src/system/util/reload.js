@@ -17,16 +17,16 @@ let RELOAD_TIMER = null;
 /*/ Force Reload if another module was navigated to and we want to ensure the
     entire browser was refreshed so only one set of app modules is loaded
 /*/
-const ForceReloadOnNavigation = () => {
+const ReloadOnViewChange = () => {
   RELOAD_CHECK++;
   if (RELOAD_CHECK > 1) {
-    console.warn(`SETTINGS: ForceReloadOnNavigation active. Reloading!`);
+    console.warn(`SETTINGS: ReloadOnViewChange active. Reloading!`);
     if (RELOAD_TIMER) clearTimeout(RELOAD_TIMER);
     RELOAD_TIMER = setTimeout(() => {
       window.location.reload();
-    }, 500);
+    }, 250);
   } else {
-    console.warn(`SETTINGS: ForceReloadOnNavigation check OK`);
+    console.warn(`SETTINGS: ReloadOnViewChange check OK`);
   }
 };
 
@@ -35,4 +35,8 @@ const ForceReloadOnNavigation = () => {
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export { ForceReloadOnNavigation };
+/// NOTE if you are exporting just one thing, Webpack with screw that up
+/// unless you change the form to 'export default ReloadOnView'
+/// If you are returning more than one thing, then use
+/// export { ReloadOnView, AnotherThing, ... }
+export default ReloadOnViewChange;

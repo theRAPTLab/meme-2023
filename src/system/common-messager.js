@@ -1,42 +1,22 @@
-if (window.NC_DBG) console.log(`inc ${module.id}`);
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-    Messager - Handle a collection of named events and their handlers
+    Messager - Handle a collection of named events and their handlers.
     https://en.wikipedia.org/wiki/Event-driven_architecture#JavaScript
 
-    NOTE: This class is often WRAPPED by other UNISYS modules that manage
-    a unique ID (such as the unique unisys datalink id) that hide that
-    implementation detail from local users (e.g. unisys-data-class)
-
-    HandleMessasge('MESG_NAME',handlerFunc,options)
-      Add a handlerFunc. Specify options.handlerUID to enable echo rejection
-      (same udata module will not invoke own handler when sending same message)
-    UnhandleMessage('MESG_NAME',handlerFunc)
-      Remove a handlerFunc associated with the handlerFuncFunction
-    Send('MESG_NAME',data,options)
-      Trigger an message+data to all handlers from a particular UDATA id
-      If options.srcUID is specified, echo suppression is enabled
-    Signal('MESG_NAME',data)
-      Similar to Send(), but will ALWAYS broadcast to all implementors
-    Call('MESG_NAME',data,options)
-      Similar to Send(), but can return a value to a callback function
-      options.srcUID is the UDATA id; set for echo supression to that uid
-      options.dataReturnFunc is the callback function.
+    This is a low-level class used by other URSYS modules both by client
+    browsers and nodejs.
 
     NOTE: CallerReturnFunctions receive data object AND control object.
     The control object has the "return" function that closes a transaction;
     this is useful for async operations without Promises.
 
-    NOTE: HandlerFunctions and CallerReturnFunctions are anotated with the
-    udata_id property, which can be set to avoid echoing a message back to
-    the same originating udata source.
-
-    NOTE: When providing a handlerFunc, you might want to bind it to a
-    specific object context (i.e. 'this') value using bind().
-    e.g. handlerFunction = handlerFunction.bind(this);
-
+    NOTE: When providing a handlerFunc, users should be aware of binding
+    context using Function.prototype.bind() or by using arrow functions
+\
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
+// NOTE: This module uses the COMMONJS module format for compatibility
+// between node and browser-side Javascript.
 const NetMessage = require('./common-netmessage');
 
 /// MODULE VARS ///////////////////////////////////////////////////////////////
@@ -46,11 +26,12 @@ let DBG = false;
 
 /// UNISYS MESSAGER CLASS /////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** Messager
+ * Implement network-aware message passing scheme based on message strings passing
+ * single data objects. Message table stores multiple message handlers as a set
+ * to avoid multiple registered handlers
+ */
 class Messager {
-  /*/ Instances of this class can be used to implement a UNISYS-style message
-    passing scheme with shared semantics. It maintains a Map keyed by mesgName
-    strings, containing a Set object filled with handlers for that mesgName.
-  /*/
   constructor() {
     this.handlerMap = new Map(); // message map storing sets of functions
     this.messager_id = ++MSGR_IDCOUNT;
@@ -58,10 +39,17 @@ class Messager {
 
   /// FIRE ONCE EVENTS //////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /*/ API: subscribe a handlerFunc function with a particular unisys id
-    to receive a particular message. The handlerFunc receives a data obj
-    and should return one as well. If there is an error, return a string.
-  /*/
+  /** Messager.HandleMessage()
+   * Register a message string to a handler function that will receive a mutable
+   * data object that is returned at the end of the handler function
+   * @example HandleMessage('MY_MESSAGE',(data)=>{ return data; });
+   * @param {string} mesgName message to register a handler for
+   * @param {function} handlerFunc function receiving 'data' object
+   * @param {Object} [options] options
+   * @param {string} [options.handlerUID] URSYS_ID identifies group, attaches handler
+   * @param {string} [options.info] description of message handler
+   * @param {Object} [options.syntax] dictionary of data object properties accepted
+   */
   HandleMessage(mesgName, handlerFunc, options = {}) {
     let { handlerUID } = options;
     let { syntax } = options;
@@ -86,8 +74,12 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /*/ API: unsubscribe a handlerFunc function from a particular event
-  /*/
+  /** Message.UnhandleMessage()
+   * Unsubscribe a handler function from a registered message. The handler
+   * function object must be the same one used to register it.
+   * @param {string} mesgName message to unregister a handler for
+   * @param {function} handlerFunc function originally registered
+   */
   UnhandleMessage(mesgName, handlerFunc) {
     if (!arguments.length) {
       this.handlerMap.clear();
@@ -103,12 +95,18 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /*/ API: trigger a message with the data object payload, sending to all handlers
-    that implement that event. Includer sender's unisys id to prevent the sender
-    to receiving its own message back if it happens to implement the message as
-    well. dstScope is 'net' or 'local' to limit where to send, or 'all'
-    for everyone on net or local
-  /*/
+  /** Messager.Send()
+   * Send a message with data payload
+   * @param {string} mesgName message to send data to
+   * @param {Object} inData parameters for the message handler
+   * @param {Object} [options] options
+   * @param {string} [options.srcUID] URSYS_ID group that is sending the
+   * message. If this is set, then the sending URSYS_ID can receive its own
+   * message request.
+   * @param {string} [options.type] type of message (mcall)
+   * @param {boolean} [options.toLocal=true] send to local message handlers
+   * @param {boolean} [options.toNet=true] send to network message handlers
+   */
   Send(mesgName, inData, options = {}) {
     let { srcUID, type } = options;
     let { toLocal = true, toNet = true } = options;
@@ -139,9 +137,13 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /*/ API: wrapper for Send() used when you want every handlerFunc, including
-    the sender, to receive the event even if it is the one who sent it.
-  /*/
+  /** Messager.Signal()
+   * Send message to everyone, local and network, and also mirrors back to self.
+   * This is a wrapper for Send() that ensures that srcUID is overridden.
+   * @param {string} mesgName message to send data to
+   * @param {Object} inData parameters for the message handler
+   * @param {Object} [options] see Send() for option details
+   */
   Signal(mesgName, data, options = {}) {
     if (options.srcUID) {
       console.warn(`overriding srcUID ${options.srcUID} with NULL because Signal() doesn't use it`);
@@ -151,8 +153,14 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /*/ API: Return an array of Promises. Called by UDATA.Call().
-  /*/
+  /** Messager.Call()
+   * Issue a message transaction. Returns an array of promises. Works across
+   * the network.
+   * @param {string} mesgName message to send data to
+   * @param {Object} inData parameters for the message handler
+   * @param {Object} [options] see Send() for option details
+   * @returns {Array} an array of Promises
+   */
   Call(mesgName, inData, options = {}) {
     let { srcUID, type } = options;
     let { toLocal = true, toNet = true } = options;
@@ -191,7 +199,7 @@ class Messager {
     if (toNet) {
       type = type || 'mcall';
       let pkt = new NetMessage(mesgName, inData, type);
-      let p = pkt.QueueTransaction();
+      let p = pkt.PromiseTransaction();
       promises.push(p);
     } // end toNetwork
 
@@ -200,8 +208,10 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /*/ API: Return a list of messages handled by this Messager instance
-  /*/
+  /** Messager.MessageNames()
+   * Get list of messages that are handled by this Messager instance.
+   * @returns {Array<string>} message name strings
+   */
   MessageNames() {
     let handlers = [];
     this.handlerMap.forEach((value, key) => {
@@ -212,8 +222,11 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /*/ API: Verify that message exists
-  /*/
+  /** Messager.HasMessageName()
+   * Check to see if a message is handled by this Messager instance
+   * @param {string=''} msg message name to check
+   * @returns {boolean} true if message name is handled
+   */
   HasMessageName(msg = '') {
     return this.handlerMap.has(msg);
   }

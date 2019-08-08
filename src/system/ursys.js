@@ -24,6 +24,10 @@
 import CENTRAL from './ur-central';
 import { Publish, Sub, Unsub } from './ur-pubsub';
 import EXEC from './ur-exec';
+import ReloadOnViewChange from './util/reload';
+import NetMessage from './common-netmessage';
+import DataLink from './ur-class-datalink';
+import NETWORK from './ur-network';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -46,4 +50,4 @@ const DBG = true; // module-wide debug flag
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default { EXEC, CENTRAL, Publish, Sub, Unsub };
+export default { EXEC, CENTRAL, Publish, Sub, Unsub, ReloadOnViewChange, NetMessage, DataLink };

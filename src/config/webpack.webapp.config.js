@@ -69,6 +69,12 @@ const webConfiguration = env => {
         pathinfo: false // this speeds up compilation (https://webpack.js.org/guides/build-performance/#output-without-path-info)
         // publicPath: 'web',
       },
+      node: {
+        // enable webpack's __filename and __dirname substitution in browsers
+        // for use in URSYS lifecycle event filtering as set in SystemInit.jsx
+        __filename: true,
+        __dirname: true
+      },
       devtool: 'source-map',
       // apply these additional plugins
       plugins: [

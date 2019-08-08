@@ -10,6 +10,10 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
+/**
+ * Central is a common settings manager.
+ * @module URCentral
+ */
 import ValueBinding from './common-valuebinding';
 
 /// MODULE DECLARATIONS ///////////////////////////////////////////////////////
@@ -37,6 +41,7 @@ function u_CheckKey(key) {
 /**
  * define a value in the settings map
  * can use the form .
+ * @memberof URCentral
  */
 const Define = (key, value) => {
   let err = u_CheckKey(key);
@@ -49,6 +54,7 @@ const Define = (key, value) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * return binding of key
+ * @memberof URCentral
  */
 const GetBinding = key => {
   let err = u_CheckKey(key);
@@ -60,6 +66,7 @@ const GetBinding = key => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * return value of key
+ * @memberof URCentral
  */
 const GetVal = key => {
   let err = u_CheckKey(key);
@@ -71,6 +78,7 @@ const GetVal = key => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * set value of key
+ * @memberof URCentral
  */
 const SetVal = (key, value) => {
   let err = u_CheckKey(key);

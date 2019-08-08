@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  ViewBasic - Basic Starter Layout
+  ViewAdmin - Classroom Management Layout
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -11,6 +11,18 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+/// COMPONENTS ////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+import UR from '../../../system/ursys';
+import TeacherSelector from './components/AdmTeacherSelector';
+import ClassroomsSelector from './components/AdmClassroomsSelector';
+import CriteriaView from './components/AdmCriteriaView';
+import GroupsList from './components/AdmGroupsList';
+import ModelsList from './components/AdmModelsList';
+import ResourcesList from './components/AdmResourcesList';
+/// MODULES ///////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+import ADM from '../../modules/adm-data';
 
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -29,17 +41,24 @@ const styles = theme => ({
     color: theme.palette.text.secondary
   }
 });
+
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-class ViewBasic extends React.Component {
+class ViewAdmin extends React.Component {
   // constructor
   constructor(props) {
     super(props);
+    UR.ReloadOnViewChange();
     this.cstrName = this.constructor.name;
+
+    // FIXME: This will go away when UR.DB_Susbscribe('ADMIN:UPDATED') is implemented
+    //        in adm-data.js.
+    // Initialize Admin Data, but for now still need this
+    ADM.Load();
   }
 
   componentDidMount() {
-    console.log(`<${this.cstrName}> mounted`);
+    if (DBG) console.log(`<${this.cstrName}> mounted`);
   }
 
   render() {
@@ -48,23 +67,27 @@ class ViewBasic extends React.Component {
     return (
       <div className={classes.root}>
         <Grid container spacing={2}>
+          <Grid item xs={2}>
+            <TeacherSelector />
+          </Grid>
+          <Grid item xs={2}>
+            <ClassroomsSelector />
+          </Grid>
+        </Grid>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <GroupsList />
+          </Grid>
+          <Grid item xs={6}>
+            <ModelsList />
+          </Grid>
+        </Grid>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <CriteriaView />
+          </Grid>
           <Grid item xs={12}>
-            <Paper className={classes.paper}>xs=12</Paper>
-          </Grid>
-          <Grid item xs={6}>
-            <Paper className={classes.paper}>xs=6</Paper>
-          </Grid>
-          <Grid item xs={6}>
-            <Paper className={classes.paper}>xs=6</Paper>
-          </Grid>
-          <Grid item xs={3}>
-            <Paper className={classes.paper}>xs=3</Paper>
-          </Grid>
-          <Grid item xs={3}>
-            <Paper className={classes.paper}>xs=3</Paper>
-          </Grid>
-          <Grid item xs={3}>
-            <Paper className={classes.paper}>xs=3</Paper>
+            <ResourcesList />
           </Grid>
           <Grid item xs={3}>
             <Paper className={classes.paper}>xs=3</Paper>
@@ -77,17 +100,26 @@ class ViewBasic extends React.Component {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// default props are expect properties that we expect
 /// and are declared for validation
-ViewBasic.defaultProps = {
+ViewAdmin.defaultProps = {
   classes: { isDefaultProps: true }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
 /// disallowed by eslint, so use shape({ prop:ProtType })
 /// to describe them in more detail
-ViewBasic.propTypes = {
+ViewAdmin.propTypes = {
   classes: PropTypes.shape({})
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// required for UR EXEC phase filtering by view path
+ViewAdmin.UMOD = __dirname;
+UR.EXEC.Hook(
+  'INITIALIZE',
+  () => {
+    console.log('ViewAdmin Init');
+  },
+  __dirname
+);
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(styles)(ViewBasic);
+export default withStyles(styles)(ViewAdmin);

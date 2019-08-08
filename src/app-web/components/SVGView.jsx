@@ -11,9 +11,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import '@svgdotjs/svg.draggable.js';
 import PMCView from '../modules/pmc-view';
-import DATA from '../modules/pmc-data';
 
 import UR from '../../system/ursys';
+import UDATA from '../../system/ur-class-datalink';
+
 import { cssreact, cssalert } from '../modules/console-styles';
 
 const DBG = false;

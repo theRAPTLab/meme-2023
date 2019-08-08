@@ -14,10 +14,10 @@ import PropTypes from 'prop-types';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import ViewMain from '../ViewMain/ViewMain';
-import ViewMainRefactor from '../ViewMain/ViewMainRefactor';
-import ViewBasic from '../ViewBasic/ViewBasic';
-import ViewAdmin from '../ViewAdmin/ViewAdmin';
+import ViewMain from '../views/ViewMain/ViewMain';
+import ViewMainDev from '../views/ViewMain/ViewMainDev';
+import DevTest from '../views/DevTest/TestRoot';
+import ViewAdmin from '../views/ViewAdmin/ViewAdmin';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -35,9 +35,9 @@ const DBG = true;
 
 const SystemRoutes = [
   {
-    path: '/basic',
+    path: '/test',
     exact: true,
-    component: ViewBasic
+    component: DevTest
   },
   {
     path: '/admin',
@@ -47,7 +47,7 @@ const SystemRoutes = [
   {
     path: '/:mode',
     exact: true,
-    component: ViewMainRefactor
+    component: ViewMainDev
   },
   {
     path: '/',

@@ -72,7 +72,7 @@ NETWORK.Connect = (datalink, opt) => {
   m_status = M1_CONNECTING;
 
   // check and save parms
-  if (datalink.constructor.name !== 'UnisysDataLink') {
+  if (datalink.constructor.name !== 'URDataLink') {
     throw Error(ERR_BAD_UDATA);
   }
   if (!UDATA) UDATA = datalink;
@@ -135,15 +135,15 @@ NETWORK.Connect = (datalink, opt) => {
 /*/
 function m_HandleRegistrationMessage(msgEvent) {
   let regData = JSON.parse(msgEvent.data);
-  let { HELLO, UADDR } = regData;
+  let { HELLO, UADDR, SERVER_UADDR } = regData;
   // (1) after receiving the initial message, switch over to regular
   // message handler
   NETWORK.RemoveListener('message', m_HandleRegistrationMessage);
   m_status = M3_REGISTERED;
   // (2) initialize global settings for netmessage
-  if (DBG.connect) console.log(PR, `connected to ${UADDR}`, NETSOCK);
+  if (DBG.connect) console.log(PR, `'${HELLO}'`);
   NETSOCK.ws.UADDR = NetMessage.DefaultServerUADDR();
-  NetMessage.GlobalSetup({ uaddr: UADDR, netsocket: NETSOCK.ws });
+  NetMessage.GlobalSetup({ uaddr: UADDR, netsocket: NETSOCK.ws, server_uaddr: SERVER_UADDR });
   // (3) connect regular message handler
   NETWORK.AddListener('message', m_HandleMessage);
   m_status = M4_READY;
@@ -154,7 +154,7 @@ function m_HandleRegistrationMessage(msgEvent) {
 function m_HandleMessage(msgEvent) {
   let pkt = new NetMessage(msgEvent.data);
   let msg = pkt.Message();
-  if (pkt.IsOwnResponse()) {
+  if (pkt.IsResponse()) {
     if (DBG.handle) console.log(PR, 'completing transaction', msg);
     pkt.CompleteTransaction();
     return;

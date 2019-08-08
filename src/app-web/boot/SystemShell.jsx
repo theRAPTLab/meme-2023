@@ -41,18 +41,21 @@ class SystemShell extends React.Component {
     const classes = this.props.classes;
     // omg an error???
     if (this.state.hasError) {
-      return (
-        <div>
-          <div className={classes.toolbar} />
-          <p>Error in {`${this.constructor.name}`} (see console)</p>
-        </div>
-      );
+      return [
+        <div className={classes.toolbar} />,
+        <p>Error in {`${this.constructor.name}`} (see console)</p>
+      ];
     }
     // otherwise return component with matching routed view
     return (
       <Switch>
         {SystemRoutes.map(route => (
-          <Route key={route.path} path={route.path} component={route.component} />
+          <Route
+            exact={route.exact}
+            key={route.path}
+            path={route.path}
+            component={route.component}
+          />
         ))}
       </Switch>
     );

@@ -9,6 +9,10 @@
 
 /* eslint-disable no-param-reassign */
 
+/**
+ * @module VProp-DragDrop
+ */
+
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import DATA from './pmc-data';
@@ -22,6 +26,7 @@ import UR from '../../system/ursys';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Utility to retrieve coordinate from an event
+ * @memberof VProp-DragDrop
  * @param {object} event - event object from mouse/touch handler
  */
 const SaveEventCoordsToBox = (ev, box) => {
@@ -39,6 +44,7 @@ const SaveEventCoordsToBox = (ev, box) => {
 };
 /**
  * Utility to find the distance of the drag operation
+ * @memberof VProp-DragDrop
  * @returns {object} { x1, y1, x2, y2, dx, dy, d }
  */
 const DragMetrics = vprop => {
@@ -57,6 +63,7 @@ const DragMetrics = vprop => {
  * looking at the state of the pointer-events state. If none, then
  * it's not receiving pointer events so it doesn't block other
  * vprops that are beneath it in the SVG element stacking order.
+ * @memberof VProp-DragDrop
  */
 const IsDragging = vprop => {
   return vprop.gRoot.attr('pointer-events') === 'none';
@@ -64,6 +71,7 @@ const IsDragging = vprop => {
 
 /**
  * Utility to access stored values
+ * @memberof VProp-DragDrop
  */
 const DragState = vprop => {
   return vprop._extend.dragdrop;
@@ -75,6 +83,7 @@ const DragState = vprop => {
  * Adds VEX.DragDrop features to a VProp, which adds ViewModel state and
  * highlighting support. If VProp has DragStart, DragMove, or DragEnd methods
  * defined, they will be called after internal management is done
+ * @memberof VProp-DragDrop
  * @param {VProp} - VProp instance
  */
 const AddDragDropHandlers = vprop => {

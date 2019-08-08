@@ -1,13 +1,13 @@
 // routed view is just a box holding the real view
 import React from 'react';
 import PropTypes from 'prop-types';
-import Canvas from '../components/Canvas';
-import D3SVG from '../components/D3SVG';
-import CytosView from '../components/CytoView';
-import SVGView from '../components/SVGView';
-import PaperView from '../components/PaperView';
-import DB from '../modules/prototype.model';
-import { cssalert } from '../modules/console-styles';
+import Canvas from '../../components/Canvas';
+import D3SVG from '../../components/D3SVG';
+import CytosView from '../../components/CytoView';
+import SVGView from '../../components/SVGView';
+import PaperView from '../../components/PaperView';
+import DB from '../../modules/prototype.model';
+import { cssalert } from '../../modules/console-styles';
 
 const DBG = false;
 

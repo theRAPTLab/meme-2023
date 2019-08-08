@@ -67,6 +67,7 @@ const TERM = {
 PROMPTS.TR = TERM.Reset;
 PROMPTS.BR = TERM.Bright;
 PROMPTS.CWARN = TERM.FgYellow;
+PROMPTS.CCRIT = TERM.BgRed + TERM.FgWhite + TERM.Bright;
 PROMPTS.CINFO = TERM.BgBlue + TERM.FgWhite;
 PROMPTS.TERM_URSYS = TERM.FgBlue + TERM.Bright;
 PROMPTS.TERM_DB = TERM.FgBlue; // server-database

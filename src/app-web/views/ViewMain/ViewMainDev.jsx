@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  ViewMain - Main Application View
+  ViewMainDev - For Modifying!
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -47,17 +47,16 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import RoutedView from './RoutedView';
-import MEMEStyles from '../components/MEMEStyles';
-import UR from '../../system/ursys';
-import DATA from '../modules/pmc-data';
-import ADM from '../modules/adm-data';
-import EvidenceList from '../components/EvidenceList';
-import Login from '../components/Login';
-import ModelSelect from '../components/ModelSelect';
-import ResourceItem from '../components/ResourceItem';
-import StickyNote from '../components/StickyNote';
-import { cssreact, cssdraw, cssalert } from '../modules/console-styles';
-
+import MEMEStyles from '../../components/MEMEStyles';
+import UR from '../../../system/ursys';
+import DATA from '../../modules/pmc-data';
+import ADM from '../../modules/adm-data';
+import EvidenceList from '../../components/EvidenceList';
+import Login from '../../components/Login';
+import ModelSelect from '../../components/ModelSelect';
+import ResourceItem from '../../components/ResourceItem';
+import StickyNote from '../../components/StickyNote';
+import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -70,6 +69,8 @@ class ViewMain extends React.Component {
   // constructor
   constructor(props) {
     super(props);
+    UR.ReloadOnViewChange();
+
     this.displayName = this.constructor.name;
     this.refMain = React.createRef();
     this.refToolbar = React.createRef();
@@ -136,7 +137,9 @@ class ViewMain extends React.Component {
 
   componentDidMount() {
     console.log(`%ccomponentDidMount()`, cssreact);
-    console.log('%cWARN: ViewMainRefactor', cssalert);
+    console.log('%cWARN: You are running ViewMainDev', cssalert);
+    console.log('%cWARN: You are running ViewMainDev', cssalert);
+    console.log('%cWARN: You are running ViewMainDev', cssalert);
     //
     // child components need to know the dimensions
     // of this component, but they are invalid until
@@ -430,13 +433,20 @@ class ViewMain extends React.Component {
     const resources = ADM.AllResources();
     return (
       <div className={classes.root}>
-        <Login />
-        <ModelSelect />
         <CssBaseline />
-        <AppBar position="fixed" className={classes.appBar}>
+        <Login memo="[ViewMainDev]" />
+        <ModelSelect />
+        <AppBar position="fixed" className={classes.appBar} style={{ backgroundColor: 'maroon' }}>
           <Toolbar>
             <Switch>
-              <Route path="/:mode"/>
+              <Route
+                path="/:mode"
+                render={props => (
+                  <div style={{ fontFamily: 'monospace', margin: '0 10px 4px 0' }}>
+                    mode[{props.match.params.mode.toUpperCase()}]
+                  </div>
+                )}
+              />
             </Switch>
             <TextField
               id="projectTitle"

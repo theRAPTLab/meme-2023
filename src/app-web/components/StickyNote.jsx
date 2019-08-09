@@ -44,12 +44,14 @@ class StickyNote extends React.Component {
     this.DoOpenSticky = this.DoOpenSticky.bind(this);
     this.DoAddComment = this.DoAddComment.bind(this);
     this.DoCloseSticky = this.DoCloseSticky.bind(this);
-    this.OnAddClick = this.OnAddClick.bind(this);
+    this.OnReplyClick = this.OnReplyClick.bind(this);
+    this.OnStartEdit = this.OnStartEdit.bind(this);
     this.OnUpdateComment = this.OnUpdateComment.bind(this);
     this.OnCloseClick = this.OnCloseClick.bind(this);
 
     this.state = {
       isHidden: true,
+      isBeingEdited: false,
       comments: [],
       top: 0,
       left: 0,
@@ -70,12 +72,15 @@ class StickyNote extends React.Component {
 
   DoOpenSticky(data) {
     let { comments, x, y, parent } = data;
+    let isBeingEdited = false;
     if (comments === undefined || comments.length === 0) {
       // no comments yet, so add an empty comment
       comments = [ADM.NewComment()];
+      isBeingEdited = true;
     }
     this.setState({
       isHidden: false,
+      isBeingEdited,
       comments,
       top: y,
       left: x - 325, // width of stickyonotecard HACK!!!
@@ -107,8 +112,18 @@ class StickyNote extends React.Component {
     });
   }
 
-  OnAddClick() {
+  OnReplyClick() {
     this.DoAddComment();
+    this.setState({
+      isBeingEdited: true
+    });
+  }
+
+  OnStartEdit() {
+    console.error('edit started')
+    this.setState({
+      isBeingEdited: true
+    });
   }
 
   OnUpdateComment() {
@@ -118,6 +133,9 @@ class StickyNote extends React.Component {
     // However, our parent object (e.g. property, mechanism, evidence link) is
     // passed via the URSYS call, so we have to update that explicitly.
     this.state.parent.comments = this.state.comments;
+    this.setState({
+      isBeingEdited: false
+    });
   }
 
   OnCloseClick() {
@@ -127,7 +145,7 @@ class StickyNote extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { comments, isHidden, top, left } = this.state;
+    const { comments, isHidden, isBeingEdited, top, left } = this.state;
 
     return (
       <Paper className={classes.stickynotePaper} hidden={isHidden} style={{ top: top, left: left }}>
@@ -136,6 +154,7 @@ class StickyNote extends React.Component {
             <StickyNoteCard
               comment={comment}
               key={comment.id}
+              onStartEdit={this.OnStartEdit}
               onUpdateComment={this.OnUpdateComment}
             />
           );
@@ -144,9 +163,10 @@ class StickyNote extends React.Component {
           size="small"
           style={{ margin: '5px' }}
           variant="outlined"
-          onClick={this.OnCloseClick}
+          hidden={isBeingEdited}
+          onClick={this.OnReplyClick}
         >
-          <CloseIcon /> Close
+          Reply
         </Button>
         <Button size="small" style={{ float: 'right', margin: '5px' }} variant="outlined"
           onClick={this.OnAddClick}

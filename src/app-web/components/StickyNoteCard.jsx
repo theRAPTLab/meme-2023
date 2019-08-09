@@ -50,6 +50,7 @@ class StickyNoteCard extends React.Component {
    
     this.DoOpenSticky = this.DoOpenSticky.bind(this);
     this.OnEditClick = this.OnEditClick.bind(this);
+    this.OnEditStart = this.OnEditStart.bind(this);
     this.FocusTextInput = this.FocusTextInput.bind(this);
     this.OnEditFinished = this.OnEditFinished.bind(this);
     this.OnDeleteClick = this.OnDeleteClick.bind(this);
@@ -87,19 +88,25 @@ class StickyNoteCard extends React.Component {
     const hasBeenRead = this.props.comment.readBy
       ? this.props.comment.readBy.includes(ADM.GetSelectedStudentId())
       : false;
-    const isBeingEdited = this.props.comment.text === ''; // automatically turn on editing if emtpy?
     this.setState({
       criteria,
       hasBeenRead,
-      isBeingEdited,
       selectedCriteriaId: this.props.comment.criteriaId,
       allowedToEdit: isAuthor,
       allowedToDelete: isAuthor // REVIEW: Only teachers are allowed to delete?
     });
+    if (this.props.comment.text === '') {
+      // automatically turn on editing if this is a new empty comment
+      this.OnEditStart();
+    }
   }
 
   OnEditClick(e) {
     e.preventDefault();
+    this.OnEditStart();
+  }
+
+  OnEditStart() {
     this.setState({ isBeingEdited: true });
     this.FocusTextInput();
     this.props.onStartEdit();
@@ -268,7 +275,6 @@ class StickyNoteCard extends React.Component {
                 onChange={this.OnCommentTextChange}
                 variant="filled"
                 rowsMax="4"
-                autoFocus
                 multiline
                 disableUnderline
                 inputProps={{

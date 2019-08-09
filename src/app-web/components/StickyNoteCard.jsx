@@ -111,6 +111,9 @@ class StickyNoteCard extends React.Component {
     // https://reactjs.org/docs/refs-and-the-dom.html#adding-a-ref-to-a-dom-element
     // https://stackoverflow.com/questions/52222988/how-to-focus-a-material-ui-textfield-on-button-click/52223078
     this.textInput.current.focus();
+    // Set cursor to end of text.
+    const pos = this.textInput.current.value.length;
+    this.textInput.current.setSelectionRange(pos, pos);
   }
 
   OnEditFinished() {

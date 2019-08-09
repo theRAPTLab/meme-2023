@@ -70,7 +70,7 @@ class StickyNote extends React.Component {
 
   DoOpenSticky(data) {
     let { comments, x, y, parent } = data;
-    if (comments.length === 0) {
+    if (comments === undefined || comments.length === 0) {
       // no comments yet, so add an empty comment
       comments = [ADM.NewComment()];
     }

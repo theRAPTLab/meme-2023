@@ -168,10 +168,13 @@ class StickyNote extends React.Component {
         >
           Reply
         </Button>
-        <Button size="small" style={{ float: 'right', margin: '5px' }} variant="outlined"
-          onClick={this.OnAddClick}
+        <Button
+          size="small"
+          style={{ float: 'right', margin: '5px' }}
+          variant="outlined"
+          onClick={this.OnCloseClick}
         >
-          Add Comment
+          <CloseIcon /> Close
         </Button>
       </Paper>
     );

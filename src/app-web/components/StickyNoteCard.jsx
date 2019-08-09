@@ -268,6 +268,7 @@ class StickyNoteCard extends React.Component {
                 onChange={this.OnCommentTextChange}
                 variant="filled"
                 rowsMax="4"
+                autoFocus
                 multiline
                 disableUnderline
                 inputProps={{

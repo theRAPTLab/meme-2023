@@ -149,6 +149,13 @@ class StickyNote extends React.Component {
 
     return (
       <Paper className={classes.stickynotePaper} hidden={isHidden} style={{ top: top, left: left }}>
+        <IconButton
+          size="small"
+          style={{ position: 'absolute', right: '-25px', top: '-25px' }}
+          onClick={this.OnCloseClick}
+        >
+          <CloseIcon />
+        </IconButton>
         {comments.map(comment => {
           return (
             <StickyNoteCard

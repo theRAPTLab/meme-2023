@@ -44,8 +44,13 @@ class StickyNoteCard extends React.Component {
   constructor(props) {
     super(props);
 
+    // Handle Focus
+    // create a ref to store the textInput DOM element
+    this.textInput = React.createRef();
+   
     this.DoOpenSticky = this.DoOpenSticky.bind(this);
     this.OnEditClick = this.OnEditClick.bind(this);
+    this.FocusTextInput = this.FocusTextInput.bind(this);
     this.OnEditFinished = this.OnEditFinished.bind(this);
     this.OnDeleteClick = this.OnDeleteClick.bind(this);
     this.OnCriteriaSelect = this.OnCriteriaSelect.bind(this);
@@ -93,8 +98,19 @@ class StickyNoteCard extends React.Component {
     });
   }
 
-  OnEditClick() {
+  OnEditClick(e) {
+    e.preventDefault();
     this.setState({ isBeingEdited: true });
+    this.FocusTextInput();
+    this.props.onStartEdit();
+  }
+
+  FocusTextInput() {
+    // Explicitly focus the text input using the raw DOM API
+    // Note: we're accessing "current" to get the DOM node
+    // https://reactjs.org/docs/refs-and-the-dom.html#adding-a-ref-to-a-dom-element
+    // https://stackoverflow.com/questions/52222988/how-to-focus-a-material-ui-textfield-on-button-click/52223078
+    this.textInput.current.focus();
   }
 
   OnEditFinished() {
@@ -250,11 +266,11 @@ class StickyNoteCard extends React.Component {
                 variant="filled"
                 rowsMax="4"
                 multiline
-                hiddenLabel
                 disableUnderline
-                InputProps={{
+                inputProps={{
                   readOnly: allowedToEdit && !isBeingEdited
                 }}
+                inputRef={this.textInput}
               />
             </MuiThemeProvider>
           </Grid>
@@ -296,6 +312,7 @@ StickyNoteCard.propTypes = {
   classes: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
   comment: PropTypes.object,
+  onStartEdit: PropTypes.func,
   onUpdateComment: PropTypes.func
 };
 
@@ -307,6 +324,9 @@ StickyNoteCard.defaultProps = {
     date: new Date(),
     text: '',
     criteriaId: ''
+  },
+  onStartEdit: () => {
+    console.error('StickyNoteCard: onStartEdit prop was not defined!');
   },
   onUpdateComment: () => {
     console.error('StickyNoteCard: onUpdateComment prop was not defined!');

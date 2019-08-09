@@ -231,6 +231,7 @@ class StickyNoteCard extends React.Component {
                 readOnly: allowedToEdit && !isBeingEdited
               }}
             />
+                placeholder={comment.placeholder}
           </Grid>
           <Grid container style={{ alignItems: 'flex-end' }}>
             <Grid item xs>

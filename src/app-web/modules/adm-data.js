@@ -730,7 +730,7 @@ ADMData.UpdateCriteriaList = criteriaList => {
 ///
 
 // Returns a single sentenceStarter object, if not found, undefined
-ADMData.GetSentenceStartersByClassroom = classroomId => {
+ADMData.GetSentenceStartersByClassroom = (classroomId = ADMData.GetSelectedClassroomId()) => {
   const sentenceStarter = adm_db.a_sentenceStarters.filter(ss => ss.classroomId === classroomId);
   let result;
   if (Array.isArray(sentenceStarter)) {
@@ -800,7 +800,7 @@ ADMData.SetClassroomResource = (rsrcId, checked, classroomId) => {
 ADMData.NewComment = () => {
   const id = `co${new Date().getTime()}`;
   const author = ADMData.GetSelectedStudentId();
-  const starter = ADMData.GetSentenceStarters();
+  const starter = ADMData.GetSentenceStartersByClassroom().sentences;
   return {
     id,
     author,

@@ -16,6 +16,7 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
+import FilledInput from '@material-ui/core/FilledInput';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import InputBase from '@material-ui/core/InputBase';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -28,7 +29,7 @@ import Typography from '@material-ui/core/Typography';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -199,6 +200,28 @@ class StickyNoteCard extends React.Component {
       //   </FormControl>
       // );
     }
+
+    // theme overrides
+    // See https://github.com/mui-org/material-ui/issues/14905 for details
+    const theme = createMuiTheme();
+    theme.overrides = {
+      MuiFilledInput: {
+        root: {
+          backgroundColor: 'rgba(250,255,178,0.3)',
+          paddingTop: '3px',
+          '&:hover': {
+            backgroundColor: 'rgba(255,255,255,0.5)'
+          },
+          '&$focused': {
+            backgroundColor: '#fff'
+          }
+        },
+        multiline: {
+          padding: '0'
+        }
+      }
+    };
+
     return (
       <ClickAwayListener onClickAway={this.OnEditFinished}>
         <Paper
@@ -218,20 +241,22 @@ class StickyNoteCard extends React.Component {
             </Grid>
           </Grid>
           <Grid container>
-            <TextField
-              className={classes.stickynoteCardInput}
-              value={comment.text}
-              onChange={this.OnCommentTextChange}
-              margin="dense"
-              hiddenLabel
-              variant="filled"
-              rowsMax="4"
-              multiline
-              inputProps={{
-                readOnly: allowedToEdit && !isBeingEdited
-              }}
-            />
+            <MuiThemeProvider theme={theme}>
+              <FilledInput
+                className={classes.stickynoteCardInput}
+                value={comment.text}
                 placeholder={comment.placeholder}
+                onChange={this.OnCommentTextChange}
+                variant="filled"
+                rowsMax="4"
+                multiline
+                hiddenLabel
+                disableUnderline
+                InputProps={{
+                  readOnly: allowedToEdit && !isBeingEdited
+                }}
+              />
+            </MuiThemeProvider>
           </Grid>
           <Grid container style={{ alignItems: 'flex-end' }}>
             <Grid item xs>

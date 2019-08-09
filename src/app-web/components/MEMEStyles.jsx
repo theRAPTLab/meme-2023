@@ -385,7 +385,7 @@ const styles = theme => {
       padding: 0
     },
     stickynoteCardInput: {
-      backgroundColor: 'rgba(255,255,255,0.1)',
+      // See boilerplate/src/app-web/components/StickyNoteCard.jsx for local style overrides
       width: '100%',
       overflow: 'hidden' // hide scrollbar
     },

@@ -36,6 +36,7 @@ class StickyNoteButton extends React.Component {
   componentWillUnmount() { }
 
   OnCommentClick(e) {
+    e.preventDefault();
     this.props.OnClick(e);
   }
 

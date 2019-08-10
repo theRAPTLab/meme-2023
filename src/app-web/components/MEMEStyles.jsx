@@ -368,7 +368,7 @@ const styles = theme => {
     },
     stickynoteCardRead: {
       color: m_systemTextColor,
-      backgroundColor: 'rgba(0,0,0,0.05)',
+      backgroundColor: m_stickynoteColor,
       margin: '5px',
       padding: '5px 10px',
       width: '325px'
@@ -379,7 +379,9 @@ const styles = theme => {
     stickynoteCardAuthor: {
       alignItems: 'baseline',
       flexGrow: '1',
-      color: m_systemTextColor
+      color: m_systemTextColor,
+      lineHeight: '1em',
+      marginRight: '1em'
     },
     stickynoteCardEditBtn: {
       padding: 0
@@ -395,7 +397,9 @@ const styles = theme => {
     },
     stickynoteCardLabel: {
       fontSize: '0.8em',
-      color: m_systemLabelTextColor
+      color: m_systemLabelTextColor,
+      display: 'inline-flex',
+      lineHeight: '1.1em'
     },
     stickynoteCardCriteria: {
       fontSize: '0.8em',

@@ -256,41 +256,39 @@ class StickyNoteCard extends React.Component {
           onMouseLeave={this.OnHideEditButtons}
         >
           <Grid container>
-            <Grid item style={{ flexGrow: 1 }}>
+            <Grid item xs={3}>
+              <Typography variant="subtitle2" className={classes.stickynoteCardAuthor}>
+                {`${comment.author} ${ADM.GetGroupNameByStudent(comment.author)}`}
+              </Typography>
+              <Typography variant="caption" className={classes.stickynoteCardLabel}>
+                {`${timestring}`}
+                <br />
+                {`${datestring}`}
+              </Typography>
+            </Grid>
+            <Grid item xs={9}>
               <InputLabel className={classes.stickynoteCardLabel}>CRITERIA:&nbsp;</InputLabel>
               <div className={classes.stickynoteCardCriteria}>{criteriaDisplay}</div>
-            </Grid>
-            <Grid item>
-              <Typography variant="caption" className={classes.stickynoteCardLabel}>
-                {`${timestring} ${datestring}`}
-              </Typography>
+              <MuiThemeProvider theme={theme}>
+                <FilledInput
+                  className={classes.stickynoteCardInput}
+                  value={comment.text}
+                  placeholder={comment.placeholder}
+                  onChange={this.OnCommentTextChange}
+                  variant="filled"
+                  rowsMax="4"
+                  multiline
+                  disableUnderline
+                  inputProps={{
+                    readOnly: allowedToEdit && !isBeingEdited
+                  }}
+                  inputRef={this.textInput}
+                />
+              </MuiThemeProvider>
             </Grid>
           </Grid>
-          <Grid container>
-            <MuiThemeProvider theme={theme}>
-              <FilledInput
-                className={classes.stickynoteCardInput}
-                value={comment.text}
-                placeholder={comment.placeholder}
-                onChange={this.OnCommentTextChange}
-                variant="filled"
-                rowsMax="4"
-                multiline
-                disableUnderline
-                inputProps={{
-                  readOnly: allowedToEdit && !isBeingEdited
-                }}
-                inputRef={this.textInput}
-              />
-            </MuiThemeProvider>
-          </Grid>
-          <Grid container style={{ alignItems: 'flex-end' }}>
-            <Grid item xs>
-              <Typography variant="subtitle2" className={classes.stickynoteCardAuthor}>
-                {`by ${comment.author} ${ADM.GetGroupNameByStudent(comment.author)}`}
-              </Typography>
-            </Grid>
-            <Grid item style={{ flexGrow: '1', alignItems: 'center', textAlign: 'center' }}>
+          <Grid container style={{ alignItems: 'flex-end', marginTop: '3px' }}>
+            <Grid item style={{ flexGrow: '1' }}>
               <IconButton
                 size="small"
                 hidden={!showEditButtons || !allowedToDelete}

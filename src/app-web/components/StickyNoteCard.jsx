@@ -280,7 +280,8 @@ class StickyNoteCard extends React.Component {
                   multiline
                   disableUnderline
                   inputProps={{
-                    readOnly: allowedToEdit && !isBeingEdited
+                    readOnly: !(allowedToEdit && isBeingEdited),
+                    disabled: !(allowedToEdit && isBeingEdited)
                   }}
                   inputRef={this.textInput}
                 />

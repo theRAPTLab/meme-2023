@@ -47,7 +47,7 @@ class StickyNoteCard extends React.Component {
     // Handle Focus
     // create a ref to store the textInput DOM element
     this.textInput = React.createRef();
-   
+
     this.DoOpenSticky = this.DoOpenSticky.bind(this);
     this.OnEditClick = this.OnEditClick.bind(this);
     this.OnEditStart = this.OnEditStart.bind(this);
@@ -107,9 +107,10 @@ class StickyNoteCard extends React.Component {
   }
 
   OnEditStart() {
-    this.setState({ isBeingEdited: true });
-    this.FocusTextInput();
-    this.props.onStartEdit();
+    this.setState({ isBeingEdited: true }, () => {
+      this.FocusTextInput();
+      this.props.onStartEdit();
+    });
   }
 
   FocusTextInput() {

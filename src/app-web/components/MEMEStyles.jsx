@@ -380,7 +380,7 @@ const styles = theme => {
       alignItems: 'baseline',
       flexGrow: '1',
       color: m_systemTextColor,
-      lineHeight: '1em',
+      lineHeight: '1.1em',
       marginRight: '1em'
     },
     stickynoteCardEditBtn: {
@@ -396,13 +396,13 @@ const styles = theme => {
       padding: '2px 4px'
     },
     stickynoteCardLabel: {
-      fontSize: '0.8em',
+      fontSize: '14px', // match Typograophy subitlte2
       color: m_systemLabelTextColor,
       display: 'inline-flex',
       lineHeight: '1.1em'
     },
     stickynoteCardCriteria: {
-      fontSize: '0.8em',
+      fontSize: '14px', // match Typograophy subitlte2
       display: 'inline-flex'
     }
   };

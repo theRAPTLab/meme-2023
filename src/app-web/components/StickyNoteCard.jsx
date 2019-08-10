@@ -287,7 +287,7 @@ class StickyNoteCard extends React.Component {
               </MuiThemeProvider>
             </Grid>
           </Grid>
-          <Grid container style={{ alignItems: 'flex-end', marginTop: '3px' }}>
+          <Grid container style={{ alignItems: 'flex-end', marginTop: '3px', height: '20px' }}>
             <Grid item style={{ flexGrow: '1' }}>
               <IconButton
                 size="small"

@@ -114,10 +114,10 @@ class StickyNote extends React.Component {
     });
   }
 
-  OnReplyClick() {
-    this.DoAddComment();
-    this.setState({
-      isBeingEdited: true
+  OnReplyClick(e) {
+    e.preventDefault();
+    this.setState({ isBeingEdited: true }, () => {
+      this.DoAddComment();
     });
   }
 

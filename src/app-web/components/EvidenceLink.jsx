@@ -50,7 +50,6 @@ class EvidenceLink extends React.Component {
     this.state = {
       note: this.props.evlink.note,
       rating: this.props.evlink.rating,
-      comments: this.props.evlink.comments,
       canBeEdited: false,
       isBeingEdited: false,
       isExpanded: false,
@@ -69,7 +68,6 @@ class EvidenceLink extends React.Component {
     this.EnableSourceSelect = this.EnableSourceSelect.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.toggleExpanded = this.toggleExpanded.bind(this);
-    this.OnCommentClick = this.OnCommentClick.bind(this);
 
     UR.Sub('DATA_UPDATED', this.HandleDataUpdate);
     UR.Sub('SHOW_EVIDENCE_LINK_SECONDARY', this.handleEvidenceLinkOpen);
@@ -96,8 +94,7 @@ class EvidenceLink extends React.Component {
     if (evlink) {
       this.setState({
         note: evlink.note,
-        rating: evlink.rating,
-        comments: evlink.comments
+        rating: evlink.rating
       });
     }
     // Don't throw an error here
@@ -257,21 +254,10 @@ class EvidenceLink extends React.Component {
     }
   }
 
-  OnCommentClick(e) {
-    UR.Publish('STICKY:OPEN', {
-      comments: this.props.evlink.comments,
-      parent: this.props.evlink,
-      x: e.clientX,
-      y: e.clientY,
-      windowWidth: e.view.window.innerWidth, // not used
-      windowHeight: e.view.window.innerHeight // not used
-    });
-  }
-
   render() {
     // evidenceLinks is an array of arrays because there might be more than one?!?
     const { classes, evlink } = this.props;
-    const { evId, rsrcId, propId, mechId, comments } = evlink;
+    const { evId, rsrcId, propId, mechId } = evlink;
     const { note, rating, isBeingEdited, isExpanded, listenForSourceSelection } = this.state;
     if (evId === '') return '';
     let sourceLabel;
@@ -316,10 +302,7 @@ class EvidenceLink extends React.Component {
               className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
             >
               <Grid item xs>
-                <StickyNoteButton
-                  comments={this.props.evlink.comments}
-                  OnClick={this.OnCommentClick}
-                />
+                <StickyNoteButton parentId={evId} parentType="evidence" />
               </Grid>
               <Grid item xs={4} hidden={!isExpanded}>
                 <Typography variant="caption" align="right">

@@ -39,7 +39,7 @@ class StickyNoteCard extends React.Component {
 
     this.DoOpenSticky = this.DoOpenSticky.bind(this);
     this.OnEditClick = this.OnEditClick.bind(this);
-    this.OnEditStart = this.OnEditStart.bind(this);
+    this.DoEditStart = this.DoEditStart.bind(this);
     this.FocusTextInput = this.FocusTextInput.bind(this);
     this.OnEditFinished = this.OnEditFinished.bind(this);
     this.OnDeleteClick = this.OnDeleteClick.bind(this);
@@ -47,9 +47,9 @@ class StickyNoteCard extends React.Component {
     this.OnCommentTextChange = this.OnCommentTextChange.bind(this);
     this.OnShowEditButtons = this.OnShowEditButtons.bind(this);
     this.OnHideEditButtons = this.OnHideEditButtons.bind(this);
+    this.OnClickAway = this.OnClickAway.bind(this);
 
     this.state = {
-      hasBeenRead: false,
       isBeingEdited: false,
       allowedToEdit: false,
       allowedToDelete: false,
@@ -74,32 +74,28 @@ class StickyNoteCard extends React.Component {
     const currentGroup = ADM.GetGroupByStudent();
     const authorGroup = ADM.GetGroupByStudent(this.props.comment.author);
     const isAuthor = currentGroup === authorGroup;
-    const hasBeenRead = this.props.comment.readBy
-      ? this.props.comment.readBy.includes(ADM.GetSelectedStudentId())
-      : false;
     this.setState({
       criteria,
-      hasBeenRead,
       selectedCriteriaId: this.props.comment.criteriaId,
       allowedToEdit: isAuthor,
       allowedToDelete: isAuthor // REVIEW: Only teachers are allowed to delete?
     });
     if (this.props.comment.text === '') {
       // automatically turn on editing if this is a new empty comment
-      this.OnEditStart();
+      this.DoEditStart();
     }
   }
 
-  OnEditClick(e) {
-    e.preventDefault();
-    this.OnEditStart();
-  }
-
-  OnEditStart() {
+  DoEditStart() {
     this.setState({ isBeingEdited: true }, () => {
       this.FocusTextInput();
       this.props.onStartEdit();
     });
+  }
+
+  OnEditClick(e) {
+    e.preventDefault();
+    this.DoEditStart();
   }
 
   FocusTextInput() {
@@ -164,9 +160,33 @@ class StickyNoteCard extends React.Component {
     });
   }
 
+  OnClickAway() {
+    if (this.state.isBeingEdited) this.OnEditFinished();
+  }
+
   render() {
+    // theme overrides
+    // See https://github.com/mui-org/material-ui/issues/14905 for details
+    const theme = createMuiTheme();
+    theme.overrides = {
+      MuiFilledInput: {
+        root: {
+          backgroundColor: 'rgba(250,255,178,0.3)',
+          paddingTop: '3px',
+          '&:hover': {
+            backgroundColor: 'rgba(255,255,255,0.5)'
+          },
+          '&$focused': {
+            backgroundColor: '#fff'
+          }
+        },
+        multiline: {
+          padding: '0'
+        }
+      }
+    };
+
     const {
-      hasBeenRead,
       isBeingEdited,
       allowedToEdit,
       allowedToDelete,
@@ -176,6 +196,9 @@ class StickyNoteCard extends React.Component {
       comment
     } = this.state;
     const { classes } = this.props;
+    const hasBeenRead = this.props.comment.readBy
+      ? this.props.comment.readBy.includes(ADM.GetSelectedStudentId())
+      : false;
     const date = new Date(comment.date);
     const timestring = date.toLocaleTimeString('en-Us', {
       hour: '2-digit', minute: '2-digit'
@@ -198,51 +221,10 @@ class StickyNoteCard extends React.Component {
           ))}
         </select>
       );
-      // Material UI Select is too large and clunky!
-      // criteriaDisplay = (
-      //   <FormControl variant="outlined">
-      //     <Select
-      //       value={comment.criteriaId}
-      //       onChange={this.OnCriteriaSelect}
-      //       input={
-      //         <OutlinedInput name="criteriaSelector" id="criteriaSelector-helper" labelWidth={0} />
-      //       }
-      //       className={classes.criteriaSelectorMenu}
-      //       autoWidth
-      //     >
-      //       {criteria.map(crit => (
-      //         <MenuItem value={crit.id} key={crit.id} className={classes.criteriaSelectorMenu}>
-      //           {crit.label}
-      //         </MenuItem>
-      //       ))}
-      //     </Select>
-      //   </FormControl>
-      // );
     }
 
-    // theme overrides
-    // See https://github.com/mui-org/material-ui/issues/14905 for details
-    const theme = createMuiTheme();
-    theme.overrides = {
-      MuiFilledInput: {
-        root: {
-          backgroundColor: 'rgba(250,255,178,0.3)',
-          paddingTop: '3px',
-          '&:hover': {
-            backgroundColor: 'rgba(255,255,255,0.5)'
-          },
-          '&$focused': {
-            backgroundColor: '#fff'
-          }
-        },
-        multiline: {
-          padding: '0'
-        }
-      }
-    };
-
     return (
-      <ClickAwayListener onClickAway={this.OnEditFinished}>
+      <ClickAwayListener onClickAway={this.OnClickAway}>
         <Paper
           className={hasBeenRead ? classes.stickynoteCardRead : classes.stickynoteCard}
           onMouseEnter={this.OnShowEditButtons}

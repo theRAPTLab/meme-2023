@@ -792,27 +792,6 @@ ADMData.SetClassroomResource = (rsrcId, checked, classroomId) => {
   UR.Publish('ADM_DATA_UPDATED');
 };
 
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// STICKIES
-///
-
-// Returns an empty sticky with the current student info
-ADMData.NewComment = () => {
-  const id = `co${new Date().getTime()}`;
-  const author = ADMData.GetSelectedStudentId();
-  const starter = ADMData.GetSentenceStartersByClassroom().sentences;
-  return {
-    id,
-    author,
-    date: new Date(),
-    text: '',
-    placeholder: starter,
-    criteriaId: '',
-    readBy: []
-  };
-};
-
-
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default ADMData;

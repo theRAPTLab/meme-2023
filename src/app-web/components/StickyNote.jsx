@@ -23,8 +23,13 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import ADM from '../modules/adm-data';
+import PMC from '../modules/pmc-data';
 import StickyNoteCard from './StickyNoteCard';
 
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = false;
+const PKG = 'StickyNote:';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,15 +38,15 @@ class StickyNote extends React.Component {
   constructor(props) {
     super(props);
 
-    this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.DoOpenSticky = this.DoOpenSticky.bind(this);
+    this.DoStickyUpdate = this.DoStickyUpdate.bind(this);
     this.DoAddComment = this.DoAddComment.bind(this);
     this.DoCloseSticky = this.DoCloseSticky.bind(this);
     this.OnReplyClick = this.OnReplyClick.bind(this);
     this.OnStartEdit = this.OnStartEdit.bind(this);
     this.OnUpdateComment = this.OnUpdateComment.bind(this);
     this.OnCloseClick = this.OnCloseClick.bind(this);
-    this.OnClickAwawy = this.OnClickAwawy.bind(this);
+    this.OnClickAway = this.OnClickAway.bind(this);
 
     this.state = {
       isHidden: true,
@@ -49,27 +54,28 @@ class StickyNote extends React.Component {
       comments: [],
       top: 0,
       left: 0,
-      parent: {}
+      parentId: '',
+      parentType: ''
     };
 
-    UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate); // Broadcast when a group is added.
     UR.Sub('STICKY:OPEN', this.DoOpenSticky);
+    UR.Sub('STICKY:UPDATED', this.DoStickyUpdate);
   }
 
-  componentDidMount() { }
+  componentDidMount() {}
 
-  componentWillUnmount() { }
-
-  DoADMDataUpdate() {
-
-  }
+  componentWillUnmount() {}
 
   DoOpenSticky(data) {
-    let { comments, x, y, parent } = data;
+    let { parentId, parentType, x, y } = data;
+    const parent = PMC.GetParent(parentId, parentType);
+    let comments = parent.comments;
     let isBeingEdited = false;
+    // if no comments yet, add an empty comment automatically
     if (comments === undefined || comments.length === 0) {
-      // no comments yet, so add an empty comment
-      comments = [ADM.NewComment()];
+      const author = ADM.GetSelectedStudentId();
+      const starter = ADM.GetSentenceStartersByClassroom().sentences;
+      comments = [PMC.NewComment(author, starter)];
       isBeingEdited = true;
     }
     this.setState({
@@ -78,32 +84,48 @@ class StickyNote extends React.Component {
       comments,
       top: y,
       left: x - 325, // width of stickyonotecard HACK!!!
-      parent
+      parentId,
+      parentType
     });
   }
 
   DoAddComment() {
-    let comment = ADM.NewComment();
+    const author = ADM.GetSelectedStudentId();
+    const starter = ADM.GetSentenceStartersByClassroom().sentences;
+    let comment = PMC.NewComment(author, starter);
     this.setState(state => {
       return { comments: state.comments.concat([comment]) };
     });
   }
 
-  DoCloseSticky() {
-    this.setState({ isHidden: true });
+  // PMC has upadted sticky data, usually unread status
+  // Update our existing data directly from PMC.
+  DoStickyUpdate() {
+    const { parentId, parentType } = this.state;
+    let parent = PMC.GetParent(parentId, parentType);
+    if (DBG) console.log(PKG, 'DoStickyUpdate with comments', parent.comments);
+    if (DBG) console.table(parent.comments);
+    this.setState({
+      comments: parent.comments
+    });
   }
 
-  DoMarkCommentsRead() {
-    // Mark all comments read
+  DoCloseSticky() {
+    // Mark all comments read, then update comments
     this.setState(state => {
       const author = ADM.GetSelectedStudentId();
       let comments = state.comments;
       comments.forEach(comment => {
         if (comment.readBy.includes(author)) return;
         comment.readBy.push(author);
-      })
-      return { comments };
-    });
+      });
+      if (DBG) console.log(PKG,'DoCloseSticky: comments should be:');
+      if (DBG) console.table(comments);
+      return {
+        comments,
+        isHidden: true
+      };
+    }, this.OnUpdateComment);
   }
 
   OnReplyClick(e) {
@@ -114,7 +136,6 @@ class StickyNote extends React.Component {
   }
 
   OnStartEdit() {
-    console.error('edit started')
     this.setState({
       isBeingEdited: true
     });
@@ -126,20 +147,22 @@ class StickyNote extends React.Component {
     // point to the updated text.
     // However, our parent object (e.g. property, mechanism, evidence link) is
     // passed via the URSYS call, so we have to update that explicitly.
-    this.state.parent.comments = this.state.comments;
+    if (DBG) console.log(PKG,'OnUpdateComment: comments');
+    if (DBG) console.table(this.state.comments);
+    const { parentId, parentType, comments } = this.state;
+    PMC.UpdateComments(parentId, parentType, comments);
     this.setState({
       isBeingEdited: false
     });
   }
 
   OnCloseClick() {
-    this.DoMarkCommentsRead();
     this.DoCloseSticky();
   }
 
-  OnClickAwawy() {
+  OnClickAway() {
     if (!this.state.isHidden && !this.state.isBeingEdited) {
-      this.OnCloseClick();
+      this.DoCloseSticky();
     } else {
       // don't do anything if the user is still editing comment
     }
@@ -151,8 +174,8 @@ class StickyNote extends React.Component {
 
     return (
       <div>
-        <ClickAwayListener onClickAway={this.OnClickAwawy}>
-          <Paper className={classes.stickynotePaper} hidden={isHidden} style={{ top: top, left: left }}>
+        <ClickAwayListener onClickAway={this.OnClickAway}>
+          <Paper className={classes.stickynotePaper} hidden={isHidden} style={{ top, left }}>
             <IconButton
               size="small"
               style={{ position: 'absolute', right: '-25px', top: '-25px' }}

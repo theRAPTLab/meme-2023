@@ -1,6 +1,81 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-STickey Note
+Sticky Note
+
+state
+    parent      We don't update the parent object directly, 
+                we call PMC to do the update.
+                The parent object is just used to rretrive comments
+                and the parentId.
+    parentType  These are set when STICKY:OPEN is received.
+                parentType let's us know how to update the
+                parent object.
+
+props
+    classes     MEMEStyles MaterialUI styles implementation.
+    
+    
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+ABOUT THE STICKY NOTE SYSTEM
+
+    There are three components to the Sticky Note System:
+    
+    1. StickyNoteButton
+    2. StickyNote
+    3. StickyNotecard
+    
+StickyNoteButton
+    
+    StickyNoteButtons serve two functions:
+    1. Display the read/unread/blank status of a sticky note
+    2. Clicking on the button will open up the sticky note display
+    
+    StickyNoteButtons are designed to be attachable to any object (though 
+    currently they only attach to EvidenceLinks).
+    
+    They retain only a minimal amount of data: parentId and parentType and
+    retrieve status updates directly from PMCData.
+    
+    When they open a StickyNote, they use an URSYS.Publish call.
+    
+StickyNote
+    
+    A StickyNote is the container component for StickyNoteCards.
+    Each StickyNote can contain any number of StickyNoteCards.
+    StickyNoteCards display individual comments from different authors.
+    
+    There is only a single StickyNote object in ViewMain.  It gets 
+    repurposed for each note that is opened.
+    
+    StickNotes are opened via an URSYS.Publish('STICKY:Open') call.
+    
+    StickyNotes handle all the data for the StickyNoteCards, passing
+    individual comments as props: onStartEdit, onUpdateComment.
+    
+    Updates to the comment data are sent directly to PMCData via a
+    PMC.UpdateComments() call.
+    
+StickyNoteCard
+
+    StickyNoteCards display individual comments from different authors.
+
+    props
+      
+      onStartEdit -- This is called whenever the user clicks on the edit button. 
+      This is passed to StickyNote so that StickyNote can hide buttons that
+      shouldn't be shown during edit (e.g. Reply)
+      
+      onUpdateComment -- This is called when the user is finished editing and
+      ready to close the sticky.  Calling update only when the user is finsihed
+      allows us to implement a local undo, if necessary (though it hasn't 
+      been implemented).
+
+    
+
+
+
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 

@@ -1,7 +1,26 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-STickey Note Icon Button
+Sticky Note Icon Button
 
+    For documentation, see boilerplate/src/app-web/components/StickyNote.jsx
+
+props
+
+    parentId    This is used to load the parent object. 
+                e.g. if the parent object is an evidence link, this
+                points to the evId.
+                
+    parentType  Sticky Notes need to tknow the type of parentId 
+                that is being passed.  We (StickyNoteButton) don't use
+                this information directly but it is passed to StickyNote
+                when we publish the STICKIES:OPEN event.
+
+state
+
+    parent      We need to load and keep a local copy of the parent object
+                in order to look up the comments when setting the read/unread
+                state of the button
+                
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////

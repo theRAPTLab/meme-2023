@@ -1,6 +1,37 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-STickey Note
+Sticky Note Card
+
+    For documentation, see boilerplate/src/app-web/components/StickyNote.jsx
+    
+props
+
+    comment           Comment data passed from the parent StickyNote
+    
+    onStartEdit       prop func called by StickyNoteCard when user clicks "Edit"
+    
+    onUpdateComment   prop func called by STickyNoteCard when user is
+                      finished editing and ready to save.
+    
+state
+
+    isBeingEdited     User is editing card, show input field, hide Edit button
+    
+    allowedToEdit     User is the comment author or in the same group so allowed
+                      to edit the comment.
+    
+    allowedToDelete   User is the comment author, so allowed to delete the
+                      comment.  NOTE: We might want to restrict this to
+                      teachers only.
+    
+    showEditButtons   Boolean flag to show edit and delete buttons for the card.
+    
+    criteria          The menu for selecting criteria
+    selectedCriteriaId
+    
+    comment           A local state copy of the comment text.
+                      This is updated/read on the intial construction from 
+                      this.props.comment.
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 

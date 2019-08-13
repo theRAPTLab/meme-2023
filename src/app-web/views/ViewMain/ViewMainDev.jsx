@@ -132,6 +132,7 @@ class ViewMain extends React.Component {
 
     // FIXME
     // Hack load in ADM data for now.  Eventually ADM will be loaded by system startup.
+    // This initializes data structures that render() requires
     ADM.Load();
   }
 
@@ -146,6 +147,9 @@ class ViewMain extends React.Component {
     // the root component renders in SystemInit.
     // SystemInit fires `WINDOW:SIZE` to force the
     // relayout
+    // special ViewMainDev login bypass
+    ADM.Login('Bob');
+    ADM.LoadModel('mo01');
   }
 
   componentWillUnmount() {
@@ -421,7 +425,6 @@ class ViewMain extends React.Component {
 
   render() {
     const { classes } = this.props;
-
     const {
       studentName,
       studentGroup,
@@ -430,12 +433,22 @@ class ViewMain extends React.Component {
       componentIsSelected,
       mechIsSelected
     } = this.state;
+
+    let { mode } = this.props.match.params;
+    const LoginStuff = mode ? (
+      <React.Fragment />
+    ) : (
+      <React.Fragment>
+        <Login memo="[ViewMainDev]" />
+        <ModelSelect />
+      </React.Fragment>
+    );
+
     const resources = ADM.AllResources();
     return (
       <div className={classes.root}>
         <CssBaseline />
-        <Login memo="[ViewMainDev]" />
-        <ModelSelect />
+        {LoginStuff}
         <AppBar position="fixed" className={classes.appBar} style={{ backgroundColor: 'maroon' }}>
           <Toolbar>
             <Switch>

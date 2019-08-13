@@ -8,22 +8,12 @@ STickey Note
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import CardActions from '@material-ui/core/CardActions';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import FilledInput from '@material-ui/core/FilledInput';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import InputBase from '@material-ui/core/InputBase';
 import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
-import Select from '@material-ui/core/Select';
-import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 // Material UI Icons
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -34,7 +24,6 @@ import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
-import UR from '../../system/ursys';
 import ADM from '../modules/adm-data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////

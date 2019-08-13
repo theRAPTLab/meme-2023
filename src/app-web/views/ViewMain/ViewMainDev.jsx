@@ -776,7 +776,16 @@ ViewMain.defaultProps = {
 ViewMain.propTypes = {
   classes: PropTypes.shape({})
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// required for UR EXEC phase filtering by view path
+ViewMain.URMOD = __dirname;
+UR.EXEC.Hook(
+  'INITIALIZE',
+  () => {
+    console.log('ViewMain Init');
+  },
+  ViewMain.URMOD
+);
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles

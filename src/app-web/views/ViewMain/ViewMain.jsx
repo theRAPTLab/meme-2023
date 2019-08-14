@@ -657,35 +657,36 @@ class ViewMain extends React.Component {
                 Close
               </Button>
             </div>
-            <iframe
-              src={this.state.selectedResource.url}
-              width="1000"
-              height="90%"
-              title="resource"
-            />
-            <div className={classes.resourceViewSidebar}>
-              <TextField
-                id="informationNote"
-                label="Our Notes"
-                placeholder="We noticed..."
-                multiline
-                rows="5"
-                className={classes.resourceViewNote}
-                margin="normal"
-                variant="outlined"
+            <div style={{ display: 'flex' }}>
+              <iframe
+                src={this.state.selectedResource.url}
+                style={{ height: '90%', flexGrow: '1' }}
+                title="resource"
               />
-              <Typography variant="caption">OUR EVIDENCE LIST</Typography>
-              <div className={classes.resourceViewSidebarEvidenceList}>
-                <EvidenceList rsrcId={this.state.selectedResource.rsrcId} />
+              <div className={classes.resourceViewSidebar}>
+                <TextField
+                  id="informationNote"
+                  label="Our Notes"
+                  placeholder="We noticed..."
+                  multiline
+                  rows="5"
+                  className={classes.resourceViewNote}
+                  margin="normal"
+                  variant="outlined"
+                />
+                <Typography variant="caption">OUR EVIDENCE LIST</Typography>
+                <div className={classes.resourceViewSidebarEvidenceList}>
+                  <EvidenceList rsrcId={this.state.selectedResource.rsrcId} />
+                </div>
+                <Button
+                  className={classes.resourceViewCreatebutton}
+                  variant="contained"
+                  onClick={() => this.handleSnapshot(this.state.selectedResource.rsrcId)}
+                  color="primary"
+                >
+                  Create Evidence
+                </Button>
               </div>
-              <Button
-                className={classes.resourceViewCreatebutton}
-                variant="contained"
-                onClick={() => this.handleSnapshot(this.state.selectedResource.rsrcId)}
-                color="primary"
-              >
-                Create Evidence
-              </Button>
             </div>
           </Paper>
         </Modal>

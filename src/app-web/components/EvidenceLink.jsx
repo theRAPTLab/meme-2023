@@ -293,7 +293,9 @@ class EvidenceLink extends React.Component {
           <ExpandMoreIcon className={isExpanded ? classes.iconExpanded : ''} />
         </Button>
         {/* Title Bar */}
-        <Typography className={classes.evidenceWindowLabel}>EVIDENCE LINK</Typography>
+        <Typography className={classes.evidenceWindowLabel} hidden={!isExpanded}>
+          EVIDENCE LINK
+        </Typography>
         <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
           How does this resource support this component / property / mechanism?
         </Typography>

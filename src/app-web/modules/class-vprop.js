@@ -1,5 +1,5 @@
 import DATA from './pmc-data';
-import { cssinfo } from './console-styles';
+import { cssinfo, cssred, cssmark } from './console-styles';
 import DEFAULTS from './defaults';
 import { AddDragDropHandlers } from './class-vprop-dragdrop';
 import { VisualState } from './classes-visual';
@@ -17,7 +17,10 @@ const m_pad = PAD.MIN;
 const COL_BG = COLOR.PROP;
 const DIM_RADIUS = 3;
 //
-const DBG = false;
+const DBG = {
+  edges: false,
+  layout: true
+};
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -156,9 +159,7 @@ class VProp {
    * with no additional padding
    * @returns { id, w, h }
    */
-  DataSize(novar) {
-    if (novar)
-      throw Error('DataSize() only reports size of the data elements, and can not be overridden');
+  DataSize() {
     let { w, h } = this.gDataName.rbox();
     if (w < m_minWidth) w = m_minWidth;
     if (h < m_minHeight) h = m_minHeight;
@@ -197,15 +198,14 @@ class VProp {
    * by measuring sound of visBG rect
    * @returns { x, y, x2, y2, w, h, cx, cy }
    */
-  ScreenBBox(novar) {
-    if (novar) throw Error('ScreenBBox() is READONLY');
+  ScreenBBox() {
     return this.visBG.bbox();
   }
 
   /**
    * Return a specified point on the edge of the vprop
    * c = center, t = top, r = right, b = bottom, l = left
-   * @param { loc } - string c, t, r, b, or l
+   * @param { string } location - string c, t, r, b, or l
    */
   RequestEdgePoint(loc = 'c') {
     const { x, y, x2, y2, cx, cy } = this.ScreenBBox();
@@ -227,8 +227,8 @@ class VProp {
 
   /**
    * Finds closest edges between this vprop and the target vprop. If found, returns the points
-   * @param { id } - id of remote VProp to connect to
-   * @returns { ptsObj } - {pt1:{x,y,d,up}, pt2:{x,y,d,up}}
+   * @param { string } targetId - target of remote VProp to connect to
+   * @returns { object } - a points object {pt1:{x,y,d,up}, pt2:{x,y,d,up}}
    */
   FindEdgePointConnectionTo(targetId) {
     const target = DATA.VM_VProp(targetId);
@@ -251,7 +251,7 @@ class VProp {
       if (foo.d > bar.d) return 1;
       return 0;
     });
-    if (DBG) {
+    if (DBG.edges) {
       const out = `${this.Id()} sees ${distances.length} potential outedges to ${targetId}`;
       console.log(out, distances);
     }
@@ -460,9 +460,10 @@ VProp.LayoutComponents = () => {
   // walk through all components
   // for each component, get the size of all children
   // set background size to it
+  if (DBG) console.log(`%cNEW LAYOUT`, cssmark);
   components.forEach(id => {
     // get the Visual
-    if (DBG) console.groupCollapsed(`%c:layout component ${id}`, cssinfo);
+    if (DBG) console.group(`%c:layout component ${id}`, cssinfo);
     recurseLayout({ x: xCounter, y: yCounter }, id);
     const compVis = DATA.VM_VProp(id);
     const compHeight = compVis.PropSize().h;
@@ -484,12 +485,14 @@ VProp.LayoutComponents = () => {
 /// screen
 function recurseLayout(pos, id) {
   let { x, y } = pos;
-  if (DBG) console.group(`${id} draw at (${x},${y})`);
+  const LDBG = DBG.layout;
   const compVis = DATA.VM_VProp(id);
-  if (!compVis.LayoutDisabled()) {
-    if (DBG) console.log(`moving ${compVis.id}`);
-    compVis.Move(pos.x, pos.y); // draw compVis where it should go in screen space
-    if (DBG) console.log('compVis is at', compVis.X(), compVis.X());
+
+  if (compVis.LayoutDisabled()) {
+    if (LDBG) console.log(`%c${compVis.id} layout skipped`, cssred);
+  } else {
+    if (LDBG) console.group(`moving ${compVis.id} from ${compVis.X()},${compVis.Y()} to ${x},${y}`);
+    compVis.Move(x, y); // draw compVis where it should go in screen space
     y += compVis.DataSize().h + PAD.MIN;
     x += PAD.MIN;
     const children = DATA.Children(id);
@@ -500,13 +503,11 @@ function recurseLayout(pos, id) {
       recurseLayout({ x, y }, cid);
       const addH = childVis.PropSize().h + PAD.MIN;
       y += addH;
-      if (DBG) console.log(`y + ${addH} = ${y}`);
+      if (LDBG) console.log(`y + ${addH} = ${y}`);
       childVis.ToParent(id); // nest child in parent
     });
-  } else if (DBG) {
-    console.log(`skipping layout of ${compVis.id}`);
+    if (LDBG) console.groupEnd();
   }
-  if (DBG) console.groupEnd();
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 VProp.StaticMethod = (method, methodName) => {

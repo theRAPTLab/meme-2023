@@ -54,6 +54,10 @@ class EvidenceLink extends React.Component {
       listenForSourceSelection: false
     };
 
+    // Handle Focus
+    // create a ref to store the textInput DOM element
+    this.textInput = React.createRef();
+
     this.DoDataUpdate = this.DoDataUpdate.bind(this);
     this.DoRatingUpdate = this.DoRatingUpdate.bind(this);
     this.OnCancelButtonClick = this.OnCancelButtonClick.bind(this);
@@ -131,9 +135,20 @@ class EvidenceLink extends React.Component {
 
   OnEditButtonClick(e) {
     e.stopPropagation();
-    this.setState({
-      isBeingEdited: true
+    this.setState({ isBeingEdited: true }, () => {
+      this.FocusTextInput();
     });
+  }
+
+  FocusTextInput() {
+    // Explicitly focus the text input using the raw DOM API
+    // Note: we're accessing "current" to get the DOM node
+    // https://reactjs.org/docs/refs-and-the-dom.html#adding-a-ref-to-a-dom-element
+    // https://stackoverflow.com/questions/52222988/how-to-focus-a-material-ui-textfield-on-button-click/52223078
+    this.textInput.current.focus();
+    // Set cursor to end of text.
+    const pos = this.textInput.current.value.length;
+    this.textInput.current.setSelectionRange(pos, pos);
   }
 
   OnSaveButtonClick(e) {
@@ -340,6 +355,7 @@ class EvidenceLink extends React.Component {
                     InputProps={{
                       readOnly: !isBeingEdited
                     }}
+                    inputRef={this.textInput}
                   />
                 ) : (
                   <div className={classes.evidenceLabelField}>{note}</div>

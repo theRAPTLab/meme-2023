@@ -151,6 +151,10 @@ const AddDragDropHandlers = vprop => {
       return;
     }
 
+    // for every move, move vprop back to root to 'reset' it
+    // before subsequent reparenting
+    vprop.ToRoot();
+
     // it did move, so do drop target magic
     const dropId = DATA.VM_PropsMouseOver().pop();
 

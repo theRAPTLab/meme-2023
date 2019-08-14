@@ -434,7 +434,7 @@ class EvidenceLink extends React.Component {
             </Grid>
           </Grid>
         </Grid>
-        <Divider style={{ margin: '10px'}} />
+        <Divider style={{ margin: '10px' }} hidden={!isExpanded} />
         <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
           <Button
             hidden={!isExpanded || isBeingEdited}

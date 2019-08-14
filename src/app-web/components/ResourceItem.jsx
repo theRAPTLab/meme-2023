@@ -43,7 +43,7 @@ class ResourceItem extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isExpanded: false
+      isExpanded: true
     };
 
     this.handleEvidenceLinkOpen = this.handleEvidenceLinkOpen.bind(this);

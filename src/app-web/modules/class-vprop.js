@@ -14,12 +14,16 @@ const { VPROP, PAD, COLOR } = DEFAULTS;
 const m_minWidth = VPROP.MIN_WIDTH;
 const m_minHeight = VPROP.MIN_HEIGHT;
 const m_pad = PAD.MIN;
+const COL_HOVER = COLOR.PROP_HOV;
+const COL_HOVER_OPACITY = 0.3;
 const COL_BG = COLOR.PROP;
+const COL_BG_OPACITY = 0.1;
 const DIM_RADIUS = 3;
 //
 const DBG = {
   edges: false,
-  layout: true
+  layout: false,
+  hierarchy: false
 };
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -48,14 +52,17 @@ class VProp {
     this.gDataName.attr('pointer-events', 'none');
     this.gKids = this.gRoot.group(); // child components group
     // other default properties
-    this.fill = COL_BG;
     this.width = m_minWidth;
     this.height = m_minHeight;
     this.kidsWidth = 0;
     this.kidsHeight = 0;
     // shared modes
     this.visualState = new VisualState(this.id);
-    this.displayMode = {};
+    this.visualStyle = {
+      stroke: { color: COL_BG, width: 1 },
+      fill: { color: COL_BG, opacity: COL_BG_OPACITY },
+      radius: DIM_RADIUS
+    };
     this.mechPoints = []; // array of points available for mechanism connections
     // hacked items
     this.posMode = { wasMoved: false };
@@ -87,13 +94,17 @@ class VProp {
 
   HoverState(visible) {
     if (typeof visible !== 'boolean') throw Error('must specific true or false');
-    this.hovering = visible;
 
-    if (this.hovering) {
-      this.visBG.stroke({ color: this.fill, width: 1, dasharray: '2 2' });
+    if (visible) {
+      this.visualState.Select('hover');
+      this.visualStyle.fill.color = COL_HOVER;
+      this.visualStyle.fill.opacity = COL_HOVER_OPACITY;
     } else {
-      this.visBG.stroke({ color: this.fill, width: 0 });
+      this.visualState.Deselect('hover');
+      this.visualStyle.fill.color = COL_BG;
+      this.visualStyle.fill.opacity = COL_BG_OPACITY;
     }
+    this.Draw();
   }
 
   /**
@@ -294,11 +305,12 @@ class VProp {
    * @param {object} point { x, y } coordinate
    */
   Draw(point) {
+    const { stroke, fill, radius } = this.visualStyle;
     // draw box
-    this.visBG.fill({ color: this.fill, opacity: 0.1 }).radius(DIM_RADIUS);
-    let sw = this.visualState.IsSelected() ? 2 : 0;
-    if (this.visualState.IsSelected('first')) sw *= 2;
-    this.visBG.stroke({ color: this.fill, width: sw });
+    this.visBG.fill(fill).radius(radius);
+    stroke.width = this.visualState.IsSelected() ? 2 : 0;
+    if (this.visualState.IsSelected('first')) stroke.width *= 2;
+    this.visBG.stroke(stroke);
     // draw label
     this.gDataName.transform({ translateX: m_pad, translateY: m_pad / 2 });
     // move
@@ -316,7 +328,7 @@ class VProp {
    * Make this VProp a child of another VProp
    */
   ToParent(id) {
-    if (DBG) console.log(`${id} <- ${this.id}`);
+    if (DBG.hierarchy) console.log(`${id} <- ${this.id}`);
     const vparent = DATA.VM_VProp(id);
     if (!vparent) throw Error(`${id} does not have a matching VProp`);
     this.gRoot.toParent(vparent.gKids);
@@ -326,7 +338,7 @@ class VProp {
    * Make this VProp a child of the main svg element
    */
   ToRoot() {
-    if (DBG) console.log(`%croot <- ${this.id}`, `font-weight:bold`);
+    if (DBG.hierarchy) console.log(`%croot <- ${this.id}`, `font-weight:bold`);
     this.gRoot.toRoot();
   }
 
@@ -460,10 +472,10 @@ VProp.LayoutComponents = () => {
   // walk through all components
   // for each component, get the size of all children
   // set background size to it
-  if (DBG) console.log(`%cNEW LAYOUT`, cssmark);
+  if (DBG.layout) console.log(`%cNEW LAYOUT`, cssmark);
   components.forEach(id => {
     // get the Visual
-    if (DBG) console.group(`%c:layout component ${id}`, cssinfo);
+    if (DBG.layout) console.group(`%clayout: component ${id}`, cssinfo);
     recurseLayout({ x: xCounter, y: yCounter }, id);
     const compVis = DATA.VM_VProp(id);
     const compHeight = compVis.PropSize().h;

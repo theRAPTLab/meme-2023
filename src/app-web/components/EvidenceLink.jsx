@@ -284,7 +284,11 @@ class EvidenceLink extends React.Component {
         )}
         key={`${rsrcId}`}
       >
-        <Button className={classes.evidenceExpandButton} onClick={this.toggleExpanded}>
+        <Button
+          className={classes.evidenceExpandButton}
+          onClick={this.toggleExpanded}
+          hidden={!isExpanded}
+        >
           <ExpandMoreIcon className={isExpanded ? classes.iconExpanded : ''} />
         </Button>
         {/* Title Bar */}

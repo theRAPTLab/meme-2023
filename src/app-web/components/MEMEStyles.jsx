@@ -207,14 +207,14 @@ const styles = theme => {
       alignItems: 'center'
     },
     evidenceBodyRowCollapsed: {
-      height: '25px',
-      marginTop: '0.25em',
+      height: '35px',
+      marginBottom: '2px',
       alignItems: 'baseline'
     },
     evidenceBodyRatingCollapsed: {
       position: 'relative',
-      top: '-50px',
-      left: '170px'
+      top: '-30px',
+      left: '200px'
     },
     evidenceBodyRowCentered: {
       marginTop: '0.25em',
@@ -234,7 +234,6 @@ const styles = theme => {
       fontSize: '0.9em',
       lineHeight: '1em',
       height: '30px',
-      margin: '0 0 15px 10px',
       overflowY: 'auto'
     },
     evidenceLabelFieldExpanded: {
@@ -281,11 +280,12 @@ const styles = theme => {
       width: '290px',
       height: '70px',
       margin: '0 auto',
-      padding: '10px 0 10px 10px',
+      padding: '1px 0 10px 10px',
       backgroundColor: yellow[50]
     },
     evidenceLinkPaperExpanded: {
       height: 'auto',
+      padding: '10px 0 10px 10px',
       backgroundColor: yellow[200]
     },
     iconExpanded: {

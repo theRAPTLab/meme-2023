@@ -300,17 +300,54 @@ class EvidenceLink extends React.Component {
           How does this resource support this component / property / mechanism?
         </Typography>
         {/* Body */}
-        <Grid container className={classes.evidenceBody} spacing={8}>
+        <Grid container className={classes.evidenceBody} spacing={0}>
           {/* Source */}
-          <Grid item xs={isExpanded ? 12 : 3}>
+
+          <Grid item xs={12}>
             <Grid
               container
               spacing={1}
               className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
             >
+              <Grid item xs={4} hidden={!isExpanded}>
+                <Typography variant="caption" align="right">
+                  DESCRIPTION:
+                </Typography>
+              </Grid>
+
               <Grid item xs>
+                {isExpanded ? (
+                  <TextField
+                    className={ClassNames(
+                      classes.evidenceLabelField,
+                      classes.evidenceLabelFieldExpanded
+                    )}
+                    value={note}
+                    placeholder="Click to add label..."
+                    autoFocus
+                    multiline
+                    onChange={this.handleNoteChange}
+                    InputProps={{
+                      readOnly: !isBeingEdited
+                    }}
+                  />
+                ) : (
+                  <div className={classes.evidenceLabelField}>{note}</div>
+                )}
+              </Grid>
+
+              <Grid item xs={3}>
                 <StickyNoteButton parentId={evId} parentType="evidence" />
               </Grid>
+            </Grid>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Grid
+              container
+              spacing={1}
+              className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
+            >
               <Grid item xs={4} hidden={!isExpanded}>
                 <Typography variant="caption" align="right">
                   SOURCE:
@@ -332,39 +369,7 @@ class EvidenceLink extends React.Component {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={isExpanded ? 12 : 9}>
-            <Grid
-              container
-              spacing={1}
-              className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
-            >
-              <Grid item xs={4} hidden={!isExpanded}>
-                <Typography variant="caption" align="right">
-                  DESCRIPTION:
-                </Typography>
-              </Grid>
-              <Grid item xs>
-                {isExpanded ? (
-                  <TextField
-                    className={ClassNames(
-                      classes.evidenceLabelField,
-                      classes.evidenceLabelFieldExpanded
-                    )}
-                    value={note}
-                    placeholder="Click to add label..."
-                    autoFocus
-                    multiline
-                    onChange={this.handleNoteChange}
-                    InputProps={{
-                      readOnly: !isBeingEdited
-                    }}
-                  />
-                ) : (
-                  <div className={classes.evidenceLabelField}>{note}</div>
-                )}
-              </Grid>
-            </Grid>
-          </Grid>
+
           <Grid item xs={isExpanded ? 12 : 3}>
             <Grid
               container

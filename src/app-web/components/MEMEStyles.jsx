@@ -150,7 +150,7 @@ const styles = theme => {
       display: 'flex',
       alignItems: 'center',
       flexDirection: 'column',
-      backgroundColor: teal[200]
+      backgroundColor: teal[300]
     },
     resourceViewCard: {
       height: '50px',

@@ -115,6 +115,7 @@ class EvidenceLink extends React.Component {
   }
 
   HandleCancelButtonClick() {
+    e.stopPropagation();
     this.setState({
       isBeingEdited: false
     });
@@ -125,12 +126,14 @@ class EvidenceLink extends React.Component {
   }
 
   handleEditButtonClick() {
+    e.stopPropagation();
     this.setState({
       isBeingEdited: true
     });
   }
 
   handleSaveButtonClick() {
+    e.stopPropagation();
     // FIXME May 1 Hack
     // How do we handle draftValue vs committedValue?
     this.setState({
@@ -327,6 +330,9 @@ class EvidenceLink extends React.Component {
                     autoFocus
                     multiline
                     onChange={this.handleNoteChange}
+                    onClick={e => {
+                      e.stopPropagation();
+                    }}
                     InputProps={{
                       readOnly: !isBeingEdited
                     }}

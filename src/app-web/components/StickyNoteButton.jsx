@@ -99,6 +99,7 @@ class StickyNoteButton extends React.Component {
 
   OnCommentClick(e) {
     e.preventDefault();
+    e.stopPropagation();
 
     UR.Publish('STICKY:OPEN', {
       parentId: this.props.parentId,

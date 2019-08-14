@@ -146,6 +146,12 @@ const styles = theme => {
       maxHeight: '4em',
       overflow: 'hidden'
     },
+    resourceViewEvList: {
+      display: 'flex',
+      alignItems: 'center',
+      flexDirection: 'column',
+      backgroundColor: teal[200]
+    },
     resourceViewCard: {
       height: '50px',
       minWidth: '150px'

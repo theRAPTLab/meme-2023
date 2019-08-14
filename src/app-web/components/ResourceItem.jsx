@@ -147,7 +147,14 @@ class ResourceItem extends React.Component {
             </Button>
           </ListItemSecondaryAction>
         </ListItem>
-        {isExpanded ? <EvidenceList rsrcId={resource.rsrcId} key={`${resource.rsrcId}ev`} /> : ''}
+        {isExpanded ? (
+          <div className={classes.resourceViewEvList}>
+            <EvidenceList rsrcId={resource.rsrcId} key={`${resource.rsrcId}ev`} />
+            <Button size="small" color="primary" onClick={() => alert('new evi!')}>
+              Create Evidence
+            </Button>
+          </div>
+        ) : ''}
       </div>
     );
   }

@@ -2,7 +2,6 @@ import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
 import { cssinfo, cssreset, cssdata } from './console-styles';
 import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
-import ADM from './adm-data';
 
 const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
 

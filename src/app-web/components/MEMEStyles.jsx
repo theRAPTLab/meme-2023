@@ -1,12 +1,12 @@
-import { grey, indigo, orange, red, teal, yellow } from '@material-ui/core/colors';
+import { green, indigo, orange, red, teal, yellow } from '@material-ui/core/colors';
 import { registerMorphableType } from '@svgdotjs/svg.js/src/main';
 import { Hidden } from '@material-ui/core';
 
 const m_drawerWidth = 100;
 const m_edgeDialogWidth = 750;
 const m_primary = indigo[500];
-const m_stickynoteIconColor = `#ffc904`;
-const m_stickynoteColor = `#ffe25a`;
+const m_stickynoteIconColor = yellow[800]; // `#ffc904`;
+const m_stickynoteColor = yellow[400]; //`#ffe25a`;
 const m_systemTextColor = 'rgba(0,0,0,0.35)';
 const m_systemLabelTextColor = 'rgba(0,0,0,0.25)';
 const m_resourceListWidth = 300;
@@ -281,12 +281,12 @@ const styles = theme => {
       height: '70px',
       margin: '0 auto',
       padding: '1px 0 10px 10px',
-      backgroundColor: yellow[50]
+      backgroundColor: teal[100]
     },
     evidenceLinkPaperExpanded: {
       height: 'auto',
       padding: '10px 0 10px 10px',
-      backgroundColor: yellow[200]
+      backgroundColor: teal[200]
     },
     iconExpanded: {
       transform: 'rotate(180deg)'

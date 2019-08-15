@@ -139,7 +139,7 @@ const AddDragDropHandlers = vprop => {
     SaveEventCoordsToBox(event, vprop._extend.dragdrop.endPt);
     if (vprop.DragEnd) vprop.DragEnd(event);
 
-    const { d } = DragMetrics(vprop);
+    const { d, dx, dy } = DragMetrics(vprop);
     const vpropId = vprop.Id();
 
     // see if the prop moved by a minimum amount (5 pixels)
@@ -161,8 +161,8 @@ const AddDragDropHandlers = vprop => {
     if (dropId) {
       // there is a drop target
       const vparent = DATA.VM_VProp(dropId);
-      vparent.LayoutDisabled(false);
-      vprop.LayoutDisabled(false);
+      vparent.LayoutDisabled(true);
+      vprop.LayoutDisabled(true);
       // this has to come last because this automatically fires layout
       DATA.PMC_SetPropParent(vpropId, dropId);
       if (DBG) console.log(`[${vpropId}] moved to [${dropId}]`);
@@ -171,10 +171,14 @@ const AddDragDropHandlers = vprop => {
       const parent = DATA.PropParent(vpropId);
       if (parent) {
         if (DBG) console.log(`[${vpropId}] moved from [${parent}]`);
-        vprop.LayoutDisabled(false);
+        vprop.LayoutDisabled(true);
+        const { x, y } = DragState(vprop).gRootXY;
+        vprop.Move(x + dx, y + dy);
       } else {
         if (DBG) console.log(`[${vpropId}] moved on desktop`);
         vprop.LayoutDisabled(true);
+        const { x, y } = DragState(vprop).gRootXY;
+        vprop.Move(x + dx, y + dy);
       }
       // this has to come last because this automatically fires layout
       DATA.PMC_SetPropParent(vpropId, undefined);

@@ -1,5 +1,5 @@
 import DATA from './pmc-data';
-import { cssinfo, cssred, cssmark } from './console-styles';
+import { cssinfo, cssblue, cssred, cssmark } from './console-styles';
 import DEFAULTS from './defaults';
 import { AddDragDropHandlers } from './class-vprop-dragdrop';
 import { VisualState } from './classes-visual';
@@ -478,10 +478,13 @@ VProp.LayoutComponents = () => {
     if (DBG.layout) console.group(`%clayout: component ${id}`, cssinfo);
     const compVis = DATA.VM_VProp(id);
     if (compVis.LayoutDisabled()) {
+      if (DBG.layout) console.log(`%c${id} is using layout`, cssred);
       // use existing X,Y
       recurseLayout({ x: compVis.X(), y: compVis.Y() }, id);
     } else {
       // use layout X,Y
+      if (DBG.layout)
+        console.log(`%c${id} drawn in default layout at ${xCounter},${yCounter}`, cssblue);
       recurseLayout({ x: xCounter, y: yCounter }, id);
     }
     const compHeight = compVis.PropSize().h;

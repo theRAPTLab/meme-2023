@@ -52,6 +52,7 @@ class ResourceItem extends React.Component {
     UR.Sub('SHOW_EVIDENCE_LINK', this.handleEvidenceLinkOpen);
     UR.Sub('DATA_UPDATED', this.handleDataUpdate);
     UR.Sub('RESOURCES:COLLAPSE_ALL', this.handleCollapseAll);
+    this.OnCreateEvidence = this.OnCreateEvidence.bind(this);
     // FIXME: Resource is getting closed before selection, force it open again
     UR.Sub('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.handleEvidenceLinkOpen);
   }
@@ -99,6 +100,12 @@ class ResourceItem extends React.Component {
   }
 
   handleCollapseAll() {
+  OnCreateEvidence(rsrcId) {
+    if (DBG) console.log(PKG, 'create new evidence:', rsrcId);
+    let evId = DATA.PMC_AddEvidenceLink(rsrcId);
+    UR.Publish('SHOW_EVIDENCE_LINK', { evId, rsrcId });
+  }
+
     // FIXME: Why is `this` undefined?!?
     if (this) {
       this.setState({ isExpanded: false });
@@ -147,7 +154,11 @@ class ResourceItem extends React.Component {
         {isExpanded ? (
           <div className={classes.resourceViewEvList}>
             <EvidenceList rsrcId={resource.rsrcId} key={`${resource.rsrcId}ev`} />
-            <Button size="small" color="primary" onClick={() => alert('new evi!')}>
+            <Button
+              size="small"
+              color="primary"
+              onClick={() => this.OnCreateEvidence(resource.rsrcId)}
+            >
               Create Evidence
             </Button>
           </div>

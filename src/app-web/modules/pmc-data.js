@@ -1104,8 +1104,9 @@ PMCData.GetPropIdsByResourceId = rsrcId => {
 /** API.MODEL:
  *  Given the passed resource ID, returns array of prop ids linked to the resource object.
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
+ *  @return {array} Array of propery ids
  */
-PMCData.GetEvLinkByResourceId = rsrcId => {
+PMCData.GetEvLinksByResourceId = rsrcId => {
   return h_evlinkByResource.get(rsrcId);
 };
 

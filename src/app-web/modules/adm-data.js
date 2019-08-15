@@ -317,7 +317,8 @@ ADMData.Load = () => {
         propId: 'fish',
         mechId: undefined,
         rsrcId: 'rs1',
-        note: 'fish need food',
+        number: '1a',
+        note: 'ghoti ghoti gothi need food',
         comments: [
           {
             id: 0,
@@ -337,7 +338,15 @@ ADMData.Load = () => {
           }
         ]
       },
-      { evId: 'ev2', propId: undefined, mechId: 'fish:food', rsrcId: 'rs1', note: 'fish need food' }
+      {
+        evId: 'ev2',
+        propId: undefined,
+        mechId: 'fish:food',
+        rsrcId: 'rs1',
+        number: '1b',
+        note: 'fish need food'
+      }
+    ],
     ]
   };
   let model2 = ADMData.GetModelById('mo02');

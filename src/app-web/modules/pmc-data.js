@@ -180,13 +180,14 @@ PMCData.LoadModel = (model, resources) => {
   // Load Evidence Links
   m.data.evidence = m.data.evidence || [];
   m.data.evidence.forEach(ev => {
-    let { evId, propId, mechId, rsrcId, note, comments } = ev;
+    let { evId, propId, mechId, rsrcId, number, note, comments } = ev;
     comments = comments || []; // allow empty comments
     a_evidence.push({
       evId,
       propId,
       mechId,
       rsrcId,
+      number,
       note,
       comments
     });
@@ -806,6 +807,16 @@ PMCData.VM_ToggleProp = vprop => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
+ * Utility function to deselect everything before other oeprations
+ * e.g. deselect before linking a new evidence to a source/target object.
+ */
+PMCData.VM_DeselectAll = () => {
+  console.error('PMCDatat.VM_DeselectAll: This shouldnt fire twice!');
+  PMCData.VM_DeselectAllProps();
+  PMCData.VM_DeselectAllMechs();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
  * erase the selected properties set. Also calls affected vprops to
  * handle deselection update
  */
@@ -956,9 +967,29 @@ PMCData.PMC_MechDelete = mechId => {
 PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
   // HACK!  FIXME!  Need to properly generate a unique ID.
   let evId = `ev${Math.trunc(Math.random() * 10000)}`;
-  a_evidence.push({ evId, propId: undefined, rsrcId, note });
+
+  // Construct number, e.g. "2c"
+  // 1. Ordinal value of resource in resource library, e.g. "2"
+  const prefix = PMCData.PMC_GetResourceIndex(rsrcId);
+  // 2. Ordinal value of evlink in evlink list, e.g. "c"
+  const evlinks = PMCData.GetEvLinksByResourceId(rsrcId);
+  const numberOfEvLinks = evlinks.length;
+  const count = String.fromCharCode(97 + numberOfEvLinks); // lower case for smaller footprint
+
+  const number = String(prefix) + count;
+  a_evidence.push({ evId, propId: undefined, rsrcId, number, note });
   PMCData.BuildModel();
   return evId;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Returns the 1-based index of the resource in the resource list.
+ *  This is used for numbering evidence links, e.g. "2a"
+ */
+PMCData.PMC_GetResourceIndex = rsrcId => {
+  const index = a_resources.findIndex(r => r.rsrcId === rsrcId);
+  if (index === -1) console.error(PKG, 'PMC_GetResourceIndex could not find', rsrcId);
+  return index + 1;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_DeleteEvidenceLink = evId => {

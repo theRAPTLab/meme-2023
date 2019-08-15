@@ -213,7 +213,8 @@ const styles = theme => {
       alignItems: 'center'
     },
     evidenceBodyRowCollapsed: {
-      height: '35px',
+      height: '31px',
+      marginTop: '0px',
       marginBottom: '2px',
       alignItems: 'baseline'
     },
@@ -230,6 +231,13 @@ const styles = theme => {
       marginTop: '0.25em',
       alignItems: 'top'
     },
+    evidenceBodyNumber: {
+      backgroundColor: teal[300],
+      width: '25px',
+      height: '25px',
+      fontSize: '1em',
+      marginTop: '10px'
+    },
     evidenceWindowLabel: {
       fontSize: '0.6em',
       color: m_systemTextColor,
@@ -240,6 +248,7 @@ const styles = theme => {
       fontSize: '0.9em',
       lineHeight: '1em',
       height: '30px',
+      marginTop: '9px',
       overflowY: 'auto'
     },
     evidenceLabelFieldExpanded: {
@@ -259,7 +268,7 @@ const styles = theme => {
       lineHeight: '1.1em',
       fontStyle: 'italic',
       margin: '15px 0',
-      color: '#999'
+      color: 'rgba(0,0,0,0.35)'
     },
     evidenceScreenshotButton: {
       padding: 0,

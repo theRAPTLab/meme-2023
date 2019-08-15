@@ -14,6 +14,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 // Material UI Elements
+import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
@@ -307,6 +308,7 @@ class EvidenceLink extends React.Component {
         onClick={this.DoToggleExpanded}
         key={`${rsrcId}`}
       >
+        {/* Title Bar */}
         <Button
           className={classes.evidenceExpandButton}
           onClick={this.DoToggleExpanded}
@@ -314,7 +316,6 @@ class EvidenceLink extends React.Component {
         >
           <ExpandMoreIcon className={isExpanded ? classes.iconExpanded : ''} />
         </Button>
-        {/* Title Bar */}
         <Typography className={classes.evidenceWindowLabel} hidden={!isExpanded}>
           EVIDENCE LINK
         </Typography>
@@ -323,16 +324,24 @@ class EvidenceLink extends React.Component {
         </Typography>
         {/* Body */}
         <Grid container className={classes.evidenceBody} spacing={0}>
-          {/* Source */}
 
-          <Grid item xs={12}>
+          {/* Number / Comment */}
+          <Grid item xs={isExpanded ? 12 : 2}>
+            <div style={{ position: 'absolute', right: '0px' }}>
+              <StickyNoteButton parentId={evId} parentType="evidence" />
+            </div>
+            <Avatar className={classes.evidenceBodyNumber}>{evlink.number}</Avatar>
+          </Grid>
+
+          {/* Source */}
+          <Grid item xs={isExpanded ? 12 : 10}>
             <Grid
               container
               spacing={1}
               className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
             >
               <Grid item xs={4} hidden={!isExpanded}>
-                <Typography variant="caption" align="right">
+                <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
                   DESCRIPTION:
                 </Typography>
               </Grid>
@@ -361,37 +370,38 @@ class EvidenceLink extends React.Component {
                   <div className={classes.evidenceLabelField}>{note}</div>
                 )}
               </Grid>
-
-              <Grid item xs={3}>
-                <StickyNoteButton parentId={evId} parentType="evidence" />
-              </Grid>
             </Grid>
-          </Grid>
 
-          <Grid item xs={12}>
-            <Grid
-              container
-              spacing={1}
-              className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
-            >
-              <Grid item xs={4} hidden={!isExpanded}>
-                <Typography variant="caption" align="right">
-                  SOURCE:
-                </Typography>
-              </Grid>
-              <Grid item xs>
-                <div className={classes.evidenceLinkAvatar}>
-                  <Button
-                    onClick={() => {
-                      this.OnSourceSelectClick(evId, rsrcId);
-                    }}
-                    className={evidenceLinkSelectButtonClass}
-                    disabled={!isBeingEdited}
-                    size="small"
+            {/* Source */}
+            <Grid item xs={12}>
+              <Grid
+                container
+                spacing={1}
+                className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
+              >
+                <Grid item xs={4} hidden={!isExpanded}>
+                  <Typography
+                    className={classes.evidenceWindowLabel}
+                    variant="caption"
+                    align="right"
                   >
-                    {sourceLabel}
-                  </Button>
-                </div>
+                    SOURCE:
+                  </Typography>
+                </Grid>
+                <Grid item xs>
+                  <div className={classes.evidenceLinkAvatar}>
+                    <Button
+                      onClick={() => {
+                        this.OnSourceSelectClick(evId, rsrcId);
+                      }}
+                      className={evidenceLinkSelectButtonClass}
+                      disabled={!isBeingEdited}
+                      size="small"
+                    >
+                      {sourceLabel}
+                    </Button>
+                  </div>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
@@ -403,7 +413,7 @@ class EvidenceLink extends React.Component {
               className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed}
             >
               <Grid item xs={4} hidden={!isExpanded}>
-                <Typography variant="caption" align="right">
+                <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
                   RATING:
                 </Typography>
               </Grid>
@@ -419,7 +429,7 @@ class EvidenceLink extends React.Component {
           </Grid>
           <Grid container spacing={8} hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
             <Grid item xs={4}>
-              <Typography variant="caption" align="right">
+              <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
                 SCREENSHOT:
               </Typography>
             </Grid>
@@ -487,6 +497,7 @@ EvidenceLink.defaultProps = {
     propId: '',
     mechId: '',
     rsrcId: '',
+    number: '',
     note: ''
   }
 };

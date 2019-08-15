@@ -838,6 +838,16 @@ PMCData.VM_DeselectAllMechs = () => {
   if (DBG) console.log(`global selection`, selected_vmechs);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL
+ * Delect all props and mechs. WARNING this is a method that is overly
+ * broad.
+ */
+PMCData.VM_DeselectAll = () => {
+  console.warn(`VM_DeselectAll() is deprecated. Use more specific selection manager calls.`);
+  PMCData.VM_DeselectAllProps();
+  PMCData.VM_DeselectAllMechs();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
  * Select a single mechanism, clearing the existing selection.
  */
@@ -1040,7 +1050,7 @@ PMCData.SetEvidenceLinkRating = (evId, rating) => {
  *  @param {string} parentId - if defined, id string of the resource object
  *  @param {string} parentType - if defined, type of the resource object
  *                  'evidence', 'property', 'mechanism'
- * 
+ *
  *  This is primarily used by the Sticky Notes system to look up the parent
  *  components that sticky notes belong to.
  */
@@ -1083,7 +1093,7 @@ PMCData.NewComment = (author, sentenceStarter) => {
  *  @param {string} parentId - if defined, id string of the resource object
  *  @param {string} parentType - if defined, type of the resource object
  *                  'evidence', 'property', 'mechanism'
- * 
+ *
  *  This is primarily used by the Sticky Notes system to look up the parent
  *  components that sticky notes belong to.
  */

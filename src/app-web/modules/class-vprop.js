@@ -1,5 +1,5 @@
 import DATA from './pmc-data';
-import { cssinfo, cssred, cssmark } from './console-styles';
+import { cssinfo, cssblue, cssred, cssmark } from './console-styles';
 import DEFAULTS from './defaults';
 import { AddDragDropHandlers } from './class-vprop-dragdrop';
 import { VisualState } from './classes-visual';
@@ -476,8 +476,17 @@ VProp.LayoutComponents = () => {
   components.forEach(id => {
     // get the Visual
     if (DBG.layout) console.group(`%clayout: component ${id}`, cssinfo);
-    recurseLayout({ x: xCounter, y: yCounter }, id);
     const compVis = DATA.VM_VProp(id);
+    if (compVis.LayoutDisabled()) {
+      if (DBG.layout) console.log(`%c${id} is using layout`, cssred);
+      // use existing X,Y
+      recurseLayout({ x: compVis.X(), y: compVis.Y() }, id);
+    } else {
+      // use layout X,Y
+      if (DBG.layout)
+        console.log(`%c${id} drawn in default layout at ${xCounter},${yCounter}`, cssblue);
+      recurseLayout({ x: xCounter, y: yCounter }, id);
+    }
     const compHeight = compVis.PropSize().h;
     rowHeight = Math.max(compHeight, rowHeight);
     xCounter += compVis.PropSize().w + PAD.MIN2;
@@ -496,30 +505,25 @@ VProp.LayoutComponents = () => {
 /// given a propId and starting x,y, draw the components spread on the
 /// screen
 function recurseLayout(pos, id) {
-  let { x, y } = pos;
+  let { x, y } = pos; // x-y is the location to draw the component
   const LDBG = DBG.layout;
   const compVis = DATA.VM_VProp(id);
-
-  if (compVis.LayoutDisabled()) {
-    if (LDBG) console.log(`%c${compVis.id} layout skipped`, cssred);
-  } else {
-    if (LDBG) console.group(`moving ${compVis.id} from ${compVis.X()},${compVis.Y()} to ${x},${y}`);
-    compVis.Move(x, y); // draw compVis where it should go in screen space
-    y += compVis.DataSize().h + PAD.MIN;
-    x += PAD.MIN;
-    const children = DATA.Children(id);
-    let widest = 0;
-    children.forEach(cid => {
-      const childVis = DATA.VM_VProp(cid);
-      widest = Math.max(widest, childVis.KidsSize()).w;
-      recurseLayout({ x, y }, cid);
-      const addH = childVis.PropSize().h + PAD.MIN;
-      y += addH;
-      if (LDBG) console.log(`y + ${addH} = ${y}`);
-      childVis.ToParent(id); // nest child in parent
-    });
-    if (LDBG) console.groupEnd();
-  }
+  if (LDBG) console.group(`moving ${compVis.id} from ${compVis.X()},${compVis.Y()} to ${x},${y}`);
+  compVis.Move(x, y); // draw compVis where it should go in screen space
+  y += compVis.DataSize().h + PAD.MIN;
+  x += PAD.MIN;
+  const children = DATA.Children(id);
+  let widest = 0;
+  children.forEach(cid => {
+    const childVis = DATA.VM_VProp(cid);
+    widest = Math.max(widest, childVis.KidsSize()).w;
+    recurseLayout({ x, y }, cid);
+    const addH = childVis.PropSize().h + PAD.MIN;
+    y += addH;
+    if (LDBG) console.log(`y + ${addH} = ${y}`);
+    childVis.ToParent(id); // nest child in parent
+  });
+  if (LDBG) console.groupEnd();
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 VProp.StaticMethod = (method, methodName) => {
@@ -543,6 +547,8 @@ VProp.StaticMethod = (method, methodName) => {
 /// LINK EXTENSIONS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 VProp.StaticMethod(AddDragDropHandlers);
+
+window.VP = VProp;
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

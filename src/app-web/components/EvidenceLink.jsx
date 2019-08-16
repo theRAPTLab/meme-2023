@@ -63,6 +63,7 @@ class EvidenceLink extends React.Component {
     this.DoRatingUpdate = this.DoRatingUpdate.bind(this);
     this.OnCancelButtonClick = this.OnCancelButtonClick.bind(this);
     this.OnDeleteButtonClick = this.OnDeleteButtonClick.bind(this);
+    this.OnDuplicateButtonClick = this.OnDuplicateButtonClick.bind(this);
     this.OnEditButtonClick = this.OnEditButtonClick.bind(this);
     this.OnSaveButtonClick = this.OnSaveButtonClick.bind(this);
     this.DoEvidenceLinkOpen = this.DoEvidenceLinkOpen.bind(this);
@@ -132,6 +133,12 @@ class EvidenceLink extends React.Component {
 
   OnDeleteButtonClick() {
     DATA.PMC_DeleteEvidenceLink(this.props.evlink.evId);
+  }
+
+  OnDuplicateButtonClick() {
+    const newEvId = DATA.PMC_DuplicateEvidenceLink(this.props.evlink.evId);
+    const newEvLink = DATA.EvidenceLinkByEvidenceId(newEvId);
+    UR.Publish('SHOW_EVIDENCE_LINK', { evId: newEvLink.evId, rsrcId: newEvLink.rsrcId });
   }
 
   OnEditButtonClick(e) {
@@ -447,18 +454,26 @@ class EvidenceLink extends React.Component {
         <Divider style={{ margin: '10px' }} hidden={!isExpanded} />
         <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
           <Button
+            hidden={!isExpanded || !isBeingEdited}
+            size="small"
+            onClick={this.OnCancelButtonClick}
+          >
+            cancel
+          </Button>
+          <Button
             hidden={!isExpanded || isBeingEdited}
             size="small"
             onClick={this.OnDeleteButtonClick}
           >
             delete
           </Button>
+          <div style={{ flexGrow: '1' }} />
           <Button
-            hidden={!isExpanded || !isBeingEdited}
+            hidden={!isExpanded || isBeingEdited}
             size="small"
-            onClick={this.OnCancelButtonClick}
+            onClick={this.OnDuplicateButtonClick}
           >
-            cancel
+            duplicate
           </Button>
           <div style={{ flexGrow: '1' }} />
           <Button

@@ -992,6 +992,17 @@ PMCData.PMC_GetResourceIndex = rsrcId => {
   return index + 1;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ * @returns {string} EvId of the duplicated EvidenceLink object
+ */
+PMCData.PMC_DuplicateEvidenceLink = evId => {
+  // First get the old link
+  const oldlink = PMCData.EvidenceLinkByEvidenceId(evId);
+  // Create new evlink
+  let newEvId = PMCData.PMC_AddEvidenceLink(oldlink.rsrcId, oldlink.note);
+  return newEvId;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_DeleteEvidenceLink = evId => {
   // Delete badges first
   PMCData.VM_MarkBadgeForDeletion(evId);

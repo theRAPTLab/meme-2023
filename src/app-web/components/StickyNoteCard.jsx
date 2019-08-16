@@ -238,6 +238,7 @@ class StickyNoteCard extends React.Component {
       month: 'short', day: 'numeric'
     });
 
+    let showCriteria = isBeingEdited || selectedCriteriaId !== '';
     let criteriaDisplay = ADM.GetCriteriaLabel(selectedCriteriaId);
     if (isBeingEdited) {
       criteriaDisplay = (
@@ -273,8 +274,10 @@ class StickyNoteCard extends React.Component {
               </Typography>
             </Grid>
             <Grid item xs={9}>
-              <InputLabel className={classes.stickynoteCardLabel}>CRITERIA:&nbsp;</InputLabel>
-              <div className={classes.stickynoteCardCriteria}>{criteriaDisplay}</div>
+              <div hidden={!showCriteria}>
+                <InputLabel className={classes.stickynoteCardLabel}>CRITERIA:&nbsp;</InputLabel>
+                <div className={classes.stickynoteCardCriteria}>{criteriaDisplay}</div>
+              </div>
               <MuiThemeProvider theme={theme}>
                 <FilledInput
                   className={classes.stickynoteCardInput}

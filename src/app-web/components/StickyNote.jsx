@@ -186,10 +186,14 @@ class StickyNote extends React.Component {
   }
 
   DoCloseSticky() {
+    // Cull empty comments
+    let comments = this.state.comments.filter(c => {
+      return String(c.text).trim() !== '';
+    });
+
     // Mark all comments read, then update comments
     this.setState(state => {
       const author = ADM.GetSelectedStudentId();
-      let comments = state.comments;
       comments.forEach(comment => {
         if (comment.readBy.includes(author)) return;
         comment.readBy.push(author);

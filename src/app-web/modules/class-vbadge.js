@@ -13,7 +13,8 @@ const { VPROP, PAD } = DEFAULTS;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const m_minWidth = VPROP.MIN_WIDTH;
 const m_minHeight = VPROP.MIN_HEIGHT;
-const m_pad = PAD.MIN;
+const m_pad = 5; // was PAD.MIN, but that's too big.  5 works better
+
 //
 const DBG = true;
 
@@ -56,15 +57,15 @@ class VBadge {
     myVProp.badgesCount++; // CODE REVIEW: this mechanism using badgeCount properties seems unsystematic
     const badgeCount = myVProp.badgesCount;
 
-    const radius = m_minHeight + m_pad / 2;
+    const radius = m_minHeight - m_pad / 2;
     const x = myVProp.gRoot.x();
     const y = myVProp.gRoot.y() + (badgeCount - 1) * 7.5; // FIXME hack -- for some reason Y on subsequent badges is decreased
-    const referenceLabel = ADM.Resource(evlink.rsrcId).referenceLabel;
+    const referenceLabel = evlink.number; // ADM.Resource(evlink.rsrcId).referenceLabel;
 
     // create vbadge sub elements
     this.gCircle = this.gBadge
       .circle(radius)
-      .fill('#b2dfdb')
+      .fill('#4db6ac')
       .move(x + m_minWidth - badgeCount * (radius + 0.25 * m_pad) - m_pad, y - m_pad / 2)
       .mousedown(e => {
         e.preventDefault();
@@ -75,10 +76,10 @@ class VBadge {
 
     this.gLabel = this.gBadge
       .text(referenceLabel)
-      .font({ fill: '#366', size: '0.8em', weight: 'bold' })
+      .font({ fill: '#fff', size: '1em' })
       .move(
-        x + m_minWidth - badgeCount * (radius + 0.25 * m_pad) - m_pad + 0.4 * radius,
-        y + radius / 2 - m_pad
+        x + m_minWidth - badgeCount * (radius + 0.25 * m_pad) - m_pad + 0.2 * radius,
+        y + radius / 2 - m_pad * 2.5
       )
       .mousedown(e => {
         e.preventDefault();

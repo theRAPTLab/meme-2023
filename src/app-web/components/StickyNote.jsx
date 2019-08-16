@@ -279,7 +279,7 @@ class StickyNote extends React.Component {
               hidden={isBeingEdited}
               onClick={this.OnReplyClick}
             >
-              Reply
+              Comment
             </Button>
             <Button
               size="small"

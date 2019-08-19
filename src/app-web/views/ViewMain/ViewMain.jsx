@@ -49,7 +49,7 @@ import Login from '../../components/Login';
 import ModelSelect from '../../components/ModelSelect';
 import ResourceView from '../../components/ResourceView';
 import ResourceItem from '../../components/ResourceItem';
-import StickyNote from '../../components/StickyNote';
+import StickyNoteCollection from '../../components/StickyNoteCollection';
 import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -108,7 +108,7 @@ class ViewMain extends React.Component {
       addEdgeSource: '', // Add Mech Dialog
       addEdgeTarget: '', // Add Mech Dialog
       componentIsSelected: false, // A component or property has been selected by user.  Used for pro-centric actions.
-      mechIsSelected: false, // A mechanism is slected by user.  Used for mech-centric actions.
+      mechIsSelected: false // A mechanism is slected by user.  Used for mech-centric actions.
     };
 
     // FIXME
@@ -494,7 +494,7 @@ class ViewMain extends React.Component {
             </Switch>
           </div>
 
-          <StickyNote />
+          <StickyNoteCollection />
 
           {/* Add Edge Dialog */}
           <Card className={classes.edgeDialog} hidden={!this.state.addEdgeOpen}>

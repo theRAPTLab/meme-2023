@@ -241,6 +241,38 @@ ADMData.Load = () => {
   ];
 
   // HACK IN TEMPORARY DATA
+  /*\ 
+
+    stickynotes "hold" the comments for a particular PMC or Evidence object
+    annotations are the academic terminology for talking about some model element (?)
+    stickynotes are a form of annotation
+    * StickyNoteButtons
+    * StickyNote
+    model connections are an assertion or hypothesis
+    evidence links are a supporting assertion or hypothesis
+
+    properties: [
+      { 
+        id, name, parent <optional>,
+        comments: [ commentObjects ]
+      }
+    ]
+    mechanisms: [
+      {
+        source,target,name},
+        comments: [ commentObjects ]
+      }
+    ]
+    evidence: [
+      { 
+        evId, propId, mechId, rsrcId, number, note,
+        comments: [ commentObjects ]
+      }
+    ]
+    def commentObject = { id, author, date, text, criteriaId, readBy }
+
+  \*/
+
   let model = ADMData.GetModelById('mo01');
   model.data = {
     // components is a 'component' or a 'property' (if it has a parent)

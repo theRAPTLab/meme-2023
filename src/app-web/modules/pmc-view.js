@@ -1,7 +1,6 @@
 import SVGJS from '@svgdotjs/svg.js/src/svg';
 import DATA from './pmc-data';
 import VProp from './class-vprop';
-import VBadge from './class-vbadge';
 import VMech from './class-vmech';
 import { cssinfo, cssalert, csstab, cssdraw } from './console-styles';
 import UR from '../../system/ursys';
@@ -237,30 +236,6 @@ PMCView.SyncMechsFromGraphData = () => {
     if (removed.length) console.log(`%c:Removing ${removed.length} dead edgeObjs`, csstab);
     if (added.length) console.log(`%c:Adding ${added.length} new edgeObjs`, csstab);
     if (updated.length) console.log(`%c:Updating ${updated.length} edgeObjs`, csstab);
-  }
-  // if (DBG) console.groupEnd();
-};
-/**
- * LIFECYCLE: Syncs PMC property changes from model to the
- * viewmodel. In other words, the pure data (model) is processed and the data
- * structures that are used to *display* the data (viewmodel) is updated.
- */
-PMCView.SyncBadgesFromEvLinkData = () => {
-  // if (DBG) console.groupCollapsed(`%c:SyncBadgesFromEvLinkData()`, cssinfo);
-  const { added, removed, updated } = DATA.VM_GetVBadgeChangesRefactor();
-  removed.forEach(id => {
-    VBadge.Release(id);
-  });
-  added.forEach(id => {
-    VBadge.New(id, m_svgroot); // returns vbadge but not using
-  });
-  updated.forEach(id => {
-    VBadge.Update(id);
-  });
-  if (DBG) {
-    if (removed.length) console.log(`%c:Removing ${removed.length} dead badges`, csstab);
-    if (added.length) console.log(`%c:Adding ${added.length} new badges`, csstab);
-    if (updated.length) console.log(`%c:Updating ${updated.length} badges`, csstab);
   }
   // if (DBG) console.groupEnd();
 };

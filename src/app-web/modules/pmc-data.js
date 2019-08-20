@@ -94,6 +94,17 @@ let a_evidence = []; /*/ An array of prop-related evidence links.
                           a_evidence.push({ eid: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
 
                       /*/
+let h_evidenceByEvId = new Map(); /*/
+                          Hash table of an array of evidence links for
+                          look up by evId.
+
+                          Used by class-vprop when displaying
+                          the list of evidenceLink badges for each prop.
+
+                          {evId1: {evId1, propId, rsrcId, note},
+                           evId2: {evId, propId, rsrcId, note},
+                          ...}
+                      /*/
 let h_evidenceByProp = new Map(); /*/
                           Hash table of an array of evidence links related
                           to a property id, and grouped by property id.
@@ -247,6 +258,14 @@ PMCData.BuildModel = () => {
       arr.push(key.w);
     });
     h_outedges.set(n, arr);
+  });
+
+  /*/
+   *  Update h_evidenceByEvId table
+  /*/
+  h_evidenceByEvId = new Map();
+  a_evidence.forEach(ev => {
+    h_evidenceByEvId.set(ev.evId, ev);
   });
 
   /*/
@@ -896,6 +915,7 @@ PMCData.PMC_DeleteEvidenceLink = evId => {
  *  Given the passed propid (prop data object), returns evidence linked to the prop object.
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
  *  @param {string|undefined} nodeId - if defined, nodeId string of the prop (aka `propId`)
+ *  @return [evlinks] evidenceLink objects
  */
 PMCData.PropEvidence = propid => {
   return h_evidenceByProp.get(propid);
@@ -907,10 +927,7 @@ PMCData.PropEvidence = propid => {
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  */
 PMCData.EvidenceLinkByEvidenceId = evId => {
-  const evlink = a_evidence.find(item => {
-    return item.evId === evId;
-  });
-  return evlink;
+  return h_evidenceByEvId.get(evId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Set propId to `undefined` to unlink
@@ -1094,9 +1111,6 @@ window.may1.OpenSticky = () => {
   });
 };
 
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- */
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.VM = { map_vprops, map_vmechs };

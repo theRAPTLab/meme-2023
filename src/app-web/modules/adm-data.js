@@ -277,61 +277,8 @@ ADMData.Load = () => {
   model.data = {
     // components is a 'component' or a 'property' (if it has a parent)
     properties: [
-      {
-        id: 'tank',
-        name: 'tank',
-        comments: [
-          {
-            id: 0,
-            time: 0,
-            author: 'Bob',
-            date: new Date(),
-            text: 'I like this',
-            criteriaId: 'cr01',
-            readBy: ['Bob', 'Bill']
-          },
-          {
-            id: 1,
-            time: 10,
-            author: 'Bill',
-            date: new Date(),
-            text: 'I DONT like this',
-            criteriaId: 'cr02',
-            readBy: []
-          },
-          {
-            id: 2,
-            time: 11,
-            author: 'Mary',
-            date: new Date(),
-            text: 'This is not mine!',
-            criteriaId: 'cr02',
-            readBy: []
-          }
-        ]
-      },
-      {
-        id: 'fish',
-        name: 'fish',
-        comments: [
-          {
-            id: 0,
-            author: 'Bessie',
-            date: new Date(),
-            text: 'What is this',
-            criteriaId: 'cr01',
-            readBy: ['Bob', 'Bill']
-          },
-          {
-            id: 1,
-            author: 'Bill',
-            date: new Date(),
-            text: 'I DONT like this',
-            criteriaId: 'cr02',
-            readBy: []
-          }
-        ]
-      },
+      { id: 'tank', name: 'tank' },
+      { id: 'fish', name: 'fish' },
       { id: 'food', name: 'food' },
       { id: 'ammonia', name: 'Ammonia' },
       { id: 'clean-water', name: 'clean water', parent: 'tank' },
@@ -416,6 +363,72 @@ ADMData.Load = () => {
         title: '',
         comments: []
       }
+    ],
+    comments: [
+      {
+        id: 'tank',
+        comments: [
+          {
+            id: 0,
+            time: 0,
+            author: 'Bob',
+            date: new Date(),
+            text: 'I like this',
+            criteriaId: 'cr01',
+            readBy: ['Bob', 'Bill']
+          },
+          {
+            id: 1,
+            time: 10,
+            author: 'Bill',
+            date: new Date(),
+            text: 'I DONT like this',
+            criteriaId: 'cr02',
+            readBy: []
+          },
+          {
+            id: 2,
+            time: 11,
+            author: 'Mary',
+            date: new Date(),
+            text: 'This is not mine!',
+            criteriaId: 'cr02',
+            readBy: []
+          }
+        ]
+      },
+      {
+        id: 'fish',
+        comments: [
+          {
+            id: 0,
+            time: 0,
+            author: 'Bob',
+            date: new Date(),
+            text: 'I like this fish',
+            criteriaId: 'cr01',
+            readBy: ['Bob', 'Bill']
+          },
+          {
+            id: 1,
+            time: 10,
+            author: 'Bill',
+            date: new Date(),
+            text: 'I DONT like this fish',
+            criteriaId: 'cr02',
+            readBy: []
+          },
+          {
+            id: 2,
+            time: 11,
+            author: 'Mary',
+            date: new Date(),
+            text: 'This is not my fish!',
+            criteriaId: 'cr02',
+            readBy: []
+          }
+        ]
+      },
     ]
   };
   let model2 = ADMData.GetModelById('mo02');

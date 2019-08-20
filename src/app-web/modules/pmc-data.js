@@ -67,8 +67,9 @@ const PKG = 'pmc-data:';
 let m_graph; // dagresjs/graphlib instance
 let a_props = []; // all properties (strings)
 let a_mechs = []; // all mechanisms (pathId strings)
+let a_comments = []; // all prop and mech comments
 //
-let a_components = []; // top-level props with no parents
+let a_components = []; // top-level props with no parents, derived
 let h_children = new Map(); // children hash of each prop by id
 let h_outedges = new Map(); // outedges hash of each prop by id
 //
@@ -190,6 +191,12 @@ PMCData.LoadModel = (model, resources) => {
       number,
       note,
       comments
+    });
+
+    // Comments
+    m.data.comments = m.data.comments || [];
+    m.data.comments.forEach(cm => {
+      a_comments.push( cm );
     });
   });
 
@@ -1160,6 +1167,18 @@ PMCData.GetEvLinksByResourceId = rsrcId => {
  */
 PMCData.MechEvidence = mechId => {
   return h_evidenceByMech.get(mechId);
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * @param {string} id - id of Property or Mechanism
+ * @return [array] Array of comments.  Could be empty array.
+ */
+PMCData.Comment = id => {
+  const result = a_comments.find(cm => {
+    return cm.id === id;
+  });
+  return result ? result.comments : [];
 };
 
 /// DEBUG UTILS //////////////////////////////////////////////////////////////

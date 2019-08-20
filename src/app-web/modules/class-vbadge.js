@@ -89,8 +89,8 @@ class VBadge {
     if (!this.stickyButtons) {
       this.stickyButtons = VBadge.SVGStickyButton(vparent, baseX + xx, baseY);
       this.gBadges.add(this.stickyButtons);
-      this.stickyButtons.move(baseX + xx, baseY);
     }
+    this.stickyButtons.move(baseX + xx, baseY); // always move in case evlink badges change
 
     // Set Current Read/Unreaad status
     const comments = DATA.Comment(vparent.id);

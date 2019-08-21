@@ -209,6 +209,7 @@ PMCData.LoadModel = (model, resources) => {
     m.data.comments.forEach(cm => {
       a_comments.push( cm );
     });
+    console.table(a_comments)
   });
 
   a_resources = resources || [];
@@ -968,6 +969,21 @@ PMCData.SetEvidenceLinkRating = (evId, rating) => {
   }
   throw Error(`no evidence link with evId '${evId}' exists`);
 };
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// STICKIES
+///
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * @param {string} id - id of Property or Mechanism
+ * @return [array] Array of comments.  Could be empty array.
+ */
+PMCData.Comment = id => {
+  const result = a_comments.find(cm => {
+    return cm.id === id;
+  });
+  return result ? result.comments : [];
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Given the passed parentId and parentType, returns the matching data object
@@ -990,9 +1006,6 @@ PMCData.GetParent = (parentId, parentType) => {
   }
   return parent;
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// STICKIES
-///
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Returns an empty sticky with the current student info
@@ -1023,8 +1036,21 @@ PMCData.NewComment = (author, sentenceStarter) => {
  *  components that sticky notes belong to.
  */
 PMCData.UpdateComments = (parentId, parentType, comments) => {
-  let parent = PMCData.GetParent(parentId, parentType);
-  parent.comments = comments;
+  let parent;
+  let comment;
+  switch (parentType) {
+    case 'evidence':
+      parent = PMCData.GetParent(parentId, parentType);
+      parent.comments = comments;
+      break;
+    case 'propmech':
+      // Update existing comment
+      comment = a_comments.find(c => { return c.id === parentId; });
+      comment.comments = comments;
+      break;
+    default:
+      console.error(PKG, 'UpdateComments could not match parent type', parentType);
+  }
   UR.Publish('STICKY:UPDATED');
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1055,17 +1081,6 @@ PMCData.MechEvidence = mechId => {
   return h_evidenceByMech.get(mechId);
 };
 
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- * @param {string} id - id of Property or Mechanism
- * @return [array] Array of comments.  Could be empty array.
- */
-PMCData.Comment = id => {
-  const result = a_comments.find(cm => {
-    return cm.id === id;
-  });
-  return result ? result.comments : [];
-};
 
 /// DEBUG UTILS //////////////////////////////////////////////////////////////
 if (window.may1 === undefined) window.may1 = {};

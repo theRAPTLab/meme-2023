@@ -234,6 +234,7 @@ class StickyNoteCollection extends React.Component {
   }
 
   OnReplyClick(e) {
+    if (DBG) console.log(PKG, 'OnReplyClick');
     e.preventDefault();
     this.setState({ isBeingEdited: true }, () => {
       this.DoAddComment();
@@ -241,12 +242,14 @@ class StickyNoteCollection extends React.Component {
   }
 
   OnStartEdit() {
+    if (DBG) console.log(PKG, 'OnStartEdit');
     this.setState({
       isBeingEdited: true
     });
   }
 
   OnUpdateComment() {
+    if (DBG) console.log(PKG, 'OnUpdateComment');
     // Comments were passed byRef from us to StickyNoteCard component.
     // So when StickyNoteCard is finished editing, our state.comments should
     // point to the updated text.

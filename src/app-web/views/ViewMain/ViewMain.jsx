@@ -31,6 +31,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 // Material UI Icons
 import AddIcon from '@material-ui/icons/Add';
+import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
 import EditIcon from '@material-ui/icons/Edit';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
@@ -413,6 +414,7 @@ class ViewMain extends React.Component {
           </Toolbar>
         </AppBar>
 
+        {/* Left Tool Sidebar */}
         <Drawer
           className={classes.drawer}
           variant="permanent"
@@ -593,36 +595,53 @@ class ViewMain extends React.Component {
         </Dialog>
 
         {/* Component/Mech add/edit/delete buttons */}
-        <Fab
-          hidden={!(componentIsSelected || mechIsSelected)}
-          onClick={componentIsSelected ? this.HandlePropDelete : this.HandleMechDelete}
-          className={classes.propertyDeleteButton}
-          color="secondary"
-          variant="extended"
-          size="small"
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-evenly',
+            position: 'absolute',
+            left: '100px',
+            right: '300px',
+            bottom: '20px'
+          }}
         >
-          <DeleteRoundedIcon />
-          &nbsp;&nbsp;Delete&nbsp;
-        </Fab>
-        <Fab
-          hidden={!(componentIsSelected || mechIsSelected)}
-          onClick={componentIsSelected ? this.HandlePropEdit : this.HandleMechEdit}
-          className={classes.propertyEditButton}
-          color="primary"
-          variant="extended"
-        >
-          <EditIcon />
-          &nbsp;&nbsp;Edit {componentIsSelected ? 'Component / Property' : 'Mechanism'}
-        </Fab>
-        <Fab
-          hidden={!componentIsSelected}
-          onClick={this.HandlePropAdd}
-          className={classes.propertyAddButton}
-          color="primary"
-          variant="extended"
-        >
-          <AddIcon /> Add property
-        </Fab>
+          <Fab
+            hidden={!(componentIsSelected || mechIsSelected)}
+            onClick={componentIsSelected ? this.HandlePropDelete : this.HandleMechDelete}
+            color="secondary"
+            variant="extended"
+            size="small"
+          >
+            <DeleteRoundedIcon />
+            &nbsp;&nbsp;Delete&nbsp;
+          </Fab>
+          <Fab
+            hidden={!(componentIsSelected || mechIsSelected)}
+            onClick={componentIsSelected ? this.HandlePropEdit : this.HandleMechEdit}
+            color="primary"
+            variant="extended"
+          >
+            <EditIcon />
+            &nbsp;&nbsp;Edit {componentIsSelected ? 'Component / Property' : 'Mechanism'}
+          </Fab>
+          <Fab
+            hidden={!componentIsSelected}
+            onClick={this.HandlePropAdd}
+            color="primary"
+            variant="extended"
+          >
+            <AddIcon /> Add property
+          </Fab>
+          <Fab
+            hidden={!componentIsSelected}
+            onClick={this.OnAddComment}
+            color="primary"
+            variant="extended"
+          >
+            <ChatBubbleOutlineIcon />
+            &nbsp;&nbsp;Add Comment
+          </Fab>
+        </div>
       </div>
     );
   }

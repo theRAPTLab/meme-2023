@@ -43,11 +43,8 @@ class VBadge {
     this.gEvLinkBadges = this.gBadges.group().attr('id', 'gEvLinkBadges');
     // this.gStickyButtons will be created below in Draw()
 
-    // FIXME / REVIEW
-    // `this` in `OnClick()` method seems to refer to a SVG group object.
-    // Passing `this` explicitly here seems to fix that.
     this.gBadges.click(e => {
-      this.OnClick(e, this);
+      this.OnClick(e);
     });
 
     this.Update(vparent);

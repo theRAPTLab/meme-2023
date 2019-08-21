@@ -37,11 +37,46 @@ class VBadge {
     this.comments = [];
 
     // create our own groups
-    this.gBadges = vparent.gData.group();
-    this.gEvLinkBadges = this.gBadges.group();
-    // this.stickyButtons will be created below in Draw()
+    this.gBadges = vparent.gRoot.group().attr('id', 'gBadges');
+    this.gEvLinkBadges = this.gBadges.group().attr('id', 'gEvLinkBadges');
+    // this.gStickyButtons will be created below in Draw()
+
+    // FIXME / REVIEW
+    // `this` in `OnClick()` method seems to refer to a SVG group object.
+    // Passing `this` explicitly here seems to fix that.
+    this.gBadges.click(e => {
+      this.OnClick(e, this);
+    });
 
     this.Update(vparent);
+  }
+
+  /**
+   *  gBadges got a custom click event from class-vprop-draggable
+   * @param {mouseEvent} event class-vprop or class-vmech
+   */
+  OnClick(event) {
+    const mouseEvent = event.detail.event;
+    mouseEvent.preventDefault();
+    mouseEvent.stopPropagation();
+
+    // Which component got the click?
+    const { offsetX, offsetY } = mouseEvent;
+    if (this.gStickyButtons && this.gStickyButtons.inside(offsetX, offsetY)) {
+      // StickyButton got the click
+      // Handle as click and pass to VBadge
+      this.gStickyButtons.fire('click', { event: mouseEvent });
+    } else if (this.evlinks) {
+      // An Evidence Link Badge go tthe click
+      // Figure out which badge
+      this.gEvLinkBadges.children().forEach(gBadge => {
+        if (gBadge.inside(offsetX, offsetY)) {
+          gBadge.fire('click', { event: mouseEvent });
+        }
+      });
+    } else {
+      console.error(PKG, 'OnClick could not find click object');
+    }
   }
 
   /**
@@ -59,7 +94,9 @@ class VBadge {
    */
   Draw(vparent) {
     // draw badges from left to right
-    const visBG = vparent.visBG;
+
+    // FIXME: NOTE this won't work for VMechs
+    const visBG = vparent.visBG; // position of the base prop rectangle
     const x = visBG.x();
     const y = visBG.y();
     const baseX = x + m_minWidth - m_pad;
@@ -67,7 +104,7 @@ class VBadge {
     let xx = 0;
 
     // draw evidence link badges
-    // -- clear the group in case objects have changed
+    // -- first clear the group in case objects have changed
     this.gEvLinkBadges.clear();
     if (this.evlinks) {
       // First sort evlinks by number
@@ -76,8 +113,7 @@ class VBadge {
       });
       // Then draw each badge
       evlinks.forEach(evlink => {
-        const referenceLabel = evlink.number;
-        const badge = VBadge.SVGEvLink(referenceLabel, vparent); // use visBG b/c it has x/y where gRoot is a group and does not
+        const badge = VBadge.SVGEvLink(evlink, vparent);
         this.gEvLinkBadges.add(badge);
         badge.move(baseX + badge.x() + xx, baseY);
         xx += badge.width() + m_pad;
@@ -86,11 +122,11 @@ class VBadge {
 
     // draw sticky note button if there are comments
     // Keep the sticky Note button around so we don't have to re-create it with every draw
-    if (!this.stickyButtons) {
-      this.stickyButtons = VBadge.SVGStickyButton(vparent, baseX + xx, baseY);
-      this.gBadges.add(this.stickyButtons);
+    if (!this.gStickyButtons) {
+      this.gStickyButtons = VBadge.SVGStickyButton(vparent, baseX + xx, baseY);
+      this.gBadges.add(this.gStickyButtons);
     }
-    this.stickyButtons.move(baseX + xx, baseY); // always move in case evlink badges change
+    this.gStickyButtons.move(baseX + xx, baseY); // always move in case evlink badges change
 
     // Set Current Read/Unreaad status
     const comments = DATA.Comment(vparent.id);
@@ -100,22 +136,21 @@ class VBadge {
       return comment.readBy ? !comment.readBy.includes(author) : false;
     });
     if (hasNoComments) {
-      this.stickyButtons.chat.attr('display', 'none');
-      this.stickyButtons.chatBubble.attr('display', 'none');
-      this.stickyButtons.chatBubbleOutline.attr('display', 'none'); // don't show outline ot keep interface clean
+      this.gStickyButtons.chat.attr('display', 'none');
+      this.gStickyButtons.chatBubble.attr('display', 'none');
+      this.gStickyButtons.chatBubbleOutline.attr('display', 'none'); // don't show outline ot keep interface clean
     } else if (hasUnreadComments) {
-      this.stickyButtons.chat.attr('display', 'inline');
-      this.stickyButtons.chatBubble.attr('display', 'none');
-      this.stickyButtons.chatBubbleOutline.attr('display', 'none');
+      this.gStickyButtons.chat.attr('display', 'inline');
+      this.gStickyButtons.chatBubble.attr('display', 'none');
+      this.gStickyButtons.chatBubbleOutline.attr('display', 'none');
     } else {
       // all comments read
-      this.stickyButtons.chat.attr('display', 'none');
-      this.stickyButtons.chatBubble.attr('display', 'inline');
-      this.stickyButtons.chatBubbleOutline.attr('display', 'none');
+      this.gStickyButtons.chat.attr('display', 'none');
+      this.gStickyButtons.chatBubble.attr('display', 'inline');
+      this.gStickyButtons.chatBubbleOutline.attr('display', 'none');
     }
 
     // adjust for width
-    let { w } = vparent.ScreenBBox();
     let { w: bw } = this.gEvLinkBadges.bbox();
     this.gBadges.move(baseX - bw, baseY);
   }
@@ -124,7 +159,7 @@ class VBadge {
    *  Release is called by VProp or VMech
    */
   Release() {
-    this.stickyButtons.remove();
+    this.gStickyButtons.remove();
     this.gEvLinkBadges.remove();
     this.gBadges.remove();
   }
@@ -161,59 +196,47 @@ VBadge.Update = evId => {
   // if (vbadge) vbadge.Update();
   // return vbadge;
 };
+
+/// SVGEvLink  ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  Return a badge for an evidence link
+ *  Creates and returns a badge for an evidence link
  */
-VBadge.SVGEvLink = (referenceLabel, vparent) => {
+VBadge.SVGEvLink = (evlink, vparent) => {
   const root = vparent.gRoot;
   const radius = m_minHeight - m_pad / 2;
 
-  const onClick = e => {
+  const onClick = customEvent => {
+    const e = customEvent.detail.event;
     e.preventDefault();
     e.stopPropagation();
     if (DBG) console.log(`${e.target} clicked`);
-    UR.Publish('SHOW_EVIDENCE_LINK', { evId: vparent.id, rsrcId: 'rsrcId needs to be fixed' });
-  }
+    UR.Publish('SHOW_EVIDENCE_LINK', { evId: evlink.evId, rsrcId: evlink.rsrcId });
+  };
+
   // create vbadge sub elements
-  const gBadge = root.group();
-  gBadge.gCircle = gBadge
-    .circle(radius)
-    .fill('#4db6ac')
-    .mousedown(onClick);
+  const gBadge = root.group().click(onClick);
+  gBadge.gCircle = gBadge.circle(radius).fill('#4db6ac');
 
   gBadge.gLabel = gBadge
-    .text(referenceLabel)
+    .text(evlink.number)
     .font({ fill: '#fff', size: '1em', anchor: 'middle' })
-    .move(m_pad, m_pad / 2)
-    .mousedown(onClick);
+    .move(m_pad, m_pad / 2);
 
-//   gBadge.gRating = gBadge
-//     .text('+++')
-//     .font({ fill: '#f57f17', size: '1em', weight: 'bold' })
-// //    .move(radius, radius * 2 + m_pad);
+  //   gBadge.gRating = gBadge
+  //     .text('+++')
+  //     .font({ fill: '#f57f17', size: '1em', weight: 'bold' })
+  // //    .move(radius, radius * 2 + m_pad);
 
   return gBadge;
-}
+};
 
-VBadge.SVGStickyButton = (vparent, x, y) => {
-  const root = vparent.gRoot;
-
-  const onClick = e => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (DBG) console.log(`${e.target} clicked`);
-    UR.Publish('STICKY:OPEN', {
-      parentId: vparent.id,
-      parentType: 'propmech',
-      x: e.clientX,
-      y: e.clientY
-    });
-  }
-
-  // create vbadge sub elements
-  let gStickyButtons = vparent.gRoot.group().move(x, y);
-  // Hack chat symbol for now.
+/// SVGStickyButton  //////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Creates and returns a sticky button group object with three buttons to turn on/off
+ * 
+  // Hack in a chat symbol for now from Material UI icons.
   // 1. Download
   //    from https://material.io/resources/icons/?icon=chat&style=baseline
   //    https://material.io/resources/icons/static/icons/baseline-chat_bubble-24px.svg
@@ -221,13 +244,38 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
   // 2. Add color via `fill` to the first element (leave the second path fill at none)
   // 3. Copy the svg `path` and put it in a group.
 
-  // Old technique using `use` -- symbol is drawn AFTER load in the wrong position
-  // // .use('chatIcon', '../static/chat.svg') // This works, but the symbol is not drawn in the right place until after the load
-  // Old technique using `svg` -- the 'chatIcon' id is not accessible via SVGjs
-  // // .svg(
-  // //   '<g id="chatIcon" display="none" width="24" height="24" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" fill = "#f60" /><path d="M0 0h24v24H0z" fill="none" /></g>'
-  // // )
+  // Alternative techniques for rendering svg icons
+      //
+      // Old technique using `use` -- symbol is drawn AFTER load in the wrong position
+      // .use('chatIcon', '../static/chat.svg') // This works, but the symbol is not drawn in the right place until after the load
+      //
+      // Old technique using `svg` -- the 'chatIcon' id is not accessible via SVGjs
+      // .svg(
+      //   '<g id="chatIcon" display="none" width="24" height="24" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" fill = "#f60" /><path d="M0 0h24v24H0z" fill="none" /></g>'
+      // )
+ */
+VBadge.SVGStickyButton = (vparent, x, y) => {
 
+  const onClick = customEvent => {
+    let e = customEvent.detail.event;
+    e.preventDefault();
+    e.stopPropagation();
+    if (DBG) console.log(`${e.target} clicked e=${e}`);
+    UR.Publish('STICKY:OPEN', {
+      parentId: vparent.id,
+      parentType: 'propmech',
+      x: e.clientX,
+      y: e.clientY
+    });
+  };
+
+  // create vbadge sub elements
+  let gStickyButtons = vparent.gRoot
+    .group()
+    .move(x, y)
+    .click(onClick);
+
+  // Create SVG Icons
   // using svgjs path allows us to directly manipulate the group for showing/hiding
   // where the `svg` and `use` methods above end up embedding the elements deep in the group structure.
   let chat = gStickyButtons.group();
@@ -237,7 +285,6 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
     )
     .fill('#f60');
   chat.path('M0 0h24v24H0z').fill('none');
-  chat.mousedown(onClick);
   gStickyButtons.chat = chat;
 
   let chatBubble = gStickyButtons.group();
@@ -245,7 +292,6 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
     .path('M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z')
     .fill('#f60');
   chatBubble.path('M0 0h24v24H0z').fill('none');
-  chatBubble.mousedown(onClick);
   gStickyButtons.chatBubble = chatBubble;
 
   let chatBubbleOutline = gStickyButtons.group();
@@ -253,7 +299,6 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
   chatBubbleOutline
     .path('M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z')
     .fill('#f60');
-  chatBubbleOutline.mousedown(onClick);
   gStickyButtons.chatBubbleOutline = chatBubbleOutline;
 
   return gStickyButtons;

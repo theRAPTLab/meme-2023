@@ -142,9 +142,21 @@ class StickyNoteCollection extends React.Component {
   componentWillUnmount() {}
 
   DoOpenSticky(data) {
-    let { parentId, parentType, x, y } = data;
-    const parent = PMC.GetParent(parentId, parentType);
-    let comments = parent.comments;
+    if (DBG) console.log(PKG, 'DoOpenSticky', data);
+    const { parentId, parentType, x, y } = data;
+    let comments;
+    switch (parentType) {
+      case 'evidence':
+        // evlink comment, which is embedded in the evlink object
+        comments = PMC.GetParent(parentId, parentType).comments;
+        break;
+      case 'propmech':
+        // property or mechanism comment, so load from PMCData's a_comments array
+        comments = PMC.Comment(parentId);
+        break;
+      default:
+        console.error(PKG, 'DoStickyUpdate got unrecognized parentType', parentType);
+    }
     let isBeingEdited = false;
     // if no comments yet, add an empty comment automatically
     if (comments === undefined || comments.length === 0) {
@@ -176,16 +188,30 @@ class StickyNoteCollection extends React.Component {
   // PMC has upadted sticky data, usually unread status
   // Update our existing data directly from PMC.
   DoStickyUpdate() {
+    if (DBG) console.log(PKG, 'DoStickyUpdate');
     const { parentId, parentType } = this.state;
-    let parent = PMC.GetParent(parentId, parentType);
-    if (DBG) console.log(PKG, 'DoStickyUpdate with comments', parent.comments);
-    if (DBG) console.table(parent.comments);
+    let comments;
+    switch (parentType) {
+      case 'evidence':
+        // evlink comment, which is embedded in the evlink object
+        comments = PMC.GetParent(parentId, parentType).comments;
+        break;
+      case 'propmech':
+        // property or mechanism comment, so load from PMCData's a_comments array
+        comments = PMC.Comment(parentId);
+        break;
+      default:
+        console.error(PKG, 'DoStickyUpdate got unrecognized parentType', parentType);
+    }
+    if (DBG) console.log(PKG, 'DoStickyUpdate with comments', comments);
+    if (DBG) console.table(comments);
     this.setState({
-      comments: parent.comments
+      comments
     });
   }
 
   DoCloseSticky() {
+    if (DBG) console.log(PKG, 'DoCloseSticky');
     // Cull empty comments
     let comments = this.state.comments.filter(c => {
       return String(c.text).trim() !== '';

@@ -269,11 +269,16 @@ class StickyNoteCollection extends React.Component {
   }
 
   OnClickAway() {
-    if (!this.state.isHidden && !this.state.isBeingEdited) {
-      this.DoCloseSticky();
-    } else {
-      // don't do anything if the user is still editing comment
-    }
+    // Disable OnClickAway for now because when the user clicks on a StickyButton on a prop,
+    // the ClickAwayListener seems to get a click event well after DoOpenSticky is called
+    // so the StickyNoteCollection is closed immediately after opening.
+    //
+    // console.log(PKG, 'OnClickAway isHidden', this.state.isHidden, 'isBeingEdited', this.state.isBeingEdited, 'close?', (!this.state.isHidden && !this.state.isBeingEdited))
+    // if (!this.state.isHidden && !this.state.isBeingEdited) {
+    //   this.DoCloseSticky();
+    // } else {
+    //   // don't do anything if the user is still editing comment
+    // }
   }
 
   render() {

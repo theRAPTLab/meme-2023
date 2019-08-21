@@ -3,7 +3,7 @@ import ADM from './adm-data';
 import DATA from './pmc-data';
 import UR from '../../system/ursys';
 
-const { VPROP, PAD } = DEFAULTS;
+const { VPROP, SVGSYMBOLS } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -244,24 +244,7 @@ VBadge.SVGEvLink = (evlink, vparent) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Creates and returns a sticky button group object with three buttons to turn on/off
- * 
-  // Hack in a chat symbol for now from Material UI icons.
-  // 1. Download
-  //    from https://material.io/resources/icons/?icon=chat&style=baseline
-  //    https://material.io/resources/icons/static/icons/baseline-chat_bubble-24px.svg
-  //    https://material.io/resources/icons/static/icons/baseline-chat_bubble_outline-24px.svg
-  // 2. Add color via `fill` to the first element (leave the second path fill at none)
-  // 3. Copy the svg `path` and put it in a group.
-
-  // Alternative techniques for rendering svg icons
-      //
-      // Old technique using `use` -- symbol is drawn AFTER load in the wrong position
-      // .use('chatIcon', '../static/chat.svg') // This works, but the symbol is not drawn in the right place until after the load
-      //
-      // Old technique using `svg` -- the 'chatIcon' id is not accessible via SVGjs
-      // .svg(
-      //   '<g id="chatIcon" display="none" width="24" height="24" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" fill = "#f60" /><path d="M0 0h24v24H0z" fill="none" /></g>'
-      // )
+ *
  */
 VBadge.SVGStickyButton = (vparent, x, y) => {
   const onClick = customEvent => {
@@ -284,30 +267,11 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
     .click(onClick);
 
   // Create SVG Icons
-  // using svgjs path allows us to directly manipulate the group for showing/hiding
-  // where the `svg` and `use` methods above end up embedding the elements deep in the group structure.
-  let chat = gStickyButtons.group();
-  chat
-    .path(
-      'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z'
-    )
-    .fill('#f60');
-  chat.path('M0 0h24v24H0z').fill('none');
-  gStickyButtons.chat = chat;
-
-  let chatBubble = gStickyButtons.group();
-  chatBubble
-    .path('M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z')
-    .fill('#f60');
-  chatBubble.path('M0 0h24v24H0z').fill('none');
-  gStickyButtons.chatBubble = chatBubble;
-
-  let chatBubbleOutline = gStickyButtons.group();
-  chatBubbleOutline.path('M0 0h24v24H0V0z').fill('none');
-  chatBubbleOutline
-    .path('M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z')
-    .fill('#f60');
-  gStickyButtons.chatBubbleOutline = chatBubbleOutline;
+  gStickyButtons.chat = gStickyButtons.group().use(SVGSYMBOLS.get('chatIcon'));
+  gStickyButtons.chatBubble = gStickyButtons.group().use(SVGSYMBOLS.get('chatBubble'));
+  gStickyButtons.chatBubbleOutline = gStickyButtons
+    .group()
+    .use(SVGSYMBOLS.get('chatBubbleOutline'));
 
   return gStickyButtons;
 };

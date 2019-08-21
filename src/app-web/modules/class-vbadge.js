@@ -33,6 +33,8 @@ class VBadge {
    */
   constructor(vparent) {
     // Init Data
+    this.width = m_minWidth;
+    this.height = m_minHeight;
     this.evlinks = [];
     this.comments = [];
 
@@ -79,6 +81,12 @@ class VBadge {
     }
   }
 
+  SetDimensionsFromParent(vparent) {
+    this.width = vparent.width;
+    this.height = vparent.height;
+    this.Draw(vparent);
+  }
+
   /**
    *  Update is called by VProp/VMech before Draw
    * @param {*} vparent class-vprop or class-vmech
@@ -99,7 +107,7 @@ class VBadge {
     const visBG = vparent.visBG; // position of the base prop rectangle
     const x = visBG.x();
     const y = visBG.y();
-    const baseX = x + m_minWidth - m_pad;
+    const baseX = x + this.width - m_pad;
     const baseY = y + m_pad * 2;
     let xx = 0;
 
@@ -115,7 +123,7 @@ class VBadge {
       evlinks.forEach(evlink => {
         const badge = VBadge.SVGEvLink(evlink, vparent);
         this.gEvLinkBadges.add(badge);
-        badge.move(baseX + badge.x() + xx, baseY);
+        badge.move(baseX + xx - badge.width(), baseY);
         xx += badge.width() + m_pad;
       });
     }
@@ -126,7 +134,7 @@ class VBadge {
       this.gStickyButtons = VBadge.SVGStickyButton(vparent, baseX + xx, baseY);
       this.gBadges.add(this.gStickyButtons);
     }
-    this.gStickyButtons.move(baseX + xx, baseY); // always move in case evlink badges change
+    this.gStickyButtons.move(baseX + xx - this.gStickyButtons.bbox().w - m_pad, baseY); // always move in case evlink badges change
 
     // Set Current Read/Unreaad status
     const comments = DATA.Comment(vparent.id);
@@ -152,7 +160,7 @@ class VBadge {
 
     // adjust for width
     let { w: bw } = this.gEvLinkBadges.bbox();
-    this.gBadges.move(baseX - bw, baseY);
+    this.gBadges.move(baseX - bw - this.gStickyButtons.bbox().w - m_pad, baseY);
   }
 
   /**
@@ -191,7 +199,7 @@ console.error('I dont think this is aalled');
  *  Update instance from associated data id
  */
 VBadge.Update = evId => {
-// not updated yet
+  // not updated yet
   // const vbadge = DATA.VM_VBadge(evId);
   // if (vbadge) vbadge.Update();
   // return vbadge;
@@ -255,7 +263,6 @@ VBadge.SVGEvLink = (evlink, vparent) => {
       // )
  */
 VBadge.SVGStickyButton = (vparent, x, y) => {
-
   const onClick = customEvent => {
     let e = customEvent.detail.event;
     e.preventDefault();
@@ -302,7 +309,7 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
   gStickyButtons.chatBubbleOutline = chatBubbleOutline;
 
   return gStickyButtons;
-}
+};
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

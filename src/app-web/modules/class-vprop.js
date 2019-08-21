@@ -164,6 +164,10 @@ class VProp {
     }
     // set the background size
     this.visBG.size(this.width, this.height);
+
+    // update vBadge size
+    this.vBadge.SetDimensionsFromParent(this);
+
     return { id: this.id, w: this.width, h: this.height };
   }
 

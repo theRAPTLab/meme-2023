@@ -373,7 +373,7 @@ ADMData.Load = () => {
             time: 0,
             author: 'Bob',
             date: new Date(),
-            text: 'I like this',
+            text: 'Tank you',
             criteriaId: 'cr01',
             readBy: ['Bob', 'Bill']
           },
@@ -382,16 +382,7 @@ ADMData.Load = () => {
             time: 10,
             author: 'Bill',
             date: new Date(),
-            text: 'I DONT like this',
-            criteriaId: 'cr02',
-            readBy: []
-          },
-          {
-            id: 2,
-            time: 11,
-            author: 'Mary',
-            date: new Date(),
-            text: 'This is not mine!',
+            text: 'This tanks!',
             criteriaId: 'cr02',
             readBy: []
           }

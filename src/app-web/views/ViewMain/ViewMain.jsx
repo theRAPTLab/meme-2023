@@ -96,7 +96,6 @@ class ViewMain extends React.Component {
     UR.Sub('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Sub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Sub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
-    UR.Sub('STICKY:UPDATED', this.DoADMDataUpdate); // Broadcast when a group is added.
     this.state = {
       studentName: '',
       studentGroup: '',
@@ -647,13 +646,8 @@ class ViewMain extends React.Component {
           >
             <AddIcon /> Add property
           </Fab>
-          <Fab
-            hidden={!componentIsSelected}
-            onClick={this.OnAddComment}
-            color="primary"
-            variant="extended"
-          >
-            <ChatBubbleOutlineIcon />
+          <Fab hidden={!componentIsSelected} onClick={this.OnAddPropComment} variant="extended">
+            <ChatBubbleOutlineIcon htmlColor={yellow[800]} />
             &nbsp;&nbsp;Add Comment
           </Fab>
         </div>

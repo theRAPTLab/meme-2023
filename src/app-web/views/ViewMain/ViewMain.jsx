@@ -38,6 +38,7 @@ import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
+import { yellow } from '@material-ui/core/colors';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

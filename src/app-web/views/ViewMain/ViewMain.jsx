@@ -131,7 +131,6 @@ class ViewMain extends React.Component {
   componentWillUnmount() {
     UR.Unsub('WINDOW:SIZE', this.UpdateDimensions);
     UR.Unsub('DATA_UPDATED', this.HandleDataUpdate);
-    UR.Unsub('SHOW_RESOURCE', this.handleResourceClick);
     UR.Unsub('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Unsub('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
   }

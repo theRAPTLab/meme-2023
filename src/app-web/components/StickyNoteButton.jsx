@@ -55,7 +55,6 @@ class StickyNoteButton extends React.Component {
   constructor(props) {
     super(props);
     this.DoDataUpdate = this.DoDataUpdate.bind(this);
-    this.DoStickiesUpdate = this.DoStickiesUpdate.bind(this);
     this.OnCommentClick = this.OnCommentClick.bind(this);
 
     this.state = {
@@ -64,7 +63,6 @@ class StickyNoteButton extends React.Component {
     };
 
     UR.Sub('DATA_UPDATED', this.DoDataUpdate); // Update sticky button when model is first loaded
-    UR.Sub('STICKY:UPDATED', this.DoStickiesUpdate); // Broadcast when a group is added.
   }
 
   componentDidMount() {
@@ -73,15 +71,9 @@ class StickyNoteButton extends React.Component {
 
   componentWillUnmount() {
     UR.Unsub('DATA_UPDATED', this.DoDataUpdate);
-    UR.Unsub('STICKY:UPDATED', this.DoStickiesUpdate);
   }
 
   DoDataUpdate() {
-    this.OnUpdateReadStatus();
-  }
-
-  DoStickiesUpdate() {
-    // Update read status?
     this.OnUpdateReadStatus();
   }
 

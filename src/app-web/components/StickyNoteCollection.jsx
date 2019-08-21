@@ -146,6 +146,9 @@ class StickyNoteCollection extends React.Component {
     const { parentId, parentType, x, y } = data;
     let comments;
     switch (parentType) {
+      case undefined:
+        // sticky hasn't been definedy yet?
+        return;
       case 'evidence':
         // evlink comment, which is embedded in the evlink object
         comments = PMC.GetParent(parentId, parentType).comments;

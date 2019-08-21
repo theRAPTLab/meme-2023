@@ -1060,7 +1060,7 @@ PMCData.UpdateComments = (parentId, parentType, comments) => {
     default:
       console.error(PKG, 'UpdateComments could not match parent type', parentType);
   }
-  UR.Publish('STICKY:UPDATED');
+  UR.Publish('DATA_UPDATED');
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -1089,7 +1089,6 @@ PMCData.GetEvLinksByResourceId = rsrcId => {
 PMCData.MechEvidence = mechId => {
   return h_evidenceByMech.get(mechId);
 };
-
 
 /// DEBUG UTILS //////////////////////////////////////////////////////////////
 if (window.may1 === undefined) window.may1 = {};

@@ -39,9 +39,19 @@ class VBadge {
     this.comments = [];
 
     // create our own groups
+    /**
+     *  vBadge
+     *    |
+     *    +-- gBadges (group)
+     *           |
+     *           +- gEvLinkBadges (group)
+     *           |
+     *           +-- gStickyButtons (group)
+     */
     this.gBadges = vparent.gRoot.group().attr('id', 'gBadges');
     this.gEvLinkBadges = this.gBadges.group().attr('id', 'gEvLinkBadges');
-    // this.gStickyButtons will be created below in Draw()
+    this.gStickyButtons = VBadge.SVGStickyButton(vparent, 0, 0);
+    this.gBadges.add(this.gStickyButtons);
 
     this.gBadges.click(e => {
       this.OnClick(e);
@@ -125,12 +135,6 @@ class VBadge {
       });
     }
 
-    // draw sticky note button if there are comments
-    // Keep the sticky Note button around so we don't have to re-create it with every draw
-    if (!this.gStickyButtons) {
-      this.gStickyButtons = VBadge.SVGStickyButton(vparent, baseX + xx, baseY);
-      this.gBadges.add(this.gStickyButtons);
-    }
     this.gStickyButtons.move(baseX + xx - this.gStickyButtons.bbox().w - m_pad, baseY); // always move in case evlink badges change
 
     // Set Current Read/Unreaad status

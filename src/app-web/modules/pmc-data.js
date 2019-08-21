@@ -1037,6 +1037,7 @@ PMCData.NewComment = (author, sentenceStarter) => {
  */
 PMCData.UpdateComments = (parentId, parentType, comments) => {
   let parent;
+  let index;
   let comment;
   switch (parentType) {
     case 'evidence':
@@ -1045,8 +1046,16 @@ PMCData.UpdateComments = (parentId, parentType, comments) => {
       break;
     case 'propmech':
       // Update existing comment
-      comment = a_comments.find(c => { return c.id === parentId; });
+      index = a_comments.findIndex(c => {
+        return c.id === parentId;
+      });
+      if (index > -1) {
+        comment = a_comments[index];
+      } else {
+        comment = { id: parentId }; // new comment
+      }
       comment.comments = comments;
+      a_comments.splice(index, 1, comment);
       break;
     default:
       console.error(PKG, 'UpdateComments could not match parent type', parentType);

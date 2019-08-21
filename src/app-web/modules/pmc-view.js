@@ -5,6 +5,8 @@ import VMech from './class-vmech';
 import { cssinfo, cssalert, csstab, cssdraw } from './console-styles';
 import UR from '../../system/ursys';
 import DEFAULTS from './defaults';
+import { yellow } from '@material-ui/core/colors';
+
 
 const { SVGDEFS, SVGSYMBOLS, COLOR } = DEFAULTS;
 
@@ -179,6 +181,7 @@ PMCView.DefineDefs = svg => {
  * @param {SVGJSinstance} svg - SVGJS instance to add DEFs to
  */
 PMCView.DefineSymbols = svg => {
+  const chatColor = yellow[800];
   SVGSYMBOLS.set(
     'chatIcon',
     (() => {
@@ -188,7 +191,7 @@ PMCView.DefineSymbols = svg => {
         .path(
           'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z'
         )
-        .fill('#f60');
+        .fill(chatColor);
       icon.path('M0 0h24v24H0z').fill('none');
       return icon;
     })()
@@ -198,7 +201,7 @@ PMCView.DefineSymbols = svg => {
     (() => {
       const icon = svg.symbol();
       // from https://material.io/resources/icons/static/icons/baseline-chat_bubble-24px.svg
-      icon.path('M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z').fill('#f60');
+      icon.path('M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z').fill(chatColor);
       icon.path('M0 0h24v24H0z').fill('none');
       return icon;
     })()
@@ -213,7 +216,7 @@ PMCView.DefineSymbols = svg => {
         .path(
           'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z'
         )
-        .fill('#f60');
+        .fill(chatColor);
       return icon;
     })()
   );

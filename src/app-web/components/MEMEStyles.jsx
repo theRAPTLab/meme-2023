@@ -82,21 +82,6 @@ const styles = theme => {
       height: '3em',
       alignItems: 'baseline'
     },
-    propertyDeleteButton: {
-      position: 'absolute',
-      left: '10%',
-      bottom: '30px'
-    },
-    propertyEditButton: {
-      position: 'absolute',
-      left: '30%',
-      bottom: '20px'
-    },
-    propertyAddButton: {
-      position: 'absolute',
-      left: '60%',
-      bottom: '20px'
-    },
     informationList: {
       width: m_resourceListWidth,
       backgroundColor: teal[50],

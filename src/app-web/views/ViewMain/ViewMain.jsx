@@ -79,6 +79,7 @@ class ViewMain extends React.Component {
     this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
     this.HandlePropAdd = this.HandlePropAdd.bind(this);
     this.HandlePropDelete = this.HandlePropDelete.bind(this);
+    this.OnAddPropComment = this.OnAddPropComment.bind(this);
     this.HandleMechDelete = this.HandleMechDelete.bind(this);
     this.HandlePropEdit = this.HandlePropEdit.bind(this);
     this.HandleMechEdit = this.HandleMechEdit.bind(this);
@@ -241,6 +242,20 @@ class ViewMain extends React.Component {
     this.setState({
       componentIsSelected: false
     });
+  }
+
+  OnAddPropComment() {
+    let selectedPropIds = DATA.VM_SelectedProps();
+    if (selectedPropIds.length > 0) {
+      let propId = selectedPropIds[0];
+      UR.Publish('STICKY:OPEN', {
+        parentId: propId,
+        parentType: 'propmech',
+        // FIXME: Set position according to parent prop?
+        x: 600, // stickynote hack moves it by -325
+        y: 100
+      });
+    }
   }
 
   // User selected mechanism and clicked on "(/) Edit Mechanism" button

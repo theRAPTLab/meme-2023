@@ -23,8 +23,9 @@ ABOUT THE STICKY NOTE SYSTEM
     There are three components to the Sticky Note System:
     
     1. StickyNoteButton
-    2. StickyNoteCollection
-    3. StickyNote
+    2. VBadge
+    3. StickyNoteCollection
+    4. StickyNote
     
 StickyNoteButton
     
@@ -38,20 +39,32 @@ StickyNoteButton
     They retain only a minimal amount of data: parentId and parentType and
     retrieve status updates directly from PMCData.
     
-    When they open a StickyNote, they use an URSYS.Publish call.
+    When they open a StickyNoteCollection, they use an URSYS.Publish call.
     
+VBadge
+
+    VBadges play the role of StickyNoteButtons for VProps and VMechs
+    i.e. SVG objects (StickyNoteButton is used for React Components).
+    
+    VBadges independtly display the read/unread status of comments,
+    creating new comments, and updating existing comments.
+    
+    They trigger StickyNoteColleciton via the same STICKY:Open
+    
+    VBadges also maintain an array of Evidence Link badges.
+
 StickyNoteCollection
     
-    A StickyNote is the container component for StickyNoteCards.
-    Each StickyNote can contain any number of StickyNoteCards.
-    StickyNoteCards display individual comments from different authors.
+    A StickyNote is the container component for StickyNotes.
+    Each StickyNoteCollection can contain any number of StickyNotes.
+    StickyNotes display individual comments from different authors.
     
-    There is only a single StickyNote object in ViewMain.  It gets 
+    There is only a single StickyNoteCollection object in ViewMain.  It gets 
     repurposed for each note that is opened.
     
     StickNotes are opened via an URSYS.Publish('STICKY:Open') call.
     
-    StickyNotes handle all the data for the StickyNoteCards, passing
+    StickyNotes handle all the data for the StickyNotes, passing
     individual comments as props: onStartEdit, onUpdateComment.
     
     Updates to the comment data are sent directly to PMCData via a
@@ -59,18 +72,24 @@ StickyNoteCollection
     
 StickyNote
 
-    StickyNoteCards display individual comments from different authors.
+    StickyNotes display individual comments from different authors.
+    
+    Text changes on the text input field are updated locally via the 
+    props reference to the StickyNoteCollection's comment object.  We
+    then trigger onUpdateComment to tell StickyNoteCollection to 
+    send the updated comment info to PMCData.
 
     props
+      
+      comment -- This is the comment data (id, text, etc.) that will be displayed
+      by the StickNote.
       
       onStartEdit -- This is called whenever the user clicks on the edit button. 
       This is passed to StickyNote so that StickyNote can hide buttons that
       shouldn't be shown during edit (e.g. Reply)
       
-      onUpdateComment -- This is called when the user is finished editing and
-      ready to close the sticky.  Calling update only when the user is finsihed
-      allows us to implement a local undo, if necessary (though it hasn't 
-      been implemented).
+      onUpdateComment -- This is called whenever the user edits the comment text
+      field or when the user is finished editing and ready to close the sticky.  
 
     
 
@@ -252,9 +271,9 @@ class StickyNoteCollection extends React.Component {
   }
 
   OnUpdateComment() {
-    if (DBG) console.log(PKG, 'OnUpdateComment');
-    // Comments were passed byRef from us to StickyNoteCard component.
-    // So when StickyNoteCard is finished editing, our state.comments should
+    // Comments were passed byRef from us to StickyNote component.
+    // The StickyNote will update comment when the TextField is updated.
+    // So when StickyNote is finished editing, our state.comments should
     // point to the updated text.
     // However, our parent object (e.g. property, mechanism, evidence link) is
     // passed via the URSYS call, so we have to update that explicitly.

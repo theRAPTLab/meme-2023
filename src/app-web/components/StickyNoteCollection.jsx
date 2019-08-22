@@ -153,7 +153,7 @@ class StickyNoteCollection extends React.Component {
     };
 
     UR.Sub('STICKY:OPEN', this.DoOpenSticky);
-    UR.Sub('STICKY:UPDATED', this.DoStickyUpdate);
+    UR.Sub('DATA_UPDATED', this.DoStickyUpdate);
   }
 
   componentDidMount() {}
@@ -214,6 +214,10 @@ class StickyNoteCollection extends React.Component {
     const { parentId, parentType } = this.state;
     let comments;
     switch (parentType) {
+      case '':
+        console.log(PKG, 'DoStickyUpdate got empty string');
+        comments = [];
+        break;
       case 'evidence':
         // evlink comment, which is embedded in the evlink object
         comments = PMC.GetParent(parentId, parentType).comments;
@@ -325,6 +329,7 @@ class StickyNoteCollection extends React.Component {
                   key={comment.id}
                   onStartEdit={this.OnStartEdit}
                   onUpdateComment={this.OnUpdateComment}
+                  onTextChange={this.OnTextChange}
                 />
               );
             })}

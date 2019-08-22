@@ -213,7 +213,7 @@ class ViewMain extends React.Component {
 
   // User selected component/prop and clicked on "(/) Edit Component / Property" button
   HandlePropEdit() {
-    let selectedPropIds = DATA.VM_SelectedProps();
+    let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (selectedPropIds.length > 0) {
       let propId = selectedPropIds[0];
       let prop = DATA.Prop(propId);
@@ -228,7 +228,7 @@ class ViewMain extends React.Component {
 
   // User selected component/prop and clicked on "() Delete"
   HandlePropDelete() {
-    let selectedPropIds = DATA.VM_SelectedProps();
+    let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (selectedPropIds.length > 0) {
       let propId = selectedPropIds[0];
       DATA.PMC_PropDelete(propId);
@@ -244,7 +244,7 @@ class ViewMain extends React.Component {
   }
 
   OnAddPropComment() {
-    let selectedPropIds = DATA.VM_SelectedProps();
+    let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (selectedPropIds.length > 0) {
       let propId = selectedPropIds[0];
       UR.Publish('STICKY:OPEN', {
@@ -295,7 +295,7 @@ class ViewMain extends React.Component {
     if (DBG) console.log('create prop');
     if (this.state.addPropIsProperty) {
       // Add a property to the selected component
-      let selectedPropIds = DATA.VM_SelectedProps();
+      let selectedPropIds = DATA.VM_SelectedPropsIds();
       if (selectedPropIds.length > 0) {
         let parentPropId = selectedPropIds[0];
         if (DBG) console.log('...setting parent of', this.state.addPropLabel, 'to', parentPropId);
@@ -356,7 +356,7 @@ class ViewMain extends React.Component {
   }
 
   handleSelectionChange() {
-    let selectedPropIds = DATA.VM_SelectedProps();
+    let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (DBG) console.log('selection changed', selectedPropIds);
     let sourceId = '';
     let targetId = '';

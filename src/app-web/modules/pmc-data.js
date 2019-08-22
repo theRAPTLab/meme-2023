@@ -607,7 +607,7 @@ PMCData.VM_VMechSet = (vmech, evo, ew) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function u_DumpSelection(prompt) {
   if (prompt) console.log(prompt);
-  console.table(PMCData.VM_SelectedProps());
+  console.table(PMCData.VM_SelectedPropsIds());
 }
 /** API.VIEWMODEL:
  * add the vprop to the selection set. The vprop will be
@@ -783,7 +783,7 @@ PMCData.VM_ToggleMech = vmech => {
  selection is
  @returns {string[]} propIds - array of string ids of properties
  */
-PMCData.VM_SelectedProps = () => {
+PMCData.VM_SelectedPropsIds = () => {
   return Array.from(selected_vprops.values());
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

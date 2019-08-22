@@ -252,7 +252,7 @@ class EvidenceLink extends React.Component {
         return;
       }
 
-      let selectedPropIds = DATA.VM_SelectedProps();
+      let selectedPropIds = DATA.VM_SelectedPropsIds();
       if (DBG) console.log(PKG, 'selection changed propIds:', selectedPropIds);
       if (selectedPropIds.length > 0) {
         // Get the last selection

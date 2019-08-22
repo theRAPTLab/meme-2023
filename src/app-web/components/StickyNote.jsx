@@ -169,12 +169,12 @@ class StickyNote extends React.Component {
   }
 
   OnCommentTextChange(e) {
-    const text = e.target.value;
-    this.setState(state => {
-      let comment = state.comment;
-      comment.text = text;
-      return { comment };
-    });
+    // This updates the comment text in the StickyNoteCollection directly
+    // since it was passed by reference.
+    this.props.comment.text = e.target.value;
+
+    // Tell StickyNoteCollection to save to pmc-data
+    this.props.onUpdateComment();
   }
 
   OnShowEditButtons() {
@@ -221,10 +221,9 @@ class StickyNote extends React.Component {
       allowedToDelete,
       showEditButtons,
       criteria,
-      selectedCriteriaId,
-      comment
+      selectedCriteriaId
     } = this.state;
-    const { classes } = this.props;
+    const { classes, comment } = this.props;
     const hasBeenRead = this.props.comment.readBy
       ? this.props.comment.readBy.includes(ADM.GetSelectedStudentId())
       : false;

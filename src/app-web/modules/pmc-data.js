@@ -203,13 +203,12 @@ PMCData.LoadModel = (model, resources) => {
       note,
       comments
     });
+  });
 
-    // Comments
-    m.data.comments = m.data.comments || [];
-    m.data.comments.forEach(cm => {
-      a_comments.push( cm );
-    });
-    console.table(a_comments)
+  // Comments
+  m.data.comments = m.data.comments || [];
+  m.data.comments.forEach(cm => {
+    a_comments.push(cm);
   });
 
   a_resources = resources || [];
@@ -971,8 +970,7 @@ PMCData.SetEvidenceLinkRating = (evId, rating) => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// STICKIES
-///
+/// STICKIES //////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
  * @param {string} id - id of Property or Mechanism
@@ -1026,14 +1024,15 @@ PMCData.NewComment = (author, sentenceStarter) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Given the passed parentId and parentType, returns the matching data object
- *  e.g. a property, mechanism, or evidence link
+ *  Updates the respective data structure (a_comments or a_evidnece) with the
+ *  updated comment text.
  *  @param {string} parentId - if defined, id string of the resource object
  *  @param {string} parentType - if defined, type of the resource object
  *                  'evidence', 'property', 'mechanism'
+ *  @param [object] comments - Array of comment objects
  *
- *  This is primarily used by the Sticky Notes system to look up the parent
- *  components that sticky notes belong to.
+ *  This is primarily used by the Sticky Notes system to save chagnes to
+ *  comment text.
  */
 PMCData.UpdateComments = (parentId, parentType, comments) => {
   let parent;

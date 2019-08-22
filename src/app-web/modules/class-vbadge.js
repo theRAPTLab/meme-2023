@@ -1,6 +1,6 @@
 import DEFAULTS from './defaults';
 import ADM from './adm-data';
-import DATA from './pmc-data';
+import PMC from './pmc-data';
 import UR from '../../system/ursys';
 
 const { VPROP, SVGSYMBOLS } = DEFAULTS;
@@ -100,7 +100,7 @@ class VBadge {
    */
   Update(vparent) {
     let id = vparent.id;
-    this.evlinks = DATA.PropEvidence(id);
+    this.evlinks = PMC.PropEvidence(id);
   }
 
   /**
@@ -138,7 +138,7 @@ class VBadge {
     this.gStickyButtons.move(baseX + xx - this.gStickyButtons.bbox().w - m_pad, baseY); // always move in case evlink badges change
 
     // Set Current Read/Unreaad status
-    const comments = DATA.Comment(vparent.id);
+    const comments = PMC.GetComments(vparent.id);
     const author = ADM.GetSelectedStudentId(); // FIXME: This should read from session
     const hasNoComments = comments ? comments.length < 1 : true;
     const hasUnreadComments = comments.find(comment => {

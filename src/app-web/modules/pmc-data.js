@@ -67,7 +67,7 @@ const PKG = 'pmc-data:';
 let m_graph; // dagresjs/graphlib instance
 let a_props = []; // all properties (strings)
 let a_mechs = []; // all mechanisms (pathId strings)
-let a_comments = []; // all prop and mech comments
+let a_commentThreads = []; // all prop and mech comments
 //
 let a_components = []; // top-level props with no parents, derived
 let h_children = new Map(); // children hash of each prop by id
@@ -206,9 +206,9 @@ PMCData.LoadModel = (model, resources) => {
   });
 
   // Comments
-  m.data.comments = m.data.comments || [];
-  m.data.comments.forEach(cm => {
-    a_comments.push(cm);
+  m.data.commentThreads = m.data.commentThreads || [];
+  m.data.commentThreads.forEach(cm => {
+    a_commentThreads.push(cm);
   });
 
   a_resources = resources || [];
@@ -974,11 +974,11 @@ PMCData.SetEvidenceLinkRating = (evId, rating) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
  * @param {string} id - id of Property or Mechanism
- * @return [array] Array of comments.  Could be empty array.
+ * @return [array] Array of comment objects, or [] if none defined.
  */
-PMCData.Comment = id => {
-  const result = a_comments.find(cm => {
-    return cm.id === id;
+PMCData.GetComments = id => {
+  const result = a_commentThreads.find(c => {
+    return c.id === id;
   });
   return result ? result.comments : [];
 };
@@ -1024,7 +1024,7 @@ PMCData.NewComment = (author, sentenceStarter) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Updates the respective data structure (a_comments or a_evidnece) with the
+ *  Updates the respective data structure (a_commentThreads or a_evidnece) with the
  *  updated comment text.
  *  @param {string} parentId - if defined, id string of the resource object
  *  @param {string} parentType - if defined, type of the resource object
@@ -1045,16 +1045,16 @@ PMCData.UpdateComments = (parentId, parentType, comments) => {
       break;
     case 'propmech':
       // Update existing comment
-      index = a_comments.findIndex(c => {
+      index = a_commentThreads.findIndex(c => {
         return c.id === parentId;
       });
       if (index > -1) {
-        comment = a_comments[index];
+        comment = a_commentThreads[index];
       } else {
         comment = { id: parentId }; // new comment
       }
       comment.comments = comments;
-      a_comments.splice(index, 1, comment);
+      a_commentThreads.splice(index, 1, comment);
       break;
     default:
       console.error(PKG, 'UpdateComments could not match parent type', parentType);

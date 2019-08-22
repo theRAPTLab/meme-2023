@@ -364,7 +364,7 @@ ADMData.Load = () => {
         comments: []
       }
     ],
-    comments: [
+    commentThreads: [
       {
         id: 'tank',
         comments: [

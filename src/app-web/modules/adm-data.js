@@ -26,11 +26,14 @@ let adm_db = {
   a_models: [],
   a_criteria: [],
   a_sentenceStarters: [],
-  a_classroomResources: []
+  a_classroomResources: [],
+  a_resources: []
 }; // server database object by reference
 let adm_settings = {}; // local settings, state of the admin view (current displayed class/teacher)
 
-UR.DB_Subscribe = () => {}; // FIXME: Cover for now. Remove when implemented.
+UR.DB_Subscribe = () => {
+  // FIXME: Cover for now. Remove when implemented.
+};
 UR.DB_Subscribe('ADMIN:UPDATED', ADMData.AdmDataUpdated); // active
 ADMData.AdmDataUpdated = data => {
   adm_db = data.adm_db;
@@ -533,10 +536,9 @@ ADMData.AddStudents = (groupId, students) => {
     console.error(PKG, 'AddStudent could not find group', groupId);
     return;
   }
-  studentsArr.map(student => {
+  studentsArr.forEach(student => {
     if (student === undefined || student === '') {
       console.error(PKG, 'AddStudent adding blank student', groupId);
-      return;
     }
     group.students.push(student);
   });

@@ -167,6 +167,21 @@ class NetMessage {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /** NetMessage.Is() returns truthy value (this.data) if the passed msgstr
+   *  matches the message associated with this NetMessage
+   */
+  Is(msgstr) {
+    return msgstr === this.msg ? this.data : undefined;
+  }
+
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /** NetMessage.IsServerMessage() is a convenience function return true if
+   * server message */
+  IsServerMessage() {
+    return this.msg.startsWith('SRV_');
+  }
+
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** NetMessage.SetMessage() sets the message field
    */
   SetMessage(msgstr) {
@@ -198,20 +213,6 @@ class NetMessage {
     throw ERR_BAD_PROP;
   }
 
-  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** NetMessage.Is() returns truthy value (this.data) if the passed msgstr
-   *  matches the message associated with this NetMessage
-   */
-  Is(msgstr) {
-    return msgstr === this.msg ? this.data : undefined;
-  }
-
-  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** NetMessage.IsServerMessage() is a convenience function return true if
-   * server message */
-  IsServerMessage() {
-    return this.msg.startsWith('SRV_');
-  }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** NetMessage.Memo() returns the 'memo' field of the packet */

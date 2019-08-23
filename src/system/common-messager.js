@@ -113,7 +113,7 @@ class Messager {
     const handlers = this.handlerMap.get(mesgName);
     /// toLocal
     if (handlers && toLocal)
-      for (let handlerFunc of handlers) {
+      handlers.forEach(handlerFunc => {
         // handlerFunc signature: (data,dataReturn) => {}
         // handlerFunc has udata_id property to note originating UDATA object
         // skip "same origin" calls
@@ -122,13 +122,12 @@ class Messager {
             console.warn(
               `MessagerSend: [${mesgName}] skip call since origin = destination; use Broadcast() if intended`
             );
-          continue;
+          return;
         }
-        // trigger the handler (no return expected)
-        handlerFunc(inData, {
-          /*control functions go here*/
-        });
-      } // end toLocal
+        // trigger the local handler (no return expected)
+        handlerFunc(inData, {}); // second param is for control message expansion
+      }); // end handlers.forEach
+
     /// toNetwork
     if (toNet) {
       let pkt = new NetMessage(mesgName, inData, type);
@@ -168,7 +167,7 @@ class Messager {
     let promises = [];
     /// toLocal
     if (handlers && toLocal) {
-      for (let handlerFunc of handlers) {
+      handlers.forEach(handlerFunc => {
         // handlerFunc signature: (data,dataReturn) => {}
         // handlerFunc has udata_id property to note originating UDATA object
         // skip "same origin" calls
@@ -177,13 +176,13 @@ class Messager {
             console.warn(
               `MessagerCall: [${mesgName}] skip call since origin = destination; use Broadcast() if intended`
             );
-          continue;
+          return;
         }
         // Create a promise. if handlerFunc returns a promise, it follows
         let p = f_MakeResolverFunction(handlerFunc, inData);
         promises.push(p);
-      } // end toLocal
-    }
+      }); // end foreach
+    } // end if handlers
     /// resolver function
     /// remember MESSAGER class is used for more than just Network Calls
     /// the state manager also uses it, so the resolved value may be of any type

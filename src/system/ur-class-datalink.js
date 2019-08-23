@@ -123,39 +123,6 @@ class URDataLink {
     return URNET.SocketUADDR();
   }
 
-  /// GLOBAL STATE ACCESS
-  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /// global STATE module calls are wrapped by unisys node so the unique
-  /// UnisysID address can be appended
-  AppState(namespace) {
-    // return STATE.State(namespace);
-  }
-
-  SetAppState(namespace, newState) {
-    // uid is "source uid" designating who is making the change
-    // STATE.SetState(namespace, newState, this.UID());
-  }
-
-  MergeAppState(namespace, newState) {
-    // uid is "source uid" designating who is making the change
-    // STATE.MergeState(namespace, newState, this.UID());
-  }
-
-  ConcatAppState(namespace, newState) {
-    // uid is "source uid" designating who is making the change
-    // STATE.ConcatState(namespace, newState, this.UID());
-  }
-
-  // uid is "source uid" of subscribing object, to avoid reflection
-  // if the subscribing object is also the originating state changer
-  OnAppStateChange(namespace, listener) {
-    // STATE.OnStateChange(namespace, listener, this.UID());
-  }
-
-  AppStateChangeOff(namespace, listener) {
-    // STATE.OffStateChange(namespace, listener);
-  }
-
   /// MESSAGES ////////////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /// mesgName is a string, and is an official event that's defined by the
@@ -312,13 +279,14 @@ class URDataLink {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ There's a single MESSAGER object that handles all registered messages for
     UNISYS.
-/*/ URDataLink.MessageNames = function() {
+/*/
+URDataLink.MessageNames = function () {
   return MESSAGER.MessageNames();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Filter any bad messages from the passed array of strings
 /*/
-URDataLink.ValidateMessageNames = function(msgs = []) {
+URDataLink.ValidateMessageNames = function (msgs = []) {
   let valid = [];
   msgs.forEach(name => {
     if (MESSAGER.HasMessageName(name)) valid.push(name);

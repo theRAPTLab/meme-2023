@@ -44,6 +44,24 @@ let m_options = {};
 const NETWORK = {};
 let UDATA = null; // assigned during NETWORK.Connect()
 
+/// NETWORK LISTENERS /////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NETWORK.AddListener = (event, handlerFunction) => {
+  if (NETSOCK.ws instanceof WebSocket) {
+    NETSOCK.ws.addEventListener(event, handlerFunction);
+  } else {
+    throw Error(ERR_NO_SOCKET);
+  }
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NETWORK.RemoveListener = (event, handlerFunction) => {
+  if (NETSOCK.ws instanceof WebSocket) {
+    NETSOCK.ws.removeEventListener(event, handlerFunction);
+  } else {
+    throw Error(ERR_NO_SOCKET);
+  }
+};
+
 /// CONNECT ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Establish connection to URSYS server. This is called by client.js during
@@ -245,22 +263,6 @@ NETWORK.Close = (code, reason) => {
   code = code || 1000;
   reason = reason || 'unisys forced close';
   NETSOCK.ws.close(code, reason);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NETWORK.AddListener = (event, handlerFunction) => {
-  if (NETSOCK.ws instanceof WebSocket) {
-    NETSOCK.ws.addEventListener(event, handlerFunction);
-  } else {
-    throw Error(ERR_NO_SOCKET);
-  }
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NETWORK.RemoveListener = (event, handlerFunction) => {
-  if (NETSOCK.ws instanceof WebSocket) {
-    NETSOCK.ws.removeEventListener(event, handlerFunction);
-  } else {
-    throw Error(ERR_NO_SOCKET);
-  }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NETWORK.SocketUADDR = () => {

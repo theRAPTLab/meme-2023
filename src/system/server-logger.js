@@ -54,7 +54,8 @@ FSE.ensureDir(dir, err => {
 /**	LOGGING FUNCTIONS ******************************************************/
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/	Log a standard system log message
-/*/ function LogLine(...args) {
+/*/
+function LogLine(...args) {
   if (!fs_log) return;
 
   let out = `${str_TimeStamp()} `;
@@ -121,7 +122,8 @@ LOG.PKT_LogEvent = pkt => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ API: Write to log as delimited arguments
-/*/ LOG.Write = LogLine;
+/*/
+LOG.Write = LogLine;
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

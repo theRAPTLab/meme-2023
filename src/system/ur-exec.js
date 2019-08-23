@@ -313,28 +313,10 @@ const Run = () => {
 /*/ API: do the Shutdown EXEC
     NOTE ASYNC ARROW FUNCTION (necessary?)
 /*/
-const BeforePause = () => {
+const Pause = () => {
   return new Promise(async (resolve, reject) => {
     await Execute('PREPAUSE');
-    resolve();
-  });
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: do the Shutdown EXEC
-    NOTE ASYNC ARROW FUNCTION (necessary?)
-/*/
-const Paused = () => {
-  return new Promise(async (resolve, reject) => {
     await Execute('PAUSE');
-    resolve();
-  });
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: do the Shutdown EXEC
-    NOTE ASYNC ARROW FUNCTION (necessary?)
-/*/
-const PostPause = () => {
-  return new Promise(async (resolve, reject) => {
     await Execute('POSTPAUSE');
     resolve();
   });
@@ -386,9 +368,7 @@ export default {
   JoinNet,
   SetupRun,
   Run,
-  BeforePause,
-  Paused,
-  PostPause,
+  Pause,
   CleanupRun,
   ServerDisconnect,
   ExitApp,

@@ -100,7 +100,15 @@ class VBadge {
    */
   Update(vparent) {
     let id = vparent.id;
-    this.evlinks = PMC.PropEvidence(id);
+    if (m_IsVMech(vparent)) {
+      // parent is a VMech
+      this.evlinks = PMC.MechEvidence(id);
+      //console.error('id', id, 'isMech!', vparent, 'evlinks are', this.evlinks);
+    } else {
+      // parent is VProp
+      this.evlinks = PMC.PropEvidence(id);
+      //console.log('id', id, 'isProp!',vparent,'evlinks are', this.evlinks);
+    }
   }
 
   /**
@@ -110,13 +118,39 @@ class VBadge {
   Draw(vparent) {
     // draw badges from left to right
 
-    // FIXME: NOTE this won't work for VMechs
-    const visBG = vparent.visBG; // position of the base prop rectangle
-    const x = visBG.x();
-    const y = visBG.y();
-    const baseX = x + this.width - m_pad;
-    const baseY = y + m_pad * 2;
+    const isVMech = m_IsVMech(vparent);
+
+    let baseElement;
+    let xOffset;
+    let yOffset;
+    if (isVMech) {
+      baseElement = vparent.pathLabel;  // position of the text label along the path
+      // 'eat' is too short @ 19, but 'produce' is too long @ 51.
+      xOffset = Math.max(40, vparent.horizText.length()) * 1.5 + m_pad * 3;
+      yOffset = -13; // hoist badges back up even with text baseline.
+    } else {
+      baseElement = vparent.visBG; // position of the base prop rectangle
+      xOffset = this.width;
+      yOffset = 0;
+    }
+    const x = baseElement.x();
+    const y = baseElement.y();
+    const baseX = x + xOffset - m_pad;
+    const baseY = y + yOffset + m_pad * 2;
     let xx = 0;
+
+    console.log('...drawing VBadge',vparent.id,'at', baseX, baseY,'baseElement is at',x,y);
+
+    // FIXME Hack
+    // For VMechs, if baseElement is at 0,0 that means the pathLabel is not drawn yet.
+    // If pathLabel is not drawn yet, we can't get the position of the badges, so
+    // don't draw them.  (Without this, the VBadges will get drawn at 0,0)
+    if (isVMech && x === 0 && y === 0) {
+      // also hide horizText and sticky button offscreen
+      vparent.horizText.move(-100, -100);
+      this.gStickyButtons.move(-100, -100);
+      return;
+    }
 
     // draw evidence link badges
     // -- first clear the group in case objects have changed
@@ -159,9 +193,11 @@ class VBadge {
       this.gStickyButtons.chatBubbleOutline.attr('display', 'none');
     }
 
-    // adjust for width
-    let { w: bw } = this.gEvLinkBadges.bbox();
-    this.gBadges.move(baseX - bw - this.gStickyButtons.bbox().w - m_pad, baseY);
+    // adjust for width of vprop
+    if (!isVMech) {
+      let { w: bw } = this.gEvLinkBadges.bbox();
+      this.gBadges.move(baseX - bw - this.gStickyButtons.bbox().w - m_pad, baseY);
+    }
   }
 
   /**
@@ -216,7 +252,7 @@ VBadge.SVGEvLink = (evlink, vparent) => {
   const radius = m_minHeight - m_pad / 2;
 
   const onClick = customEvent => {
-    const e = customEvent.detail.event;
+    const e = customEvent.detail.event || customEvent; // class-vprop-dragdrop sends custom events, but vmech sends regular mouse events.
     e.preventDefault();
     e.stopPropagation();
     if (DBG) console.log(`${e.target} clicked`);
@@ -248,7 +284,7 @@ VBadge.SVGEvLink = (evlink, vparent) => {
  */
 VBadge.SVGStickyButton = (vparent, x, y) => {
   const onClick = customEvent => {
-    let e = customEvent.detail.event;
+    let e = customEvent.detail.event || customEvent; // class-vprop-dragdrop sends custom events, but vmech sends regular mouse events.
     e.preventDefault();
     e.stopPropagation();
     if (DBG) console.log(`${e.target} clicked e=${e}`);
@@ -275,6 +311,15 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
 
   return gStickyButtons;
 };
+
+
+/// MODULE HELPERS /////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function m_IsVMech(parent) {
+  // FIXME: A hacky way to check if the parent is a VMech
+  // A VMech by definition has to have a sourceId and targetId defined
+  return parent.sourceId !== undefined;
+}
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

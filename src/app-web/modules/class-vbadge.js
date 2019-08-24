@@ -268,10 +268,10 @@ VBadge.SVGEvLink = (evlink, vparent) => {
     .font({ fill: '#fff', size: '1em', anchor: 'middle' })
     .move(m_pad, m_pad / 2);
 
-  //   gBadge.gRating = gBadge
-  //     .text('+++')
-  //     .font({ fill: '#f57f17', size: '1em', weight: 'bold' })
-  // //    .move(radius, radius * 2 + m_pad);
+  gBadge.gRating = gBadge
+    .text(evlink.rating.toString())
+    .font({ fill: '#f57f17', size: '1em', weight: 'bold' })
+    .move(radius, radius * 2 + m_pad);
 
   return gBadge;
 };

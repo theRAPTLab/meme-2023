@@ -297,6 +297,7 @@ ADMData.Load = () => {
         mechId: undefined,
         rsrcId: 'rs1',
         number: '1a',
+        rating: 3,
         note: 'ghoti ghoti gothi need food',
         comments: [
           {
@@ -331,6 +332,7 @@ ADMData.Load = () => {
         mechId: undefined,
         rsrcId: 'rs2',
         number: '2a',
+        rating: 2,
         note: 'fish need food'
       },
       {
@@ -339,6 +341,7 @@ ADMData.Load = () => {
         mechId: undefined,
         rsrcId: 'rs1',
         number: '1b',
+        rating: 1,
         note: 'fish need food'
       },
       {
@@ -347,6 +350,7 @@ ADMData.Load = () => {
         mechId: 'fish:food',
         rsrcId: 'rs1',
         number: '1c',
+        rating: 3,
         note: 'fish need food'
       },
       {
@@ -355,6 +359,7 @@ ADMData.Load = () => {
         mechId: undefined,
         rsrcId: 'rs2',
         number: '2b',
+        rating: 2,
         note: 'ammonia is bad'
       },
       {
@@ -363,6 +368,7 @@ ADMData.Load = () => {
         mechId: 'fish:food',
         rsrcId: 'rs2',
         number: '2c',
+        rating: 1,
         note: 'ammonia is bad'
       },
       {
@@ -371,6 +377,7 @@ ADMData.Load = () => {
         mechId: 'fish:dirty-water-waste',
         rsrcId: 'rs2',
         number: '2d',
+        rating: 1,
         note: 'ammonia is bad'
       }
     ],

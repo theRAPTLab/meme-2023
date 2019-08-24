@@ -192,7 +192,7 @@ PMCData.LoadModel = (model, resources) => {
   // Load Evidence Links
   m.data.evidence = m.data.evidence || [];
   m.data.evidence.forEach(ev => {
-    let { evId, propId, mechId, rsrcId, number, note, comments } = ev;
+    let { evId, propId, mechId, rsrcId, number, rating, note, comments } = ev;
     comments = comments || []; // allow empty comments
     a_evidence.push({
       evId,
@@ -200,6 +200,7 @@ PMCData.LoadModel = (model, resources) => {
       mechId,
       rsrcId,
       number,
+      rating,
       note,
       comments
     });
@@ -1024,7 +1025,7 @@ PMCData.NewComment = (author, sentenceStarter) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Updates the respective data structure (a_commentThreads or a_evidnece) with the
+ *  Updates the respective data structure (a_commentThreads or a_evidence) with the
  *  updated comment text.
  *  @param {string} parentId - if defined, id string of the resource object
  *  @param {string} parentType - if defined, type of the resource object

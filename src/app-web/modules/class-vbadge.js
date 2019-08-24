@@ -124,22 +124,22 @@ class VBadge {
     let xOffset;
     let yOffset;
     if (isVMech) {
+      // VMech
       baseElement = vparent.pathLabel;  // position of the text label along the path
       // 'eat' is too short @ 19, but 'produce' is too long @ 51.
       xOffset = Math.max(40, vparent.horizText.length()) * 1.5 + m_pad * 3;
       yOffset = -13; // hoist badges back up even with text baseline.
     } else {
+      // VProp
       baseElement = vparent.visBG; // position of the base prop rectangle
       xOffset = this.width;
-      yOffset = 0;
+      yOffset = -4;
     }
     const x = baseElement.x();
     const y = baseElement.y();
     const baseX = x + xOffset - m_pad;
     const baseY = y + yOffset + m_pad * 2;
     let xx = 0;
-
-    console.log('...drawing VBadge',vparent.id,'at', baseX, baseY,'baseElement is at',x,y);
 
     // FIXME Hack
     // For VMechs, if baseElement is at 0,0 that means the pathLabel is not drawn yet.
@@ -164,7 +164,7 @@ class VBadge {
       evlinks.forEach(evlink => {
         const badge = VBadge.SVGEvLink(evlink, vparent);
         this.gEvLinkBadges.add(badge);
-        badge.move(baseX + xx - badge.width(), baseY);
+        badge.move(baseX + xx - badge.width() - m_pad, baseY);
         xx += badge.width() + m_pad;
       });
     }
@@ -196,7 +196,7 @@ class VBadge {
     // adjust for width of vprop
     if (!isVMech) {
       let { w: bw } = this.gEvLinkBadges.bbox();
-      this.gBadges.move(baseX - bw - this.gStickyButtons.bbox().w - m_pad, baseY);
+      this.gBadges.move(baseX - bw - this.gStickyButtons.bbox().w - m_pad * 2, baseY);
     }
   }
 
@@ -268,19 +268,48 @@ VBadge.SVGEvLink = (evlink, vparent) => {
     .font({ fill: '#fff', size: '1em', anchor: 'middle' })
     .move(m_pad, m_pad / 2);
 
-  gBadge.gRating = gBadge
-    .text(evlink.rating.toString())
-    .font({ fill: '#f57f17', size: '1em', weight: 'bold' })
-    .move(radius, radius * 2 + m_pad);
+  gBadge.gRating = VBadge.SVGRating(evlink, gBadge).move((3 - Math.abs(evlink.rating)) * 4, radius);
 
   return gBadge;
+};
+
+/// SVGEvLink  ////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Creates and returns a badge for an evidence link
+ */
+VBadge.SVGRating = (evlink, gBadge) => {
+  const rating = evlink.rating;
+  let gRatings = gBadge.gRatings || gBadge.group(); // use existing group if it exists
+  gRatings.clear();
+  if (rating > 0) {
+    // positive
+    for (let i = 0; i < rating; i++) {
+      gRatings
+        .use(SVGSYMBOLS.get('ratingsPositive'))
+        .move(i * (5 + m_pad), m_pad)
+        .scale(0.4);
+    }
+  } else if (rating < 0) {
+    // negative
+    for (let i = 0; i < -rating; i++) {
+      gRatings
+        .use(SVGSYMBOLS.get('ratingsNegative'))
+        .move(i * (5 + m_pad), m_pad)
+        .scale(0.4);
+    }
+  } else {
+    console.error('...notrated');
+    // Not Rated
+  }
+
+  return gRatings;
 };
 
 /// SVGStickyButton  //////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Creates and returns a sticky button group object with three buttons to turn on/off
- *
  */
 VBadge.SVGStickyButton = (vparent, x, y) => {
   const onClick = customEvent => {

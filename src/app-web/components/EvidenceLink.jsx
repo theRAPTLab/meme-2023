@@ -513,7 +513,8 @@ EvidenceLink.defaultProps = {
     mechId: '',
     rsrcId: '',
     number: '',
-    note: ''
+    note: '',
+    rating: 0
   }
 };
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

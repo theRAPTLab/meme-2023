@@ -1,3 +1,4 @@
+import { yellow, green, red } from '@material-ui/core/colors';
 import SVGJS from '@svgdotjs/svg.js/src/svg';
 import DATA from './pmc-data';
 import VProp from './class-vprop';
@@ -5,8 +6,6 @@ import VMech from './class-vmech';
 import { cssinfo, cssalert, csstab, cssdraw } from './console-styles';
 import UR from '../../system/ursys';
 import DEFAULTS from './defaults';
-import { yellow } from '@material-ui/core/colors';
-
 
 const { SVGDEFS, SVGSYMBOLS, COLOR } = DEFAULTS;
 
@@ -201,7 +200,9 @@ PMCView.DefineSymbols = svg => {
     (() => {
       const icon = svg.symbol();
       // from https://material.io/resources/icons/static/icons/baseline-chat_bubble-24px.svg
-      icon.path('M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z').fill(chatColor);
+      icon
+        .path('M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z')
+        .fill(chatColor);
       icon.path('M0 0h24v24H0z').fill('none');
       return icon;
     })()
@@ -217,6 +218,26 @@ PMCView.DefineSymbols = svg => {
           'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z'
         )
         .fill(chatColor);
+      return icon;
+    })()
+  );
+  SVGSYMBOLS.set(
+    'ratingsPositive',
+    (() => {
+      const icon = svg.symbol();
+      // from https://fonts.gstatic.com/s/i/materialicons/add/v1/24px.svg
+      icon.path('M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z').fill(green[600]);
+      icon.path('M0 0h24v24H0z').fill('none');
+      return icon;
+    })()
+  );
+  SVGSYMBOLS.set(
+    'ratingsNegative',
+    (() => {
+      const icon = svg.symbol();
+      // from https://fonts.gstatic.com/s/i/materialicons/add/v1/24px.svg
+      icon.path('M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z').fill(red[600]);
+      icon.path('M0 0h24v24H0z').fill('none');
       return icon;
     })()
   );

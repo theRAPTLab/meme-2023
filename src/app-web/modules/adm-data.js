@@ -341,7 +341,7 @@ ADMData.Load = () => {
         mechId: undefined,
         rsrcId: 'rs1',
         number: '1b',
-        rating: 1,
+        rating: -3,
         note: 'fish need food'
       },
       {

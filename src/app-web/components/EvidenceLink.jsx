@@ -284,11 +284,9 @@ class EvidenceLink extends React.Component {
       });
     }
   }
-  
-  OnRatingButtonClick(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    const data = {evId: this.props.evlink.evId, rating: this.props.evlink.rating };
+
+  OnRatingButtonClick() {
+    const data = { evId: this.props.evlink.evId, rating: this.props.evlink.rating };
     UR.Publish('RATING:OPEN', data);
   }
 
@@ -432,13 +430,13 @@ class EvidenceLink extends React.Component {
                   RATING:
                 </Typography>
               </Grid>
-              <Button onClick={this.OnRatingButtonClick}>Rate</Button>
               <Grid item xs>
                 <RatingButton
                   rating={rating}
                   isExpanded={isExpanded}
                   ratingLabel=""
                   UpdateRating={this.DoRatingUpdate}
+                  OnRatingButtonClick={this.OnRatingButtonClick}
                 />
               </Grid>
             </Grid>

@@ -235,7 +235,7 @@ PMCView.DefineSymbols = svg => {
     'ratingsNegative',
     (() => {
       const icon = svg.symbol();
-      // from https://fonts.gstatic.com/s/i/materialicons/add/v1/24px.svg
+      // from https://fonts.gstatic.com/s/i/materialicons/clear/v1/24px.svg?download=true
       icon.path('M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z').fill(red[600]);
       icon.path('M0 0h24v24H0z').fill('none');
       return icon;

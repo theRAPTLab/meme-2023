@@ -26,6 +26,7 @@ let adm_db = {
   a_models: [],
   a_criteria: [],
   a_sentenceStarters: [],
+  a_ratingsDefinitions: [],
   a_classroomResources: []
 }; // server database object by reference
 let adm_settings = {}; // local settings, state of the admin view (current displayed class/teacher)
@@ -35,6 +36,7 @@ UR.DB_Subscribe('ADMIN:UPDATED', ADMData.AdmDataUpdated); // active
 ADMData.AdmDataUpdated = data => {
   adm_db = data.adm_db;
 };
+
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -140,6 +142,16 @@ ADMData.Load = () => {
       classroomId: 'cl03',
       sentences: 'We believe...'
     }
+  ];
+  // SAVED IN ELECTRON/LOKI, (EVENTUALLY) EDITABLE BY TEACHERS
+  adm_db.a_ratingsDefinitions = [
+    { label: 'Really disagrees!', rating: -3 },
+    { label: 'Kinda disagrees!', rating: -2 },
+    { label: 'Disagrees a little', rating: -1 },
+    { label: 'Not rated / Irrelevant', rating: 0 },
+    { label: 'Weak support', rating: 1 },
+    { label: 'Medium support', rating: 2 },
+    { label: 'Rocks!!', rating: 3 }
   ];
   // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
   adm_db.a_classroomResources = [
@@ -905,6 +917,20 @@ ADMData.UpdateSentenceStarter = sentenceStarter => {
   }
   adm_db.a_sentenceStarters.splice(i, 1, sentenceStarter);
 }
+
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// RATINGS DEFINITIONS
+///
+/// For now Ratings Definitions are shared across all classrooms.
+/// We may need to allow teachers to customize this in th e future.
+
+/**
+ * @return [ratingsDefition] -- Array of ratings defintion objects, e.g.{ label: 'Really disagrees!', rating: -3 },
+ */
+ADMData.GetRatingsDefintion = () => {
+  return adm_db.a_ratingsDefinitions;
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// RESOURCES

@@ -23,6 +23,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
+import ADM from '../modules/adm-data';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -44,15 +45,7 @@ class RatingsDialog extends React.Component {
       isOpen: false,
       evId: '',
       selectedRating: 0,
-      ratingsDef: [
-        { label: 'Really disagrees!', rating: -3 },
-        { label: 'Kinda disagrees!', rating: -2 },
-        { label: 'Disagrees a little', rating: -1 },
-        { label: 'Not rated / Irrelevant', rating: 0 },
-        { label: 'Weak support', rating: 1 },
-        { label: 'Medium support', rating: 2 },
-        { label: 'Rocks!!', rating: 3 }
-      ]
+      ratingsDef: ADM.GetRatingsDefintion()
     };
 
     UR.Sub('RATING:OPEN', this.DoOpen);
@@ -91,8 +84,8 @@ class RatingsDialog extends React.Component {
     const icons = {};
     ratingsDef.forEach(def => {
       const n = def.rating;
-      let count = Math.abs(n);
-      let result = [];
+      const count = Math.abs(n);
+      const result = [];
       for (let i = 0; i < count; i++) {
         if (n < 0) {
           result.push(<NegativeIcon className={classes.ratingIconNegative} key={i} />);
@@ -115,7 +108,7 @@ class RatingsDialog extends React.Component {
                 key={def.label}
                 style={{ width: '300px' }}
                 onClick={e => this.OnRatingSelect(e, def.rating)}
-                color='primary'
+                color="primary"
                 variant={selectedRating === def.rating ? 'contained' : 'text'}
               >
                 <div style={{ width: '100px' }}>{icons[def.rating]}</div>

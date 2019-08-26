@@ -51,6 +51,7 @@ import Login from '../../components/Login';
 import ModelSelect from '../../components/ModelSelect';
 import ResourceView from '../../components/ResourceView';
 import ResourceItem from '../../components/ResourceItem';
+import RatingsDialog from '../../components/RatingsDialog';
 import StickyNoteCollection from '../../components/StickyNoteCollection';
 import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 
@@ -511,6 +512,7 @@ class ViewMain extends React.Component {
           </div>
 
           <StickyNoteCollection />
+          <RatingsDialog />
 
           {/* Add Edge Dialog */}
           <Card className={classes.edgeDialog} hidden={!this.state.addEdgeOpen}>

@@ -338,6 +338,12 @@ const styles = theme => {
       minWidth: '24px',
       padding: '0'
     },
+    ratingIconNegative: {
+      color: red[600]
+    },
+    ratingIconPositive: {
+      color: green[600]
+    },
     badge: {
       margin: '8px'
     },

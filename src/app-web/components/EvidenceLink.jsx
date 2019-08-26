@@ -73,6 +73,7 @@ class EvidenceLink extends React.Component {
     this.DoEnableSourceSelect = this.DoEnableSourceSelect.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
     this.DoToggleExpanded = this.DoToggleExpanded.bind(this);
+    this.OnRatingButtonClick = this.OnRatingButtonClick.bind(this);
 
     UR.Sub('DATA_UPDATED', this.DoDataUpdate);
     UR.Sub('SHOW_EVIDENCE_LINK_SECONDARY', this.DoEvidenceLinkOpen);
@@ -283,6 +284,13 @@ class EvidenceLink extends React.Component {
       });
     }
   }
+  
+  OnRatingButtonClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const data = {evId: this.props.evlink.evId, rating: this.props.evlink.rating };
+    UR.Publish('RATING:OPEN', data);
+  }
 
   render() {
     // evidenceLinks is an array of arrays because there might be more than one?!?
@@ -424,6 +432,7 @@ class EvidenceLink extends React.Component {
                   RATING:
                 </Typography>
               </Grid>
+              <Button onClick={this.OnRatingButtonClick}>Rate</Button>
               <Grid item xs>
                 <RatingButton
                   rating={rating}

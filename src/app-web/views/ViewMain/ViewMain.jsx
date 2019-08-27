@@ -82,6 +82,7 @@ class ViewMain extends React.Component {
     this.HandlePropAdd = this.HandlePropAdd.bind(this);
     this.HandlePropDelete = this.HandlePropDelete.bind(this);
     this.OnAddPropComment = this.OnAddPropComment.bind(this);
+    this.OnAddMechComment = this.OnAddMechComment.bind(this);
     this.HandleMechDelete = this.HandleMechDelete.bind(this);
     this.HandlePropEdit = this.HandlePropEdit.bind(this);
     this.HandleMechEdit = this.HandleMechEdit.bind(this);
@@ -250,6 +251,20 @@ class ViewMain extends React.Component {
       let propId = selectedPropIds[0];
       UR.Publish('STICKY:OPEN', {
         parentId: propId,
+        parentType: 'propmech',
+        // FIXME: Set position according to parent prop?
+        x: 600, // stickynote hack moves it by -325
+        y: 100
+      });
+    }
+  }
+
+  OnAddMechComment() {
+    let selectedMechIds = DATA.VM_SelectedMechIds();
+    if (selectedMechIds.length > 0) {
+      let mechId = selectedMechIds[0];
+      UR.Publish('STICKY:OPEN', {
+        parentId: mechId,
         parentType: 'propmech',
         // FIXME: Set position according to parent prop?
         x: 600, // stickynote hack moves it by -325
@@ -648,7 +663,11 @@ class ViewMain extends React.Component {
           >
             <AddIcon /> Add property
           </Fab>
-          <Fab hidden={!componentIsSelected} onClick={this.OnAddPropComment} variant="extended">
+          <Fab
+            hidden={!(componentIsSelected || mechIsSelected)}
+            onClick={componentIsSelected ? this.OnAddPropComment : this.OnAddMechComment}
+            variant="extended"
+          >
             <ChatBubbleOutlineIcon htmlColor={yellow[800]} />
             &nbsp;&nbsp;Add Comment
           </Fab>

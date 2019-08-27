@@ -23,7 +23,9 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 // Material UI Icons
+import CreateIcon from '@material-ui/icons/Create';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -298,9 +300,11 @@ class EvidenceLink extends React.Component {
     const { note, rating, isBeingEdited, isExpanded, listenForSourceSelection } = this.state;
     if (evId === '') return '';
     let sourceLabel;
+    let sourceIcon = '';
     let evidenceLinkSelectButtonClass;
     if (listenForSourceSelection) {
-      sourceLabel = 'Select';
+      sourceLabel = 'Click on Target...';
+      sourceIcon = <ArrowBackIcon />;
       evidenceLinkSelectButtonClass = classes.evidenceLinkSourceAvatarWaiting;
     } else if (propId !== undefined) {
       sourceLabel = DATA.Prop(propId).name;
@@ -309,7 +313,12 @@ class EvidenceLink extends React.Component {
       sourceLabel = DATA.Mech(mechId).name || 'no label mechanism';
       evidenceLinkSelectButtonClass = classes.evidenceLinkSourceMechAvatarSelected;
     } else {
-      sourceLabel = 'Link';
+      if (isBeingEdited) {
+        sourceLabel = 'Set Target';
+        sourceIcon = <CreateIcon />;
+      } else {
+        sourceLabel = 'Target Not Set';
+      }
       evidenceLinkSelectButtonClass = classes.evidenceLinkSelectButton;
     }
 
@@ -370,7 +379,7 @@ class EvidenceLink extends React.Component {
                         classes.evidenceLabelFieldExpanded
                       )}
                       value={note}
-                      placeholder="Click to add label..."
+                      placeholder="Untitled..."
                       autoFocus
                       multiline
                       onChange={this.OnNoteChange}
@@ -411,9 +420,10 @@ class EvidenceLink extends React.Component {
                           this.OnSourceSelectClick(evId, rsrcId);
                         }}
                         className={evidenceLinkSelectButtonClass}
-                        disabled={!isBeingEdited}
-                        size="small"
+                        disabled={!isBeingEdited || listenForSourceSelection}
+                        size={isExpanded ? 'large' : 'small'}
                       >
+                        {sourceIcon}
                         {sourceLabel}
                       </Button>
                     </div>

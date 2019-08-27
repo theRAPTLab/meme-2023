@@ -278,7 +278,6 @@ const styles = theme => {
     },
     evidenceLinkPaper: {
       width: '290px',
-      height: '70px',
       margin: '1px auto 1px 0',
       padding: '1px 0 10px 10px',
       backgroundColor: teal[100]
@@ -308,9 +307,7 @@ const styles = theme => {
       backgroundColor: red[100]
     },
     evidenceLinkSelectButton: {
-      height: '25px',
-      minWidth: '25px', // override material default min-width 60
-      fontSize: '0.8em',
+      padding: '0 7px',
       color: '#fff',
       backgroundColor: red[700]
     },

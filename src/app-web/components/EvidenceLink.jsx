@@ -401,7 +401,7 @@ class EvidenceLink extends React.Component {
                       variant="caption"
                       align="right"
                     >
-                      SOURCE:
+                      TARGET:
                     </Typography>
                   </Grid>
                   <Grid item xs>

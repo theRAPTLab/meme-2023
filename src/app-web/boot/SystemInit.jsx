@@ -88,7 +88,6 @@ function m_PromiseRenderApp() {
     } catch (e) {
       const err = `System Initialization Error in React URSYS`;
       console.error(err);
-      reject(Error(err));
     }
   }); // promise
 }

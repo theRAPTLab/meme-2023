@@ -40,12 +40,7 @@ class SystemShell extends React.Component {
   render() {
     const classes = this.props.classes;
     // omg an error???
-    if (this.state.hasError) {
-      return [
-        <div className={classes.toolbar} />,
-        <p>Error in {`${this.constructor.name}`} (see console)</p>
-      ];
-    }
+    if (this.state.hasError) debugger;
     // otherwise return component with matching routed view
     return (
       <Switch>

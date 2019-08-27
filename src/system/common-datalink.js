@@ -163,6 +163,8 @@ class URDataLink {
       the same UDATA instance (avoid echoing back to self)
   /*/
   Publish(mesgName, inData = {}, options = {}) {
+    if (typeof inData === 'function')
+      throw Error('did you intend to use Subscribe() instead of Publish()?');
     if (DBG.send) console.log(`${this.uid} _${PR} `, '** DATALINK SEND', mesgName);
     options = Object.assign(options, { type: 'msend' });
     // uid is "source uid" of subscribing object, to avoid reflection

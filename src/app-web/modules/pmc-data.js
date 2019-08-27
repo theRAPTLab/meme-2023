@@ -1051,11 +1051,12 @@ PMCData.UpdateComments = (parentId, parentType, comments) => {
       });
       if (index > -1) {
         comment = a_commentThreads[index];
+        comment.comments = comments;
+        a_commentThreads.splice(index, 1, comment);
       } else {
-        comment = { id: parentId }; // new comment
+        comment = { id: parentId, comments }; // new comment
+        a_commentThreads.push(comment);
       }
-      comment.comments = comments;
-      a_commentThreads.splice(index, 1, comment);
       break;
     default:
       console.error(PKG, 'UpdateComments could not match parent type', parentType);

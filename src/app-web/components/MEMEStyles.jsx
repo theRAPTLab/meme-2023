@@ -286,7 +286,7 @@ const styles = theme => {
     evidenceLinkPaperExpanded: {
       height: 'auto',
       padding: '10px 0 10px 10px',
-      backgroundColor: teal[200]
+      backgroundColor: '#dbfaf7'
     },
     iconExpanded: {
       transform: 'rotate(180deg)'

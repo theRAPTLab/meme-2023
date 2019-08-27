@@ -279,7 +279,7 @@ const styles = theme => {
     evidenceLinkPaper: {
       width: '290px',
       height: '70px',
-      margin: '0 auto',
+      margin: '1px auto 1px 0',
       padding: '1px 0 10px 10px',
       backgroundColor: teal[100]
     },

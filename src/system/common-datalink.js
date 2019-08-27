@@ -2,17 +2,13 @@
 /* eslint-disable no-param-reassign */
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-    ** TEMPORARY PORT **
-    using this as-is within URSYS until figure out best way to combine
+    URSYS DATALINK CLASS
 
-    - - -
+    The URSYS DATALINK (UDATA) class represents a connection to the URSYS
+    event messaging system. Instances are created with URSYS.NewDataLink()
+    by user code. URSYS libs use this class directly.
 
-    UNISYS DATALINK CLASS
-
-    The UNISYS DATALINK (UDATA) class represents a connection to the UNISYS
-    event messaging system. Instances are created with UNISYS.NewDataLink().
-
-    Each UNODE has a unique UNISYS_ID (the UID) which represents its
+    Each UNODE has a unique URSYS_ID (the UID) which represents its
     local address. Combined with the device UADDR, this makes every UNODE
     on the network addressable.
 
@@ -24,19 +20,6 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
-/** implements endpoints for talking to the URSYS network
- * @module URDataLink
- */
-/// DEBUGGING /////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = { send: false, return: false, register: false };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const BAD_OWNER =
-  "must pass owner object of type React.Component or UniModule with optional 'name' parameter";
-const BAD_NAME = 'name parameter must be a string';
-const BAD_UID = 'unexpected non-unique UID';
-const PR = 'UDATA:';
-
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // NOTE: This module uses the COMMONJS module format for compatibility
@@ -44,18 +27,33 @@ const PR = 'UDATA:';
 const Messager = require('./common-messager');
 const URNET = require('./ur-network').default; // workaround for require
 
-// const STATE = require('unisys/client-state');
+/** implements endpoints for talking to the URSYS network
+ * @module URDataLink
+ */
+/// DEBUGGING /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = { create: true, send: false, return: false, register: false };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const BAD_NAME = 'name parameter must be a string';
+const BAD_UID = 'unexpected non-unique UID';
+const PR = 'UDATA:';
 
 /// NODE MANAGEMENT ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-let UNODE = new Map(); // unisys connector node map (local)
-let UNODE_COUNTER = 100; // unisys connector node id counter
+const UNODE = new Map(); // URSYS connector node map (local)
+const MAX_UNODES = 100;
+let UNODE_COUNTER = 0; // URSYS connector node id counter
+function m_GetUniqueId() {
+  const id = `${++UNODE_COUNTER}`.padStart(3, '0');
+  if (UNODE_COUNTER > MAX_UNODES) console.warn('Unexpectedly high number of UDATA nodes created!');
+  return `UDL${id}`;
+}
 
 /// GLOBAL MESSAGES ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let MESSAGER = new Messager();
 
-/// UNISYS NODE CLASS /////////////////////////////////////////////////////////
+/// URSYS NODE CLASS /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Instances of this class can register/unregister message handlers and also
     send messages. Constructor receives an owner, which is inspected for
@@ -70,45 +68,36 @@ class URDataLink {
    * @param {string} [owner.constructor.name] for classes
    * @param {string} optName optional name to use instead owner.name or owner.constructor.name
    */
-  constructor(owner, optName) {
-    let msgr_type = '?TYPE';
-    let msgr_name = '?NAME';
-
-    if (optName !== undefined && typeof optName !== 'string') {
+  constructor(name) {
+    if (name !== undefined && typeof name !== 'string') {
       throw Error(BAD_NAME);
     }
-
-    // require an owner that is an object of some kind
-    if (typeof owner !== 'object') throw Error(BAD_OWNER);
-
-    // react components or regular objects
-    if (owner.name) {
-      msgr_type = 'MOD';
-      msgr_name = owner.name || optName;
-    } else if (owner.constructor.name) {
-      msgr_type = 'RCT';
-      msgr_name = owner.constructor.name;
-    } else {
-      throw Error(BAD_OWNER);
-    }
-
-    /*/
-      A messager creates a unique ID within the webapp instance. Since
-      messagers are "owned" by an object, we want the ID to reflect
-      the owner's identity too while also allowing multiple instances per
-      owner.
-    /*/
+    // bind function
+    this.UID = this.UID.bind(this);
+    this.Name = this.Name.bind(this);
+    this.UADDR = this.UADDR.bind(this);
+    this.Subscribe = this.Subscribe.bind(this);
+    this.Unsubscribe = this.Unsubscribe.bind(this);
+    this.Call = this.Call.bind(this);
+    this.Publish = this.Publish.bind(this);
+    this.Signal = this.Signal.bind(this);
+    this.LocalCall = this.LocalCall.bind(this);
+    this.LocalPublish = this.LocalPublish.bind(this);
+    this.LocalSignal = this.LocalSignal.bind(this);
+    this.NetCall = this.NetCall.bind(this);
+    this.NetPublish = this.NetPublish.bind(this);
+    this.NetSignal = this.NetSignal.bind(this);
 
     // generate and save unique id
-    this.uid = `${msgr_type}_${UNODE_COUNTER++}`;
-    this.name = msgr_name;
-    if (UNODE.has(this.uid)) throw Error(BAD_UID + this.uid);
-
+    this.uid = m_GetUniqueId();
+    this.name = name;
     // save module in the global module list
+    if (UNODE.has(this.uid)) throw Error(BAD_UID + this.uid);
+    if (DBG.create) console.log(PR, `URDataLink ${this.uid} created (${this.name})`);
     UNODE.set(this.uid, this);
   }
 
-  /// UNIQUE UNISYS ID for local application
+  /// UNIQUE URSYS ID for local application
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /// this is used to differentiate sources of events so they don't echo
   UID() {
@@ -127,18 +116,18 @@ class URDataLink {
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /// mesgName is a string, and is an official event that's defined by the
   /// subclasser of UnisysNode
-  HandleMessage(mesgName, listener) {
+  Subscribe(mesgName, listener) {
     // uid is "source uid" of subscribing object, to avoid reflection
     // if the subscribing object is also the originating state changer
-    if (DBG.register) console.log(`${this.uid}_${PR}`, `${this.name} handler added [${mesgName}]`);
-    MESSAGER.HandleMessage(mesgName, listener, { receiverUID: this.UID() });
+    if (DBG.register) console.log(`${this.uid} _${PR} `, `${this.name} handler added[${mesgName}]`);
+    MESSAGER.Subscribe(mesgName, listener, { receiverUID: this.UID() });
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  UnhandleMessage(mesgName, listener) {
+  Unsubscribe(mesgName, listener) {
     if (DBG.register)
-      console.log(`${this.uid}_${PR}`, `${this.name} handler removed [${mesgName}]`);
-    MESSAGER.UnhandleMessage(mesgName, listener);
+      console.log(`${this.uid} _${PR} `, `${this.name} handler removed[${mesgName}]`);
+    MESSAGER.Unsubscribe(mesgName, listener);
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -152,20 +141,20 @@ class URDataLink {
       if (!options.toNet) status += 'NO_NET ';
       if (!options.toLocal) status += 'NO_LOCAL';
       if (!(options.toLocal || options.toNet)) status = 'ERR NO LOCAL OR NET';
-      console.log(`${this.uid}_${PR}`, '** DATALINK CALL ASYNC', mesgName, status);
+      console.log(`${this.uid} _${PR} `, '** DATALINK CALL ASYNC', mesgName, status);
     }
     // uid is "source uid" of subscribing object, to avoid reflection
     // if the subscribing object is also the originating state changer
     options.srcUID = this.UID();
     let promises = MESSAGER.Call(mesgName, inData, options);
     /// MAGICAL ASYNC/AWAIT BLOCK ///////
-    if (DBG.send) console.log(`${this.uid}_${PR}`, '** awaiting...', promises);
+    if (DBG.send) console.log(`${this.uid} _${PR} `, '** awaiting...', promises);
     let resArray = await Promise.all(promises);
-    if (DBG.send) console.log(`${this.uid}_${PR}`, '** promise fulfilled!', mesgName);
+    if (DBG.send) console.log(`${this.uid} _${PR} `, '** promise fulfilled!', mesgName);
     /// END MAGICAL ASYNC/AWAIT BLOCK ///
     let resObj = Object.assign({}, ...resArray);
     if (DBG.return)
-      console.log(`${this.uid}_${PR}`, `[${mesgName}] returned`, JSON.stringify(resObj));
+      console.log(`${this.uid} _${PR} `, `[${mesgName}]returned`, JSON.stringify(resObj));
     return resObj;
   }
 
@@ -173,15 +162,15 @@ class URDataLink {
   /*/ Sends the data to all message implementors UNLESS it is originating from
       the same UDATA instance (avoid echoing back to self)
   /*/
-  Send(mesgName, inData = {}, options = {}) {
-    if (DBG.send) console.log(`${this.uid}_${PR}`, '** DATALINK SEND', mesgName);
+  Publish(mesgName, inData = {}, options = {}) {
+    if (DBG.send) console.log(`${this.uid} _${PR} `, '** DATALINK SEND', mesgName);
     options = Object.assign(options, { type: 'msend' });
     // uid is "source uid" of subscribing object, to avoid reflection
     // if the subscribing object is also the originating state changer
     options.srcUID = this.UID();
     // uid is "source uid" of subscribing object, to avoid reflection
     // if the subscribing object is also the originating state changer
-    MESSAGER.Send(mesgName, inData, options);
+    MESSAGER.Publish(mesgName, inData, options);
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -205,11 +194,11 @@ class URDataLink {
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /*/ version of Send that force local-only calls
   /*/
-  LocalSend(mesgName, inData, options = {}) {
+  LocalPublish(mesgName, inData, options = {}) {
     options = Object.assign(options, { type: 'msend' });
     options.toLocal = true;
     options.toNet = false;
-    this.Send(mesgName, inData, options);
+    this.Publish(mesgName, inData, options);
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -235,11 +224,11 @@ class URDataLink {
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /*/ version of Send that force network-only calls
   /*/
-  NetSend(mesgName, inData, options = {}) {
+  NetPublish(mesgName, inData, options = {}) {
     options = Object.assign(options, { type: 'msend' });
     options.toLocal = false;
     options.toNet = true;
-    this.Send(mesgName, inData, options);
+    this.Publish(mesgName, inData, options);
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -253,7 +242,7 @@ class URDataLink {
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   NullCallback() {
-    if (DBG.send) console.log(`${this.uid}_${PR}`, 'null_callback', this.UID());
+    if (DBG.send) console.log(`${this.uid} _${PR} `, 'null_callback', this.UID());
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -278,15 +267,15 @@ class URDataLink {
 /// STATIC CLASS METHODS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ There's a single MESSAGER object that handles all registered messages for
-    UNISYS.
+    URSYS.
 /*/
-URDataLink.MessageNames = function () {
+URDataLink.MessageNames = function() {
   return MESSAGER.MessageNames();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Filter any bad messages from the passed array of strings
 /*/
-URDataLink.ValidateMessageNames = function (msgs = []) {
+URDataLink.ValidateMessageNames = function(msgs = []) {
   let valid = [];
   msgs.forEach(name => {
     if (MESSAGER.HasMessageName(name)) valid.push(name);

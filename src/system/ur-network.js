@@ -257,11 +257,11 @@ NETWORK.Call = pkt => {
   }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ Force close of connection, for example if UNISYS.AppReady() fails
+/*/ Force close of connection, for example if URSYS.AppReady() fails
 /*/
 NETWORK.Close = (code, reason) => {
   code = code || 1000;
-  reason = reason || 'unisys forced close';
+  reason = reason || 'URSYS forced close';
   NETSOCK.ws.close(code, reason);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

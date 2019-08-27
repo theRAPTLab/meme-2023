@@ -1,7 +1,7 @@
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
   NetMessage objects are sent between the browser and server as part of the
-  UNISYS messaging system. NetMessages do not need addresses.
+  URSYS messaging system. NetMessages do not need addresses.
 
   This NetMessage declaration is SHARED in both node and browser javascript
   codebases.
@@ -64,7 +64,7 @@ const TRANSACTION_MODE = [
   'res' // packet in returned 'response' mode
 ];
 
-/// UNISYS NETMESSAGE CLASS ///////////////////////////////////////////////////
+/// URSYS NETMESSAGE CLASS ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Class NetMessage
  * Container for messages that can be sent across the network to the URSYS
@@ -212,7 +212,6 @@ class NetMessage {
     }
     throw ERR_BAD_PROP;
   }
-
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** NetMessage.Memo() returns the 'memo' field of the packet */

@@ -22,32 +22,51 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import CENTRAL from './ur-central';
-import { Publish, Sub, Unsub } from './ur-pubsub';
 import EXEC from './ur-exec';
 import ReloadOnViewChange from './util/reload';
 import NetMessage from './common-netmessage';
-import DataLink from './ur-class-datalink';
-import NETWORK from './ur-network';
+import URDataLink from './common-datalink';
+import URComponent from './ur-react-component';
+import REFLECT from './util/reflect';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true; // module-wide debug flag
-
-/// PRIVATE HELPERS ///////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-/// CLASS DECLARATION /////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const UDATA = new URDataLink('URSYS.Main');
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-/// INITIALIZATION ////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-/// TESTS /////////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API:
+ * return a new instance of a URSYS connection, which handles all the important
+ * id meta-data for communicating over the network
+ * @param {string} name - An optional name
+ */
+function NewDataLink(name = '<anon>') {
+  return new URDataLink(name);
+}
+const { Publish, Unpublish, Subscribe, Unsubscribe } = UDATA;
+// deprecated
+const Sub = (channel, func, opt) => {
+  REFLECT.Deprecated('Use Subscribe() instead');
+  Subscribe(channel, func, opt);
+};
+const Unsub = (channel, func) => {
+  REFLECT.Deprecated('Use Unsub() instead');
+  Unsubscribe(channel, func);
+};
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default { EXEC, CENTRAL, Publish, Sub, Unsub, ReloadOnViewChange, NetMessage, DataLink };
+export default {
+  EXEC,
+  CENTRAL,
+  Publish,
+  Unpublish,
+  Subscribe,
+  Sub,
+  Unsubscribe,
+  Unsub,
+  ReloadOnViewChange,
+  NetMessage,
+  NewDataLink
+};

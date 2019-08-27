@@ -7,9 +7,8 @@
  */
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import { Dirname } from './util/path';
 import URNET from './ur-network';
-import DataLink from './ur-class-datalink';
+import URDataLink from './common-datalink';
 import { cssuri } from '../app-web/modules/console-styles';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
@@ -24,7 +23,7 @@ const PHASES = [
   'RESET', // reset runtime data structures
   'START', // start normal execution run
   'REG_MESSAGE', // last chance to register a network message
-  'APP_READY', // app connected to UNISYS network server
+  'APP_READY', // app connected to URSYS network server
   'RUN', // system starts running
   'UPDATE', // system is running (periodic call w/ time)
   'PREPAUSE', // system wants to pause run
@@ -37,10 +36,22 @@ const PHASES = [
   'SHUTDOWN' // system wants to shut down
 ];
 
+/// COMPUTED DECLARATIONS //////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const dr_index = PHASES.findIndex(el => {
+  return el === 'DOM_READY';
+});
+let REACT_PHASES = [];
+if (dr_index > 0) REACT_PHASES = PHASES.slice(dr_index);
+
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const BAD_PATH = "module_path must be a string derived from the module's module.id";
-const UDATA = new DataLink(module);
+const UDATA = new URDataLink('UREXEC');
 
+/// STATE /////////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let EXEC_PHASE; // current execution phase (the name of the phase)
 let EXEC_SCOPE; // current execution scope (the path of active view)
 
@@ -79,10 +90,10 @@ function m_UpdateCurrentPhase(phase) {
 
 /// EXEC METHODS /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: register a Phase Handler which is invoked by MOD.Execute()
-    phase is a string constant from PHASES array above
-    f is a function that does work immediately, or returns a Promise
-/*/
+/** API: register a Phase Handler which is invoked by MOD.Execute() phase is a
+    string constant from PHASES array above f is a function that does work
+    immediately, or returns a Promise
+*/
 const Hook = (phase, f, scope) => {
   try {
     // make sure scope is included
@@ -109,15 +120,29 @@ const Hook = (phase, f, scope) => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: Execute all Promises associated with a phase, completing when
+/**
+ * API: Return TRUE if the passed string is a valid URSYS phase that
+ * a React component can tap
+ * @param {string} phase
+ */
+const IsReactPhase = phase => {
+  return (
+    REACT_PHASES.findIndex(el => {
+      return phase === el;
+    }) > 0
+  );
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API: Execute all Promises associated with a phase, completing when
     all the callback functions complete. If the callback function returns
     a Promise, this is added to a list of Promises to wait for before the
     function returns control to the calling code.
-/*/
+*/
 const Execute = async phase => {
   // require scope to be set
   if (EXEC_SCOPE === false)
-    throw Error(`UNISYS.SetScopePath() must be set to RootJSX View's module.id. Aborting.`);
+    throw Error(`URSYS.SetScopePath() must be set to RootJSX View's module.id. Aborting.`);
 
   // note: contents of PHASE_HOOKs are promise-generating functions
   if (!PHASES.includes(phase)) throw Error(`${phase} is not a recognized EXEC phase`);
@@ -202,17 +227,17 @@ const SetScopeFromRoutes = routes => {
   }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: The scope is used to filter EXEC events within a particular
+/** API: The scope is used to filter EXEC events within a particular
     application path, which are defined under the view directory.
-/*/
+*/
 const SetScopePath = view_path => {
   if (typeof view_path !== 'string') throw Error(BAD_PATH);
   EXEC_SCOPE = view_path;
   if (DBG) console.log(`SetScopePath() EXEC_SCOPE is now '${EXEC_SCOPE}'`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: The scope
-/*/
+/** API: The scope
+ */
 const CurrentScope = () => {
   return EXEC_SCOPE;
 };
@@ -221,8 +246,8 @@ const MatchScope = check => {
   return EXEC_SCOPE.includes(check);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: application startup
-/*/
+/** API: application startup
+ */
 const EnterApp = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -241,9 +266,9 @@ const EnterApp = () => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: call this when the view system's DOM has stabilized and is ready
+/** API: call this when the view system's DOM has stabilized and is ready
     for manipulation by other code
-/*/
+*/
 const SetupDOM = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -259,8 +284,8 @@ const SetupDOM = () => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: network startup
-/*/
+/** API: network startup
+ */
 const JoinNet = () => {
   return new Promise((resolve, reject) => {
     try {
@@ -275,8 +300,8 @@ const JoinNet = () => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: configure system before run
-/*/
+/** API: configure system before run
+ */
 const SetupRun = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -297,8 +322,8 @@ const SetupRun = () => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: handle periodic updates for a simulation-driven timestep
-/*/
+/** API: handle periodic updates for a simulation-driven timestep
+ */
 const Run = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -310,9 +335,9 @@ const Run = () => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: do the Shutdown EXEC
+/** API: do the Shutdown EXEC
     NOTE ASYNC ARROW FUNCTION (necessary?)
-/*/
+*/
 const Pause = () => {
   return new Promise(async (resolve, reject) => {
     await Execute('PREPAUSE');
@@ -322,9 +347,9 @@ const Pause = () => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: do the Shutdown EXEC
+/** API: do the Shutdown EXEC
     NOTE ASYNC ARROW FUNCTION (necessary?)
-/*/
+*/
 const CleanupRun = () => {
   return new Promise(async (resolve, reject) => {
     await Execute('STOP');
@@ -332,9 +357,9 @@ const CleanupRun = () => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: application offline
+/** API: application offline
     NOTE ASYNC ARROW FUNCTION (necessary?)
-/*/
+*/
 const ServerDisconnect = () => {
   return new Promise(async (resolve, reject) => {
     await Execute('DISCONNECT');
@@ -342,9 +367,9 @@ const ServerDisconnect = () => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ API: application shutdown
+/** API: application shutdown
     NOTE ASYNC ARROW FUNCTION (necessary?)
-/*/
+*/
 const ExitApp = () => {
   return new Promise(async (resolve, reject) => {
     await Execute('UNLOADASSETS');
@@ -372,5 +397,6 @@ export default {
   CleanupRun,
   ServerDisconnect,
   ExitApp,
-  SetScopeFromRoutes
+  SetScopeFromRoutes,
+  IsReactPhase
 };

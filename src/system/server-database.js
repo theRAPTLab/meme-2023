@@ -21,7 +21,7 @@ const PROMPTS = require('../system/util/prompts');
 
 const { TERM_DB: CLR, TR } = PROMPTS;
 const PR = `${CLR}${PROMPTS.Pad('UR_DB')}${TR}`;
-const RUNTIMEPATH = PATH.join(__dirname, '../runtime');
+const RUNTIMEPATH = PATH.join(__dirname, '../../runtime');
 
 /// MODULE-WIDE VARS //////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -301,10 +301,7 @@ function m_UpdateEdge(edge, pkt) {
   if (matches.length === 0) {
     // this is a new edge
     if (DBG)
-      console.log(
-        PR,
-        `PKT_Update ${pkt.Info()} INSERT edgeID ${edge.id} ${JSON.stringify(edge)}`
-      );
+      console.log(PR, `PKT_Update ${pkt.Info()} INSERT edgeID ${edge.id} ${JSON.stringify(edge)}`);
     LOGGER.Write(pkt.Info(), `insert edge`, edge.id, JSON.stringify(edge));
     DB.AppendEdgeLog(edge, pkt); // log GroupId to edge stored in database
     EDGES.insert(edge);
@@ -526,7 +523,7 @@ function m_GetValidDBFilePath(dataset) {
     console.error(PR, `Trying to initialize database with bad dataset name: ${dataset}`);
   }
 
-  return `${RUNTIMEPATH}/dataset}.loki`;
+  return `${RUNTIMEPATH}/dataset.loki`;
 }
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////

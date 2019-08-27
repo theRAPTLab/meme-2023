@@ -2,15 +2,7 @@
 /* eslint-disable no-restricted-syntax */
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  WebSocketServer and Network Management for UNISYS
-  WORK IN PROGRESS
-
-  [x] - socket listener
-  [ ] - socket dictionary
-  [ ] - socket metadata for UNISYS defined, stored in sockets
-  [ ] - message dictionary
-  [ ] - message dispatching
-  [ ] - system message declaration
+  WebSocketServer and Network Management for URSYS
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
@@ -103,12 +95,12 @@ UNET.StartNetwork = () => {
 }; // end StartNetwork()
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** HandleMessage() is used to register SERVER-side message handlers that are
+/** NetPublish() is used to register SERVER-side message handlers that are
  * reachable from remote clients. Server-side handlers use their own map.
  * @param {string} mesgName message to register a handler for
  * @param {function} handlerFunc function receiving 'data' object
  */
-UNET.HandleMessage = (mesgName, handlerFunc) => {
+UNET.NetPublish = (mesgName, handlerFunc) => {
   if (typeof handlerFunc !== 'function') {
     throw Error('arg2 must be a function');
   }
@@ -118,15 +110,15 @@ UNET.HandleMessage = (mesgName, handlerFunc) => {
     m_server_handlers.set(mesgName, handlers);
   }
   handlers.add(handlerFunc);
-}; // end HandleMessage()
+}; // end NetPublish()
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** UnhandleMessage() unsubscribes a handler function from a registered message.
+/** NetUnpublish() revokes a handler function from a registered message.
  * The handler function object must be the same one used to register it.
  * @param {string} mesgName message to unregister a handler for
  * @param {function} handlerFunc function originally registered
  */
-UNET.UnhandleMessage = (mesgName, handlerFunc) => {
+UNET.NetUnpublish = (mesgName, handlerFunc) => {
   if (mesgName === undefined) {
     m_server_handlers.clear();
   } else if (handlerFunc === undefined) {
@@ -138,7 +130,7 @@ UNET.UnhandleMessage = (mesgName, handlerFunc) => {
     }
   }
   return this;
-}; // end UnhandleMessage()
+}; // end NetUnpublish()
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** NetCall() is the server-side method for invoking a remote message. It

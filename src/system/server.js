@@ -47,7 +47,7 @@ URSYS.InitializeNetwork = override => {
  */
 URSYS.RegisterHandlers = () => {
   // basic reflection test
-  UNET.HandleMessage('SRV_REFLECT', pkt => {
+  UNET.NetPublish('SRV_REFLECT', pkt => {
     // get reference to modify
     const data = pkt.Data();
     const props = Object.keys(data);
@@ -68,7 +68,7 @@ URSYS.RegisterHandlers = () => {
     return pkt;
   });
 
-  UNET.HandleMessage('SRV_REG_HANDLERS', pkt => {
+  UNET.NetPublish('SRV_REG_HANDLERS', pkt => {
     if (DBG) console.log(PR, sprint_message(pkt));
     // now need to store the handlers somehow.
     let data = UNET.RegisterRemoteHandlers(pkt);
@@ -76,18 +76,18 @@ URSYS.RegisterHandlers = () => {
     return data;
   });
 
-  UNET.HandleMessage('SRV_DBGET', pkt => {
+  UNET.NetPublish('SRV_DBGET', pkt => {
     if (DBG) console.log(PR, sprint_message(pkt));
     return UDB.PKT_GetDatabase(pkt);
   });
 
-  UNET.HandleMessage('SRV_DBSET', pkt => {
+  UNET.NetPublish('SRV_DBSET', pkt => {
     if (DBG) console.log(PR, sprint_message(pkt));
     return UDB.PKT_SetDatabase(pkt);
   });
 
   // receives a packet from a client
-  UNET.HandleMessage('SRV_DBUPDATE', pkt => {
+  UNET.NetPublish('SRV_DBUPDATE', pkt => {
     if (DBG) console.log(PR, sprint_message(pkt));
     let data = UDB.PKT_Update(pkt);
     // add src attribute for client SOURCE_UPDATE to know
@@ -102,7 +102,7 @@ URSYS.RegisterHandlers = () => {
     return { OK: true, info: 'SRC_DBUPDATE' };
   });
 
-  UNET.HandleMessage('SRV_LOG_EVENT', pkt => {
+  UNET.NetPublish('SRV_LOG_EVENT', pkt => {
     if (DBG) console.log(PR, sprint_message(pkt));
     return LOGGER.PKT_LogEvent(pkt);
   });

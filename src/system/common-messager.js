@@ -24,7 +24,7 @@ const NetMessage = require('./common-netmessage');
 let MSGR_IDCOUNT = 0;
 let DBG = false;
 
-/// UNISYS MESSAGER CLASS /////////////////////////////////////////////////////
+/// URSYS MESSAGER CLASS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Messager
  * Implement network-aware message passing scheme based on message strings passing
@@ -39,10 +39,10 @@ class Messager {
 
   /// FIRE ONCE EVENTS //////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** Messager.HandleMessage()
+  /** Messager.Subscribe()
    * Register a message string to a handler function that will receive a mutable
    * data object that is returned at the end of the handler function
-   * @example HandleMessage('MY_MESSAGE',(data)=>{ return data; });
+   * @example Subscribe('MY_MESSAGE',(data)=>{ return data; });
    * @param {string} mesgName message to register a handler for
    * @param {function} handlerFunc function receiving 'data' object
    * @param {Object} [options] options
@@ -50,7 +50,7 @@ class Messager {
    * @param {string} [options.info] description of message handler
    * @param {Object} [options.syntax] dictionary of data object properties accepted
    */
-  HandleMessage(mesgName, handlerFunc, options = {}) {
+  Subscribe(mesgName, handlerFunc, options = {}) {
     let { handlerUID } = options;
     let { syntax } = options;
     if (typeof handlerFunc !== 'function') {
@@ -74,13 +74,13 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** Message.UnhandleMessage()
+  /** Message.Unsubscribe()
    * Unsubscribe a handler function from a registered message. The handler
    * function object must be the same one used to register it.
    * @param {string} mesgName message to unregister a handler for
    * @param {function} handlerFunc function originally registered
    */
-  UnhandleMessage(mesgName, handlerFunc) {
+  Unsubscribe(mesgName, handlerFunc) {
     if (!arguments.length) {
       this.handlerMap.clear();
     } else if (arguments.length === 1) {
@@ -95,8 +95,8 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** Messager.Send()
-   * Send a message with data payload
+  /** Messager.Publish()
+   * Publish a message with data payload
    * @param {string} mesgName message to send data to
    * @param {Object} inData parameters for the message handler
    * @param {Object} [options] options
@@ -105,11 +105,11 @@ class Messager {
    * message request.
    * @param {string} [options.type] type of message (mcall)
    * @param {boolean} [options.toLocal=true] send to local message handlers
-   * @param {boolean} [options.toNet=true] send to network message handlers
+   * @param {boolean} [options.toNet=false] send to network message handlers
    */
-  Send(mesgName, inData, options = {}) {
+  Publish(mesgName, inData, options = {}) {
     let { srcUID, type } = options;
-    let { toLocal = true, toNet = true } = options;
+    let { toLocal = true, toNet = false } = options;
     const handlers = this.handlerMap.get(mesgName);
     /// toLocal
     if (handlers && toLocal)
@@ -137,18 +137,18 @@ class Messager {
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** Messager.Signal()
-   * Send message to everyone, local and network, and also mirrors back to self.
-   * This is a wrapper for Send() that ensures that srcUID is overridden.
+   * Publish message to everyone, local and network, and also mirrors back to self.
+   * This is a wrapper for Publish() that ensures that srcUID is overridden.
    * @param {string} mesgName message to send data to
    * @param {Object} inData parameters for the message handler
-   * @param {Object} [options] see Send() for option details
+   * @param {Object} [options] see Publish() for option details
    */
   Signal(mesgName, data, options = {}) {
     if (options.srcUID) {
       console.warn(`overriding srcUID ${options.srcUID} with NULL because Signal() doesn't use it`);
       options.srcUID = null;
     }
-    this.Send(mesgName, data, options);
+    this.Publish(mesgName, data, options);
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -157,7 +157,7 @@ class Messager {
    * the network.
    * @param {string} mesgName message to send data to
    * @param {Object} inData parameters for the message handler
-   * @param {Object} [options] see Send() for option details
+   * @param {Object} [options] see Publish() for option details
    * @returns {Array} an array of Promises
    */
   Call(mesgName, inData, options = {}) {

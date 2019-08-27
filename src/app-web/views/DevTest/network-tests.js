@@ -6,15 +6,11 @@
 import UR from '../../../system/ursys';
 import { cssur } from '../../modules/console-styles';
 
-const MOD = {
-  name: 'netTest'
-};
-
-const UDATA = new UR.DataLink(MOD);
+const UDATA = new UR.NewDataLink(__filename);
 
 function DefineHandlers() {
   console.log(`%c${UDATA.Name()}.RegisterHandlers()`, cssur);
-  UDATA.HandleMessage('MYSTERY', data => {
+  UDATA.Publish('MYSTERY', data => {
     console.log(`%c${UDATA.Name()}.MYSTERY got `, cssur, data);
     data.todos.push(`buy ${UDATA.UADDR()} presents`);
     return data;
@@ -22,7 +18,7 @@ function DefineHandlers() {
 }
 
 function ServerReflect() {
-  UDATA.Call('SRV_REFLECT', { stack: ['me'] }).then(data => {
+  UDATA.NetCall('SRV_REFLECT', { stack: ['me'] }).then(data => {
     console.log(`%c${UDATA.Name()}.Reflect() got`, cssur, data);
   });
 }

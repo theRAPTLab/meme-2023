@@ -166,23 +166,30 @@ class Messager {
     const handlers = this.handlerMap.get(mesgName);
     let promises = [];
     /// toLocal
-    if (handlers && toLocal) {
-      handlers.forEach(handlerFunc => {
-        // handlerFunc signature: (data,dataReturn) => {}
-        // handlerFunc has udata_id property to note originating UDATA object
-        // skip "same origin" calls
-        if (srcUID && handlerFunc.udata_id === srcUID) {
-          if (DBG)
-            console.warn(
-              `MessagerCall: [${mesgName}] skip call since origin = destination; use Broadcast() if intended`
-            );
-          return;
-        }
-        // Create a promise. if handlerFunc returns a promise, it follows
-        let p = f_MakeResolverFunction(handlerFunc, inData);
-        promises.push(p);
-      }); // end foreach
-    } // end if handlers
+    if (toLocal) {
+      if (handlers) {
+        handlers.forEach(handlerFunc => {
+          // handlerFunc signature: (data,dataReturn) => {}
+          // handlerFunc has udata_id property to note originating UDATA object
+          // skip "same origin" calls
+          if (srcUID && handlerFunc.udata_id === srcUID) {
+            if (DBG)
+              console.warn(
+                `MessagerCall: [${mesgName}] skip call since origin = destination; use Broadcast() if intended`
+              );
+            return;
+          }
+          // Create a promise. if handlerFunc returns a promise, it follows
+          let p = f_MakeResolverFunction(handlerFunc, inData);
+          promises.push(p);
+        }); // end foreach
+      } else {
+        // no handlers
+        promises.push(Promise.resolve({ error: 'local message handler not found' }));
+      }
+    } // to local
+
+    // end if handlers
     /// resolver function
     /// remember MESSAGER class is used for more than just Network Calls
     /// the state manager also uses it, so the resolved value may be of any type

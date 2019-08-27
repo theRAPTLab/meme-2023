@@ -320,11 +320,12 @@ async function m_HandleMessage(socket, pkt) {
   // UADDR targets, possibly because the sources are not allowed to call itself
   // except in the case of the SIGNAL type
   if (promises.length === 0) {
-    const out = `${pkt.SourceAddress()} called unregistered message '${pkt.Message()}'`;
+    const out = `${pkt.SourceAddress()} cannot resolve call '${pkt.Message()}'`;
     console.log(PR, out);
     // return transaction to resolve callee
     pkt.SetData({
-      URserver: `info: ${out}`
+      URserver: `info: ${out}`,
+      error: 'message not found'
     });
     if (pkt.IsType('mcall')) pkt.ReturnTransaction(socket);
     return;

@@ -217,7 +217,6 @@ class EvidenceLink extends React.Component {
     DATA.VM_DeselectAll();
     UR.Publish('SELECTION_CHANGED');
     // Remove any existing evidence links
-    DATA.VM_MarkBadgeForDeletion(evId);
     DATA.SetEvidenceLinkPropId(evId, undefined);
     DATA.SetEvidenceLinkMechId(evId, undefined);
     DATA.BuildModel();

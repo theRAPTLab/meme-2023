@@ -817,7 +817,6 @@ PMCData.PMC_PropDelete = (propid = 'a') => {
   const evlinks = PMCData.PropEvidence(propid);
   if (evlinks)
     evlinks.forEach(evlink => {
-      PMCData.VM_MarkBadgeForDeletion(evlink.evId);
       PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
     });
   // Delete any children nodes
@@ -846,7 +845,6 @@ PMCData.PMC_MechDelete = mechId => {
   const evlinks = PMCData.MechEvidence(mechId);
   if (evlinks)
     evlinks.forEach(evlink => {
-      PMCData.VM_MarkBadgeForDeletion(evlink.evId);
       PMCData.SetEvidenceLinkMechId(evlink.evId, undefined);
     });
   // Then remove mech
@@ -900,8 +898,6 @@ PMCData.PMC_DuplicateEvidenceLink = evId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_DeleteEvidenceLink = evId => {
-  // Delete badges first
-  PMCData.VM_MarkBadgeForDeletion(evId);
   // Then delete the link(s)
   let i = a_evidence.findIndex(e => {
     return e.evId === evId;

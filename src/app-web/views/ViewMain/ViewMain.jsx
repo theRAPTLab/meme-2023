@@ -260,7 +260,7 @@ class ViewMain extends React.Component {
 
   // User selected mechanism and clicked on "(/) Edit Mechanism" button
   HandleMechEdit() {
-    let selectedMechIds = DATA.VM_SelectedMechs();
+    let selectedMechIds = DATA.VM_SelectedMechIds();
     if (selectedMechIds.length > 0) {
       DATA.VM_DeselectAll(); // deselect so mech buttons disappear
       let mechId = selectedMechIds[0];
@@ -277,7 +277,7 @@ class ViewMain extends React.Component {
 
   // User selected component/prop and clicked on "() Delete"
   HandleMechDelete() {
-    let selectedMechIds = DATA.VM_SelectedMechs();
+    let selectedMechIds = DATA.VM_SelectedMechIds();
     if (selectedMechIds.length > 0) {
       let mechId = selectedMechIds[0];
       DATA.PMC_MechDelete(mechId);
@@ -378,7 +378,7 @@ class ViewMain extends React.Component {
     // If more than one mech is selected, hide the mech
     // editing buttons
     let mechIsSelected = false;
-    let selectedMechIds = DATA.VM_SelectedMechs();
+    let selectedMechIds = DATA.VM_SelectedMechIds();
     if (selectedMechIds.length === 1 && !this.state.addEdgeOpen) mechIsSelected = true;
 
     this.setState({

@@ -794,7 +794,7 @@ PMCData.VM_SelectedPropsIds = () => {
  is not tagged with any other meta data (e.g. 'first')
  @returns {string[]} mechIds - array of string ids of properties
  */
-PMCData.VM_SelectedMechs = () => {
+PMCData.VM_SelectedMechIds = () => {
   return Array.from(selected_vmechs.values());
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

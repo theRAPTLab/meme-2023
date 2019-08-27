@@ -236,7 +236,7 @@ class EvidenceLink extends React.Component {
       let sourceId;
       // Assume mechs are harder to select so check for them first.
       // REVIEW: Does this work well?
-      let selectedMechIds = DATA.VM_SelectedMechs();
+      let selectedMechIds = DATA.VM_SelectedMechIds();
       if (DBG) console.log(PKG, 'selection changed mechsIds:', selectedMechIds);
       if (selectedMechIds.length > 0) {
         // Get the last selection

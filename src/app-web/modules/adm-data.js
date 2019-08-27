@@ -505,10 +505,9 @@ ADMData.Load = () => {
   let model2 = ADMData.GetModelById('mo02');
   model2.data = {
     // components is a 'component' or a 'property' (if it has a parent)
-    components: [
+    properties: [
       { id: 'tank', name: 'tank' },
-      { id: 'fish', name: 'fish' },
-      { id: 'ammonia', name: 'Ammonia' }
+      { id: 'fish', name: 'fish' }
     ]
   };
 

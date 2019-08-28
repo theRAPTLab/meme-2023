@@ -485,7 +485,8 @@ function console_ListSockets(change) {
   let values = mu_sockets.values();
   let count = 1;
   for (let socket of values) {
-    console.log(PR, `${count} - ${socket.UADDR}`);
+    console.log(PR, `  ${count} = ${socket.UADDR}`);
+    count++;
   }
 }
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

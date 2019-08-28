@@ -22,7 +22,7 @@ const NetMessage = require('./common-netmessage');
 /// MODULE VARS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let MSGR_IDCOUNT = 0;
-let DBG = false;
+let DBG = true;
 
 /// URSYS MESSAGER CLASS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -53,6 +53,7 @@ class Messager {
   Subscribe(mesgName, handlerFunc, options = {}) {
     let { handlerUID } = options;
     let { syntax } = options;
+    let { fromNet } = options;
     if (typeof handlerFunc !== 'function') {
       throw Error('arg2 must be a function');
     }
@@ -60,6 +61,10 @@ class Messager {
       // bind the udata uid to the handlerFunc function for convenient access
       // by the message dispatcher
       handlerFunc.udata_id = handlerUID;
+    }
+    if (typeof fromNet === 'boolean') {
+      // true if this subscriber wants to receive network messages
+      handlerFunc.fromNet = fromNet;
     }
     let handlers = this.handlerMap.get(mesgName);
     if (!handlers) {
@@ -163,19 +168,31 @@ class Messager {
   Call(mesgName, inData, options = {}) {
     let { srcUID, type } = options;
     let { toLocal = true, toNet = true } = options;
+    let { fromNet = false } = options;
     const handlers = this.handlerMap.get(mesgName);
     let promises = [];
     /// toLocal
     if (toLocal) {
       if (handlers) {
         handlers.forEach(handlerFunc => {
-          // handlerFunc signature: (data,dataReturn) => {}
-          // handlerFunc has udata_id property to note originating UDATA object
+          /*/
+          handlerFunc signature: (data,dataReturn) => {}
+          handlerFunc has udata_id property to note originating UDATA object
+          handlerFunc has fromNet property if it expects to receive network sourced calls
+          /*/
+          // skip calls that don't have their fromNet stat set if it's a net call
+          if (fromNet && !handlerFunc.fromNet) {
+            if (DBG)
+              console.warn(
+                `MessagerCall: [${mesgName}] skip netcall for handler uninterested in net`
+              );
+            return;
+          }
           // skip "same origin" calls
           if (srcUID && handlerFunc.udata_id === srcUID) {
             if (DBG)
               console.warn(
-                `MessagerCall: [${mesgName}] skip call since origin = destination; use Broadcast() if intended`
+                `MessagerCall: [${mesgName}] skip call since origin = destination; use Signal() if intended`
               );
             return;
           }
@@ -220,9 +237,27 @@ class Messager {
    */
   MessageNames() {
     let handlers = [];
-    this.handlerMap.forEach((value, key) => {
+    this.handlerMap.forEach((set, key) => {
       handlers.push(key);
       if (DBG) console.log(`handler: ${key}`);
+    });
+    return handlers;
+  }
+
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /** Messager.NetMessageNames()
+   * Get list of messages that are published to the network
+   * @returns {Array<string>} message name strings
+   */
+  NetMessageNames() {
+    let handlers = [];
+    this.handlerMap.forEach((set, key) => {
+      let addMessage = false;
+      set.forEach(func => (addMessage |= func.fromNet === true));
+      if (addMessage) {
+        handlers.push(key);
+        if (DBG) console.log(`nethandler: ${key}`);
+      }
     });
     return handlers;
   }

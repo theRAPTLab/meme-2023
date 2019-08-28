@@ -13,6 +13,7 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import UR from '../../../system/ursys';
 import NETTEST from './network-tests';
+import { cssinfo } from '../../modules/console-styles';
 
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -42,13 +43,17 @@ class ViewTest extends React.Component {
     this.cstrName = this.constructor.name;
     this.feature = undefined;
     this.AddTestResult = this.AddTestResult.bind(this);
+    this.RegisterTest = this.RegisterTest.bind(this);
     this.state = {
       tests: []
     }
     this._mounted = false;
+    // test data structures
+    this.tests = [];
+    this.passed = [];
+    this.failed = [];
     this.queuedResults = [];
     // test
-    this.AddTestResult("root constructed");
     this.Test(props.match.params.feature || '<no test selected>');
   }
 
@@ -93,6 +98,39 @@ class ViewTest extends React.Component {
     const status = error === undefined ? 'OK' : error;
     this.queuedResults.push({ name, status });
     if (this._mounted) this.setState({ tests: this.queuedResults });
+  }
+
+  DidTestsComplete() {
+    console.log(`tests initiated ${this.tests.length}`);
+    console.log(`tests passed ${this.passed.length}`);
+    console.log(`tests failed ${this.failed.length}`);
+    let union = [...new Set([...this.passed, ...this.failed])];
+    let difference = this.tests.filter(x => !union.includes(x));
+    console.log(`tests incomplete %c${difference.join(', ')}`, cssinfo);
+    return difference.length;
+  }
+
+  RegisterTest(testname) {
+    const dbg = true;
+    if (dbg) console.log('registering test:', testname);
+    let test = {
+      name: testname,
+      fail: function (status) {
+        if (dbg) console.log(`%cfailed test: ${testname}`, cssinfo);
+        this.AddTestResult(test.name, status);
+        this.failed.push(test.name);
+      },
+      pass: function () {
+        if (dbg) console.log(`%cpassed test: ${testname}`, cssinfo);
+        this.AddTestResult(test.name);
+        this.passed.push(test.name);
+      }
+    }
+    test.pass = test.pass.bind(this);
+    test.fail = test.fail.bind(this);
+    //
+    this.tests.push(testname);
+    return test;
   }
 
   render() {

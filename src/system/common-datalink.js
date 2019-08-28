@@ -32,7 +32,7 @@ const URNET = require('./ur-network').default; // workaround for require
  */
 /// DEBUGGING /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = { create: true, send: false, return: false, register: false };
+const DBG = { create: true, send: true, return: false, register: false };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const BAD_NAME = 'name parameter must be a string';
 const BAD_UID = 'unexpected non-unique UID';
@@ -51,7 +51,7 @@ function m_GetUniqueId() {
 
 /// GLOBAL MESSAGES ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-let MESSAGER = new Messager();
+let MESSAGER = new Messager(); // all datalinks share a common messager
 
 /// URSYS NODE CLASS /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -120,7 +120,16 @@ class URDataLink {
     // uid is "source uid" of subscribing object, to avoid reflection
     // if the subscribing object is also the originating state changer
     if (DBG.register) console.log(`${this.uid} _${PR} `, `${this.name} handler added[${mesgName}]`);
-    MESSAGER.Subscribe(mesgName, listener, { receiverUID: this.UID() });
+    MESSAGER.Subscribe(mesgName, listener, { handlerUID: this.UID() });
+  }
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /// variation of Subscribe that receives from remotes as well
+  NetSubscribe(mesgName, listener) {
+    // uid is "source uid" of subscribing object, to avoid reflection
+    // if the subscribing object is also the originating state changer
+    if (DBG.register)
+      console.log(`${this.uid} _${PR} `, `${this.name} nethandler added[${mesgName}]`);
+    MESSAGER.Subscribe(mesgName, listener, { fromNet: true, handlerUID: this.UID() });
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -138,9 +147,13 @@ class URDataLink {
     options = Object.assign(options, { type: 'mcall' });
     if (DBG.send) {
       let status = '';
-      if (!options.toNet) status += 'NO_NET ';
-      if (!options.toLocal) status += 'NO_LOCAL';
-      if (!(options.toLocal || options.toNet)) status = 'ERR NO LOCAL OR NET';
+      if (options.fromNet) {
+        status += ' REMOTE_CALL';
+      } else {
+        if (!options.toNet) status += 'NO_NET ';
+        if (!options.toLocal) status += 'NO_LOCAL';
+        if (!(options.toLocal || options.toNet)) status = 'ERR NO LOCAL OR NET';
+      }
       console.log(`${this.uid} _${PR} `, '** DATALINK CALL ASYNC', mesgName, status);
     }
     // uid is "source uid" of subscribing object, to avoid reflection
@@ -260,7 +273,7 @@ class URDataLink {
         console.error(e);
       }
     } else {
-      messages = URDataLink.MessageNames();
+      messages = URDataLink.NetMessageNames();
     }
     return this.Call('SRV_REG_HANDLERS', { messages });
   }
@@ -268,12 +281,17 @@ class URDataLink {
 
 /// STATIC CLASS METHODS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ There's a single MESSAGER object that handles all registered messages for
-    URSYS.
-/*/
+/** Return list of all registered Subscriber Message Names
+ */
 URDataLink.MessageNames = function() {
   return MESSAGER.MessageNames();
 };
+///
+/** Return list of all registered NetSubscriber message names */
+URDataLink.NetMessageNames = function() {
+  return MESSAGER.NetMessageNames();
+};
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Filter any bad messages from the passed array of strings
 /*/

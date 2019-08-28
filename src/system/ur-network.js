@@ -169,6 +169,10 @@ function m_HandleRegistrationMessage(msgEvent) {
   if (typeof m_options.success === 'function') m_options.success();
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Dispatch incoming event object
+ * @param {SocketEvent} msgEvent -incoming event object from websocket
+ */
 function m_HandleMessage(msgEvent) {
   let pkt = new NetMessage(msgEvent.data);
   let msg = pkt.Message();
@@ -183,9 +187,11 @@ function m_HandleMessage(msgEvent) {
   /// otherwise, incoming invocation from network
   switch (type) {
     case 'state':
+      // unimplemented netstate
       if (dbgout) console.log(PR, 'received state change', msg);
       break;
     case 'msig':
+      // network signal to raise
       if (dbgout) {
         console.warn(
           PR,
@@ -193,10 +199,11 @@ function m_HandleMessage(msgEvent) {
           data
         );
       }
-      UDATA.LocalSignal(msg, data);
+      UDATA.LocalSignal(msg, data, { fromNet: true });
       pkt.ReturnTransaction();
       break;
     case 'msend':
+      // network message received
       if (dbgout) {
         console.warn(
           PR,
@@ -204,17 +211,18 @@ function m_HandleMessage(msgEvent) {
           data
         );
       }
-      UDATA.LocalSend(msg, data);
+      UDATA.LocalSend(msg, data, { fromNet: true });
       pkt.ReturnTransaction();
       break;
     case 'mcall':
+      // network call received
       if (dbgout) {
         console.warn(
           PR,
           `ME_${NetMessage.SocketUADDR()} received mcall '${msg}' from ${pkt.SourceAddress()}`
         );
       }
-      UDATA.LocalCall(msg, data).then(result => {
+      UDATA.LocalCall(msg, data, { fromNet: true }).then(result => {
         if (dbgout) {
           console.log(
             `ME_${NetMessage.SocketUADDR()} forwarded '${msg}', returning ${JSON.stringify(result)}`

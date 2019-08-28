@@ -36,6 +36,7 @@ import DATA from '../modules/pmc-data';
 import UR from '../../system/ursys';
 import StickyNoteButton from './StickyNoteButton';
 import RatingButton from './RatingButton';
+import LinkButton from './LinkButton';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -73,6 +74,7 @@ class EvidenceLink extends React.Component {
     this.OnScreenShotClick = this.OnScreenShotClick.bind(this)
     this.OnNoteChange = this.OnNoteChange.bind(this);
     this.OnSourceSelectClick = this.OnSourceSelectClick.bind(this);
+    this.OnLinkButtonClick = this.OnLinkButtonClick.bind(this);
     this.DoEnableSourceSelect = this.DoEnableSourceSelect.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
     this.DoToggleExpanded = this.DoToggleExpanded.bind(this);
@@ -226,6 +228,21 @@ class EvidenceLink extends React.Component {
     }
   }
 
+  OnLinkButtonClick(e) {
+    let evlink = this.props.evlink;
+    // Deselect the prop first, otherwise the deleted prop will remain selected
+    DATA.VM_DeselectAll();
+    UR.Publish('SELECTION_CHANGED');
+    // Remove any existing evidence links
+    DATA.SetEvidenceLinkPropId(evlink.evId, undefined);
+    DATA.SetEvidenceLinkMechId(evlink.evId, undefined);
+    DATA.BuildModel();
+    // Then trigger editing
+    if (this.state.isBeingEdited) {
+      UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId: evlink.evId, rsrcId: evlink.rsrcId });
+    }
+  }
+
   DoEnableSourceSelect(data) {
     if (data.evId === this.props.evlink.evId) {
       this.setState({ listenForSourceSelection: true });
@@ -298,27 +315,18 @@ class EvidenceLink extends React.Component {
     const { evId, rsrcId, propId, mechId } = evlink;
     const { note, rating, isBeingEdited, isExpanded, listenForSourceSelection } = this.state;
     if (evId === '') return '';
+
+    let sourceType;
     let sourceLabel;
-    let sourceIcon = '';
-    let evidenceLinkSelectButtonClass;
-    if (listenForSourceSelection) {
-      sourceLabel = 'Click on Target...';
-      sourceIcon = <ArrowBackIcon />;
-      evidenceLinkSelectButtonClass = classes.evidenceLinkSourceAvatarWaiting;
-    } else if (propId !== undefined) {
+    if (propId !== undefined) {
+      sourceType = 'prop';
       sourceLabel = DATA.Prop(propId).name;
-      evidenceLinkSelectButtonClass = classes.evidenceLinkSourcePropAvatarSelected;
     } else if (mechId !== undefined) {
+      sourceType = 'mech';
       sourceLabel = DATA.Mech(mechId).name || 'no label mechanism';
-      evidenceLinkSelectButtonClass = classes.evidenceLinkSourceMechAvatarSelected;
     } else {
-      if (isBeingEdited) {
-        sourceLabel = 'Set Target';
-        sourceIcon = <CreateIcon />;
-      } else {
-        sourceLabel = 'Target Not Set';
-      }
-      evidenceLinkSelectButtonClass = classes.evidenceLinkSelectButton;
+      sourceType = undefined;
+      sourceLabel = undefined;
     }
 
     return (
@@ -414,17 +422,14 @@ class EvidenceLink extends React.Component {
                   </Grid>
                   <Grid item xs>
                     <div className={classes.evidenceLinkAvatar}>
-                      <Button
-                        onClick={() => {
-                          this.OnSourceSelectClick(evId, rsrcId);
-                        }}
-                        className={evidenceLinkSelectButtonClass}
-                        disabled={!isBeingEdited || listenForSourceSelection}
-                        size={isExpanded ? 'large' : 'small'}
-                      >
-                        {sourceIcon}
-                        {sourceLabel}
-                      </Button>
+                      <LinkButton
+                        sourceType={sourceType}
+                        sourceLabel={sourceLabel}
+                        listenForSourceSelection={listenForSourceSelection}
+                        isBeingEdited={isBeingEdited}
+                        isExpanded={isExpanded}
+                        OnLinkButtonClick={this.OnLinkButtonClick}
+                      />
                     </div>
                   </Grid>
                 </Grid>

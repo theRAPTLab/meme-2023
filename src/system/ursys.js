@@ -44,8 +44,12 @@ const UDATA = new URDataLink('URSYS.Main');
 function NewDataLink(name = '<anon>') {
   return new URDataLink(name);
 }
+//
 const { Publish, Unpublish, Subscribe, Unsubscribe } = UDATA;
-// deprecated
+// return the number of peers on the network
+function PeerCount() {
+  return NetMessage.PEERS.count;
+}
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -58,5 +62,6 @@ export default {
   Unsubscribe,
   ReloadOnViewChange,
   NetMessage,
-  NewDataLink
+  NewDataLink,
+  PeerCount
 };

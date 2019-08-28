@@ -13,7 +13,7 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import UR from '../../../system/ursys';
 import NETTEST from './network-tests';
-import { cssinfo } from '../../modules/console-styles';
+import { cssinfo, cssalert } from '../../modules/console-styles';
 
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -106,7 +106,8 @@ class ViewTest extends React.Component {
     console.log(`tests failed ${this.failed.length}`);
     let union = [...new Set([...this.passed, ...this.failed])];
     let difference = this.tests.filter(x => !union.includes(x));
-    console.log(`tests incomplete %c${difference.join(', ')}`, cssinfo);
+    if (difference.length) console.log(`tests incomplete %c${difference.join(', ')}`, cssalert);
+    if (this.failed.length) console.log(`tests failed %c${this.failed.join(', ')}`, cssalert);
     return difference.length;
   }
 

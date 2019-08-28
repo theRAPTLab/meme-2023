@@ -7,35 +7,47 @@ import UR from '../../../system/ursys';
 import { cssur } from '../../modules/console-styles';
 
 const UDATA = new UR.NewDataLink(__filename);
+const UDATA2 = new UR.NewDataLink(`__filename${2}`);
+let testLocalCallbackRejection;
 
 function DefineHandlers(comp) {
   console.log(`%c${UDATA.Name()}.RegisterHandlers()`, cssur);
   //
-  const testSubscriber = comp.RegisterTest('Subscribe Callback');
-  const testRemoteSubscriber = comp.RegisterTest('NetSubscribe Callback');
-  const testRemoteSubscriberReject = comp.RegisterTest('NetSubscribe Callback Isolation');
+  const testLocalCallback = comp.RegisterTest('LocalCallbackInvoked');
   //
-  UDATA.Subscribe('MYSTERY', data => {
+  UDATA2.Subscribe('MYSTERY', data => {
     console.log(`%c${UDATA.Name()}.MYSTERY got `, cssur, data);
     data.todos.push(`buy ${UDATA.UADDR()} presents`);
-    testSubscriber(pass);
+    testLocalCallback.pass();
     return data;
   });
 
-  UDATA.NetSubscribe('MYSTERY_REMOTE', data => {
+  if (UR.PeerCount() < 2) return;
+
+  const testNetCallbackInvoke = comp.RegisterTest('NetCallbackInvoked');
+  testLocalCallbackRejection = comp.RegisterTest('LocalCallbackRejection');
+
+  // this handles network subscriptions only
+  // it requires that the remote calls it
+  // also both clients need to be refreshed at the same time
+  // requires a working PEERCOUNT UPDATE system
+  UDATA2.NetSubscribe('MYSTERY_REMOTE', data => {
     console.log(`%c${UDATA.Name()}.MYSTERY_REMOTE got `, cssur, data);
     data.todos.push(`remote ${UDATA.UADDR()} call test`);
-    if (!data.callReject) data.callReject = [];
-    data.callReject.push('NetSubcribe');
-    testRemoteSubscriber.pass();
-    console.log('data callreject', data.callReject);
+    if (!data.subLog) data.subLog = [];
+    data.subLog.push('NetSubcriber');
+    testNetCallbackInvoke.pass();
+    // since this test is dependent on another client existing
+    // we need to run the completion test again
+    comp.DidTestsComplete();
     return data;
   });
-  UDATA.Subscribe('MYSTERY_REMOTE', data => {
+
+  UDATA2.Subscribe('MYSTERY_REMOTE', data => {
     console.log(`%c${UDATA.Name()}.MYSTERY_REMOTE got `, cssur, data);
-    if (!data.callReject) data.callReject = [];
-    data.callReject.push('Subscribe');
-    testRemoteSubscribeReject.fail('should not have been called');
+    if (!data.subLog) data.subLog = [];
+    data.subLog.push('LocalSubscriber');
+    testLocalCallbackRejection.fail('should not have been called');
   });
 }
 
@@ -53,6 +65,7 @@ function ServerReflect(comp) {
   }, 1000);
 
   UDATA.NetCall('SRV_REFLECT', { stack: ['me'] }).then(data => {
+    testServerReflect.pass();
     if (data.serverSays === 'REFLECTING') {
       clearTimeout(timeout);
       testServerReflectData.pass();
@@ -89,7 +102,8 @@ function UndefinedLocalCall(comp) {
 }
 
 function NetCall(comp) {
-  const testNetCall = comp.RegisterTest('NetCall RoundTrip');
+  if (UR.PeerCount() < 2) return;
+  let testNetCall = comp.RegisterTest('NetCallRoundTrip');
   const testNetCallData = comp.RegisterTest('NetCall+Data');
 
   const timeout = setTimeout(() => {
@@ -109,10 +123,17 @@ function NetCall(comp) {
     // check for modified data
     if (data.todos.length > 2) {
       testNetCallData.pass();
-      return;
+    } else {
+      testNetCallData.fail('data unmodified');
     }
-    testNetCallData.fail('data unmodified');
-    console.log('data', data);
+    // check for callback isolation when
+    // a subscriber implements both Local and Net versions of a call
+    if (testLocalCallbackRejection) {
+      if (!data.subLog) testLocalCallbackRejection.fail('missing subLog');
+      else if (data.subLog.includes('LocalSubscriber'))
+        testLocalCallbackRejection.fail('local sub was called unexpectedly');
+      else testLocalCallbackRejection.pass();
+    }
   });
 }
 
@@ -138,8 +159,8 @@ export default {
   },
   DoMountTests: comp => {
     const timeout = setTimeout(() => {
-      if (comp.DidTestsComplete()) console.log('FAIL');
-      else console.log('SUCCESS');
+      if (comp.DidTestsComplete()) console.log('TESTS FAIL');
+      else console.log('TESTS SUCCESS');
     }, 3000);
     LocalCall(comp);
     NetCall(comp);

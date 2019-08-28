@@ -240,10 +240,12 @@ function m_GetNewUADDR(prefix = 'UADDR') {
  * @param {Object} socket connecting socket
  */
 function m_SocketClientAck(socket) {
+  let PEERS = { count: mu_sockets.size };
   let data = {
     HELLO: `Welcome to URSYS, ${socket.UADDR}`,
     UADDR: socket.UADDR,
-    SERVER_UADDR
+    SERVER_UADDR,
+    PEERS
   };
   socket.send(JSON.stringify(data));
 } // end m_SocketClientAck()

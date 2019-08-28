@@ -153,7 +153,7 @@ NETWORK.Connect = (datalink, opt) => {
 /*/
 function m_HandleRegistrationMessage(msgEvent) {
   let regData = JSON.parse(msgEvent.data);
-  let { HELLO, UADDR, SERVER_UADDR } = regData;
+  let { HELLO, UADDR, SERVER_UADDR, PEERS } = regData;
   // (1) after receiving the initial message, switch over to regular
   // message handler
   NETWORK.RemoveListener('message', m_HandleRegistrationMessage);
@@ -161,7 +161,12 @@ function m_HandleRegistrationMessage(msgEvent) {
   // (2) initialize global settings for netmessage
   if (DBG.connect) console.log(PR, `'${HELLO}'`);
   NETSOCK.ws.UADDR = NetMessage.DefaultServerUADDR();
-  NetMessage.GlobalSetup({ uaddr: UADDR, netsocket: NETSOCK.ws, server_uaddr: SERVER_UADDR });
+  NetMessage.GlobalSetup({
+    uaddr: UADDR,
+    netsocket: NETSOCK.ws,
+    server_uaddr: SERVER_UADDR,
+    peers: PEERS
+  });
   // (3) connect regular message handler
   NETWORK.AddListener('message', m_HandleMessage);
   m_status = M4_READY;

@@ -459,8 +459,9 @@ class NetMessage {
  * @param {Object} [config.uaddr] - URSYS browser address
  */
 NetMessage.GlobalSetup = (config = {}) => {
-  let { uaddr, netsocket } = config;
+  let { uaddr, netsocket, peers } = config;
   if (uaddr) NetMessage.UADDR = uaddr;
+  if (peers) NetMessage.PEERS = peers;
   if (netsocket) {
     // NOTE: m_netsocket is set only on clients since on server, there are
     // multiple sockets
@@ -513,6 +514,9 @@ NetMessage.GlobalOfflineMode = () => {
  */
 NetMessage.SocketUADDR = () => {
   return NetMessage.UADDR;
+};
+NetMessage.Peers = () => {
+  return NetMessage.PEERS;
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

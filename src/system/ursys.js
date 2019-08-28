@@ -46,14 +46,6 @@ function NewDataLink(name = '<anon>') {
 }
 const { Publish, Unpublish, Subscribe, Unsubscribe } = UDATA;
 // deprecated
-const Sub = (channel, func, opt) => {
-  REFLECT.Deprecated('Use Subscribe() instead');
-  Subscribe(channel, func, opt);
-};
-const Unsub = (channel, func) => {
-  REFLECT.Deprecated('Use Unsub() instead');
-  Unsubscribe(channel, func);
-};
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -63,9 +55,7 @@ export default {
   Publish,
   Unpublish,
   Subscribe,
-  Sub,
   Unsubscribe,
-  Unsub,
   ReloadOnViewChange,
   NetMessage,
   NewDataLink

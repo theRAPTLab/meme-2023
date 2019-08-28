@@ -28,7 +28,7 @@ function ExtractClassName(obj) {
 /** Returns the name of the calling
  */
 function PromiseOwnFunctionName(depth = 1) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     STACKTRACE.get().then(frames => {
       let trace = frames.filter(frame => {
         // filter out stuff that isn't part of our own code
@@ -38,13 +38,18 @@ function PromiseOwnFunctionName(depth = 1) {
         return match;
       });
       let frame = trace[depth];
-      let fn = `${frame.functionName}()`;
-      let ln = frame.lineNumber;
-      resolve({
-        file: PATH.Basename(frame.fileName),
-        functionName: fn,
-        line: ln
-      });
+      if (!frame) {
+        const err = `couldn't find module frame for depth ${depth} of eligible trace`;
+        resolve({ error: err });
+      } else {
+        let fn = `${frame.functionName}()`;
+        let ln = frame.lineNumber;
+        resolve({
+          file: PATH.Basename(frame.fileName),
+          functionName: fn,
+          line: ln
+        });
+      }
     });
   });
 }

@@ -34,7 +34,7 @@ class SVGView extends React.Component {
     // DATA.LoadGraph();
 
     // Look for Data Updates
-    UR.Sub('DATA_UPDATED', this.DoAppLoop);
+    UR.Subscribe('DATA_UPDATED', this.DoAppLoop);
   }
 
   componentDidMount() {
@@ -63,7 +63,7 @@ class SVGView extends React.Component {
   }
 
   componentWillUnmount() {
-    UR.Unsub('DATA_UPDATED', this.DoAppLoop);
+    UR.Unsubscribe('DATA_UPDATED', this.DoAppLoop);
   }
 
   DoAppLoop() {

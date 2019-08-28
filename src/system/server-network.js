@@ -95,12 +95,12 @@ UNET.StartNetwork = () => {
 }; // end StartNetwork()
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** NetPublish() is used to register SERVER-side message handlers that are
+/** NetSubscribe() is used to register SERVER-side message handlers that are
  * reachable from remote clients. Server-side handlers use their own map.
  * @param {string} mesgName message to register a handler for
  * @param {function} handlerFunc function receiving 'data' object
  */
-UNET.NetPublish = (mesgName, handlerFunc) => {
+UNET.NetSubscribe = (mesgName, handlerFunc) => {
   if (typeof handlerFunc !== 'function') {
     throw Error('arg2 must be a function');
   }
@@ -110,15 +110,15 @@ UNET.NetPublish = (mesgName, handlerFunc) => {
     m_server_handlers.set(mesgName, handlers);
   }
   handlers.add(handlerFunc);
-}; // end NetPublish()
+}; // end NetSubscribe()
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** NetUnpublish() revokes a handler function from a registered message.
+/** NetUnsubscribe() revokes a handler function from a registered message.
  * The handler function object must be the same one used to register it.
  * @param {string} mesgName message to unregister a handler for
  * @param {function} handlerFunc function originally registered
  */
-UNET.NetUnpublish = (mesgName, handlerFunc) => {
+UNET.NetUnsubscribe = (mesgName, handlerFunc) => {
   if (mesgName === undefined) {
     m_server_handlers.clear();
   } else if (handlerFunc === undefined) {
@@ -130,7 +130,7 @@ UNET.NetUnpublish = (mesgName, handlerFunc) => {
     }
   }
   return this;
-}; // end NetUnpublish()
+}; // end NetUnsubscribe()
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** NetCall() is the server-side method for invoking a remote message. It
@@ -151,28 +151,28 @@ UNET.NetCall = async (mesgName, data) => {
   return results; // array of data objects
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** NetSend() is the server-side method for sending a remote message. It fires
+/** NetPublish() is the server-side method for sending a remote message. It fires
  * the messages but doesn't do anything with the returned promises. Use for
  * notifying remote message handlers.
  * @param {string} mesgName message to unregister a handler for
  * @param {function} handlerFunc function originally registered
  */
-UNET.NetSend = (mesgName, data) => {
+UNET.NetPublish = (mesgName, data) => {
   let pkt = new NetMessage(mesgName, data);
   let promises = m_PromiseRemoteHandlers(pkt);
   // we don't care about waiting for the promise to complete
   if (DBG) console.log(PR, `${pkt.Info()} NETSEND ${pkt.Message()} to ${promises.length} remotes`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** NetSignal() is an alias for NetSend(), kept for conceptual symmetry to the
+/** NetRaise() is an alias for NetPublish(), kept for conceptual symmetry to the
  * client-side URSYS interface. It is not needed because the server never
- * mirrors NetSend to itself for signaling purposes.
+ * mirrors NetPublish to itself for signaling purposes.
  * @param {string} mesgName message to unregister a handler for
  * @param {function} handlerFunc function originally registered
  */
-UNET.NetSignal = (mesgName, data) => {
-  console.warn(PR, 'NOTE: Use NetSend(), not NetSignal() since the server doesnt care.');
-  UNET.NetSend(mesgName, data);
+UNET.NetRaise = (mesgName, data) => {
+  console.warn(PR, 'NOTE: Use NetPublish(), not NetRaise() since the server doesnt care.');
+  UNET.NetPublish(mesgName, data);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** RegisterRemoteHandlers() is a special initialize method that handles URSYS REGISTRATION PACKETS

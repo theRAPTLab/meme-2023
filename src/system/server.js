@@ -20,7 +20,8 @@ const EXPRESS = require('./server-express');
 const PROMPTS = require('./util/prompts');
 //
 const { TERM_URSYS: CS, CCRIT: CC, CR } = PROMPTS;
-const PR = `${CS}${PROMPTS.Pad('URSYS')}${CR}`;
+const LPR = 'URSYS';
+const PR = `${CS}${PROMPTS.Pad(LPR)}${CR}`;
 const SERVER_INFO = {
   main: `http://localhost:3000`,
   client: `http://${ip.address()}:3000`
@@ -36,6 +37,7 @@ let URSYS = {};
 /** API: Main Entry Point
  */
 URSYS.InitializeNetwork = override => {
+  LOGGER.Write(LPR, `initializing network`);
   console.log(`${CS}STARTING UR SOCKET SERVER${CR}`);
   URSYS.RegisterHandlers();
   UDB.InitializeDatabase(override);
@@ -46,8 +48,9 @@ URSYS.InitializeNetwork = override => {
  *
  */
 URSYS.RegisterHandlers = () => {
+  LOGGER.Write(LPR, `registering network services`);
   // basic reflection test
-  UNET.NetPublish('SRV_REFLECT', pkt => {
+  UNET.NetSubscribe('SRV_REFLECT', pkt => {
     // get reference to modify
     const data = pkt.Data();
     const props = Object.keys(data);
@@ -68,7 +71,7 @@ URSYS.RegisterHandlers = () => {
     return pkt;
   });
 
-  UNET.NetPublish('SRV_REG_HANDLERS', pkt => {
+  UNET.NetSubscribe('SRV_REG_HANDLERS', pkt => {
     if (DBG) console.log(PR, sprint_message(pkt));
     // now need to store the handlers somehow.
     let data = UNET.RegisterRemoteHandlers(pkt);
@@ -76,18 +79,18 @@ URSYS.RegisterHandlers = () => {
     return data;
   });
 
-  UNET.NetPublish('SRV_DBGET', pkt => {
+  UNET.NetSubscribe('SRV_DBGET', pkt => {
     if (DBG) console.log(PR, sprint_message(pkt));
     return UDB.PKT_GetDatabase(pkt);
   });
 
-  UNET.NetPublish('SRV_DBSET', pkt => {
+  UNET.NetSubscribe('SRV_DBSET', pkt => {
     if (DBG) console.log(PR, sprint_message(pkt));
     return UDB.PKT_SetDatabase(pkt);
   });
 
   // receives a packet from a client
-  UNET.NetPublish('SRV_DBUPDATE', pkt => {
+  UNET.NetSubscribe('SRV_DBUPDATE', pkt => {
     if (DBG) console.log(PR, sprint_message(pkt));
     let data = UDB.PKT_Update(pkt);
     // add src attribute for client SOURCE_UPDATE to know
@@ -102,7 +105,7 @@ URSYS.RegisterHandlers = () => {
     return { OK: true, info: 'SRC_DBUPDATE' };
   });
 
-  UNET.NetPublish('SRV_LOG_EVENT', pkt => {
+  UNET.NetSubscribe('SRV_LOG_EVENT', pkt => {
     if (DBG) console.log(PR, sprint_message(pkt));
     return LOGGER.PKT_LogEvent(pkt);
   });
@@ -114,6 +117,7 @@ URSYS.RegisterHandlers = () => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 URSYS.StartWebServer = callback => {
+  LOGGER.Write(LPR, `starting web server`);
   // returns an optional promise hook
   console.log(`${CS}STARTING UR WEB SERVER${CR}`);
   (async () => {
@@ -138,6 +142,7 @@ URSYS.StartWebServer = callback => {
 /**
  */
 URSYS.StartNetwork = () => {
+  LOGGER.Write(LPR, `starting network`);
   UNET.StartNetwork();
 };
 

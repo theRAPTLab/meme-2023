@@ -814,7 +814,7 @@ PMCData.PMC_PropDelete = (propid = 'a') => {
   // Deselect the prop first, otherwise the deleted prop will remain selected
   PMCData.VM_DeselectAll();
   // Unlink any evidence
-  const evlinks = PMCData.PropEvidence(propid);
+  const evlinks = PMCData.PMC_GetEvLinksByPropId(propid);
   if (evlinks)
     evlinks.forEach(evlink => {
       PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
@@ -831,7 +831,7 @@ PMCData.PMC_PropDelete = (propid = 'a') => {
   return `deleted propid ${propid}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddMech = (sourceId, targetId, label) => {
+PMCData.PMC_MechAdd = (sourceId, targetId, label) => {
   m_graph.setEdge(sourceId, targetId, { name: label });
   PMCData.BuildModel();
   return `added edge ${sourceId} ${targetId} ${label}`;
@@ -842,7 +842,7 @@ PMCData.PMC_MechDelete = mechId => {
   // Deselect the mech first, otherwise the deleted mech will remain selected
   PMCData.VM_DeselectAll();
   // Unlink any evidence
-  const evlinks = PMCData.MechEvidence(mechId);
+  const evlinks = PMCData.PMC_GetEvLinksByMechId(mechId);
   if (evlinks)
     evlinks.forEach(evlink => {
       PMCData.SetEvidenceLinkMechId(evlink.evId, undefined);
@@ -891,7 +891,7 @@ PMCData.PMC_GetResourceIndex = rsrcId => {
  */
 PMCData.PMC_DuplicateEvidenceLink = evId => {
   // First get the old link
-  const oldlink = PMCData.EvidenceLinkByEvidenceId(evId);
+  const oldlink = PMCData.PMC_GetEvLinkByEvId(evId);
   // Create new evlink
   let newEvId = PMCData.PMC_AddEvidenceLink(oldlink.rsrcId, oldlink.note);
   return newEvId;
@@ -906,25 +906,34 @@ PMCData.PMC_DeleteEvidenceLink = evId => {
   PMCData.BuildModel();
   return evId;
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Given the passed evidence ID, returns the EvidenceLink object.
+ *  @param {string|undefined} rsrcId - if defined, id string of the resource object
+ *  @return {evlink} An evidenceLink object.
+ */
+PMCData.PMC_GetEvLinkByEvId = evId => {
+  return h_evidenceByEvId.get(evId);
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Given the passed propid (prop data object), returns evidence linked to the prop object.
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
  *  @param {string|undefined} nodeId - if defined, nodeId string of the prop (aka `propId`)
- *  @return [evlinks] evidenceLink objects
+ *  @return [evlinks] An array of evidenceLink objects
  */
-PMCData.PropEvidence = propid => {
+PMCData.PMC_GetEvLinksByPropId = propid => {
   return h_evidenceByProp.get(propid);
 };
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Given the passed evidence ID, returns the EvidenceLink object.
- *  @param {string|undefined} rsrcId - if defined, id string of the resource object
+ *  Given the passed mechId (mech object), returns evidence linked to the mech object.
+ *  e.g. { evidenceId: '1', note: 'fish food fish food' }
+ *  @param {string|undefined} mechId - if defined, mechId string of the prop (aka `propId`)
+ *  @return [evlinks] An array of evidenceLink objects
  */
-PMCData.EvidenceLinkByEvidenceId = evId => {
-  return h_evidenceByEvId.get(evId);
+PMCData.PMC_GetEvLinksByMechId = mechId => {
+  return h_evidenceByMech.get(mechId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Set propId to `undefined` to unlink
@@ -994,7 +1003,7 @@ PMCData.GetParent = (parentId, parentType) => {
   let parent = {};
   switch (parentType) {
     case 'evidence':
-      parent = PMCData.EvidenceLinkByEvidenceId(parentId);
+      parent = PMCData.PMC_GetEvLinkByEvId(parentId);
       break;
     default:
       console.error(PKG, 'GetParent parentType', parentType, 'not found');
@@ -1024,6 +1033,7 @@ PMCData.NewComment = (author, sentenceStarter) => {
  *  Updates the respective data structure (a_commentThreads or a_evidence) with the
  *  updated comment text.
  *  @param {string} parentId - if defined, id string of the resource object
+ *                  propId, mechId, or evId
  *  @param {string} parentType - if defined, type of the resource object
  *                  'evidence', 'property', 'mechanism'
  *  @param [object] comments - Array of comment objects
@@ -1041,16 +1051,17 @@ PMCData.UpdateComments = (parentId, parentType, comments) => {
       parent.comments = comments;
       break;
     case 'propmech':
-      // Update existing comment
       index = a_commentThreads.findIndex(c => {
         return c.id === parentId;
       });
       if (index > -1) {
+        // existing comment
         comment = a_commentThreads[index];
         comment.comments = comments;
         a_commentThreads.splice(index, 1, comment);
       } else {
-        comment = { id: parentId, comments }; // new comment
+        // new comment
+        comment = { id: parentId, comments };
         a_commentThreads.push(comment);
       }
       break;
@@ -1077,21 +1088,11 @@ PMCData.GetEvLinksByResourceId = rsrcId => {
   return h_evlinkByResource.get(rsrcId);
 };
 
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.MODEL:
- *  Given the passed mechId (mech object), returns evidence linked to the mech object.
- *  e.g. { evidenceId: '1', note: 'fish food fish food' }
- *  @param {string|undefined} mechId - if defined, mechId string of the prop (aka `propId`)
- */
-PMCData.MechEvidence = mechId => {
-  return h_evidenceByMech.get(mechId);
-};
-
 /// DEBUG UTILS //////////////////////////////////////////////////////////////
 if (window.may1 === undefined) window.may1 = {};
 window.may1.PCM_Mech = PMCData.Mech;
 window.may1.PMC_AddProp = PMCData.PMC_AddProp;
-window.may1.PMC_AddMech = PMCData.PMC_AddMech;
+window.may1.PMC_MechAdd = PMCData.PMC_MechAdd;
 window.may1.PMC_AddEvidenceLink = PMCData.PMC_AddEvidenceLink;
 window.may1.VM_GetVEvLinkChanges = PMCData.VM_GetVEvLinkChanges;
 window.may1.BuildModel = PMCData.BuildModel;

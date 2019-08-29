@@ -101,7 +101,7 @@ class EvidenceLink extends React.Component {
     // via the DATA_UPDATED call because `note` is only set by props
     // during construction.
 
-    let evlink = DATA.EvidenceLinkByEvidenceId(this.props.evlink.evId);
+    let evlink = DATA.PMC_GetEvLinkByEvId(this.props.evlink.evId);
     if (evlink) {
       this.setState({
         note: evlink.note,
@@ -143,7 +143,7 @@ class EvidenceLink extends React.Component {
 
   OnDuplicateButtonClick() {
     const newEvId = DATA.PMC_DuplicateEvidenceLink(this.props.evlink.evId);
-    const newEvLink = DATA.EvidenceLinkByEvidenceId(newEvId);
+    const newEvLink = DATA.PMC_GetEvLinkByEvId(newEvId);
     UR.Publish('SHOW_EVIDENCE_LINK', { evId: newEvLink.evId, rsrcId: newEvLink.rsrcId });
   }
 

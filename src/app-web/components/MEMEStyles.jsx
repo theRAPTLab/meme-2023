@@ -68,7 +68,9 @@ const styles = theme => {
       marginTop: '-1em'
     },
     edgeDialogTextField: {
-      color: orange[500]
+      color: orange[500],
+      width: '200px',
+      margin: '0 25px'
     },
     edgeDialogPaper: {
       margin: `1em 10em 1em ${m_drawerWidth}px`,

@@ -98,7 +98,7 @@ class LinkButton extends React.Component {
       label = 'Click on Target...';
       icon = <ArrowBackIcon />;
       evidenceLinkSelectButtonClass = classes.evidenceLinkSourceAvatarWaiting;
-    } else if (sourceLabel !== undefined) {
+    } else if (sourceLabel !== undefined && sourceLabel !== '') {
       label = sourceLabel;
       switch (sourceType) {
         case 'mech':

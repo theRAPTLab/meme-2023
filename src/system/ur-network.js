@@ -98,7 +98,7 @@ NETWORK.Connect = (datalink, opt) => {
 
   // create websocket
   // uses values that were embedded in index.ejs on load
-  const { USRV_Host, USRV_MsgPort } = CENTRAL.GetVal('ur-session');
+  const { USRV_Host, USRV_MsgPort } = CENTRAL.GetVal('ur_session');
   let wsURI = `ws://${USRV_Host}:${USRV_MsgPort}`;
   NETSOCK.ws = new WebSocket(wsURI);
   if (DBG.connect) console.log(PR, 'OPEN SOCKET TO', wsURI);

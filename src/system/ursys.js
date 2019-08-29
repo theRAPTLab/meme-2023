@@ -36,7 +36,7 @@ const UDATA = new URDataLink('URSYS.Main');
 
 /// RUNTIME FLAGS /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-CENTRAL.Define('ur-legacy-publish', true);
+CENTRAL.Define('ur_legacy_publish', true);
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

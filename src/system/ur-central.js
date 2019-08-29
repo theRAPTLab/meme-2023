@@ -104,7 +104,7 @@ const SetVal = (key, value) => {
 /// URSYS parameters are defined in the startup html.
 /// Copy them into URCENTRAL officially
 if (window.URSESSION) {
-  Define('ur-session', window.URSESSION);
+  Define('ur_session', window.URSESSION);
 }
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

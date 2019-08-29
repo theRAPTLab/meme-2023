@@ -130,7 +130,7 @@ class NetMessage {
     // addressing support
     this.s_uaddr = NetMessage.SocketUADDR() || null; // first originating uaddr set by SocketSend()
     this.s_group = null; // session groupid is set by external module once validated
-    this.s_uid = null; // first originating UDATA srcUID
+    this.s_uid = null; // first originating ULINK srcUID
     // filtering support
   } // constructor
 

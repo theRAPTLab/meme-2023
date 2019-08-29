@@ -6,18 +6,19 @@
 import UR from '../../../system/ursys';
 import { cssur } from '../../modules/console-styles';
 
-const UDATA = new UR.NewDataLink(__filename);
-const UDATA2 = new UR.NewDataLink(`__filename${2}`);
+const ULINK = UR.Connect(module.id);
+const ULINK2 = UR.Connect(module.id);
+
 let testLocalCallbackRejection;
 
 function DefineHandlers(comp) {
-  console.log(`%c${UDATA.Name()}.RegisterHandlers()`, cssur);
+  console.log(`%c${ULINK.Name()}.RegisterHandlers()`, cssur);
   //
   const testLocalCallback = comp.RegisterTest('LocalCallbackInvoked');
   //
-  UDATA2.Subscribe('MYSTERY', data => {
-    console.log(`%c${UDATA.Name()}.MYSTERY got `, cssur, data);
-    data.todos.push(`buy ${UDATA.UADDR()} presents`);
+  ULINK2.Subscribe('MYSTERY', data => {
+    console.log(`%c${ULINK.Name()}.MYSTERY got `, cssur, data);
+    data.todos.push(`buy ${ULINK.UADDR()} presents`);
     testLocalCallback.pass();
     return data;
   });
@@ -31,9 +32,9 @@ function DefineHandlers(comp) {
   // it requires that the remote calls it
   // also both clients need to be refreshed at the same time
   // requires a working PEERCOUNT UPDATE system
-  UDATA2.NetSubscribe('MYSTERY_REMOTE', data => {
-    console.log(`%c${UDATA.Name()}.MYSTERY_REMOTE got `, cssur, data);
-    data.todos.push(`remote ${UDATA.UADDR()} call test`);
+  ULINK2.NetSubscribe('MYSTERY_REMOTE', data => {
+    console.log(`%c${ULINK.Name()}.MYSTERY_REMOTE got `, cssur, data);
+    data.todos.push(`remote ${ULINK.UADDR()} call test`);
     if (!data.subLog) data.subLog = [];
     data.subLog.push('NetSubcriber');
     testNetCallbackInvoke.pass();
@@ -43,8 +44,8 @@ function DefineHandlers(comp) {
     return data;
   });
 
-  UDATA2.Subscribe('MYSTERY_REMOTE', data => {
-    console.log(`%c${UDATA.Name()}.MYSTERY_REMOTE got `, cssur, data);
+  ULINK2.Subscribe('MYSTERY_REMOTE', data => {
+    console.log(`%c${ULINK.Name()}.MYSTERY_REMOTE got `, cssur, data);
     if (!data.subLog) data.subLog = [];
     data.subLog.push('LocalSubscriber');
     testLocalCallbackRejection.fail('should not have been called');
@@ -64,7 +65,7 @@ function ServerReflect(comp) {
     testServerReflect.fail('server no response');
   }, 1000);
 
-  UDATA.NetCall('SRV_REFLECT', { stack: ['me'] }).then(data => {
+  ULINK.NetCall('SRV_REFLECT', { stack: ['me'] }).then(data => {
     testServerReflect.pass();
     if (data.serverSays === 'REFLECTING') {
       clearTimeout(timeout);
@@ -79,7 +80,7 @@ function LocalCall(comp) {
   const timeout = setTimeout(() => {
     testLocalCall.fail('system timeout');
   }, 1000);
-  UDATA.LocalCall('MYSTERY', {
+  ULINK.LocalCall('MYSTERY', {
     todos: ['take out garbage', 'clean basement'],
     source: 'LocalCall'
   }).then(data => {
@@ -94,7 +95,7 @@ function UndefinedLocalCall(comp) {
   const timeout = setTimeout(() => {
     testMissingLocalCall.fail('unexpected timeout');
   }, 1000);
-  UDATA.LocalCall('UnHanDled', {}).then(data => {
+  ULINK.LocalCall('UnHanDled', {}).then(data => {
     clearTimeout(timeout);
     if (data.error) testMissingLocalCall.pass();
     else testMissingLocalCall.fail('unexpected success');
@@ -109,7 +110,7 @@ function NetCall(comp) {
   const timeout = setTimeout(() => {
     testNetCall.fail('connection timeout');
   }, 1000);
-  UDATA.NetCall('MYSTERY_REMOTE', {
+  ULINK.NetCall('MYSTERY_REMOTE', {
     todos: ['take out garbage', 'clean basement'],
     source: 'NetCall'
   }).then(data => {
@@ -143,7 +144,7 @@ function GetDB(comp) {
   const timeout = setTimeout(() => {
     testGetDB.fail('timeout');
   }, 1000);
-  UDATA.NetCall('SRV_DBGET', {}).then(data => {
+  ULINK.NetCall('SRV_DBGET', {}).then(data => {
     clearTimeout(timeout);
     testGetDB.pass();
     console.log(data);

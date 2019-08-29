@@ -8,7 +8,7 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import URNET from './ur-network';
-import URDataLink from './common-datalink';
+import URLink from './common-urlink';
 import { cssuri } from '../app-web/modules/console-styles';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ if (dr_index > 0) REACT_PHASES = PHASES.slice(dr_index);
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const BAD_PATH = "module_path must be a string derived from the module's module.id";
-const UDATA = new URDataLink('UREXEC');
+const ULINK = new URLink('UREXEC');
 
 /// STATE /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -97,11 +97,8 @@ function m_UpdateCurrentPhase(phase) {
 const Hook = (phase, f, scope) => {
   try {
     // make sure scope is included
-    if (typeof scope !== 'string') {
-      console.log('GOT', phase, f, scope);
-      if (typeof scope === 'object' && scope.URMOD) scope = scope.URMOD;
-      throw Error(`<arg3> scope should be object with UMOD prop`);
-    }
+    if (typeof scope !== 'string') throw Error(`<arg3> scope should be included`);
+
     // does this phase exist?
     if (typeof phase !== 'string') throw Error("<arg1> must be PHASENAME (e.g. 'LOADASSETS')");
     if (!PHASES.includes(phase)) throw Error(phase, 'is not a recognized exec phase');
@@ -142,7 +139,7 @@ const IsReactPhase = phase => {
 const Execute = async phase => {
   // require scope to be set
   if (EXEC_SCOPE === false)
-    throw Error(`URSYS.SetScopePath() must be set to RootJSX View's module.id. Aborting.`);
+    throw Error(`URSYS.SetScopePath() must be set to the root View's module.id. Aborting.`);
 
   // note: contents of PHASE_HOOKs are promise-generating functions
   if (!PHASES.includes(phase)) throw Error(`${phase} is not a recognized EXEC phase`);
@@ -289,7 +286,7 @@ const SetupDOM = () => {
 const JoinNet = () => {
   return new Promise((resolve, reject) => {
     try {
-      URNET.Connect(UDATA, { success: resolve, failure: reject });
+      URNET.Connect(ULINK, { success: resolve, failure: reject });
     } catch (e) {
       console.error(
         'JoinNet() Execution Error. Check phase execution order effect on data validity.\n',
@@ -308,7 +305,7 @@ const SetupRun = () => {
       await Execute('RESET'); // RESET runtime datastructures
       await Execute('START'); // START running
       await Execute('REG_MESSAGE'); // register messages
-      await UDATA.PromiseRegisterMessages(); // send messages
+      await ULINK.PromiseRegisterMessages(); // send messages
       await Execute('APP_READY'); // app is connected
       await Execute('RUN'); // tell network APP_READY
       resolve();

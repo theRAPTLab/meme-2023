@@ -4,8 +4,8 @@
 
     URSYS DATALINK CLASS
 
-    The URSYS DATALINK (UDATA) class represents a connection to the URSYS
-    event messaging system. Instances are created with URSYS.NewDataLink()
+    The URSYS DATALINK (ULINK) class represents a connection to the URSYS
+    event messaging system. Instances are created with URSYS.Connect()
     by user code. URSYS libs use this class directly.
 
     Each UNODE has a unique URSYS_ID (the UID) which represents its
@@ -29,7 +29,7 @@ const CENTRAL = require('./ur-central').default;
 const URNET = require('./ur-network').default; // workaround for require
 
 /** implements endpoints for talking to the URSYS network
- * @module URDataLink
+ * @module URLink
  */
 /// DEBUGGING /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -37,7 +37,7 @@ const DBG = { create: true, send: false, return: false, register: false };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const BAD_NAME = 'name parameter must be a string';
 const BAD_UID = 'unexpected non-unique UID';
-const PR = 'UDATA:';
+const PR = 'ULINK:';
 
 /// NODE MANAGEMENT ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -46,13 +46,13 @@ const MAX_UNODES = 100;
 let UNODE_COUNTER = 0; // URSYS connector node id counter
 function m_GetUniqueId() {
   const id = `${++UNODE_COUNTER}`.padStart(3, '0');
-  if (UNODE_COUNTER > MAX_UNODES) console.warn('Unexpectedly high number of UDATA nodes created!');
+  if (UNODE_COUNTER > MAX_UNODES) console.warn('Unexpectedly high number of ULINK nodes created!');
   return `UDL${id}`;
 }
 
 /// GLOBAL MESSAGES ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-let MESSAGER = new Messager(); // all datalinks share a common messager
+let MESSAGER = new Messager(); // all urlinks share a common messager
 
 /// URSYS NODE CLASS /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -60,9 +60,9 @@ let MESSAGER = new Messager(); // all datalinks share a common messager
     send messages. Constructor receives an owner, which is inspected for
     properties to determine how to classify the created messager for debugging
     purposes
-    @memberof URDataLink
+    @memberof URLink
 */
-class URDataLink {
+class URLink {
   /** constructor
    * @param {object} owner the class instance or code module object
    * @param {string} owner.name code module name set manually
@@ -94,7 +94,7 @@ class URDataLink {
     this.name = name;
     // save module in the global module list
     if (UNODE.has(this.uid)) throw Error(BAD_UID + this.uid);
-    if (DBG.create) console.log(PR, `URDataLink ${this.uid} created (${this.name})`);
+    if (DBG.create) console.log(PR, `URLink ${this.uid} created (${this.name})`);
     UNODE.set(this.uid, this);
   }
 
@@ -141,8 +141,8 @@ class URDataLink {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /*/ UDATA wraps Messager.Call(), which returns an array of promises.
-      The UDATA version of Call() manages the promises, and returns a
+  /*/ ULINK wraps Messager.Call(), which returns an array of promises.
+      The ULINK version of Call() manages the promises, and returns a
   /*/
   async Call(mesgName, inData = {}, options = {}) {
     options = Object.assign(options, { type: 'mcall' });
@@ -174,7 +174,7 @@ class URDataLink {
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /*/ Sends the data to all message implementors UNLESS it is originating from
-      the same UDATA instance (avoid echoing back to self)
+      the same ULINK instance (avoid echoing back to self)
   /*/
   Publish(mesgName, inData = {}, options = {}) {
     if (typeof inData === 'function')
@@ -275,34 +275,34 @@ class URDataLink {
     }
     if (messages.length) {
       try {
-        messages = URDataLink.ValidateMessageNames(messages);
+        messages = URLink.ValidateMessageNames(messages);
       } catch (e) {
         console.error(e);
       }
     } else {
-      messages = URDataLink.NetMessageNames();
+      messages = URLink.NetMessageNames();
     }
     return this.Call('SRV_REG_HANDLERS', { messages });
   }
-} // class UnisysNode
+} // class URLink
 
 /// STATIC CLASS METHODS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Return list of all registered Subscriber Message Names
  */
-URDataLink.MessageNames = function() {
+URLink.MessageNames = function() {
   return MESSAGER.MessageNames();
 };
 ///
 /** Return list of all registered NetSubscriber message names */
-URDataLink.NetMessageNames = function() {
+URLink.NetMessageNames = function() {
   return MESSAGER.NetMessageNames();
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Filter any bad messages from the passed array of strings
 /*/
-URDataLink.ValidateMessageNames = function(msgs = []) {
+URLink.ValidateMessageNames = function(msgs = []) {
   let valid = [];
   msgs.forEach(name => {
     if (MESSAGER.HasMessageName(name)) valid.push(name);
@@ -313,4 +313,4 @@ URDataLink.ValidateMessageNames = function(msgs = []) {
 
 /// EXPORT CLASS DEFINITION ///////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-module.exports = URDataLink;
+module.exports = URLink;

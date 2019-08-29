@@ -58,9 +58,9 @@ class Messager {
       throw Error('arg2 must be a function');
     }
     if (typeof handlerUID === 'string') {
-      // bind the udata uid to the handlerFunc function for convenient access
+      // bind the ULINK uid to the handlerFunc function for convenient access
       // by the message dispatcher
-      handlerFunc.udata_id = handlerUID;
+      handlerFunc.ulink_id = handlerUID;
     }
     if (typeof fromNet === 'boolean') {
       // true if this subscriber wants to receive network messages
@@ -120,9 +120,9 @@ class Messager {
     if (handlers && toLocal)
       handlers.forEach(handlerFunc => {
         // handlerFunc signature: (data,dataReturn) => {}
-        // handlerFunc has udata_id property to note originating UDATA object
+        // handlerFunc has ulink_id property to note originating ULINK object
         // skip "same origin" calls
-        if (srcUID && handlerFunc.udata_id === srcUID) {
+        if (srcUID && handlerFunc.ulink_id === srcUID) {
           console.warn(
             `MessagerSend: [${mesgName}] skip call since origin = destination; use Broadcast() if intended`
           );
@@ -176,7 +176,7 @@ class Messager {
         handlers.forEach(handlerFunc => {
           /*/
           handlerFunc signature: (data,dataReturn) => {}
-          handlerFunc has udata_id property to note originating UDATA object
+          handlerFunc has ulink_id property to note originating ULINK object
           handlerFunc has fromNet property if it expects to receive network sourced calls
           /*/
           // skip calls that don't have their fromNet stat set if it's a net call
@@ -188,7 +188,7 @@ class Messager {
             return;
           }
           // skip "same origin" calls
-          if (srcUID && handlerFunc.udata_id === srcUID) {
+          if (srcUID && handlerFunc.ulink_id === srcUID) {
             if (DBG)
               console.warn(
                 `MessagerCall: [${mesgName}] skip call since origin = destination; use Signal() if intended`

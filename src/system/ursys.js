@@ -25,14 +25,15 @@ import CENTRAL from './ur-central';
 import EXEC from './ur-exec';
 import ReloadOnViewChange from './util/reload';
 import NetMessage from './common-netmessage';
-import URDataLink from './common-datalink';
+import URLink from './common-urlink';
 import URComponent from './ur-react-component';
 import REFLECT from './util/reflect';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true; // module-wide debug flag
-const UDATA = new URDataLink('URSYS.Main');
+const ULINK = Connect(module.id || __dirname);
+let ULINK_COUNTER = 0;
 
 /// RUNTIME FLAGS /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -45,15 +46,20 @@ CENTRAL.Define('ur_legacy_publish', true);
  * id meta-data for communicating over the network
  * @param {string} name - An optional name
  */
-function NewDataLink(name = '<anon>') {
-  return new URDataLink(name);
+function Connect(name) {
+  const count = `${ULINK_COUNTER++}`.padStart(3, '0');
+  let uname = name || 'URSYS';
+  uname += `${count}`.padStart(3, '0');
+  return new URLink(uname);
 }
-//
-const { Publish, Subscribe, Unsubscribe } = UDATA;
-const { Call, Signal } = UDATA;
 
-const { NetPublish, NetSubscribe } = UDATA;
-const { NetCall, NetSignal } = UDATA;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// provide
+const { Publish, Subscribe, Unsubscribe } = ULINK;
+const { Call, Signal } = ULINK;
+
+const { NetPublish, NetSubscribe } = ULINK;
+const { NetCall, NetSignal } = ULINK;
 
 // return the number of peers on the network
 function PeerCount() {
@@ -62,7 +68,7 @@ function PeerCount() {
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default {
+const UR = {
   EXEC,
   CENTRAL,
   Publish,
@@ -76,6 +82,7 @@ export default {
   NetSignal,
   ReloadOnViewChange,
   NetMessage,
-  NewDataLink,
+  Connect,
   PeerCount
 };
+export default UR;

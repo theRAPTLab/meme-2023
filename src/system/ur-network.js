@@ -21,7 +21,7 @@ const PR = PROMPTS.Pad('NETWORK');
 const WARN = PROMPTS.Pad('!!!');
 const ERR_NM_REQ = 'arg1 must be NetMessage instance';
 const ERR_NO_SOCKET = 'Network socket has not been established yet';
-const ERR_BAD_UDATA = "An instance of 'client-datalink-class' is required";
+const ERR_BAD_ULINK = "An instance of 'URLink' is required";
 
 /// GLOBAL NETWORK INFO (INJECTED ON INDEX) ///////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -42,7 +42,7 @@ let m_options = {};
 /// API METHODS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const NETWORK = {};
-let UDATA = null; // assigned during NETWORK.Connect()
+let ULINK = null; // assigned during NETWORK.Connect()
 
 /// NETWORK LISTENERS /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -90,10 +90,10 @@ NETWORK.Connect = (datalink, opt) => {
   m_status = M1_CONNECTING;
 
   // check and save parms
-  if (datalink.constructor.name !== 'URDataLink') {
-    throw Error(ERR_BAD_UDATA);
+  if (datalink.constructor.name !== 'URLink') {
+    throw Error(ERR_BAD_ULINK);
   }
-  if (!UDATA) UDATA = datalink;
+  if (!ULINK) ULINK = datalink;
   m_options = opt || {};
 
   // create websocket
@@ -204,7 +204,7 @@ function m_HandleMessage(msgEvent) {
           data
         );
       }
-      UDATA.LocalSignal(msg, data, { fromNet: true });
+      ULINK.LocalSignal(msg, data, { fromNet: true });
       pkt.ReturnTransaction();
       break;
     case 'msend':
@@ -216,7 +216,7 @@ function m_HandleMessage(msgEvent) {
           data
         );
       }
-      UDATA.LocalSend(msg, data, { fromNet: true });
+      ULINK.LocalSend(msg, data, { fromNet: true });
       pkt.ReturnTransaction();
       break;
     case 'mcall':
@@ -227,7 +227,7 @@ function m_HandleMessage(msgEvent) {
           `ME_${NetMessage.SocketUADDR()} received mcall '${msg}' from ${pkt.SourceAddress()}`
         );
       }
-      UDATA.LocalCall(msg, data, { fromNet: true }).then(result => {
+      ULINK.LocalCall(msg, data, { fromNet: true }).then(result => {
         if (dbgout) {
           console.log(
             `ME_${NetMessage.SocketUADDR()} forwarded '${msg}', returning ${JSON.stringify(result)}`

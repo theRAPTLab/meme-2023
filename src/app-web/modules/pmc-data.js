@@ -861,9 +861,11 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
     // 2a. Move assets over
     const evlinks = PMCData.PMC_GetEvLinksByMechId(origMechId);
     // 2a. Move evidence over. Modify in place.
-    evlinks.forEach(evlink => {
-      PMCData.SetEvidenceLinkMechId(evlink.evId, newMechId);
-    });
+    if (evlinks) {
+      evlinks.forEach(evlink => {
+        PMCData.SetEvidenceLinkMechId(evlink.evId, newMechId);
+      });
+    }
     // 2b. Move comments over
     const comments = PMCData.GetComments(origMechId);
     PMCData.UpdateComments(newMechId, 'propmech', comments);

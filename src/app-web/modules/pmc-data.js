@@ -59,7 +59,7 @@ const PMCData = {};
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = false;
+const DBG = true;
 const PKG = 'pmc-data:';
 
 /// MODEL /////////////////////////////////////////////////////////////////////
@@ -835,6 +835,51 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label) => {
   m_graph.setEdge(sourceId, targetId, { name: label });
   PMCData.BuildModel();
   return `added edge ${sourceId} ${targetId} ${label}`;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  When a Mech is updated, the mech id changes, since it is made up of the
+ *  source and target ids.  This essentially creates a new Mech.
+ *  So we have to do a bit of extra work to copy the
+ *  assets over from the old mech to the new mech.
+ */
+PMCData.PMC_MechUpdate = (origMech, newMech) => {
+  // If we're only changing the label, then don't do the fancy swap, just update the albel.
+  if (origMech.sourceId === newMech.sourceId && origMech.targetId === newMech.targetId) {
+    // Just change label
+    const { sourceId, targetId, label } = newMech;
+    m_graph.setEdge(sourceId, targetId, { name: label });
+    PMCData.BuildModel();
+  } else {
+    // 1. Add the new mech
+    m_graph.setEdge(newMech.sourceId, newMech.targetId, { name: newMech.label });
+
+    // 2. Update the old mech
+    const origMechId = `${origMech.sourceId}:${origMech.targetId}`;
+    const newMechId = `${newMech.sourceId}:${newMech.targetId}`;
+
+    // 2a. Move assets over
+    const evlinks = PMCData.PMC_GetEvLinksByMechId(origMechId);
+    // 2a. Move evidence over. Modify in place.
+    evlinks.forEach(evlink => {
+      PMCData.SetEvidenceLinkMechId(evlink.evId, newMechId);
+    });
+    // 2b. Move comments over
+    const comments = PMCData.GetComments(origMechId);
+    PMCData.UpdateComments(newMechId, 'propmech', comments);
+
+    // 2c. Remove the old mech
+    PMCData.PMC_MechDelete(origMechId);
+
+    PMCData.BuildModel();
+
+    // 3. Show review dialog alert.
+    // HACK: Delay the alert so the system has a chance to redraw first.
+    setTimeout(() => {
+      alert('Please review the updated mechanism to make sure the Evidence Links and comments are still relevant.');      
+    }, 500);
+  }
+  return `updated edge`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_MechDelete = mechId => {

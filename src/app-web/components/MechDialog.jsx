@@ -72,10 +72,20 @@ class MechDialog extends React.Component {
   DoAdd() {
     if (DBG) console.log(PKG, 'Add Mech!');
     this.setState({
-      isOpen: true,
-      label: '',
-      editExisting: false
-    });
+        isOpen: true,
+        sourceId: '',
+        sourceLabel: '',
+        targetId: '',
+        targetLabel: '',
+        label: '',
+        editExisting: false,
+        listenForSourceSelection: true
+      },
+      () => {
+        this.DoSelectionChange(); // Read selection to prepopulate
+        DATA.VM_DeselectAll(); // Then deselect everything and get ready for next one
+      }
+    );
   }
 
   DoEdit(data) {

@@ -2,6 +2,48 @@
 
 LinkButton
 
+A LinkButton is used to select and show the source or target 
+component/property/mechanism that an Evidence Link points to.
+
+Communication with its parent is via props since this really is not an
+indpendent component and needs to be carefully managed by its parent.
+
+It has four states:
+
+1. "Target Not Set"
+    When an object is first created the target of the link is not set, so the 
+    button displays "Target Not Set".  The button is disabled at this point.
+    
+2. "Set Target"
+    If the parent object is edtiable, the button is enabled, and the user can 
+    click the button to then select a target.  
+    this.props.OnLinkButtonClick needs to handle this transition and set the
+    this.props.listenForSourceSelection to true to tell the button to
+    display the "Click on Target" state.
+
+3. "Click on Target"
+    After the user has clicked on "Set Target" the button is waiting for 
+    the user to select a component/prop/mech.  The parent object should
+    handle the selection.
+    
+4.  "Label"
+    Once a source / target component/property/mechanism has been set
+    the button displays the name of the object in the right color
+    according to the this.props.sourceType (e.g. 'mech' || 'prop')
+
+In addition, it has a smaller and larger views to correspond with 
+the expanded state in Evidence Links.
+
+The parent component basically nees to handle three things:
+
+1. Handle the `OnLinkButtonClick` prop method to respond to clicks and
+    when clicked...
+2. ...Set `listenForSourceSelection` prop to true to make the button show
+    "Click on Target", and when a selection is received...
+3. ...Set the `sourceLabel` (and `sourceType`) prop when the selection
+    is made by theuser. 
+
+See MechDialog and EvidenceLink for example implementations.
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -50,7 +92,7 @@ class LinkButton extends React.Component {
     } = this.props;
     let label;
     let icon;
-    let evidenceLinkSelectButtonClass;
+    let evidenceLinkSelectButtonClass = classes.evidenceLinkSelectButton;
 
     if (listenForSourceSelection) {
       label = 'Click on Target...';
@@ -67,14 +109,11 @@ class LinkButton extends React.Component {
           evidenceLinkSelectButtonClass = classes.evidenceLinkSourcePropAvatarSelected;
           break;
       }
+    } else if (isBeingEdited) {
+      label = 'Set Target';
+      icon = <CreateIcon />;
     } else {
-      if (isBeingEdited) {
-        label = 'Set Target';
-        icon = <CreateIcon />;
-      } else {
-        label = 'Target Not Set';
-      }
-      evidenceLinkSelectButtonClass = classes.evidenceLinkSelectButton;
+      label = 'Target Not Set';
     }
 
     return (

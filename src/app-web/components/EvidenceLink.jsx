@@ -236,7 +236,6 @@ class EvidenceLink extends React.Component {
     // Remove any existing evidence links
     DATA.SetEvidenceLinkPropId(evlink.evId, undefined);
     DATA.SetEvidenceLinkMechId(evlink.evId, undefined);
-    DATA.BuildModel();
     // Then trigger editing
     if (this.state.isBeingEdited) {
       UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId: evlink.evId, rsrcId: evlink.rsrcId });

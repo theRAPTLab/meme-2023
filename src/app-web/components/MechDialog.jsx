@@ -25,10 +25,11 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
+import LinkButton from './LinkButton';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 const PKG = 'MechDialog:';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -42,6 +43,8 @@ class MechDialog extends React.Component {
     this.DoClose = this.DoClose.bind(this);
     this.OnClose = this.OnClose.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
+    this.OnSourceLinkButtonClick = this.OnSourceLinkButtonClick.bind(this);
+    this.OnTargetLinkButtonClick = this.OnTargetLinkButtonClick.bind(this);
     this.OnTextChange = this.OnTextChange.bind(this);
     this.DoSaveData = this.DoSaveData.bind(this);
     this.OnCreateClick = this.OnCreateClick.bind(this);
@@ -82,7 +85,11 @@ class MechDialog extends React.Component {
       isOpen: true,
       label,
       sourceId,
+      sourceLabel: DATA.Prop(sourceId).name,
       targetId,
+      targetLabel: DATA.Prop(targetId).name,
+      origSourceId: sourceId,
+      origTargetId: targetId,
       editExisting: true
     });
   }
@@ -101,18 +108,53 @@ class MechDialog extends React.Component {
   DoSelectionChange() {
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (DBG) console.log('selection changed', selectedPropIds);
-    let sourceId = '';
-    let targetId = '';
-    if (selectedPropIds.length > 0) {
-      sourceId = selectedPropIds[0];
-    }
-    if (selectedPropIds.length > 1) {
-      targetId = selectedPropIds[1];
-    }
 
+    if (this.state.listenForSourceSelection) {
+      if (selectedPropIds.length > 0) {
+        const sourceId = selectedPropIds[0];
+        this.setState({
+          sourceId,
+          sourceLabel: DATA.Prop(sourceId).name,
+          listenForSourceSelection: false
+        });
+      }
+    } else if (this.state.listenForTargetSelection) {
+      if (selectedPropIds.length > 0) {
+        const targetId = selectedPropIds[0];
+        this.setState({
+          targetId,
+          targetLabel: DATA.Prop(targetId).name,
+          listenForTargetSelection: false
+        });
+      }
+    } else {
+      let sourceId = '';
+      let targetId = '';
+      if (selectedPropIds.length > 0) {
+        sourceId = selectedPropIds[0];
+      }
+      if (selectedPropIds.length > 1) {
+        targetId = selectedPropIds[1];
+      }
+
+      this.setState({
+        sourceId,
+        targetId
+      });
+    }
+  }
+
+  OnSourceLinkButtonClick() {
     this.setState({
-      sourceId,
-      targetId
+      listenForSourceSelection: true,
+      sourceId: undefined
+    });
+  }
+
+  OnTargetLinkButtonClick() {
+    this.setState({
+      listenForTargetSelection: true,
+      targetId: undefined
     });
   }
 
@@ -121,11 +163,13 @@ class MechDialog extends React.Component {
   }
 
   DoSaveData() {
-    let { sourceId, targetId, label, editExisting } = this.state;
+    const { sourceId, targetId, origSourceId, origTargetId, label, editExisting } = this.state;
     if (editExisting) {
-      DATA.PMC_MechUdpate(sourceId, targetId, label);
+      const origMech = { sourceId: origSourceId, targetId: origTargetId };
+      const newMech = { sourceId, targetId, label };
+      DATA.PMC_MechUpdate(origMech, newMech);
     } else {
-      DATA.PMC_AddMech(sourceId, targetId, label);
+      DATA.PMC_MechAdd(sourceId, targetId, label);
     }
   }
 
@@ -136,7 +180,17 @@ class MechDialog extends React.Component {
   }
 
   render() {
-    const { isOpen, label, sourceId, targetId, editExisting } = this.state;
+    const {
+      isOpen,
+      label,
+      sourceId,
+      sourceLabel,
+      targetId,
+      targetLabel,
+      editExisting,
+      listenForSourceSelection,
+      listenForTargetSelection
+    } = this.state;
     const { classes } = this.props;
 
     return (
@@ -144,14 +198,15 @@ class MechDialog extends React.Component {
         <Paper className={classes.edgeDialogPaper}>
           <div className={classes.edgeDialogWindowLabel}>ADD MECHANISM</div>
           <div className={classes.edgeDialogInput}>
-            {sourceId !== '' ? (
-              <div className={classes.evidenceLinkSourcePropAvatarSelected}>
-                {DATA.Prop(sourceId).name}
-              </div>
-            ) : (
-              <div className={classes.evidenceLinkSourceAvatarWaiting}>1. Click on a source...</div>
-            )}
-            &nbsp;
+            <LinkButton
+              sourceType="prop"
+              sourceLabel={sourceLabel}
+              listenForSourceSelection={listenForSourceSelection}
+              isBeingEdited
+              isExpanded
+              OnLinkButtonClick={this.OnSourceLinkButtonClick}
+            />
+            &nbsp;&nbsp;
             <TextField
               autoFocus
               placeholder="link label"
@@ -162,14 +217,15 @@ class MechDialog extends React.Component {
               onChange={this.OnTextChange}
               className={classes.edgeDialogTextField}
             />
-            &nbsp;
-            {targetId !== '' ? (
-              <div className={classes.evidenceLinkSourcePropAvatarSelected}>
-                {DATA.Prop(targetId).name}
-              </div>
-            ) : (
-              <div className={classes.evidenceLinkSourceAvatarWaiting}>2. Click on a target...</div>
-            )}
+            &nbsp;&nbsp;
+            <LinkButton
+              sourceType="prop"
+              sourceLabel={targetLabel}
+              listenForSourceSelection={listenForTargetSelection}
+              isBeingEdited
+              isExpanded
+              OnLinkButtonClick={this.OnTargetLinkButtonClick}
+            />
             <div style={{ flexGrow: '1' }} />
             <Button onClick={this.OnClose} color="primary">
               Cancel

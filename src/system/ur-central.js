@@ -39,23 +39,26 @@ function u_CheckKey(key) {
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- * define a value in the settings map
- * can use the form .
+ * Define a value in the settings map. Keys may only have periods in them.
  * @memberof URCentral
+ * @param {string} key - key string (lower_case.dotted)
+ * @param {*} initialValue - value to intialie
  */
-const Define = (key, value) => {
+const Define = (key, initialValue) => {
   let err = u_CheckKey(key);
   if (err) throw Error(err);
   if (m_keymap.has(key)) throw Error(`key '${key}' already exists`);
-  const binding = new ValueBinding(key, value);
+  const binding = new ValueBinding(key, initialValue);
   console.log(`defined '${key}'`);
   m_keymap.set(key, binding);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- * return binding of key
+ * PRIVATE: Return ValueBinding of key. This will eventually be hooked into
+ * the state system, but it currently is just used for local data handling.
  * @memberof URCentral
  * @returns {ValueBinding}
+ * @param {string} key - key string (lower_case.dotted)
  */
 const GetBinding = key => {
   let err = u_CheckKey(key);
@@ -66,8 +69,9 @@ const GetBinding = key => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- * return value of key
+ * Return the value associated with a key.
  * @memberof URCentral
+ * @param {string} key - key string (lower_case.dotted)
  */
 const GetVal = key => {
   let err = u_CheckKey(key);
@@ -78,8 +82,10 @@ const GetVal = key => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- * set value of key
+ * Set the value associated with a key.
  * @memberof URCentral
+ * @param {string} key - key string (lower_case.dotted)
+ * @param {*} value - the value to store
  */
 const SetVal = (key, value) => {
   let err = u_CheckKey(key);
@@ -88,16 +94,6 @@ const SetVal = (key, value) => {
   if (!binding) throw Error(`key ${key} must be Defined before using SetVal()`);
   binding.setValue(value);
 };
-
-/// TESTS /////////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Define('bananafried', 'bananasplit');
-// console.log('getval', GetVal('bananafried'));
-// SetVal('bananafried', 'pika');
-// console.log('getval', GetVal('bananafried'));
-// SetVal('bananafried', 'error');
-// const bananaBinding = GetBinding('bananafried');
-// bananaBinding.setValue('hola');
 
 /// INITIALIZE UR PARAMS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -108,4 +104,4 @@ if (window.URSESSION) {
 }
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default { Define, GetBinding, GetVal, SetVal };
+export default { Define, GetVal, SetVal };

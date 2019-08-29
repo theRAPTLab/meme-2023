@@ -305,7 +305,7 @@ const SetupRun = () => {
       await Execute('RESET'); // RESET runtime datastructures
       await Execute('START'); // START running
       await Execute('REG_MESSAGE'); // register messages
-      await ULINK.PromiseRegisterMessages(); // send messages
+      await ULINK.PromiseRegisterSubscribers(); // send messages
       await Execute('APP_READY'); // app is connected
       await Execute('RUN'); // tell network APP_READY
       resolve();

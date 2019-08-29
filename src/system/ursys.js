@@ -54,35 +54,47 @@ function Connect(name) {
 }
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// provide
+/// provide convenience links to the URSYS main ULINK
 const { Publish, Subscribe, Unsubscribe } = ULINK;
 const { Call, Signal } = ULINK;
 
 const { NetPublish, NetSubscribe } = ULINK;
 const { NetCall, NetSignal } = ULINK;
+const { Hook } = ULINK;
 
-// return the number of peers on the network
+const { Define, GetVal, SetVal } = CENTRAL;
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// TEMP: return the number of peers on the network
 function PeerCount() {
   return NetMessage.PEERS.count;
 }
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*/
+upcoming changes:
+SetState('channel:STATE',value); // defaults to local without channel
+SynchState('channel:STATE',func); // defaults to local without channel
+NetCall('message') will become Call('net:MESSAGE');
+/*/
 const UR = {
-  EXEC,
-  CENTRAL,
-  Publish,
-  Subscribe,
-  Unsubscribe,
-  Call,
-  Signal,
-  NetPublish,
-  NetSubscribe,
-  NetCall,
-  NetSignal,
-  ReloadOnViewChange,
-  NetMessage,
-  Connect,
+  EXEC, // EXEC
+  Connect, // ULINK
+  Publish, // ULINK
+  Subscribe, // ULINK
+  Unsubscribe, // ULINK
+  Call, // ULINK
+  Signal, // ULINK
+  NetPublish, // ULINK
+  NetSubscribe, // ULINK
+  NetCall, // ULINK
+  NetSignal, // ULINK
+  NetMessage, // ULINK
+  Define, // CENTRAL
+  GetVal, // CENTRAL
+  SetVal, // CENTRAL
+  ReloadOnViewChange, // UTIL
   PeerCount
 };
 export default UR;

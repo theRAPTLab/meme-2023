@@ -2,21 +2,29 @@
 /* eslint-disable no-param-reassign */
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-    URSYS DATALINK CLASS
+    URSYS LINK CLASS (ULINK)
 
-    The URSYS DATALINK (ULINK) class represents a connection to the URSYS
-    event messaging system. Instances are created with URSYS.Connect()
-    by user code. URSYS libs use this class directly.
+    A ULINK represents a connection to the URSYS message-passing system for the
+    app and optionally other entities on the URSYS Net.
 
-    Each UNODE has a unique URSYS_ID (the UID) which represents its
-    local address. Combined with the device UADDR, this makes every UNODE
-    on the network addressable.
+    Instances are created with URSYS.Connect() with module.id or other unique
+    module identifier that includes path information. This module.id is used
+    behind-the-scenes to prevent lifecycle execution (UR-EXEC) to not be
+    called for modules that are not in the current view/ path.
 
-    * UNODES can get and set global state objects
-    * UNODES can subscribe to state change events
-    * UNODES can register listeners for a named message
-    * UNODES can send broadcast to all listeners
-    * UNODES can call listeners and receive data
+    Additionally, each ULINK has a unique local id (UID) that is assigned
+    a device address (UADDR). These are used together to make multiple ULINK
+    instances in an UR App uniquely addressable, though users of URSYS
+    don't need to know that.
+
+    ULINKS can:
+
+    * subscribe to a named message, locally and from the network
+    * publish to a named message, locally and to the network
+    * call a named message and receive a response asychronously
+    * update state change message, locally and to the network
+    * synch a state change message, locally and from the network
+    * hook into a lifecycle message, locally and from the network
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
@@ -268,48 +276,27 @@ class URLink {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  PromiseRegisterMessages(messages = []) {
+  /**
+   * Inform URSYS server that we have the following subscribers for the passed
+   * list of messages.
+   * @param {Array<string>} [messages] optional list of messages to register.
+   * If messages is empty, then it's assumed that we are registering all message
+   * subscribers.
+   */
+  PromiseRegisterSubscribers(messages = []) {
     if (URNET.IsStandaloneMode()) {
       console.warn(PR, 'STANDALONE MODE: RegisterMessagesPromise() suppressed!');
       return Promise.resolve();
     }
+    // if there are no messages passed, then
     if (messages.length) {
-      try {
-        messages = URLink.ValidateMessageNames(messages);
-      } catch (e) {
-        console.error(e);
-      }
+      messages = MESSAGER.ValidateMessageNames(messages);
     } else {
-      messages = URLink.NetMessageNames();
+      messages = MESSAGER.NetMessageNames();
     }
     return this.Call('SRV_REG_HANDLERS', { messages });
   }
 } // class URLink
-
-/// STATIC CLASS METHODS //////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** Return list of all registered Subscriber Message Names
- */
-URLink.MessageNames = function() {
-  return MESSAGER.MessageNames();
-};
-///
-/** Return list of all registered NetSubscriber message names */
-URLink.NetMessageNames = function() {
-  return MESSAGER.NetMessageNames();
-};
-
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ Filter any bad messages from the passed array of strings
-/*/
-URLink.ValidateMessageNames = function(msgs = []) {
-  let valid = [];
-  msgs.forEach(name => {
-    if (MESSAGER.HasMessageName(name)) valid.push(name);
-    else throw new Error(`ValidateMessageNames() found invalid message '${name}'`);
-  });
-  return valid;
-};
 
 /// EXPORT CLASS DEFINITION ///////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

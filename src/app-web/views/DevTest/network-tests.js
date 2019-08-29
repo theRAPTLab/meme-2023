@@ -142,7 +142,6 @@ function GetDB(comp) {
   ULINK.NetCall('SRV_DBGET', {}).then(data => {
     clearTimeout(timeout);
     testGetDB.pass();
-    console.log(data);
   });
 }
 

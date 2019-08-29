@@ -26,7 +26,7 @@ let DBG = true;
 
 /// URSYS MESSAGER CLASS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** Messager
+/**
  * Implement network-aware message passing scheme based on message strings passing
  * single data objects. Message table stores multiple message handlers as a set
  * to avoid multiple registered handlers
@@ -39,7 +39,7 @@ class Messager {
 
   /// FIRE ONCE EVENTS //////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** Messager.Subscribe()
+  /**
    * Register a message string to a handler function that will receive a mutable
    * data object that is returned at the end of the handler function
    * @example Subscribe('MY_MESSAGE',(data)=>{ return data; });
@@ -79,7 +79,7 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** Message.Unsubscribe()
+  /**
    * Unsubscribe a handler function from a registered message. The handler
    * function object must be the same one used to register it.
    * @param {string} mesgName message to unregister a handler for
@@ -100,7 +100,7 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** Messager.Publish()
+  /**
    * Publish a message with data payload
    * @param {string} mesgName message to send data to
    * @param {Object} inData parameters for the message handler
@@ -140,7 +140,7 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** Messager.Signal()
+  /**
    * Publish message to everyone, local and network, and also mirrors back to self.
    * This is a wrapper for Publish() that ensures that srcUID is overridden.
    * @param {string} mesgName message to send data to
@@ -156,7 +156,7 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** Messager.Call()
+  /**
    * Issue a message transaction. Returns an array of promises. Works across
    * the network.
    * @param {string} mesgName message to send data to
@@ -230,7 +230,7 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** Messager.MessageNames()
+  /**
    * Get list of messages that are handled by this Messager instance.
    * @returns {Array<string>} message name strings
    */
@@ -244,7 +244,7 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** Messager.NetMessageNames()
+  /**
    * Get list of messages that are published to the network
    * @returns {Array<string>} message name strings
    */
@@ -259,13 +259,28 @@ class Messager {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** Messager.HasMessageName()
+  /**
    * Check to see if a message is handled by this Messager instance
    * @param {string=''} msg message name to check
    * @returns {boolean} true if message name is handled
    */
   HasMessageName(msg = '') {
     return this.handlerMap.has(msg);
+  }
+
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /**
+   * Ensure that the passed message names really exist in this Messager
+   * instance
+   * @param {Array<string>} msgs
+   */
+  ValidateMessageNames(msgs = []) {
+    const valid = [];
+    msgs.forEach(name => {
+      if (this.HasMessageName(name)) valid.push(name);
+      else throw new Error(`ValidateMessageNames() found invalid message '${name}'`);
+    });
+    return valid;
   }
 } // class Messager
 

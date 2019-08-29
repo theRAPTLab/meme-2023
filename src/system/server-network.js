@@ -195,7 +195,7 @@ UNET.RegisterRemoteHandlers = pkt => {
       entry = new Set();
       m_remote_handlers.set(msg, entry);
     }
-    if (DBG) console.log(PR, `${uaddr} registered handler '${msg}'`);
+    if (DBG) console.log(PR, `${uaddr} netreg '${msg}'`);
     entry.add(uaddr);
     regd.push(msg);
   });

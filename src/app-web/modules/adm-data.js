@@ -32,14 +32,6 @@ let adm_db = {
 }; // server database object by reference
 let adm_settings = {}; // local settings, state of the admin view (current displayed class/teacher)
 
-UR.DB_Subscribe = () => {
-  // FIXME: Cover for now. Remove when implemented.
-};
-UR.DB_Subscribe('ADMIN:UPDATED', ADMData.AdmDataUpdated); // active
-ADMData.AdmDataUpdated = data => {
-  adm_db = data.adm_db;
-};
-
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
@@ -541,16 +533,19 @@ const GenerateUID = (prefix = '', suffix = '') => {
 ADMData.GetAllTeachers = () => {
   return adm_db.a_teachers;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetTeacherName = teacherId => {
   let teacher = adm_db.a_teachers.find(tch => {
     return tch.id === teacherId;
   });
   return teacher ? teacher.name : '';
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SelectTeacher = teacherId => {
   adm_settings.selectedTeacherId = teacherId;
   UR.Publish('TEACHER_SELECT', { teacherId });
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.AddTeacher = name => {
   const teacher = {};
   teacher.id = GenerateUID('tc');
@@ -568,21 +563,26 @@ ADMData.AddTeacher = name => {
 ADMData.GetClassroomsByTeacher = (teacherId = adm_settings.selectedTeacherId) => {
   return adm_db.a_classrooms.filter(cls => cls.teacherId === teacherId);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetClassroomByGroup = groupId => {
   let group = ADMData.GetGroup(groupId);
   return group ? group.classroomId : undefined;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetClassroomByStudent = (studentId = adm_settings.selectedStudentId) => {
   const groupId = ADMData.GetGroupIdByStudent(studentId);
   return ADMData.GetClassroomByGroup(groupId);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomByStudent()) => {
   adm_settings.selectedClassroomId = classroomId;
   UR.Publish('CLASSROOM_SELECT', { classroomId });
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetSelectedClassroomId = () => {
   return adm_settings.selectedClassroomId;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.AddClassroom = name => {
   const classroom = {};
   classroom.id = GenerateUID('tc');
@@ -618,6 +618,7 @@ ADMData.AddGroup = groupName => {
   UR.Publish('ADM_DATA_UPDATED');
 };
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Returns a group object
  */
@@ -626,6 +627,7 @@ ADMData.GetGroup = groupId => {
     return group.id === groupId;
   });
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Returns array of group objects associated the classroom e.g.
  *    [
@@ -637,6 +639,7 @@ ADMData.GetGroup = groupId => {
 ADMData.GetGroupsByClassroom = classroomId => {
   return adm_db.a_groups.filter(grp => grp.classroomId === classroomId);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Returns array of group ids associated with the classroom, e.g.
  *    [ 'gr01', 'gr02', 'gr03' ]
@@ -647,6 +650,7 @@ ADMData.GetGroupIdsByClassroom = classroomId => {
   const groups = ADMData.GetGroupsByClassroom(classroomId);
   return groups.map(grp => grp.id);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Finds the first group with a matching student id
  *  Used to validate student login
@@ -658,18 +662,22 @@ ADMData.GetGroupByStudent = (studentId = adm_settings.selectedStudentId) => {
     return grp.students.includes(studentId);
   });
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetGroupIdByStudent = studentId => {
   let group = ADMData.GetGroupByStudent(studentId);
   return group ? group.id : undefined;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetGroupNameByStudent = studentId => {
   let group = ADMData.GetGroupByStudent(studentId);
   return group ? group.name : '';
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetSelectedGroupId = () => {
   const studentId = ADMData.GetSelectedStudentId();
   return ADMData.GetGroupIdByStudent(studentId);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Updates a_groups with latest group info
  */
@@ -681,6 +689,7 @@ ADMData.UpdateGroup = (groupId, group) => {
   }
   adm_db.a_groups.splice(i, 1, group);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.AddStudents = (groupId, students) => {
   let studentsArr;
   if (typeof students === 'string') {
@@ -705,6 +714,7 @@ ADMData.AddStudents = (groupId, students) => {
   // Tell components to update
   UR.Publish('ADM_DATA_UPDATED');
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.DeleteStudent = (groupId, student) => {
   // Get the group
   const group = ADMData.GetGroup(groupId);
@@ -738,6 +748,7 @@ ADMData.DeleteStudent = (groupId, student) => {
 ADMData.GetToken = (groupId, studentName) => {
   return `BR-${groupId}-XYZ${studentName ? '-' : ''}${studentName}\n`;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.Login = loginId => {
   // FIXME: Replace this with a proper token check and lookup
   // This assumes we already did validation
@@ -746,26 +757,32 @@ ADMData.Login = loginId => {
   ADMData.SelectClassroom();
   UR.Publish('ADM_DATA_UPDATED');
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.Logout = () => {
   adm_settings.selectedStudentId = '';
   ADMData.SelectClassroom('');
   UR.Publish('ADM_DATA_UPDATED');
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.IsLoggedOut = () => {
   return adm_settings.selectedStudentId === undefined || adm_settings.selectedStudentId === '';
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.IsValidLogin = loginId => {
   // FIXME: Replace this with a proper token check
   let isValid = ADMData.GetGroupByStudent(loginId) !== undefined;
   return isValid;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetSelectedStudentId = () => {
   return adm_settings.selectedStudentId;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetStudentName = () => {
   // FIXME: Eventually use actual name instead of ID?
   return adm_settings.selectedStudentId;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetStudentGroupName = (studentId = adm_settings.selectedStudentId) => {
   const grp = ADMData.GetGroupByStudent(studentId);
   return grp ? grp.name : '';
@@ -777,20 +794,28 @@ ADMData.GetStudentGroupName = (studentId = adm_settings.selectedStudentId) => {
 ADMData.GetModelById = modelId => {
   return adm_db.a_models.find(model => model.id === modelId);
 };
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetModelsByClassroom = classroomId => {
   const groupIdsInClassroom = ADMData.GetGroupIdsByClassroom(classroomId);
   return adm_db.a_models.filter(mdl => groupIdsInClassroom.includes(mdl.groupId));
 };
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetModelsByStudent = (studentId = adm_settings.selectedStudentId) => {
   const group = ADMData.GetGroupByStudent(studentId);
   if (group === undefined) return [];
 
   return adm_db.a_models.filter(mdl => mdl.groupId === group.id);
 };
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Gets the gropuId of the currently selected Student ID
 ADMData.GetModelsByGroup = (group = ADMData.GetGroupByStudent()) => {
   return adm_db.a_models.filter(mdl => mdl.groupId === group.id);
 };
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.NewModel = (groupId = ADMData.GetSelectedGroupId()) => {
   let model = {
     id: GenerateUID('mo'),
@@ -804,6 +829,8 @@ ADMData.NewModel = (groupId = ADMData.GetSelectedGroupId()) => {
   UR.Publish('ADM_DATA_UPDATED');
   ADMData.LoadModel(model.id, groupId);
 };
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.LoadModel = modelId => {
   let model = ADMData.GetModelById(modelId);
   if (model === undefined) {
@@ -812,6 +839,8 @@ ADMData.LoadModel = modelId => {
   PMCData.LoadModel(model, adm_db.a_resources);
   ADMData.SetSelectedModelId(modelId); // Remember the selected modelId locally
 };
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This does not load the model, it just sets the currently selected model id
 ADMData.SetSelectedModelId = modelId => {
   // verify it's valid
@@ -820,9 +849,11 @@ ADMData.SetSelectedModelId = modelId => {
   }
   adm_settings.selectedModelId = modelId;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetSelectedModelId = () => {
   return adm_settings.selectedModelId;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.CloseModel = () => {
   adm_settings.selectedModelId = '';
   UR.Publish('ADM_DATA_UPDATED');
@@ -857,14 +888,17 @@ ADMData.NewCriteria = (classroomId = adm_settings.selectedClassroomId) => {
   // a_criteria.push(crit);
   return crit;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetCriteriaByClassroom = (classroomId = adm_settings.selectedClassroomId) => {
   return adm_db.a_criteria.filter(crit => crit.classroomId === classroomId);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetCriteriaLabel = (criteriaId, classroomId = ADMData.GetSelectedClassroomId()) => {
   let criteriaArr = ADMData.GetCriteriaByClassroom(classroomId);
   let criteria = criteriaArr.find(crit => crit.id === criteriaId);
   return criteria ? criteria.label : '';
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.UpdateCriteria = criteria => {
   const i = adm_db.a_criteria.findIndex(cr => cr.id === criteria.id);
   if (i < 0) {
@@ -874,6 +908,7 @@ ADMData.UpdateCriteria = criteria => {
   }
   adm_db.a_criteria.splice(i, 1, criteria);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.UpdateCriteriaList = criteriaList => {
   // Remove any deleted criteria
   const updatedCriteriaIds = criteriaList.map(criteria => criteria.id);
@@ -888,7 +923,7 @@ ADMData.UpdateCriteriaList = criteriaList => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// SENTENCE STARTERS
 ///
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Returns a single sentenceStarter object, if not found, undefined
 ADMData.GetSentenceStartersByClassroom = (classroomId = ADMData.GetSelectedClassroomId()) => {
   const sentenceStarter = adm_db.a_sentenceStarters.filter(ss => ss.classroomId === classroomId);
@@ -905,6 +940,7 @@ ADMData.GetSentenceStartersByClassroom = (classroomId = ADMData.GetSelectedClass
   }
   return result;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ADMData.UpdateSentenceStarter = sentenceStarter => {
   const i = adm_db.a_sentenceStarters.findIndex(ss => ss.id === sentenceStarter.id);
@@ -937,12 +973,14 @@ ADMData.GetRatingsDefintion = () => {
 ADMData.AllResources = () => {
   return adm_db.a_resources;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Returns the resource object matching the rsrccId.
 ADMData.Resource = rsrcId => {
   return adm_db.a_resources.find(item => {
     return item.rsrcId === rsrcId;
   });
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // returns `resources` not `classroomResources`
 ADMData.GetResourcesByClassroom = classroomId => {
   let classroomResources = adm_db.a_classroomResources.find(
@@ -950,6 +988,7 @@ ADMData.GetResourcesByClassroom = classroomId => {
   );
   return classroomResources ? classroomResources.resources : [];
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SetClassroomResource = (rsrcId, checked, classroomId) => {
   let classroomResources = adm_db.a_classroomResources.find(
     rsrc => rsrc.classroomId === classroomId

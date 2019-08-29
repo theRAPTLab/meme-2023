@@ -79,7 +79,7 @@ URSYS.RegisterHandlers = () => {
       console.log(
         PR,
         pkt.SourceAddress(),
-        `registered ${data.registered.length} messages: ${data.registered.join(', ')}`
+        `netreg ${data.registered.length} remote subscribers: ${data.registered.join(', ')}`
       );
     // or return a new data object that will replace pkt.data
     return data;

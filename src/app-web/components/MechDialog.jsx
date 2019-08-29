@@ -122,10 +122,13 @@ class MechDialog extends React.Component {
     if (this.state.listenForSourceSelection) {
       if (selectedPropIds.length > 0) {
         const sourceId = selectedPropIds[0];
-        this.setState({
-          sourceId,
-          sourceLabel: DATA.Prop(sourceId).name,
-          listenForSourceSelection: false
+        this.setState(state => {
+          return {
+            sourceId,
+            sourceLabel: DATA.Prop(sourceId).name,
+            listenForSourceSelection: false,
+            listenForTargetSelection: state.targetId === '' // automatically set the next one
+          };
         });
       }
     } else if (this.state.listenForTargetSelection) {

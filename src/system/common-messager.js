@@ -123,10 +123,9 @@ class Messager {
         // handlerFunc has udata_id property to note originating UDATA object
         // skip "same origin" calls
         if (srcUID && handlerFunc.udata_id === srcUID) {
-          if (DBG)
-            console.warn(
-              `MessagerSend: [${mesgName}] skip call since origin = destination; use Broadcast() if intended`
-            );
+          console.warn(
+            `MessagerSend: [${mesgName}] skip call since origin = destination; use Broadcast() if intended`
+          );
           return;
         }
         // trigger the local handler (no return expected)
@@ -254,10 +253,7 @@ class Messager {
     this.handlerMap.forEach((set, key) => {
       let addMessage = false;
       set.forEach(func => (addMessage |= func.fromNet === true));
-      if (addMessage) {
-        handlers.push(key);
-        if (DBG) console.log(`nethandler: ${key}`);
-      }
+      if (addMessage) handlers.push(key);
     });
     return handlers;
   }

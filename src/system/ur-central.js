@@ -29,8 +29,8 @@ function u_CheckKey(key) {
   if (!key) return `key must be defined`;
   if (typeof key !== 'string') return `key must be a string, not ${typeof key}`;
   // check for non-conforming key names
-  const stripped = key.replace(/[^a-zA-Z0-9.-]/g, '');
-  if (stripped !== key) return `only use characters, '-' and '.' in key, (got '${key}')`;
+  const stripped = key.replace(/[^a-zA-Z0-9._]/g, '');
+  if (stripped !== key) return `only use characters, '_' and '.' in key, (got '${key}')`;
   if (stripped !== stripped.toLowerCase()) return `key '${key}' must be all lowercase`;
   // now try to store it
   return ''; // emptystring no error detected
@@ -55,6 +55,7 @@ const Define = (key, value) => {
 /**
  * return binding of key
  * @memberof URCentral
+ * @returns {ValueBinding}
  */
 const GetBinding = key => {
   let err = u_CheckKey(key);

@@ -25,6 +25,7 @@
 // NOTE: This module uses the COMMONJS module format for compatibility
 // between node and browser-side Javascript.
 const Messager = require('./common-messager');
+const CENTRAL = require('./ur-central').default;
 const URNET = require('./ur-network').default; // workaround for require
 
 /** implements endpoints for talking to the URSYS network
@@ -32,7 +33,7 @@ const URNET = require('./ur-network').default; // workaround for require
  */
 /// DEBUGGING /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = { create: true, send: true, return: false, register: false };
+const DBG = { create: true, send: false, return: false, register: false };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const BAD_NAME = 'name parameter must be a string';
 const BAD_UID = 'unexpected non-unique UID';
@@ -183,6 +184,12 @@ class URDataLink {
     // uid is "source uid" of subscribing object, to avoid reflection
     // if the subscribing object is also the originating state changer
     options.srcUID = this.UID();
+    // LEGACY OVERRIDE
+    // The old Publish was part of ur-pubsub, which is deprecated but
+    // acted like UR.Signal() in that code modules could publish to itself.
+    // The logic of the app currently relies on this, so this flag will
+    // ensure it still works until this can be sraightened out.
+    if (CENTRAL.GetVal('ur_legacy_publish')) options.srcUID = null;
     // uid is "source uid" of subscribing object, to avoid reflection
     // if the subscribing object is also the originating state changer
     MESSAGER.Publish(mesgName, inData, options);

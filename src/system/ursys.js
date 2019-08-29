@@ -34,6 +34,10 @@ import REFLECT from './util/reflect';
 const DBG = true; // module-wide debug flag
 const UDATA = new URDataLink('URSYS.Main');
 
+/// RUNTIME FLAGS /////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+CENTRAL.Define('ur-legacy-publish', true);
+
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API:

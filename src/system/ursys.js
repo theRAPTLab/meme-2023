@@ -45,7 +45,12 @@ function NewDataLink(name = '<anon>') {
   return new URDataLink(name);
 }
 //
-const { Publish, Unpublish, Subscribe, Unsubscribe } = UDATA;
+const { Publish, Subscribe, Unsubscribe } = UDATA;
+const { Call, Signal } = UDATA;
+
+const { NetPublish, NetSubscribe } = UDATA;
+const { NetCall, NetSignal } = UDATA;
+
 // return the number of peers on the network
 function PeerCount() {
   return NetMessage.PEERS.count;
@@ -57,9 +62,14 @@ export default {
   EXEC,
   CENTRAL,
   Publish,
-  Unpublish,
   Subscribe,
   Unsubscribe,
+  Call,
+  Signal,
+  NetPublish,
+  NetSubscribe,
+  NetCall,
+  NetSignal,
   ReloadOnViewChange,
   NetMessage,
   NewDataLink,

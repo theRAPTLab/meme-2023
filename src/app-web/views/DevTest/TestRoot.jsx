@@ -144,7 +144,8 @@ class ViewTest extends React.Component {
             <Paper className={classes.paper}>test: {this.feature}</Paper>
           </Grid>
           {this.state.tests.map((test, i) => {
-            const bgcolor = (test.status === 'OK') ? 'limegreen' : 'red';
+            let bgcolor = (test.status === 'OK') ? 'white' : 'red';
+            if (test.status === 'PASS') bgcolor = 'limegreen';
             return (
               <Grid item xs={4} key={i}>
                 <Paper className={classes.paper} style={{ backgroundColor: bgcolor }}>{test.name} = {test.status}</Paper>

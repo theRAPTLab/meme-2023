@@ -4,7 +4,7 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import UR from '../../../system/ursys';
-import { cssur } from '../../modules/console-styles';
+import { cssur, cssinfo } from '../../modules/console-styles';
 
 const ULINK = UR.Connect(module.id);
 const ULINK2 = UR.Connect(module.id);
@@ -12,12 +12,9 @@ const ULINK2 = UR.Connect(module.id);
 let testLocalCallbackRejection;
 
 function DefineHandlers(comp) {
-  console.log(`%c${ULINK.Name()}.RegisterHandlers()`, cssur);
-  //
   const testLocalCallback = comp.RegisterTest('LocalCallbackInvoked');
   //
   ULINK2.Subscribe('MYSTERY', data => {
-    console.log(`%c${ULINK.Name()}.MYSTERY got `, cssur, data);
     data.todos.push(`buy ${ULINK.UADDR()} presents`);
     testLocalCallback.pass();
     return data;
@@ -33,7 +30,6 @@ function DefineHandlers(comp) {
   // also both clients need to be refreshed at the same time
   // requires a working PEERCOUNT UPDATE system
   ULINK2.NetSubscribe('MYSTERY_REMOTE', data => {
-    console.log(`%c${ULINK.Name()}.MYSTERY_REMOTE got `, cssur, data);
     data.todos.push(`remote ${ULINK.UADDR()} call test`);
     if (!data.subLog) data.subLog = [];
     data.subLog.push('NetSubcriber');
@@ -45,7 +41,6 @@ function DefineHandlers(comp) {
   });
 
   ULINK2.Subscribe('MYSTERY_REMOTE', data => {
-    console.log(`%c${ULINK.Name()}.MYSTERY_REMOTE got `, cssur, data);
     if (!data.subLog) data.subLog = [];
     data.subLog.push('LocalSubscriber');
     testLocalCallbackRejection.fail('should not have been called');
@@ -151,22 +146,58 @@ function GetDB(comp) {
   });
 }
 
+let reflectorTimeout;
+let reflectorWindow;
+/*
+to test:
+
+*/
+function SpawnReflector() {
+  switch (window.name) {
+    case 'meme reflector':
+      setTimeout(() => {
+        window.close();
+      }, 1500);
+      break;
+    case 'meme test':
+      if (document.title !== 'MEME TEST RESULTS') {
+        document.title = 'MEME TEST RESULTS';
+      }
+      window.name = '';
+      break;
+    default:
+      const win = window.open(window.location.href, 'meme reflector');
+      window.open(window.location.href, 'meme test');
+      setTimeout(() => {
+        win.location.reload();
+      }, 500);
+      setTimeout(() => {
+        window.close();
+      }, 1500);
+  }
+}
+
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default {
   DoConstructionTests: comp => {
+    SpawnReflector(comp);
     ServerReflect(comp);
     DefineHandlers(comp);
   },
   DoMountTests: comp => {
-    const timeout = setTimeout(() => {
-      if (comp.DidTestsComplete()) console.log('TESTS FAIL');
-      else console.log('TESTS SUCCESS');
-    }, 3000);
     LocalCall(comp);
     NetCall(comp);
     UndefinedLocalCall(comp);
     GetDB(comp);
+    const timeout = setTimeout(() => {
+      if (comp.DidTestsComplete()) {
+        console.log('TESTS FAIL');
+      } else {
+        console.log('TESTS SUCCESS');
+        comp.AddTestResult('ALL TESTS', 'PASS');
+      }
+    }, 3000);
   },
   DoRenderTests: comp => {}
 };

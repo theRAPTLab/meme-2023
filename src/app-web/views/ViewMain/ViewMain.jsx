@@ -10,6 +10,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 import { Switch, Route } from 'react-router-dom';
+// Material UI Theming
+import { withStyles } from '@material-ui/core/styles';
+import { yellow } from '@material-ui/core/colors';
+
+/// COMPONENTS ////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Material UI Elements
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -36,23 +42,18 @@ import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
 import EditIcon from '@material-ui/icons/Edit';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
-// Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
-import { yellow } from '@material-ui/core/colors';
-
-/// COMPONENTS ////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import RoutedView from './RoutedView';
-import MEMEStyles from '../../components/MEMEStyles';
-import UR from '../../../system/ursys';
-import DATA from '../../modules/pmc-data';
-import ADM from '../../modules/adm-data';
+// MEME Components
 import Login from '../../components/Login';
 import ModelSelect from '../../components/ModelSelect';
 import ResourceView from '../../components/ResourceView';
 import ResourceItem from '../../components/ResourceItem';
 import RatingsDialog from '../../components/RatingsDialog';
 import StickyNoteCollection from '../../components/StickyNoteCollection';
+import MEMEStyles from '../../components/MEMEStyles';
+// MEME modules
+import RoutedView from './RoutedView';
+import DATA from '../../modules/pmc-data';
+import ADM from '../../modules/adm-data';
 import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -60,13 +61,15 @@ import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 const DBG = false;
 const PKG = 'ViewMain:';
 
+import UR from '../../../system/ursys';
+
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class ViewMain extends React.Component {
   // constructor
   constructor(props) {
     super(props);
-    UR.ReloadOnViewChange();
+    UR.ReactPreflight(ViewMain, module);
 
     this.displayName = this.constructor.name;
     this.refMain = React.createRef();
@@ -121,7 +124,7 @@ class ViewMain extends React.Component {
   }
 
   componentDidMount() {
-    console.log(`%ccomponentDidMount()`, cssreact);
+    // console.log(`%ccomponentDidMount()`, cssreact);
     //
     // child components need to know the dimensions
     // of this component, but they are invalid until
@@ -690,15 +693,9 @@ ViewMain.propTypes = {
   classes: PropTypes.shape({})
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// required for UR EXEC phase filtering by view path
-ViewMain.URMOD = __dirname;
-UR.EXEC.Hook(
-  'INITIALIZE',
-  () => {
-    console.log(`ViewMain UR.EXEC.Hook('INITIALIZE')`);
-  },
-  __dirname
-);
+/// requirement for UR MODULES and COMPONENTS
+ViewMain.MOD_ID = module.id;
+
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles

@@ -49,7 +49,6 @@ const Define = (key, initialValue) => {
   if (err) throw Error(err);
   if (m_keymap.has(key)) throw Error(`key '${key}' already exists`);
   const binding = new ValueBinding(key, initialValue);
-  console.log(`defined '${key}'`);
   m_keymap.set(key, binding);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

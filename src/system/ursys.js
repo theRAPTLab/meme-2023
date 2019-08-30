@@ -26,14 +26,13 @@ import EXEC from './ur-exec';
 import ReloadOnViewChange from './util/reload';
 import NetMessage from './common-netmessage';
 import URLink from './common-urlink';
-import URComponent from './ur-react-component';
 import REFLECT from './util/reflect';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true; // module-wide debug flag
-const ULINK = Connect(module.id || __dirname);
-let ULINK_COUNTER = 0;
+const PR = 'URSYS';
+const ULINK = Connect(PR);
 
 /// RUNTIME FLAGS /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -42,16 +41,20 @@ CENTRAL.Define('ur_legacy_publish', true);
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API:
- * return a new instance of a URSYS connection, which handles all the important
+ * Return a new instance of a URSYS connection, which handles all the important
  * id meta-data for communicating over the network
  * @param {string} name - An optional name
  */
 function Connect(name) {
-  const count = `${ULINK_COUNTER++}`.padStart(3, '0');
-  let uname = name || 'URSYS';
-  uname += `${count}`.padStart(3, '0');
+  let uname = name || 'ANON';
   return new URLink(uname);
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API:
+ * Utility method to Hook using a passed module id without loading UREXEC
+ * explicitly
+ */
+const { Hook } = EXEC;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// provide convenience links to the URSYS main ULINK
@@ -60,7 +63,6 @@ const { Call, Signal } = ULINK;
 
 const { NetPublish, NetSubscribe } = ULINK;
 const { NetCall, NetSignal } = ULINK;
-const { Hook } = ULINK;
 
 const { Define, GetVal, SetVal } = CENTRAL;
 
@@ -69,17 +71,26 @@ const { Define, GetVal, SetVal } = CENTRAL;
 function PeerCount() {
   return NetMessage.PEERS.count;
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function ReactPreflight(comp, mod) {
+  ReloadOnViewChange();
+  const err = EXEC.ModulePreflight(comp, mod);
+  if (err) console.error(err);
+  console.log(`${PR}: ReactPreFlight Passed!`);
+}
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
-upcoming changes:
+upcoming changes: introduce CHANNELS formally with reserved name NET
+because uppercase names are reserved by the system. user channel names
+will be lowercase.
 SetState('channel:STATE',value); // defaults to local without channel
 SynchState('channel:STATE',func); // defaults to local without channel
-NetCall('message') will become Call('net:MESSAGE');
+NetCall('message') will become Call('NET:MESSAGE');
 /*/
 const UR = {
-  EXEC, // EXEC
+  EXEC, // EXEC - deprecated
   Connect, // ULINK
   Publish, // ULINK
   Subscribe, // ULINK
@@ -95,6 +106,7 @@ const UR = {
   GetVal, // CENTRAL
   SetVal, // CENTRAL
   ReloadOnViewChange, // UTIL
-  PeerCount
+  PeerCount,
+  ReactPreflight
 };
 export default UR;

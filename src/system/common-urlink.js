@@ -103,7 +103,7 @@ class URLink {
     this.name = name;
     // save module in the global module list
     if (UNODE_MAP.has(this.uid)) throw Error(BAD_UID + this.uid);
-    if (DBG.create) console.log(PR, `URLink ${this.uid} created (${this.name})`);
+    if (DBG.create) console.log(PR, `${this.uid} <-> '${this.name}'`);
     UNODE_MAP.set(this.uid, this);
   }
 
@@ -157,9 +157,7 @@ class URLink {
     options = Object.assign(options, { type: 'mcall' });
     options.srcUID = this.UID();
     //
-    console.log('*** CALL ASYNC');
     let results = MESSAGER.CallAsync(mesgName, inData, options);
-    console.log('*** CALL ASYNC DONE');
     return results;
   }
 

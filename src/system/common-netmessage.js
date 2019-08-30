@@ -20,7 +20,7 @@ const PROMPTS = require('./util/prompts');
 
 /// DEBUG MESSAGES ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = { send: false, transact: false };
+const DBG = { send: false, transact: false, setup: false };
 
 const PR = PROMPTS.Pad('PKT');
 const ERR = ':ERR:';
@@ -466,7 +466,7 @@ NetMessage.GlobalSetup = (config = {}) => {
     // NOTE: m_netsocket is set only on clients since on server, there are
     // multiple sockets
     if (typeof netsocket.send !== 'function') throw ERR_BAD_SOCKET;
-    console.log(PR, 'GlobalSetup: netsocket set, mode online');
+    if (DBG.setup) console.log(PR, 'GlobalSetup: netsocket set, mode online');
     m_netsocket = netsocket;
     m_mode = M_ONLINE;
   }
@@ -482,7 +482,7 @@ NetMessage.UADDR = 'UNASSIGNED';
  */
 NetMessage.GlobalCleanup = () => {
   if (m_netsocket) {
-    console.log(PR, 'GlobalCleanup: deallocating netsocket, mode closed');
+    if (DBG.setup) console.log(PR, 'GlobalCleanup: deallocating netsocket, mode closed');
     m_netsocket = null;
     m_mode = M_CLOSED;
   }

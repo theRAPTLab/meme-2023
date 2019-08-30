@@ -9,7 +9,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import URNET from './ur-network';
 import URLink from './common-urlink';
-import { cssuri } from '../app-web/modules/console-styles';
+import { cssuri, cssalert, cssinfo, cssreset } from '../app-web/modules/console-styles';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -138,8 +138,8 @@ const IsReactPhase = phase => {
 */
 const Execute = async phase => {
   // require scope to be set
-  if (EXEC_SCOPE === false)
-    throw Error(`URSYS.SetScopePath() must be set to the root View's module.id. Aborting.`);
+  if (EXEC_SCOPE === undefined)
+    throw Error(`UR EXEC scope is not set. Did you attach MOD_ID to your main React view?`);
 
   // note: contents of PHASE_HOOKs are promise-generating functions
   if (!PHASES.includes(phase)) throw Error(`${phase} is not a recognized EXEC phase`);
@@ -212,16 +212,16 @@ const SetScopeFromRoutes = routes => {
     to set the scope, we need to have a unique name to set. this scope is probably
     a directory. we can set the UMOD property using the __dirname config for webpack
     /*/
-    if (component.URMOD === undefined)
-      console.log(`%cWARNING: root view '${loc}' has no UMOD property, so can not set URSYS scope`);
-    const viewpath = component.URMOD || 'boot';
-    SetScopePath(viewpath);
-  } else {
-    /*/
-    NO MATCHES
-    /*/
-    console.log(`%cSetScopeFromRoutes() no match for ${loc}`, cssuri);
+    if (component.MOD_ID === undefined)
+      console.error(`WARNING: component for route '${loc}' has no MOD_ID property`);
+    else {
+      const viewpath = component.MOD_ID || 'boot';
+      SetScopePath(viewpath);
+    }
+    return;
   }
+  /* NO MATCHES */
+  console.log(`%cSetScopeFromRoutes() no match for ${loc}`, cssuri);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API: The scope is used to filter EXEC events within a particular
@@ -230,7 +230,7 @@ const SetScopeFromRoutes = routes => {
 const SetScopePath = view_path => {
   if (typeof view_path !== 'string') throw Error(BAD_PATH);
   EXEC_SCOPE = view_path;
-  if (DBG) console.log(`SetScopePath() EXEC_SCOPE is now '${EXEC_SCOPE}'`);
+  console.log(`%cEXEC_SCOPE%c is now\n'${EXEC_SCOPE}'`, cssinfo, cssreset);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API: The scope
@@ -374,6 +374,14 @@ const ExitApp = () => {
     resolve();
   });
 };
+
+const ModulePreflight = (comp, mod) => {
+  if (!comp) return 'arg1 must be React component root view';
+  if (!mod) return `arg2 must be 'module' keyword`;
+  if (!mod.id) return `arg2 is not a 'module' keyword`;
+  if (!comp.MOD_ID)
+    return `Component.MOD_ID static property must be set = module.id (e.g. ViewMain.MOD_ID=module.id)`;
+};
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -383,6 +391,7 @@ export default {
   Hook,
   Execute,
   SetScopePath,
+  ModulePreflight,
   CurrentScope,
   MatchScope,
   EnterApp,

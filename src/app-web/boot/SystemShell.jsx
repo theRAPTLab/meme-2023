@@ -34,7 +34,7 @@ class SystemShell extends React.Component {
   }
 
   componentDidMount() {
-    console.log(`%ccomponentDidMount()`, cssreact);
+    // console.log(`%ccomponentDidMount()`, cssreact);
   }
 
   render() {

@@ -1,5 +1,5 @@
 import DATA from './pmc-data';
-import { cssinfo, cssblue, cssred, cssmark } from './console-styles';
+import { cssinfo, cssblue, cssred, cssmark, cssreset } from './console-styles';
 import DEFAULTS from './defaults';
 import { AddDragDropHandlers } from './class-vprop-dragdrop';
 import { VisualState } from './classes-visual';
@@ -552,7 +552,7 @@ VProp.StaticMethod = (method, methodName) => {
 
   /* IF WE GOT THIS FAR LET'S DO IT */
   VProp[methodName] = method;
-  console.log(`extension: %cVProp.${methodName}()`, cssinfo);
+  console.log(`%cAdded VProp Extension:%c\n${methodName}`, cssinfo, cssreset);
 };
 
 /// LINK EXTENSIONS ///////////////////////////////////////////////////////////

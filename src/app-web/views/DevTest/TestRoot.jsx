@@ -100,7 +100,7 @@ class ViewTest extends React.Component {
     if (this._mounted) this.setState({ tests: this.queuedResults });
   }
 
-  DidTestsComplete() {
+  DidTestsComplete(numtests) {
     console.log(`tests initiated ${this.tests.length}`);
     console.log(`tests passed ${this.passed.length}`);
     console.log(`tests failed ${this.failed.length}`);
@@ -108,7 +108,7 @@ class ViewTest extends React.Component {
     let difference = this.tests.filter(x => !union.includes(x));
     if (difference.length) console.log(`tests incomplete %c${difference.join(', ')}`, cssalert);
     if (this.failed.length) console.log(`tests failed %c${this.failed.join(', ')}`, cssalert);
-    return difference.length;
+    return (this.tests.length - union.length) === 0;
   }
 
   RegisterTest(testname) {

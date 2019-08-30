@@ -203,8 +203,8 @@ const Execute = async phase => {
       return values;
     })
     .catch(err => {
-      if (DBG) console.log(`[${phase} EXECUTE ERROR ${err}`);
-      throw Error(`[${phase} EXECUTE ERROR ${err}`);
+      if (DBG) console.log(`[${phase}]: ${err}`);
+      throw Error(`[${phase}]: ${err}`);
     });
 
   // phase housekeeping

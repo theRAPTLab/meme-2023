@@ -17,7 +17,15 @@ const ADMData = {};
 const DBG = false;
 const PKG = 'ADMDATA'; // prefix for console.log
 
-UR.Hook(__dirname, 'LOAD_ASSETS', function() {});
+UR.Hook(__dirname, 'LOAD_ASSETS', () => {
+  return new Promise((resolve, reject) => {
+    UR.NetCall('SRV_DBGET', {}).then(data => {
+      if (data.error) reject(`server says '${data.error}'`);
+      console.log(data);
+      resolve();
+    });
+  });
+});
 
 /// MODEL /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

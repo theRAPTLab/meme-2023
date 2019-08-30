@@ -56,7 +56,7 @@ function Init() {
     // asynchronous code startup
     (async () => {
       await EXEC.JoinNet(); // URSYS socket connection (that is all)
-      await EXEC.EnterApp(); // TEST_CONF, INITIALIZE, LOADASSETS, CONFIGURE
+      await EXEC.EnterApp(); // TEST_CONF, INITIALIZE, LOAD_ASSETS, CONFIGURE
       await m_PromiseRenderApp(); // compose React view
       await m_BrokenPromiseWindowResize();
       await EXEC.SetupDOM(); // DOM_READY

@@ -42,15 +42,16 @@ import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
 import EditIcon from '@material-ui/icons/Edit';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
-// MEME Components
+// MEME App Components
 import Login from '../../components/Login';
 import ModelSelect from '../../components/ModelSelect';
 import ResourceView from '../../components/ResourceView';
 import ResourceItem from '../../components/ResourceItem';
 import RatingsDialog from '../../components/RatingsDialog';
 import StickyNoteCollection from '../../components/StickyNoteCollection';
+// MEME Modules and Utils
 import MEMEStyles from '../../components/MEMEStyles';
-// MEME modules
+import UR from '../../../system/ursys';
 import RoutedView from './RoutedView';
 import DATA from '../../modules/pmc-data';
 import ADM from '../../modules/adm-data';
@@ -60,8 +61,6 @@ import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PKG = 'ViewMain:';
-
-import UR from '../../../system/ursys';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -694,7 +693,7 @@ ViewMain.propTypes = {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// requirement for UR MODULES and COMPONENTS
-ViewMain.MOD_ID = module.id;
+ViewMain.MOD_ID = __dirname;
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

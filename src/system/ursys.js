@@ -2,20 +2,10 @@
 
   ursys is the browser-side of the UR library.
 
-  The API is implemented with methods from the following:
-
-  * lifecycle - the application run controller, managing 'phases' in a way
-    similar to runlevels in a *nix system except they are named
-  * pubsub - the async messaging infrastructure inside the app and with the
-    server using an addressless protocol and specific channels like NET: ALL:
-  * state - manages default settings, derived settings, shared state,
-    persisting data to browser or database
-  * log - writes debug information
-
-  Supporting libraries are:
-
-  * network - maintains browser-server connection and related data
-  * database - maintains database-related stuff for datastore
+  Hook()
+  Define(), GetVal(), SetVal()
+  Publish(), Subscribe()
+  Call()
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -32,7 +22,7 @@ import REFLECT from './util/reflect';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true; // module-wide debug flag
 const PR = 'URSYS';
-const ULINK = Connect(PR);
+const ULINK = NewConnection(PR);
 
 /// RUNTIME FLAGS /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -45,7 +35,7 @@ CENTRAL.Define('ur_legacy_publish', true);
  * id meta-data for communicating over the network
  * @param {string} name - An optional name
  */
-function Connect(name) {
+function NewConnection(name) {
   let uname = name || 'ANON';
   return new URLink(uname);
 }
@@ -78,6 +68,12 @@ function ReactPreflight(comp, mod) {
   if (err) console.error(err);
   console.log(`${PR}: ReactPreFlight Passed!`);
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function RoutePreflight(routes) {
+  const err = EXEC.SetScopeFromRoutes(routes);
+  if (err) console.error(err);
+  console.log(`${PR}: RoutePreflight Passed!`);
+}
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -90,8 +86,8 @@ SynchState('channel:STATE',func); // defaults to local without channel
 NetCall('message') will become Call('NET:MESSAGE');
 /*/
 const UR = {
-  EXEC, // EXEC - deprecated
-  Connect, // ULINK
+  Hook, // EXEC
+  NewConnection, // ULINK
   Publish, // ULINK
   Subscribe, // ULINK
   Unsubscribe, // ULINK
@@ -107,6 +103,7 @@ const UR = {
   SetVal, // CENTRAL
   ReloadOnViewChange, // UTIL
   PeerCount,
-  ReactPreflight
+  ReactPreflight,
+  RoutePreflight
 };
 export default UR;

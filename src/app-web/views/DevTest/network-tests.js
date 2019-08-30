@@ -6,8 +6,8 @@
 import UR from '../../../system/ursys';
 import { cssur, cssinfo } from '../../modules/console-styles';
 
-const ULINK = UR.Connect('nettest');
-const ULINK2 = UR.Connect('nettest2');
+const ULINK = UR.NewConnection('nettest');
+const ULINK2 = UR.NewConnection('nettest2');
 
 let testLocalCallbackRejection;
 

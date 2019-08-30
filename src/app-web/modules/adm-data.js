@@ -15,7 +15,9 @@ const ADMData = {};
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
-const PKG = 'adm-data.';
+const PKG = 'ADMDATA'; // prefix for console.log
+
+UR.Hook(__dirname, 'LOAD_ASSETS', function() {});
 
 /// MODEL /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -34,26 +36,7 @@ let adm_settings = {}; // local settings, state of the admin view (current displ
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
-lifecycle position: "configuration" LOAD_ASSETS (URSYS Lifecycle)
 
-Server Use Model is a shared laptop between a couple of teachers. data is local
-to who the user. The need for editing teachers, class periods is as yet
-undwefined.
-
-The admin interface is accessed from LOCALHOST ONLY, so no need for network
-sync. However, it should implement a UR.Message-style REACTIVE RENDER:
-
-1. React subscribes to data changes, and only then rerenders (no forced renders)
-2. React changes its internal data-dependent display elements by publishing data
-   and letting 1. actually trigger the rerender
-
-TODO:
-o Resources LIst into ADMDATA here.
-o How to represent
-o A "stickynote" is a container for comments, "linked" to a PMC element
-
-/*/
 ADMData.Load = () => {
   // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
   adm_db.a_teachers = [

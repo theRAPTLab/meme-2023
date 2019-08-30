@@ -1,5 +1,10 @@
 /* eslint-disable no-debugger */
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
+
+  UR Lifecycle Phases
+  to use:
+  EXEC.Hook('PHASE',(
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 /**
@@ -9,7 +14,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import URNET from './ur-network';
 import URLink from './common-urlink';
-import { cssuri, cssalert, cssinfo, cssreset } from '../app-web/modules/console-styles';
+import { cssuri, cssalert, cssinfo, cssblue, cssreset } from '../app-web/modules/console-styles';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -17,7 +22,7 @@ const PHASE_HOOKS = new Map();
 const PHASES = [
   'TEST_CONF', // setup tests
   'INITIALIZE', // module data structure init
-  'LOADASSETS', // load any external data, make connections
+  'LOAD_ASSETS', // load any external data, make connections
   'CONFIGURE', // configure runtime data structures
   'DOM_READY', // when viewsystem has completely composed
   'RESET', // reset runtime data structures
@@ -32,7 +37,7 @@ const PHASES = [
   'STOP', // system wants to stop current run
   'DISCONNECT', // ursys server has gone offline
   'RECONNECT', // ursys server has reconnected
-  'UNLOADASSETS', // system releases any connections
+  'UNLOAD_ASSETS', // system releases any connections
   'SHUTDOWN' // system wants to shut down
 ];
 
@@ -46,8 +51,8 @@ if (dr_index > 0) REACT_PHASES = PHASES.slice(dr_index);
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = false;
-const BAD_PATH = "module_path must be a string derived from the module's module.id";
+const DBG = true;
+const BAD_PATH = "module_path must be a string derived from the module's __dirname";
 const ULINK = new URLink('UREXEC');
 
 /// STATE /////////////////////////////////////////////////////////////////////
@@ -61,16 +66,17 @@ let EXEC_SCOPE; // current execution scope (the path of active view)
     if the scope starts with view, check it. otherwise just run it.
 /*/
 function m_ExecuteScopedPhase(phase, o) {
-  // handle 'view' directory specially
-  if (o.scope.indexOf('view') === 0) {
+  // reject hooks that dont' match the current 'views' path that might
+  // be initializing in other React root views outside the class
+  if (o.scope.indexOf('views') === 0) {
     // if it's the current scope, run it!
     if (o.scope.includes(EXEC_SCOPE, 0)) return o.f();
     // otherwise don't run it
-    if (DBG)
-      console.info(`EXEC: skipping [${phase}] for ${o.scope} because scope is ${EXEC_SCOPE}`);
+    if (DBG) console.info(`skipped '${o.scope}'`);
     return undefined;
   }
   // if we got this far, then it's something not in the view path
+  // f() can return a Promise to force asynchronous waiting!
   return o.f();
 }
 
@@ -94,17 +100,17 @@ function m_UpdateCurrentPhase(phase) {
     string constant from PHASES array above f is a function that does work
     immediately, or returns a Promise
 */
-const Hook = (phase, f, scope) => {
+const Hook = (scope, phase, f) => {
   try {
     // make sure scope is included
-    if (typeof scope !== 'string') throw Error(`<arg3> scope should be included`);
+    if (typeof scope !== 'string') throw Error(`<arg1> scope should be included`);
 
     // does this phase exist?
-    if (typeof phase !== 'string') throw Error("<arg1> must be PHASENAME (e.g. 'LOADASSETS')");
-    if (!PHASES.includes(phase)) throw Error(phase, 'is not a recognized exec phase');
+    if (typeof phase !== 'string') throw Error("<arg2> must be PHASENAME (e.g. 'LOAD_ASSETS')");
+    if (!PHASES.includes(phase)) throw Error(`${phase} is not a recognized phase`);
     // did we also get a promise?
     if (!(f instanceof Function))
-      throw Error('<arg2> must be a function optionally returning Promise');
+      throw Error('<arg3> must be a function optionally returning Promise');
     // get the list of promises associated with this phase
     // and add the new promise
     if (!PHASE_HOOKS.has(phase)) PHASE_HOOKS.set(phase, []);
@@ -154,7 +160,7 @@ const Execute = async phase => {
 
   // now execute handlers and promises
   let icount = 0;
-  if (DBG) console.group(phase);
+  if (DBG) console.group(`${phase} - ${EXEC_SCOPE}`);
   // get an array of promises
   // o contains f, scope pushed in Hook() above
   let promises = hooks.map(o => {
@@ -250,7 +256,7 @@ const EnterApp = () => {
     try {
       await Execute('TEST_CONF'); // TESTCONFIG hook
       await Execute('INITIALIZE'); // INITIALIZE hook
-      await Execute('LOADASSETS'); // LOADASSETS hook
+      await Execute('LOAD_ASSETS'); // LOAD_ASSETS hook
       await Execute('CONFIGURE'); // CONFIGURE support modules
       resolve();
     } catch (e) {
@@ -369,7 +375,7 @@ const ServerDisconnect = () => {
 */
 const ExitApp = () => {
   return new Promise(async (resolve, reject) => {
-    await Execute('UNLOADASSETS');
+    await Execute('UNLOAD_ASSETS');
     await Execute('SHUTDOWN');
     resolve();
   });
@@ -380,7 +386,7 @@ const ModulePreflight = (comp, mod) => {
   if (!mod) return `arg2 must be 'module' keyword`;
   if (!mod.id) return `arg2 is not a 'module' keyword`;
   if (!comp.MOD_ID)
-    return `Component.MOD_ID static property must be set = module.id (e.g. ViewMain.MOD_ID=module.id)`;
+    return `Component.MOD_ID static property must be set = __dirname (e.g. ViewMain.MOD_ID=__dirname)`;
 };
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -22,6 +22,8 @@ import { cssinfo, cssalert } from '../../modules/console-styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true;
 
+/// COMPUTED STYLES ///////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const styles = theme => ({
   root: {
     flexGrow: 1
@@ -31,6 +33,11 @@ const styles = theme => ({
     textAlign: 'center',
     color: theme.palette.text.secondary
   }
+});
+
+/// MODULE HOOKS //////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+UR.Hook(__dirname, 'LOAD_ASSETS', function () {
 });
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -174,7 +181,7 @@ ViewTest.propTypes = {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// required for UR EXEC phase filtering by view path
-ViewTest.MOD_ID = module.id;
+ViewTest.MOD_ID = __dirname;
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

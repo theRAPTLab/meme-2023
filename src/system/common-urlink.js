@@ -7,10 +7,8 @@
     A ULINK represents a connection to the URSYS message-passing system for the
     app and optionally other entities on the URSYS Net.
 
-    Instances are created with URSYS.Connect() with module.id or other unique
-    module identifier that includes path information. This module.id is used
-    behind-the-scenes to prevent lifecycle execution (UR-EXEC) to not be
-    called for modules that are not in the current view/ path.
+    Instances are created with URSYS.Connect() with a unique name for logging
+    purposes.
 
     Additionally, each ULINK has a unique local id (UID) that is assigned
     a device address (UADDR). These are used together to make multiple ULINK
@@ -96,7 +94,6 @@ class URLink {
     this.NetCall = this.NetCall.bind(this);
     this.NetPublish = this.NetPublish.bind(this);
     this.NetSignal = this.NetSignal.bind(this);
-    this.Hook = this.Hook.bind(this);
 
     // generate and save unique id
     this.uid = m_GetUniqueId();
@@ -245,9 +242,6 @@ class URLink {
   NullCallback() {
     if (DBG.send) console.log(`${this.uid} _${PR} `, 'null_callback', this.UID());
   }
-
-  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  Hook() {}
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /**

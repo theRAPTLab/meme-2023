@@ -42,6 +42,7 @@ class MechDialog extends React.Component {
     this.DoEdit = this.DoEdit.bind(this);
     this.DoClose = this.DoClose.bind(this);
     this.OnClose = this.OnClose.bind(this);
+    this.DoSelectSourceAndTarget = this.DoSelectSourceAndTarget.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
     this.OnSourceLinkButtonClick = this.OnSourceLinkButtonClick.bind(this);
     this.OnTargetLinkButtonClick = this.OnTargetLinkButtonClick.bind(this);
@@ -79,11 +80,11 @@ class MechDialog extends React.Component {
         targetLabel: '',
         label: '',
         editExisting: false,
-        listenForSourceSelection: true
+        listenForSourceSelection: true,
+        listenForTargetSelection: true
       },
       () => {
         this.DoSelectionChange(); // Read selection to prepopulate
-        DATA.VM_DeselectAll(); // Then deselect everything and get ready for next one
       }
     );
   }
@@ -91,17 +92,22 @@ class MechDialog extends React.Component {
   DoEdit(data) {
     if (DBG) console.log(PKG, 'Edit Mech!', data);
     const { label, sourceId, targetId } = data;
-    this.setState({
-      isOpen: true,
-      label,
-      sourceId,
-      sourceLabel: DATA.Prop(sourceId).name,
-      targetId,
-      targetLabel: DATA.Prop(targetId).name,
-      origSourceId: sourceId,
-      origTargetId: targetId,
-      editExisting: true
-    });
+    this.setState(
+      {
+        isOpen: true,
+        label,
+        sourceId,
+        sourceLabel: DATA.Prop(sourceId).name,
+        targetId,
+        targetLabel: DATA.Prop(targetId).name,
+        origSourceId: sourceId,
+        origTargetId: targetId,
+        editExisting: true,
+        listenForSourceSelection: false,
+        listenForTargetSelection: false
+      },
+      () => this.DoSelectSourceAndTarget(sourceId, targetId) // show the selected props
+    );
   }
 
   DoClose() {
@@ -115,34 +121,63 @@ class MechDialog extends React.Component {
     this.DoClose();
   }
 
+  /**
+   * Show the selected source and target properties.
+   * This is used when the dialog opens to show which props are currently set to the source and target.
+   * @param {*} sourceId
+   * @param {*} targetId
+   */
+  DoSelectSourceAndTarget(sourceId, targetId) {
+    console.error(PKG, 'DoSelectSourceAndTarget', sourceId, targetId);
+    const currentVPropSource = DATA.VM_VProp(sourceId);
+    DATA.VM_SelectProp(currentVPropSource);
+    currentVPropSource.visualState.Select('first'); // hack, this shold probably be implemented as a PMCData call?
+    const currentVPropTarget = DATA.VM_VProp(targetId);
+    DATA.VM_SelectAddProp(currentVPropTarget);
+  }
+
   DoSelectionChange() {
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (DBG) console.log('selection changed', selectedPropIds);
 
-    if (this.state.listenForSourceSelection) {
-      if (selectedPropIds.length > 0) {
-        const sourceId = selectedPropIds[0];
-        this.setState(state => {
-          return {
+    if (this.state.editExisting) {
+      /**
+       * Edit Existing Mech
+       *
+       * If we're editting an existing mech, we want to allow the user
+       * to individually toggle the source / target components on and off
+       */
+      if (this.state.listenForSourceSelection) {
+        if (selectedPropIds.length > 0) {
+          const sourceId = selectedPropIds[0];
+          this.setState({
             sourceId,
-            sourceLabel: DATA.Prop(sourceId).name,
-            listenForSourceSelection: false,
-            listenForTargetSelection: state.targetId === '' // automatically set the next one
-          };
-        });
+            sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : '',
+            listenForSourceSelection: false
+          });
+        }
       }
-    } else if (this.state.listenForTargetSelection) {
-      if (selectedPropIds.length > 0) {
-        const targetId = selectedPropIds[0];
-        this.setState({
-          targetId,
-          targetLabel: DATA.Prop(targetId).name,
-          listenForTargetSelection: false
-        });
+      if (this.state.listenForTargetSelection) {
+        if (selectedPropIds.length > 0) {
+          const targetId = selectedPropIds[0];
+          this.setState({
+            targetId,
+            targetLabel: targetId !== '' ? DATA.Prop(targetId).name : '',
+            listenForTargetSelection: false
+          });
+        }
       }
     } else {
+      /**
+       * Adding New Mech
+       *
+       * If we're adding a new component, then use the double selection
+       * method where the user can click on different selections to set.
+       */
+      // Deselect everything
       let sourceId = '';
       let targetId = '';
+
       if (selectedPropIds.length > 0) {
         sourceId = selectedPropIds[0];
       }
@@ -152,23 +187,37 @@ class MechDialog extends React.Component {
 
       this.setState({
         sourceId,
-        targetId
+        sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : '',
+        targetId,
+        targetLabel: targetId !== '' ? DATA.Prop(targetId).name : ''
       });
     }
   }
 
   OnSourceLinkButtonClick() {
-    this.setState({
-      listenForSourceSelection: true,
-      sourceId: undefined
-    });
+    if (this.state.editExisting) {
+      // Deselect so the selection will clear
+      DATA.VM_DeselectAll();
+      // const currentVPropSource = DATA.VM_VProp(this.state.sourceId);
+      // DATA.VM_DeselectProp(currentVPropSource);
+      this.setState({
+        sourceId: undefined,
+        sourceLabel: undefined,
+        listenForSourceSelection: true
+      });
+    }
   }
 
   OnTargetLinkButtonClick() {
-    this.setState({
-      listenForTargetSelection: true,
-      targetId: undefined
-    });
+    if (this.state.editExisting) {
+      // Deselect so the selection will clear
+      DATA.VM_DeselectAll();
+      this.setState({
+        targetId: undefined,
+        targetLabel: undefined,
+        listenForTargetSelection: true
+      });
+    }
   }
 
   OnTextChange(e) {

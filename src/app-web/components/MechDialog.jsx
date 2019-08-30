@@ -72,6 +72,7 @@ class MechDialog extends React.Component {
 
   DoAdd() {
     if (DBG) console.log(PKG, 'Add Mech!');
+    DATA.VM_SetSelectionLimit(2); // Allow up to 2 props to be selected.
     this.setState({
         isOpen: true,
         editExisting: false,
@@ -114,6 +115,7 @@ class MechDialog extends React.Component {
     this.setState({
       isOpen: false
     });
+    DATA.VM_SetSelectionLimit(1); // Go back to allowing only one.
     UR.Publish('MECHDIALOG:CLOSED');
   }
 
@@ -176,7 +178,6 @@ class MechDialog extends React.Component {
        * Then when both are selected, go to standard edit mode
        * so that they can individually set links.
        */
-      // Deselect everything
       let sourceId = '';
       let targetId = '';
       let editExisting = false;

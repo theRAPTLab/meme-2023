@@ -135,10 +135,11 @@ let h_mechByResource = new Map(); // calculated links to mechanisms by evidence 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const map_vprops = new Map(); // our property viewmodel data stored by id
 const map_vmechs = new Map(); // our mechanism viewmodel data stored by pathid
-const map_vbadges = new Map(); // our evidence badge viewmodel data stored by evId
 const selected_vprops = new Set();
 const selected_vmechs = new Set();
 const map_rollover = new Map();
+
+let max_selections = 1; // Limit the number of objects that can be selected simultaneously
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -665,6 +666,16 @@ PMCData.VM_PropsMouseOver = () => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
+ * Set the maximum number of objects the user can select.
+ * After the limit is reached, users can not select any additional objects
+ * though they can still toggle existing objects.
+ * @oaram {integer} max - Maximum number of selected objects allowed.
+ */
+PMCData.VM_SetSelectionLimit = max => {
+  max_selections = max;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
  * Remove the passed vprop from the selection set, if set. The vprop will be
  * updated in its appearance to reflect its new state.
  * @param {object} vprop - VProp instance with id property
@@ -685,6 +696,18 @@ PMCData.VM_DeselectProp = vprop => {
  * @param {object} vprop - VProp instance with id property
  */
 PMCData.VM_ToggleProp = vprop => {
+  // limit the number of selections, but allow toggle
+  if (selected_vprops.size >= max_selections) {
+    // If we hit the limit...
+    if (max_selections === 1) {
+      // ...and the limit is 1, deselect all and select this one
+      DeselectAllProps();
+    } else {
+      // ...and the limit is more than one, don't alow any more selections
+      return;
+    }
+  }
+
   // set appropriate vprop flags
   vprop.visualState.ToggleSelect();
   // update viewmodel
@@ -702,11 +725,11 @@ PMCData.VM_ToggleProp = vprop => {
   if (DBG) u_DumpSelection('ToggleProp');
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- * erase the selected properties set. Also calls affected vprops to
- * handle deselection update
+/**
+ * Utility function
+ * This is so we can deselect without triggering a UR event.
  */
-PMCData.VM_DeselectAllProps = () => {
+function DeselectAllProps() {
   // tell all vprops to clear themselves
   selected_vprops.forEach(vpid => {
     const vprop = PMCData.VM_VProp(vpid);
@@ -715,6 +738,14 @@ PMCData.VM_DeselectAllProps = () => {
   });
   // clear selection viewmodel
   selected_vprops.clear();
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ * erase the selected properties set. Also calls affected vprops to
+ * handle deselection update
+ */
+PMCData.VM_DeselectAllProps = () => {
+  DeselectAllProps();
   UR.Publish('SELECTION_CHANGED');
   if (DBG) u_DumpSelection('DeselectAllProps');
 };

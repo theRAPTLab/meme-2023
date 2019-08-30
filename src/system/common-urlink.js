@@ -88,6 +88,9 @@ class URLink {
     this.Call = this.Call.bind(this);
     this.Publish = this.Publish.bind(this);
     this.Signal = this.Signal.bind(this);
+    this.LocalCall = this.LocalCall.bind(this);
+    this.LocalPublish = this.LocalPublish.bind(this);
+    this.LocalSignal = this.LocalSignal.bind(this);
     this.NetCall = this.NetCall.bind(this);
     this.NetPublish = this.NetPublish.bind(this);
     this.NetSignal = this.NetSignal.bind(this);
@@ -147,7 +150,7 @@ class URLink {
   /*/ ULINK wraps Messager.Call(), which returns an array of promises.
       The ULINK version of Call() manages the promises, and returns a
   /*/
-  Call(mesgName, inData = {}, options = { toLocal: true, toNet: false }) {
+  Call(mesgName, inData = {}, options = {}) {
     options = Object.assign(options, { type: 'mcall' });
     options.srcUID = this.UID();
     //
@@ -159,7 +162,7 @@ class URLink {
   /*/ Sends the data to all message implementors UNLESS it is originating from
       the same ULINK instance (avoid echoing back to self)
   /*/
-  Publish(mesgName, inData = {}, options = { toLocal: true, toNet: false }) {
+  Publish(mesgName, inData = {}, options = {}) {
     if (typeof inData === 'function')
       throw Error('did you intend to use Subscribe() instead of Publish()?');
     options = Object.assign(options, { type: 'msend' });
@@ -171,29 +174,67 @@ class URLink {
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /*/ Sends the data to all message implementors, irregardless of origin.
   /*/
-  Signal(mesgName, inData = {}, options = { toLocal: true, toNet: false }) {
+  Signal(mesgName, inData = {}, options = {}) {
     options = Object.assign(options, { type: 'msig' });
     MESSAGER.Signal(mesgName, inData, options);
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /*/ version of Call that forces local-only calls
+  /*/
+  LocalCall(mesgName, inData, options = {}) {
+    options = Object.assign(options, { type: 'mcall' });
+    options.toLocal = true;
+    options.toNet = false;
+    return this.Call(mesgName, inData, options);
+  }
+
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /*/ version of Send that force local-only calls
+  /*/
+  LocalPublish(mesgName, inData, options = {}) {
+    options = Object.assign(options, { type: 'msend' });
+    options.toLocal = true;
+    options.toNet = false;
+    this.Publish(mesgName, inData, options);
+  }
+
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /*/ version of Send that force local-only calls
+  /*/
+  LocalSignal(mesgName, inData, options = {}) {
+    options = Object.assign(options, { type: 'msig' });
+    options.toLocal = true;
+    options.toNet = false;
+    this.Signal(mesgName, inData, options);
+  }
+
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /*/ version of Call that forces network-only calls
   /*/
-  NetCall(mesgName, inData, options = { toLocal: false, toNet: true }) {
+  NetCall(mesgName, inData, options = {}) {
+    options = Object.assign(options, { type: 'mcall' });
+    options.toLocal = false;
+    options.toNet = true;
     return this.Call(mesgName, inData, options);
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /*/ version of Send that force network-only calls
   /*/
-  NetPublish(mesgName, inData, options = { toLocal: false, toNet: true }) {
+  NetPublish(mesgName, inData, options = {}) {
+    options = Object.assign(options, { type: 'msend' });
+    options.toLocal = false;
+    options.toNet = true;
     this.Publish(mesgName, inData, options);
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /*/ version of Signal that forces network-only signal
   /*/
-  NetSignal(mesgName, inData, options = { toLocal: false, toNet: true }) {
+  NetSignal(mesgName, inData, options = {}) {
+    options.toLocal = false;
+    options.toNet = true;
     this.Signal(mesgName, inData, options);
   }
 

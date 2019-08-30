@@ -47,7 +47,7 @@ let REACT_PHASES = [];
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = false;
+const DBG = true;
 const BAD_PATH = "module_path must be a string derived from the module's __dirname";
 const ULINK = new URLink('UREXEC');
 
@@ -66,6 +66,7 @@ function m_ExecuteScopedPhase(phase, o) {
   // be initializing in other React root views outside the class
   if (o.scope.indexOf('views') === 0) {
     // if it's the current scope, run it!
+    // console.log(`${phase} DOES '${EXEC_SCOPE}' contain '${o.scope}'?`);
     if (o.scope.includes(EXEC_SCOPE, 0)) return o.f();
     // otherwise don't run it
     if (DBG) console.info(`skipped '${o.scope}'`);
@@ -90,7 +91,7 @@ function m_SetValidReactPhases(phase) {
     if (dr_index > 0) REACT_PHASES = PHASES.slice(dr_index);
     retval = REACT_PHASES[0];
   }
-  if (DBG) console.log('REACT_PHASES:', REACT_PHASES.join(', '));
+  // if (DBG) console.log('REACT_PHASES:', REACT_PHASES.join(', '));
   return retval;
 }
 // initialize
@@ -222,9 +223,9 @@ const Execute = async phase => {
  */
 const SetScopeFromRoutes = routes => {
   // get current hash, without trailing parameters and # char
-  let hashbits = window.location.hash.split('/');
-  const hash = hashbits[0].substring(1);
-  const loc = `/${hash}`;
+  const hashbits = window.location.hash.substring(1).split('/');
+  const loc = `/${hashbits[1]}`;
+  console.log('Scope Detection:', window.location.hash, '->', loc);
   const matches = routes.filter(route => {
     return route.path === loc;
   });
@@ -252,7 +253,7 @@ const SetScopeFromRoutes = routes => {
 const SetScopePath = view_path => {
   if (typeof view_path !== 'string') throw Error(BAD_PATH);
   EXEC_SCOPE = view_path;
-  console.log(`%cEXEC_SCOPE%c is now\n'${EXEC_SCOPE}'`, cssinfo, cssreset);
+  console.info(`%cEXEC_SCOPE%c is now\n'${EXEC_SCOPE}'`, cssinfo, cssreset);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API: The scope

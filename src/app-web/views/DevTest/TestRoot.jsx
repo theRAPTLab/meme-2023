@@ -37,7 +37,8 @@ const styles = theme => ({
 
 /// MODULE HOOKS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-UR.Hook(__dirname, 'LOAD_ASSETS', function () {
+UR.Hook(__dirname, 'INITIALIZE', function () {
+  console.log('TestRoot Initialized');
 });
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////

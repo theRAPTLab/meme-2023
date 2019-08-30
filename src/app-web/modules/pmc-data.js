@@ -877,9 +877,11 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
 
     // 3. Show review dialog alert.
     // HACK: Delay the alert so the system has a chance to redraw first.
-    setTimeout(() => {
-      alert('Please review the updated mechanism to make sure the Evidence Links and comments are still relevant.');      
-    }, 500);
+    if (evlinks || comments.length > 0) {
+      setTimeout(() => {
+        alert('Please review the updated mechanism to make sure the Evidence Links and comments are still relevant.');
+      }, 500);
+    }
   }
   return `updated edge`;
 };

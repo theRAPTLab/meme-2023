@@ -3,7 +3,7 @@ import { registerMorphableType } from '@svgdotjs/svg.js/src/main';
 import { Hidden } from '@material-ui/core';
 
 const m_drawerWidth = 100;
-const m_edgeDialogWidth = 750;
+const m_edgeDialogWidth = 800;
 const m_primary = indigo[500];
 const m_stickynoteIconColor = yellow[800]; // `#ffc904`;
 const m_stickynoteColor = yellow[400]; //`#ffe25a`;
@@ -69,7 +69,7 @@ const styles = theme => {
     },
     edgeDialogTextField: {
       color: orange[500],
-      width: '200px',
+      width: '150px',
       margin: '0 25px'
     },
     edgeDialogPaper: {

@@ -45,6 +45,15 @@ function NewConnection(name) {
  * explicitly
  */
 const { Hook } = EXEC;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API:
+ * Utility method to Hook using a passed module id without loading UREXEC
+ * explicitly
+ */
+function ReactHook(scope, phase, func) {
+  if (!EXEC.IsReactPhase(phase)) throw Error(`Phase ${phase} has already passed; can't hook it!`);
+  Hook(scope, phase, f);
+}
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// provide convenience links to the URSYS main ULINK
@@ -104,6 +113,7 @@ const UR = {
   ReloadOnViewChange, // UTIL
   PeerCount,
   ReactPreflight,
-  RoutePreflight
+  RoutePreflight,
+  ReactHook
 };
 export default UR;

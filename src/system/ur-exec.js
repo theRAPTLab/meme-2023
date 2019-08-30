@@ -43,15 +43,11 @@ const PHASES = [
 
 /// COMPUTED DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const dr_index = PHASES.findIndex(el => {
-  return el === 'DOM_READY';
-});
 let REACT_PHASES = [];
-if (dr_index > 0) REACT_PHASES = PHASES.slice(dr_index);
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 const BAD_PATH = "module_path must be a string derived from the module's __dirname";
 const ULINK = new URLink('UREXEC');
 
@@ -79,6 +75,26 @@ function m_ExecuteScopedPhase(phase, o) {
   // f() can return a Promise to force asynchronous waiting!
   return o.f();
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*/ UTILITY: compute the list of allowable REACT PHASES
+    that will be updated
+/*/
+function m_SetValidReactPhases(phase) {
+  let retval;
+  if (phase === undefined) {
+    retval = REACT_PHASES.shift();
+  } else {
+    const dr_index = PHASES.findIndex(el => {
+      return el === phase;
+    });
+    if (dr_index > 0) REACT_PHASES = PHASES.slice(dr_index);
+    retval = REACT_PHASES[0];
+  }
+  if (DBG) console.log('REACT_PHASES:', REACT_PHASES.join(', '));
+  return retval;
+}
+// initialize
+m_SetValidReactPhases('DOM_READY');
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ UTILITY: maintain current phase status (not used for anything currently)
@@ -254,6 +270,7 @@ const MatchScope = check => {
 const EnterApp = () => {
   return new Promise(async (resolve, reject) => {
     try {
+      m_SetValidReactPhases('DOM_READY');
       await Execute('TEST_CONF'); // TESTCONFIG hook
       await Execute('INITIALIZE'); // INITIALIZE hook
       await Execute('LOAD_ASSETS'); // LOAD_ASSETS hook
@@ -275,6 +292,7 @@ const EnterApp = () => {
 const SetupDOM = () => {
   return new Promise(async (resolve, reject) => {
     try {
+      m_SetValidReactPhases(); // remove leftmost phase
       await Execute('DOM_READY'); // GUI layout has finished composing
       resolve();
     } catch (e) {
@@ -308,11 +326,16 @@ const JoinNet = () => {
 const SetupRun = () => {
   return new Promise(async (resolve, reject) => {
     try {
+      m_SetValidReactPhases(); // remove leftmost phase
       await Execute('RESET'); // RESET runtime datastructures
+      m_SetValidReactPhases(); // remove leftmost phase
       await Execute('START'); // START running
+      m_SetValidReactPhases(); // remove leftmost phase
       await Execute('REG_MESSAGE'); // register messages
       await ULINK.PromiseRegisterSubscribers(); // send messages
+      m_SetValidReactPhases(); // remove leftmost phase
       await Execute('APP_READY'); // app is connected
+      m_SetValidReactPhases(); // remove leftmost phase
       await Execute('RUN'); // tell network APP_READY
       resolve();
     } catch (e) {
@@ -355,6 +378,7 @@ const Pause = () => {
 */
 const CleanupRun = () => {
   return new Promise(async (resolve, reject) => {
+    m_SetValidReactPhases('DISCONNECT'); // remove leftmost phase
     await Execute('STOP');
     resolve();
   });
@@ -365,6 +389,7 @@ const CleanupRun = () => {
 */
 const ServerDisconnect = () => {
   return new Promise(async (resolve, reject) => {
+    m_SetValidReactPhases(); // remove leftmost phase
     await Execute('DISCONNECT');
     resolve();
   });
@@ -375,7 +400,9 @@ const ServerDisconnect = () => {
 */
 const ExitApp = () => {
   return new Promise(async (resolve, reject) => {
+    m_SetValidReactPhases(); // remove leftmost phase
     await Execute('UNLOAD_ASSETS');
+    m_SetValidReactPhases(); // remove leftmost phase
     await Execute('SHUTDOWN');
     resolve();
   });

@@ -47,7 +47,7 @@ let REACT_PHASES = [];
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 const BAD_PATH = "module_path must be a string derived from the module's __dirname";
 const ULINK = new URLink('UREXEC');
 
@@ -224,8 +224,8 @@ const Execute = async phase => {
 const SetScopeFromRoutes = routes => {
   // get current hash, without trailing parameters and # char
   const hashbits = window.location.hash.substring(1).split('/');
-  const loc = `/${hashbits[1]}`;
-  console.log('Scope Detection:', window.location.hash, '->', loc);
+  const loc = `/${hashbits[1] || ''}`;
+  console.log(`%cHASH_XLATE%c '${window.location.hash}' --> '${loc}'`, cssinfo, cssreset);
   const matches = routes.filter(route => {
     return route.path === loc;
   });
@@ -253,7 +253,7 @@ const SetScopeFromRoutes = routes => {
 const SetScopePath = view_path => {
   if (typeof view_path !== 'string') throw Error(BAD_PATH);
   EXEC_SCOPE = view_path;
-  console.info(`%cEXEC_SCOPE%c is now\n'${EXEC_SCOPE}'`, cssinfo, cssreset);
+  console.info(`%cEXEC_SCOPE%c '${EXEC_SCOPE}'`, cssinfo, cssreset);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API: The scope

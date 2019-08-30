@@ -35,13 +35,18 @@ let adm_settings = {}; // local settings, state of the admin view (current displ
 /// URSYS HOOKS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 UR.Hook(__dirname, 'LOAD_ASSETS', () => {
+  // return promise to enable asynchronous loading. This ensures
+  // that LOAD_ASSETS phase completes before allowing subsequent
+  // phases to run
   return new Promise((resolve, reject) => {
+    console.log(PKG, 'LOAD_ASSETS');
     UR.NetCall('SRV_DBGET', {}).then(data => {
       if (data.error) {
         reject(`server says '${data.error}'`);
         return;
       }
       adm_db = data;
+      console.log(PKG, 'data loaded', data);
       ADMData.Load();
       resolve();
     });

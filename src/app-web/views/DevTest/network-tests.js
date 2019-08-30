@@ -153,7 +153,19 @@ to test:
 */
 function SpawnReflector() {
   switch (window.name) {
+    case '':
+      const win = window.open(window.location.href, 'meme reflector');
+      window.open(window.location.href, 'meme test');
+      document.title = 'CLOSE ME';
+      setTimeout(() => {
+        win.location.reload();
+      }, 500);
+      setTimeout(() => {
+        window.close();
+      }, 1500);
+      break;
     case 'meme reflector':
+      document.title = 'REFLECTOR';
       setTimeout(() => {
         window.close();
       }, 1500);
@@ -165,14 +177,7 @@ function SpawnReflector() {
       window.name = '';
       break;
     default:
-      const win = window.open(window.location.href, 'meme reflector');
-      window.open(window.location.href, 'meme test');
-      setTimeout(() => {
-        win.location.reload();
-      }, 500);
-      setTimeout(() => {
-        window.close();
-      }, 1500);
+      throw Error(`unexpected window name '${window.name}'`);
   }
 }
 
@@ -190,11 +195,11 @@ export default {
     UndefinedLocalCall(comp);
     GetDB(comp);
     const timeout = setTimeout(() => {
-      if (comp.DidTestsComplete()) {
-        console.log('TESTS FAIL');
-      } else {
+      if (comp.DidTestsComplete(10)) {
         console.log('TESTS SUCCESS');
         comp.AddTestResult('ALL TESTS', 'PASS');
+      } else {
+        console.log('TESTS FAIL');
       }
     }, 3000);
   },

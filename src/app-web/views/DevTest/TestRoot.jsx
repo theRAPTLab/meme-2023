@@ -39,7 +39,8 @@ class ViewTest extends React.Component {
   // constructor
   constructor(props) {
     super(props);
-    UR.ReloadOnViewChange();
+    UR.ReactPreflight(ViewTest, module);
+
     this.cstrName = this.constructor.name;
     this.feature = undefined;
     this.AddTestResult = this.AddTestResult.bind(this);
@@ -108,7 +109,7 @@ class ViewTest extends React.Component {
     let difference = this.tests.filter(x => !union.includes(x));
     if (difference.length) console.log(`tests incomplete %c${difference.join(', ')}`, cssalert);
     if (this.failed.length) console.log(`tests failed %c${this.failed.join(', ')}`, cssalert);
-    return (this.tests.length - union.length) === 0;
+    return (this.tests.length - union.length) + (numtests - this.tests.length) === 0;
   }
 
   RegisterTest(testname) {
@@ -173,14 +174,7 @@ ViewTest.propTypes = {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// required for UR EXEC phase filtering by view path
-ViewTest.URMOD = __dirname;
-UR.EXEC.Hook(
-  'INITIALIZE',
-  () => {
-    console.log('TestRoot Init');
-  },
-  __dirname
-);
+ViewTest.MOD_ID = module.id;
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

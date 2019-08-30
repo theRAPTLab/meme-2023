@@ -183,6 +183,7 @@ function SpawnReflector() {
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+let TESTS_COMPLETED = false;
 export default {
   DoConstructionTests: comp => {
     SpawnReflector(comp);
@@ -195,12 +196,14 @@ export default {
     UndefinedLocalCall(comp);
     GetDB(comp);
     const timeout = setTimeout(() => {
+      if (TESTS_COMPLETED) return;
       if (comp.DidTestsComplete(10)) {
         console.log('TESTS SUCCESS');
         comp.AddTestResult('ALL TESTS', 'PASS');
       } else {
         console.log('TESTS FAIL');
       }
+      TESTS_COMPLETED = true;
     }, 3000);
   },
   DoRenderTests: comp => {}

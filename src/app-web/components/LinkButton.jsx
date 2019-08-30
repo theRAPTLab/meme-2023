@@ -94,11 +94,7 @@ class LinkButton extends React.Component {
     let icon;
     let evidenceLinkSelectButtonClass = classes.evidenceLinkSelectButton;
 
-    if (listenForSourceSelection) {
-      label = 'Click on Target...';
-      icon = <ArrowBackIcon />;
-      evidenceLinkSelectButtonClass = classes.evidenceLinkSourceAvatarWaiting;
-    } else if (sourceLabel !== undefined && sourceLabel !== '') {
+    if (sourceLabel !== undefined && sourceLabel !== '') {
       label = sourceLabel;
       switch (sourceType) {
         case 'mech':
@@ -109,6 +105,10 @@ class LinkButton extends React.Component {
           evidenceLinkSelectButtonClass = classes.evidenceLinkSourcePropAvatarSelected;
           break;
       }
+    } else if (listenForSourceSelection) {
+      label = 'Click on Target...';
+      icon = <ArrowBackIcon />;
+      evidenceLinkSelectButtonClass = classes.evidenceLinkSourceAvatarWaiting;
     } else if (isBeingEdited) {
       label = 'Set Target';
       icon = <CreateIcon />;

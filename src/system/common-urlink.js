@@ -49,7 +49,7 @@ const PR = 'ULINK:';
 
 /// NODE MANAGEMENT ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const UNODE = new Map(); // URSYS connector node map (local)
+const UNODE_MAP = new Map(); // URSYS connector node map (local)
 const MAX_UNODES = 100;
 let UNODE_COUNTER = 0; // URSYS connector node id counter
 function m_GetUniqueId() {
@@ -96,14 +96,15 @@ class URLink {
     this.NetCall = this.NetCall.bind(this);
     this.NetPublish = this.NetPublish.bind(this);
     this.NetSignal = this.NetSignal.bind(this);
+    this.Hook = this.Hook.bind(this);
 
     // generate and save unique id
     this.uid = m_GetUniqueId();
     this.name = name;
     // save module in the global module list
-    if (UNODE.has(this.uid)) throw Error(BAD_UID + this.uid);
+    if (UNODE_MAP.has(this.uid)) throw Error(BAD_UID + this.uid);
     if (DBG.create) console.log(PR, `URLink ${this.uid} created (${this.name})`);
-    UNODE.set(this.uid, this);
+    UNODE_MAP.set(this.uid, this);
   }
 
   /// UNIQUE URSYS ID for local application
@@ -152,32 +153,14 @@ class URLink {
   /*/ ULINK wraps Messager.Call(), which returns an array of promises.
       The ULINK version of Call() manages the promises, and returns a
   /*/
-  async Call(mesgName, inData = {}, options = {}) {
+  Call(mesgName, inData = {}, options = {}) {
     options = Object.assign(options, { type: 'mcall' });
-    if (DBG.send) {
-      let status = '';
-      if (options.fromNet) {
-        status += ' REMOTE_CALL';
-      } else {
-        if (!options.toNet) status += 'NO_NET ';
-        if (!options.toLocal) status += 'NO_LOCAL';
-        if (!(options.toLocal || options.toNet)) status = 'ERR NO LOCAL OR NET';
-      }
-      console.log(`${this.uid} _${PR} `, '** DATALINK CALL ASYNC', mesgName, status);
-    }
-    // uid is "source uid" of subscribing object, to avoid reflection
-    // if the subscribing object is also the originating state changer
     options.srcUID = this.UID();
-    let promises = MESSAGER.Call(mesgName, inData, options);
-    /// MAGICAL ASYNC/AWAIT BLOCK ///////
-    if (DBG.send) console.log(`${this.uid} _${PR} `, '** awaiting...', promises);
-    let resArray = await Promise.all(promises);
-    if (DBG.send) console.log(`${this.uid} _${PR} `, '** promise fulfilled!', mesgName);
-    /// END MAGICAL ASYNC/AWAIT BLOCK ///
-    let resObj = Object.assign({}, ...resArray);
-    if (DBG.return)
-      console.log(`${this.uid} _${PR} `, `[${mesgName}]returned`, JSON.stringify(resObj));
-    return resObj;
+    //
+    console.log('*** CALL ASYNC');
+    let results = MESSAGER.CallAsync(mesgName, inData, options);
+    console.log('*** CALL ASYNC DONE');
+    return results;
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -187,19 +170,9 @@ class URLink {
   Publish(mesgName, inData = {}, options = {}) {
     if (typeof inData === 'function')
       throw Error('did you intend to use Subscribe() instead of Publish()?');
-    if (DBG.send) console.log(`${this.uid} _${PR} `, '** DATALINK SEND', mesgName);
     options = Object.assign(options, { type: 'msend' });
-    // uid is "source uid" of subscribing object, to avoid reflection
-    // if the subscribing object is also the originating state changer
     options.srcUID = this.UID();
-    // LEGACY OVERRIDE
-    // The old Publish was part of ur-pubsub, which is deprecated but
-    // acted like UR.Signal() in that code modules could publish to itself.
-    // The logic of the app currently relies on this, so this flag will
-    // ensure it still works until this can be sraightened out.
     if (CENTRAL.GetVal('ur_legacy_publish')) options.srcUID = null;
-    // uid is "source uid" of subscribing object, to avoid reflection
-    // if the subscribing object is also the originating state changer
     MESSAGER.Publish(mesgName, inData, options);
   }
 
@@ -274,6 +247,9 @@ class URLink {
   NullCallback() {
     if (DBG.send) console.log(`${this.uid} _${PR} `, 'null_callback', this.UID());
   }
+
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  Hook() {}
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /**

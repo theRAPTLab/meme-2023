@@ -164,7 +164,7 @@ class Messager {
    * @param {Object} [options] see Publish() for option details
    * @returns {Array} an array of Promises
    */
-  Call(mesgName, inData, options = {}) {
+  async CallAsync(mesgName, inData, options = {}) {
     let { srcUID, type } = options;
     let { toLocal = true, toNet = true } = options;
     let { fromNet = false } = options;
@@ -225,8 +225,10 @@ class Messager {
       promises.push(p);
     } // end toNetwork
 
-    /// return all queued promises
-    return promises;
+    /// do the work
+    let resArray = await Promise.all(promises);
+    let resObj = Object.assign({}, ...resArray);
+    return resObj;
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

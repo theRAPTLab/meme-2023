@@ -242,33 +242,6 @@ function m_HandleMessage(msgEvent) {
       throw Error('unknown packet type', type);
   }
 }
-
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ Send a packet on socket connection, assuming it is valid
-/*/
-NETWORK.Send = pkt => {
-  if (!(pkt instanceof NetMessage)) throw Error(ERR_NM_REQ);
-  if (NETSOCK.ws.readyState === 1) {
-    let json = pkt.JSON();
-    if (DBG) console.log('SENDING', pkt.Message(), pkt.Data(), pkt.SeqNum());
-    NETSOCK.ws.send(json);
-  } else {
-    console.log('Socket not ReadyState 1, is', NETSOCK.ws.readyState);
-  }
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ Send a packet on socket connection, return Promise
-/*/
-NETWORK.Call = pkt => {
-  if (!(pkt instanceof NetMessage)) throw Error(ERR_NM_REQ);
-  if (NETSOCK.ws.readyState === 1) {
-    let json = pkt.JSON();
-    if (DBG) console.log('CALLING', pkt.Message(), json);
-    NETSOCK.ws.send(json);
-  } else {
-    console.log('Socket not ReadyState 1, is', NETSOCK.ws.readyState);
-  }
-};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Force close of connection, for example if URSYS.AppReady() fails
 /*/

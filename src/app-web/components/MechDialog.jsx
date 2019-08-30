@@ -74,12 +74,12 @@ class MechDialog extends React.Component {
     if (DBG) console.log(PKG, 'Add Mech!');
     this.setState({
         isOpen: true,
+        editExisting: false,
         sourceId: '',
         sourceLabel: '',
         targetId: '',
         targetLabel: '',
         label: '',
-        editExisting: false,
         listenForSourceSelection: true,
         listenForTargetSelection: true
       },
@@ -95,14 +95,14 @@ class MechDialog extends React.Component {
     this.setState(
       {
         isOpen: true,
-        label,
+        editExisting: true,
         sourceId,
         sourceLabel: DATA.Prop(sourceId).name,
         targetId,
         targetLabel: DATA.Prop(targetId).name,
+        label,
         origSourceId: sourceId,
         origTargetId: targetId,
-        editExisting: true,
         listenForSourceSelection: false,
         listenForTargetSelection: false
       },
@@ -171,53 +171,64 @@ class MechDialog extends React.Component {
       /**
        * Adding New Mech
        *
-       * If we're adding a new component, then use the double selection
+       * If we're adding a new component, then initially use the double selection
        * method where the user can click on different selections to set.
+       * Then when both are selected, go to standard edit mode
+       * so that they can individually set links.
        */
       // Deselect everything
       let sourceId = '';
       let targetId = '';
+      let editExisting = false;
+      let listenForSourceSelection = true;
+      let listenForTargetSelection = true;
 
       if (selectedPropIds.length > 0) {
         sourceId = selectedPropIds[0];
+        listenForSourceSelection = false;
       }
       if (selectedPropIds.length > 1) {
         targetId = selectedPropIds[1];
+        listenForTargetSelection = false;
+      }
+
+      // If both source and target have been defined, we change the
+      // dialog to edit existing mode so that you can individually
+      // set each link
+      if (sourceId !== '' && targetId !== '') {
+        editExisting = true;
       }
 
       this.setState({
         sourceId,
         sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : '',
         targetId,
-        targetLabel: targetId !== '' ? DATA.Prop(targetId).name : ''
+        targetLabel: targetId !== '' ? DATA.Prop(targetId).name : '',
+        editExisting,
+        listenForSourceSelection,
+        listenForTargetSelection
       });
     }
   }
 
   OnSourceLinkButtonClick() {
-    if (this.state.editExisting) {
-      // Deselect so the selection will clear
-      DATA.VM_DeselectAll();
-      // const currentVPropSource = DATA.VM_VProp(this.state.sourceId);
-      // DATA.VM_DeselectProp(currentVPropSource);
-      this.setState({
-        sourceId: undefined,
-        sourceLabel: undefined,
-        listenForSourceSelection: true
-      });
-    }
+    // Deselect so that the first selection becomes the next source
+    DATA.VM_DeselectAll();
+    this.setState({
+      sourceId: undefined,
+      sourceLabel: undefined,
+      listenForSourceSelection: true
+    });
   }
 
   OnTargetLinkButtonClick() {
-    if (this.state.editExisting) {
-      // Deselect so the selection will clear
-      DATA.VM_DeselectAll();
-      this.setState({
-        targetId: undefined,
-        targetLabel: undefined,
-        listenForTargetSelection: true
-      });
-    }
+    // Deselect so that the first selection becomes the next target
+    DATA.VM_DeselectAll();
+    this.setState({
+      targetId: undefined,
+      targetLabel: undefined,
+      listenForTargetSelection: true
+    });
   }
 
   OnTextChange(e) {
@@ -265,7 +276,7 @@ class MechDialog extends React.Component {
               sourceLabel={sourceLabel}
               listenForSourceSelection={listenForSourceSelection}
               isBeingEdited
-              isExpanded
+              isExpanded={false}
               OnLinkButtonClick={this.OnSourceLinkButtonClick}
             />
             &nbsp;&nbsp;
@@ -285,11 +296,11 @@ class MechDialog extends React.Component {
               sourceLabel={targetLabel}
               listenForSourceSelection={listenForTargetSelection}
               isBeingEdited
-              isExpanded
+              isExpanded={false}
               OnLinkButtonClick={this.OnTargetLinkButtonClick}
             />
             <div style={{ flexGrow: '1' }} />
-            <Button onClick={this.OnClose} color="primary">
+            <Button onClick={this.OnClose} color="default">
               Cancel
             </Button>
             <Button

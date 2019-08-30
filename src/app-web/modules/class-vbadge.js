@@ -125,9 +125,9 @@ class VBadge {
     let yOffset;
     if (isVMech) {
       // VMech
-      baseElement = vparent.pathLabel;  // position of the text label along the path
+      baseElement = vparent.pathLabel; // position of the text label along the path
       // 'eat' is too short @ 19, but 'produce' is too long @ 51.
-      xOffset = Math.max(40, vparent.horizText.length()) * 1.5 + m_pad * 3;
+      xOffset = 60; // horiz text approach: Math.max(40, vparent.horizText.length()) * 1.5 + m_pad * 3;
       yOffset = -13; // hoist badges back up even with text baseline.
     } else {
       // VProp
@@ -147,7 +147,7 @@ class VBadge {
     // don't draw them.  (Without this, the VBadges will get drawn at 0,0)
     if (isVMech && x === 0 && y === 0) {
       // also hide horizText and sticky button offscreen
-      vparent.horizText.move(-100, -100);
+      // horiztext appraoch vparent.horizText.move(-100, -100);
       this.gStickyButtons.move(-100, -100);
       return;
     }
@@ -226,7 +226,7 @@ VBadge.New = vparent => {
  *  De-allocate VProp instance by id.
  */
 VBadge.Release = () => {
-console.error('I dont think this is aalled');
+  console.error('I dont think this is aalled');
   // const vbadge = DATA.VM_VBadge(evId);
   // DATA.VM_VBadgeDelete(evId);
   // return vbadge.Release();
@@ -340,7 +340,6 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
 
   return gStickyButtons;
 };
-
 
 /// MODULE HELPERS /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -45,21 +45,19 @@ class ResourceView extends React.Component {
     this.OnOpen = this.OnOpen.bind(this);
     this.OnClose = this.OnClose.bind(this);
     this.OnCreateEvidence = this.OnCreateEvidence.bind(this);
-    this.DoEvLinkSourceSelectRequest = this.DoEvLinkSourceSelectRequest.bind(this);
 
     this.state = {
       isOpen: false,
       resource: {}
     };
 
-    UR.Sub('SHOW_RESOURCE', this.OnOpen);
-    UR.Unsub('REQUEST_SELECT_EVLINK_SOURCE', this.DoEvLinkSourceSelectRequest);
+    UR.Subscribe('SHOW_RESOURCE', this.OnOpen);
   }
 
   componentDidMount() {}
 
   componentWillUnmount() {
-    UR.Unsub('SHOW_RESOURCE', this.OnOpen);
+    UR.Unsubscribe('SHOW_RESOURCE', this.OnOpen);
   }
 
   OnOpen(data) {

@@ -57,23 +57,24 @@ class MechDialog extends React.Component {
       targetId: ''
     };
 
-    UR.Sub('MECHDIALOG:ADD', this.DoAdd);
-    UR.Sub('MECHDIALOG:EDIT', this.DoEdit);
-    UR.Sub('SELECTION_CHANGED', this.DoSelectionChange);
+    UR.Subscribe('MECHDIALOG:ADD', this.DoAdd);
+    UR.Subscribe('MECHDIALOG:EDIT', this.DoEdit);
+    UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
   }
 
-  componentDidMount() { }
+  componentDidMount() {}
 
   componentWillUnmount() {
-    UR.Unsub('MECHDIALOG:ADD', this.DoAdd);
-    UR.Unsub('MECHDIALOG:EDIT', this.DoEdit);
-    UR.Unsub('SELECTION_CHANGED', this.DoSelectionChange);
+    UR.Unsubcribe('MECHDIALOG:ADD', this.DoAdd);
+    UR.Unsubcribe('MECHDIALOG:EDIT', this.DoEdit);
+    UR.Unsubcribe('SELECTION_CHANGED', this.DoSelectionChange);
   }
 
   DoAdd() {
     if (DBG) console.log(PKG, 'Add Mech!');
     DATA.VM_SetSelectionLimit(2); // Allow up to 2 props to be selected.
-    this.setState({
+    this.setState(
+      {
         isOpen: true,
         editExisting: false,
         sourceId: '',

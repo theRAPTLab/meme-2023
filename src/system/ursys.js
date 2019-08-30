@@ -75,13 +75,11 @@ function ReactPreflight(comp, mod) {
   ReloadOnViewChange();
   const err = EXEC.ModulePreflight(comp, mod);
   if (err) console.error(err);
-  console.log(`${PR}: ReactPreFlight Passed!`);
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function RoutePreflight(routes) {
   const err = EXEC.SetScopeFromRoutes(routes);
   if (err) console.error(err);
-  console.log(`${PR}: RoutePreflight Passed!`);
 }
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

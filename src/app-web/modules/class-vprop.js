@@ -24,7 +24,8 @@ const DIM_RADIUS = 3;
 const DBG = {
   edges: false,
   layout: false,
-  hierarchy: false
+  hierarchy: false,
+  plugin: false
 };
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -552,7 +553,7 @@ VProp.StaticMethod = (method, methodName) => {
 
   /* IF WE GOT THIS FAR LET'S DO IT */
   VProp[methodName] = method;
-  console.log(`%cAdded VProp Extension:%c\n${methodName}`, cssinfo, cssreset);
+  if (DBG.plugin) console.log(`%cVPropPlugin%c ${methodName}`, cssinfo, cssreset);
 };
 
 /// LINK EXTENSIONS ///////////////////////////////////////////////////////////

@@ -129,9 +129,9 @@ class ClassroomsSelector extends React.Component {
           </Select>
         </FormControl>
         <Dialog open={addClassroomDialogOpen} onClose={this.OnAddClassroomDialogClose}>
-          <DialogTitle>Add Teacher</DialogTitle>
+          <DialogTitle>Add Classroom</DialogTitle>
           <DialogContent>
-            <DialogContentText>Add a teacher by name, e.g. "Ms. Brown"</DialogContentText>
+            <DialogContentText>Add a classroom by name, e.g. "Period 1" or "Science 1A"</DialogContentText>
             <TextField
               autoFocus
               id="teacherName"

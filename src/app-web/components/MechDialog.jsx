@@ -52,9 +52,17 @@ class MechDialog extends React.Component {
 
     this.state = {
       isOpen: false,
-      label: '',
+      editExisting: false,
       sourceId: '',
-      targetId: ''
+      sourceLabel: '',
+      targetId: '',
+      targetLabel: '',
+      label: '',
+      listenForSourceSelection: false,
+      listenForTargetSelection: false,
+      origSourceId: '',
+      origTargetId: '',
+      saveButtonLabel: 'Add'
     };
 
     UR.Subscribe('MECHDIALOG:ADD', this.DoAdd);
@@ -83,7 +91,8 @@ class MechDialog extends React.Component {
         targetLabel: '',
         label: '',
         listenForSourceSelection: true,
-        listenForTargetSelection: true
+        listenForTargetSelection: true,
+        saveButtonLabel: 'Add'
       },
       () => {
         this.DoSelectionChange(); // Read selection to prepopulate
@@ -106,7 +115,8 @@ class MechDialog extends React.Component {
         origSourceId: sourceId,
         origTargetId: targetId,
         listenForSourceSelection: false,
-        listenForTargetSelection: false
+        listenForTargetSelection: false,
+        saveButtonLabel: 'Update'
       },
       () => this.DoSelectSourceAndTarget(sourceId, targetId) // show the selected props
     );
@@ -264,7 +274,8 @@ class MechDialog extends React.Component {
       targetLabel,
       editExisting,
       listenForSourceSelection,
-      listenForTargetSelection
+      listenForTargetSelection,
+      saveButtonLabel
     } = this.state;
     const { classes } = this.props;
 
@@ -311,7 +322,7 @@ class MechDialog extends React.Component {
               variant="contained"
               disabled={sourceId === '' || targetId === ''}
             >
-              {editExisting ? 'Update' : 'Add'}
+              {saveButtonLabel}
             </Button>
           </div>
         </Paper>

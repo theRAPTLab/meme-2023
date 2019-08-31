@@ -220,25 +220,27 @@ class GroupsList extends React.Component {
           Add Group
         </Button>
         <Dialog open={addGroupDialogOpen} onClose={this.OnAddGroupDialogClose}>
-          <DialogTitle>Add Group</DialogTitle>
-          <DialogContent>
-            <DialogContentText>Add a group.</DialogContentText>
-            <TextField
-              autoFocus
-              id="groupName"
-              label="Group Name"
-              fullWidth
-              onChange={e => this.setState({ addGroupDialogName: e.target.value })}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.OnAddGroupDialogClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={this.OnAddGroupName} color="primary">
-              Add
-            </Button>
-          </DialogActions>
+          <form onSubmit={this.OnAddGroupName}>
+            <DialogTitle>Add Group</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Add a group.</DialogContentText>
+              <TextField
+                autoFocus
+                id="groupName"
+                label="Group Name"
+                fullWidth
+                onChange={e => this.setState({ addGroupDialogName: e.target.value })}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.OnAddGroupDialogClose} color="primary">
+                Cancel
+              </Button>
+              <Button color="primary" typ="submit">
+                Add
+              </Button>
+            </DialogActions>
+          </form>
         </Dialog>
         <Dialog open={addStudentDialogOpen} onClose={this.OnAddStudentDialogClose}>
           <form onSubmit={this.OnAddStudentName}>

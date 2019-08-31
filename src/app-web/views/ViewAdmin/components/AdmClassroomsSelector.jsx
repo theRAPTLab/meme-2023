@@ -129,25 +129,27 @@ class ClassroomsSelector extends React.Component {
           </Select>
         </FormControl>
         <Dialog open={addClassroomDialogOpen} onClose={this.OnAddClassroomDialogClose}>
-          <DialogTitle>Add Classroom</DialogTitle>
-          <DialogContent>
-            <DialogContentText>Add a classroom by name, e.g. "Period 1" or "Science 1A"</DialogContentText>
-            <TextField
-              autoFocus
-              id="teacherName"
-              label="Name"
-              fullWidth
-              onChange={e => this.setState({ addClassroomDialogName: e.target.value })}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.OnAddClassroomDialogClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={this.OnAddClasssroomName} color="primary">
-              Add
-            </Button>
-          </DialogActions>
+          <form onSubmit={this.OnAddClasssroomName}>
+            <DialogTitle>Add Classroom</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Add a classroom by name, e.g. "Period 1" or "Science 1A"</DialogContentText>
+              <TextField
+                autoFocus
+                id="teacherName"
+                label="Name"
+                fullWidth
+                onChange={e => this.setState({ addClassroomDialogName: e.target.value })}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.OnAddClassroomDialogClose} color="primary">
+                Cancel
+              </Button>
+              <Button color="primary" type="submit">
+                Add
+              </Button>
+            </DialogActions>
+          </form>
         </Dialog>
       </Paper>
     );

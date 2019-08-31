@@ -168,9 +168,7 @@ class VBadge {
         xx += badge.width() + m_pad;
       });
     }
-
-    this.gStickyButtons.move(baseX + xx - this.gStickyButtons.bbox().w - m_pad, baseY); // always move in case evlink badges change
-
+    
     // Set Current Read/Unreaad status
     const comments = PMC.GetComments(vparent.id);
     const author = ADM.GetSelectedStudentId(); // FIXME: This should read from session
@@ -192,6 +190,9 @@ class VBadge {
       this.gStickyButtons.chatBubble.attr('display', 'inline');
       this.gStickyButtons.chatBubbleOutline.attr('display', 'none');
     }
+
+    // Move gStickyButtons only AFTER setting display state, otherwise, the icon will get drawn at 0,0
+    this.gStickyButtons.move(baseX + xx - this.gStickyButtons.bbox().w - m_pad, baseY); // always move in case evlink badges change
 
     // adjust for width of vprop
     if (!isVMech) {

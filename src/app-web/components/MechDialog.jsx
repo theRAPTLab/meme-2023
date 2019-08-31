@@ -163,21 +163,31 @@ class MechDialog extends React.Component {
       if (this.state.listenForSourceSelection) {
         if (selectedPropIds.length > 0) {
           const sourceId = selectedPropIds[0];
-          this.setState({
-            sourceId,
-            sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : '',
-            listenForSourceSelection: false
-          });
+          if (sourceId === this.state.targetId) {
+            alert(`${DATA.Prop(sourceId).name} is already selected!  Please select a different component / property!`);
+            DATA.VM_DeselectAll();
+          } else {
+            this.setState({
+              sourceId,
+              sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : '',
+              listenForSourceSelection: false
+            });
+          }
         }
       }
       if (this.state.listenForTargetSelection) {
         if (selectedPropIds.length > 0) {
           const targetId = selectedPropIds[0];
-          this.setState({
-            targetId,
-            targetLabel: targetId !== '' ? DATA.Prop(targetId).name : '',
-            listenForTargetSelection: false
-          });
+          if (targetId === this.state.sourceId) {
+            alert(`${DATA.Prop(targetId).name} is already selected!  Please select a different component / property!`);
+            DATA.VM_DeselectAll();
+          } else {
+            this.setState({
+              targetId,
+              targetLabel: targetId !== '' ? DATA.Prop(targetId).name : '',
+              listenForTargetSelection: false
+            });
+          }
         }
       }
     } else {

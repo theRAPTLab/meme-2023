@@ -191,6 +191,9 @@ const styles = theme => {
       marginBottom: theme.spacing(1),
       width: '100%'
     },
+    resourceItem: {
+      borderTop: '1px solid rgba(0,0,0,0.25)'
+    },
     evidenceBody: {
       fontSize: '1em',
       fontWeight: 'normal',
@@ -290,7 +293,12 @@ const styles = theme => {
       padding: '10px 0 10px 10px',
       backgroundColor: '#dbfaf7'
     },
-    iconExpanded: {
+    lessIconCollapsed: {
+      transition: 'transform 0.25s ease-in-out',
+      transform: 'rotate(0deg)'
+    },
+    lessIconExpanded: {
+      transition: 'transform 0.25s ease-in-out',
       transform: 'rotate(180deg)'
     },
     evidenceLinkAvatar: {

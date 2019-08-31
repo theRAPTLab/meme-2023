@@ -77,9 +77,9 @@ class MechDialog extends React.Component {
   componentDidMount() {}
 
   componentWillUnmount() {
-    UR.Unsubcribe('MECHDIALOG:ADD', this.DoAdd);
-    UR.Unsubcribe('MECHDIALOG:EDIT', this.DoEdit);
-    UR.Unsubcribe('SELECTION_CHANGED', this.DoSelectionChange);
+    UR.Unsubscribe('MECHDIALOG:ADD', this.DoAdd);
+    UR.Unsubscribe('MECHDIALOG:EDIT', this.DoEdit);
+    UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
   }
 
   DoAdd() {

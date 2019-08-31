@@ -59,7 +59,8 @@ const styles = theme => {
       '&:hover': { backgroundColor: orange[700] }
     },
     edgeDialog: {
-      width: m_edgeDialogWidth
+      width: m_edgeDialogWidth,
+      height: '70px'
     },
     edgeDialogWindowLabel: {
       fontSize: '0.6em',

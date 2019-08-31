@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import Paper from '@material-ui/core/Paper';
+import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
@@ -47,6 +48,7 @@ class MechDialog extends React.Component {
     this.OnSourceLinkButtonClick = this.OnSourceLinkButtonClick.bind(this);
     this.OnTargetLinkButtonClick = this.OnTargetLinkButtonClick.bind(this);
     this.OnTextChange = this.OnTextChange.bind(this);
+    this.OnReverse = this.OnReverse.bind(this);
     this.DoSaveData = this.DoSaveData.bind(this);
     this.OnCreateClick = this.OnCreateClick.bind(this);
 
@@ -62,7 +64,9 @@ class MechDialog extends React.Component {
       listenForTargetSelection: false,
       origSourceId: '',
       origTargetId: '',
-      saveButtonLabel: 'Add'
+      saveButtonLabel: 'Add',
+      reversing: false,
+      slideIn: true
     };
 
     UR.Subscribe('MECHDIALOG:ADD', this.DoAdd);
@@ -256,6 +260,36 @@ class MechDialog extends React.Component {
   OnTextChange(e) {
     this.setState({ label: e.target.value });
   }
+  
+  OnReverse() {
+    // Swap source and target
+    const { sourceId, sourceLabel, targetId, targetLabel } = this.state;
+    // hack to prevent scrollbars from appearing during slide
+    let origOverflowSetting = document.getElementsByTagName('body')[0].style.overflow;
+    document.getElementsByTagName('body')[0].style.overflow = 'hidden';
+    this.setState(
+      {
+        sourceId: targetId,
+        sourceLabel: targetLabel,
+        targetId: sourceId,
+        targetLabel: sourceLabel,
+        reversing: true,
+        slideIn: false
+      },
+      () => {
+        setTimeout(
+          () => {
+            this.setState({ slideIn: true });
+            setTimeout(
+              () => {
+                // hack to prevent scrollbars from appearing during slide
+                document.getElementsByTagName('body')[0].style.overflow = origOverflowSetting;         
+              }, 250
+            )
+          }, 250
+        );
+      });
+  }
 
   DoSaveData() {
     const { sourceId, targetId, origSourceId, origTargetId, label, editExisting } = this.state;
@@ -285,7 +319,9 @@ class MechDialog extends React.Component {
       editExisting,
       listenForSourceSelection,
       listenForTargetSelection,
-      saveButtonLabel
+      saveButtonLabel,
+      reversing,
+      slideIn
     } = this.state;
     const { classes } = this.props;
 
@@ -294,14 +330,16 @@ class MechDialog extends React.Component {
         <Paper className={classes.edgeDialogPaper}>
           <div className={classes.edgeDialogWindowLabel}>ADD MECHANISM</div>
           <div className={classes.edgeDialogInput}>
-            <LinkButton
-              sourceType="prop"
-              sourceLabel={sourceLabel}
-              listenForSourceSelection={listenForSourceSelection}
-              isBeingEdited
-              isExpanded={false}
-              OnLinkButtonClick={this.OnSourceLinkButtonClick}
-            />
+            <Slide direction={reversing ? 'left' : 'up'} in={slideIn}>
+              <LinkButton
+                sourceType="prop"
+                sourceLabel={sourceLabel}
+                listenForSourceSelection={listenForSourceSelection}
+                isBeingEdited
+                isExpanded={false}
+                OnLinkButtonClick={this.OnSourceLinkButtonClick}
+              />
+            </Slide>
             &nbsp;&nbsp;
             <TextField
               autoFocus
@@ -314,17 +352,22 @@ class MechDialog extends React.Component {
               className={classes.edgeDialogTextField}
             />
             &nbsp;&nbsp;
-            <LinkButton
-              sourceType="prop"
-              sourceLabel={targetLabel}
-              listenForSourceSelection={listenForTargetSelection}
-              isBeingEdited
-              isExpanded={false}
-              OnLinkButtonClick={this.OnTargetLinkButtonClick}
-            />
+            <Slide direction={reversing ? 'right' : 'up'} in={slideIn}>
+              <LinkButton
+                sourceType="prop"
+                sourceLabel={targetLabel}
+                listenForSourceSelection={listenForTargetSelection}
+                isBeingEdited
+                isExpanded={false}
+                OnLinkButtonClick={this.OnTargetLinkButtonClick}
+              />
+            </Slide>
             <div style={{ flexGrow: '1' }} />
             <Button onClick={this.OnClose} color="default">
               Cancel
+            </Button>
+            <Button onClick={this.OnReverse} color="primary">
+              Reverse Direction
             </Button>
             <Button
               onClick={this.OnCreateClick}

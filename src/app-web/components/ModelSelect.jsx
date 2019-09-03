@@ -45,7 +45,8 @@ class ModelSelect extends React.Component {
 
     this.state = {
       modelId: '',
-      modelSelectDialogOpen: false
+      modelSelectDialogOpen: false,
+      showClassesModels: false
     };
   }
 
@@ -64,7 +65,8 @@ class ModelSelect extends React.Component {
     } else if (ADM.GetSelectedModelId() !== undefined) {
       this.setState({
         modelId: ADM.GetSelectedModelId(),
-        modelSelectDialogOpen: true
+        modelSelectDialogOpen: true,
+        showClassesModels: ADM.ClassesModelsAreVisible()
       });
     } else {
       // model already selected, so hide
@@ -100,7 +102,7 @@ class ModelSelect extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { modelId, modelSelectDialogOpen } = this.state;
+    const { modelId, modelSelectDialogOpen, showClassesModels } = this.state;
     const myModels = ADM.GetModelsByStudent();
     const ourModels = ADM.GetModelsByClassroom(ADM.GetSelectedClassroomId());
     return (
@@ -121,7 +123,7 @@ class ModelSelect extends React.Component {
               <ModelsListTable models={myModels} OnModelSelect={this.OnModelEdit} />
               <Divider style={{ margin: '2em' }} />
             </Grid>
-            <Grid item>
+            <Grid item hidden={!showClassesModels}>
               <DialogContentText>My Classes&lsquo; Models</DialogContentText>
               <ModelsListTable models={ourModels} OnModelSelect={this.OnModelView} />
             </Grid>

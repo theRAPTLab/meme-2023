@@ -113,7 +113,13 @@ ADMData.AddTeacher = name => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// CLASSROOMS ////////////////////////////////////////////////////////////////
 ///
-// Retreive currently selected teacher's classrooms by default if no teacherId is defined
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Retrieves the classroom by classoomId or the currently selected classroom
+ADMData.GetClassroom = (classroomId = adm_settings.selectedClassroomId) => {
+  return adm_db.a_classrooms.filter(cls => cls.id === classroomId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Retreive currently selected teacher's classrooms by default if no teacherId is defined
 ADMData.GetClassroomsByTeacher = (teacherId = adm_settings.selectedTeacherId) => {
   return adm_db.a_classrooms.filter(cls => cls.teacherId === teacherId);
 };
@@ -127,6 +133,21 @@ ADMData.GetClassroomByStudent = (studentId = adm_settings.selectedStudentId) => 
   const groupId = ADMData.GetGroupIdByStudent(studentId);
   return ADMData.GetClassroomByGroup(groupId);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @param isVisible - bool
+ */
+ADMData.SetClassesModelVisibility = isVisible => {
+  const classroom = ADMData.GetClassroom();
+  classroom.showClassesModels = isVisible;  
+  console.log('setting visibility to ', isVisible);
+  return isVisible;
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.ClassesModelsAreVisible = () => {
+  const classroom = ADMData.GetClassroom();
+  return classroom.showClassesModels;
+}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomByStudent()) => {
   adm_settings.selectedClassroomId = classroomId;

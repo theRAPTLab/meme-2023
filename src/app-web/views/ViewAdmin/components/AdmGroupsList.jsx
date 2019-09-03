@@ -127,7 +127,9 @@ class GroupsList extends React.Component {
     ADM.DeleteStudent(groupId, student);
   }
 
-  OnAddStudentName() {
+  OnAddStudentName(e) {
+    e.preventDefault();
+    e.stopPropagation();
     const names = this.state.addStudentDialogName.split(',').map(name => name.trim());
     ADM.AddStudents(this.state.addStudentDialogGroupId, names);
     this.OnAddStudentDialogClose();

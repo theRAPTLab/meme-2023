@@ -97,6 +97,8 @@ class ClassroomsSelector extends React.Component {
   }
 
   OnAddClasssroomName(e) {
+    e.preventDefault();
+    e.stopPropagation();
     let name = this.state.addClassroomDialogName;
     ADM.AddClassroom(name);
     this.OnAddClassroomDialogClose();

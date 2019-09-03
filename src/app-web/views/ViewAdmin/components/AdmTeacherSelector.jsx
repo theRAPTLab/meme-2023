@@ -77,6 +77,8 @@ class TeacherSelector extends React.Component {
   }
 
   OnAddTeacherName(e) {
+    e.preventDefault();
+    e.stopPropagation();
     const name = this.state.addTeacherDialogName;
     ADM.AddTeacher(name);
     this.OnAddTeacherDialogClose();

@@ -411,6 +411,7 @@ ADMData.LoadModel = modelId => {
   if (model === undefined) {
     console.error(PKG, 'LoadModel could not find a valid modelId', modelId);
   }
+  PMCData.ClearModel();
   PMCData.InitializeModel(model, adm_db.a_resources);
   ADMData.SetSelectedModelId(modelId); // Remember the selected modelId locally
 };

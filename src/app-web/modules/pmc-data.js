@@ -155,6 +155,17 @@ PMCData.Graph = () => {
   return m_graph;
 };
 /**
+ *  Clears all model data in preparation for loading a new model
+ */
+PMCData.ClearModel = () => {
+  console.error('clearing model...')
+  a_props = [];
+  a_mechs = [];
+  a_commentThreads = [];
+  a_resources = [];
+  a_evidence = [];
+}
+/**
  *  Loads a graph from model data and saves a local copy.  Replaces PMCData.LoadGraph.
  *  This will self repair bad data, but model.id and model.groupID MUST be defined.
  *  This should be only be called by ADMData.InitializeModel. Never call this direcly.

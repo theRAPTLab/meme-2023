@@ -317,12 +317,12 @@ class EvidenceLink extends React.Component {
 
     let sourceType;
     let sourceLabel;
-    if (propId !== undefined) {
+    if (propId !== undefined && DATA.Prop(propId)) {
       sourceType = 'prop';
       sourceLabel = DATA.Prop(propId).name;
-    } else if (mechId !== undefined) {
+    } else if (mechId !== undefined && DATA.Mech(mechId)) {
       sourceType = 'mech';
-      sourceLabel = DATA.Mech(mechId).name || 'no label mechanism';
+      sourceLabel = DATA.Mech(mechId).name;
     } else {
       sourceType = undefined;
       sourceLabel = undefined;

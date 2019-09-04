@@ -1070,25 +1070,24 @@ PMCData.GetComments = id => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Given the passed parentId and parentType, returns the matching data object
- *  e.g. a property, mechanism, or evidence link
+ *  Given the passed parentId and parentType, returns the comments from the 
+ *  matching data object, e.g. a property, mechanism, or evidence link
  *  @param {string} parentId - if defined, id string of the resource object
  *  @param {string} parentType - if defined, type of the resource object
  *                  'evidence', 'property', 'mechanism'
- *
- *  This is primarily used by the Sticky Notes system to look up the parent
- *  components that sticky notes belong to.
+ *  @return [comments] - An array of comment objects, or [] if no comments.
+ *  This is primarily used by the Sticky Notes system to look up comments
  */
-PMCData.GetParent = (parentId, parentType) => {
+PMCData.GetCommentsByParentId = (parentId, parentType) => {
   let parent = {};
   switch (parentType) {
     case 'evidence':
       parent = PMCData.PMC_GetEvLinkByEvId(parentId);
       break;
     default:
-      console.error(PKG, 'GetParent parentType', parentType, 'not found');
+      console.error(PKG, 'GetCommentsByParentId parentType', parentType, 'not found');
   }
-  return parent;
+  return parent ? parent.comments : [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -1127,8 +1126,7 @@ PMCData.UpdateComments = (parentId, parentType, comments) => {
   let comment;
   switch (parentType) {
     case 'evidence':
-      parent = PMCData.GetParent(parentId, parentType);
-      parent.comments = comments;
+      comments = PMCData.GetCommentsByParentId(parentId, parentType);
       break;
     case 'propmech':
       index = a_commentThreads.findIndex(c => {

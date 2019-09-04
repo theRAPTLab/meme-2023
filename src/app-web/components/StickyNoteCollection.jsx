@@ -176,6 +176,9 @@ class StickyNoteCollection extends React.Component {
         // property or mechanism comment, so load from PMCData's a_comments array
         comments = PMC.GetComments(parentId);
         break;
+      case 'model':
+        comments = PMC.GetComments(parentId);
+        break;
       default:
         console.error(PKG, 'DoStickyUpdate got unrecognized parentType', parentType);
     }
@@ -220,10 +223,14 @@ class StickyNoteCollection extends React.Component {
         break;
       case 'evidence':
         // evlink comment, which is embedded in the evlink object
-        comments = PMC.GetParent(parentId, parentType).comments;
+        comments = PMC.GetCommentsByParentId(parentId, parentType);
         break;
       case 'propmech':
         // property or mechanism comment, so load from PMCData's a_comments array
+        comments = PMC.GetComments(parentId);
+        break;
+      case 'model':
+        // comment on model itself, so load from PMCData's a_comments array
         comments = PMC.GetComments(parentId);
         break;
       default:

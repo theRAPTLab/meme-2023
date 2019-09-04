@@ -49,6 +49,7 @@ import ModelSelect from '../../components/ModelSelect';
 import ResourceView from '../../components/ResourceView';
 import ResourceItem from '../../components/ResourceItem';
 import RatingsDialog from '../../components/RatingsDialog';
+import StickyNoteButton from '../../components/StickyNoteButton';
 import StickyNoteCollection from '../../components/StickyNoteCollection';
 // MEME Modules and Utils
 import MEMEStyles from '../../components/MEMEStyles';
@@ -102,6 +103,7 @@ class ViewMain extends React.Component {
     UR.Subscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
     UR.Subscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
     this.state = {
+      modelId: '',
       studentName: '',
       studentGroup: '',
       viewHeight: 0, // need to init this to prevent error with first render of informationList
@@ -161,6 +163,7 @@ class ViewMain extends React.Component {
 
   DoADMDataUpdate() {
     this.setState({
+      modelId: ADM.GetSelectedModelId(),
       studentName: ADM.GetStudentName(),
       studentGroup: ADM.GetStudentGroupName()
     });
@@ -405,6 +408,7 @@ class ViewMain extends React.Component {
     const { classes } = this.props;
 
     const {
+      modelId,
       studentName,
       studentGroup,
       addPropLabel,
@@ -431,6 +435,9 @@ class ViewMain extends React.Component {
               placeholder="Untitled Model"
             />
             <div className={classes.appBarRight}>
+              <StickyNoteButton parentId={modelId} parentType="propmech" />
+              &nbsp;&nbsp;
+              &nbsp;&nbsp;
               <Button onClick={ADM.CloseModel}>Models</Button>
               &nbsp;|&nbsp;
               <div>{studentName}</div>

@@ -105,7 +105,7 @@ class ViewMain extends React.Component {
     this.state = {
       title: '',
       modelId: '',
-      modelAuthor: '',
+      modelAuthorGroupName: '',
       studentId: '',
       studentName: '',
       studentGroup: '',
@@ -156,11 +156,11 @@ class ViewMain extends React.Component {
     const modelId = ADM.GetSelectedModelId(); // get selected model for now
     const model = ADM.GetModelById(modelId);
     const title = ADM.GetModelTitle(modelId);
-    const modelAuthor = ADM.GetGroupName( model ? model.groupId : '' );
+    const modelAuthorGroupName = ADM.GetGroupName( model ? model.groupId : '' );
     this.setState({
       title,
       modelId,
-      modelAuthor,
+      modelAuthorGroupName,
       studentId: ADM.GetSelectedStudentId(),
       studentName: ADM.GetStudentName(),
       studentGroup: ADM.GetStudentGroupName()
@@ -410,7 +410,7 @@ class ViewMain extends React.Component {
 
     const {
       modelId,
-      modelAuthor,
+      modelAuthorGroupName,
       title,
       studentId,
       studentName,
@@ -444,7 +444,7 @@ class ViewMain extends React.Component {
               value={title}
             />
             <Typography variant="caption">
-              &nbsp;&nbsp;by {modelAuthor} Group
+              &nbsp;&nbsp;by {modelAuthorGroupName} Group
             </Typography>
             <div className={classes.appBarRight}>
               <StickyNoteButton parentId={modelId} parentType="propmech" />

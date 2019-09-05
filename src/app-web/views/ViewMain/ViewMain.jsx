@@ -105,6 +105,7 @@ class ViewMain extends React.Component {
     this.state = {
       title: '',
       modelId: '',
+      modelAuthor: '',
       studentId: '',
       studentName: '',
       studentGroup: '',
@@ -149,9 +150,17 @@ class ViewMain extends React.Component {
   // Here we update the model meta info
   DoDataUpdate() {
     if (DBG) console.log(PKG, 'DATA_UPDATE');
+    // Read the group info from the model and set parameters
+    
+    // FIXME: The URSYS call should probably pass the modelId, e.g. data.modelId
+    const modelId = ADM.GetSelectedModelId(); // get selected model for now
+    const model = ADM.GetModelById(modelId);
+    const title = ADM.GetModelTitle(modelId);
+    const modelAuthor = ADM.GetGroupName( model ? model.groupId : '' );
     this.setState({
-      title: ADM.GetModelTitle(),
-      modelId: ADM.GetSelectedModelId(),
+      title,
+      modelId,
+      modelAuthor,
       studentId: ADM.GetSelectedStudentId(),
       studentName: ADM.GetStudentName(),
       studentGroup: ADM.GetStudentGroupName()
@@ -401,7 +410,9 @@ class ViewMain extends React.Component {
 
     const {
       modelId,
+      modelAuthor,
       title,
+      studentId,
       studentName,
       studentGroup,
       addPropLabel,
@@ -432,6 +443,9 @@ class ViewMain extends React.Component {
               placeholder="Untitled Model"
               value={title}
             />
+            <Typography variant="caption">
+              &nbsp;&nbsp;by {modelAuthor} Group
+            </Typography>
             <div className={classes.appBarRight}>
               <StickyNoteButton parentId={modelId} parentType="propmech" />
               &nbsp;&nbsp;

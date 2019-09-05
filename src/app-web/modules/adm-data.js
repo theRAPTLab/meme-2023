@@ -450,10 +450,13 @@ ADMData.GetModelsByClassroom = classroomId => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @param {string} [studentId = current selected studentId]
+ * @return {Array} Array of models, [] if not found
+ */
 ADMData.GetModelsByStudent = (studentId = adm_settings.selectedStudentId) => {
   const group = ADMData.GetGroupByStudent(studentId);
   if (group === undefined) return [];
-
   return adm_db.a_models.filter(mdl => mdl.groupId === group.id);
 };
 
@@ -461,6 +464,22 @@ ADMData.GetModelsByStudent = (studentId = adm_settings.selectedStudentId) => {
 // Gets the gropuId of the currently selected Student ID
 ADMData.GetModelsByGroup = (group = ADMData.GetGroupByStudent()) => {
   return adm_db.a_models.filter(mdl => mdl.groupId === group.id);
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Returns models from the class EXCLUDING those from the group.
+ * This is used by ModelSelect.jsx to allow students to select models from
+ * their classmates to view.
+ * @param {string} classroomId
+ * @param {string} studentId
+ * @return {Array} Array of model objects, [] if not found
+ */
+ADMData.GetMyClassmatesModels = (classroomId, studentId) => {
+  const classroomModels = ADMData.GetModelsByClassroom(classroomId);
+  const groupId = ADMData.GetGroupIdByStudent(studentId);
+  console.table(classroomModels);
+  return classroomModels.filter(mdl => { return mdl.groupId !== groupId });
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

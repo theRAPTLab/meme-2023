@@ -22,6 +22,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
+import ADM from '../modules/adm-data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -57,7 +58,7 @@ class ModelsListTable extends React.Component {
                     {model.title}
                   </Button>
                 </TableCell>
-                <TableCell>{model.groupId}</TableCell>
+                <TableCell>{ADM.GetGroupName(model.groupId)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

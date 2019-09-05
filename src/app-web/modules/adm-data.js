@@ -302,6 +302,15 @@ ADMData.GetGroupIdByStudent = studentId => {
   return group ? group.id : undefined;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @param {string} groupId
+ * @return {string} Group Name, '' if not found
+ */
+ADMData.GetGroupName = groupId => {
+  let group = ADMData.GetGroup(groupId);
+  return group ? group.name : '';
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetGroupNameByStudent = studentId => {
   let group = ADMData.GetGroupByStudent(studentId);
   return group ? group.name : '';

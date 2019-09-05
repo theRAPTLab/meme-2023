@@ -419,6 +419,9 @@ class ViewMain extends React.Component {
             <Switch>
               <Route path="/:mode" />
             </Switch>
+            <Button onClick={ADM.CloseModel} color="inherit">
+              Model:&nbsp;&nbsp;
+            </Button>
             <TextField
               id="projectTitle"
               InputProps={{ className: classes.projectTitle }}
@@ -431,8 +434,6 @@ class ViewMain extends React.Component {
               &nbsp;&nbsp;
               &nbsp;&nbsp;
               <Button onClick={ADM.CloseModel} color="inherit">
-                Models
-                &nbsp;|&nbsp;
                 <div>{studentName}</div>
                 &nbsp;:&nbsp;
                 <div>{studentGroup}</div>

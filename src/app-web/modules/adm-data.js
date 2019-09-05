@@ -426,9 +426,13 @@ ADMData.GetSelectedStudentId = () => {
   return adm_settings.selectedStudentId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.GetStudentName = () => {
+/**
+ * @param {string} [studentId = currently selected studentId]
+ * @return {string} Name of student, or '' if not found
+ */
+ADMData.GetStudentName = (studentId = adm_settings.selectedStudentId) => {
   // FIXME: Eventually use actual name instead of ID?
-  return adm_settings.selectedStudentId;
+  return studentId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetStudentGroupName = (studentId = adm_settings.selectedStudentId) => {
@@ -659,11 +663,20 @@ ADMData.Resource = rsrcId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // returns `resources` not `classroomResources`
-ADMData.GetResourcesByClassroom = classroomId => {
-  let classroomResources = adm_db.a_classroomResources.find(
+/**
+ * Returns an array of the subset of all resources that have been made available to the classroom
+ * @param {string} classroomId
+ * @return {Array} Array of classroom resource ids, e.g. `['rs1', 'rs2']`, [] if not found
+ */
+ADMData.GetResourcesForClassroom = classroomId => {
+  const classroomResource = adm_db.a_classroomResources.find(
     rsrc => rsrc.classroomId === classroomId
   );
-  return classroomResources ? classroomResources.resources : [];
+  const classroomResourceIds = classroomResource ? classroomResource.resources : [];
+  const classroomResources = classroomResourceIds.map(
+    rsrcId => { return ADMData.Resource(rsrcId); } 
+  )
+  return classroomResources ? classroomResources : [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SetClassroomResource = (rsrcId, checked, classroomId) => {

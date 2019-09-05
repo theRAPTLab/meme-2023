@@ -105,6 +105,7 @@ class ViewMain extends React.Component {
     this.state = {
       title: '',
       modelId: '',
+      studentId: '',
       studentName: '',
       studentGroup: '',
       viewHeight: 0, // need to init this to prevent error with first render of informationList
@@ -151,6 +152,7 @@ class ViewMain extends React.Component {
     this.setState({
       title: ADM.GetModelTitle(),
       modelId: ADM.GetSelectedModelId(),
+      studentId: ADM.GetSelectedStudentId(),
       studentName: ADM.GetStudentName(),
       studentGroup: ADM.GetStudentGroupName()
     });
@@ -408,7 +410,8 @@ class ViewMain extends React.Component {
       mechIsSelected,
       suppressSelection
     } = this.state;
-    const resources = ADM.AllResources();
+    const classroomId = ADM.GetClassroomIdByStudent(studentId);
+    const resources = ADM.GetResourcesForClassroom(classroomId);
     return (
       <div className={classes.root}>
         <CssBaseline />

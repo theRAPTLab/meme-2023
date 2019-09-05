@@ -88,12 +88,45 @@ ADMData.GetAllTeachers = () => {
   return adm_db.a_teachers;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.GetTeacherName = teacherId => {
+/**
+ * @return {object} Teacher Object, undefined if not found
+ */
+ADMData.GetTeacher= (teacherId = adm_settings.selectedTeacherId) => {
   let teacher = adm_db.a_teachers.find(tch => {
     return tch.id === teacherId;
   });
+  return teacher;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @param {string} [classroomId = current selected classroomId]
+ * @return {object} Teacher Object, undefined if not found
+ */
+ADMData.GetTeacherByClassroomId = (classroomId = adm_settings.selectedClassroomId) => {
+  const classroom = ADMData.GetClassroom(classroomId);
+  if (classroom === undefined || classroom.teacherId === undefined) return undefined;
+  return ADMData.GetTeacher(classroom.teacherId);
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @param {string} [teacherId = current selected teacherId]
+ * @return {string} Teacher name, '' if not found
+ */
+ADMData.GetTeacherName = (teacherId = adm_settings.selectedTeacherId) => {
+  let teacher = ADMData.GetTeacher(teacherId);
   return teacher ? teacher.name : '';
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @param {string} [studentId = current selected studentId]
+ * @return {string} Teacher name, '' if not found
+ */
+ADMData.GetTeacherNameByStudent = (studentId = adm_settings.selectedStudentId) => {
+  if (studentId === undefined || studentId === '') return;
+  const classroomId = ADMData.GetClassroomIdByStudent(studentId);
+  const teacher = ADMData.GetTeacherByClassroomId(classroomId);
+  return teacher ? teacher.name : '';
+}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SelectTeacher = teacherId => {
   adm_settings.selectedTeacherId = teacherId;
@@ -114,25 +147,51 @@ ADMData.AddTeacher = name => {
 /// CLASSROOMS ////////////////////////////////////////////////////////////////
 ///
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// Retrieves the classroom by classoomId or the currently selected classroom
+/**
+ * Retrieves the classroom by classoomId or the currently selected classroom
+ * @param {string} [classroomId = current selected classroomId]
+ * @return {object} Clasroom Objectm, undefined if not found
+ */
 ADMData.GetClassroom = (classroomId = adm_settings.selectedClassroomId) => {
-  return adm_db.a_classrooms.filter(cls => cls.id === classroomId);
+  return adm_db.a_classrooms.find(cls => cls.id === classroomId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// Retreive currently selected teacher's classrooms by default if no teacherId is defined
+/**
+ * Retrieve currently selected teacher's classrooms by default if no teacherId is defined
+ * @param {string} [teacherId = current selected teacherId]
+ * @return {Array} Array of Classroom objects, [] if not found
+ */
 ADMData.GetClassroomsByTeacher = (teacherId = adm_settings.selectedTeacherId) => {
   return adm_db.a_classrooms.filter(cls => cls.teacherId === teacherId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.GetClassroomByGroup = groupId => {
+/**
+ * @param {string} groupId
+ * @return {string} classroomId, undefined if not found
+ */
+ADMData.GetClassroomIdByGroup = groupId => {
   let group = ADMData.GetGroup(groupId);
   return group ? group.classroomId : undefined;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.GetClassroomByStudent = (studentId = adm_settings.selectedStudentId) => {
+/**
+ * @param {string} [studentId = current selected studentId]
+ * @return {string} classroomId, undefined if not found
+ */
+ADMData.GetClassroomIdByStudent = (studentId = adm_settings.selectedStudentId) => {
   const groupId = ADMData.GetGroupIdByStudent(studentId);
-  return ADMData.GetClassroomByGroup(groupId);
+  return ADMData.GetClassroomIdByGroup(groupId);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @param {string} [studentId = current selected studentId]
+ * @return {string} classroomId, undefined if not found
+ */
+ADMData.GetClassroomNameByStudent = (studentId = adm_settings.selectedStudentId) => {
+  const classroomId = ADMData.GetClassroomIdByStudent(studentId);
+  const classroom = ADMData.GetClassroom(classroomId);
+  return classroom ? classroom.name : '';
+}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * @param isVisible - bool
@@ -149,7 +208,7 @@ ADMData.ClassesModelsAreVisible = () => {
   return classroom.showClassesModels;
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomByStudent()) => {
+ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomIdByStudent()) => {
   adm_settings.selectedClassroomId = classroomId;
   UR.Publish('CLASSROOM_SELECT', { classroomId });
 };
@@ -251,6 +310,11 @@ ADMData.GetGroupNameByStudent = studentId => {
 ADMData.GetSelectedGroupId = () => {
   const studentId = ADMData.GetSelectedStudentId();
   return ADMData.GetGroupIdByStudent(studentId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetSelectedGroupName = () => {
+  const group = ADMData.GetSelectedGroupId();
+  return group ? group.name : '';
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**

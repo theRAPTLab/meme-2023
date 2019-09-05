@@ -78,7 +78,7 @@ class ViewMain extends React.Component {
     this.refView = React.createRef();
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
-    this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
+    this.DoDataUpdate = this.DoDataUpdate.bind(this);
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
     this.HandleAddPropLabelChange = this.HandleAddPropLabelChange.bind(this);
@@ -97,12 +97,13 @@ class ViewMain extends React.Component {
     this.handleEvLinkSourceSelectRequest = this.handleEvLinkSourceSelectRequest.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     UR.Subscribe('WINDOW:SIZE', this.UpdateDimensions);
-    UR.Subscribe('DATA_UPDATED', this.HandleDataUpdate);
+    UR.Subscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Subscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
     UR.Subscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
     this.state = {
+      title: '',
       modelId: '',
       studentName: '',
       studentGroup: '',
@@ -136,38 +137,27 @@ class ViewMain extends React.Component {
 
   componentWillUnmount() {
     UR.Unsubscribe('WINDOW:SIZE', this.UpdateDimensions);
-    UR.Unsubscribe('DATA_UPDATED', this.HandleDataUpdate);
+    UR.Unsubscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Unsubscribe('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Unsubscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
     UR.Unsubscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
   }
 
-  // CODE REVIEW: THIS IS VESTIGIAL CODE
-  // Force a screen redraw when evidence links are added
-  // so that badges and quality ratings will draw
-  HandleDataUpdate() {
+  // PMCData calls DATA_UPDATED after loading model.
+  // Here we update the model meta info
+  DoDataUpdate() {
     if (DBG) console.log(PKG, 'DATA_UPDATE');
-    /*
-      CODE REVIEW: originally this code called "forceupdate" methods via a "data
-      update" handler, which called React.Component's forceUpdate method. But
-      updating the SVGView isn't part of ReactComponent...it's an SVGView! I've
-      removed all mention of this call because it's not necessary when the React
-      rendering is setup for proper dataflow (e.g. use of ONLY state and props
-      in the render() function)
-
-      SVGView used to require a manual call to DoAppLoop(), but now it's hooked
-      the DATA_UPDATED messages so it will redraw its view.
-    */
-  }
-
-  DoADMDataUpdate() {
     this.setState({
+      title: ADM.GetModelTitle(),
       modelId: ADM.GetSelectedModelId(),
       studentName: ADM.GetStudentName(),
       studentGroup: ADM.GetStudentGroupName()
     });
-    // FIXME: This should update the model eventually.
+  }
+
+  DoADMDataUpdate() {
+    this.DoDataUpdate();
   }
 
   UpdateDimensions() {
@@ -409,6 +399,7 @@ class ViewMain extends React.Component {
 
     const {
       modelId,
+      title,
       studentName,
       studentGroup,
       addPropLabel,
@@ -433,18 +424,22 @@ class ViewMain extends React.Component {
               InputProps={{ className: classes.projectTitle }}
               style={{ flexGrow: 1 }}
               placeholder="Untitled Model"
+              value={title}
             />
             <div className={classes.appBarRight}>
               <StickyNoteButton parentId={modelId} parentType="propmech" />
               &nbsp;&nbsp;
               &nbsp;&nbsp;
-              <Button onClick={ADM.CloseModel}>Models</Button>
-              &nbsp;|&nbsp;
-              <div>{studentName}</div>
-              &nbsp;:&nbsp;
-              <div>{studentGroup}</div>
-              &nbsp;|&nbsp;
-              <Button onClick={ADM.Logout}>Logout</Button>
+              <Button onClick={ADM.CloseModel} color="inherit">
+                Models
+                &nbsp;|&nbsp;
+                <div>{studentName}</div>
+                &nbsp;:&nbsp;
+                <div>{studentGroup}</div>
+              </Button>
+              &nbsp;&nbsp;
+              &nbsp;&nbsp;
+              <Button onClick={ADM.Logout} color="inherit">Logout</Button>
             </div>
           </Toolbar>
         </AppBar>

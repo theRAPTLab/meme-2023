@@ -482,6 +482,16 @@ ADMData.GetMyClassmatesModels = (classroomId, studentId) => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @param {string} [modelId = current selected modelId]
+ * @return {string} Model name, or '' if not found
+ */
+ADMData.GetModelTitle = (modelId = adm_settings.selectedModelId) => {
+  const model = ADMData.GetModelById(modelId);
+  return model ? model.title : '';
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.NewModel = (groupId = ADMData.GetSelectedGroupId()) => {
   let model = {
     id: GenerateUID('mo'),
@@ -503,8 +513,8 @@ ADMData.LoadModel = modelId => {
     console.error(PKG, 'LoadModel could not find a valid modelId', modelId);
   }
   PMCData.ClearModel();
-  PMCData.InitializeModel(model, adm_db.a_resources);
   ADMData.SetSelectedModelId(modelId); // Remember the selected modelId locally
+  PMCData.InitializeModel(model, adm_db.a_resources);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

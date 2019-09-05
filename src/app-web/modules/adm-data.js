@@ -478,7 +478,6 @@ ADMData.GetModelsByGroup = (group = ADMData.GetGroupByStudent()) => {
 ADMData.GetMyClassmatesModels = (classroomId, studentId) => {
   const classroomModels = ADMData.GetModelsByClassroom(classroomId);
   const groupId = ADMData.GetGroupIdByStudent(studentId);
-  console.table(classroomModels);
   return classroomModels.filter(mdl => { return mdl.groupId !== groupId });
 };
 

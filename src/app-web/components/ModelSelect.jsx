@@ -139,13 +139,18 @@ class ModelSelect extends React.Component {
         <DialogContent>
           <Grid container spacing={2}>
             <Grid item>
+              <Button onClick={this.OnNewModel} color="primary" variant="contained">
+                Create New Model
+              </Button>
+            </Grid>
+          </Grid>
+          <Divider style={{ margin: '2em' }}/>
+          <Grid container spacing={2}>
+            <Grid item>
               <Typography variant="h4">
                 {ADM.GetStudentGroupName()} Group&lsquo;s Models
               </Typography>
               <ModelsListTable models={myModels} OnModelSelect={this.OnModelEdit} />
-              <Button onClick={this.OnNewModel} color="primary" variant="contained">
-                Create New Model
-              </Button>
             </Grid>
             <Grid item hidden={!showClassesModels}>
               <Typography variant="h4">

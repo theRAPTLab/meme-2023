@@ -106,6 +106,7 @@ class ViewMain extends React.Component {
       title: '',
       modelId: '',
       modelAuthorGroupName: '',
+      isModelAuthor: true,
       studentId: '',
       studentName: '',
       studentGroup: '',
@@ -156,12 +157,16 @@ class ViewMain extends React.Component {
     const modelId = ADM.GetSelectedModelId(); // get selected model for now
     const model = ADM.GetModelById(modelId);
     const title = ADM.GetModelTitle(modelId);
-    const modelAuthorGroupName = ADM.GetGroupName( model ? model.groupId : '' );
+    const modelAuthorGroupName = ADM.GetGroupName(model ? model.groupId : '');
+    const userStudentId = ADM.GetSelectedStudentId(); // FIXME: Replace this with session?
+    const userGroupId = ADM.GetGroupIdByStudent(userStudentId);
+    const isModelAuthor = userGroupId === (model ? model.groupId : '');
     this.setState({
       title,
       modelId,
       modelAuthorGroupName,
-      studentId: ADM.GetSelectedStudentId(),
+      isModelAuthor,
+      studentId: userStudentId,
       studentName: ADM.GetStudentName(),
       studentGroup: ADM.GetStudentGroupName()
     });
@@ -411,6 +416,7 @@ class ViewMain extends React.Component {
     const {
       modelId,
       modelAuthorGroupName,
+      isModelAuthor,
       title,
       studentId,
       studentName,
@@ -428,7 +434,7 @@ class ViewMain extends React.Component {
         <CssBaseline />
         <Login />
         <ModelSelect />
-        <AppBar position="fixed" className={classes.appBar}>
+        <AppBar position="fixed" className={classes.appBar} color={isModelAuthor ? "primary" : "default"}>
           <Toolbar>
             <Switch>
               <Route path="/:mode" />

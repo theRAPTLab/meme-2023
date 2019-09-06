@@ -494,6 +494,16 @@ ADMData.GetModelTitle = (modelId = adm_settings.selectedModelId) => {
   const model = ADMData.GetModelById(modelId);
   return model ? model.title : '';
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Handles text input updates for the model title
+ * @param {string} title
+ */
+ADMData.ModelTitleUpdate = (modelId, title) => {
+  const model = ADMData.GetModelById(modelId);
+  model.title = title;
+  UR.Publish('MODEL_TITLE:UPDATED', { title });
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.NewModel = (groupId = ADMData.GetSelectedGroupId()) => {

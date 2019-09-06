@@ -81,6 +81,8 @@ class ViewMain extends React.Component {
     this.DoDataUpdate = this.DoDataUpdate.bind(this);
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
+    this.OnChangeModelTitle = this.OnChangeModelTitle.bind(this);
+    this.DoModelTitleUpdate = this.DoModelTitleUpdate.bind(this);
     this.HandleAddPropLabelChange = this.HandleAddPropLabelChange.bind(this);
     this.HandlePropAdd = this.HandlePropAdd.bind(this);
     this.HandlePropDelete = this.HandlePropDelete.bind(this);
@@ -100,6 +102,7 @@ class ViewMain extends React.Component {
     UR.Subscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Subscribe('MODEL_TITLE:UPDATED', this.DoModelTitleUpdate);
     UR.Subscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
     UR.Subscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
     this.state = {
@@ -143,6 +146,7 @@ class ViewMain extends React.Component {
     UR.Unsubscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Unsubscribe('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Unsubscribe('MODEL_TITLE:UPDATED', this.DoModelTitleUpdate);
     UR.Unsubscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
     UR.Unsubscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
   }
@@ -195,6 +199,14 @@ class ViewMain extends React.Component {
       viewWidth: Math.min(viewWidth, innerWidth),
       viewHeight: Math.min(viewHeight, innerHeight)
     });
+  }
+  
+  OnChangeModelTitle(e) {
+    ADM.ModelTitleUpdate(this.state.modelId, e.target.value);
+  }
+  
+  DoModelTitleUpdate(data) {
+    this.setState({ title: data.title });
   }
 
   HandleAddPropLabelChange(e) {
@@ -448,6 +460,7 @@ class ViewMain extends React.Component {
               style={{ flexGrow: 1 }}
               placeholder="Untitled Model"
               value={title}
+              onChange={this.OnChangeModelTitle}
             />
             <Typography variant="caption">
               &nbsp;&nbsp;by {modelAuthorGroupName} Group

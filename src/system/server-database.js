@@ -137,7 +137,7 @@ DB.PKT_GetDatabase = pkt => {
   // ids here are relevant to PMCData / SVGView operation
   adm_db.a_models = [
     { id: 'mo01', title: 'Fish Sim', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
-    { id: 'mo02', title: 'Tank Sim', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
+    { id: 'mo02', title: 'Tank Sim', groupId: 'gr05', dateCreated: '', dateModified: '', data: '' },
     { id: 'mo03', title: 'Ammonia', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
     { id: 'mo04', title: 'Fish Sim', groupId: 'gr02', dateCreated: '', dateModified: '', data: '' },
     { id: 'mo05', title: 'Tank Sim', groupId: 'gr02', dateCreated: '', dateModified: '', data: '' },
@@ -196,13 +196,27 @@ DB.PKT_GetDatabase = pkt => {
   ];
   // SAVED IN ELECTRON/LOKI, (EVENTUALLY) EDITABLE BY TEACHERS
   adm_db.a_ratingsDefinitions = [
-    { label: 'Really disagrees!', rating: -3 },
-    { label: 'Kinda disagrees!', rating: -2 },
-    { label: 'Disagrees a little', rating: -1 },
-    { label: 'Not rated / Irrelevant', rating: 0 },
-    { label: 'Weak support', rating: 1 },
-    { label: 'Medium support', rating: 2 },
-    { label: 'Rocks!!', rating: 3 }
+    {
+      classroomId: 'cl01', definitions: [
+        { label: 'Really disagrees!', rating: -3 },
+        { label: 'Kinda disagrees!', rating: -2 },
+        { label: 'Disagrees a little', rating: -1 },
+        { label: 'Not rated / Irrelevant', rating: 0 },
+        { label: 'Weak support', rating: 1 },
+        { label: 'Medium support', rating: 2 },
+        { label: 'Rocks!!', rating: 3 }
+      ]
+    },
+    {
+      classroomId: 'cl02', definitions: [
+        { label: 'Will this!', rating: -2 },
+        { label: 'break', rating: -1 },
+        { label: 'with not', rating: 0 },
+        { label: 'enough', rating: 1 },
+        { label: 'elements', rating: 2 },
+        { label: 'here?', rating: 3 }
+      ]
+    }
   ];
   // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
   adm_db.a_classroomResources = [

@@ -443,7 +443,7 @@ ADMData.GetStudentGroupName = (studentId = adm_settings.selectedStudentId) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// MODELS ////////////////////////////////////////////////////////////////////
 ///
-ADMData.GetModelById = modelId => {
+ADMData.GetModelById = (modelId = adm_settings.selectedModelId) => {
   return adm_db.a_models.find(model => model.id === modelId);
 };
 
@@ -650,10 +650,13 @@ ADMData.UpdateSentenceStarter = sentenceStarter => {
 /// We may need to allow teachers to customize this in th e future.
 
 /**
- * @return [ratingsDefition] -- Array of ratings defintion objects, e.g.{ label: 'Really disagrees!', rating: -3 },
+ * @return {Array} [ratingsDefition] -- Array of ratings defintion objects, 
+ * e.g.{ label: 'Really disagrees!', rating: -3 },
+ * Returns [] if not found
  */
-ADMData.GetRatingsDefintion = () => {
-  return adm_db.a_ratingsDefinitions;
+ADMData.GetRatingsDefinition = classroomId => {
+  const ratings = adm_db.a_ratingsDefinitions.find(ratings => ratings.classroomId === classroomId);
+  return ratings ? ratings.definitions : [];
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

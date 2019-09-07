@@ -2,6 +2,19 @@
 
 Ratings Dialog
 
+The RatingsDialog is part of a positive/neutral/negative rating system.
+
+RatingsDialog displays a dialog showing the available types of ratings and
+lets the user select a rating.
+
+It is opened via an URSYS call, e.g.
+    const data = {
+      evId: this.props.evlink.evId,
+      rating: this.props.evlink.rating
+    };
+    UR.Publish('RATING:OPEN', data);
+
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////
@@ -45,7 +58,7 @@ class RatingsDialog extends React.Component {
       isOpen: false,
       evId: '',
       selectedRating: 0,
-      ratingsDef: ADM.GetRatingsDefintion()
+      ratingsDef: []
     };
 
     UR.Subscribe('RATING:OPEN', this.DoOpen);
@@ -58,7 +71,13 @@ class RatingsDialog extends React.Component {
   }
 
   DoOpen(data) {
-    this.setState({ evId: data.evId, selectedRating: data.rating, isOpen: true });
+    const classroomId = ADM.GetSelectedClassroomId();
+    this.setState({
+      evId: data.evId,
+      selectedRating: data.rating,
+      isOpen: true,
+      ratingsDef: ADM.GetRatingsDefinition(classroomId)
+    });
   }
 
   DoClose() {

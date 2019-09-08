@@ -2,11 +2,13 @@
 
 Criteria View
 
-
 Unlike the other components, which send all data updates directly to ADM,
 Criteria are editted locally first, and the whole set of changes is sent
 to ADM after the user clicks "Save".  This is necessary to let users "Cancel"
 out of a criteria edit to revert to the previous state.
+
+We also do things this way so that you can edit all of the items at the same
+time rather than having to individually select and save each edit.
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -36,7 +38,7 @@ import CriteriaList from './AdmCriteriaList';
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
-const PKG = 'AdminCriteriaList';
+const PKG = 'AdminCriteriaView';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -44,18 +46,19 @@ const PKG = 'AdminCriteriaList';
 class CriteriaView extends React.Component {
   constructor(props) {
     super(props);
-    this.CloneCriteria = this.CloneCriteria.bind(this);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
-    this.OnEditCriteriaClick = this.OnEditCriteriaClick.bind(this);
-    this.OnEditCriteriaSave = this.OnEditCriteriaSave.bind(this);
-    this.OnEditCriteriaCancel = this.OnEditCriteriaCancel.bind(this);
-    this.OnEditCriteriaClose = this.OnEditCriteriaClose.bind(this);
-    this.OnAddCriteriaClick = this.OnAddCriteriaClick.bind(this);
-    this.OnDeleteCriteriaClick = this.OnDeleteCriteriaClick.bind(this);
+    this.DoLoadCriteria = this.DoLoadCriteria.bind(this);
+    this.OnEditClick = this.OnEditClick.bind(this);
+    this.OnEditSave = this.OnEditSave.bind(this);
+    this.OnEditCancel = this.OnEditCancel.bind(this);
+    this.DoClose = this.DoClose.bind(this);
+    this.OnAddClick = this.OnAddClick.bind(this);
+    this.OnDeleteClick = this.OnDeleteClick.bind(this);
     this.UpdateField = this.UpdateField.bind(this);
 
     this.state = {
       criteria: [],
+      origCriteria: [],
       isInEditMode: false,
       classroomId: ''
     };
@@ -67,47 +70,49 @@ class CriteriaView extends React.Component {
 
   componentWillUnmount() { }
 
-  // Used to create a local copy for editing and support cancelling edit.
-  // NOTE: This is a shallow copy
-  CloneCriteria(criteria) {
-    return criteria.map(crit => {
-      return Object.assign({}, crit);
+  DoClassroomSelect(data) {
+    this.setState({
+      classroomId: data.classroomId
+    }, () => {
+      this.DoLoadCriteria();
     });
   }
 
-  DoClassroomSelect(data) {
-    // Clone the criteria objects so that field updates do not change the original objects
-    let criteria = this.CloneCriteria(ADM.GetCriteriaByClassroom(data.classroomId));
+  DoLoadCriteria() {
+    const criteria = ADM.GetCriteriaByClassroom(this.state.classroomId);
+    const origCriteria = JSON.parse(JSON.stringify(criteria)); // deep clone
     this.setState({
       criteria,
-      classroomId: data.classroomId
+      origCriteria
     });
   }
-
-  OnEditCriteriaClick() {
-    this.setState({
-      isInEditMode: true
-    });
+  
+  OnEditClick() {
+    this.DoLoadCriteria()
+    this.setState({ isInEditMode: true });
   }
 
-  OnEditCriteriaSave(e) {
+  OnEditSave(e) {
     ADM.UpdateCriteriaList(this.state.criteria);
-    this.OnEditCriteriaClose();
+    this.DoClose();
   }
 
-  OnEditCriteriaCancel() {
+  OnEditCancel() {
     // Restore original values.
-    this.DoClassroomSelect({ classroomId: this.state.classroomId });
-    this.OnEditCriteriaClose();
+    this.setState(state => {
+      return { criteria: state.origCriteria }
+    }, () => {
+        this.DoClose();
+    });
   }
 
-  OnEditCriteriaClose() {
+  DoClose() {
     this.setState({
       isInEditMode: false
     });
   }
 
-  OnAddCriteriaClick() {
+  OnAddClick() {
     this.setState(state => {
       let criteria = state.criteria;
       criteria.push(ADM.NewCriteria());
@@ -118,7 +123,7 @@ class CriteriaView extends React.Component {
     });
   }
 
-  OnDeleteCriteriaClick(critId) {
+  OnDeleteClick(critId) {
     this.setState(state => {
       const criteria = state.criteria;
       const result = criteria.filter(crit => crit.id !== critId);
@@ -163,12 +168,12 @@ class CriteriaView extends React.Component {
             Criteria={criteria}
             IsInEditMode={isInEditMode}
             UpdateField={this.UpdateField}
-            OnDeleteCriteriaClick={this.OnDeleteCriteriaClick}
+            OnDeleteCriteriaClick={this.OnDeleteClick}
           />
           <DialogActions>
             <IconButton
               size="small"
-              onClick={this.OnAddCriteriaClick}
+              onClick={this.OnAddClick}
               hidden={!isInEditMode}
               style={{ marginRight: 'auto' }}
             >
@@ -177,7 +182,7 @@ class CriteriaView extends React.Component {
             <Button
               variant="contained"
               className={classes.button}
-              onClick={this.OnEditCriteriaCancel}
+              onClick={this.OnEditCancel}
               hidden={!isInEditMode}
             >
               Cancel
@@ -185,7 +190,7 @@ class CriteriaView extends React.Component {
             <Button
               variant="contained"
               className={classes.button}
-              onClick={this.OnEditCriteriaSave}
+              onClick={this.OnEditSave}
               hidden={!isInEditMode}
             >
               Save
@@ -196,7 +201,7 @@ class CriteriaView extends React.Component {
         <Button
           variant="contained"
           className={classes.button}
-          onClick={this.OnEditCriteriaClick}
+          onClick={this.OnEditClick}
           hidden={isInEditMode}
           disabled={classroomId === ''}
         >

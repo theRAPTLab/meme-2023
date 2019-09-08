@@ -37,6 +37,7 @@ import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
 import ADM from '../modules/adm-data';
+import RatingsList from './RatingsList';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -57,7 +58,7 @@ class RatingsDialog extends React.Component {
     this.state = {
       isOpen: false,
       evId: '',
-      selectedRating: 0,
+      selectedRating: '',
       ratingsDef: []
     };
 
@@ -74,7 +75,7 @@ class RatingsDialog extends React.Component {
     const classroomId = ADM.GetSelectedClassroomId();
     this.setState({
       evId: data.evId,
-      selectedRating: data.rating,
+      selectedRating: String(data.rating),
       isOpen: true,
       ratingsDef: ADM.GetRatingsDefinition(classroomId)
     });
@@ -121,20 +122,13 @@ class RatingsDialog extends React.Component {
       <Dialog open={isOpen} onClose={this.OnClose} maxWidth='xs'>
         <DialogTitle>How well does this resource support your model?</DialogTitle>
         <DialogContent>
-          {ratingsDef.map(def => {
-            return (
-              <Button
-                key={def.label}
-                style={{ width: '300px' }}
-                onClick={e => this.OnRatingSelect(e, def.rating)}
-                color="primary"
-                variant={selectedRating === def.rating ? 'contained' : 'text'}
-              >
-                <div style={{ width: '100px' }}>{icons[def.rating]}</div>
-                <div style={{ width: '200px', textAlign: 'left' }}>{def.label}</div>
-              </Button>
-            );
-          })}
+          <RatingsList
+            RatingsDef={ratingsDef}
+            Mode="active"
+            SelectedRating={selectedRating}
+            UpdateField={this.DoUpdateField}
+            OnRatingSelect={this.OnRatingSelect}
+          />
         </DialogContent>
       </Dialog>
     );

@@ -106,7 +106,7 @@ class RatingsList extends React.Component {
       }
       icons[n] = result;
     });
-
+    
     return (
       <div>
         {ratingsDef.map(def => {
@@ -132,7 +132,7 @@ class RatingsList extends React.Component {
                   style={{ width: '300px' }}
                   onClick={e => OnRatingSelect(e, def.rating)}
                   color="primary"
-                  variant={SelectedRating === def.rating ? 'contained' : 'text'}
+                  variant={SelectedRating === String(def.rating) ? 'contained' : 'text'}
                 >
                   <div style={{ width: '100px' }}>{icons[def.rating]}</div>
                   <div style={{ width: '200px', textAlign: 'left' }}>{def.label}</div>

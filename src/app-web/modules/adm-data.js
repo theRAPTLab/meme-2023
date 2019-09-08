@@ -659,6 +659,15 @@ ADMData.GetRatingsDefinition = classroomId => {
   return ratings ? ratings.definitions : [];
 };
 
+ADMData.UpdateRatingsDefinitions = (classroomId, ratingsDef) => {
+  const ratings = adm_db.a_ratingsDefinitions.find(ratings => ratings.classroomId === classroomId);
+  if (ratings) {
+    ratings.definitions = ratingsDef;
+  } else {
+    console.error(PKG, '.UpdateRatingsDefinitions could not find ratings definition for classroomId', classroomId);
+  }
+}
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// RESOURCES
 ///

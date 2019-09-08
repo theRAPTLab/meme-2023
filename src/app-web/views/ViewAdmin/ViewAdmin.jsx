@@ -21,6 +21,7 @@ import SentenceStarters from './components/AdmSentenceStarters';
 import GroupsList from './components/AdmGroupsList';
 import ModelsList from './components/AdmModelsList';
 import ResourcesList from './components/AdmResourcesList';
+import RatingsView from './components/AdmRatingsView';
 /// MODULES ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import ADM from '../../modules/adm-data';
@@ -84,10 +85,13 @@ class ViewAdmin extends React.Component {
           </Grid>
         </Grid>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid item xs={4}>
+            <RatingsView />
+          </Grid>
+          <Grid item xs={5}>
             <CriteriaView />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={3}>
             <SentenceStarters />
           </Grid>
         </Grid>

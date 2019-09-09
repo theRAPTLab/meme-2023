@@ -348,7 +348,7 @@ class EvidenceLink extends React.Component {
             {/* Number / Comment */}
             <Grid item xs={isExpanded ? 12 : 2}>
               <div style={{ position: 'absolute', right: '0px' }}>
-                <StickyNoteButton parentId={evId} parentType="evidence" />
+                <StickyNoteButton parentId={evId} />
               </div>
               <Avatar className={classes.evidenceBodyNumber}>{evlink.number}</Avatar>
             </Grid>

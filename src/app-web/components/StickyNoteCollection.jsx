@@ -7,9 +7,6 @@ state
                 we call PMC to do the update.
                 The parent object is just used to rretrive comments
                 and the parentId.
-    parentType  These are set when STICKY:OPEN is received.
-                parentType let's us know how to update the
-                parent object.
 
 props
     classes     MEMEStyles MaterialUI styles implementation.
@@ -36,7 +33,7 @@ StickyNoteButton
     StickyNoteButtons are designed to be attachable to any object (though 
     currently they only attach to EvidenceLinks).
     
-    They retain only a minimal amount of data: parentId and parentType and
+    They retain only a minimal amount of data: parentId and
     retrieve status updates directly from PMCData.
     
     When they open a StickyNoteCollection, they use an URSYS.Publish call.
@@ -49,7 +46,7 @@ VBadge
     VBadges independtly display the read/unread status of comments,
     creating new comments, and updating existing comments.
     
-    They trigger StickyNoteColleciton via the same STICKY:Open
+    They trigger StickyNoteColleciton via the same STICKY:OPEN
     
     VBadges also maintain an array of Evidence Link badges.
 
@@ -62,7 +59,7 @@ StickyNoteCollection
     There is only a single StickyNoteCollection object in ViewMain.  It gets 
     repurposed for each note that is opened.
     
-    StickNotes are opened via an URSYS.Publish('STICKY:Open') call.
+    StickNotes are opened via an URSYS.Publish('STICKY:OPEN') call.
     
     StickyNotes handle all the data for the StickyNotes, passing
     individual comments as props: onStartEdit, onUpdateComment.
@@ -148,8 +145,7 @@ class StickyNoteCollection extends React.Component {
       comments: [],
       top: 0,
       left: 0,
-      parentId: '',
-      parentType: ''
+      parentId: ''
     };
 
     UR.Subscribe('STICKY:OPEN', this.DoOpenSticky);
@@ -162,26 +158,8 @@ class StickyNoteCollection extends React.Component {
 
   DoOpenSticky(data) {
     if (DBG) console.log(PKG, 'DoOpenSticky', data);
-    const { parentId, parentType, x, y } = data;
-    let comments;
-    switch (parentType) {
-      case undefined:
-        // sticky hasn't been definedy yet?
-        return;
-      case 'evidence':
-        // evlink comment, which is embedded in the evlink object
-        comments = PMC.GetParent(parentId, parentType).comments;
-        break;
-      case 'propmech':
-        // property or mechanism comment, so load from PMCData's a_comments array
-        comments = PMC.GetComments(parentId);
-        break;
-      case 'model':
-        comments = PMC.GetComments(parentId);
-        break;
-      default:
-        console.error(PKG, 'DoStickyUpdate got unrecognized parentType', parentType);
-    }
+    const { parentId, x, y } = data;
+    let comments = PMC.GetComments(parentId);
     let isBeingEdited = false;
     // if no comments yet, add an empty comment automatically
     if (comments === undefined || comments.length === 0) {
@@ -196,8 +174,7 @@ class StickyNoteCollection extends React.Component {
       comments,
       top: y,
       left: x - 325, // width of stickyonotecard HACK!!!
-      parentId,
-      parentType
+      parentId
     });
   }
 
@@ -213,29 +190,8 @@ class StickyNoteCollection extends React.Component {
   // PMC has upadted sticky data, usually unread status
   // Update our existing data directly from PMC.
   DoStickyUpdate() {
-    if (DBG) console.log(PKG, 'DoStickyUpdate');
-    const { parentId, parentType } = this.state;
-    let comments;
-    switch (parentType) {
-      case '':
-        console.log(PKG, 'DoStickyUpdate got empty string');
-        comments = [];
-        break;
-      case 'evidence':
-        // evlink comment, which is embedded in the evlink object
-        comments = PMC.GetCommentsByParentId(parentId, parentType);
-        break;
-      case 'propmech':
-        // property or mechanism comment, so load from PMCData's a_comments array
-        comments = PMC.GetComments(parentId);
-        break;
-      case 'model':
-        // comment on model itself, so load from PMCData's a_comments array
-        comments = PMC.GetComments(parentId);
-        break;
-      default:
-        console.error(PKG, 'DoStickyUpdate got unrecognized parentType', parentType);
-    }
+    const { parentId } = this.state;
+    let comments = PMC.GetComments(parentId);
     if (DBG) console.log(PKG, 'DoStickyUpdate with comments', comments);
     if (DBG) console.table(comments);
     this.setState({
@@ -289,12 +245,12 @@ class StickyNoteCollection extends React.Component {
     // However, our parent object (e.g. property, mechanism, evidence link) is
     // passed via the URSYS call, so we have to update that explicitly.
     if (DBG) console.log(PKG, 'OnUpdateComment: comments',data);
-    const { parentId, parentType } = this.state;
+    const { parentId } = this.state;
     let { comments } = this.state;
     if (data && data.action && data.action === 'delete') {
       comments = comments.filter(co => { return co.id !== data.commentId });
     }
-    PMC.UpdateComments(parentId, parentType, comments);
+    PMC.UpdateComments(parentId, comments);
     this.setState({
       isBeingEdited: false
     });
@@ -339,7 +295,6 @@ class StickyNoteCollection extends React.Component {
                   key={comment.id}
                   onStartEdit={this.OnStartEdit}
                   onUpdateComment={this.OnUpdateComment}
-                  onTextChange={this.OnTextChange}
                 />
               );
             })}

@@ -39,7 +39,16 @@ import CriteriaList from './AdmCriteriaList';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PKG = 'AdminCriteriaView';
-
+const defaults = [
+  {
+    label: 'Clarity',
+    description: 'How clear is the explanation?',
+  },
+  {
+    label: 'Visuals',
+    description: 'Does the layout make sense?',
+  }
+]
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -79,7 +88,16 @@ class CriteriaView extends React.Component {
   }
 
   DoLoadCriteria() {
-    const criteria = ADM.GetCriteriaByClassroom(this.state.classroomId);
+    let criteria = ADM.GetCriteriaByClassroom(this.state.classroomId);
+    if (criteria.length === 0) {
+      // Create defaults
+      criteria = defaults.map(def => {
+        const crit = ADM.NewCriteria(this.state.classroomId);
+        crit.label = def.label;
+        crit.description = def.description;
+        return crit;
+      });
+    }
     const origCriteria = JSON.parse(JSON.stringify(criteria)); // deep clone
     this.setState({
       criteria,

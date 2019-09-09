@@ -92,10 +92,10 @@ class StickyNoteButton extends React.Component {
     }
     const author = ADM.GetSelectedStudentId();
     this.setState({
-      hasNoComments: comments.length < 1,
-      hasUnreadComments: comments.find(comment => {
+      hasNoComments: comments ? comments.length < 1 : true,
+      hasUnreadComments: comments ? comments.find(comment => {
         return comment.readBy ? !comment.readBy.includes(author) : false;
-      })
+      }) : false
     });
   }
 

@@ -48,24 +48,11 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
-import UR from '../../system/ursys';
-import DATA from '../modules/pmc-data';
-import ADM from '../modules/adm-data';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PKG = 'RatingsDialog:';
-
-const defaults = [
-  { label: 'Really disagrees!', rating: -3 },
-  { label: 'Kinda disagrees!', rating: -2 },
-  { label: 'Disagrees a little', rating: -1 },
-  { label: 'Not rated / Irrelevant', rating: 0 },
-  { label: 'Weak support', rating: 1 },
-  { label: 'Medium support', rating: 2 },
-  { label: 'Rocks!!', rating: 3 }
-];
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -82,12 +69,7 @@ class RatingsList extends React.Component {
   render() {
     const { classes, SelectedRating, RatingsDef, Mode, UpdateField, OnRatingSelect } = this.props;
 
-    let ratingsDef;
-    if (RatingsDef.length < 1) {
-      ratingsDef = defaults;
-    } else {
-      ratingsDef = RatingsDef;
-    }
+    let ratingsDef = RatingsDef;
 
     // Pre-render ratings icons
     const icons = {};

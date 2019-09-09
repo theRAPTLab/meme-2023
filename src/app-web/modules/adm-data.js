@@ -655,8 +655,15 @@ ADMData.UpdateSentenceStarter = sentenceStarter => {
  * Returns [] if not found
  */
 ADMData.GetRatingsDefinition = classroomId => {
-  const ratings = adm_db.a_ratingsDefinitions.find(ratings => ratings.classroomId === classroomId);
-  return ratings ? ratings.definitions : [];
+  let ratings = adm_db.a_ratingsDefinitions.find(ratings => ratings.classroomId === classroomId);
+  if (ratings === undefined) {
+    // create new ratings
+    ratings = {};
+    ratings.classroomId = classroomId;
+    ratings.definitions = [];
+    adm_db.a_ratingsDefinitions.push(ratings);
+  }
+  return ratings.definitions;
 };
 
 ADMData.UpdateRatingsDefinitions = (classroomId, ratingsDef) => {

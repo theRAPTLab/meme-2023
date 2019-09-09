@@ -38,6 +38,16 @@ import RatingsList from '../../../components/RatingsList';
 const DBG = false;
 const PKG = 'AdminRatingsView';
 
+const defaults = [
+  { label: 'Really disagrees!', rating: -3 },
+  { label: 'Kinda disagrees!', rating: -2 },
+  { label: 'Disagrees a little', rating: -1 },
+  { label: 'Not rated / Irrelevant', rating: 0 },
+  { label: 'Weak support', rating: 1 },
+  { label: 'Medium support', rating: 2 },
+  { label: 'Rocks!!', rating: 3 }
+];
+
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -75,7 +85,11 @@ class RatingsView extends React.Component {
   }
   
   DoLoadRatings() {
-    const ratingsDef = ADM.GetRatingsDefinition(this.state.classroomId);
+    let ratingsDef = ADM.GetRatingsDefinition(this.state.classroomId);
+    if (ratingsDef.length === 0) {
+      // Load defaults
+      ratingsDef = defaults;
+    }
     const origRatingsDef = JSON.parse(JSON.stringify(ratingsDef)); // deep clone
     this.setState({
       ratingsDef,

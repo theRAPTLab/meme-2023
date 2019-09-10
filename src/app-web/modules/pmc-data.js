@@ -909,7 +909,7 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
     }
     // 2b. Move comments over
     const comments = PMCData.GetComments(origMechId);
-    PMCData.UpdateComments(newMechId, 'propmech', comments);
+    PMCData.UpdateComments(newMechId, comments);
 
     // 2c. Remove the old mech
     PMCData.PMC_MechDelete(origMechId);
@@ -1108,7 +1108,6 @@ PMCData.NewComment = (author, sentenceStarter) => {
  *  comment text.
  */
 PMCData.UpdateComments = (parentId, comments) => {
-  let parent;
   let index;
   let commentThread;
   index = a_commentThreads.findIndex(c => {

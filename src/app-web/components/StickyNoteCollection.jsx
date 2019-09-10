@@ -154,7 +154,10 @@ class StickyNoteCollection extends React.Component {
 
   componentDidMount() {}
 
-  componentWillUnmount() {}
+  componentWillUnmount() {
+    UR.Unsubscribe('STICKY:OPEN', this.DoOpenSticky);
+    UR.Unsubscribe('DATA_UPDATED', this.DoStickyUpdate);
+  }
 
   DoOpenSticky(data) {
     if (DBG) console.log(PKG, 'DoOpenSticky', data);
@@ -199,15 +202,20 @@ class StickyNoteCollection extends React.Component {
     });
   }
 
+  DoSaveSticky() {
+    const { parentId, comments } = this.state;
+    PMC.UpdateComments(parentId, comments);
+  }
+
   DoCloseSticky() {
     if (DBG) console.log(PKG, 'DoCloseSticky');
-    // Cull empty comments
-    let comments = this.state.comments.filter(c => {
-      return String(c.text).trim() !== '';
-    });
 
     // Mark all comments read, then update comments
     this.setState(state => {
+      // Cull empty comments
+      const comments = state.comments.filter(c => {
+        return String(c.text).trim() !== '';
+      });
       const author = ADM.GetSelectedStudentId();
       comments.forEach(comment => {
         if (comment.readBy.includes(author)) return;
@@ -219,7 +227,7 @@ class StickyNoteCollection extends React.Component {
         comments,
         isHidden: true
       };
-    }, this.OnUpdateComment);
+    }, this.DoSaveSticky);
   }
 
   OnReplyClick(e) {
@@ -237,23 +245,33 @@ class StickyNoteCollection extends React.Component {
     });
   }
 
+  /**
+   * StickyNote has finished editing and ready to send updated data to PMCData
+   * The optional `action` key is used to request comment deletion.
+   * @param {Object} data - {comment} [action] - `action` is used for delete
+   */
   OnUpdateComment(data) {
-    // Comments were passed byRef from us to StickyNote component.
-    // The StickyNote will update comment when the TextField is updated.
-    // So when StickyNote is finished editing, our state.comments should
-    // point to the updated text.
-    // However, our parent object (e.g. property, mechanism, evidence link) is
-    // passed via the URSYS call, so we have to update that explicitly.
-    if (DBG) console.log(PKG, 'OnUpdateComment: comments',data);
-    const { parentId } = this.state;
+    if (DBG) console.log(PKG, 'OnUpdateComment: comments', data);
     let { comments } = this.state;
-    if (data && data.action && data.action === 'delete') {
-      comments = comments.filter(co => { return co.id !== data.commentId });
+    if (data === undefined) {
+      console.error(PKG, "OnUpdateComment got undefined data.  This should'nt happen");
+    } else if (data.action && data.action === 'delete') {
+      // Handle Delete Request
+      comments = comments.filter(co => {
+        return co.id !== data.comment.id;
+      });
+    } else {
+      // Regular data update
+      const index = comments.findIndex(co => co.id === data.comment.id);
+      if (index > -1) comments.splice(index, 1, data.comment); // ignore if it's been culled
     }
-    PMC.UpdateComments(parentId, comments);
-    this.setState({
-      isBeingEdited: false
-    });
+    this.setState(
+      {
+        comments,
+        isBeingEdited: false
+      },
+      this.DoSaveSticky
+    );
   }
 
   OnCloseClick() {
@@ -293,8 +311,8 @@ class StickyNoteCollection extends React.Component {
                 <StickyNote
                   comment={comment}
                   key={comment.id}
-                  onStartEdit={this.OnStartEdit}
-                  onUpdateComment={this.OnUpdateComment}
+                  OnStartEdit={this.OnStartEdit}
+                  OnUpdateComment={this.OnUpdateComment}
                 />
               );
             })}

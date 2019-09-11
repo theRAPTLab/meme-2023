@@ -879,6 +879,7 @@ PMCData.PMC_PropDelete = (propid = 'a') => {
 PMCData.PMC_MechAdd = (sourceId, targetId, label) => {
   m_graph.setEdge(sourceId, targetId, { name: label });
   PMCData.BuildModel();
+  UTILS.RLog('MechanismAdd', sourceId, targetId, label);
   return `added edge ${sourceId} ${targetId} ${label}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -889,12 +890,13 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label) => {
  *  assets over from the old mech to the new mech.
  */
 PMCData.PMC_MechUpdate = (origMech, newMech) => {
-  // If we're only changing the label, then don't do the fancy swap, just update the albel.
+  // If we're only changing the label, then don't do the fancy swap, just update the label.
   if (origMech.sourceId === newMech.sourceId && origMech.targetId === newMech.targetId) {
     // Just change label
     const { sourceId, targetId, label } = newMech;
     m_graph.setEdge(sourceId, targetId, { name: label });
     PMCData.BuildModel();
+    UTILS.RLog('MechanismEditLabel', label);
   } else {
     // 1. Add the new mech
     m_graph.setEdge(newMech.sourceId, newMech.targetId, { name: newMech.label });
@@ -919,6 +921,7 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
     PMCData.PMC_MechDelete(origMechId);
 
     PMCData.BuildModel();
+    UTILS.RLog('MechanismEdit', `from "${origMechId}" to "${newMechId}" with label "${newMech.label}"`);
 
     // 3. Show review dialog alert.
     // HACK: Delay the alert so the system has a chance to redraw first.

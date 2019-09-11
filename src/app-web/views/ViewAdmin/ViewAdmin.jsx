@@ -71,7 +71,7 @@ class ViewAdmin extends React.Component {
           <Grid item xs={2}>
             <TeacherSelector />
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={6}>
             <ClassroomsSelector />
           </Grid>
         </Grid>

@@ -44,10 +44,12 @@ import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 // MEME App Components
 import Login from '../../components/Login';
+import MechDialog from '../../components/MechDialog';
 import ModelSelect from '../../components/ModelSelect';
 import ResourceView from '../../components/ResourceView';
 import ResourceItem from '../../components/ResourceItem';
 import RatingsDialog from '../../components/RatingsDialog';
+import StickyNoteButton from '../../components/StickyNoteButton';
 import StickyNoteCollection from '../../components/StickyNoteCollection';
 // MEME Modules and Utils
 import MEMEStyles from '../../components/MEMEStyles';
@@ -80,20 +82,18 @@ class ViewMain extends React.Component {
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
     this.HandleAddPropLabelChange = this.HandleAddPropLabelChange.bind(this);
-    this.HandleAddEdgeDialogLabelChange = this.HandleAddEdgeDialogLabelChange.bind(this);
     this.HandlePropAdd = this.HandlePropAdd.bind(this);
     this.HandlePropDelete = this.HandlePropDelete.bind(this);
     this.OnAddPropComment = this.OnAddPropComment.bind(this);
     this.OnAddMechComment = this.OnAddMechComment.bind(this);
     this.HandleMechDelete = this.HandleMechDelete.bind(this);
     this.HandlePropEdit = this.HandlePropEdit.bind(this);
-    this.HandleMechEdit = this.HandleMechEdit.bind(this);
+    this.OnMechAdd = this.OnMechAdd.bind(this);
+    this.OnMechEdit = this.OnMechEdit.bind(this);
+    this.DoMechClosed = this.DoMechClosed.bind(this);
     this.HandleComponentAdd = this.HandleComponentAdd.bind(this);
     this.HandleAddPropClose = this.HandleAddPropClose.bind(this);
     this.HandleAddPropCreate = this.HandleAddPropCreate.bind(this);
-    this.handleAddEdge = this.handleAddEdge.bind(this);
-    this.handleAddEdgeCreate = this.handleAddEdgeCreate.bind(this);
-    this.handleAddEdgeClose = this.handleAddEdgeClose.bind(this);
     this.handleEvLinkSourceSelectRequest = this.handleEvLinkSourceSelectRequest.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     UR.Subscribe('WINDOW:SIZE', this.UpdateDimensions);
@@ -101,7 +101,9 @@ class ViewMain extends React.Component {
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Subscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
+    UR.Subscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
     this.state = {
+      modelId: '',
       studentName: '',
       studentGroup: '',
       viewHeight: 0, // need to init this to prevent error with first render of informationList
@@ -135,8 +137,10 @@ class ViewMain extends React.Component {
   componentWillUnmount() {
     UR.Unsubscribe('WINDOW:SIZE', this.UpdateDimensions);
     UR.Unsubscribe('DATA_UPDATED', this.HandleDataUpdate);
+    UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Unsubscribe('SELECTION_CHANGED', this.handleSelectionChange);
     UR.Unsubscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
+    UR.Unsubscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
   }
 
   // CODE REVIEW: THIS IS VESTIGIAL CODE
@@ -159,6 +163,7 @@ class ViewMain extends React.Component {
 
   DoADMDataUpdate() {
     this.setState({
+      modelId: ADM.GetSelectedModelId(),
       studentName: ADM.GetStudentName(),
       studentGroup: ADM.GetStudentGroupName()
     });
@@ -188,10 +193,6 @@ class ViewMain extends React.Component {
 
   HandleAddPropLabelChange(e) {
     this.setState({ addPropLabel: e.target.value });
-  }
-
-  HandleAddEdgeDialogLabelChange(e) {
-    this.setState({ addEdgeLabel: e.target.value });
   }
 
   // User clicked on "(+) Add Component" drawer button
@@ -275,21 +276,40 @@ class ViewMain extends React.Component {
     }
   }
 
+  OnMechAdd() {
+    if (DBG) console.log('Add!');
+    // Deselect any mechanisms that might be currently selected so that user can select props
+    DATA.VM_DeselectAllMechs();
+    this.setState({
+      suppressSelection: true // used to hide Add/Edit buttons
+    });
+    UR.Publish('MECHDIALOG:ADD');
+  }
+
   // User selected mechanism and clicked on "(/) Edit Mechanism" button
-  HandleMechEdit() {
+  OnMechEdit() {
     let selectedMechIds = DATA.VM_SelectedMechIds();
     if (selectedMechIds.length > 0) {
       DATA.VM_DeselectAll(); // deselect so mech buttons disappear
+      this.setState({
+        suppressSelection: true // used to hide Add/Edit buttons
+      });
       let mechId = selectedMechIds[0];
       let mech = DATA.Mech(mechId);
       let vw = mechId.split(':');
-      this.setState({
-        addEdgeOpen: true,
-        addEdgeLabel: mech.name,
-        addEdgeSource: vw[0],
-        addEdgeTarget: vw[1]
-      });
+      let data = {
+        label: mech.name,
+        sourceId: vw[0],
+        targetId: vw[1]
+      };
+      UR.Publish('MECHDIALOG:EDIT', data);
     }
+  }
+
+  DoMechClosed() {
+    this.setState({
+      suppressSelection: false
+    });
   }
 
   // User selected component/prop and clicked on "() Delete"
@@ -335,28 +355,6 @@ class ViewMain extends React.Component {
       DATA.PMC_AddProp(this.state.addPropLabel);
     }
     this.HandleAddPropClose();
-  }
-
-  handleAddEdge() {
-    if (DBG) console.log('Add!');
-    // clear the label first
-    document.getElementById('edgeLabel').value = '';
-    this.setState({
-      addEdgeOpen: true,
-      addEdgeLabel: '',
-      componentIsSelected: false // hide component edit buttons if they were visible
-    });
-  }
-
-  handleAddEdgeCreate() {
-    if (DBG) console.log('create edge');
-    DATA.PMC_AddMech(this.state.addEdgeSource, this.state.addEdgeTarget, this.state.addEdgeLabel);
-    this.handleAddEdgeClose();
-  }
-
-  handleAddEdgeClose() {
-    if (DBG) console.log('close');
-    this.setState({ addEdgeOpen: false });
   }
 
   /*/
@@ -410,12 +408,14 @@ class ViewMain extends React.Component {
     const { classes } = this.props;
 
     const {
+      modelId,
       studentName,
       studentGroup,
       addPropLabel,
       addPropPropId,
       componentIsSelected,
-      mechIsSelected
+      mechIsSelected,
+      suppressSelection
     } = this.state;
     const resources = ADM.AllResources();
     return (
@@ -435,6 +435,9 @@ class ViewMain extends React.Component {
               placeholder="Untitled Model"
             />
             <div className={classes.appBarRight}>
+              <StickyNoteButton parentId={modelId} parentType="propmech" />
+              &nbsp;&nbsp;
+              &nbsp;&nbsp;
               <Button onClick={ADM.CloseModel}>Models</Button>
               &nbsp;|&nbsp;
               <div>{studentName}</div>
@@ -482,12 +485,12 @@ class ViewMain extends React.Component {
               ))}
             </List>
           */}
-          <Tooltip title="Add Link">
+          <Tooltip title="Add Mechanism">
             <Fab
               color="primary"
               aria-label="Add"
               className={ClassNames(classes.fab, classes.edgeButton)}
-              onClick={this.handleAddEdge}
+              onClick={this.OnMechAdd}
             >
               <AddIcon />
             </Fab>
@@ -531,56 +534,8 @@ class ViewMain extends React.Component {
           <StickyNoteCollection />
           <RatingsDialog />
 
-          {/* Add Edge Dialog */}
-          <Card className={classes.edgeDialog} hidden={!this.state.addEdgeOpen}>
-            <Paper className={classes.edgeDialogPaper}>
-              <div className={classes.edgeDialogWindowLabel}>ADD LINKS</div>
-              <div className={classes.edgeDialogInput}>
-                {this.state.addEdgeSource !== '' ? (
-                  <div className={classes.evidenceLinkSourcePropAvatarSelected}>
-                    {DATA.Prop(this.state.addEdgeSource).name}
-                  </div>
-                ) : (
-                    <div className={classes.evidenceLinkSourceAvatarWaiting}>
-                      1. Click on a source...
-                  </div>
-                  )}
-                &nbsp;
-                <TextField
-                  autoFocus
-                  placeholder="link label"
-                  margin="dense"
-                  id="edgeLabel"
-                  label="Label"
-                  value={this.state.addEdgeLabel}
-                  onChange={this.HandleAddEdgeDialogLabelChange}
-                  className={classes.edgeDialogTextField}
-                />
-                &nbsp;
-                {this.state.addEdgeTarget !== '' ? (
-                  <div className={classes.evidenceLinkSourcePropAvatarSelected}>
-                    {DATA.Prop(this.state.addEdgeTarget).name}
-                  </div>
-                ) : (
-                    <div className={classes.evidenceLinkSourceAvatarWaiting}>
-                      2. Click on a target...
-                  </div>
-                  )}
-                <div style={{ flexGrow: '1' }} />
-                <Button onClick={this.handleAddEdgeClose} color="primary">
-                  Cancel
-                </Button>
-                <Button
-                  onClick={this.handleAddEdgeCreate}
-                  color="primary"
-                  variant="contained"
-                  disabled={this.state.addEdgeSource === '' || this.state.addEdgeTarget === ''}
-                >
-                  Create
-                </Button>
-              </div>
-            </Paper>
-          </Card>
+          {/* Mech Dialog */}
+          <MechDialog />
         </main>
 
         {/* Resource Library */}
@@ -627,7 +582,7 @@ class ViewMain extends React.Component {
           </DialogActions>
         </Dialog>
 
-        {/* Component/Mech add/edit/delete buttons */}
+        {/* Component/Mech add/edit/delete buttons that respond to selection events */}
         <div
           style={{
             display: 'flex',
@@ -637,6 +592,7 @@ class ViewMain extends React.Component {
             right: '300px',
             bottom: '20px'
           }}
+          hidden={suppressSelection}
         >
           <Fab
             hidden={!(componentIsSelected || mechIsSelected)}
@@ -650,7 +606,7 @@ class ViewMain extends React.Component {
           </Fab>
           <Fab
             hidden={!(componentIsSelected || mechIsSelected)}
-            onClick={componentIsSelected ? this.HandlePropEdit : this.HandleMechEdit}
+            onClick={componentIsSelected ? this.HandlePropEdit : this.OnMechEdit}
             color="primary"
             variant="extended"
           >

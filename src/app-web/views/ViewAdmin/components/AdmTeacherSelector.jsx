@@ -77,6 +77,8 @@ class TeacherSelector extends React.Component {
   }
 
   OnAddTeacherName(e) {
+    e.preventDefault();
+    e.stopPropagation();
     const name = this.state.addTeacherDialogName;
     ADM.AddTeacher(name);
     this.OnAddTeacherDialogClose();
@@ -110,25 +112,27 @@ class TeacherSelector extends React.Component {
           </Select>
         </FormControl>
         <Dialog open={addTeacherDialogOpen} onClose={this.OnAddTeacherDialogClose}>
-          <DialogTitle>Add Teacher</DialogTitle>
-          <DialogContent>
-            <DialogContentText>Add a teacher by name, e.g. "Ms. Brown"</DialogContentText>
-            <TextField
-              autoFocus
-              id="teacherName"
-              label="Name"
-              fullWidth
-              onChange={e => this.setState({ addTeacherDialogName: e.target.value })}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.OnAddTeacherDialogClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={this.OnAddTeacherName} color="primary">
-              Add
-            </Button>
-          </DialogActions>
+          <form onSubmit={this.OnAddTeacherName}>
+            <DialogTitle>Add Teacher</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Add a teacher by name, e.g. "Ms. Brown"</DialogContentText>
+              <TextField
+                autoFocus
+                id="teacherName"
+                label="Name"
+                fullWidth
+                onChange={e => this.setState({ addTeacherDialogName: e.target.value })}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.OnAddTeacherDialogClose} color="primary">
+                Cancel
+              </Button>
+              <Button color="primary" type="submit">
+                Add
+              </Button>
+            </DialogActions>
+          </form>
         </Dialog>
       </Paper>
     );

@@ -3,7 +3,7 @@ import { registerMorphableType } from '@svgdotjs/svg.js/src/main';
 import { Hidden } from '@material-ui/core';
 
 const m_drawerWidth = 100;
-const m_edgeDialogWidth = 750;
+const m_edgeDialogWidth = 800;
 const m_primary = indigo[500];
 const m_stickynoteIconColor = yellow[800]; // `#ffc904`;
 const m_stickynoteColor = yellow[400]; //`#ffe25a`;
@@ -59,7 +59,8 @@ const styles = theme => {
       '&:hover': { backgroundColor: orange[700] }
     },
     edgeDialog: {
-      width: m_edgeDialogWidth
+      width: m_edgeDialogWidth,
+      height: '70px'
     },
     edgeDialogWindowLabel: {
       fontSize: '0.6em',
@@ -68,7 +69,9 @@ const styles = theme => {
       marginTop: '-1em'
     },
     edgeDialogTextField: {
-      color: orange[500]
+      color: orange[500],
+      width: '150px',
+      margin: '0 25px'
     },
     edgeDialogPaper: {
       margin: `1em 10em 1em ${m_drawerWidth}px`,
@@ -188,6 +191,9 @@ const styles = theme => {
       marginBottom: theme.spacing(1),
       width: '100%'
     },
+    resourceItem: {
+      borderTop: '1px solid rgba(0,0,0,0.25)'
+    },
     evidenceBody: {
       fontSize: '1em',
       fontWeight: 'normal',
@@ -278,17 +284,21 @@ const styles = theme => {
     },
     evidenceLinkPaper: {
       width: '290px',
-      height: '70px',
-      margin: '0 auto',
+      margin: '1px auto 1px 0',
       padding: '1px 0 10px 10px',
       backgroundColor: teal[100]
     },
     evidenceLinkPaperExpanded: {
       height: 'auto',
       padding: '10px 0 10px 10px',
-      backgroundColor: teal[200]
+      backgroundColor: '#dbfaf7'
     },
-    iconExpanded: {
+    lessIconCollapsed: {
+      transition: 'transform 0.25s ease-in-out',
+      transform: 'rotate(0deg)'
+    },
+    lessIconExpanded: {
+      transition: 'transform 0.25s ease-in-out',
       transform: 'rotate(180deg)'
     },
     evidenceLinkAvatar: {
@@ -308,9 +318,7 @@ const styles = theme => {
       backgroundColor: red[100]
     },
     evidenceLinkSelectButton: {
-      height: '25px',
-      minWidth: '25px', // override material default min-width 60
-      fontSize: '0.8em',
+      padding: '0 7px',
       color: '#fff',
       backgroundColor: red[700]
     },

@@ -154,7 +154,16 @@ class StickyNote extends React.Component {
     });
   }
 
-  OnDeleteClick() {}
+  OnDeleteClick() {
+    this.props.onUpdateComment({
+      action: 'delete',
+      commentId: this.state.comment.id
+    });
+    // stop editing and close
+    this.setState({
+      isBeingEdited: false
+    });    
+  }
 
   OnCriteriaSelect(e) {
     let criteriaId = e.target.value;

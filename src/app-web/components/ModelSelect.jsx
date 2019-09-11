@@ -18,6 +18,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -45,7 +46,11 @@ class ModelSelect extends React.Component {
 
     this.state = {
       modelId: '',
-      modelSelectDialogOpen: false
+      modelSelectDialogOpen: false,
+      showClassesModels: false,
+      groupName: '',
+      classroomName: '',
+      teacherName: ''
     };
   }
 
@@ -62,9 +67,17 @@ class ModelSelect extends React.Component {
         modelSelectDialogOpen: false
       });
     } else if (ADM.GetSelectedModelId() !== undefined) {
+      const studentId = ADM.GetSelectedStudentId();
+      const groupName = ADM.GetGroupNameByStudent(studentId);
+      const classroomName = ADM.GetClassroomNameByStudent(studentId);
+      const teacherName = ADM.GetTeacherNameByStudent(studentId);
       this.setState({
         modelId: ADM.GetSelectedModelId(),
-        modelSelectDialogOpen: true
+        modelSelectDialogOpen: true,
+        showClassesModels: ADM.ClassesModelsAreVisible(),
+        groupName,
+        classroomName,
+        teacherName
       });
     } else {
       // model already selected, so hide
@@ -100,7 +113,7 @@ class ModelSelect extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { modelId, modelSelectDialogOpen } = this.state;
+    const { modelId, modelSelectDialogOpen, showClassesModels, groupName, classroomName, teacherName } = this.state;
     const myModels = ADM.GetModelsByStudent();
     const ourModels = ADM.GetModelsByClassroom(ADM.GetSelectedClassroomId());
     return (
@@ -111,31 +124,33 @@ class ModelSelect extends React.Component {
         onClose={this.OnLoginDialogClose}
         fullScreen
       >
-        <DialogTitle>Hi {ADM.GetStudentName()}! Select a Model:</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item>
-              <DialogContentText>
-                {ADM.GetStudentGroupName()} Group&lsquo;s Models
-              </DialogContentText>
-              <ModelsListTable models={myModels} OnModelSelect={this.OnModelEdit} />
-              <Divider style={{ margin: '2em' }} />
-            </Grid>
-            <Grid item>
-              <DialogContentText>My Classes&lsquo; Models</DialogContentText>
-              <ModelsListTable models={ourModels} OnModelSelect={this.OnModelView} />
-            </Grid>
-          </Grid>
-        </DialogContent>
         <DialogActions>
-          <Button onClick={this.OnNewModel} color="primary" variant="outlined">
-            Create New Model
-          </Button>
+          <Typography variant="caption">MY GROUP: {groupName} | </Typography>
+          <Typography variant="caption">MY CLASS: {classroomName} | </Typography>
+          <Typography variant="caption">MY TEACHER: {teacherName}</Typography>
           <div style={{ flexGrow: 1 }} />
           <Button onClick={this.OnLogout} color="primary">
             Logout
           </Button>
         </DialogActions>
+        <DialogTitle>Hi {ADM.GetStudentName()}!</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2}>
+            <Grid item>
+              <Typography variant="h4">
+                {ADM.GetStudentGroupName()} Group&lsquo;s Models
+              </Typography>
+              <ModelsListTable models={myModels} OnModelSelect={this.OnModelEdit} />
+              <Button onClick={this.OnNewModel} color="primary" variant="contained">
+                Create New Model
+              </Button>
+            </Grid>
+            <Grid item hidden={!showClassesModels}>
+              <DialogContentText>My Classes&lsquo; Models</DialogContentText>
+              <ModelsListTable models={ourModels} OnModelSelect={this.OnModelView} />
+            </Grid>
+          </Grid>
+        </DialogContent>
       </Dialog>
     );
   }

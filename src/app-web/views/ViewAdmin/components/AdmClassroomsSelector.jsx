@@ -15,12 +15,15 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControl from '@material-ui/core/FormControl';
+import Grid from '@material-ui/core/Grid';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Select from '@material-ui/core/Select';
+import Switch from '@material-ui/core/Switch';
 import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -46,6 +49,7 @@ class ClassroomsSelector extends React.Component {
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
     this.OnClassroomSelect = this.OnClassroomSelect.bind(this);
     this.OnAddClasssroomName = this.OnAddClasssroomName.bind(this);
+    this.OnClassesModelsVisibilityChange = this.OnClassesModelsVisibilityChange.bind(this);
     this.OnAddClassroomDialogClose = this.OnAddClassroomDialogClose.bind(this);
 
     UR.Subscribe('TEACHER_SELECT', this.DoTeacherSelect);
@@ -55,7 +59,8 @@ class ClassroomsSelector extends React.Component {
       classrooms: [],
       selectedClassroomId: '',
       addClassroomDialogOpen: false,
-      addClassroomDialogName: ''
+      addClassroomDialogName: '',
+      showClassesModels: false
     };
   }
 
@@ -97,9 +102,16 @@ class ClassroomsSelector extends React.Component {
   }
 
   OnAddClasssroomName(e) {
+    e.preventDefault();
+    e.stopPropagation();
     let name = this.state.addClassroomDialogName;
     ADM.AddClassroom(name);
     this.OnAddClassroomDialogClose();
+  }
+  
+  OnClassesModelsVisibilityChange(e) {
+    console.error('toggling visiblity')
+    this.setState({ showClassesModels: ADM.SetClassesModelVisibility( e.target.checked )});
   }
 
   OnAddClassroomDialogClose() {
@@ -108,46 +120,69 @@ class ClassroomsSelector extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { classrooms, selectedClassroomId, addClassroomDialogOpen } = this.state;
+    const { classrooms, selectedClassroomId, addClassroomDialogOpen, showClassesModels } = this.state;
     return (
       <Paper className={classes.admPaper}>
-        <FormControl variant="outlined" className={classes.admTeacherSelector}>
-          <InputLabel>CLASSROOMS</InputLabel>
-          <Select
-            value={selectedClassroomId}
-            onChange={this.OnClassroomSelect}
-            input={<OutlinedInput name="classroom" id="classroom" labelWidth={120} />}
-          >
-            {classrooms.map(classroom => (
-              <MenuItem value={classroom.id} key={classroom.id}>
-                {classroom.name}
-              </MenuItem>
-            ))}
-            <MenuItem value="new">
-              <i>Add New...</i>
-            </MenuItem>
-          </Select>
-        </FormControl>
+        <Grid container direction="row" spacing={2}>
+          <Grid item xs={4}>
+            <FormControl variant="outlined" className={classes.admTeacherSelector}>
+              <InputLabel>CLASSROOMS</InputLabel>
+              <Select
+                value={selectedClassroomId}
+                onChange={this.OnClassroomSelect}
+                input={<OutlinedInput name="classroom" id="classroom" labelWidth={120} />}
+              >
+                {classrooms.map(classroom => (
+                  <MenuItem value={classroom.id} key={classroom.id}>
+                    {classroom.name}
+                  </MenuItem>
+                ))}
+                <MenuItem value="new">
+                  <i>Add New...</i>
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="caption" component="div">
+              <div style={{ marginTop: '1em' }}>Students can view class' models?</div>
+              <Grid container component="label" alignItems="center" spacing={1}>
+                <Grid item>Hide</Grid>
+                <Grid item>
+                  <Switch
+                    disabled={selectedClassroomId === ''}
+                    checked={showClassesModels}
+                    onChange={this.OnClassesModelsVisibilityChange}
+                    color="primary"
+                  />
+                </Grid>
+                <Grid item>Show</Grid>
+              </Grid>
+            </Typography>
+          </Grid>
+        </Grid>        
         <Dialog open={addClassroomDialogOpen} onClose={this.OnAddClassroomDialogClose}>
-          <DialogTitle>Add Teacher</DialogTitle>
-          <DialogContent>
-            <DialogContentText>Add a teacher by name, e.g. "Ms. Brown"</DialogContentText>
-            <TextField
-              autoFocus
-              id="teacherName"
-              label="Name"
-              fullWidth
-              onChange={e => this.setState({ addClassroomDialogName: e.target.value })}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.OnAddClassroomDialogClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={this.OnAddClasssroomName} color="primary">
-              Add
-            </Button>
-          </DialogActions>
+          <form onSubmit={this.OnAddClasssroomName}>
+            <DialogTitle>Add Classroom</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Add a classroom by name, e.g. "Period 1" or "Science 1A"</DialogContentText>
+              <TextField
+                autoFocus
+                id="teacherName"
+                label="Name"
+                fullWidth
+                onChange={e => this.setState({ addClassroomDialogName: e.target.value })}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.OnAddClassroomDialogClose} color="primary">
+                Cancel
+          </Button>
+              <Button color="primary" type="submit">
+                Add
+          </Button>
+            </DialogActions>
+          </form>
         </Dialog>
       </Paper>
     );

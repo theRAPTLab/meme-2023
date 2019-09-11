@@ -123,7 +123,7 @@ import StickyNote from './StickyNote';
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
-const PKG = 'StickyNote:';
+const PKG = 'StickyNoteCollection:';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -176,6 +176,9 @@ class StickyNoteCollection extends React.Component {
         // property or mechanism comment, so load from PMCData's a_comments array
         comments = PMC.GetComments(parentId);
         break;
+      case 'model':
+        comments = PMC.GetComments(parentId);
+        break;
       default:
         console.error(PKG, 'DoStickyUpdate got unrecognized parentType', parentType);
     }
@@ -220,10 +223,14 @@ class StickyNoteCollection extends React.Component {
         break;
       case 'evidence':
         // evlink comment, which is embedded in the evlink object
-        comments = PMC.GetParent(parentId, parentType).comments;
+        comments = PMC.GetCommentsByParentId(parentId, parentType);
         break;
       case 'propmech':
         // property or mechanism comment, so load from PMCData's a_comments array
+        comments = PMC.GetComments(parentId);
+        break;
+      case 'model':
+        // comment on model itself, so load from PMCData's a_comments array
         comments = PMC.GetComments(parentId);
         break;
       default:
@@ -274,16 +281,19 @@ class StickyNoteCollection extends React.Component {
     });
   }
 
-  OnUpdateComment() {
+  OnUpdateComment(data) {
     // Comments were passed byRef from us to StickyNote component.
     // The StickyNote will update comment when the TextField is updated.
     // So when StickyNote is finished editing, our state.comments should
     // point to the updated text.
     // However, our parent object (e.g. property, mechanism, evidence link) is
     // passed via the URSYS call, so we have to update that explicitly.
-    if (DBG) console.log(PKG, 'OnUpdateComment: comments');
-    if (DBG) console.table(this.state.comments);
-    const { parentId, parentType, comments } = this.state;
+    if (DBG) console.log(PKG, 'OnUpdateComment: comments',data);
+    const { parentId, parentType } = this.state;
+    let { comments } = this.state;
+    if (data && data.action && data.action === 'delete') {
+      comments = comments.filter(co => { return co.id !== data.commentId });
+    }
     PMC.UpdateComments(parentId, parentType, comments);
     this.setState({
       isBeingEdited: false

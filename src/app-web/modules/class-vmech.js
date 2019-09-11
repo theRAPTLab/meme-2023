@@ -74,24 +74,33 @@ class VMech {
       .fill('none')
       .stroke({ width: 4, color: COLOR.MECH, dasharray: '4 2' });
 
-    // This is the original path text.
-    // For VBadges, the new horizText replaces this label.
-    // However, we need to place the label for positioning.
-    // We're hacking it for VBadge mostly to get a position for the
-    // new label (horizText) and VBadges.
     this.pathLabel = svgRoot.text(add => {
-      add.tspan('.'); // Before VBadge was add.tspan(this.data.name);
-    });
-    this.pathLabel.fill(COLOR.MECH).attr('dy', -6);
-    this.pathLabel.attr('text-anchor', 'end');
-    this.textpath = this.pathLabel.path(this.path).attr('startOffset', this.path.length() - m_blen);
-
-    // For VBadge display, hack in a "normal" text label that will not rotate/follow the path
-    // The VBadges will appear next to this text label.
-    this.horizText = this.gRoot.text(add => {
       add.tspan(this.data.name);
     });
-    this.horizText.fill(COLOR.MECH);
+    // HORIZONTAL TEXT ALTERNATIVE
+    // For VBadge display, hack in a "normal" text label that will not rotate/follow the path
+    // The VBadges will appear next to this text label.
+    // However, we still need to place the label for positioning.
+    // We're hacking it for VBadge mostly to get a position for the
+    // new label (horizText) and VBadges.
+    // this.pathLabel = svgRoot.text(add => {
+    //   add.tspan('.');
+    // });
+    // this.horizText = this.gRoot.text(add => {
+    //   // don't add horiz text for now -- we probably want to use the regular pathLabel
+    //   // add.tspan(this.data.name);
+    // });
+    // this.horizText.fill(COLOR.MECH);
+
+    // Testing anchor and offsets old value
+    //    this.pathLabel.fill(COLOR.MECH).attr('dy', -6);
+    // explicitly set offset to 0?
+    this.pathLabel
+      .fill(COLOR.MECH)
+      .attr('dy', -6)
+      .attr('dx', 0);
+    this.pathLabel.attr('text-anchor', 'end');
+    this.textpath = this.pathLabel.path(this.path).attr('startOffset', this.path.length() - m_blen);
 
     // shared modes
     this.visualState = new VisualState(this.id);
@@ -130,28 +139,12 @@ class VMech {
     const stype = typeof srcId;
     const ttype = typeof tgtId;
 
-    // FIXME May 1 Hack
-    // Display evidence badge as a text update for now
-    let evString = ' ';
-    const evArr = DATA.MechEvidence(this.id);
-    if (evArr) {
-      evArr.forEach(ev => {
-        let label = ADM.Resource(ev.rsrcId).referenceLabel;
-        evString += `[${label}]`;
-      });
-    }
-
     if (srcId === undefined && tgtId === undefined) {
       // update data
       const data = DATA.Mech(this.sourceId, this.targetId);
       this.data.name = data.name;
 
-      // FIXME May 1 Hack
-      // Display evidence badge as a text update for now
-      // Update text label to show evidence
-
-      // this.pathLabel.children()[0].text(this.data.name + evString);
-      // Update the VBadge horizText instead of the pathLabel
+      // If uisng HORIZONTAL TEXT, Update the VBadge horizText instead of the pathLabel
       this.vBadge.Update(this);
 
       // no change in srcId or tgtId so return
@@ -166,11 +159,9 @@ class VMech {
       const data = DATA.Mech(this.sourceId, this.targetId);
       this.data.name = data.name;
 
-      // FIXME May 1 Hack
-      // Display evidence badge as a text update for now
-      // Update text label to show evidence
+      // update label in case it changed
+      this.pathLabel.children()[0].text(this.data.name);
 
-      // this.pathLabel.children()[0].text(this.data.name + evString);
       // Update the VBadge horizText instead of the pathLabel
       this.vBadge.Update(this);
 
@@ -197,9 +188,9 @@ class VMech {
           this.textpath.attr('startOffset', m_blen);
         }
 
-        // VBadge hack position of horizText
-        this.horizText.x(this.pathLabel.x());
-        this.horizText.y(this.pathLabel.y());
+        // // VBadge hack position of horizText
+        // this.horizText.x(this.pathLabel.x());
+        // this.horizText.y(this.pathLabel.y());
 
         return;
       }

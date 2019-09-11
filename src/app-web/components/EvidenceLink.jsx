@@ -16,13 +16,16 @@ import ClassNames from 'classnames';
 // Material UI Elements
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
+import Collapse from '@material-ui/core/Collapse';
 import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 // Material UI Icons
+import CreateIcon from '@material-ui/icons/Create';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -33,6 +36,7 @@ import DATA from '../modules/pmc-data';
 import UR from '../../system/ursys';
 import StickyNoteButton from './StickyNoteButton';
 import RatingButton from './RatingButton';
+import LinkButton from './LinkButton';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -70,6 +74,7 @@ class EvidenceLink extends React.Component {
     this.OnScreenShotClick = this.OnScreenShotClick.bind(this)
     this.OnNoteChange = this.OnNoteChange.bind(this);
     this.OnSourceSelectClick = this.OnSourceSelectClick.bind(this);
+    this.OnLinkButtonClick = this.OnLinkButtonClick.bind(this);
     this.DoEnableSourceSelect = this.DoEnableSourceSelect.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
     this.DoToggleExpanded = this.DoToggleExpanded.bind(this);
@@ -96,7 +101,7 @@ class EvidenceLink extends React.Component {
     // via the DATA_UPDATED call because `note` is only set by props
     // during construction.
 
-    let evlink = DATA.EvidenceLinkByEvidenceId(this.props.evlink.evId);
+    let evlink = DATA.PMC_GetEvLinkByEvId(this.props.evlink.evId);
     if (evlink) {
       this.setState({
         note: evlink.note,
@@ -138,7 +143,7 @@ class EvidenceLink extends React.Component {
 
   OnDuplicateButtonClick() {
     const newEvId = DATA.PMC_DuplicateEvidenceLink(this.props.evlink.evId);
-    const newEvLink = DATA.EvidenceLinkByEvidenceId(newEvId);
+    const newEvLink = DATA.PMC_GetEvLinkByEvId(newEvId);
     UR.Publish('SHOW_EVIDENCE_LINK', { evId: newEvLink.evId, rsrcId: newEvLink.rsrcId });
   }
 
@@ -214,13 +219,26 @@ class EvidenceLink extends React.Component {
     DATA.VM_DeselectAll();
     UR.Publish('SELECTION_CHANGED');
     // Remove any existing evidence links
-    DATA.VM_MarkBadgeForDeletion(evId);
     DATA.SetEvidenceLinkPropId(evId, undefined);
     DATA.SetEvidenceLinkMechId(evId, undefined);
     DATA.BuildModel();
     // Then trigger editing
     if (this.state.isBeingEdited) {
       UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId, rsrcId });
+    }
+  }
+
+  OnLinkButtonClick(e) {
+    let evlink = this.props.evlink;
+    // Deselect the prop first, otherwise the deleted prop will remain selected
+    DATA.VM_DeselectAll();
+    UR.Publish('SELECTION_CHANGED');
+    // Remove any existing evidence links
+    DATA.SetEvidenceLinkPropId(evlink.evId, undefined);
+    DATA.SetEvidenceLinkMechId(evlink.evId, undefined);
+    // Then trigger editing
+    if (this.state.isBeingEdited) {
+      UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId: evlink.evId, rsrcId: evlink.rsrcId });
     }
   }
 
@@ -296,211 +314,210 @@ class EvidenceLink extends React.Component {
     const { evId, rsrcId, propId, mechId } = evlink;
     const { note, rating, isBeingEdited, isExpanded, listenForSourceSelection } = this.state;
     if (evId === '') return '';
+
+    let sourceType;
     let sourceLabel;
-    let evidenceLinkSelectButtonClass;
-    if (listenForSourceSelection) {
-      sourceLabel = 'Select';
-      evidenceLinkSelectButtonClass = classes.evidenceLinkSourceAvatarWaiting;
-    } else if (propId !== undefined) {
+    if (propId !== undefined && DATA.Prop(propId)) {
+      sourceType = 'prop';
       sourceLabel = DATA.Prop(propId).name;
-      evidenceLinkSelectButtonClass = classes.evidenceLinkSourcePropAvatarSelected;
-    } else if (mechId !== undefined) {
-      sourceLabel = DATA.Mech(mechId).name || 'no label mechanism';
-      evidenceLinkSelectButtonClass = classes.evidenceLinkSourceMechAvatarSelected;
+    } else if (mechId !== undefined && DATA.Mech(mechId)) {
+      sourceType = 'mech';
+      sourceLabel = DATA.Mech(mechId).name;
     } else {
-      sourceLabel = 'Link';
-      evidenceLinkSelectButtonClass = classes.evidenceLinkSelectButton;
+      sourceType = undefined;
+      sourceLabel = undefined;
     }
 
     return (
-      <Paper
-        className={ClassNames(
-          classes.evidenceLinkPaper,
-          isExpanded ? classes.evidenceLinkPaperExpanded : ''
-        )}
-        onClick={this.DoToggleExpanded}
-        key={`${rsrcId}`}
-      >
-        {/* Title Bar */}
-        <Button
-          className={classes.evidenceExpandButton}
+      <Collapse in={isExpanded} collapsedHeight="70px">
+        <Paper
+          className={ClassNames(
+            classes.evidenceLinkPaper,
+            isExpanded ? classes.evidenceLinkPaperExpanded : ''
+          )}
           onClick={this.DoToggleExpanded}
-          hidden={!isExpanded}
+          key={`${rsrcId}`}
+          elevation={isExpanded ? 20 : 1}
         >
-          <ExpandMoreIcon className={isExpanded ? classes.iconExpanded : ''} />
-        </Button>
-        <Typography className={classes.evidenceWindowLabel} hidden={!isExpanded}>
-          EVIDENCE LINK
-        </Typography>
-        <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
-          How does this resource support this component / property / mechanism?
-        </Typography>
-        {/* Body */}
-        <Grid container className={classes.evidenceBody} spacing={0}>
+          {/* Title Bar */}
+          <Button
+            className={classes.evidenceExpandButton}
+            onClick={this.DoToggleExpanded}
+            hidden={!isExpanded}
+          >
+            <ExpandMoreIcon className={isExpanded ? classes.lessIconCollapsed : ''} />
+          </Button>
+          <Typography className={classes.evidenceWindowLabel} hidden={!isExpanded}>
+            EVIDENCE LINK
+          </Typography>
+          {/* Body */}
+          <Grid container className={classes.evidenceBody} spacing={0}>
 
-          {/* Number / Comment */}
-          <Grid item xs={isExpanded ? 12 : 2}>
-            <div style={{ position: 'absolute', right: '0px' }}>
-              <StickyNoteButton parentId={evId} parentType="evidence" />
-            </div>
-            <Avatar className={classes.evidenceBodyNumber}>{evlink.number}</Avatar>
-          </Grid>
-
-          {/* Source */}
-          <Grid item xs={isExpanded ? 12 : 10}>
-            <Grid
-              container
-              spacing={1}
-              className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
-            >
-              <Grid item xs={4} hidden={!isExpanded}>
-                <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-                  DESCRIPTION:
-                </Typography>
-              </Grid>
-
-              <Grid item xs>
-                {isExpanded ? (
-                  <TextField
-                    className={ClassNames(
-                      classes.evidenceLabelField,
-                      classes.evidenceLabelFieldExpanded
-                    )}
-                    value={note}
-                    placeholder="Click to add label..."
-                    autoFocus
-                    multiline
-                    onChange={this.OnNoteChange}
-                    onClick={e => {
-                      e.stopPropagation();
-                    }}
-                    InputProps={{
-                      readOnly: !isBeingEdited
-                    }}
-                    inputRef={this.textInput}
-                  />
-                ) : (
-                    <div className={classes.evidenceLabelField}>{note}</div>
-                  )}
-              </Grid>
+            {/* Number / Comment */}
+            <Grid item xs={isExpanded ? 12 : 2}>
+              <div style={{ position: 'absolute', right: '0px' }}>
+                <StickyNoteButton parentId={evId} parentType="evidence" />
+              </div>
+              <Avatar className={classes.evidenceBodyNumber}>{evlink.number}</Avatar>
             </Grid>
+            <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
+              How does this resource support this component / property / mechanism?
+            </Typography>
 
             {/* Source */}
-            <Grid item xs={12}>
+            <Grid item xs={isExpanded ? 12 : 10}>
               <Grid
                 container
                 spacing={1}
                 className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
               >
                 <Grid item xs={4} hidden={!isExpanded}>
-                  <Typography
-                    className={classes.evidenceWindowLabel}
-                    variant="caption"
-                    align="right"
-                  >
-                    SOURCE:
+                  <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
+                    DESCRIPTION:
+                  </Typography>
+                </Grid>
+
+                <Grid item xs>
+                  {isExpanded ? (
+                    <TextField
+                      className={ClassNames(
+                        classes.evidenceLabelField,
+                        classes.evidenceLabelFieldExpanded
+                      )}
+                      value={note}
+                      placeholder="Untitled..."
+                      autoFocus
+                      multiline
+                      onChange={this.OnNoteChange}
+                      onClick={e => {
+                        e.stopPropagation();
+                      }}
+                      InputProps={{
+                        readOnly: !isBeingEdited
+                      }}
+                      inputRef={this.textInput}
+                    />
+                  ) : (
+                    <div className={classes.evidenceLabelField}>{note}</div>
+                  )}
+                </Grid>
+              </Grid>
+
+              {/* Source */}
+              <Grid item xs={12}>
+                <Grid
+                  container
+                  spacing={1}
+                  className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
+                >
+                  <Grid item xs={4} hidden={!isExpanded}>
+                    <Typography
+                      className={classes.evidenceWindowLabel}
+                      variant="caption"
+                      align="right"
+                    >
+                      TARGET:
+                    </Typography>
+                  </Grid>
+                  <Grid item xs>
+                    <div className={classes.evidenceLinkAvatar}>
+                      <LinkButton
+                        sourceType={sourceType}
+                        sourceLabel={sourceLabel}
+                        listenForSourceSelection={listenForSourceSelection}
+                        isBeingEdited={isBeingEdited}
+                        isExpanded={isExpanded}
+                        OnLinkButtonClick={this.OnLinkButtonClick}
+                      />
+                    </div>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid item xs={isExpanded ? 12 : 3}>
+              <Grid
+                container
+                spacing={1}
+                className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed}
+              >
+                <Grid item xs={4} hidden={!isExpanded}>
+                  <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
+                    RATING:
                   </Typography>
                 </Grid>
                 <Grid item xs>
-                  <div className={classes.evidenceLinkAvatar}>
-                    <Button
-                      onClick={() => {
-                        this.OnSourceSelectClick(evId, rsrcId);
-                      }}
-                      className={evidenceLinkSelectButtonClass}
-                      disabled={!isBeingEdited}
-                      size="small"
-                    >
-                      {sourceLabel}
-                    </Button>
-                  </div>
+                  <RatingButton
+                    rating={rating}
+                    isExpanded={isExpanded}
+                    ratingLabel=""
+                    UpdateRating={this.DoRatingUpdate}
+                    OnRatingButtonClick={this.OnRatingButtonClick}
+                  />
                 </Grid>
               </Grid>
             </Grid>
-          </Grid>
-
-          <Grid item xs={isExpanded ? 12 : 3}>
-            <Grid
-              container
-              spacing={1}
-              className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed}
-            >
-              <Grid item xs={4} hidden={!isExpanded}>
+            <Grid container spacing={8} hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
+              <Grid item xs={4}>
                 <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-                  RATING:
+                  SCREENSHOT:
                 </Typography>
               </Grid>
               <Grid item xs>
-                <RatingButton
-                  rating={rating}
-                  isExpanded={isExpanded}
-                  ratingLabel=""
-                  UpdateRating={this.DoRatingUpdate}
-                  OnRatingButtonClick={this.OnRatingButtonClick}
-                />
+                <Button className={classes.evidenceScreenshotButton} onClick={this.OnScreenShotClick}>
+                  <img
+                    src="../static/screenshot_sim.png"
+                    alt="screenshot"
+                    className={classes.evidenceScreenshot}
+                  />
+                </Button>
               </Grid>
             </Grid>
           </Grid>
-          <Grid container spacing={8} hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
-            <Grid item xs={4}>
-              <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-                SCREENSHOT:
-              </Typography>
-            </Grid>
-            <Grid item xs>
-              <Button className={classes.evidenceScreenshotButton} onClick={this.OnScreenShotClick}>
-                <img
-                  src="../static/screenshot_sim.png"
-                  alt="screenshot"
-                  className={classes.evidenceScreenshot}
-                />
-              </Button>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Divider style={{ margin: '10px' }} hidden={!isExpanded} />
-        <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
-          <Button
-            hidden={!isExpanded || !isBeingEdited}
-            size="small"
-            onClick={this.OnCancelButtonClick}
-          >
-            cancel
-          </Button>
-          <Button
-            hidden={!isExpanded || isBeingEdited}
-            size="small"
-            onClick={this.OnDeleteButtonClick}
-          >
-            delete
-          </Button>
-          <div style={{ flexGrow: '1' }} />
-          <Button
-            hidden={!isExpanded || isBeingEdited}
-            size="small"
-            onClick={this.OnDuplicateButtonClick}
-          >
-            duplicate
-          </Button>
-          <div style={{ flexGrow: '1' }} />
-          <Button
-            variant="contained"
-            onClick={this.OnEditButtonClick}
-            hidden={!isExpanded || isBeingEdited}
-            size="small"
-          >
-            Edit
-          </Button>
-          <Button
-            variant="contained"
-            onClick={this.OnSaveButtonClick}
-            hidden={!isExpanded || !isBeingEdited}
-            size="small"
-          >
-            Save
-          </Button>
-        </div>
-      </Paper>
+          <Divider style={{ margin: '10px' }} hidden={!isExpanded} />
+          <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
+            <Button
+              hidden={!isExpanded || !isBeingEdited}
+              size="small"
+              onClick={this.OnCancelButtonClick}
+            >
+              cancel
+            </Button>
+            <Button
+              hidden={!isExpanded || isBeingEdited}
+              size="small"
+              onClick={this.OnDeleteButtonClick}
+            >
+              delete
+            </Button>
+            <div style={{ flexGrow: '1' }} />
+            <Button
+              hidden={!isExpanded || isBeingEdited}
+              size="small"
+              onClick={this.OnDuplicateButtonClick}
+            >
+              duplicate
+            </Button>
+            <div style={{ flexGrow: '1' }} />
+            <Button
+              variant="contained"
+              onClick={this.OnEditButtonClick}
+              hidden={!isExpanded || isBeingEdited}
+              size="small"
+            >
+              Edit
+            </Button>
+            <Button
+              variant="contained"
+              onClick={this.OnSaveButtonClick}
+              hidden={!isExpanded || !isBeingEdited}
+              size="small"
+            >
+              Save
+            </Button>
+          </div>
+        </Paper>
+      </Collapse>
     );
   }
 }

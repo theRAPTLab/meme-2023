@@ -11,12 +11,13 @@ import ClassNames from 'classnames';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import Chip from '@material-ui/core/Chip';
+import Collapse from '@material-ui/core/Collapse';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import DescriptionIcon from '@material-ui/icons/Description';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import ImageIcon from '@material-ui/icons/Image';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
@@ -124,7 +125,7 @@ class ResourceItem extends React.Component {
       evBadge = '';
     }
     return (
-      <div>
+      <div className={classes.resourceItem}>
         <ListItem button key={resource.id} onClick={() => this.OnResourceClick(resource.rsrcId)}>
           <ListItemAvatar>
             <Avatar className={classes.resourceViewAvatar}>{resource.referenceLabel}</Avatar>
@@ -141,11 +142,13 @@ class ResourceItem extends React.Component {
             {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
             {evBadge}
             <Button className={classes.resourceExpandButton} onClick={this.DoToggleExpanded}>
-              <ExpandMoreIcon className={isExpanded ? classes.iconExpanded : ''} />
+              <ExpandLessIcon className={
+                isExpanded ? classes.lessIconExpanded : classes.lessIconCollapsed
+              } />
             </Button>
           </ListItemSecondaryAction>
         </ListItem>
-        {isExpanded ? (
+        <Collapse in={isExpanded}>
           <div className={classes.resourceViewEvList}>
             <EvidenceList rsrcId={resource.rsrcId} key={`${resource.rsrcId}ev`} />
             <Button
@@ -156,7 +159,7 @@ class ResourceItem extends React.Component {
               Create Evidence
             </Button>
           </div>
-        ) : ''}
+        </Collapse>
       </div>
     );
   }

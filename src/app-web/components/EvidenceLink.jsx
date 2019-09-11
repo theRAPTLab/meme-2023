@@ -321,7 +321,8 @@ class EvidenceLink extends React.Component {
         <Paper
           className={ClassNames(
             classes.evidenceLinkPaper,
-            isExpanded ? classes.evidenceLinkPaperExpanded : ''
+            isExpanded ? classes.evidenceLinkPaperExpanded : '',
+            isBeingEdited ? classes.evidenceLinkPaperEditting : ''
           )}
           onClick={this.DoToggleExpanded}
           key={`${rsrcId}`}

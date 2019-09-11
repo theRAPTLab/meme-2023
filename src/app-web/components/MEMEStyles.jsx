@@ -290,7 +290,9 @@ const styles = theme => {
     },
     evidenceLinkPaperExpanded: {
       height: 'auto',
-      padding: '10px 0 10px 10px',
+      padding: '10px 0 10px 10px'
+    },
+    evidenceLinkPaperEditting: {
       backgroundColor: '#dbfaf7'
     },
     lessIconCollapsed: {

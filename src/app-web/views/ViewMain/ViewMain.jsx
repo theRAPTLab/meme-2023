@@ -368,6 +368,7 @@ class ViewMain extends React.Component {
       // IF YOU UPDATE THE MODEL THEN BUILD IT SO VIEW UPDATES
       // MOST PMCDATA MODEL METHODS CALLS THIS AUTOMATICALLY
       // BUT IN THIS CASE YOU'RE MUTATING THE PROP DIRECTLY
+      UTILS.RLog('PropertyEdit', this.state.addPropLabel);
       DATA.BuildModel();
     } else {
       // Create new prop

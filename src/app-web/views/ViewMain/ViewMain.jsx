@@ -54,6 +54,7 @@ import StickyNoteCollection from '../../components/StickyNoteCollection';
 // MEME Modules and Utils
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
+import UTILS from '../../modules/utils';
 import RoutedView from './RoutedView';
 import DATA from '../../modules/pmc-data';
 import ADM from '../../modules/adm-data';
@@ -174,6 +175,8 @@ class ViewMain extends React.Component {
       studentName: ADM.GetStudentName(),
       studentGroup: ADM.GetStudentGroupName()
     });
+
+    UTILS.RLog('ModelOpen', modelId, title);
   }
 
   DoADMDataUpdate() {

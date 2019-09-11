@@ -175,8 +175,6 @@ class ViewMain extends React.Component {
       studentName: ADM.GetStudentName(),
       studentGroup: ADM.GetStudentGroupName()
     });
-
-    UTILS.RLog('ModelOpen', modelId, title);
   }
 
   DoADMDataUpdate() {

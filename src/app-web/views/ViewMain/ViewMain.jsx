@@ -82,8 +82,9 @@ class ViewMain extends React.Component {
     this.DoDataUpdate = this.DoDataUpdate.bind(this);
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
-    this.OnChangeModelTitle = this.OnChangeModelTitle.bind(this);
     this.DoModelTitleUpdate = this.DoModelTitleUpdate.bind(this);
+    this.OnChangeModelTitle = this.OnChangeModelTitle.bind(this);
+    this.DoSaveModelTitle = this.DoSaveModelTitle.bind(this);
     this.HandleAddPropLabelChange = this.HandleAddPropLabelChange.bind(this);
     this.HandlePropAdd = this.HandlePropAdd.bind(this);
     this.HandlePropDelete = this.HandlePropDelete.bind(this);
@@ -201,13 +202,17 @@ class ViewMain extends React.Component {
       viewHeight: Math.min(viewHeight, innerHeight)
     });
   }
-  
-  OnChangeModelTitle(e) {
-    ADM.ModelTitleUpdate(this.state.modelId, e.target.value);
-  }
-  
+
   DoModelTitleUpdate(data) {
     this.setState({ title: data.title });
+  }
+
+  OnChangeModelTitle(e) {
+    this.setState({ title: e.target.value });
+  }
+
+  DoSaveModelTitle() {
+    ADM.ModelTitleUpdate(this.state.modelId, this.state.title);
   }
 
   HandleAddPropLabelChange(e) {
@@ -462,6 +467,7 @@ class ViewMain extends React.Component {
               placeholder="Untitled Model"
               value={title}
               onChange={this.OnChangeModelTitle}
+              onBlur={this.DoSaveModelTitle}
             />
             <Typography variant="caption">
               &nbsp;&nbsp;by {modelAuthorGroupName} Group

@@ -78,9 +78,11 @@ class ViewMain extends React.Component {
     this.refView = React.createRef();
     this.refDrawer = React.createRef();
     this.state = { viewHeight: 0, viewWidth: 0 };
-    this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
+    this.DoDataUpdate = this.DoDataUpdate.bind(this);
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
+    this.OnChangeModelTitle = this.OnChangeModelTitle.bind(this);
+    this.DoModelTitleUpdate = this.DoModelTitleUpdate.bind(this);
     this.HandleAddPropLabelChange = this.HandleAddPropLabelChange.bind(this);
     this.HandlePropAdd = this.HandlePropAdd.bind(this);
     this.HandlePropDelete = this.HandlePropDelete.bind(this);
@@ -97,13 +99,18 @@ class ViewMain extends React.Component {
     this.handleEvLinkSourceSelectRequest = this.handleEvLinkSourceSelectRequest.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     UR.Subscribe('WINDOW:SIZE', this.UpdateDimensions);
-    UR.Subscribe('DATA_UPDATED', this.HandleDataUpdate);
+    UR.Subscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Subscribe('MODEL_TITLE:UPDATED', this.DoModelTitleUpdate);
     UR.Subscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
     UR.Subscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
     this.state = {
+      title: '',
       modelId: '',
+      modelAuthorGroupName: '',
+      isModelAuthor: true,
+      studentId: '',
       studentName: '',
       studentGroup: '',
       viewHeight: 0, // need to init this to prevent error with first render of informationList
@@ -136,38 +143,41 @@ class ViewMain extends React.Component {
 
   componentWillUnmount() {
     UR.Unsubscribe('WINDOW:SIZE', this.UpdateDimensions);
-    UR.Unsubscribe('DATA_UPDATED', this.HandleDataUpdate);
+    UR.Unsubscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Unsubscribe('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Unsubscribe('MODEL_TITLE:UPDATED', this.DoModelTitleUpdate);
     UR.Unsubscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
     UR.Unsubscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
   }
 
-  // CODE REVIEW: THIS IS VESTIGIAL CODE
-  // Force a screen redraw when evidence links are added
-  // so that badges and quality ratings will draw
-  HandleDataUpdate() {
+  // PMCData calls DATA_UPDATED after loading model.
+  // Here we update the model meta info
+  DoDataUpdate() {
     if (DBG) console.log(PKG, 'DATA_UPDATE');
-    /*
-      CODE REVIEW: originally this code called "forceupdate" methods via a "data
-      update" handler, which called React.Component's forceUpdate method. But
-      updating the SVGView isn't part of ReactComponent...it's an SVGView! I've
-      removed all mention of this call because it's not necessary when the React
-      rendering is setup for proper dataflow (e.g. use of ONLY state and props
-      in the render() function)
-
-      SVGView used to require a manual call to DoAppLoop(), but now it's hooked
-      the DATA_UPDATED messages so it will redraw its view.
-    */
-  }
-
-  DoADMDataUpdate() {
+    // Read the group info from the model and set parameters
+    
+    // FIXME: The URSYS call should probably pass the modelId, e.g. data.modelId
+    const modelId = ADM.GetSelectedModelId(); // get selected model for now
+    const model = ADM.GetModelById(modelId);
+    const title = ADM.GetModelTitle(modelId);
+    const modelAuthorGroupName = ADM.GetGroupName(model ? model.groupId : '');
+    const userStudentId = ADM.GetSelectedStudentId(); // FIXME: Replace this with session?
+    const userGroupId = ADM.GetGroupIdByStudent(userStudentId);
+    const isModelAuthor = userGroupId === (model ? model.groupId : '');
     this.setState({
-      modelId: ADM.GetSelectedModelId(),
+      title,
+      modelId,
+      modelAuthorGroupName,
+      isModelAuthor,
+      studentId: userStudentId,
       studentName: ADM.GetStudentName(),
       studentGroup: ADM.GetStudentGroupName()
     });
-    // FIXME: This should update the model eventually.
+  }
+
+  DoADMDataUpdate() {
+    this.DoDataUpdate();
   }
 
   UpdateDimensions() {
@@ -189,6 +199,14 @@ class ViewMain extends React.Component {
       viewWidth: Math.min(viewWidth, innerWidth),
       viewHeight: Math.min(viewHeight, innerHeight)
     });
+  }
+  
+  OnChangeModelTitle(e) {
+    ADM.ModelTitleUpdate(this.state.modelId, e.target.value);
+  }
+  
+  DoModelTitleUpdate(data) {
+    this.setState({ title: data.title });
   }
 
   HandleAddPropLabelChange(e) {
@@ -409,6 +427,10 @@ class ViewMain extends React.Component {
 
     const {
       modelId,
+      modelAuthorGroupName,
+      isModelAuthor,
+      title,
+      studentId,
       studentName,
       studentGroup,
       addPropLabel,
@@ -417,34 +439,44 @@ class ViewMain extends React.Component {
       mechIsSelected,
       suppressSelection
     } = this.state;
-    const resources = ADM.AllResources();
+    const classroomId = ADM.GetClassroomIdByStudent(studentId);
+    const resources = ADM.GetResourcesForClassroom(classroomId);
     return (
       <div className={classes.root}>
         <CssBaseline />
         <Login />
         <ModelSelect />
-        <AppBar position="fixed" className={classes.appBar}>
+        <AppBar position="fixed" className={classes.appBar} color={isModelAuthor ? "primary" : "default"}>
           <Toolbar>
             <Switch>
               <Route path="/:mode" />
             </Switch>
+            <Button onClick={ADM.CloseModel} color="inherit">
+              Model:&nbsp;&nbsp;
+            </Button>
             <TextField
               id="projectTitle"
               InputProps={{ className: classes.projectTitle }}
               style={{ flexGrow: 1 }}
               placeholder="Untitled Model"
+              value={title}
+              onChange={this.OnChangeModelTitle}
             />
+            <Typography variant="caption">
+              &nbsp;&nbsp;by {modelAuthorGroupName} Group
+            </Typography>
             <div className={classes.appBarRight}>
               <StickyNoteButton parentId={modelId} parentType="propmech" />
               &nbsp;&nbsp;
               &nbsp;&nbsp;
-              <Button onClick={ADM.CloseModel}>Models</Button>
-              &nbsp;|&nbsp;
-              <div>{studentName}</div>
-              &nbsp;:&nbsp;
-              <div>{studentGroup}</div>
-              &nbsp;|&nbsp;
-              <Button onClick={ADM.Logout}>Logout</Button>
+              <Button onClick={ADM.CloseModel} color="inherit">
+                <div>{studentName}</div>
+                &nbsp;:&nbsp;
+                <div>{studentGroup}</div>
+              </Button>
+              &nbsp;&nbsp;
+              &nbsp;&nbsp;
+              <Button onClick={ADM.Logout} color="inherit">Logout</Button>
             </div>
           </Toolbar>
         </AppBar>

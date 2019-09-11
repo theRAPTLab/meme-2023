@@ -53,7 +53,7 @@ class ResourcesList extends React.Component {
 
   DoClassroomSelect(data) {
     this.setState({
-      classroomResources: ADM.GetResourcesByClassroom(data.classroomId),
+      classroomResources: ADM.GetResourcesForClassroom(data.classroomId),
       classroomId: data.classroomId
     });
   }
@@ -63,7 +63,7 @@ class ResourcesList extends React.Component {
     const classroomId = this.state.classroomId;
     if (classroomId) {
       this.setState({
-        classroomResources: ADM.GetResourcesByClassroom(classroomId)
+        classroomResources: ADM.GetResourcesForClassroom(classroomId)
       });
     }
   }

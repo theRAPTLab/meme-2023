@@ -32,6 +32,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
+import ADM from '../modules/adm-data';
 import DATA from '../modules/pmc-data';
 import UR from '../../system/ursys';
 import StickyNoteButton from './StickyNoteButton';
@@ -54,6 +55,7 @@ class EvidenceLink extends React.Component {
     this.state = {
       note: this.props.evlink.note,
       rating: this.props.evlink.rating,
+      ratingDefs: [],
       isBeingEdited: false,
       isExpanded: false,
       listenForSourceSelection: false
@@ -103,9 +105,14 @@ class EvidenceLink extends React.Component {
 
     let evlink = DATA.PMC_GetEvLinkByEvId(this.props.evlink.evId);
     if (evlink) {
+      // Get current model's rating definitions
+      const model = ADM.GetModelById();
+      const classroomId = ADM.GetClassroomIdByGroup(model.groupId);
+      const ratingDefs = ADM.GetRatingsDefinition(classroomId);
       this.setState({
         note: evlink.note,
-        rating: evlink.rating
+        rating: evlink.rating,
+        ratingDefs
       });
     }
     // Don't throw an error here
@@ -312,7 +319,7 @@ class EvidenceLink extends React.Component {
     // evidenceLinks is an array of arrays because there might be more than one?!?
     const { classes, evlink } = this.props;
     const { evId, rsrcId, propId, mechId } = evlink;
-    const { note, rating, isBeingEdited, isExpanded, listenForSourceSelection } = this.state;
+    const { note, rating, ratingDefs, isBeingEdited, isExpanded, listenForSourceSelection } = this.state;
     if (evId === '') return '';
 
     let sourceType;
@@ -451,7 +458,7 @@ class EvidenceLink extends React.Component {
                     rating={rating}
                     isExpanded={isExpanded}
                     ratingLabel=""
-                    UpdateRating={this.DoRatingUpdate}
+                    ratingDefs={ratingDefs}
                     OnRatingButtonClick={this.OnRatingButtonClick}
                   />
                 </Grid>

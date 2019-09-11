@@ -1,9 +1,9 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-Criteria View
+Ratings View
 
 Unlike the other components, which send all data updates directly to ADM,
-Criteria are editted locally first, and the whole set of changes is sent
+Ratings are editted locally first, and the whole set of changes is sent
 to ADM after the user clicks "Save".  This is necessary to let users "Cancel"
 out of a criteria edit to revert to the previous state.
 
@@ -19,12 +19,10 @@ import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import IconButton from '@material-ui/core/IconButton';
 import InputLabel from '@material-ui/core/InputLabel';
 import Paper from '@material-ui/core/Paper';
-// Material UI Icons
-import AddIcon from '@material-ui/icons/Add';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -33,41 +31,40 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from '../../../components/MEMEStyles';
 import UR from '../../../../system/ursys';
 import ADM from '../../../modules/adm-data';
-import CriteriaList from './AdmCriteriaList';
+import RatingsList from '../../../components/RatingsList';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
-const PKG = 'AdminCriteriaView';
+const PKG = 'AdminRatingsView';
+
 const defaults = [
-  {
-    label: 'Clarity',
-    description: 'How clear is the explanation?',
-  },
-  {
-    label: 'Visuals',
-    description: 'Does the layout make sense?',
-  }
-]
+  { label: 'Really disagrees!', rating: -3 },
+  { label: 'Kinda disagrees!', rating: -2 },
+  { label: 'Disagrees a little', rating: -1 },
+  { label: 'Not rated / Irrelevant', rating: 0 },
+  { label: 'Weak support', rating: 1 },
+  { label: 'Medium support', rating: 2 },
+  { label: 'Rocks!!', rating: 3 }
+];
+
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-class CriteriaView extends React.Component {
+class RatingsView extends React.Component {
   constructor(props) {
     super(props);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
-    this.DoLoadCriteria = this.DoLoadCriteria.bind(this);
+    this.DoLoadRatings = this.DoLoadRatings.bind(this);
     this.OnEditClick = this.OnEditClick.bind(this);
-    this.OnEditSave = this.OnEditSave.bind(this);
-    this.OnEditCancel = this.OnEditCancel.bind(this);
+    this.OnSave = this.OnSave.bind(this);
+    this.OnCancel = this.OnCancel.bind(this);
     this.DoClose = this.DoClose.bind(this);
-    this.OnAddClick = this.OnAddClick.bind(this);
-    this.OnDeleteClick = this.OnDeleteClick.bind(this);
-    this.UpdateField = this.UpdateField.bind(this);
+    this.DoUpdateField = this.DoUpdateField.bind(this);
 
     this.state = {
-      criteria: [],
-      origCriteria: [],
+      ratingsDef: [],
+      origRatingsDef: [],
       isInEditMode: false,
       classroomId: ''
     };
@@ -83,44 +80,39 @@ class CriteriaView extends React.Component {
     this.setState({
       classroomId: data.classroomId
     }, () => {
-      this.DoLoadCriteria();
-    });
-  }
-
-  DoLoadCriteria() {
-    let criteria = ADM.GetCriteriaByClassroom(this.state.classroomId);
-    if (criteria.length === 0) {
-      // Create defaults
-      criteria = defaults.map(def => {
-        const crit = ADM.NewCriteria(this.state.classroomId);
-        crit.label = def.label;
-        crit.description = def.description;
-        return crit;
-      });
-    }
-    const origCriteria = JSON.parse(JSON.stringify(criteria)); // deep clone
-    this.setState({
-      criteria,
-      origCriteria
+      this.DoLoadRatings();
     });
   }
   
+  DoLoadRatings() {
+    let ratingsDef = ADM.GetRatingsDefinition(this.state.classroomId);
+    if (ratingsDef.length === 0) {
+      // Load defaults
+      ratingsDef = defaults;
+    }
+    const origRatingsDef = JSON.parse(JSON.stringify(ratingsDef)); // deep clone
+    this.setState({
+      ratingsDef,
+      origRatingsDef
+    });
+  }
+
   OnEditClick() {
-    this.DoLoadCriteria()
+    this.DoLoadRatings();
     this.setState({ isInEditMode: true });
   }
 
-  OnEditSave(e) {
-    ADM.UpdateCriteriaList(this.state.criteria);
+  OnSave(e) {
+    ADM.UpdateRatingsDefinitions(this.state.classroomId, this.state.ratingsDef);
     this.DoClose();
   }
 
-  OnEditCancel() {
+  OnCancel() {
     // Restore original values.
     this.setState(state => {
-      return { criteria: state.origCriteria }
+      return { ratingsDef: state.origRatingsDef }
     }, () => {
-        this.DoClose();
+      this.DoClose();
     });
   }
 
@@ -130,77 +122,40 @@ class CriteriaView extends React.Component {
     });
   }
 
-  OnAddClick() {
-    this.setState(state => {
-      let criteria = state.criteria;
-      criteria.push(ADM.NewCriteria());
-      return {
-        criteria,
-        isInEditMode: true
-      };
-    });
-  }
-
-  OnDeleteClick(critId) {
-    this.setState(state => {
-      const criteria = state.criteria;
-      const result = criteria.filter(crit => crit.id !== critId);
-      return {
-        criteria: result
-      };
-    });
-  }
-
-  UpdateField(critId, fieldName, value) {
+  DoUpdateField(rating, label) {
     // Save the changes locally first
     // Store the whole object when "Save" is presssed.
     this.setState(state => {
-      let criteria = state.criteria;
-
-      const i = criteria.findIndex(cr => cr.id === critId);
-      if (i < 0) {
-        console.error(PKG, 'UpdateField could not find index of criteria with id', critId);
-        return undefined;
-      }
-
-      // Update the value
-      let crit = criteria[i];
-      crit[fieldName] = value;
-
-      // Update criteria data
-      criteria.splice(i, 1, crit);
-      return { criteria };
+      let ratingsDef = state.ratingsDef;
+     
+      const index = ratingsDef.findIndex(item => rating === item.rating);
+      ratingsDef[index].label = label;
+      
+      return { ratingsDef };
     });
   }
 
   render() {
     const { classes } = this.props;
-    const { criteria, isInEditMode, classroomId } = this.state;
+    const { ratingsDef, isInEditMode, classroomId } = this.state;
 
     return (
       <Paper className={classes.admPaper}>
-        <InputLabel>CRITERIA</InputLabel>
+        <InputLabel>RATINGS DEFINITIONS</InputLabel>
         <Dialog open={isInEditMode}>
-          <DialogTitle>Edit Criteria</DialogTitle>
-          <CriteriaList
-            Criteria={criteria}
-            IsInEditMode={isInEditMode}
-            UpdateField={this.UpdateField}
-            OnDeleteCriteriaClick={this.OnDeleteClick}
-          />
+          <DialogTitle>Edit Ratings Definitions</DialogTitle>
+          <DialogContent>
+            <RatingsList
+              RatingsDef={ratingsDef}
+              Mode={isInEditMode ? 'edit' : 'inactive'}
+              UpdateField={this.DoUpdateField}
+            />
+          </DialogContent>
           <DialogActions>
-            <IconButton
-              size="small"
-              onClick={this.OnAddClick}
-              hidden={!isInEditMode}
-              style={{ marginRight: 'auto' }}
-            >
-              <AddIcon />
-            </IconButton>
             <Button
               variant="contained"
               className={classes.button}
-              onClick={this.OnEditCancel}
+              onClick={this.OnCancel}
               hidden={!isInEditMode}
             >
               Cancel
@@ -208,14 +163,14 @@ class CriteriaView extends React.Component {
             <Button
               variant="contained"
               className={classes.button}
-              onClick={this.OnEditSave}
+              onClick={this.OnSave}
               hidden={!isInEditMode}
             >
               Save
             </Button>
           </DialogActions>
         </Dialog>
-        <CriteriaList Criteria={criteria} IsInEditMode={false} />
+        <RatingsList RatingsDef={ratingsDef} Mode="inactive" />
         <Button
           variant="contained"
           className={classes.button}
@@ -223,22 +178,22 @@ class CriteriaView extends React.Component {
           hidden={isInEditMode}
           disabled={classroomId === ''}
         >
-          Edit Criteria
+          Edit Ratings
         </Button>
       </Paper>
     );
   }
 }
 
-CriteriaView.propTypes = {
+RatingsView.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object
 };
 
-CriteriaView.defaultProps = {
+RatingsView.defaultProps = {
   classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(CriteriaView);
+export default withStyles(MEMEStyles)(RatingsView);

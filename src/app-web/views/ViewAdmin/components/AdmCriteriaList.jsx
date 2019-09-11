@@ -36,7 +36,7 @@ const PKG = 'AdminCriteriaList';
 class CriteriaList extends React.Component {
   componentDidMount() {}
 
-  componentWillUnmount() { }
+  componentWillUnmount() {}
 
   render() {
     const { Criteria, IsInEditMode, UpdateField, OnDeleteCriteriaClick } = this.props;

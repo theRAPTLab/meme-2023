@@ -48,6 +48,7 @@ class ModelSelect extends React.Component {
       modelId: '',
       modelSelectDialogOpen: false,
       showClassesModels: false,
+      studentId: '',
       groupName: '',
       classroomName: '',
       teacherName: ''
@@ -74,7 +75,8 @@ class ModelSelect extends React.Component {
       this.setState({
         modelId: ADM.GetSelectedModelId(),
         modelSelectDialogOpen: true,
-        showClassesModels: ADM.ClassesModelsAreVisible(),
+        showClassesModels: true, //ADM.ClassesModelsAreVisible(),
+        studentId,
         groupName,
         classroomName,
         teacherName
@@ -113,9 +115,9 @@ class ModelSelect extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { modelId, modelSelectDialogOpen, showClassesModels, groupName, classroomName, teacherName } = this.state;
+    const { modelId, modelSelectDialogOpen, showClassesModels, studentId, groupName, classroomName, teacherName } = this.state;
     const myModels = ADM.GetModelsByStudent();
-    const ourModels = ADM.GetModelsByClassroom(ADM.GetSelectedClassroomId());
+    const ourModels = ADM.GetMyClassmatesModels(ADM.GetSelectedClassroomId(), studentId);
     return (
       <Dialog
         disableBackdropClick
@@ -137,16 +139,23 @@ class ModelSelect extends React.Component {
         <DialogContent>
           <Grid container spacing={2}>
             <Grid item>
-              <Typography variant="h4">
-                {ADM.GetStudentGroupName()} Group&lsquo;s Models
-              </Typography>
-              <ModelsListTable models={myModels} OnModelSelect={this.OnModelEdit} />
               <Button onClick={this.OnNewModel} color="primary" variant="contained">
                 Create New Model
               </Button>
             </Grid>
+          </Grid>
+          <Divider style={{ margin: '2em' }}/>
+          <Grid container spacing={2}>
+            <Grid item>
+              <Typography variant="h4">
+                {ADM.GetStudentGroupName()} Group&lsquo;s Models
+              </Typography>
+              <ModelsListTable models={myModels} OnModelSelect={this.OnModelEdit} />
+            </Grid>
             <Grid item hidden={!showClassesModels}>
-              <DialogContentText>My Classes&lsquo; Models</DialogContentText>
+              <Typography variant="h4">
+                My Class&lsquo; Models
+              </Typography>
               <ModelsListTable models={ourModels} OnModelSelect={this.OnModelView} />
             </Grid>
           </Grid>

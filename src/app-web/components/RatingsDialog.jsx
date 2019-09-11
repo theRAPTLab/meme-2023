@@ -2,13 +2,25 @@
 
 Ratings Dialog
 
+The RatingsDialog is part of a positive/neutral/negative rating system.
+
+RatingsDialog displays a dialog showing the available types of ratings and
+lets the user select a rating.
+
+It is opened via an URSYS call, e.g.
+    const data = {
+      evId: this.props.evlink.evId,
+      rating: this.props.evlink.rating
+    };
+    UR.Publish('RATING:OPEN', data);
+
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -24,6 +36,7 @@ import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
 import ADM from '../modules/adm-data';
+import RatingsList from './RatingsList';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -44,8 +57,8 @@ class RatingsDialog extends React.Component {
     this.state = {
       isOpen: false,
       evId: '',
-      selectedRating: 0,
-      ratingsDef: ADM.GetRatingsDefintion()
+      selectedRating: '',
+      ratingsDef: []
     };
 
     UR.Subscribe('RATING:OPEN', this.DoOpen);
@@ -58,7 +71,13 @@ class RatingsDialog extends React.Component {
   }
 
   DoOpen(data) {
-    this.setState({ evId: data.evId, selectedRating: data.rating, isOpen: true });
+    const classroomId = ADM.GetSelectedClassroomId();
+    this.setState({
+      evId: data.evId,
+      selectedRating: String(data.rating),
+      isOpen: true,
+      ratingsDef: ADM.GetRatingsDefinition(classroomId)
+    });
   }
 
   DoClose() {
@@ -102,20 +121,13 @@ class RatingsDialog extends React.Component {
       <Dialog open={isOpen} onClose={this.OnClose} maxWidth='xs'>
         <DialogTitle>How well does this resource support your model?</DialogTitle>
         <DialogContent>
-          {ratingsDef.map(def => {
-            return (
-              <Button
-                key={def.label}
-                style={{ width: '300px' }}
-                onClick={e => this.OnRatingSelect(e, def.rating)}
-                color="primary"
-                variant={selectedRating === def.rating ? 'contained' : 'text'}
-              >
-                <div style={{ width: '100px' }}>{icons[def.rating]}</div>
-                <div style={{ width: '200px', textAlign: 'left' }}>{def.label}</div>
-              </Button>
-            );
-          })}
+          <RatingsList
+            RatingsDef={ratingsDef}
+            Mode="active"
+            SelectedRating={selectedRating}
+            UpdateField={this.DoUpdateField}
+            OnRatingSelect={this.OnRatingSelect}
+          />
         </DialogContent>
       </Dialog>
     );

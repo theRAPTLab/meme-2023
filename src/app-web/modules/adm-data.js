@@ -302,6 +302,15 @@ ADMData.GetGroupIdByStudent = studentId => {
   return group ? group.id : undefined;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @param {string} groupId
+ * @return {string} Group Name, '' if not found
+ */
+ADMData.GetGroupName = groupId => {
+  let group = ADMData.GetGroup(groupId);
+  return group ? group.name : '';
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetGroupNameByStudent = studentId => {
   let group = ADMData.GetGroupByStudent(studentId);
   return group ? group.name : '';
@@ -417,9 +426,13 @@ ADMData.GetSelectedStudentId = () => {
   return adm_settings.selectedStudentId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.GetStudentName = () => {
+/**
+ * @param {string} [studentId = currently selected studentId]
+ * @return {string} Name of student, or '' if not found
+ */
+ADMData.GetStudentName = (studentId = adm_settings.selectedStudentId) => {
   // FIXME: Eventually use actual name instead of ID?
-  return adm_settings.selectedStudentId;
+  return studentId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetStudentGroupName = (studentId = adm_settings.selectedStudentId) => {
@@ -430,7 +443,7 @@ ADMData.GetStudentGroupName = (studentId = adm_settings.selectedStudentId) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// MODELS ////////////////////////////////////////////////////////////////////
 ///
-ADMData.GetModelById = modelId => {
+ADMData.GetModelById = (modelId = adm_settings.selectedModelId) => {
   return adm_db.a_models.find(model => model.id === modelId);
 };
 
@@ -441,10 +454,13 @@ ADMData.GetModelsByClassroom = classroomId => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @param {string} [studentId = current selected studentId]
+ * @return {Array} Array of models, [] if not found
+ */
 ADMData.GetModelsByStudent = (studentId = adm_settings.selectedStudentId) => {
   const group = ADMData.GetGroupByStudent(studentId);
   if (group === undefined) return [];
-
   return adm_db.a_models.filter(mdl => mdl.groupId === group.id);
 };
 
@@ -452,6 +468,41 @@ ADMData.GetModelsByStudent = (studentId = adm_settings.selectedStudentId) => {
 // Gets the gropuId of the currently selected Student ID
 ADMData.GetModelsByGroup = (group = ADMData.GetGroupByStudent()) => {
   return adm_db.a_models.filter(mdl => mdl.groupId === group.id);
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Returns models from the class EXCLUDING those from the group.
+ * This is used by ModelSelect.jsx to allow students to select models from
+ * their classmates to view.
+ * @param {string} classroomId
+ * @param {string} studentId
+ * @return {Array} Array of model objects, [] if not found
+ */
+ADMData.GetMyClassmatesModels = (classroomId, studentId) => {
+  const classroomModels = ADMData.GetModelsByClassroom(classroomId);
+  const groupId = ADMData.GetGroupIdByStudent(studentId);
+  return classroomModels.filter(mdl => { return mdl.groupId !== groupId });
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @param {string} [modelId = current selected modelId]
+ * @return {string} Model name, or '' if not found
+ */
+ADMData.GetModelTitle = (modelId = adm_settings.selectedModelId) => {
+  const model = ADMData.GetModelById(modelId);
+  return model ? model.title : '';
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Handles text input updates for the model title
+ * @param {string} title
+ */
+ADMData.ModelTitleUpdate = (modelId, title) => {
+  const model = ADMData.GetModelById(modelId);
+  model.title = title;
+  UR.Publish('MODEL_TITLE:UPDATED', { title });
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -476,8 +527,8 @@ ADMData.LoadModel = modelId => {
     console.error(PKG, 'LoadModel could not find a valid modelId', modelId);
   }
   PMCData.ClearModel();
-  PMCData.InitializeModel(model, adm_db.a_resources);
   ADMData.SetSelectedModelId(modelId); // Remember the selected modelId locally
+  PMCData.InitializeModel(model, adm_db.a_resources);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -599,11 +650,30 @@ ADMData.UpdateSentenceStarter = sentenceStarter => {
 /// We may need to allow teachers to customize this in th e future.
 
 /**
- * @return [ratingsDefition] -- Array of ratings defintion objects, e.g.{ label: 'Really disagrees!', rating: -3 },
+ * @return {Array} [ratingsDefition] -- Array of ratings defintion objects, 
+ * e.g.{ label: 'Really disagrees!', rating: -3 },
+ * Returns [] if not found
  */
-ADMData.GetRatingsDefintion = () => {
-  return adm_db.a_ratingsDefinitions;
+ADMData.GetRatingsDefinition = classroomId => {
+  let ratings = adm_db.a_ratingsDefinitions.find(ratings => ratings.classroomId === classroomId);
+  if (ratings === undefined) {
+    // create new ratings
+    ratings = {};
+    ratings.classroomId = classroomId;
+    ratings.definitions = [];
+    adm_db.a_ratingsDefinitions.push(ratings);
+  }
+  return ratings.definitions;
 };
+
+ADMData.UpdateRatingsDefinitions = (classroomId, ratingsDef) => {
+  const ratings = adm_db.a_ratingsDefinitions.find(ratings => ratings.classroomId === classroomId);
+  if (ratings) {
+    ratings.definitions = ratingsDef;
+  } else {
+    console.error(PKG, '.UpdateRatingsDefinitions could not find ratings definition for classroomId', classroomId);
+  }
+}
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// RESOURCES
@@ -622,11 +692,20 @@ ADMData.Resource = rsrcId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // returns `resources` not `classroomResources`
-ADMData.GetResourcesByClassroom = classroomId => {
-  let classroomResources = adm_db.a_classroomResources.find(
+/**
+ * Returns an array of the subset of all resources that have been made available to the classroom
+ * @param {string} classroomId
+ * @return {Array} Array of classroom resource ids, e.g. `['rs1', 'rs2']`, [] if not found
+ */
+ADMData.GetResourcesForClassroom = classroomId => {
+  const classroomResource = adm_db.a_classroomResources.find(
     rsrc => rsrc.classroomId === classroomId
   );
-  return classroomResources ? classroomResources.resources : [];
+  const classroomResourceIds = classroomResource ? classroomResource.resources : [];
+  const classroomResources = classroomResourceIds.map(
+    rsrcId => { return ADMData.Resource(rsrcId); } 
+  )
+  return classroomResources ? classroomResources : [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SetClassroomResource = (rsrcId, checked, classroomId) => {

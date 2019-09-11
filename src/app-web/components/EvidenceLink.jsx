@@ -279,6 +279,7 @@ class EvidenceLink extends React.Component {
   }
 
   DoToggleExpanded() {
+    if (this.state.isBeingEdited) return; // Don't toggle if being edited
     if (DBG) console.log(PKG, 'evidence link clicked');
     if (this.state.isExpanded) {
       this.setState({

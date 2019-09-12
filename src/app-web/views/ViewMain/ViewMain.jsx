@@ -40,8 +40,6 @@ import AddIcon from '@material-ui/icons/Add';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
 import EditIcon from '@material-ui/icons/Edit';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
 // MEME App Components
 import Login from '../../components/Login';
 import MechDialog from '../../components/MechDialog';
@@ -121,7 +119,6 @@ class ViewMain extends React.Component {
       addPropPropId: '', // The prop Id of the component being edited, if new component then ''
       addPropIsProperty: false, // AddComponent dialog is adding a property (not a component)
       addEdgeOpen: false,
-      addEdgeLabel: '',
       addEdgeSource: '', // Add Mech Dialog
       addEdgeTarget: '', // Add Mech Dialog
       componentIsSelected: false, // A component or property has been selected by user.  Used for pro-centric actions.
@@ -455,7 +452,11 @@ class ViewMain extends React.Component {
         <CssBaseline />
         <Login />
         <ModelSelect />
-        <AppBar position="fixed" className={classes.appBar} color={isModelAuthor ? "primary" : "default"}>
+        <AppBar
+          position="fixed"
+          className={classes.appBar}
+          color={isModelAuthor ? 'primary' : 'default'}
+        >
           <Toolbar>
             <Switch>
               <Route path="/:mode" />
@@ -472,20 +473,16 @@ class ViewMain extends React.Component {
               onChange={this.OnChangeModelTitle}
               onBlur={this.DoSaveModelTitle}
             />
-            <Typography variant="caption">
-              &nbsp;&nbsp;by {modelAuthorGroupName} Group
-            </Typography>
+            <Typography variant="caption">&nbsp;&nbsp;by {modelAuthorGroupName} Group</Typography>
             <div className={classes.appBarRight}>
               <StickyNoteButton parentId={modelId}/>
-              &nbsp;&nbsp;
-              &nbsp;&nbsp;
+              &nbsp;&nbsp; &nbsp;&nbsp;
               <Button onClick={ADM.CloseModel} color="inherit">
                 <div>{studentName}</div>
                 &nbsp;:&nbsp;
                 <div>{studentGroup}</div>
               </Button>
-              &nbsp;&nbsp;
-              &nbsp;&nbsp;
+              &nbsp;&nbsp; &nbsp;&nbsp;
               <Button onClick={ADM.Logout} color="inherit">Logout</Button>
             </div>
           </Toolbar>

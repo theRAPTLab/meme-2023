@@ -26,6 +26,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
+import UTILS from '../modules/utils';
 import LinkButton from './LinkButton';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -56,9 +57,9 @@ class MechDialog extends React.Component {
       isOpen: false,
       editExisting: false,
       sourceId: '',
-      sourceLabel: '',
+      sourceLabel: undefined,
       targetId: '',
-      targetLabel: '',
+      targetLabel: undefined,
       label: '',
       listenForSourceSelection: false,
       listenForTargetSelection: false,
@@ -90,9 +91,9 @@ class MechDialog extends React.Component {
         isOpen: true,
         editExisting: false,
         sourceId: '',
-        sourceLabel: '',
+        sourceLabel: undefined,
         targetId: '',
-        targetLabel: '',
+        targetLabel: undefined,
         label: '',
         listenForSourceSelection: true,
         listenForTargetSelection: true,
@@ -173,7 +174,7 @@ class MechDialog extends React.Component {
           } else {
             this.setState({
               sourceId,
-              sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : '',
+              sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : undefined,
               listenForSourceSelection: false
             });
           }
@@ -188,7 +189,7 @@ class MechDialog extends React.Component {
           } else {
             this.setState({
               targetId,
-              targetLabel: targetId !== '' ? DATA.Prop(targetId).name : '',
+              targetLabel: targetId !== '' ? DATA.Prop(targetId).name : undefined,
               listenForTargetSelection: false
             });
           }
@@ -227,9 +228,9 @@ class MechDialog extends React.Component {
 
       this.setState({
         sourceId,
-        sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : '',
+        sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : undefined,
         targetId,
-        targetLabel: targetId !== '' ? DATA.Prop(targetId).name : '',
+        targetLabel: targetId !== '' ? DATA.Prop(targetId).name : undefined,
         editExisting,
         listenForSourceSelection,
         listenForTargetSelection

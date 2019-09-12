@@ -327,7 +327,6 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
     if (DBG) console.log(`${e.target} clicked e=${e}`);
     UR.Publish('STICKY:OPEN', {
       parentId: vparent.id,
-      parentType: 'propmech',
       x: e.clientX,
       y: e.clientY
     });

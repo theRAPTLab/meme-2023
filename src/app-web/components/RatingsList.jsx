@@ -80,7 +80,7 @@ class RatingsList extends React.Component {
       const result = [];
       if (count === 0) {
         // No Rating
-        result.push(<BlockIcon className={classes.ratingIconPositive} key={0} />);
+        result.push(<BlockIcon className={classes.ratingIconNeutral} key={0} />);
       } else {
         for (let i = 0; i < count; i++) {
           if (n < 0) {
@@ -107,7 +107,7 @@ class RatingsList extends React.Component {
                     onChange={e => UpdateField(def.rating, e.target.value)}
                   />
                 </div>
-              )
+              );
               break;
             case 'active':
               return (
@@ -121,16 +121,18 @@ class RatingsList extends React.Component {
                   <div style={{ width: '100px' }}>{icons[def.rating]}</div>
                   <div style={{ width: '200px', textAlign: 'left' }}>{def.label}</div>
                 </Button>
-              )
+              );
               break;
             case 'inactive':
             default:
               return (
                 <div key={def.rating}>
                   <div style={{ width: '100px', display: 'inline-block' }}>{icons[def.rating]}</div>
-                  <div style={{ width: '200px', textAlign: 'left', display: 'inline-block'  }}>{def.label}</div>
+                  <div style={{ width: '200px', textAlign: 'left', display: 'inline-block' }}>
+                    {def.label}
+                  </div>
                 </div>
-              )
+              );
               break;
           }
         })}

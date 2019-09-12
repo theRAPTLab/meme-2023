@@ -86,7 +86,7 @@ class RatingButton extends React.Component {
     const icons = [];
     if (count === 0) {
       // No Rating
-      icons.push(<BlockIcon className={classes.ratingIconPositive} key={0} fontSize="small" />);
+      icons.push(<BlockIcon className={classes.ratingIconNeutral} key={0} fontSize="small" />);
     } else {
       for (let i = 0; i < count; i++) {
         if (rating < 0) {

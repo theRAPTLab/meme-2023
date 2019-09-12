@@ -1,4 +1,4 @@
-import { green, indigo, orange, red, teal, yellow } from '@material-ui/core/colors';
+import { green, grey, indigo, orange, red, teal, yellow } from '@material-ui/core/colors';
 import { registerMorphableType } from '@svgdotjs/svg.js/src/main';
 import { Hidden } from '@material-ui/core';
 
@@ -351,6 +351,9 @@ const styles = theme => {
     },
     ratingIconNegative: {
       color: red[600]
+    },
+    ratingIconNeutral: {
+      color: grey[600]
     },
     ratingIconPositive: {
       color: green[600]

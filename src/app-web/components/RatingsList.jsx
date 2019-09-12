@@ -40,8 +40,9 @@ import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 // Material UI Icons
-import PositiveIcon from '@material-ui/icons/Add';
 import NegativeIcon from '@material-ui/icons/Clear';
+import BlockIcon from '@material-ui/icons/Block';
+import PositiveIcon from '@material-ui/icons/Add';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -77,27 +78,28 @@ class RatingsList extends React.Component {
       const n = def.rating;
       const count = Math.abs(n);
       const result = [];
-      for (let i = 0; i < count; i++) {
-        if (n < 0) {
-          result.push(<NegativeIcon className={classes.ratingIconNegative} key={i} />);
-        } else if (n > 0) {
-          result.push(<PositiveIcon className={classes.ratingIconPositive} key={i} />);
-        } else {
-          // leave blank
+      if (count === 0) {
+        // No Rating
+        result.push(<BlockIcon className={classes.ratingIconPositive} key={0} />);
+      } else {
+        for (let i = 0; i < count; i++) {
+          if (n < 0) {
+            result.push(<NegativeIcon className={classes.ratingIconNegative} key={i} />);
+          } else if (n > 0) {
+            result.push(<PositiveIcon className={classes.ratingIconPositive} key={i} />);
+          }
         }
       }
       icons[n] = result;
     });
-    
+
     return (
       <div>
         {ratingsDef.map(def => {
           switch (Mode) {
             case 'edit':
               return (
-                <div
-                  key={def.rating}
-                >
+                <div key={def.rating}>
                   <div style={{ width: '100px', display: 'inline-block' }}>{icons[def.rating]}</div>
                   <TextField
                     value={def.label}
@@ -124,9 +126,7 @@ class RatingsList extends React.Component {
             case 'inactive':
             default:
               return (
-                <div
-                  key={def.rating}
-                >
+                <div key={def.rating}>
                   <div style={{ width: '100px', display: 'inline-block' }}>{icons[def.rating]}</div>
                   <div style={{ width: '200px', textAlign: 'left', display: 'inline-block'  }}>{def.label}</div>
                 </div>

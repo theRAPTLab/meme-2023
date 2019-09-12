@@ -83,25 +83,25 @@ class ViewMain extends React.Component {
     this.DoModelTitleUpdate = this.DoModelTitleUpdate.bind(this);
     this.OnChangeModelTitle = this.OnChangeModelTitle.bind(this);
     this.DoSaveModelTitle = this.DoSaveModelTitle.bind(this);
-    this.HandleAddPropLabelChange = this.HandleAddPropLabelChange.bind(this);
-    this.HandlePropAdd = this.HandlePropAdd.bind(this);
-    this.HandlePropDelete = this.HandlePropDelete.bind(this);
+    this.OnPropDialogLabelChange = this.OnPropDialogLabelChange.bind(this);
+    this.OnPropAdd = this.OnPropAdd.bind(this);
+    this.OnPropDelete = this.OnPropDelete.bind(this);
     this.OnAddPropComment = this.OnAddPropComment.bind(this);
     this.OnAddMechComment = this.OnAddMechComment.bind(this);
-    this.HandleMechDelete = this.HandleMechDelete.bind(this);
-    this.HandlePropEdit = this.HandlePropEdit.bind(this);
+    this.OnMechDelete = this.OnMechDelete.bind(this);
+    this.DoPropEdit = this.DoPropEdit.bind(this);
     this.OnMechAdd = this.OnMechAdd.bind(this);
     this.OnMechEdit = this.OnMechEdit.bind(this);
     this.DoMechClosed = this.DoMechClosed.bind(this);
-    this.HandleComponentAdd = this.HandleComponentAdd.bind(this);
-    this.HandleAddPropClose = this.HandleAddPropClose.bind(this);
-    this.OnAddPropDialogCreateClick = this.OnAddPropDialogCreateClick.bind(this);
+    this.OnComponentAdd = this.OnComponentAdd.bind(this);
+    this.OnPropDialogClose = this.OnPropDialogClose.bind(this);
+    this.OnPropDialogCreateClick = this.OnPropDialogCreateClick.bind(this);
     this.handleEvLinkSourceSelectRequest = this.handleEvLinkSourceSelectRequest.bind(this);
-    this.handleSelectionChange = this.handleSelectionChange.bind(this);
+    this.DoSelectionChange = this.DoSelectionChange.bind(this);
     UR.Subscribe('WINDOW:SIZE', this.UpdateDimensions);
     UR.Subscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
-    UR.Subscribe('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Subscribe('MODEL_TITLE:UPDATED', this.DoModelTitleUpdate);
     UR.Subscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
     UR.Subscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
@@ -144,7 +144,7 @@ class ViewMain extends React.Component {
     UR.Unsubscribe('WINDOW:SIZE', this.UpdateDimensions);
     UR.Unsubscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
-    UR.Unsubscribe('SELECTION_CHANGED', this.handleSelectionChange);
+    UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Unsubscribe('MODEL_TITLE:UPDATED', this.DoModelTitleUpdate);
     UR.Unsubscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
     UR.Unsubscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
@@ -155,7 +155,7 @@ class ViewMain extends React.Component {
   DoDataUpdate() {
     if (DBG) console.log(PKG, 'DATA_UPDATE');
     // Read the group info from the model and set parameters
-    
+
     // FIXME: The URSYS call should probably pass the modelId, e.g. data.modelId
     const modelId = ADM.GetSelectedModelId(); // get selected model for now
     const model = ADM.GetModelById(modelId);
@@ -212,12 +212,12 @@ class ViewMain extends React.Component {
     ADM.ModelTitleUpdate(this.state.modelId, this.state.title);
   }
 
-  HandleAddPropLabelChange(e) {
+  OnPropDialogLabelChange(e) {
     this.setState({ addPropLabel: e.target.value });
   }
 
   // User clicked on "(+) Add Component" drawer button
-  HandleComponentAdd() {
+  OnComponentAdd() {
     if (DBG) console.log('Add!');
     this.setState({
       addPropOpen: true,
@@ -228,7 +228,7 @@ class ViewMain extends React.Component {
   }
 
   // User selected component/prop and clicked on "(+) Add Property Button"
-  HandlePropAdd() {
+  OnPropAdd() {
     this.setState({
       addPropOpen: true,
       addPropLabel: '', // clear the old property name
@@ -238,7 +238,7 @@ class ViewMain extends React.Component {
   }
 
   // User selected component/prop and clicked on "(/) Edit Component / Property" button
-  HandlePropEdit() {
+  DoPropEdit() {
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (selectedPropIds.length > 0) {
       let propId = selectedPropIds[0];
@@ -253,7 +253,7 @@ class ViewMain extends React.Component {
   }
 
   // User selected component/prop and clicked on "() Delete"
-  HandlePropDelete() {
+  OnPropDelete() {
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (selectedPropIds.length > 0) {
       let propId = selectedPropIds[0];
@@ -332,7 +332,7 @@ class ViewMain extends React.Component {
   }
 
   // User selected component/prop and clicked on "() Delete"
-  HandleMechDelete() {
+  OnMechDelete() {
     let selectedMechIds = DATA.VM_SelectedMechIds();
     if (selectedMechIds.length > 0) {
       let mechId = selectedMechIds[0];
@@ -343,12 +343,12 @@ class ViewMain extends React.Component {
     });
   }
 
-  HandleAddPropClose() {
+  OnPropDialogClose() {
     if (DBG) console.log('close');
     this.setState({ addPropOpen: false });
   }
 
-  OnAddPropDialogCreateClick(e) {
+  OnPropDialogCreateClick(e) {
     e.preventDefault();
     e.stopPropagation();
 
@@ -377,7 +377,7 @@ class ViewMain extends React.Component {
       // Create new prop
       DATA.PMC_AddProp(this.state.addPropLabel);
     }
-    this.HandleAddPropClose();
+    this.OnPropDialogClose();
   }
 
   /*/
@@ -395,7 +395,9 @@ class ViewMain extends React.Component {
     });
   }
 
-  handleSelectionChange() {
+  // FIXME
+  // Review: REMOVE VMECH CALLS HERE!
+  DoSelectionChange() {
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (DBG) console.log('selection changed', selectedPropIds);
     let sourceId = '';
@@ -504,7 +506,7 @@ class ViewMain extends React.Component {
               color="primary"
               aria-label="Add"
               className={classes.fab}
-              onClick={this.HandleComponentAdd}
+              onClick={this.OnComponentAdd}
             >
               <AddIcon />
             </Fab>
@@ -578,7 +580,8 @@ class ViewMain extends React.Component {
         </main>
 
         {/* Resource Library */}
-        <div style={{ height: this.state.viewHeight + 64, overflowY: 'scroll', zIndex: 1250 }}>
+        <Drawer variant="permanent" style={{ width: '300px' }} anchor="right">
+          {/*<div style={{ height: this.state.viewHeight + 64, overflowY: 'scroll', zIndex: 1250 }}>*/}
           <Paper className={classes.informationList}>
             <div className={classes.resourceListLabel}>RESOURCE LIBRARY</div>
             <List dense>
@@ -587,18 +590,19 @@ class ViewMain extends React.Component {
               ))}
             </List>
           </Paper>
-        </div>
+          {/* </div> */}
+        </Drawer>
 
         {/* Resource View */}
         <ResourceView />
 
-        {/* Component/Property label editing dialog */}
+        {/* Prop Dialog -- Property label editing dialog */}
         <Dialog
           open={this.state.addPropOpen}
-          onClose={this.HandleAddPropClose}
+          onClose={this.OnPropDialogClose}
           aria-labelledby="form-dialog-title"
         >
-          <form onSubmit={this.OnAddPropDialogCreateClick}>
+          <form onSubmit={this.OnPropDialogCreateClick}>
             <DialogTitle id="form-dialog-title">Add Component/Property</DialogTitle>
             <DialogContent>
               <DialogContentText>Type a name for your component or property.</DialogContentText>
@@ -608,12 +612,12 @@ class ViewMain extends React.Component {
                 id="propLabel"
                 label="Label"
                 fullWidth
-                onChange={this.HandleAddPropLabelChange}
+                onChange={this.OnPropDialogLabelChange}
                 value={addPropLabel}
               />
             </DialogContent>
             <DialogActions>
-              <Button onClick={this.HandleAddPropClose} color="primary">
+              <Button onClick={this.OnPropDialogClose} color="primary">
                 Cancel
               </Button>
               <Button type="submit" color="primary">
@@ -637,7 +641,7 @@ class ViewMain extends React.Component {
         >
           <Fab
             hidden={!(componentIsSelected || mechIsSelected)}
-            onClick={componentIsSelected ? this.HandlePropDelete : this.HandleMechDelete}
+            onClick={componentIsSelected ? this.OnPropDelete : this.OnMechDelete}
             color="secondary"
             variant="extended"
             size="small"
@@ -647,7 +651,7 @@ class ViewMain extends React.Component {
           </Fab>
           <Fab
             hidden={!(componentIsSelected || mechIsSelected)}
-            onClick={componentIsSelected ? this.HandlePropEdit : this.OnMechEdit}
+            onClick={componentIsSelected ? this.DoPropEdit : this.OnMechEdit}
             color="primary"
             variant="extended"
           >
@@ -656,7 +660,7 @@ class ViewMain extends React.Component {
           </Fab>
           <Fab
             hidden={!componentIsSelected}
-            onClick={this.HandlePropAdd}
+            onClick={this.OnPropAdd}
             color="primary"
             variant="extended"
           >

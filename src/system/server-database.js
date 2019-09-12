@@ -354,18 +354,24 @@ DB.PKT_GetDatabase = pkt => {
   model.data = {
     // components is a 'component' or a 'property' (if it has a parent)
     properties: [
-      { id: 'tank', name: 'tank' },
+      { id: 'fertilizer', name: 'fertilizer' },
+      { id: 'nutrients', name: 'nutrients', parent: 'fertilizer' },
+      { id: 'algae', name: 'algae' },
+      { id: 'deadstuff', name: 'dead stuff' },
+      { id: 'decomposers', name: 'decomposers' },
+      { id: 'oxygen', name: 'oxygen' },
       { id: 'fish', name: 'fish' },
-      { id: 'food', name: 'food' },
-      { id: 'ammonia', name: 'Ammonia' },
-      { id: 'clean-water', name: 'clean water', parent: 'tank' },
-      { id: 'dirty-water-waste', name: 'waste', parent: 'tank' },
-      { id: 'poop', name: 'poop', parent: 'dirty-water-waste' }
+      { id: 'population', name: 'population', parent: 'fish' }
     ],
     mechanisms: [
-      { source: 'fish', target: 'tank', name: 'live in' },
-      { source: 'fish', target: 'food', name: 'eat' },
-      { source: 'fish', target: 'dirty-water-waste', name: 'produce' }
+      { source: 'fertilizer', target: 'nutrients', name: 'increase' },
+      { source: 'nutrients', target: 'algae', name: 'increase' },
+      { source: 'algae', target: 'deadstuff', name: 'die (incrase)' },
+      { source: 'decomposers', target: 'deadstuff', name: 'eat' },
+      { source: 'decomposers', target: 'oxygen', name: 'breath (decrease)' },
+      { source: 'oxygen', target: 'population', name: 'if too low, decreases' },
+      { source: 'fish', target: 'deadstuff', name: 'die (increase)' }
+
     ],
     evidence: [
       {
@@ -379,8 +385,8 @@ DB.PKT_GetDatabase = pkt => {
       },
       {
         evId: 'ev3',
-        propId: 'fish',
-        mechId: undefined,
+        propId: undefined,
+        mechId: 'decomposers:deadstuff',
         rsrcId: 'rs2',
         number: '2a',
         rating: 2,
@@ -397,35 +403,8 @@ DB.PKT_GetDatabase = pkt => {
       },
       {
         evId: 'ev4',
-        propId: undefined,
-        mechId: 'fish:food',
-        rsrcId: 'rs1',
-        number: '1c',
-        rating: 3,
-        note: 'fish need food'
-      },
-      {
-        evId: 'ev5',
-        propId: 'food',
+        propId: 'nutrients',
         mechId: undefined,
-        rsrcId: 'rs2',
-        number: '2b',
-        rating: 2,
-        note: 'ammonia is bad'
-      },
-      {
-        evId: 'ev6',
-        propId: undefined,
-        mechId: 'fish:food',
-        rsrcId: 'rs2',
-        number: '2c',
-        rating: 1,
-        note: 'ammonia is bad'
-      },
-      {
-        evId: 'ev7',
-        propId: undefined,
-        mechId: 'fish:dirty-water-waste',
         rsrcId: 'rs2',
         number: '2d',
         rating: 1,
@@ -448,7 +427,7 @@ DB.PKT_GetDatabase = pkt => {
         ]
       },
       {
-        id: 'tank',
+        id: 'decomposers',
         comments: [
           {
             id: 0,
@@ -471,7 +450,7 @@ DB.PKT_GetDatabase = pkt => {
         ]
       },
       {
-        id: 'fish',
+        id: 'algae',
         comments: [
           {
             id: 0,
@@ -503,7 +482,7 @@ DB.PKT_GetDatabase = pkt => {
         ]
       },
       {
-        id: 'fish:food',
+        id: 'fish',
         comments: [
           {
             id: 0,
@@ -520,29 +499,6 @@ DB.PKT_GetDatabase = pkt => {
             author: 'Bill',
             date: new Date(),
             text: 'Food fish food fish',
-            criteriaId: 'cr02',
-            readBy: []
-          }
-        ]
-      },
-      {
-        id: 'fish:dirty-water-waste',
-        comments: [
-          {
-            id: 0,
-            time: 0,
-            author: 'Bill',
-            date: new Date(),
-            text: 'Fish food fish poop',
-            criteriaId: 'cr01',
-            readBy: ['Bob', 'Bill']
-          },
-          {
-            id: 1,
-            time: 10,
-            author: 'Bill',
-            date: new Date(),
-            text: 'Poop fish food fish',
             criteriaId: 'cr02',
             readBy: []
           }

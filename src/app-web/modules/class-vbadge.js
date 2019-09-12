@@ -170,12 +170,19 @@ class VBadge {
     }
     
     // Set Current Read/Unreaad status
+    let hasNoComments;
+    let hasUnreadComments;
     const comments = PMC.GetComments(vparent.id);
-    const author = ADM.GetSelectedStudentId(); // FIXME: This should read from session
-    const hasNoComments = comments ? comments.length < 1 : true;
-    const hasUnreadComments = comments.find(comment => {
-      return comment.readBy ? !comment.readBy.includes(author) : false;
-    });
+    if (comments === undefined) {
+      hasNoComments = true;
+      hasUnreadComments = false;
+    } else {
+      hasNoComments = comments.length < 1;
+      const author = ADM.GetSelectedStudentId(); // FIXME: This should read from session
+      hasUnreadComments = comments.find(comment => {
+        return comment.readBy ? !comment.readBy.includes(author) : false;
+      });
+    }
     if (hasNoComments) {
       this.gStickyButtons.chat.attr('display', 'none');
       this.gStickyButtons.chatBubble.attr('display', 'none');

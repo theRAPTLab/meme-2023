@@ -103,128 +103,28 @@ DB.InitializeDatabase = (options = {}) => {
  * Package the database and related templatesinto the provided pkt object.
  */
 DB.PKT_GetDatabase = pkt => {
-  let nodes = NODES.chain().data({ removeMeta: true });
-  let edges = EDGES.chain().data({ removeMeta: true });
-  if (DBG)
-    console.log(
-      PR,
-      `PKT_GetDatabase ${pkt.Info()} (loaded ${nodes.length} nodes, ${edges.length} edges)`
-    );
   LOGGER.Write(pkt.Info(), `getdatabase`);
+  const DATASET_PATH = `${__dirname}/datasets/meme`;
   const adm_db = {};
   // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
-  adm_db.a_teachers = [
-    { id: 'brown', name: 'Ms Brown' },
-    { id: 'smith', name: 'Mr Smith' },
-    { id: 'gordon', name: 'Ms Gordon' }
-  ];
+  adm_db.a_teachers = require(`${DATASET_PATH}/teachers.db`);
   // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
-  adm_db.a_classrooms = [
-    { id: 'cl01', name: 'Period 1', teacherId: 'brown' },
-    { id: 'cl02', name: 'Period 3', teacherId: 'brown' },
-    { id: 'cl03', name: 'Period 2', teacherId: 'smith' },
-    { id: 'cl04', name: 'Period 3', teacherId: 'smith' }
-  ];
+  adm_db.a_classrooms = require(`${DATASET_PATH}/classrooms.db`);
   // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
-  adm_db.a_groups = [
-    { id: 'gr01', name: 'Blue', students: ['Bob', 'Bessie', 'Bill'], classroomId: 'cl01' },
-    { id: 'gr02', name: 'Green', students: ['Ginger', 'Gail', 'Greg'], classroomId: 'cl01' },
-    { id: 'gr03', name: 'Red', students: ['Rob', 'Reese', 'Randy'], classroomId: 'cl01' },
-    { id: 'gr04', name: 'Purple', students: ['Peter', 'Paul', 'Penelope'], classroomId: 'cl01' },
-    { id: 'gr05', name: 'Mackerel', students: ['Mary', 'Mavis', 'Maddy'], classroomId: 'cl02' }
-  ];
+  adm_db.a_groups = require(`${DATASET_PATH}/groups.db`);
   // LIST SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS AND STUDENTS
+
   // ids here are relevant to PMCData / SVGView operation
-  adm_db.a_models = [
-    { id: 'mo01', title: 'Fish Sim', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
-    { id: 'mo02', title: 'Tank Sim', groupId: 'gr05', dateCreated: '', dateModified: '', data: '' },
-    { id: 'mo03', title: 'Ammonia', groupId: 'gr01', dateCreated: '', dateModified: '', data: '' },
-    { id: 'mo04', title: 'Fish Sim', groupId: 'gr02', dateCreated: '', dateModified: '', data: '' },
-    { id: 'mo05', title: 'Tank Sim', groupId: 'gr02', dateCreated: '', dateModified: '', data: '' },
-    { id: 'mo06', title: 'Fish Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' },
-    { id: 'mo07', title: 'No Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' },
-    { id: 'mo08', title: 'Fish Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' },
-    { id: 'mo09', title: 'Tank Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' },
-    { id: 'mo10', title: 'Fish Sim', groupId: 'gr04', dateCreated: '', dateModified: '', data: '' },
-    { id: 'mo11', title: 'No Sim', groupId: 'gr05', dateCreated: '', dateModified: '', data: '' }
-  ];
+  adm_db.a_models = require(`${DATASET_PATH}/models.db`);
   // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
   // ViewMain will eventually show a link that shows criteria
-  adm_db.a_criteria = [
-    {
-      id: 'cr01',
-      label: 'Clarity',
-      description: 'How clear is the explanation?',
-      classroomId: 'cl01'
-    },
-    {
-      id: 'cr02',
-      label: 'Visuals',
-      description: 'Does the layout make sense?',
-      classroomId: 'cl01'
-    },
-    {
-      id: 'cr03',
-      label: 'Clarity',
-      description: 'How clear is the evidence link?',
-      classroomId: 'cl02'
-    },
-    {
-      id: 'cr04',
-      label: 'Layout',
-      description: 'Does the layout make sense?',
-      classroomId: 'cl02'
-    }
-  ];
+  adm_db.a_criteria = require(`${DATASET_PATH}/criteria.db`);
   // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
-  adm_db.a_sentenceStarters = [
-    {
-      id: 'ss01',
-      classroomId: 'cl01',
-      sentences: 'I noticed...\nI think...'
-    },
-    {
-      id: 'ss02',
-      classroomId: 'cl02',
-      sentences: 'We noticed...'
-    },
-    {
-      id: 'ss03',
-      classroomId: 'cl03',
-      sentences: 'We believe...'
-    }
-  ];
+  adm_db.a_sentenceStarters = require(`${DATASET_PATH}/sentence-starters.db`);
   // SAVED IN ELECTRON/LOKI, (EVENTUALLY) EDITABLE BY TEACHERS
-  adm_db.a_ratingsDefinitions = [
-    {
-      classroomId: 'cl01', definitions: [
-        { label: 'Really disagrees!', rating: -3 },
-        { label: 'Kinda disagrees!', rating: -2 },
-        { label: 'Disagrees a little', rating: -1 },
-        { label: 'Not rated / Irrelevant', rating: 0 },
-        { label: 'Weak support', rating: 1 },
-        { label: 'Medium support', rating: 2 },
-        { label: 'Rocks!!', rating: 3 }
-      ]
-    },
-    {
-      classroomId: 'cl02', definitions: [
-        { label: 'Will this!', rating: -2 },
-        { label: 'break', rating: -1 },
-        { label: 'with not', rating: 0 },
-        { label: 'enough', rating: 1 },
-        { label: 'elements', rating: 2 },
-        { label: 'here?', rating: 3 }
-      ]
-    }
-  ];
+  adm_db.a_ratingsDefinitions = require(`${DATASET_PATH}/ratings-definitions.db`);
   // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
-  adm_db.a_classroomResources = [
-    { classroomId: 'cl01', resources: ['rs1', 'rs2'] }, // PMCData Rsources
-    { classroomId: 'cl02', resources: ['rs2', 'rs3'] },
-    { classroomId: 'cl03', resources: ['rs4', 'rs5'] },
-    { classroomId: 'cl04', resources: ['rs6', 'rs7'] }
-  ];
+  adm_db.a_classroomResources = require(`${DATASET_PATH}/classroom-resources.db`);
 
   /*/
      *    Resources
@@ -233,89 +133,7 @@ DB.PKT_GetDatabase = pkt => {
      *    (Screenshot-creation and saving have not been implemented yet).
      *
     /*/
-  adm_db.a_resources = [
-    {
-      rsrcId: 'rs1',
-      referenceLabel: '1',
-      label: 'Fish in a Tank Simulation',
-      notes: 'water quality and fish deaths over time',
-      type: 'simulation',
-      url: '../static/dlc/FishinaTank.html',
-      links: 0
-    },
-    {
-      rsrcId: 'rs2',
-      referenceLabel: '2',
-      label: "Raj's forum post.",
-      notes: 'Forum post about fish deaths',
-      type: 'report',
-      url: '../static/dlc/RajForumPost.pdf',
-      links: 0
-    },
-    {
-      rsrcId: 'rs3',
-      referenceLabel: '3',
-      label: 'Autopsy Report',
-      notes: 'Fighting?',
-      type: 'report',
-      url: '../static/dlc/VetReport.pdf',
-      links: 0
-    },
-    {
-      rsrcId: 'rs4',
-      referenceLabel: '4',
-      label: 'Fish Starving Simulation',
-      notes: 'food and fish population',
-      type: 'simulation',
-      url: '../static/dlc/FishStarving.html',
-      links: 0
-    },
-    {
-      rsrcId: 'rs5',
-      referenceLabel: '5',
-      label: 'Ammonia Testing',
-      notes: 'Ammonia Testing and Water Quality',
-      type: 'report',
-      url: '../static/dlc/AmmoniaTesting.pdf',
-      links: 0
-    },
-    {
-      rsrcId: 'rs6',
-      referenceLabel: '6',
-      label: 'Fish Fighting Simulation',
-      notes: 'fighting, fish death',
-      type: 'simulation',
-      url: '../static/dlc/FishFighting.html',
-      links: 0
-    },
-    {
-      rsrcId: 'rs7',
-      referenceLabel: '7',
-      label: 'Food Rot Simulation',
-      notes: 'rotting, waste, fish death',
-      type: 'simulation',
-      url: '../static/dlc/FoodRot.html',
-      links: 0
-    },
-    {
-      rsrcId: 'rs8',
-      referenceLabel: '8',
-      label: 'Ammonia in Tanks Report',
-      notes: 'Ammonia, Research',
-      type: 'report',
-      url: '../static/dlc/AmmoniaInTanks.pdf',
-      links: 0
-    },
-    {
-      rsrcId: 'rs9',
-      referenceLabel: '9',
-      label: 'Fish Simulation With All Variables',
-      notes: 'ammonia, waste, death, food, rotting, aggression, filter',
-      type: 'simulation',
-      url: '../static/dlc/FishAllVariables.html',
-      links: 0
-    }
-  ];
+  adm_db.a_resources = require(`${DATASET_PATH}/resources.db`);
 
   // HACK IN TEMPORARY DATA
   /*\
@@ -350,212 +168,13 @@ DB.PKT_GetDatabase = pkt => {
 
   \*/
 
+  // TEMP HACK MODEL LOAD
   let model = adm_db.a_models.find(model => model.id === 'mo01');
-  model.data = {
-    // components is a 'component' or a 'property' (if it has a parent)
-    properties: [
-      { id: 'tank', name: 'tank' },
-      { id: 'fish', name: 'fish' },
-      { id: 'food', name: 'food' },
-      { id: 'ammonia', name: 'Ammonia' },
-      { id: 'clean-water', name: 'clean water', parent: 'tank' },
-      { id: 'dirty-water-waste', name: 'waste', parent: 'tank' },
-      { id: 'poop', name: 'poop', parent: 'dirty-water-waste' }
-    ],
-    mechanisms: [
-      { source: 'fish', target: 'tank', name: 'live in' },
-      { source: 'fish', target: 'food', name: 'eat' },
-      { source: 'fish', target: 'dirty-water-waste', name: 'produce' }
-    ],
-    evidence: [
-      {
-        evId: 'ev1',
-        propId: 'fish',
-        mechId: undefined,
-        rsrcId: 'rs1',
-        number: '1a',
-        rating: 3,
-        note: 'ghoti ghoti gothi need food'
-      },
-      {
-        evId: 'ev3',
-        propId: 'fish',
-        mechId: undefined,
-        rsrcId: 'rs2',
-        number: '2a',
-        rating: 2,
-        note: 'fish need food'
-      },
-      {
-        evId: 'ev2',
-        propId: 'fish',
-        mechId: undefined,
-        rsrcId: 'rs1',
-        number: '1b',
-        rating: -3,
-        note: 'fish need food'
-      },
-      {
-        evId: 'ev4',
-        propId: undefined,
-        mechId: 'fish:food',
-        rsrcId: 'rs1',
-        number: '1c',
-        rating: 3,
-        note: 'fish need food'
-      },
-      {
-        evId: 'ev5',
-        propId: 'food',
-        mechId: undefined,
-        rsrcId: 'rs2',
-        number: '2b',
-        rating: 2,
-        note: 'ammonia is bad'
-      },
-      {
-        evId: 'ev6',
-        propId: undefined,
-        mechId: 'fish:food',
-        rsrcId: 'rs2',
-        number: '2c',
-        rating: 1,
-        note: 'ammonia is bad'
-      },
-      {
-        evId: 'ev7',
-        propId: undefined,
-        mechId: 'fish:dirty-water-waste',
-        rsrcId: 'rs2',
-        number: '2d',
-        rating: 1,
-        note: 'ammonia is bad'
-      }
-    ],
-    commentThreads: [
-      {
-        id: 'ev3',
-        comments: [
-          {
-            id: 0,
-            time: 0,
-            author: 'Bob',
-            date: new Date(),
-            text: 'Comment on "fish need food"',
-            criteriaId: 'cr01',
-            readBy: ['Bob', 'Bill']
-          }
-        ]
-      },
-      {
-        id: 'tank',
-        comments: [
-          {
-            id: 0,
-            time: 0,
-            author: 'Bob',
-            date: new Date(),
-            text: 'Tank you',
-            criteriaId: 'cr01',
-            readBy: ['Bob', 'Bill']
-          },
-          {
-            id: 1,
-            time: 10,
-            author: 'Bill',
-            date: new Date(),
-            text: 'This tanks!',
-            criteriaId: 'cr02',
-            readBy: []
-          }
-        ]
-      },
-      {
-        id: 'fish',
-        comments: [
-          {
-            id: 0,
-            time: 0,
-            author: 'Bob',
-            date: new Date(),
-            text: 'I like this fish',
-            criteriaId: 'cr01',
-            readBy: ['Bob', 'Bill']
-          },
-          {
-            id: 1,
-            time: 10,
-            author: 'Bill',
-            date: new Date(),
-            text: 'I DONT like this fish',
-            criteriaId: 'cr02',
-            readBy: []
-          },
-          {
-            id: 2,
-            time: 11,
-            author: 'Mary',
-            date: new Date(),
-            text: 'This is not my fish!',
-            criteriaId: 'cr02',
-            readBy: []
-          }
-        ]
-      },
-      {
-        id: 'fish:food',
-        comments: [
-          {
-            id: 0,
-            time: 0,
-            author: 'Bill',
-            date: new Date(),
-            text: 'Fish food fish food',
-            criteriaId: 'cr01',
-            readBy: ['Bob', 'Bill']
-          },
-          {
-            id: 1,
-            time: 10,
-            author: 'Bill',
-            date: new Date(),
-            text: 'Food fish food fish',
-            criteriaId: 'cr02',
-            readBy: []
-          }
-        ]
-      },
-      {
-        id: 'fish:dirty-water-waste',
-        comments: [
-          {
-            id: 0,
-            time: 0,
-            author: 'Bill',
-            date: new Date(),
-            text: 'Fish food fish poop',
-            criteriaId: 'cr01',
-            readBy: ['Bob', 'Bill']
-          },
-          {
-            id: 1,
-            time: 10,
-            author: 'Bill',
-            date: new Date(),
-            text: 'Poop fish food fish',
-            criteriaId: 'cr02',
-            readBy: []
-          }
-        ]
-      }
-    ]
-  };
+  model.data = require(`${DATASET_PATH}/models/mo01.db`);
 
+  // TEMP HACK ANOTHER MODEL LOAD
   model = adm_db.a_models.find(model => model.id === 'mo02');
-  model.data = {
-    // components is a 'component' or a 'property' (if it has a parent)
-    properties: [{ id: 'tank', name: 'tank' }, { id: 'fish', name: 'fish' }]
-  };
+  model.data = require(`${DATASET_PATH}/models/mo02.db`);
 
   // return { d3data: { nodes, edges }, template: TEMPLATE };
   return adm_db;

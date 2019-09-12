@@ -325,56 +325,58 @@ class MechDialog extends React.Component {
     return (
       <Card className={classes.edgeDialog} hidden={!isOpen}>
         <Paper className={classes.edgeDialogPaper}>
-          <div className={classes.edgeDialogWindowLabel}>ADD MECHANISM</div>
-          <div className={classes.edgeDialogInput}>
-            <Slide direction={reversing ? 'left' : 'up'} in={slideIn}>
-              <LinkButton
-                sourceType="prop"
-                sourceLabel={sourceLabel}
-                listenForSourceSelection={listenForSourceSelection}
-                isBeingEdited
-                isExpanded={false}
-                OnLinkButtonClick={this.OnSourceLinkButtonClick}
+          <form onSubmit={this.OnCreateClick}>
+            <div className={classes.edgeDialogWindowLabel}>ADD MECHANISM</div>
+            <div className={classes.edgeDialogInput}>
+              <Slide direction={reversing ? 'left' : 'up'} in={slideIn}>
+                <LinkButton
+                  sourceType="prop"
+                  sourceLabel={sourceLabel}
+                  listenForSourceSelection={listenForSourceSelection}
+                  isBeingEdited
+                  isExpanded={false}
+                  OnLinkButtonClick={this.OnSourceLinkButtonClick}
+                />
+              </Slide>
+              &nbsp;&nbsp;
+              <TextField
+                autoFocus
+                placeholder="link label"
+                margin="dense"
+                id="edgeLabel"
+                label="Label"
+                value={label}
+                onChange={this.OnTextChange}
+                className={classes.edgeDialogTextField}
               />
-            </Slide>
-            &nbsp;&nbsp;
-            <TextField
-              autoFocus
-              placeholder="link label"
-              margin="dense"
-              id="edgeLabel"
-              label="Label"
-              value={label}
-              onChange={this.OnTextChange}
-              className={classes.edgeDialogTextField}
-            />
-            &nbsp;&nbsp;
-            <Slide direction={reversing ? 'right' : 'up'} in={slideIn}>
-              <LinkButton
-                sourceType="prop"
-                sourceLabel={targetLabel}
-                listenForSourceSelection={listenForTargetSelection}
-                isBeingEdited
-                isExpanded={false}
-                OnLinkButtonClick={this.OnTargetLinkButtonClick}
-              />
-            </Slide>
-            <div style={{ flexGrow: '1' }} />
-            <Button onClick={this.OnClose} color="default">
-              Cancel
-            </Button>
-            <Button onClick={this.OnReverse} color="primary">
-              Reverse Direction
-            </Button>
-            <Button
-              onClick={this.OnCreateClick}
-              color="primary"
-              variant="contained"
-              disabled={sourceId === '' || targetId === ''}
-            >
-              {saveButtonLabel}
-            </Button>
-          </div>
+              &nbsp;&nbsp;
+              <Slide direction={reversing ? 'right' : 'up'} in={slideIn}>
+                <LinkButton
+                  sourceType="prop"
+                  sourceLabel={targetLabel}
+                  listenForSourceSelection={listenForTargetSelection}
+                  isBeingEdited
+                  isExpanded={false}
+                  OnLinkButtonClick={this.OnTargetLinkButtonClick}
+                />
+              </Slide>
+              <div style={{ flexGrow: '1' }} />
+              <Button onClick={this.OnClose} color="default">
+                Cancel
+              </Button>
+              <Button onClick={this.OnReverse} color="primary">
+                Reverse Direction
+              </Button>
+              <Button
+                type="submit"
+                color="primary"
+                variant="contained"
+                disabled={sourceId === '' || targetId === ''}
+              >
+                {saveButtonLabel}
+              </Button>
+            </div>
+          </form>
         </Paper>
       </Card>
     );

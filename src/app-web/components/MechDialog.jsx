@@ -300,7 +300,10 @@ class MechDialog extends React.Component {
     }
   }
 
-  OnCreateClick() {
+  OnCreateClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (DBG) console.log('create edge');
     this.DoSaveData();
     this.DoClose();

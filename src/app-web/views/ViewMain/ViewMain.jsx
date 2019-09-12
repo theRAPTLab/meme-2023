@@ -97,7 +97,7 @@ class ViewMain extends React.Component {
     this.DoMechClosed = this.DoMechClosed.bind(this);
     this.HandleComponentAdd = this.HandleComponentAdd.bind(this);
     this.HandleAddPropClose = this.HandleAddPropClose.bind(this);
-    this.HandleAddPropCreate = this.HandleAddPropCreate.bind(this);
+    this.OnAddPropDialogCreateClick = this.OnAddPropDialogCreateClick.bind(this);
     this.handleEvLinkSourceSelectRequest = this.handleEvLinkSourceSelectRequest.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     UR.Subscribe('WINDOW:SIZE', this.UpdateDimensions);
@@ -351,7 +351,10 @@ class ViewMain extends React.Component {
     this.setState({ addPropOpen: false });
   }
 
-  HandleAddPropCreate() {
+  OnAddPropDialogCreateClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
     if (DBG) console.log('create prop');
     if (this.state.addPropIsProperty) {
       // Add a property to the selected component
@@ -592,33 +595,35 @@ class ViewMain extends React.Component {
         {/* Resource View */}
         <ResourceView />
 
-        {/* Component/Mech label editing dialog */}
+        {/* Component/Property label editing dialog */}
         <Dialog
           open={this.state.addPropOpen}
           onClose={this.HandleAddPropClose}
           aria-labelledby="form-dialog-title"
         >
-          <DialogTitle id="form-dialog-title">Add Component/Property</DialogTitle>
-          <DialogContent>
-            <DialogContentText>Type a name for your component or property.</DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="propLabel"
-              label="Label"
-              fullWidth
-              onChange={this.HandleAddPropLabelChange}
-              value={addPropLabel}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.HandleAddPropClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={this.HandleAddPropCreate} color="primary">
-              {addPropPropId === '' ? 'Create' : 'Save'}
-            </Button>
-          </DialogActions>
+          <form onSubmit={this.OnAddPropDialogCreateClick}>
+            <DialogTitle id="form-dialog-title">Add Component/Property</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Type a name for your component or property.</DialogContentText>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="propLabel"
+                label="Label"
+                fullWidth
+                onChange={this.HandleAddPropLabelChange}
+                value={addPropLabel}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.HandleAddPropClose} color="primary">
+                Cancel
+              </Button>
+              <Button type="submit" color="primary">
+                {addPropPropId === '' ? 'Create' : 'Save'}
+              </Button>
+            </DialogActions>
+          </form>
         </Dialog>
 
         {/* Component/Mech add/edit/delete buttons that respond to selection events */}

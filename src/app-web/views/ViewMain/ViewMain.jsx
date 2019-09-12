@@ -311,7 +311,8 @@ class ViewMain extends React.Component {
     if (selectedMechIds.length > 0) {
       DATA.VM_DeselectAll(); // deselect so mech buttons disappear
       this.setState({
-        suppressSelection: true // used to hide Add/Edit buttons
+        suppressSelection: true, // used to hide Add/Edit buttons
+        addEdgeOpen: true
       });
       let mechId = selectedMechIds[0];
       let mech = DATA.Mech(mechId);
@@ -327,7 +328,8 @@ class ViewMain extends React.Component {
 
   DoMechClosed() {
     this.setState({
-      suppressSelection: false
+      suppressSelection: false,
+      addEdgeOpen: false
     });
   }
 
@@ -443,6 +445,8 @@ class ViewMain extends React.Component {
       studentGroup,
       addPropLabel,
       addPropPropId,
+      addPropOpen,
+      addEdgeOpen,
       componentIsSelected,
       mechIsSelected,
       suppressSelection
@@ -507,6 +511,7 @@ class ViewMain extends React.Component {
               aria-label="Add"
               className={classes.fab}
               onClick={this.OnComponentAdd}
+              disabled={addPropOpen || addEdgeOpen}
             >
               <AddIcon />
             </Fab>
@@ -532,6 +537,7 @@ class ViewMain extends React.Component {
               aria-label="Add"
               className={ClassNames(classes.fab, classes.edgeButton)}
               onClick={this.OnMechAdd}
+              disabled={addPropOpen || addEdgeOpen}
             >
               <AddIcon />
             </Fab>

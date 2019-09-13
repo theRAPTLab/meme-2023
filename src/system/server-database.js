@@ -19,26 +19,21 @@ const SESSION = require('./common-session');
 const LOGGER = require('./server-logger');
 const PROMPTS = require('../system/util/prompts');
 
-const { TERM_DB: CLR, TR } = PROMPTS;
+const { TERM_DB: CLR, TR, CCRIT } = PROMPTS;
 const PR = `${CLR}${PROMPTS.Pad('UR_DB')}${TR}`;
 const RUNTIMEPATH = PATH.join(__dirname, '../../runtime');
+const DATASETPATH = PATH.join(__dirname, '/datasets/meme');
 
 /// MODULE-WIDE VARS //////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 let m_options; // saved initialization options
 let m_db; // loki database
-let m_max_edgeID;
-let m_max_nodeID;
-let NODES; // loki "nodes" collection
-let EDGES; // loki "edges" collection
-let m_locked_nodes;
-let m_locked_edges;
-let TEMPLATE;
+let COLLECTION = {};
 
 /// API METHODS ///////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 const DB_CONFIG = {
-  dataset: 'meme'
+  dataset: 'meme' // eventually this will be provided from somewhere
 }; //
 const DB = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -49,7 +44,7 @@ DB.InitializeDatabase = (options = {}) => {
   let db_file = m_GetValidDBFilePath(dataset);
   FS.ensureDirSync(PATH.dirname(db_file));
   if (!FS.existsSync(db_file)) {
-    console.log(PR, `NO EXISTING DATABASE ${db_file}, so creating BLANK DATABASE...`);
+    console.log(PR, `CREATING NEW DATABASE FILE '${db_file}'`);
   }
 
   // initialize database with given options
@@ -62,10 +57,8 @@ DB.InitializeDatabase = (options = {}) => {
     autosaveCallback: f_AutosaveStatus,
     autosaveInterval: 4000 // save every four seconds
   };
-
-  ropt = Object.assign(ropt, options);
-  m_db = new Loki(db_file, ropt);
-  m_options = ropt;
+  m_options = Object.assign(ropt, options);
+  m_db = new Loki(db_file, m_options);
   m_options.db_file = db_file; // store for use by DB.WriteJSON
 
   // callback on load
@@ -73,14 +66,21 @@ DB.InitializeDatabase = (options = {}) => {
     // on the first load of (non-existent database), we will have no
     // collections so we can detect the absence of our collections and
     // add (and configure) them now.
-    NODES = m_db.getCollection('nodes');
-    if (NODES === null) NODES = m_db.addCollection('nodes');
-    m_locked_nodes = new Set();
-    EDGES = m_db.getCollection('edges');
-    if (EDGES === null) EDGES = m_db.addCollection('edges');
-    m_locked_edges = new Set();
-
+    if (options.memehost === 'devserver') {
+      const fname = `'datasets/${DB_CONFIG.dataset}'`;
+      console.log(PR, `${CCRIT}DEV OVERRIDE${TR}...reloading database from ${fname}`);
+    }
+    f_LoadCollection(`teachers`);
+    f_LoadCollection(`classrooms`);
+    f_LoadCollection(`groups`);
+    f_LoadCollection(`models`);
+    f_LoadCollection(`criteria`);
+    f_LoadCollection(`sentenceStarters`);
+    f_LoadCollection(`ratingsDefinitions`);
+    f_LoadCollection(`classroomResources`);
+    f_LoadCollection(`resources`);
     console.log(PR, `database ready`);
+    console.log(PR, fout_CountCollections());
     m_db.saveDatabase();
 
     // Call complete callback
@@ -91,9 +91,46 @@ DB.InitializeDatabase = (options = {}) => {
 
   // UTILITY FUNCTION
   function f_AutosaveStatus() {
-    let nodeCount = NODES.count();
-    let edgeCount = EDGES.count();
-    console.log(PR, `AUTOSAVING! ${nodeCount} NODES / ${edgeCount} EDGES <3`);
+    const status = fout_CountCollections();
+    console.log(PR, `AUTOSAVING! ${status}`);
+  }
+
+  // UTILITY FUNCTION
+  function f_EnsureCollection(col) {
+    if (m_db.getCollection(col) === null) m_db.addCollection(col);
+    return m_db.getCollection(col);
+  }
+
+  function f_LoadCollection(col) {
+    const collection = f_EnsureCollection(col);
+    COLLECTION[col] = collection;
+    if (options.memehost !== 'devserver') {
+      console.log(PR, `loaded '${col}' w/ ${collection.count()} elements`);
+      return;
+    }
+    const dpath = `${DATASETPATH}/${col}.db`;
+    console.log(PR, `resetting dataset '${col}.db'`);
+    collection.clear();
+    collection.insert(require(dpath));
+    // save collection reference
+  }
+
+  // UTILITY FUNCTION
+  function fout_CountCollections() {
+    let out = '';
+    out += count('teachers');
+    out += count('classrooms');
+    out += count('groups');
+    out += count('models');
+    out += count('criteria');
+    out += count('classroomResources');
+    out += count('resources');
+    //
+    function count(col) {
+      return `${col}: ${m_db.getCollection(col).count()} `;
+    }
+    //
+    return out;
   }
 };
 
@@ -104,31 +141,27 @@ DB.InitializeDatabase = (options = {}) => {
  */
 DB.PKT_GetDatabase = pkt => {
   LOGGER.Write(pkt.Info(), `getdatabase`);
-  const DATASET_PATH = `${__dirname}/datasets/meme`;
   const adm_db = {};
 
-  // HARDCODED PLACEHOLDER ADMIN DATA
-  adm_db.a_teachers = require(`${DATASET_PATH}/teachers.db`);
-  adm_db.a_classrooms = require(`${DATASET_PATH}/classrooms.db`);
-  adm_db.a_groups = require(`${DATASET_PATH}/groups.db`);
-  adm_db.a_models = require(`${DATASET_PATH}/models.db`);
-  adm_db.a_criteria = require(`${DATASET_PATH}/criteria.db`);
-  adm_db.a_sentenceStarters = require(`${DATASET_PATH}/sentence-starters.db`);
-  adm_db.a_ratingsDefinitions = require(`${DATASET_PATH}/ratings-definitions.db`);
-  adm_db.a_classroomResources = require(`${DATASET_PATH}/classroom-resources.db`);
-  adm_db.a_resources = require(`${DATASET_PATH}/resources.db`);
-
-  // HARDCODEDMODEL LOAD
-  let model = adm_db.a_models.find(model => model.id === 'mo01');
-  model.data = require(`${DATASET_PATH}/models/mo01.db`);
-
-  // HARDCODED MODEL LOAD
-  model = adm_db.a_models.find(model => model.id === 'mo02');
-  model.data = require(`${DATASET_PATH}/models/mo02.db`);
+  adm_db.a_teachers = f_GetCollectionData('teachers');
+  adm_db.a_classrooms = f_GetCollectionData('classrooms');
+  adm_db.a_groups = f_GetCollectionData('groups');
+  adm_db.a_models = f_GetCollectionData('models');
+  adm_db.a_criteria = f_GetCollectionData('criteria');
+  adm_db.a_sentenceStarters = f_GetCollectionData('sentenceStarters');
+  adm_db.a_ratingsDefinitions = f_GetCollectionData('ratingsDefinitions');
+  adm_db.a_classroomResources = f_GetCollectionData('classroomResources');
+  adm_db.a_resources = f_GetCollectionData('resources');
 
   // return object for transaction; URSYS will automatically return
   // to the netdevice that called this
   return adm_db;
+  //
+  function f_GetCollectionData(col) {
+    collection = m_db.getCollection(col);
+    if (!collection) throw Error(`Collection '${col}' doesn't exist`);
+    return collection.chain().data({ removeMeta: true });
+  }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API: reset database from passed nodes, edges array
@@ -540,7 +573,7 @@ function m_GetValidDBFilePath(dataset) {
     console.error(PR, `Trying to initialize database with bad dataset name: ${dataset}`);
   }
 
-  return `${RUNTIMEPATH}/dataset.loki`;
+  return `${RUNTIMEPATH}/${dataset}.loki`;
 }
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////

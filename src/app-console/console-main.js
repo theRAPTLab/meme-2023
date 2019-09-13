@@ -94,7 +94,7 @@ function createWindow() {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
     // launch UR server
-    URSERVER.Initialize();
+    URSERVER.Initialize({ memehost: 'electron' });
     URSERVER.StartNetwork();
     URSERVER.StartWebServer();
   });

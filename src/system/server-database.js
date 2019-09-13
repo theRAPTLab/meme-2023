@@ -106,77 +106,28 @@ DB.PKT_GetDatabase = pkt => {
   LOGGER.Write(pkt.Info(), `getdatabase`);
   const DATASET_PATH = `${__dirname}/datasets/meme`;
   const adm_db = {};
-  // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
+
+  // HARDCODED PLACEHOLDER ADMIN DATA
   adm_db.a_teachers = require(`${DATASET_PATH}/teachers.db`);
-  // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
   adm_db.a_classrooms = require(`${DATASET_PATH}/classrooms.db`);
-  // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
   adm_db.a_groups = require(`${DATASET_PATH}/groups.db`);
-  // LIST SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS AND STUDENTS
-
-  // ids here are relevant to PMCData / SVGView operation
   adm_db.a_models = require(`${DATASET_PATH}/models.db`);
-  // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
-  // ViewMain will eventually show a link that shows criteria
   adm_db.a_criteria = require(`${DATASET_PATH}/criteria.db`);
-  // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
   adm_db.a_sentenceStarters = require(`${DATASET_PATH}/sentence-starters.db`);
-  // SAVED IN ELECTRON/LOKI, (EVENTUALLY) EDITABLE BY TEACHERS
   adm_db.a_ratingsDefinitions = require(`${DATASET_PATH}/ratings-definitions.db`);
-  // SAVED IN ELECTRON/LOKI, EDITABLE BY TEACHERS
   adm_db.a_classroomResources = require(`${DATASET_PATH}/classroom-resources.db`);
-
-  /*/
-     *    Resources
-     *
-     *    Currently resources use a placeholder screenshot as the default image.
-     *    (Screenshot-creation and saving have not been implemented yet).
-     *
-    /*/
   adm_db.a_resources = require(`${DATASET_PATH}/resources.db`);
 
-  // HACK IN TEMPORARY DATA
-  /*\
-
-    stickynotes "hold" the comments for a particular PMC or Evidence object
-    annotations are the academic terminology for talking about some model element (?)
-    stickynotes are a form of annotation
-    * StickyNoteButtons
-    * StickyNote
-    model connections are an assertion or hypothesis
-    evidence links are a supporting assertion or hypothesis
-
-    properties: [
-      {
-        id, name, parent <optional>,
-        comments: [ commentObjects ]
-      }
-    ]
-    mechanisms: [
-      {
-        source,target,name},
-        comments: [ commentObjects ]
-      }
-    ]
-    evidence: [
-      {
-        evId, propId, mechId, rsrcId, number, note,
-        comments: [ commentObjects ]
-      }
-    ]
-    def commentObject = { id, author, date, text, criteriaId, readBy }
-
-  \*/
-
-  // TEMP HACK MODEL LOAD
+  // HARDCODEDMODEL LOAD
   let model = adm_db.a_models.find(model => model.id === 'mo01');
   model.data = require(`${DATASET_PATH}/models/mo01.db`);
 
-  // TEMP HACK ANOTHER MODEL LOAD
+  // HARDCODED MODEL LOAD
   model = adm_db.a_models.find(model => model.id === 'mo02');
   model.data = require(`${DATASET_PATH}/models/mo02.db`);
 
-  // return { d3data: { nodes, edges }, template: TEMPLATE };
+  // return object for transaction; URSYS will automatically return
+  // to the netdevice that called this
   return adm_db;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

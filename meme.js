@@ -103,7 +103,7 @@ function f_RunDevServer() {
 
   // run ursys socket server
   // note: in electron mode, this server is loaded from inside electron's console-main.js
-  URSERVER.InitializeNetwork();
+  URSERVER.Initialize();
   URSERVER.StartNetwork();
   URSERVER.StartWebServer();
 }

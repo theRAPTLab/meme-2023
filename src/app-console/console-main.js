@@ -94,7 +94,7 @@ function createWindow() {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
     // launch UR server
-    URSERVER.InitializeNetwork();
+    URSERVER.Initialize();
     URSERVER.StartNetwork();
     URSERVER.StartWebServer();
   });

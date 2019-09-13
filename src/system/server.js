@@ -36,7 +36,7 @@ let URSYS = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API: Main Entry Point
  */
-URSYS.InitializeNetwork = override => {
+URSYS.Initialize = override => {
   LOGGER.Write(LPR, `initializing network`);
   console.log(`${CS}STARTING UR SOCKET SERVER${CR}`);
   URSYS.RegisterHandlers();

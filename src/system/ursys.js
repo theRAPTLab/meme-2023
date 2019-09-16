@@ -26,6 +26,8 @@ const ULINK = NewConnection(PR);
 
 /// RUNTIME FLAGS /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// ur_legacy_publish is used to make DATALINK.Publish() work like Broadcast, so
+// messages will mirror back to itself
 CENTRAL.Define('ur_legacy_publish', true);
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////

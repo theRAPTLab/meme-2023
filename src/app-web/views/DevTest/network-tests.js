@@ -60,7 +60,7 @@ function ServerReflect(comp) {
     testServerReflect.fail('server no response');
   }, 1000);
 
-  ULINK.NetCall('SRV_REFLECT', { stack: ['me'] }).then(data => {
+  ULINK.NetCall('NET:SRV_REFLECT', { stack: ['me'] }).then(data => {
     testServerReflect.pass();
     if (data.serverSays === 'REFLECTING') {
       clearTimeout(timeout);
@@ -139,7 +139,7 @@ function GetDB(comp) {
   const timeout = setTimeout(() => {
     testGetDB.fail('timeout');
   }, 1000);
-  ULINK.NetCall('SRV_DBGET', {}).then(data => {
+  ULINK.NetCall('NET:SRV_DBGET', {}).then(data => {
     clearTimeout(timeout);
     testGetDB.pass();
   });

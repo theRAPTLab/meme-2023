@@ -188,7 +188,7 @@ function m_HandleMessage(msgEvent) {
   }
   let data = pkt.Data();
   let type = pkt.Type();
-  let dbgout = DBG.handle && !msg.startsWith('SRV_');
+  let dbgout = DBG.handle && !msg.startsWith('NET:SRV_');
   /// otherwise, incoming invocation from network
   switch (type) {
     case 'state':

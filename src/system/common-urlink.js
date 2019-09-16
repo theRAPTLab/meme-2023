@@ -252,7 +252,7 @@ class URLink {
     } else {
       messages = MESSAGER.NetMessageNames();
     }
-    return this.Call('SRV_REG_HANDLERS', { messages });
+    return this.Call('NET:SRV_REG_HANDLERS', { messages });
   }
 } // class URLink
 

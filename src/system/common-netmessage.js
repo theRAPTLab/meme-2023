@@ -178,7 +178,7 @@ class NetMessage {
   /** NetMessage.IsServerMessage() is a convenience function return true if
    * server message */
   IsServerMessage() {
-    return this.msg.startsWith('SRV_');
+    return this.msg.startsWith('NET:SRV_');
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

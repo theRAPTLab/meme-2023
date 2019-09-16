@@ -100,7 +100,7 @@ UNET.StartNetwork = () => {
  * @param {string} mesgName message to register a handler for
  * @param {function} handlerFunc function receiving 'data' object
  */
-UNET.NetSubscribe = (mesgName, handlerFunc) => {
+UNET.Subscribe = (mesgName, handlerFunc) => {
   if (typeof handlerFunc !== 'function') {
     throw Error('arg2 must be a function');
   }
@@ -110,7 +110,7 @@ UNET.NetSubscribe = (mesgName, handlerFunc) => {
     m_server_handlers.set(mesgName, handlers);
   }
   handlers.add(handlerFunc);
-}; // end NetSubscribe()
+}; // end Subscribe()
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** NetUnsubscribe() revokes a handler function from a registered message.
@@ -181,7 +181,7 @@ UNET.NetRaise = (mesgName, data) => {
  * @return {Object} object with registered property containing array of message
  */
 UNET.RegisterRemoteHandlers = pkt => {
-  if (pkt.Message() !== 'SRV_REG_HANDLERS') throw Error('not a registration packet');
+  if (pkt.Message() !== 'NET:SRV_REG_HANDLERS') throw Error('not a registration packet');
   let uaddr = pkt.SourceAddress();
   let { messages = [] } = pkt.Data();
   let regd = [];
@@ -334,7 +334,7 @@ async function m_HandleMessage(socket, pkt) {
   }
 
   // output the condition BEFORE async block runs
-  const DBG_NOSRV = !pkt.Message().startsWith('SRV_');
+  const DBG_NOSRV = !pkt.Message().startsWith('NET:SRV_');
   if (DBG) console_PktDirection(pkt, 'call', promises);
   if (DBG && DBG_NOSRV) console_PktTransaction(pkt, 'queuing', promises);
 

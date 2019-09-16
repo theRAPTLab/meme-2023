@@ -19,3 +19,21 @@ TEACHER-GROUP-HASH-FIRSTNAME
 
   global [ratings] rating - rating key / legend  for stars {signed int}
   global [resources] resource - master list of all resources in system
+
+
+IMPLEMENTING DATA INITIALIZATION
+
+When running the server from dev, we want to always load the hardcoded data.
+When running the server from electron, we want to initialize the database.
+
+Q. what happens with the runtime folder when making the electron build?
+A. meme.app/Contents/Resources/runtime/
+
+Q. How to tell if dev or electron?
+A. npm run dev runs meme.js, which loads server.js as URSERVER, which calls
+   InitializeNetwork(), StartNetwork(), and StartWebServer().
+   Electron builds are invoked through app-console/console-main.js instead.
+
+
+
+

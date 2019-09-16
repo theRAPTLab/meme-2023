@@ -23,6 +23,7 @@ const NetMessage = require('./common-netmessage');
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let MSGR_IDCOUNT = 0;
 let DBG = true;
+const VALID_CHANNELS = ['LOCAL', 'NET', 'STATE']; // * is all channels in list
 
 /// URSYS MESSAGER CLASS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -113,11 +114,10 @@ class Messager {
    * @param {boolean} [options.toNet=false] send to network message handlers
    */
   Publish(mesgName, inData, options = {}) {
+    const { NET, LOCAL, MESSAGE } = this.ParseMessage(mesgName);
     let { srcUID, type } = options;
-    let { toLocal = true, toNet = false } = options;
     const handlers = this.handlerMap.get(mesgName);
-    /// toLocal
-    if (handlers && toLocal)
+    if (handlers && LOCAL)
       handlers.forEach(handlerFunc => {
         // handlerFunc signature: (data,dataReturn) => {}
         // handlerFunc has ulink_id property to note originating ULINK object
@@ -133,7 +133,7 @@ class Messager {
       }); // end handlers.forEach
 
     /// toNetwork
-    if (toNet) {
+    if (NET) {
       let pkt = new NetMessage(mesgName, inData, type);
       pkt.SocketSend();
     } // end toNetwork
@@ -196,7 +196,7 @@ class Messager {
             return;
           }
           // Create a promise. if handlerFunc returns a promise, it follows
-          let p = f_MakeResolverFunction(handlerFunc, inData);
+          let p = f_PromiseLocalCall(handlerFunc, inData);
           promises.push(p);
         }); // end foreach
       } else {
@@ -209,7 +209,7 @@ class Messager {
     /// resolver function
     /// remember MESSAGER class is used for more than just Network Calls
     /// the state manager also uses it, so the resolved value may be of any type
-    function f_MakeResolverFunction(handlerFunc) {
+    function f_PromiseLocalCall(handlerFunc) {
       return new Promise((resolve, reject) => {
         let retval = handlerFunc(inData, {
           /*control functions go here*/
@@ -268,6 +268,50 @@ class Messager {
    */
   HasMessageName(msg = '') {
     return this.handlerMap.has(msg);
+  }
+
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /**
+   * Converts 'CHANNEL:MESSAGE' string to an object with channel, message
+   * properties. If there is more than one : in the message string, it's left
+   * as part of the message. All properties returned in are UPPERCASE.
+   * @param {string} message - message with optional channel prefix
+   * @returns {Object} - contains channel (UC) that are set
+   * @example
+   * const parsed = this.ParseMessage('NET:MY_MESSAGE');
+   * if (parsed.NET) console.log('this is true');
+   * if (parsed.LOCAL) console.log('this is false');
+   * console.log('message is',parsed.MESSAGE);
+   */
+  ParseMessage(msg) {
+    let [channel, MESSAGE] = msg.split(':', 2);
+    // no : found, must be local
+    if (!MESSAGE) {
+      MESSAGE = channel;
+      channel = '';
+    }
+    const parsed = { MESSAGE };
+    if (!channel) {
+      parsed.LOCAL = true;
+      return parsed;
+    }
+    if (channel === '*') {
+      VALID_CHANNELS.forEach(chan => {
+        parsed[chan] = true;
+      });
+      return parsed;
+    }
+    if (VALID_CHANNELS.includes(channel)) {
+      parsed[channel] = true;
+      return parsed;
+    }
+    // legacy messages use invalid channel names
+    // for now forward them as-is
+    console.warn(`'${msg}' replace : with _`);
+    parsed.LOCAL = true;
+    return parsed;
+    // this is what should actually happen
+    // throw Error(`invalid channel '${channel}'`);
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

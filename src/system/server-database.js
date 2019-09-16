@@ -13,12 +13,13 @@ const Loki = require('lokijs');
 const PATH = require('path');
 const FS = require('fs-extra');
 
-/// CONSTANTS /////////////////////////////////////////////////////////////////
-/// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+const DATAMAP = require('./common-datamap');
 const SESSION = require('./common-session');
 const LOGGER = require('./server-logger');
 const PROMPTS = require('../system/util/prompts');
 
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 const { TERM_DB: CLR, TR, CCRIT } = PROMPTS;
 const PR = `${CLR}${PROMPTS.Pad('UR_DB')}${TR}`;
 const RUNTIMEPATH = PATH.join(__dirname, '../../runtime');
@@ -28,7 +29,7 @@ const DATASETPATH = PATH.join(__dirname, '/datasets/meme');
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 let m_options; // saved initialization options
 let m_db; // loki database
-let COLLECTION = {};
+const DBKEYS = DATAMAP.DBKEYS;
 
 /// API METHODS ///////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -70,15 +71,7 @@ DB.InitializeDatabase = (options = {}) => {
       const fname = `'datasets/${DB_CONFIG.dataset}'`;
       console.log(PR, `${CCRIT}DEV OVERRIDE${TR}...reloading database from ${fname}`);
     }
-    f_LoadCollection(`teachers`);
-    f_LoadCollection(`classrooms`);
-    f_LoadCollection(`groups`);
-    f_LoadCollection(`models`);
-    f_LoadCollection(`criteria`);
-    f_LoadCollection(`sentenceStarters`);
-    f_LoadCollection(`ratingsDefinitions`);
-    f_LoadCollection(`classroomResources`);
-    f_LoadCollection(`resources`);
+    DBKEYS.forEach(name => f_LoadCollection(name));
     console.log(PR, `database ready`);
     console.log(PR, fout_CountCollections());
     m_db.saveDatabase();
@@ -97,13 +90,17 @@ DB.InitializeDatabase = (options = {}) => {
 
   // UTILITY FUNCTION
   function f_EnsureCollection(col) {
-    if (m_db.getCollection(col) === null) m_db.addCollection(col);
+    if (m_db.getCollection(col) === null) {
+      m_db.addCollection(col, {
+        unique: [`${col}Id`],
+        autoupdate: true
+      });
+    }
     return m_db.getCollection(col);
   }
 
   function f_LoadCollection(col) {
     const collection = f_EnsureCollection(col);
-    COLLECTION[col] = collection;
     if (options.memehost !== 'devserver') {
       console.log(PR, `loaded '${col}' w/ ${collection.count()} elements`);
       return;
@@ -118,13 +115,9 @@ DB.InitializeDatabase = (options = {}) => {
   // UTILITY FUNCTION
   function fout_CountCollections() {
     let out = '';
-    out += count('teachers');
-    out += count('classrooms');
-    out += count('groups');
-    out += count('models');
-    out += count('criteria');
-    out += count('classroomResources');
-    out += count('resources');
+    DBKEYS.forEach(colname => {
+      out += count(colname);
+    });
     //
     function count(col) {
       return `${col}: ${m_db.getCollection(col).count()} `;
@@ -143,16 +136,9 @@ DB.PKT_GetDatabase = pkt => {
   LOGGER.Write(pkt.Info(), `getdatabase`);
   const adm_db = {};
 
-  adm_db.a_teachers = f_GetCollectionData('teachers');
-  adm_db.a_classrooms = f_GetCollectionData('classrooms');
-  adm_db.a_groups = f_GetCollectionData('groups');
-  adm_db.a_models = f_GetCollectionData('models');
-  adm_db.a_criteria = f_GetCollectionData('criteria');
-  adm_db.a_sentenceStarters = f_GetCollectionData('sentenceStarters');
-  adm_db.a_ratingsDefinitions = f_GetCollectionData('ratingsDefinitions');
-  adm_db.a_classroomResources = f_GetCollectionData('classroomResources');
-  adm_db.a_resources = f_GetCollectionData('resources');
-
+  DBKEYS.forEach(colname => {
+    adm_db[`a_${colname}`] = f_GetCollectionData(colname);
+  });
   // return object for transaction; URSYS will automatically return
   // to the netdevice that called this
   return adm_db;
@@ -164,140 +150,9 @@ DB.PKT_GetDatabase = pkt => {
   }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API: reset database from passed nodes, edges array
- */
-DB.PKT_SetDatabase = pkt => {
-  if (DBG) console.log(PR, `PKT_SetDatabase`);
-  let { nodes = [], edges = [] } = pkt.Data();
-  if (!nodes.length) console.log(PR, 'WARNING: empty nodes array');
-  else console.log(PR, `setting ${nodes.length} nodes...`);
-  if (!edges.length) console.log(PR, 'WARNING: empty edges array');
-  else console.log(PR, `setting ${edges.length} edges...`);
-  NODES.clear();
-  NODES.insert(nodes);
-  EDGES.clear();
-  EDGES.insert(edges);
-  console.log(PR, `PKT_SetDatabase complete. Data available on next get.`);
-  m_db.close(() => {
-    DB.InitializeDatabase();
-    LOGGER.Write(pkt.Info(), `setdatabase`);
-  });
-  return { OK: true };
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_GetNewNodeID = pkt => {
-  m_max_nodeID += 1;
-  if (DBG) console.log(PR, `PKT_GetNewNodeID ${pkt.Info()} nodeID ${m_max_nodeID}`);
-  return { nodeID: m_max_nodeID };
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_GetNewEdgeID = pkt => {
-  m_max_edgeID += 1;
-  if (DBG) console.log(PR, `PKT_GetNewEdgeID ${pkt.Info()} edgeID ${m_max_edgeID}`);
-  return { edgeID: m_max_edgeID };
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_RequestLockNode = pkt => {
-  let { nodeID } = pkt.Data();
-  let errcode = m_IsInvalidNode(nodeID);
-  if (errcode) return errcode;
-  // check if node is already locked
-  if (m_locked_nodes.has(nodeID)) return m_MakeLockError(`nodeID ${nodeID} is already locked`);
-  // SUCCESS
-  // single matching node exists and is not yet locked, so lock it
-  m_locked_nodes.add(nodeID);
-  return { nodeID, locked: true };
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_RequestUnlockNode = pkt => {
-  let { nodeID } = pkt.Data();
-  let errcode = m_IsInvalidNode(nodeID);
-  if (errcode) return errcode;
-  // check that node is already locked
-  if (m_locked_nodes.has(nodeID)) {
-    m_locked_nodes.delete(nodeID);
-    return { nodeID, unlocked: true };
-  }
-  // this is an error because nodeID wasn't in the lock table
-  return m_MakeLockError(`nodeID ${nodeID} was not locked so can't unlock`);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function m_IsInvalidNode(nodeID) {
-  if (!nodeID) return m_MakeLockError(`undefined nodeID`);
-  nodeID = Number.parseInt(nodeID, 10);
-  if (Number.isNaN(nodeID)) return m_MakeLockError(`nodeID was not a number`);
-  if (nodeID < 0) return m_MakeLockError(`nodeID ${nodeID} must be positive integer`);
-  if (nodeID > m_max_nodeID) return m_MakeLockError(`nodeID ${nodeID} is out of range`);
-  // find if the node exists
-  let matches = NODES.find({ id: nodeID });
-  if (matches.length === 0) return m_MakeLockError(`nodeID ${nodeID} not found`);
-  if (matches.length > 1)
-    return m_MakeLockError(`nodeID ${nodeID} matches multiple entries...critical error!`);
-  // no retval is no error!
-  return undefined;
-}
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function m_MakeLockError(info) {
-  return { NOP: `ERR`, INFO: info };
-}
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_RequestLockEdge = pkt => {
-  let { edgeID } = pkt.Data();
-  let errcode = m_IsInvalidEdge(edgeID);
-  if (errcode) return errcode;
-  // check if edge is already locked
-  if (m_locked_edges.has(edgeID)) return m_MakeLockError(`edgeID ${edgeID} is already locked`);
-  // SUCCESS
-  // single matching edge exists and is not yet locked, so lock it
-  m_locked_edges.add(edgeID);
-  return { edgeID, locked: true };
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_RequestUnlockEdge = pkt => {
-  let { edgeID } = pkt.Data();
-  let errcode = m_IsInvalidEdge(edgeID);
-  if (errcode) return errcode;
-  // check that edge is already locked
-  if (m_locked_edges.has(edgeID)) {
-    m_locked_edges.delete(edgeID);
-    return { edgeID, unlocked: true };
-  }
-  // this is an error because nodeID wasn't in the lock table
-  return m_MakeLockError(`edgeID ${edgeID} was not locked so can't unlock`);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function m_IsInvalidEdge(edgeID) {
-  if (!edgeID) return m_MakeLockError(`undefined edgeID`);
-  edgeID = Number.parseInt(edgeID, 10);
-  if (Number.isNaN(edgeID)) return m_MakeLockError(`edgeID was not a number`);
-  if (edgeID < 0) return m_MakeLockError(`edgeID ${edgeID} must be positive integer`);
-  if (edgeID > m_max_edgeID) return m_MakeLockError(`edgeID ${edgeID} is out of range`);
-  // find if the node exists
-  let matches = EDGES.find({ id: edgeID });
-  if (matches.length === 0) return m_MakeLockError(`edgeID ${edgeID} not found`);
-  if (matches.length > 1)
-    return m_MakeLockError(`edgeID ${edgeID} matches multiple entries...critical error!`);
-  // no retval is no error!
-  return undefined;
-}
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DB.PKT_RequestUnlockAllNodes = pkt => {
-  m_locked_nodes = new Set();
-  return { unlocked: true };
-};
-DB.PKT_RequestUnlockAllEdges = pkt => {
-  m_locked_edges = new Set();
-  return { unlocked: true };
-};
-DB.PKT_RequestUnlockAll = pkt => {
-  m_locked_nodes = new Set();
-  m_locked_edges = new Set();
-  return { unlocked: true };
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * data packet contains items that will be updated. either an individual node, edge,
- * or a nodeID with a replacement nodeID
+/** API:
+ * data packet contains items that will be updated. Expects keys to be
+ *
  */
 DB.PKT_Update = pkt => {
   let { node, edge, nodeID, edgeID } = pkt.Data();

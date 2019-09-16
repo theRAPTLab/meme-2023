@@ -62,7 +62,7 @@ function ReactHook(scope, phase, func) {
 const { Publish, Subscribe, Unsubscribe } = ULINK;
 const { Call, Signal } = ULINK;
 
-const { NetPublish, NetSubscribe } = ULINK;
+const { NetSubscribe } = ULINK;
 const { NetCall, NetSignal } = ULINK;
 
 const { Define, GetVal, SetVal } = CENTRAL;
@@ -102,11 +102,9 @@ const UR = {
   Unsubscribe, // ULINK
   Call, // ULINK
   Signal, // ULINK
-  NetPublish, // ULINK
   NetSubscribe, // ULINK
   NetCall, // ULINK
   NetSignal, // ULINK
-  NetMessage, // ULINK
   Define, // CENTRAL
   GetVal, // CENTRAL
   SetVal, // CENTRAL

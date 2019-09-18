@@ -41,6 +41,7 @@ const M_ONLINE = 'online';
 const M_STANDALONE = 'offline';
 const M_CLOSED = 'closed';
 const M_ERROR = 'error';
+const VALID_CHANNELS = ['LOCAL', 'NET', 'STATE']; // * is all channels in list
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -160,12 +161,19 @@ class NetMessage {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** NetMessage.Message() returns the message
+  /** returns the message string of form CHANNEL:MESSAGE, where CHANNEL:
+   * is optional
    */
   Message() {
     return this.msg;
   }
-
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /** returns MESSAGE without the CHANNEL: prefix. The channel (e.g.
+   * NET, LOCAL, STATE) is also set true
+   */
+  DecodedMessage() {
+    return NetMessage.ExtractChannel(this.msg);
+  }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** NetMessage.Is() returns truthy value (this.data) if the passed msgstr
    *  matches the message associated with this NetMessage
@@ -505,7 +513,49 @@ NetMessage.GlobalOfflineMode = () => {
     document.dispatchEvent(event);
   }
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Converts 'CHANNEL:MESSAGE' string to an object with channel, message
+ * properties. If there is more than one : in the message string, it's left
+ * as part of the message. All properties returned in are UPPERCASE.
+ * @param {string} message - message with optional channel prefix
+ * @returns {Object} - contains channel (UC) that are set
+ * @example
+ * const parsed = NetMessage.DecodeChannel('NET:MY_MESSAGE');
+ * if (parsed.NET) console.log('this is true');
+ * if (parsed.LOCAL) console.log('this is false');
+ * console.log('message is',parsed.MESSAGE);
+ */
+NetMessage.ExtractChannel = function(msg) {
+  let [channel, MESSAGE] = msg.split(':', 2);
+  // no : found, must be local
+  if (!MESSAGE) {
+    MESSAGE = channel;
+    channel = '';
+  }
+  const parsed = { MESSAGE };
+  if (!channel) {
+    parsed.LOCAL = true;
+    return parsed;
+  }
+  if (channel === '*') {
+    VALID_CHANNELS.forEach(chan => {
+      parsed[chan] = true;
+    });
+    return parsed;
+  }
+  if (VALID_CHANNELS.includes(channel)) {
+    parsed[channel] = true;
+    return parsed;
+  }
+  // legacy messages use invalid channel names
+  // for now forward them as-is
+  console.warn(`'${msg}' replace : with _`);
+  parsed.LOCAL = true;
+  return parsed;
+  // this is what should actually happen
+  // throw Error(`invalid channel '${channel}'`);
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** NetMessage.SocketUADDR() is a static method returning the class-wide setting
  * of the browser UADDR. This is only used on browser code.

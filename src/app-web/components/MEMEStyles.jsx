@@ -439,6 +439,7 @@ const styles = theme => {
       backgroundColor: 'rgba(255,243,211,0.9)'
     },
     helpViewText: {
+      display: 'block', // override default MDReactComponent <span>
       height: '90%',
       padding: '10px 0 5px 0',
       overflowY: 'scroll'

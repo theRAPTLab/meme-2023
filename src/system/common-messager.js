@@ -64,14 +64,17 @@ class Messager {
       // by the message dispatcher
       handlerFunc.ulink_id = handlerUID;
     }
+    // replace fromNet with properties
+    handlerFunc.channels = { NET, LOCAL };
     if (typeof fromNet === 'boolean') {
       // true if this subscriber wants to receive network messages
+      // replace this with channels.NET flag
       handlerFunc.fromNet = fromNet;
     }
-    let handlers = this.handlerMap.get(mesgName);
+    let handlers = this.handlerMap.get(MESSAGE);
     if (!handlers) {
       handlers = new Set();
-      this.handlerMap.set(mesgName, handlers);
+      this.handlerMap.set(MESSAGE, handlers);
     }
     // syntax annotation
     if (syntax) handlerFunc.umesg = { syntax };
@@ -180,18 +183,16 @@ class Messager {
           handlerFunc has fromNet property if it expects to receive network sourced calls
           /*/
           // skip calls that don't have their fromNet stat set if it's a net call
-          if (fromNet && !handlerFunc.fromNet) {
+          if (fromNet && !handlerFunc.channels.NET) {
             if (DBG)
-              console.warn(
-                `MessagerCall: [${mesgName}] skip netcall for handler uninterested in net`
-              );
+              console.warn(`CallAsync: [${mesgName}] skip netcall for handler uninterested in net`);
             return;
           }
           // skip "same origin" calls
           if (srcUID && handlerFunc.ulink_id === srcUID) {
             if (DBG)
               console.warn(
-                `MessagerCall: [${mesgName}] skip call since origin = destination; use Signal() if intended`
+                `CallAsync: [${mesgName}] skip call since origin = destination; use Signal() if intended`
               );
             return;
           }
@@ -247,14 +248,14 @@ class Messager {
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /**
-   * Get list of messages that are published to the network
+   * Get list of messages that were registered as 'NET:*'
    * @returns {Array<string>} message name strings
    */
   NetMessageNames() {
     let handlers = [];
     this.handlerMap.forEach((set, key) => {
       let addMessage = false;
-      set.forEach(func => (addMessage |= func.fromNet === true));
+      set.forEach(func => (addMessage |= func.channels.NET === true));
       if (addMessage) handlers.push(key);
     });
     return handlers;

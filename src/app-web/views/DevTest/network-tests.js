@@ -29,7 +29,7 @@ function DefineHandlers(comp) {
   // it requires that the remote calls it
   // also both clients need to be refreshed at the same time
   // requires a working PEERCOUNT UPDATE system
-  ULINK2.NetSubscribe('MYSTERY_REMOTE', data => {
+  ULINK2.Subscribe('NET:MYSTERY_REMOTE', data => {
     data.todos.push(`remote ${ULINK.UADDR()} call test`);
     if (!data.subLog) data.subLog = [];
     data.subLog.push('NetSubcriber');
@@ -99,7 +99,7 @@ function UndefinedLocalCall(comp) {
 
 function NetCall(comp) {
   if (UR.PeerCount() < 2) return;
-  let testNetCall = comp.RegisterTest('NetCallRoundTrip');
+  let testNetCall = comp.RegisterTest('NetCall');
   const testNetCallData = comp.RegisterTest('NetCall+Data');
 
   const timeout = setTimeout(() => {
@@ -112,7 +112,7 @@ function NetCall(comp) {
     clearTimeout(timeout);
     if (data.error) {
       // server returns only an error if couldn't find handler
-      testNetCall.fail(data.error);
+      testNetCall.fail(`server reports '${data.error}'`);
       return;
     }
     testNetCall.pass(); // the netcall mechanism worked!

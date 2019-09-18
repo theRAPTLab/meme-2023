@@ -328,7 +328,7 @@ async function m_HandleMessage(socket, pkt) {
     // return transaction to resolve callee
     pkt.SetData({
       URserver: `info: ${out}`,
-      error: 'message not found'
+      error: `message ${pkt.Message()} not found`
     });
     if (pkt.IsType('mcall')) pkt.ReturnTransaction(socket);
     return;

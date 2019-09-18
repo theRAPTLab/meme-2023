@@ -40,7 +40,7 @@ UR.Hook(__dirname, 'LOAD_ASSETS', () => {
   // phases to run
   return new Promise((resolve, reject) => {
     console.log(PKG, 'LOAD_ASSETS');
-    UR.NetCall('SRV_DBGET', {}).then(data => {
+    UR.NetCall('NET:SRV_DBGET', {}).then(data => {
       if (data.error) {
         reject(`server says '${data.error}'`);
         return;
@@ -91,7 +91,7 @@ ADMData.GetAllTeachers = () => {
 /**
  * @return {object} Teacher Object, undefined if not found
  */
-ADMData.GetTeacher= (teacherId = adm_settings.selectedTeacherId) => {
+ADMData.GetTeacher = (teacherId = adm_settings.selectedTeacherId) => {
   let teacher = adm_db.a_teachers.find(tch => {
     return tch.id === teacherId;
   });
@@ -106,7 +106,7 @@ ADMData.GetTeacherByClassroomId = (classroomId = adm_settings.selectedClassroomI
   const classroom = ADMData.GetClassroom(classroomId);
   if (classroom === undefined || classroom.teacherId === undefined) return undefined;
   return ADMData.GetTeacher(classroom.teacherId);
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * @param {string} [teacherId = current selected teacherId]
@@ -126,7 +126,7 @@ ADMData.GetTeacherNameByStudent = (studentId = adm_settings.selectedStudentId) =
   const classroomId = ADMData.GetClassroomIdByStudent(studentId);
   const teacher = ADMData.GetTeacherByClassroomId(classroomId);
   return teacher ? teacher.name : '';
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SelectTeacher = teacherId => {
   adm_settings.selectedTeacherId = teacherId;
@@ -191,22 +191,22 @@ ADMData.GetClassroomNameByStudent = (studentId = adm_settings.selectedStudentId)
   const classroomId = ADMData.GetClassroomIdByStudent(studentId);
   const classroom = ADMData.GetClassroom(classroomId);
   return classroom ? classroom.name : '';
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * @param isVisible - bool
  */
 ADMData.SetClassesModelVisibility = isVisible => {
   const classroom = ADMData.GetClassroom();
-  classroom.showClassesModels = isVisible;  
+  classroom.showClassesModels = isVisible;
   console.log('setting visibility to ', isVisible);
   return isVisible;
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.ClassesModelsAreVisible = () => {
   const classroom = ADMData.GetClassroom();
   return classroom.showClassesModels;
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomIdByStudent()) => {
   adm_settings.selectedClassroomId = classroomId;
@@ -482,7 +482,9 @@ ADMData.GetModelsByGroup = (group = ADMData.GetGroupByStudent()) => {
 ADMData.GetMyClassmatesModels = (classroomId, studentId) => {
   const classroomModels = ADMData.GetModelsByClassroom(classroomId);
   const groupId = ADMData.GetGroupIdByStudent(studentId);
-  return classroomModels.filter(mdl => { return mdl.groupId !== groupId });
+  return classroomModels.filter(mdl => {
+    return mdl.groupId !== groupId;
+  });
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -650,7 +652,7 @@ ADMData.UpdateSentenceStarter = sentenceStarter => {
 /// We may need to allow teachers to customize this in th e future.
 
 /**
- * @return {Array} [ratingsDefition] -- Array of ratings defintion objects, 
+ * @return {Array} [ratingsDefition] -- Array of ratings defintion objects,
  * e.g.{ label: 'Really disagrees!', rating: -3 },
  * Returns [] if not found
  */
@@ -671,9 +673,13 @@ ADMData.UpdateRatingsDefinitions = (classroomId, ratingsDef) => {
   if (ratings) {
     ratings.definitions = ratingsDef;
   } else {
-    console.error(PKG, '.UpdateRatingsDefinitions could not find ratings definition for classroomId', classroomId);
+    console.error(
+      PKG,
+      '.UpdateRatingsDefinitions could not find ratings definition for classroomId',
+      classroomId
+    );
   }
-}
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// RESOURCES
@@ -702,9 +708,9 @@ ADMData.GetResourcesForClassroom = classroomId => {
     rsrc => rsrc.classroomId === classroomId
   );
   const classroomResourceIds = classroomResource ? classroomResource.resources : [];
-  const classroomResources = classroomResourceIds.map(
-    rsrcId => { return ADMData.Resource(rsrcId); } 
-  )
+  const classroomResources = classroomResourceIds.map(rsrcId => {
+    return ADMData.Resource(rsrcId);
+  });
   return classroomResources ? classroomResources : [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -29,7 +29,7 @@ const DBG = false;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-UR.Subscribe('PROP:MOVED', data => {
+UR.Subscribe('PROP_MOVED', data => {
   if (data) {
     VMech.DrawEdges();
   }

@@ -54,8 +54,6 @@ class Messager {
     let { handlerUID } = options;
     let { syntax } = options;
     let { fromNet } = options;
-    const { NET, LOCAL, MESSAGE } = NetMessage.ExtractChannel(mesgName);
-    //
     if (typeof handlerFunc !== 'function') {
       throw Error('arg2 must be a function');
     }
@@ -64,23 +62,19 @@ class Messager {
       // by the message dispatcher
       handlerFunc.ulink_id = handlerUID;
     }
-    // replace fromNet with properties
-    handlerFunc.channels = { NET, LOCAL };
     if (typeof fromNet === 'boolean') {
       // true if this subscriber wants to receive network messages
-      // replace this with channels.NET flag
       handlerFunc.fromNet = fromNet;
     }
-    let handlers = this.handlerMap.get(MESSAGE);
+    let handlers = this.handlerMap.get(mesgName);
     if (!handlers) {
       handlers = new Set();
-      this.handlerMap.set(MESSAGE, handlers);
+      this.handlerMap.set(mesgName, handlers);
     }
     // syntax annotation
     if (syntax) handlerFunc.umesg = { syntax };
     // saved function to handler
     handlers.add(handlerFunc);
-    // return Messager instance
     return this;
   }
 
@@ -108,19 +102,22 @@ class Messager {
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /**
    * Publish a message with data payload
-   * @param {string} mesgName message to send data to in CHANNEL:MESSAGE format
+   * @param {string} mesgName message to send data to
    * @param {Object} inData parameters for the message handler
    * @param {Object} [options] options
    * @param {string} [options.srcUID] URSYS_ID group that is sending the
    * message. If this is set, then the sending URSYS_ID can receive its own
    * message request.
    * @param {string} [options.type] type of message (mcall)
+   * @param {boolean} [options.toLocal=true] send to local message handlers
+   * @param {boolean} [options.toNet=false] send to network message handlers
    */
   Publish(mesgName, inData, options = {}) {
-    const { NET, LOCAL, MESSAGE } = NetMessage.ExtractChannel(mesgName);
     let { srcUID, type } = options;
+    let { toLocal = true, toNet = false } = options;
     const handlers = this.handlerMap.get(mesgName);
-    if (handlers && LOCAL)
+    /// toLocal
+    if (handlers && toLocal)
       handlers.forEach(handlerFunc => {
         // handlerFunc signature: (data,dataReturn) => {}
         // handlerFunc has ulink_id property to note originating ULINK object
@@ -136,7 +133,7 @@ class Messager {
       }); // end handlers.forEach
 
     /// toNetwork
-    if (NET) {
+    if (toNet) {
       let pkt = new NetMessage(mesgName, inData, type);
       pkt.SocketSend();
     } // end toNetwork
@@ -183,21 +180,23 @@ class Messager {
           handlerFunc has fromNet property if it expects to receive network sourced calls
           /*/
           // skip calls that don't have their fromNet stat set if it's a net call
-          if (fromNet && !handlerFunc.channels.NET) {
+          if (fromNet && !handlerFunc.fromNet) {
             if (DBG)
-              console.warn(`CallAsync: [${mesgName}] skip netcall for handler uninterested in net`);
+              console.warn(
+                `MessagerCall: [${mesgName}] skip netcall for handler uninterested in net`
+              );
             return;
           }
           // skip "same origin" calls
           if (srcUID && handlerFunc.ulink_id === srcUID) {
             if (DBG)
               console.warn(
-                `CallAsync: [${mesgName}] skip call since origin = destination; use Signal() if intended`
+                `MessagerCall: [${mesgName}] skip call since origin = destination; use Signal() if intended`
               );
             return;
           }
           // Create a promise. if handlerFunc returns a promise, it follows
-          let p = f_PromiseLocalCall(handlerFunc, inData);
+          let p = f_MakeResolverFunction(handlerFunc, inData);
           promises.push(p);
         }); // end foreach
       } else {
@@ -210,7 +209,7 @@ class Messager {
     /// resolver function
     /// remember MESSAGER class is used for more than just Network Calls
     /// the state manager also uses it, so the resolved value may be of any type
-    function f_PromiseLocalCall(handlerFunc) {
+    function f_MakeResolverFunction(handlerFunc) {
       return new Promise((resolve, reject) => {
         let retval = handlerFunc(inData, {
           /*control functions go here*/
@@ -248,14 +247,14 @@ class Messager {
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /**
-   * Get list of messages that were registered as 'NET:*'
+   * Get list of messages that are published to the network
    * @returns {Array<string>} message name strings
    */
   NetMessageNames() {
     let handlers = [];
     this.handlerMap.forEach((set, key) => {
       let addMessage = false;
-      set.forEach(func => (addMessage |= func.channels.NET === true));
+      set.forEach(func => (addMessage |= func.fromNet === true));
       if (addMessage) handlers.push(key);
     });
     return handlers;

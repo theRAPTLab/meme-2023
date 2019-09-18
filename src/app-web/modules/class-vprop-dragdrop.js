@@ -128,7 +128,7 @@ const AddDragDropHandlers = vprop => {
   vprop.gRoot.on('dragmove.propmove', event => {
     // do not stopPropagation because mouse events need to update drop targets
     SaveEventCoordsToBox(event, vprop._extend.dragdrop.movePt);
-    UR.Publish('PROP:MOVED', { prop: vprop.id });
+    UR.Publish('PROP_MOVED', { prop: vprop.id });
   });
 
   // handle end of drag

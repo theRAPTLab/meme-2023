@@ -29,7 +29,7 @@ function DefineHandlers(comp) {
   // it requires that the remote calls it
   // also both clients need to be refreshed at the same time
   // requires a working PEERCOUNT UPDATE system
-  ULINK2.Subscribe('NET:MYSTERY_REMOTE', data => {
+  ULINK2.NetSubscribe('MYSTERY_REMOTE', data => {
     data.todos.push(`remote ${ULINK.UADDR()} call test`);
     if (!data.subLog) data.subLog = [];
     data.subLog.push('NetSubcriber');

@@ -98,7 +98,7 @@ class ViewMain extends React.Component {
     this.HandleAddPropCreate = this.HandleAddPropCreate.bind(this);
     this.handleEvLinkSourceSelectRequest = this.handleEvLinkSourceSelectRequest.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
-    UR.Subscribe('WINDOW:SIZE', this.UpdateDimensions);
+    UR.Subscribe('WINDOW_SIZE', this.UpdateDimensions);
     UR.Subscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('SELECTION_CHANGED', this.handleSelectionChange);
@@ -137,12 +137,12 @@ class ViewMain extends React.Component {
     // child components need to know the dimensions
     // of this component, but they are invalid until
     // the root component renders in SystemInit.
-    // SystemInit fires `WINDOW:SIZE` to force the
+    // SystemInit fires `WINDOW_SIZE` to force the
     // relayout
   }
 
   componentWillUnmount() {
-    UR.Unsubscribe('WINDOW:SIZE', this.UpdateDimensions);
+    UR.Unsubscribe('WINDOW_SIZE', this.UpdateDimensions);
     UR.Unsubscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Unsubscribe('SELECTION_CHANGED', this.handleSelectionChange);
@@ -156,7 +156,7 @@ class ViewMain extends React.Component {
   DoDataUpdate() {
     if (DBG) console.log(PKG, 'DATA_UPDATE');
     // Read the group info from the model and set parameters
-    
+
     // FIXME: The URSYS call should probably pass the modelId, e.g. data.modelId
     const modelId = ADM.GetSelectedModelId(); // get selected model for now
     const model = ADM.GetModelById(modelId);
@@ -200,11 +200,11 @@ class ViewMain extends React.Component {
       viewHeight: Math.min(viewHeight, innerHeight)
     });
   }
-  
+
   OnChangeModelTitle(e) {
     ADM.ModelTitleUpdate(this.state.modelId, e.target.value);
   }
-  
+
   DoModelTitleUpdate(data) {
     this.setState({ title: data.title });
   }
@@ -465,7 +465,7 @@ class ViewMain extends React.Component {
               &nbsp;&nbsp;by {modelAuthorGroupName} Group
             </Typography>
             <div className={classes.appBarRight}>
-              <StickyNoteButton parentId={modelId}/>
+              <StickyNoteButton parentId={modelId} />
               &nbsp;&nbsp;
               &nbsp;&nbsp;
               <Button onClick={ADM.CloseModel} color="inherit">

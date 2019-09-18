@@ -87,7 +87,7 @@ const styles = theme => {
       height: '3em',
       alignItems: 'baseline'
     },
-    informationList: {
+    resourceList: {
       width: m_resourceListWidth,
       backgroundColor: teal[50],
       zIndex: m_zResourceList // above drawer, below modal

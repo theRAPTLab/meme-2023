@@ -113,7 +113,7 @@ class ViewMain extends React.Component {
       studentId: '',
       studentName: '',
       studentGroup: '',
-      viewHeight: 0, // need to init this to prevent error with first render of informationList
+      viewHeight: 0, // need to init this to prevent error with first render of resourceList
       addPropOpen: false,
       addPropLabel: '',
       addPropPropId: '', // The prop Id of the component being edited, if new component then ''
@@ -588,7 +588,7 @@ class ViewMain extends React.Component {
         {/* Resource Library */}
         <Drawer variant="permanent" style={{ width: '300px' }} anchor="right">
           {/*<div style={{ height: this.state.viewHeight + 64, overflowY: 'scroll', zIndex: 1250 }}>*/}
-          <Paper className={classes.informationList}>
+          <Paper className={classes.resourceList}>
             <div className={classes.resourceListLabel}>RESOURCE LIBRARY</div>
             <List dense>
               {resources.map(resource => (

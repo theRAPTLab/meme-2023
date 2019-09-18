@@ -10,6 +10,8 @@ const m_stickynoteColor = yellow[400]; //`#ffe25a`;
 const m_systemTextColor = 'rgba(0,0,0,0.35)';
 const m_systemLabelTextColor = 'rgba(0,0,0,0.25)';
 const m_resourceListWidth = 300;
+const m_zResourceList = 1250;
+const m_zSticky = 1500;
 
 const styles = theme => {
   return {
@@ -88,7 +90,7 @@ const styles = theme => {
     informationList: {
       width: m_resourceListWidth,
       backgroundColor: teal[50],
-      zIndex: 1250 // above drawer, below modal
+      zIndex: m_zResourceList // above drawer, below modal
     },
     resourceListLabel: {
       fontSize: '0.8em',
@@ -378,7 +380,7 @@ const styles = theme => {
       position: 'absolute',
       top: '200px',
       left: '300px',
-      zIndex: 1500
+      zIndex: m_zSticky
     },
     stickynoteCard: {
       backgroundColor: 'rgba(255,255,0,0.5)',

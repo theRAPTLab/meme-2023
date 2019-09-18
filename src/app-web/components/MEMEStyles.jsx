@@ -432,12 +432,16 @@ const styles = theme => {
       position: 'absolute',
       width: '300px',
       height: '90%',
-      overflowY: 'scroll',
       top: '5%',
       right: m_resourceListWidth,
       zIndex: m_zHelp,
-      padding: '10px 10px 20px 10px',
+      padding: '10px 0 0 10px',
       backgroundColor: 'rgba(255,243,211,0.9)'
+    },
+    helpViewText: {
+      height: '90%',
+      padding: '10px 0 5px 0',
+      overflowY: 'scroll'
     }
   };
 };

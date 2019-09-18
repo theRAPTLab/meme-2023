@@ -101,7 +101,7 @@ Evidence Links should describe how a resource supports or contradicts your model
             <CloseIcon />
           </IconButton>
           <Typography variant="h6">HELP</Typography>
-          <Typography variant="body2">
+          <Typography variant="body2" className={classes.helpViewText}>
             <MDReactComponent text={helptext} />
           </Typography>
         </Paper>

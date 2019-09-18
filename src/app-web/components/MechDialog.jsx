@@ -26,6 +26,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
+import UTILS from '../modules/utils';
 import LinkButton from './LinkButton';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -56,9 +57,9 @@ class MechDialog extends React.Component {
       isOpen: false,
       editExisting: false,
       sourceId: '',
-      sourceLabel: '',
+      sourceLabel: undefined,
       targetId: '',
-      targetLabel: '',
+      targetLabel: undefined,
       label: '',
       listenForSourceSelection: false,
       listenForTargetSelection: false,
@@ -90,9 +91,9 @@ class MechDialog extends React.Component {
         isOpen: true,
         editExisting: false,
         sourceId: '',
-        sourceLabel: '',
+        sourceLabel: undefined,
         targetId: '',
-        targetLabel: '',
+        targetLabel: undefined,
         label: '',
         listenForSourceSelection: true,
         listenForTargetSelection: true,
@@ -173,7 +174,7 @@ class MechDialog extends React.Component {
           } else {
             this.setState({
               sourceId,
-              sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : '',
+              sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : undefined,
               listenForSourceSelection: false
             });
           }
@@ -188,7 +189,7 @@ class MechDialog extends React.Component {
           } else {
             this.setState({
               targetId,
-              targetLabel: targetId !== '' ? DATA.Prop(targetId).name : '',
+              targetLabel: targetId !== '' ? DATA.Prop(targetId).name : undefined,
               listenForTargetSelection: false
             });
           }
@@ -227,9 +228,9 @@ class MechDialog extends React.Component {
 
       this.setState({
         sourceId,
-        sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : '',
+        sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : undefined,
         targetId,
-        targetLabel: targetId !== '' ? DATA.Prop(targetId).name : '',
+        targetLabel: targetId !== '' ? DATA.Prop(targetId).name : undefined,
         editExisting,
         listenForSourceSelection,
         listenForTargetSelection
@@ -260,7 +261,7 @@ class MechDialog extends React.Component {
   OnTextChange(e) {
     this.setState({ label: e.target.value });
   }
-  
+
   OnReverse() {
     // Swap source and target
     const { sourceId, sourceLabel, targetId, targetLabel } = this.state;
@@ -277,18 +278,16 @@ class MechDialog extends React.Component {
         slideIn: false
       },
       () => {
-        setTimeout(
-          () => {
-            this.setState({ slideIn: true });
-            setTimeout(
-              () => {
-                // hack to prevent scrollbars from appearing during slide
-                document.getElementsByTagName('body')[0].style.overflow = origOverflowSetting;         
-              }, 250
-            )
-          }, 250
-        );
-      });
+        setTimeout(() => {
+          this.setState({ slideIn: true });
+          setTimeout(() => {
+            // hack to prevent scrollbars from appearing during slide
+            document.getElementsByTagName('body')[0].style.overflow = origOverflowSetting;
+          }, 250);
+        }, 250)
+      }
+    );
+    UTILS.RLog('MechanismReverse', `new source "${targetId}" to new target "${sourceId}"`);
   }
 
   DoSaveData() {
@@ -302,7 +301,10 @@ class MechDialog extends React.Component {
     }
   }
 
-  OnCreateClick() {
+  OnCreateClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (DBG) console.log('create edge');
     this.DoSaveData();
     this.DoClose();
@@ -316,7 +318,6 @@ class MechDialog extends React.Component {
       sourceLabel,
       targetId,
       targetLabel,
-      editExisting,
       listenForSourceSelection,
       listenForTargetSelection,
       saveButtonLabel,
@@ -328,56 +329,58 @@ class MechDialog extends React.Component {
     return (
       <Card className={classes.edgeDialog} hidden={!isOpen}>
         <Paper className={classes.edgeDialogPaper}>
-          <div className={classes.edgeDialogWindowLabel}>ADD MECHANISM</div>
-          <div className={classes.edgeDialogInput}>
-            <Slide direction={reversing ? 'left' : 'up'} in={slideIn}>
-              <LinkButton
-                sourceType="prop"
-                sourceLabel={sourceLabel}
-                listenForSourceSelection={listenForSourceSelection}
-                isBeingEdited
-                isExpanded={false}
-                OnLinkButtonClick={this.OnSourceLinkButtonClick}
+          <form onSubmit={this.OnCreateClick}>
+            <div className={classes.edgeDialogWindowLabel}>ADD MECHANISM</div>
+            <div className={classes.edgeDialogInput}>
+              <Slide direction={reversing ? 'left' : 'up'} in={slideIn}>
+                <LinkButton
+                  sourceType="prop"
+                  sourceLabel={sourceLabel}
+                  listenForSourceSelection={listenForSourceSelection}
+                  isBeingEdited
+                  isExpanded={false}
+                  OnLinkButtonClick={this.OnSourceLinkButtonClick}
+                />
+              </Slide>
+              &nbsp;&nbsp;
+              <TextField
+                autoFocus
+                placeholder="link label"
+                margin="dense"
+                id="edgeLabel"
+                label="Label"
+                value={label}
+                onChange={this.OnTextChange}
+                className={classes.edgeDialogTextField}
               />
-            </Slide>
-            &nbsp;&nbsp;
-            <TextField
-              autoFocus
-              placeholder="link label"
-              margin="dense"
-              id="edgeLabel"
-              label="Label"
-              value={label}
-              onChange={this.OnTextChange}
-              className={classes.edgeDialogTextField}
-            />
-            &nbsp;&nbsp;
-            <Slide direction={reversing ? 'right' : 'up'} in={slideIn}>
-              <LinkButton
-                sourceType="prop"
-                sourceLabel={targetLabel}
-                listenForSourceSelection={listenForTargetSelection}
-                isBeingEdited
-                isExpanded={false}
-                OnLinkButtonClick={this.OnTargetLinkButtonClick}
-              />
-            </Slide>
-            <div style={{ flexGrow: '1' }} />
-            <Button onClick={this.OnClose} color="default">
-              Cancel
-            </Button>
-            <Button onClick={this.OnReverse} color="primary">
-              Reverse Direction
-            </Button>
-            <Button
-              onClick={this.OnCreateClick}
-              color="primary"
-              variant="contained"
-              disabled={sourceId === '' || targetId === ''}
-            >
-              {saveButtonLabel}
-            </Button>
-          </div>
+              &nbsp;&nbsp;
+              <Slide direction={reversing ? 'right' : 'up'} in={slideIn}>
+                <LinkButton
+                  sourceType="prop"
+                  sourceLabel={targetLabel}
+                  listenForSourceSelection={listenForTargetSelection}
+                  isBeingEdited
+                  isExpanded={false}
+                  OnLinkButtonClick={this.OnTargetLinkButtonClick}
+                />
+              </Slide>
+              <div style={{ flexGrow: '1' }} />
+              <Button onClick={this.OnClose} color="default">
+                Cancel
+              </Button>
+              <Button onClick={this.OnReverse} color="primary">
+                Reverse Direction
+              </Button>
+              <Button
+                type="submit"
+                color="primary"
+                variant="contained"
+                disabled={sourceId === '' || targetId === ''}
+              >
+                {saveButtonLabel}
+              </Button>
+            </div>
+          </form>
         </Paper>
       </Card>
     );

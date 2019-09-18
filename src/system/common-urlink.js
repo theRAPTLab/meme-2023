@@ -92,6 +92,7 @@ class URLink {
     this.LocalPublish = this.LocalPublish.bind(this);
     this.LocalSignal = this.LocalSignal.bind(this);
     this.NetCall = this.NetCall.bind(this);
+    this.NetPublish = this.NetPublish.bind(this);
     this.NetSignal = this.NetSignal.bind(this);
 
     // generate and save unique id
@@ -217,6 +218,16 @@ class URLink {
     options.toLocal = false;
     options.toNet = true;
     return this.Call(mesgName, inData, options);
+  }
+
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /*/ version of Send that force network-only calls
+  /*/
+  NetPublish(mesgName, inData, options = {}) {
+    options = Object.assign(options, { type: 'msend' });
+    options.toLocal = false;
+    options.toNet = true;
+    this.Publish(mesgName, inData, options);
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

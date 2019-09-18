@@ -12,6 +12,7 @@ const m_systemLabelTextColor = 'rgba(0,0,0,0.25)';
 const m_resourceListWidth = 300;
 const m_zResourceList = 1250;
 const m_zSticky = 1500;
+const m_zHelp = 1600;
 
 const styles = theme => {
   return {
@@ -426,6 +427,17 @@ const styles = theme => {
     stickynoteCardCriteria: {
       fontSize: '14px', // match Typograophy subitlte2
       display: 'inline-flex'
+    },
+    helpViewPaper: {
+      position: 'absolute',
+      width: '300px',
+      height: '90%',
+      overflowY: 'scroll',
+      top: '5%',
+      right: m_resourceListWidth,
+      zIndex: m_zHelp,
+      padding: '10px 10px 20px 10px',
+      backgroundColor: 'rgba(255,243,211,0.9)'
     }
   };
 };

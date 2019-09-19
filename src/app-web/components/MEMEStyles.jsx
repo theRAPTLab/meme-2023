@@ -39,7 +39,8 @@ const styles = theme => {
       height: '100vh'
     },
     drawerPaper: {
-      width: m_drawerWidth
+      width: m_drawerWidth,
+      overflowX: 'hidden'
     },
     toolbar: theme.mixins.toolbar,
     content: {
@@ -56,6 +57,35 @@ const styles = theme => {
     },
     projectTitle: {
       color: '#fff'
+    },
+    treePropItem: {
+      margin: '0 2px 2px -24px',
+      padding: '2px',
+      fontSize: '10px',
+      borderRadius: '2px',
+      overflow: 'hidden',
+      wordBreak: 'break-all',
+      color: indigo[600],
+      backgroundColor: indigo[50]
+    },
+    treePropItemColor: {
+      color: indigo[600]
+    },
+    treeSubPropItem: {
+      marginLeft: '0.5em',
+      fontSize: '10px',
+      fontStyle: 'italic',
+      color: indigo[300]
+    },
+    treeMechItem: {
+      margin: '0 2px 4px -24px',
+      padding: '2px',
+      fontSize: '10px',
+      borderRadius: '2px',
+      overflow: 'hidden',
+      wordBreak: 'break-all',
+      color: orange[800],
+      backgroundColor: orange[50]
     },
     edgeButton: {
       backgroundColor: orange[500],

@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createMuiTheme } from '@material-ui/core/styles';
 import { yellow } from '@material-ui/core/colors';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
@@ -35,11 +35,16 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import TreeView from '@material-ui/lab/TreeView';
+import TreeItem from '@material-ui/lab/TreeItem';
+
 // Material UI Icons
 import AddIcon from '@material-ui/icons/Add';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
 import EditIcon from '@material-ui/icons/Edit';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // MEME App Components
 import HelpView from '../../components/HelpView';
 import Login from '../../components/Login';
@@ -63,6 +68,16 @@ import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PKG = 'ViewMain:';
+
+// Customized TreeItem Component with smaller font
+const SmallTreeItem = withStyles(theme => ({
+  iconContainer: {
+    width: '16px'
+  },
+  label: {
+    fontSize: '11px'
+  }
+}))(props => <TreeItem {...props} />);
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -100,6 +115,7 @@ class ViewMain extends React.Component {
     this.handleEvLinkSourceSelectRequest = this.handleEvLinkSourceSelectRequest.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
     this.OnHelp = this.OnHelp.bind(this);
+    this.RenderComponentsList = this.RenderComponentsList.bind(this);
     UR.Subscribe('WINDOW:SIZE', this.UpdateDimensions);
     UR.Subscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
@@ -438,6 +454,44 @@ class ViewMain extends React.Component {
     UR.Publish('HELP_OPEN');
   }
 
+  RenderComponentsList(propIds) {
+    const { classes } = this.props;
+    return propIds.map(propId => {
+      const prop = DATA.Prop(propId);
+      const children = DATA.Children(propId);
+      return (
+        <div key={propId} className={classes.treePropItem}>{prop.name}
+          {children.length > 0
+            ? children.map(childId => (
+                <div key={childId} className={classes.treeSubPropItem}>
+                  {DATA.Prop(childId).name}
+                </div>
+              ))
+            : ''}
+        </div>
+      );
+    });
+  }
+
+  RenderMechanismsList(mechIds) {
+    const { classes } = this.props;
+    console.log('...mechIds is', mechIds);
+    let i = 0;
+    return mechIds.map(mechId => {
+      const mech = DATA.Mech(mechId);
+      const source = DATA.Prop(mechId.v).name;
+      const target = DATA.Prop(mechId.w).name;
+      i++;
+      return (
+        <div key={`mech${i}`} className={classes.treeMechItem}>
+          <span className={classes.treePropItemColor}>{source} </span>
+          {mech.name}
+          <span className={classes.treePropItemColor}> {target}</span>
+        </div>
+      );
+    });
+  }
+
   render() {
     const { classes } = this.props;
 
@@ -457,8 +511,11 @@ class ViewMain extends React.Component {
       mechIsSelected,
       suppressSelection
     } = this.state;
+
     const classroomId = ADM.GetClassroomIdByStudent(studentId);
     const resources = ADM.GetResourcesForClassroom(classroomId);
+    const componentsList = this.RenderComponentsList(DATA.Components());
+    const mechanismsList = this.RenderMechanismsList(DATA.AllMechs());
     return (
       <div className={classes.root}>
         <CssBaseline />
@@ -511,7 +568,16 @@ class ViewMain extends React.Component {
           anchor="left"
         >
           <div className={classes.toolbar} />
-          <Divider />
+          <TreeView
+            defaultExpanded={['components']}
+            defaultCollapseIcon={<ExpandMoreIcon />}
+            defaultExpandIcon={<ChevronRightIcon />}
+            className={classes.treeView}
+          >
+            <SmallTreeItem nodeId={'components'} label="COMPONENTS">
+              {componentsList}
+            </SmallTreeItem>
+          </TreeView>
           <Tooltip title="Add Component or Property">
             <Fab
               color="primary"
@@ -523,21 +589,21 @@ class ViewMain extends React.Component {
               <AddIcon />
             </Fab>
           </Tooltip>
-          <Typography align="center" variant="caption">
-            Add Component
+          <Typography align="center" variant="caption" style={{ fontSize: '10px' }}>
+            ADD COMPONENT
           </Typography>
           <br />
           <Divider />
-          {/*
-            <List>
-              {['CmdA', 'CmdB', 'CmdC', 'CmdD'].map((text, index) => (
-                <ListItem button key={text}>
-                  <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItem>
-              ))}
-            </List>
-          */}
+          <Divider style={{ marginBottom: '20px' }}/>
+          <TreeView
+            defaultCollapseIcon={<ExpandMoreIcon />}
+            defaultExpandIcon={<ChevronRightIcon />}
+            className={classes.treeView}
+          >
+            <SmallTreeItem nodeId={'mechanisms'} label="MECHANISMS">
+              {mechanismsList}
+            </SmallTreeItem>
+          </TreeView>
           <Tooltip title="Add Mechanism">
             <Fab
               color="primary"
@@ -549,8 +615,8 @@ class ViewMain extends React.Component {
               <AddIcon />
             </Fab>
           </Tooltip>
-          <Typography align="center" variant="caption">
-            Add Mechanism
+          <Typography align="center" variant="caption" style={{ fontSize: '10px' }}>
+            ADD MECHANISM
           </Typography>
         </Drawer>
 

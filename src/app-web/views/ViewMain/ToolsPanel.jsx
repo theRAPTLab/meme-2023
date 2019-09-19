@@ -1,0 +1,295 @@
+/*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
+
+  ToolsPanel - Left sidebar in Main Application View
+
+\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
+
+/// LIBRARIES /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+import React from 'react';
+import PropTypes from 'prop-types';
+import ClassNames from 'classnames';
+// Material UI Theming
+import { withStyles } from '@material-ui/core/styles';
+
+/// COMPONENTS ////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Material UI Elements
+import Divider from '@material-ui/core/Divider';
+import Drawer from '@material-ui/core/Drawer';
+import Fab from '@material-ui/core/Fab';
+import Tooltip from '@material-ui/core/Tooltip';
+import TreeView from '@material-ui/lab/TreeView';
+import TreeItem from '@material-ui/lab/TreeItem';
+import Typography from '@material-ui/core/Typography';
+
+// Material UI Icons
+import AddIcon from '@material-ui/icons/Add';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+// MEME Modules and Utils
+import MEMEStyles from '../../components/MEMEStyles';
+import UR from '../../../system/ursys';
+import DATA from '../../modules/pmc-data';
+import ADM from '../../modules/adm-data';
+
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = false;
+const PKG = 'ToolsPanel:';
+
+// Customized TreeItem Component with smaller font
+const SmallTreeItem = withStyles(theme => ({
+  iconContainer: {
+    width: '16px'
+  },
+  label: {
+    fontSize: '11px'
+  }
+}))(props => <TreeItem {...props} />);
+
+/// CLASS DECLARATION /////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+class ToolsPanel extends React.Component {
+  // constructor
+  constructor(props) {
+    super(props);
+
+    this.DoSelectionChange = this.DoSelectionChange.bind(this);
+    this.OnComponentAdd = this.OnComponentAdd.bind(this);
+    this.OnMechAdd = this.OnMechAdd.bind(this);
+    this.RenderComponentsList = this.RenderComponentsList.bind(this);
+    this.RenderMechanismsList = this.RenderMechanismsList.bind(this);
+
+    this.state = {
+      selectedPropId: '',
+      selectedMechId: ''
+    };
+
+    UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
+  }
+
+  componentDidMount() {}
+
+  componentWillUnmount() {
+    UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
+  }
+
+  DoSelectionChange() {
+    // let selectedPropIds = DATA.VM_SelectedPropsIds();
+    // if (DBG) console.log('selection changed', selectedPropIds);
+    // let sourceId = '';
+    // let targetId = '';
+    // if (selectedPropIds.length > 0) {
+    //   sourceId = selectedPropIds[0];
+    // }
+    // if (selectedPropIds.length > 1) {
+    //   targetId = selectedPropIds[1];
+    // }
+
+    // // Set componentIsSelected for Component Editing
+    // // If more than one component is selected, hide the component
+    // // editing buttons
+    // let componentIsSelected = false;
+    // if (selectedPropIds.length === 1 && !this.state.addEdgeOpen) componentIsSelected = true;
+
+    // // Set mechIsSelected for Mech Editing
+    // // If more than one mech is selected, hide the mech
+    // // editing buttons
+    // let mechIsSelected = false;
+    // let selectedMechIds = DATA.VM_SelectedMechIds();
+    // if (selectedMechIds.length === 1 && !this.state.addEdgeOpen) mechIsSelected = true;
+
+    // this.setState({
+    //   addEdgeSource: sourceId,
+    //   addEdgeTarget: targetId,
+    //   componentIsSelected,
+    //   mechIsSelected
+    // });
+  }
+
+  // User clicked on "(+) Add Component" drawer button
+  OnComponentAdd() {
+    UR.Publish('PROP_ADD');
+  }
+
+  // User clicked on "(+) Add Mechanism" drawer button
+  OnMechAdd() {
+    UR.Publish('MECH_ADD');
+  }
+
+  OnPropClick(e, propId) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.setState({
+      selectedPropId: propId,
+      selectedMechId: ''
+    });
+    const vprop = DATA.VM_VProp(propId);
+    DATA.VM_DeselectAll();
+    DATA.VM_SelectProp(vprop);
+  }
+
+  OnMechClick(e, mechId) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.setState({
+      selectedPropId: '',
+      selectedMechId: mechId
+    });
+    const vmech = DATA.VM_VMech(mechId);
+    DATA.VM_DeselectAll();
+    DATA.VM_SelectOneMech(vmech);
+  }
+
+  RenderComponentsList(propIds) {
+    const { selectedPropId } = this.state;
+    const { classes } = this.props;
+    return propIds.map(propId => {
+      const prop = DATA.Prop(propId);
+      const children = DATA.Children(propId);
+      return (
+        <div
+          key={propId}
+          className={ClassNames(
+            classes.treeItem,
+            classes.treePropItem,
+            selectedPropId === propId ? classes.treeItemSelected : ''
+          )}
+          onClick={e => this.OnPropClick(e, propId)}
+        >{prop.name}
+          {children.length > 0
+            ? children.map(childId => (
+                <div
+                  key={childId}
+                  className={classes.treeSubPropItem}
+                  onClick={e => this.OnPropClick(e, childId)}
+                >
+                  {DATA.Prop(childId).name}
+                </div>
+              ))
+            : ''}
+        </div>
+      );
+    });
+  }
+
+  RenderMechanismsList(mechIds) {
+    const { selectedMechId } = this.state;
+    const { classes } = this.props;
+    let i = 0;
+    return mechIds.map(mechId => {
+      const mech = DATA.Mech(mechId);
+      const source = DATA.Prop(mechId.v).name;
+      const target = DATA.Prop(mechId.w).name;
+      i++;
+      return (
+        <div
+          key={`mech${i}`}
+          className={ClassNames(
+            classes.treeItem,
+            classes.treeMechItem,
+            selectedMechId === mechId ? classes.treeItemSelected : ''
+          )}
+          onClick={e => this.OnMechClick(e, mechId)}
+        >
+          <span className={classes.treePropItemColor}>{source} </span>
+          {mech.name}
+          <span className={classes.treePropItemColor}> {target}</span>
+        </div>
+      );
+    });
+  }
+
+  render() {
+    const { classes, isDisabled } = this.props;
+
+    const componentsList = this.RenderComponentsList(DATA.Components());
+    const mechanismsList = this.RenderMechanismsList(DATA.AllMechs());
+    return (
+      <Drawer
+        className={classes.drawer}
+        variant="permanent"
+        classes={{
+          paper: classes.drawerPaper
+        }}
+        anchor="left"
+      >
+        <div className={classes.toolbar} />
+        <TreeView
+          defaultExpanded={['components']}
+          defaultCollapseIcon={<ExpandMoreIcon />}
+          defaultExpandIcon={<ChevronRightIcon />}
+          className={classes.treeView}
+        >
+          <SmallTreeItem nodeId={'components'} label="COMPONENTS">
+            {componentsList}
+          </SmallTreeItem>
+        </TreeView>
+        <Tooltip title="Add Component or Property">
+          <Fab
+            color="primary"
+            aria-label="Add"
+            className={classes.fab}
+            onClick={this.OnComponentAdd}
+            disabled={isDisabled}
+          >
+            <AddIcon />
+          </Fab>
+        </Tooltip>
+        <Typography align="center" variant="caption" style={{ fontSize: '10px' }}>
+          ADD COMPONENT
+        </Typography>
+        <br />
+        <Divider />
+        <Divider style={{ marginBottom: '20px' }} />
+        <TreeView
+          defaultCollapseIcon={<ExpandMoreIcon />}
+          defaultExpandIcon={<ChevronRightIcon />}
+          className={classes.treeView}
+        >
+          <SmallTreeItem nodeId={'mechanisms'} label="MECHANISMS">
+            {mechanismsList}
+          </SmallTreeItem>
+        </TreeView>
+        <Tooltip title="Add Mechanism">
+          <Fab
+            color="primary"
+            aria-label="Add"
+            className={ClassNames(classes.fab, classes.edgeButton)}
+            onClick={this.OnMechAdd}
+            disabled={isDisabled}
+          >
+            <AddIcon />
+          </Fab>
+        </Tooltip>
+        <Typography align="center" variant="caption" style={{ fontSize: '10px' }}>
+          ADD MECHANISM
+        </Typography>
+      </Drawer>
+    );
+  }
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// default props are expect properties that we expect
+/// and are declared for validation
+ToolsPanel.defaultProps = {
+  classes: {},
+  isDisabled: false
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// propTypes are declared. Note "vague" propstypes are
+/// disallowed by eslint, so use shape({prop: ProtType })
+/// to describe them in more detail
+ToolsPanel.propTypes = {
+  classes: PropTypes.shape({}),
+  isDisabled: PropTypes.bool
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// requirement for UR MODULES and COMPONENTS
+ToolsPanel.MOD_ID = __dirname;
+
+/// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// include MaterialUI styles
+export default withStyles(MEMEStyles)(ToolsPanel);

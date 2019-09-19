@@ -1,4 +1,4 @@
-import { green, grey, indigo, orange, red, teal, yellow } from '@material-ui/core/colors';
+import { blue, green, grey, indigo, orange, red, teal, yellow } from '@material-ui/core/colors';
 import { registerMorphableType } from '@svgdotjs/svg.js/src/main';
 import { Hidden } from '@material-ui/core';
 
@@ -58,14 +58,20 @@ const styles = theme => {
     projectTitle: {
       color: '#fff'
     },
-    treePropItem: {
+    treeItem: {
       margin: '0 2px 2px -24px',
       padding: '2px',
       fontSize: '10px',
       borderRadius: '2px',
       overflow: 'hidden',
       wordBreak: 'break-all',
-      cursor: 'pointer',
+      cursor: 'pointer'
+    },
+    treeItemSelected: {
+      border: '2px solid',
+      borderColor: blue[800]
+    },
+    treePropItem: {
       color: indigo[600],
       backgroundColor: indigo[50]
     },
@@ -79,13 +85,6 @@ const styles = theme => {
       color: indigo[300]
     },
     treeMechItem: {
-      margin: '0 2px 4px -24px',
-      padding: '2px',
-      fontSize: '10px',
-      borderRadius: '2px',
-      overflow: 'hidden',
-      wordBreak: 'break-all',
-      cursor: 'pointer',
       color: orange[800],
       backgroundColor: orange[50]
     },

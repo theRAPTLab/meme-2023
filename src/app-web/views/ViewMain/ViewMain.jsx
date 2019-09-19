@@ -23,7 +23,6 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import Card from '@material-ui/core/Card';
 import Paper from '@material-ui/core/Paper';
@@ -35,16 +34,12 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import TreeView from '@material-ui/lab/TreeView';
-import TreeItem from '@material-ui/lab/TreeItem';
 
 // Material UI Icons
 import AddIcon from '@material-ui/icons/Add';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
 import EditIcon from '@material-ui/icons/Edit';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // MEME App Components
 import HelpView from '../../components/HelpView';
 import Login from '../../components/Login';
@@ -55,6 +50,7 @@ import ResourceItem from '../../components/ResourceItem';
 import RatingsDialog from '../../components/RatingsDialog';
 import StickyNoteButton from '../../components/StickyNoteButton';
 import StickyNoteCollection from '../../components/StickyNoteCollection';
+import ToolsPanel from './ToolsPanel';
 // MEME Modules and Utils
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
@@ -115,12 +111,13 @@ class ViewMain extends React.Component {
     this.handleEvLinkSourceSelectRequest = this.handleEvLinkSourceSelectRequest.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
     this.OnHelp = this.OnHelp.bind(this);
-    this.RenderComponentsList = this.RenderComponentsList.bind(this);
     UR.Subscribe('WINDOW:SIZE', this.UpdateDimensions);
     UR.Subscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Subscribe('MODEL_TITLE:UPDATED', this.DoModelTitleUpdate);
+    UR.Subscribe('PROP_ADD', this.OnComponentAdd);
+    UR.Subscribe('MECH_ADD', this.OnMechAdd);
     UR.Subscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
     UR.Subscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
     this.state = {
@@ -454,71 +451,6 @@ class ViewMain extends React.Component {
     UR.Publish('HELP_OPEN');
   }
 
-  OnPropClick(e, propId) {
-    e.preventDefault();
-    e.stopPropagation();
-    const vprop = DATA.VM_VProp(propId);
-    DATA.VM_DeselectAll();
-    DATA.VM_SelectProp(vprop);
-  }
-
-  OnMechClick(e, mechId) {
-    e.preventDefault();
-    e.stopPropagation();
-    const vmech = DATA.VM_VMech(mechId);
-    DATA.VM_DeselectAll();
-    DATA.VM_SelectOneMech(vmech);
-  }
-
-  RenderComponentsList(propIds) {
-    const { classes } = this.props;
-    return propIds.map(propId => {
-      const prop = DATA.Prop(propId);
-      const children = DATA.Children(propId);
-      return (
-        <div
-          key={propId}
-          className={classes.treePropItem}
-          onClick={e => this.OnPropClick(e, propId)}
-        >{prop.name}
-          {children.length > 0
-            ? children.map(childId => (
-                <div
-                  key={childId}
-                  className={classes.treeSubPropItem}
-                  onClick={e => this.OnPropClick(e, childId)}
-                >
-                  {DATA.Prop(childId).name}
-                </div>
-              ))
-            : ''}
-        </div>
-      );
-    });
-  }
-
-  RenderMechanismsList(mechIds) {
-    const { classes } = this.props;
-    let i = 0;
-    return mechIds.map(mechId => {
-      const mech = DATA.Mech(mechId);
-      const source = DATA.Prop(mechId.v).name;
-      const target = DATA.Prop(mechId.w).name;
-      i++;
-      return (
-        <div
-          key={`mech${i}`}
-          className={classes.treeMechItem}
-          onClick={e => this.OnMechClick(e, mechId)}
-        >
-          <span className={classes.treePropItemColor}>{source} </span>
-          {mech.name}
-          <span className={classes.treePropItemColor}> {target}</span>
-        </div>
-      );
-    });
-  }
-
   render() {
     const { classes } = this.props;
 
@@ -541,8 +473,6 @@ class ViewMain extends React.Component {
 
     const classroomId = ADM.GetClassroomIdByStudent(studentId);
     const resources = ADM.GetResourcesForClassroom(classroomId);
-    const componentsList = this.RenderComponentsList(DATA.Components());
-    const mechanismsList = this.RenderMechanismsList(DATA.AllMechs());
     return (
       <div className={classes.root}>
         <CssBaseline />
@@ -586,66 +516,7 @@ class ViewMain extends React.Component {
         </AppBar>
 
         {/* Left Tool Sidebar */}
-        <Drawer
-          className={classes.drawer}
-          variant="permanent"
-          classes={{
-            paper: classes.drawerPaper
-          }}
-          anchor="left"
-        >
-          <div className={classes.toolbar} />
-          <TreeView
-            defaultExpanded={['components']}
-            defaultCollapseIcon={<ExpandMoreIcon />}
-            defaultExpandIcon={<ChevronRightIcon />}
-            className={classes.treeView}
-          >
-            <SmallTreeItem nodeId={'components'} label="COMPONENTS">
-              {componentsList}
-            </SmallTreeItem>
-          </TreeView>
-          <Tooltip title="Add Component or Property">
-            <Fab
-              color="primary"
-              aria-label="Add"
-              className={classes.fab}
-              onClick={this.OnComponentAdd}
-              disabled={addPropOpen || addEdgeOpen}
-            >
-              <AddIcon />
-            </Fab>
-          </Tooltip>
-          <Typography align="center" variant="caption" style={{ fontSize: '10px' }}>
-            ADD COMPONENT
-          </Typography>
-          <br />
-          <Divider />
-          <Divider style={{ marginBottom: '20px' }}/>
-          <TreeView
-            defaultCollapseIcon={<ExpandMoreIcon />}
-            defaultExpandIcon={<ChevronRightIcon />}
-            className={classes.treeView}
-          >
-            <SmallTreeItem nodeId={'mechanisms'} label="MECHANISMS">
-              {mechanismsList}
-            </SmallTreeItem>
-          </TreeView>
-          <Tooltip title="Add Mechanism">
-            <Fab
-              color="primary"
-              aria-label="Add"
-              className={ClassNames(classes.fab, classes.edgeButton)}
-              onClick={this.OnMechAdd}
-              disabled={addPropOpen || addEdgeOpen}
-            >
-              <AddIcon />
-            </Fab>
-          </Tooltip>
-          <Typography align="center" variant="caption" style={{ fontSize: '10px' }}>
-            ADD MECHANISM
-          </Typography>
-        </Drawer>
+        <ToolsPanel isDisabled={addPropOpen || addEdgeOpen}/>
 
         <main className={classes.content} ref={this.refMain}>
           <div className={classes.toolbar} ref={this.refToolbar} />

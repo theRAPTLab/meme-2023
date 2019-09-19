@@ -454,16 +454,40 @@ class ViewMain extends React.Component {
     UR.Publish('HELP_OPEN');
   }
 
+  OnPropClick(e, propId) {
+    e.preventDefault();
+    e.stopPropagation();
+    const vprop = DATA.VM_VProp(propId);
+    DATA.VM_DeselectAll();
+    DATA.VM_SelectProp(vprop);
+  }
+
+  OnMechClick(e, mechId) {
+    e.preventDefault();
+    e.stopPropagation();
+    const vmech = DATA.VM_VMech(mechId);
+    DATA.VM_DeselectAll();
+    DATA.VM_SelectOneMech(vmech);
+  }
+
   RenderComponentsList(propIds) {
     const { classes } = this.props;
     return propIds.map(propId => {
       const prop = DATA.Prop(propId);
       const children = DATA.Children(propId);
       return (
-        <div key={propId} className={classes.treePropItem}>{prop.name}
+        <div
+          key={propId}
+          className={classes.treePropItem}
+          onClick={e => this.OnPropClick(e, propId)}
+        >{prop.name}
           {children.length > 0
             ? children.map(childId => (
-                <div key={childId} className={classes.treeSubPropItem}>
+                <div
+                  key={childId}
+                  className={classes.treeSubPropItem}
+                  onClick={e => this.OnPropClick(e, childId)}
+                >
                   {DATA.Prop(childId).name}
                 </div>
               ))
@@ -475,7 +499,6 @@ class ViewMain extends React.Component {
 
   RenderMechanismsList(mechIds) {
     const { classes } = this.props;
-    console.log('...mechIds is', mechIds);
     let i = 0;
     return mechIds.map(mechId => {
       const mech = DATA.Mech(mechId);
@@ -483,7 +506,11 @@ class ViewMain extends React.Component {
       const target = DATA.Prop(mechId.w).name;
       i++;
       return (
-        <div key={`mech${i}`} className={classes.treeMechItem}>
+        <div
+          key={`mech${i}`}
+          className={classes.treeMechItem}
+          onClick={e => this.OnMechClick(e, mechId)}
+        >
           <span className={classes.treePropItemColor}>{source} </span>
           {mech.name}
           <span className={classes.treePropItemColor}> {target}</span>

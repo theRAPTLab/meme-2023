@@ -65,6 +65,7 @@ const styles = theme => {
       borderRadius: '2px',
       overflow: 'hidden',
       wordBreak: 'break-all',
+      cursor: 'pointer',
       color: indigo[600],
       backgroundColor: indigo[50]
     },
@@ -84,6 +85,7 @@ const styles = theme => {
       borderRadius: '2px',
       overflow: 'hidden',
       wordBreak: 'break-all',
+      cursor: 'pointer',
       color: orange[800],
       backgroundColor: orange[50]
     },

@@ -459,7 +459,13 @@ const styles = theme => {
     },
     stickynoteCardCriteria: {
       fontSize: '14px', // match Typograophy subitlte2
-      display: 'inline-flex'
+      display: 'inline-flex',
+      cursor: 'default'
+    },
+    stickynoteCardCriteriaDescription: {
+      color: m_systemTextColor,
+      fontStyle: 'italic',
+      marginBottom: '0.66em'
     },
     helpViewPaper: {
       position: 'absolute',

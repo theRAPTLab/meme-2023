@@ -202,7 +202,6 @@ class ToolsPanel extends React.Component {
         }}
         anchor="left"
       >
-        <div className={classes.toolbar} />
         <TreeView
           defaultExpanded={['components']}
           defaultCollapseIcon={<ExpandMoreIcon />}

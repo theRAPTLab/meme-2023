@@ -76,36 +76,24 @@ class ToolsPanel extends React.Component {
   }
 
   DoSelectionChange() {
-    // let selectedPropIds = DATA.VM_SelectedPropsIds();
-    // if (DBG) console.log('selection changed', selectedPropIds);
-    // let sourceId = '';
-    // let targetId = '';
-    // if (selectedPropIds.length > 0) {
-    //   sourceId = selectedPropIds[0];
-    // }
-    // if (selectedPropIds.length > 1) {
-    //   targetId = selectedPropIds[1];
-    // }
+    let selectedPropId = '';
+    let selectedMechId = {};
+    let selectedPropIds = DATA.VM_SelectedPropsIds();
+    // only show the first selected prop
+    if (selectedPropIds.length > 0) {
+      selectedPropId = selectedPropIds[0];
+    }
 
-    // // Set componentIsSelected for Component Editing
-    // // If more than one component is selected, hide the component
-    // // editing buttons
-    // let componentIsSelected = false;
-    // if (selectedPropIds.length === 1 && !this.state.addEdgeOpen) componentIsSelected = true;
-
-    // // Set mechIsSelected for Mech Editing
-    // // If more than one mech is selected, hide the mech
-    // // editing buttons
-    // let mechIsSelected = false;
-    // let selectedMechIds = DATA.VM_SelectedMechIds();
-    // if (selectedMechIds.length === 1 && !this.state.addEdgeOpen) mechIsSelected = true;
-
-    // this.setState({
-    //   addEdgeSource: sourceId,
-    //   addEdgeTarget: targetId,
-    //   componentIsSelected,
-    //   mechIsSelected
-    // });
+    let selectedMechIds = DATA.VM_SelectedMechIds();
+    if (selectedMechIds.length > 0) {
+      const mechIdArray = selectedMechIds[0].split(':');
+      selectedMechId.v = mechIdArray[0];
+      selectedMechId.w = mechIdArray[1];
+    }
+    this.setState({
+      selectedPropId,
+      selectedMechId
+    });
   }
 
   // User clicked on "(+) Add Component" drawer button
@@ -189,7 +177,7 @@ class ToolsPanel extends React.Component {
           className={ClassNames(
             classes.treeItem,
             classes.treeMechItem,
-            selectedMechId === mechId ? classes.treeItemSelected : ''
+            selectedMechId.v === mechId.v && selectedMechId.w === mechId.w ? classes.treeItemSelected : ''
           )}
           onClick={e => this.OnMechClick(e, mechId)}
         >

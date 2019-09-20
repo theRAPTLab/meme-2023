@@ -17,6 +17,7 @@ const DATAMAP = require('./common-datamap');
 const SESSION = require('./common-session');
 const LOGGER = require('./server-logger');
 const PROMPTS = require('../system/util/prompts');
+const UNET = require('./server-network');
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -37,6 +38,8 @@ const DB_CONFIG = {
   dataset: 'meme' // eventually this will be provided from somewhere
 }; //
 const DB = {};
+
+/// INITIALIZE DATABASE ///////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Initialize database, creating blank DB file if necessary.
  */
@@ -50,7 +53,6 @@ DB.InitializeDatabase = (options = {}) => {
 
   // initialize database with given options
   console.log(PR, `loading database ${db_file}`);
-
   let ropt = {
     autoload: true,
     autoloadCallback: f_DatabaseInitialize,
@@ -62,6 +64,13 @@ DB.InitializeDatabase = (options = {}) => {
   m_db = new Loki(db_file, m_options);
   m_options.db_file = db_file; // store for use by DB.WriteJSON
 
+  // register handlers
+  UNET.Subscribe('NET:SRV_DBGET', DB.PKT_GetDatabase);
+
+  // end of initialization code...following are local functions
+
+  /* Local Utility Functions *************************************************/
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // callback on load
   function f_DatabaseInitialize() {
     // on the first load of (non-existent database), we will have no
@@ -81,14 +90,12 @@ DB.InitializeDatabase = (options = {}) => {
       m_options.onLoadComplete();
     }
   } // end f_DatabaseInitialize
-
-  // UTILITY FUNCTION
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function f_AutosaveStatus() {
     const status = fout_CountCollections();
     console.log(PR, `AUTOSAVING! ${status}`);
   }
-
-  // UTILITY FUNCTION
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function f_EnsureCollection(col) {
     if (m_db.getCollection(col) === null) {
       m_db.addCollection(col, {
@@ -98,7 +105,7 @@ DB.InitializeDatabase = (options = {}) => {
     }
     return m_db.getCollection(col);
   }
-
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function f_LoadCollection(col) {
     const collection = f_EnsureCollection(col);
     if (options.memehost !== 'devserver') {
@@ -111,8 +118,7 @@ DB.InitializeDatabase = (options = {}) => {
     collection.insert(require(dpath));
     // save collection reference
   }
-
-  // UTILITY FUNCTION
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function fout_CountCollections() {
     let out = '';
     DBKEYS.forEach(colname => {
@@ -125,12 +131,12 @@ DB.InitializeDatabase = (options = {}) => {
     //
     return out;
   }
-};
+}; // Initialize Database
 
-/// INITIALIZE DATABASE ///////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API: load database
- * Package the database and related templatesinto the provided pkt object.
+/** API:
+ * Return the entire admin database structure. Used when initializing client
+ * app.
  */
 DB.PKT_GetDatabase = pkt => {
   LOGGER.Write(pkt.Info(), `getdatabase`);
@@ -149,6 +155,50 @@ DB.PKT_GetDatabase = pkt => {
     return collection.chain().data({ removeMeta: true });
   }
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API:
+ * Add an element or elements to the specificed collection.
+ * All properties that match an existing DBKEY are considered inputs.
+ * The property values must be objects WITHOUT an id property, or an
+ * array of such objects. Returns the input with ids added to each object.
+ * If the call fails, the error property will be set as well.
+ * @param {NetMessage} pkt - packet with data object as described above
+ * @returns {Object} - data to return to caller
+ */
+DB.PKT_Add = pkt => {};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API:
+ * Update a collection.
+ * All properties that match an existing DBKEY are considered inputs.
+ * The property values must be objects WITH an id property.
+ * If the call fails, the error property will be set as well.
+ * @param {NetMessage} pkt - packet with data object as described above
+ * @returns {Object} - data to return (including error if any)
+ */
+DB.PKT_Update = pkt => {};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API:
+ * Delete elements from a collection.
+ * All properties that match an existing DBKEY are considered inputs.
+ * The property values must be an id or array of ids
+ * If the call fails, the error property will be set as well.
+ * @param {NetMessage} pkt - packet with data object as described above
+ * @returns {Object} - data to return (including error if any)
+ */
+DB.PKT_Delete = pkt => {};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API:
+ * Query elements.
+ * All properties that match an existing DBKEY are considered inputs.
+ * The property values must be an LokiJS condition or array of such
+ * conditions that are applied successively. The properties are
+ * replaced with the found results.
+ * If the call fails, the error property will be set as well.
+ * @param {NetMessage} pkt - packet with data object as described above
+ * @returns {Object} - data to return (including error if any)
+ */
+DB.PKT_Query = pkt => {};
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API:
  * data packet contains items that will be updated. Expects keys to be

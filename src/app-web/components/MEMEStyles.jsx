@@ -40,7 +40,8 @@ const styles = theme => {
     },
     drawerPaper: {
       width: m_drawerWidth,
-      overflowX: 'hidden'
+      overflowX: 'hidden',
+      alignItems: 'center'
     },
     toolbar: theme.mixins.toolbar,
     content: {
@@ -53,7 +54,8 @@ const styles = theme => {
       backgroundColor: '#f0f0ff'
     },
     fab: {
-      margin: theme.spacing(2)
+      margin: theme.spacing(2),
+      marginBottom: '8px'
     },
     projectTitle: {
       color: '#fff'

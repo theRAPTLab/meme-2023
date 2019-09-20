@@ -214,6 +214,7 @@ class ToolsPanel extends React.Component {
         <Tooltip title="Add Component or Property">
           <Fab
             color="primary"
+            size="small"
             aria-label="Add"
             className={classes.fab}
             onClick={this.OnComponentAdd}
@@ -225,8 +226,6 @@ class ToolsPanel extends React.Component {
         <Typography align="center" variant="caption" style={{ fontSize: '10px' }}>
           ADD COMPONENT
         </Typography>
-        <br />
-        <Divider />
         <Divider style={{ marginBottom: '20px' }} />
         <TreeView
           defaultExpanded={['mechanisms']}
@@ -241,6 +240,7 @@ class ToolsPanel extends React.Component {
         <Tooltip title="Add Mechanism">
           <Fab
             color="primary"
+            size="small"
             aria-label="Add"
             className={ClassNames(classes.fab, classes.edgeButton)}
             onClick={this.OnMechAdd}

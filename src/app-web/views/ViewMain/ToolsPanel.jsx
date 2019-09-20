@@ -59,6 +59,7 @@ class ToolsPanel extends React.Component {
     this.OnComponentAdd = this.OnComponentAdd.bind(this);
     this.OnMechAdd = this.OnMechAdd.bind(this);
     this.RenderComponentsList = this.RenderComponentsList.bind(this);
+    this.RenderComponentsListItem = this.RenderComponentsListItem.bind(this);
     this.RenderMechanismsList = this.RenderMechanismsList.bind(this);
 
     this.state = {
@@ -131,35 +132,33 @@ class ToolsPanel extends React.Component {
   }
 
   RenderComponentsList(propIds) {
+    return propIds.map(propId => {
+      return this.RenderComponentsListItem(propId);
+    });
+  }
+
+  // This supports recursive calls to handle nested components.
+  RenderComponentsListItem(propId, isSub = false) {
     const { selectedPropId } = this.state;
     const { classes } = this.props;
-    return propIds.map(propId => {
-      const prop = DATA.Prop(propId);
-      const children = DATA.Children(propId);
-      return (
-        <div
-          key={propId}
-          className={ClassNames(
-            classes.treeItem,
-            classes.treePropItem,
-            selectedPropId === propId ? classes.treeItemSelected : ''
-          )}
-          onClick={e => this.OnPropClick(e, propId)}
-        >{prop.name}
-          {children.length > 0
-            ? children.map(childId => (
-                <div
-                  key={childId}
-                  className={classes.treeSubPropItem}
-                  onClick={e => this.OnPropClick(e, childId)}
-                >
-                  {DATA.Prop(childId).name}
-                </div>
-              ))
-            : ''}
-        </div>
-      );
-    });
+    const prop = DATA.Prop(propId);
+    const children = DATA.Children(propId);
+    return (
+      <div
+        key={propId}
+        className={ClassNames(
+          classes.treeItem,
+          isSub ? classes.treeSubPropItem : classes.treePropItem,
+          selectedPropId === propId ? classes.treeItemSelected : ''
+        )}
+        onClick={e => this.OnPropClick(e, propId)}
+      >
+        {prop.name}
+        {children.length > 0
+          ? children.map(childId => this.RenderComponentsListItem(childId, true))
+          : ''}
+      </div>
+    );
   }
 
   RenderMechanismsList(mechIds) {

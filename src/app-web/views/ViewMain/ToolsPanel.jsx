@@ -203,7 +203,6 @@ class ToolsPanel extends React.Component {
         anchor="left"
       >
         <TreeView
-          defaultExpanded={['components']}
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
           className={classes.treeView}
@@ -230,6 +229,7 @@ class ToolsPanel extends React.Component {
         <Divider />
         <Divider style={{ marginBottom: '20px' }} />
         <TreeView
+          defaultExpanded={['mechanisms']}
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
           className={classes.treeView}

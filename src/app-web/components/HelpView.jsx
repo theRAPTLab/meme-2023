@@ -15,6 +15,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import MDReactComponent from 'markdown-react-js';
+import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 // Material UI Icons
@@ -26,6 +27,8 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
+import ADM from '../modules/adm-data';
+import CriteriaList from '../views/ViewAdmin/components/AdmCriteriaList';
 import { Typography } from '@material-ui/core';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -89,6 +92,7 @@ Evidence Links should describe how a resource supports or contradicts your model
   render() {
     const { isOpen, helptext } = this.state;
     const { classes } = this.props;
+    const criteria = ADM.GetCriteriaByClassroom();
 
     return (
       <Draggable>
@@ -101,7 +105,12 @@ Evidence Links should describe how a resource supports or contradicts your model
             <CloseIcon />
           </IconButton>
           <Typography variant="h6">HELP</Typography>
-          <MDReactComponent className={classes.helpViewText} text={helptext} />
+          <Divider style={{ marginBottom: '0.5em' }}/>
+          <div style={{ overflowY: 'scroll' }}>
+            <h6>Criteria</h6>
+            <CriteriaList Criteria={criteria} IsInEditMode={false} />
+            <MDReactComponent className={classes.helpViewText} text={helptext} />
+          </div>
         </Paper>
       </Draggable>
     );

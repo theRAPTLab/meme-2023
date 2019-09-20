@@ -463,6 +463,8 @@ const styles = theme => {
     },
     helpViewPaper: {
       position: 'absolute',
+      display: 'flex',
+      flexDirection: 'column',
       width: '300px',
       height: '90%',
       top: '5%',
@@ -473,9 +475,7 @@ const styles = theme => {
     },
     helpViewText: {
       display: 'block', // override default MDReactComponent <span>
-      height: '90%',
-      padding: '10px 0 5px 0',
-      overflowY: 'scroll'
+      padding: '10px 0 5px 0'
     }
   };
 };

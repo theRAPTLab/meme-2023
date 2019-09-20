@@ -3,7 +3,6 @@ import { registerMorphableType } from '@svgdotjs/svg.js/src/main';
 import { Hidden } from '@material-ui/core';
 
 const m_drawerWidth = 100;
-const m_edgeDialogWidth = 800;
 const m_primary = indigo[500];
 const m_stickynoteIconColor = yellow[800]; // `#ffc904`;
 const m_stickynoteColor = yellow[400]; //`#ffe25a`;
@@ -95,7 +94,6 @@ const styles = theme => {
       '&:hover': { backgroundColor: orange[700] }
     },
     edgeDialog: {
-      width: m_edgeDialogWidth,
       height: '70px'
     },
     edgeDialogWindowLabel: {
@@ -112,14 +110,16 @@ const styles = theme => {
     edgeDialogPaper: {
       margin: `1em 10em 1em ${m_drawerWidth}px`,
       padding: '1em',
-      width: m_edgeDialogWidth,
       position: 'absolute',
-      bottom: 0
+      bottom: 0,
+      left: '10px',
+      right: '180px'
     },
     edgeDialogInput: {
       display: 'flex',
       height: '3em',
-      alignItems: 'baseline'
+      marginTop: '0.5em',
+      alignItems: 'center'
     },
     resourceList: {
       width: m_resourceListWidth,

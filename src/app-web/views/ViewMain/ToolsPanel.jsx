@@ -152,6 +152,10 @@ class ToolsPanel extends React.Component {
           selectedPropId === propId ? classes.treeItemSelected : ''
         )}
         onClick={e => this.OnPropClick(e, propId)}
+        onMouseEnter={e => {
+          e.stopPropagation();
+          UR.Publish('DESCRIPTION_OPEN', { propId: propId });
+        }}
       >
         {prop.name}
         {children.length > 0

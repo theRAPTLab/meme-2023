@@ -11,6 +11,9 @@ import VBadge from './class-vbadge';
 const { VMECH, COLOR, CoerceToEdgeObj, SVGDEFS } = DEFAULTS;
 const m_up = VMECH.UP;
 const m_blen = VMECH.BLEN;
+const COL_MECH = COLOR.MECH;
+const COL_MECH_SEL = COLOR.MECH_SEL;
+const COL_HOV = COLOR.MECH_HOV;
 
 const DBG = false;
 
@@ -72,7 +75,7 @@ class VMech {
       .path()
       .back()
       .fill('none')
-      .stroke({ width: 4, color: COLOR.MECH, dasharray: '4 2' });
+      .stroke({ width: 4, color: COL_MECH, dasharray: '4 2' });
 
     this.pathLabel = svgRoot.text(add => {
       add.tspan(this.data.name);
@@ -110,6 +113,12 @@ class VMech {
     this.path.click(this.HandleSelect);
     this.pathLabel.click(this.HandleSelect);
 
+    // hack hover
+    this.path.mouseenter(() => this.HoverState(true));
+    this.path.mouseleave(() => this.HoverState(false));
+    this.pathLabel.mouseenter(() => this.HoverState(true));
+    this.pathLabel.mouseleave(() => this.HoverState(false));
+
     // add VBadge group
     this.vBadge = VBadge.New(this);
   }
@@ -120,6 +129,17 @@ class VMech {
    */
   Id() {
     return this.id;
+  }
+
+  HoverState(visible) {
+    if (typeof visible !== 'boolean') throw Error('must specific true or false');
+
+    if (visible) {
+      this.visualState.Select('hover');
+    } else {
+      this.visualState.Deselect('hover');
+    }
+    this.Draw();
   }
 
   /**
@@ -209,12 +229,16 @@ class VMech {
    * Handle any post-Update() drawing, such as selection state
    */
   Draw() {
-    if (this.visualState.IsSelected()) {
-      this.path.stroke({ width: 6, color: COLOR.MECH_SEL, dasharray: '6 3' });
-      this.pathLabel.fill(COLOR.MECH_SEL);
+
+    if (this.visualState.IsSelected('hover')) {
+      this.path.stroke({ width: 6, color: COL_HOV, dasharray: '6 3' });
+      this.pathLabel.fill(COL_MECH_SEL);
+    } else if (this.visualState.IsSelected()) {
+      this.path.stroke({ width: 6, color: COL_MECH_SEL, dasharray: '6 3' });
+      this.pathLabel.fill(COL_MECH_SEL);
     } else {
-      this.path.stroke({ width: 4, color: COLOR.MECH, dasharray: '4 2' });
-      this.pathLabel.fill(COLOR.MECH);
+      this.path.stroke({ width: 4, color: COL_MECH, dasharray: '4 2' });
+      this.pathLabel.fill(COL_MECH);
     }
     this.vBadge.Draw(this);
   }

@@ -5,6 +5,9 @@ import { AddDragDropHandlers } from './class-vprop-dragdrop';
 import { VisualState } from './classes-visual';
 import VBadge from './class-vbadge';
 
+// testing mousedown
+import UR from '../../system/ursys';
+
 const { VPROP, PAD, COLOR } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
@@ -102,10 +105,19 @@ class VProp {
       this.visualState.Select('hover');
       this.visualStyle.fill.color = COL_HOVER;
       this.visualStyle.fill.opacity = COL_HOVER_OPACITY;
+
+
+      // Test mousedown
+      UR.Publish('DESCRIPTION_OPEN');
+
+
     } else {
       this.visualState.Deselect('hover');
       this.visualStyle.fill.color = COL_BG;
       this.visualStyle.fill.opacity = COL_BG_OPACITY;
+
+      // Test mousedown
+      UR.Publish('DESCRIPTION_CLOSE');
     }
     this.Draw();
   }

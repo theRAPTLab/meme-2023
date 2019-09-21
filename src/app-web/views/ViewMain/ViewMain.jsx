@@ -41,6 +41,7 @@ import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
 import EditIcon from '@material-ui/icons/Edit';
 // MEME App Components
+import DescriptionView from '../../components/DescriptionView';
 import HelpView from '../../components/HelpView';
 import Login from '../../components/Login';
 import MechDialog from '../../components/MechDialog';
@@ -551,9 +552,8 @@ class ViewMain extends React.Component {
 
           <StickyNoteCollection />
           <RatingsDialog />
-
-          {/* Mech Dialog */}
           <MechDialog />
+          <DescriptionView />
         </main>
 
         {/* Resource Library */}

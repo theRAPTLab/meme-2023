@@ -65,15 +65,28 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`
   }
 
   DoOpen(data) {
-    console.log('DESCRIPTION_OPEN', data.propId);
+    console.log('DESCRIPTION_OPEN', data);
     const propId = data.propId;
-    const prop = DATA.Prop(propId);
-    this.setState({
-      isOpen: true,
-      propId,
-      label: prop.name,
-      text: prop.description
-    });
+    const mechId = data.mechId;
+    if (propId) {
+      const prop = DATA.Prop(propId);
+      this.setState({
+        isOpen: true,
+        propId,
+        mechId: undefined,
+        label: prop.name,
+        text: prop.description
+      });
+    } else if (mechId) {
+      const mech = DATA.Mech(mechId);
+      this.setState({
+        isOpen: true,
+        propId: undefined,
+        mechId,
+        label: mech.name,
+        text: mech.description
+      });
+    }
   }
 
   DoClose() {

@@ -136,8 +136,10 @@ class VMech {
 
     if (visible) {
       this.visualState.Select('hover');
+      UR.Publish('DESCRIPTION_OPEN', { mechId: this.id });
     } else {
       this.visualState.Deselect('hover');
+      UR.Publish('DESCRIPTION_CLOSE');
     }
     this.Draw();
   }

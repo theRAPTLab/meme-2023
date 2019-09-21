@@ -150,7 +150,6 @@ class MechDialog extends React.Component {
    * @param {*} targetId
    */
   DoSelectSourceAndTarget(sourceId, targetId) {
-    console.error(PKG, 'DoSelectSourceAndTarget', sourceId, targetId);
     const currentVPropSource = DATA.VM_VProp(sourceId);
     DATA.VM_SelectProp(currentVPropSource);
     currentVPropSource.visualState.Select('first'); // hack, this shold probably be implemented as a PMCData call?

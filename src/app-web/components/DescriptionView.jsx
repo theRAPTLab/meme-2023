@@ -12,11 +12,7 @@ at the bottom of the ViewMain view.
 import React from 'react';
 import PropTypes from 'prop-types';
 import MDReactComponent from 'markdown-react-js';
-import Divider from '@material-ui/core/Divider';
-import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
-// Material UI Icons
-import CloseIcon from '@material-ui/icons/Close';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 

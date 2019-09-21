@@ -183,6 +183,10 @@ class ToolsPanel extends React.Component {
             selectedMechId.v === mechId.v && selectedMechId.w === mechId.w ? classes.treeItemSelected : ''
           )}
           onClick={e => this.OnMechClick(e, mechId)}
+          onMouseEnter={e => {
+            e.stopPropagation();
+            UR.Publish('DESCRIPTION_OPEN', { mechId: mechId });
+          }}
         >
           <span className={classes.treePropItemColor}>{source} </span>
           {mech.name}

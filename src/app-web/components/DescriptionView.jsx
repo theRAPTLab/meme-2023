@@ -79,7 +79,7 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`
     const descriptionText = text.slice(Math.random() * text.length - 5);
 
     return (
-      <Paper className={classes.descriptionViewPaper} hidden={!isOpen}>
+      <Paper className={classes.descriptionViewPaper} hidden={!isOpen} elevation={24}>
         <div style={{ overflowY: 'auto' }}>
           <div className={classes.descriptionLabel}>DESCRIPTION</div>
           <MDReactComponent className={classes.descriptionViewText} text={descriptionText} />

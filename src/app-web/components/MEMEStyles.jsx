@@ -489,16 +489,18 @@ const styles = theme => {
     },
     descriptionViewPaper: {
       position: 'absolute',
-      bottom: '0',
-      left: '110px',
-      right: '310px',
+      bottom: '0px', // '0',
+      // top: '10px',
+      // left: '110px',
+      right: '0px', // '310px',
+      width: '305px',
       zIndex: m_zResourceList,
-      padding: '10px',
-      backgroundColor: 'rgba(255,243,211,0.7)'
+      padding: '15px 15px 0 15px',
+      backgroundColor: indigo[50] //'rgba(255,243,211,0.95)'
     },
     descriptionViewText: {
       display: 'block', // override default MDReactComponent <span>
-      padding: '10px 5px 5px 0'
+      padding: '0'
     }
   };
 };

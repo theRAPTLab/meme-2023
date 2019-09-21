@@ -18,6 +18,7 @@ import MDReactComponent from 'markdown-react-js';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 // Material UI Icons
 import CloseIcon from '@material-ui/icons/Close';
 // Material UI Theming
@@ -29,7 +30,6 @@ import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import ADM from '../modules/adm-data';
 import CriteriaList from '../views/ViewAdmin/components/AdmCriteriaList';
-import { Typography } from '@material-ui/core';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

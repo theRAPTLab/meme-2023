@@ -496,15 +496,18 @@ const styles = theme => {
     },
     descriptionViewPaper: {
       position: 'absolute',
-      bottom: '10px', // '0',
-      // top: '10px',
-      // left: '110px',
-      right: '10px', // '310px',
+      bottom: '10px',
+      right: '10px',
       width: '305px',
       zIndex: m_zResourceList,
       padding: '15px 15px 0 15px',
-      color: 'white',
-      backgroundColor: indigo[400] //'rgba(255,243,211,0.95)'
+      color: 'white'
+    },
+    descriptionViewPaperPropColor: {
+      backgroundColor: indigo[400]
+    },
+    descriptionViewPaperMechColor: {
+      backgroundColor: orange[800]
     },
     descriptionViewText: {
       display: 'block', // override default MDReactComponent <span>

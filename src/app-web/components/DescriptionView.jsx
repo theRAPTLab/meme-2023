@@ -10,6 +10,7 @@ at the bottom of the ViewMain view.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import ClassNames from 'classnames';
 import PropTypes from 'prop-types';
 import MDReactComponent from 'markdown-react-js';
 import Paper from '@material-ui/core/Paper';
@@ -25,7 +26,7 @@ import DATA from '../modules/pmc-data';
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
-const PKG = 'HelpView:';
+const PKG = 'DescriptionView:';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -61,7 +62,7 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`
   }
 
   DoOpen(data) {
-    console.log('DESCRIPTION_OPEN', data);
+    if (DBG) console.log(PKG, 'DESCRIPTION_OPEN', data);
     const propId = data.propId;
     const mechId = data.mechId;
     if (propId) {
@@ -86,12 +87,12 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`
   }
 
   DoClose() {
-    console.log('DESCRIPTION_CLOSE');
+    if (DBG) console.log(PKG, 'DESCRIPTION_CLOSE');
     this.setState({ isOpen: false });
   }
 
   render() {
-    const { isOpen, text, label, lorem } = this.state;
+    const { isOpen, propId, text, label, lorem } = this.state;
     const { classes } = this.props;
 
     // Fake some text
@@ -101,7 +102,13 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`
         : lorem.slice(Math.random() * lorem.length - 5);
 
     return (
-      <Paper className={classes.descriptionViewPaper} hidden={!isOpen} elevation={24}>
+      <Paper className={ClassNames(
+          classes.descriptionViewPaper,
+          propId ? classes.descriptionViewPaperPropColor : classes.descriptionViewPaperMechColor
+        )}
+        hidden={!isOpen}
+        elevation={24}
+      >
         <div style={{ overflowY: 'auto' }}>
           <div className={classes.descriptionLabel}>{label}</div>
           <MDReactComponent className={classes.descriptionViewText} text={descriptionText} />

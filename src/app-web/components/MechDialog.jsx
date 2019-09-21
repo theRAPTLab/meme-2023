@@ -49,6 +49,7 @@ class MechDialog extends React.Component {
     this.OnSourceLinkButtonClick = this.OnSourceLinkButtonClick.bind(this);
     this.OnTargetLinkButtonClick = this.OnTargetLinkButtonClick.bind(this);
     this.OnTextChange = this.OnTextChange.bind(this);
+    this.OnDescriptionChange = this.OnDescriptionChange.bind(this);
     this.OnReverse = this.OnReverse.bind(this);
     this.DoSaveData = this.DoSaveData.bind(this);
     this.OnCreateClick = this.OnCreateClick.bind(this);
@@ -61,6 +62,7 @@ class MechDialog extends React.Component {
       targetId: '',
       targetLabel: undefined,
       label: '',
+      description: '',
       listenForSourceSelection: false,
       listenForTargetSelection: false,
       origSourceId: '',
@@ -95,6 +97,7 @@ class MechDialog extends React.Component {
         targetId: '',
         targetLabel: undefined,
         label: '',
+        description: '',
         listenForSourceSelection: true,
         listenForTargetSelection: true,
         saveButtonLabel: 'Add'
@@ -107,7 +110,7 @@ class MechDialog extends React.Component {
 
   DoEdit(data) {
     if (DBG) console.log(PKG, 'Edit Mech!', data);
-    const { label, sourceId, targetId } = data;
+    const { label, description, sourceId, targetId } = data;
     this.setState(
       {
         isOpen: true,
@@ -117,6 +120,7 @@ class MechDialog extends React.Component {
         targetId,
         targetLabel: DATA.Prop(targetId).name,
         label,
+        description,
         origSourceId: sourceId,
         origTargetId: targetId,
         listenForSourceSelection: false,
@@ -265,6 +269,10 @@ class MechDialog extends React.Component {
     this.setState({ label: e.target.value });
   }
 
+  OnDescriptionChange(e) {
+    this.setState({ description: e.target.value });
+  }
+
   OnReverse() {
     // Swap source and target
     const { sourceId, sourceLabel, targetId, targetLabel } = this.state;
@@ -294,10 +302,18 @@ class MechDialog extends React.Component {
   }
 
   DoSaveData() {
-    const { sourceId, targetId, origSourceId, origTargetId, label, editExisting } = this.state;
+    const {
+      sourceId,
+      targetId,
+      origSourceId,
+      origTargetId,
+      label,
+      description,
+      editExisting
+    } = this.state;
     if (editExisting) {
       const origMech = { sourceId: origSourceId, targetId: origTargetId };
-      const newMech = { sourceId, targetId, label };
+      const newMech = { sourceId, targetId, label, description };
       DATA.PMC_MechUpdate(origMech, newMech);
     } else {
       DATA.PMC_MechAdd(sourceId, targetId, label);
@@ -317,6 +333,7 @@ class MechDialog extends React.Component {
     const {
       isOpen,
       label,
+      description,
       sourceId,
       sourceLabel,
       targetId,
@@ -384,6 +401,18 @@ class MechDialog extends React.Component {
               >
                 {saveButtonLabel}
               </Button>
+            </div>
+            <div className={classes.edgeDialogInput}>
+              <TextField
+                autoFocus
+                placeholder="Describe how the the two are linked together..."
+                margin="dense"
+                id="edgeDescription"
+                label="Description"
+                value={description}
+                onChange={this.OnDescriptionChange}
+                className={classes.edgeDialogDescriptionField}
+              />
             </div>
           </form>
         </Paper>

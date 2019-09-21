@@ -108,6 +108,11 @@ const styles = theme => {
       width: '150px',
       margin: '0 25px'
     },
+    edgeDialogDescriptionField: {
+      color: orange[500],
+      width: '65%',
+      margin: '0'
+    },
     edgeDialogPaper: {
       margin: `1em 10em 1em ${m_drawerWidth}px`,
       padding: '1em',

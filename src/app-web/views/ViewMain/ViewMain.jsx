@@ -316,6 +316,7 @@ class ViewMain extends React.Component {
       let vw = mechId.split(':');
       let data = {
         label: mech.name,
+        description: mech.description,
         sourceId: vw[0],
         targetId: vw[1]
       };

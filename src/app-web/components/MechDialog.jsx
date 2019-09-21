@@ -120,7 +120,7 @@ class MechDialog extends React.Component {
         targetId,
         targetLabel: DATA.Prop(targetId).name,
         label,
-        description,
+        description: description || '',  // Simple validation
         origSourceId: sourceId,
         origTargetId: targetId,
         listenForSourceSelection: false,
@@ -316,7 +316,7 @@ class MechDialog extends React.Component {
       const newMech = { sourceId, targetId, label, description };
       DATA.PMC_MechUpdate(origMech, newMech);
     } else {
-      DATA.PMC_MechAdd(sourceId, targetId, label);
+      DATA.PMC_MechAdd(sourceId, targetId, label, description);
     }
   }
 
@@ -345,7 +345,6 @@ class MechDialog extends React.Component {
       slideIn
     } = this.state;
     const { classes } = this.props;
-
     return (
       <Card className={classes.edgeDialog} hidden={!isOpen}>
         <Paper className={classes.edgeDialogPaper}>
@@ -404,7 +403,6 @@ class MechDialog extends React.Component {
             </div>
             <div className={classes.edgeDialogInput}>
               <TextField
-                autoFocus
                 placeholder="Describe how the the two are linked together..."
                 margin="dense"
                 id="edgeDescription"

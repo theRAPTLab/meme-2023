@@ -485,7 +485,9 @@ const styles = theme => {
       padding: '10px 0 5px 0'
     },
     descriptionLabel: {
-      fontSize: m_systemLabelFontSize
+      fontSize: m_systemLabelFontSize,
+      marginBottom: '0.5em',
+      textTransform: 'uppercase'
     },
     descriptionViewPaper: {
       position: 'absolute',
@@ -496,7 +498,8 @@ const styles = theme => {
       width: '305px',
       zIndex: m_zResourceList,
       padding: '15px 15px 0 15px',
-      backgroundColor: indigo[50] //'rgba(255,243,211,0.95)'
+      color: 'white',
+      backgroundColor: indigo[400] //'rgba(255,243,211,0.95)'
     },
     descriptionViewText: {
       display: 'block', // override default MDReactComponent <span>

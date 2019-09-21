@@ -24,7 +24,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
-import ADM from '../modules/adm-data';
+import DATA from '../modules/pmc-data';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -42,7 +42,10 @@ class DescriptionView extends React.Component {
 
     this.state = {
       isOpen: false,
-      text: `Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+      propId: '',
+      label: '',
+      text: '*no description*',
+      lorem: `Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
 tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
 quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
 consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
@@ -61,9 +64,16 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`
     UR.Unsubscribe('DESCRIPTION_CLOSE', this.DoClose);
   }
 
-  DoOpen() {
-    console.log('DESCRIPTION_OPEN');
-    this.setState({ isOpen: true });
+  DoOpen(data) {
+    console.log('DESCRIPTION_OPEN', data.propId);
+    const propId = data.propId;
+    const prop = DATA.Prop(propId);
+    this.setState({
+      isOpen: true,
+      propId,
+      label: prop.name,
+      text: prop.description
+    });
   }
 
   DoClose() {
@@ -72,16 +82,19 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`
   }
 
   render() {
-    const { isOpen, text } = this.state;
+    const { isOpen, text, label, lorem } = this.state;
     const { classes } = this.props;
 
     // Fake some text
-    const descriptionText = text.slice(Math.random() * text.length - 5);
+    const descriptionText =
+      text !== '*no description*' && text !== undefined
+        ? text
+        : lorem.slice(Math.random() * lorem.length - 5);
 
     return (
       <Paper className={classes.descriptionViewPaper} hidden={!isOpen} elevation={24}>
         <div style={{ overflowY: 'auto' }}>
-          <div className={classes.descriptionLabel}>DESCRIPTION</div>
+          <div className={classes.descriptionLabel}>{label}</div>
           <MDReactComponent className={classes.descriptionViewText} text={descriptionText} />
         </div>
       </Paper>

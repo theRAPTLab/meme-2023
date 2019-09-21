@@ -58,7 +58,7 @@ DB.InitializeDatabase = (options = {}) => {
     autoloadCallback: f_DatabaseInitialize,
     autosave: true,
     autosaveCallback: f_AutosaveStatus,
-    autosaveInterval: 4000 // save every four seconds
+    autosaveInterval: 3000 // save every four seconds
   };
   m_options = Object.assign(ropt, options);
   m_db = new Loki(db_file, m_options);
@@ -105,7 +105,7 @@ DB.InitializeDatabase = (options = {}) => {
       m_db.addCollection(col, {
         asyncListeners: false,
         autoupdate: true,
-        cloneObjects: true
+        cloneObjects: true // IMPORTANT
       });
     }
     return m_db.getCollection(col);
@@ -190,14 +190,11 @@ DB.PKT_Add = pkt => {
     let inserted = dbc.insert(dataArray);
     if (!Array.isArray(inserted)) inserted = [inserted];
     // save ids
-    const insertedIds = inserted.map(item => {
-      console.log('inserted', item);
-      return item.UID;
-    });
-    // grab values
+    const insertedIds = inserted.map(item => item.id);
+    // grab filtered values
     const updated = dbc
       .chain()
-      .find({ UID: { $in: insertedIds } })
+      .find({ id: { $in: insertedIds } })
       .data({ removeMeta: true });
     results[colName] = updated;
   });
@@ -253,19 +250,16 @@ function m_GetValidDBFilePath(dataset) {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function u_CopyLokiId(input, output) {
-  if (output === undefined) {
-    output = input;
-  }
+function u_CopyLokiId(input) {
   if (!Array.isArray(input)) {
-    output.UID = input.$loki;
-    console.log(PR, '*** array output.UID', output.UID);
+    input.id = input.$loki;
+    // console.log(PR, '*** array output.id', input.id);
     return;
-  } else
-    input.forEach(item => {
-      output.UID = item.$loki;
-      console.log(PR, '*** non-array output.UID', output.UID);
-    });
+  }
+  input.forEach(item => {
+    item.id = item.$loki;
+    // console.log(PR, '*** non-array output.id', item.id);
+  });
 }
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////

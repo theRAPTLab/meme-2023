@@ -108,6 +108,30 @@ class DataMap {
 /// STATIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DataMap.DBKEYS = DBKEYS;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * validate that keyName is a valid DBKEY
+ * @param
+ */
+DataMap.ValidateKey = keyName => DBKEYS.includes(keyName);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** used to parse a data object (such as returned from pkt.Data() for collections
+ * to modify or update.
+ * @param {Object} data - object with properties matching DBKEY contain array of values
+ * @returns {Array} - an array of [collection,items] for each matching DBKEY
+ */
+DataMap.ExtractCollections = data => {
+  let collections = [];
+  // always push an array
+  DBKEYS.forEach(key => {
+    const values = data[key];
+    if (!values) return;
+    if (Array.isArray(values)) collections.push([key, values]);
+    else collections.push([key, [values]]);
+  });
+  // returned undefined if no collections
+  return collections;
+};
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

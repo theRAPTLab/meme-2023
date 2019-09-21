@@ -207,7 +207,8 @@ class NetMessage {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /** NetMessage.SetData() is a convenience method to set data object entirely
+  /**
+   * Convenience method to set data object entirely
    */
   SetData(propOrVal, val) {
     if (typeof propOrVal === 'object') {
@@ -221,6 +222,25 @@ class NetMessage {
     throw ERR_BAD_PROP;
   }
 
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /**
+   * return array of collection arrays [ key, value ] that match passed
+   * key array [ key, key, ...]
+   * @param {Array<string>} keys - array of property names to match
+   * @returns {Array<Array>} - array of [key, [values]] that match
+   */
+  DataMatchingKeys(keys) {
+    let collections = [];
+    let error;
+    // always push an array
+    keys.forEach(key => {
+      const values = data[key];
+      if (Array.isArray(values)) collections.push([key, values]);
+      else collections.push([key, [values]]);
+    });
+    // returned undefined if no collections
+    return collections.length ? collections : undefined;
+  }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** NetMessage.Memo() returns the 'memo' field of the packet */
   Memo() {
@@ -288,7 +308,7 @@ class NetMessage {
     this.s_uaddr = pkt.SourceAddress();
   }
 
-  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /// - - - - - - - - server- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** NetMessage.Info() returns debug information about the packet
    * @param {string} key - type of debug info (always 'src' currently)
    * @returns {string} source browser + group (if set)

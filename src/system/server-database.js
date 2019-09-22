@@ -283,11 +283,13 @@ function m_GetValidDBFilePath(dataset) {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function u_CopyLokiId(input) {
   if (!Array.isArray(input)) {
+    if (input.id) console.log(PR, `warning, overwriting id '${input.id}' with ${input.$loki}`);
     input.id = input.$loki;
     // console.log(PR, '*** array output.id', input.id);
     return;
   }
   input.forEach(item => {
+    if (item.id) console.log(PR, `warning, overwriting id '${item.id}' with ${item.$loki}`);
     item.id = item.$loki;
     // console.log(PR, '*** non-array output.id', item.id);
   });

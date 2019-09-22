@@ -47,6 +47,7 @@ UR.Hook(__dirname, 'LOAD_ASSETS', () => {
         return;
       }
       adm_db = data;
+      window.admdb = data;
       console.log(PKG, 'data loaded', data);
       ADMData.Load();
       resolve();
@@ -697,7 +698,7 @@ ADMData.AllResources = () => {
 // Returns the resource object matching the rsrccId.
 ADMData.Resource = rsrcId => {
   return adm_db.a_resources.find(item => {
-    return item.rsrcId === rsrcId;
+    return item.id === rsrcId;
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -735,4 +736,6 @@ ADMData.SetClassroomResource = (rsrcId, checked, classroomId) => {
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+window.adm = ADMData;
+window.admdb = adm_db;
 export default ADMData;

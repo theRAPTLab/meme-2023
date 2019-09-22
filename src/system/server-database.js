@@ -184,12 +184,12 @@ DB.PKT_Add = pkt => {
   const results = {};
   const collections = DATAMAP.ExtractCollections(data);
   collections.forEach(entry => {
-    let [colName, dataArray] = entry;
+    let [colName, colObjs] = entry;
     const dbc = m_db.getCollection(colName);
-    // inserted entries
-    let inserted = dbc.insert(dataArray);
+    // INSERT entries
+    let inserted = dbc.insert(colObjs);
     if (!Array.isArray(inserted)) inserted = [inserted];
-    // save ids
+    // RETURN ids
     const insertedIds = inserted.map(item => item.id);
     // grab filtered values
     const updated = dbc
@@ -210,7 +210,38 @@ DB.PKT_Add = pkt => {
  * @param {NetMessage} pkt - packet with data object as described above
  * @returns {Object} - data to return (including error if any)
  */
-DB.PKT_Update = pkt => {};
+DB.PKT_Update = pkt => {
+  const data = pkt.Data();
+  const results = {};
+  let error = '';
+  const collections = DATAMAP.ExtractCollections(data);
+  collections.forEach(entry => {
+    let [colName, colObjs] = entry;
+    const dbc = m_db.getCollection(colName);
+    let updatedIds = [];
+    // 1. colObjs is the objects of the collection
+    // 2. grab ids from each colObj
+    // 3. find each object, then update it
+    colObjs.forEach((ditem, index) => {
+      const { id } = ditem;
+      if (!id) {
+        error += `item[${index}] has no id`;
+        return;
+      }
+      let r = dbc
+        .chain()
+        .find({ id: { $in: id } })
+        .update(ditem);
+      if (r.length === 1) updatedIds.push(id);
+      console.log('results', r);
+    }); // colObjs
+    // save list of updated ids
+    results[colName].updated = updatedIds;
+  }); // collections forEach
+  // return the processed packet
+  if (error) results.error = error;
+  return results;
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API:
  * Delete elements from a collection.

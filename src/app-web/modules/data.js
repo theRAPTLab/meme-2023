@@ -23,12 +23,13 @@ let MOD = { ...ADM };
 /// OVERRIDE SELECT ADM DATA METHODS //////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.AddTeacher = name => {
-  return UR.NetCall('NET:SRV_DBADD', {
-    teachers: [{ name }]
+  UR.NetCall('NET:SRV_DBADD', {
+    teachers: [{ name }, { name: 'fred' }, { name: 'arnold' }]
   }).then(rdata => {
     console.log(`received`, rdata);
+    // FIRES 'TEACHER_SELECT' teacherId
+    // or let the update state handler force it
   });
-  // FIRES 'TEACHER_SELECT' teacherId
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.SetClassesModelVisibility = isVisible => {};
@@ -41,7 +42,14 @@ MOD.AddGroup = groupName => {
   // FIRES 'ADM_DATA_UPDATED'
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.UpdateGroup = (groupId, group) => {};
+MOD.UpdateGroup = (groupId, group) => {
+  const groupData = Object.assign({}, group, { id: groupId });
+  UR.NetCall('NET:SRV_DBUPDATE', {
+    groups: [groupData]
+  }).then(rdata => {
+    console.log(`received`, rdata);
+  });
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.AddStudents = (groupId, students) => {
   // FIRES 'ADM_DATA_UPDATED'

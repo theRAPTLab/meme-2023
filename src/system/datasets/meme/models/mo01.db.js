@@ -24,7 +24,7 @@ module.exports = {
       evId: 'ev1',
       propId: 'fish',
       mechId: undefined,
-      rsrcId: 'rs1',
+      rsrcId: 1,
       number: '1a',
       rating: 3,
       note: 'ghoti ghoti gothi need food'
@@ -33,7 +33,7 @@ module.exports = {
       evId: 'ev3',
       propId: undefined,
       mechId: 'decomposers:deadstuff',
-      rsrcId: 'rs2',
+      rsrcId: 2,
       number: '2a',
       rating: 2,
       note: 'fish need food'
@@ -42,7 +42,7 @@ module.exports = {
       evId: 'ev2',
       propId: 'fish',
       mechId: undefined,
-      rsrcId: 'rs1',
+      rsrcId: 1,
       number: '1b',
       rating: -3,
       note: 'fish need food'
@@ -51,7 +51,7 @@ module.exports = {
       evId: 'ev4',
       propId: 'nutrients',
       mechId: undefined,
-      rsrcId: 'rs2',
+      rsrcId: 2,
       number: '2d',
       rating: 1,
       note: 'ammonia is bad'

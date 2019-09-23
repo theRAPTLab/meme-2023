@@ -57,7 +57,7 @@ import UR from '../../../system/ursys';
 import UTILS from '../../modules/utils';
 import RoutedView from './RoutedView';
 import DATA from '../../modules/pmc-data';
-import ADM from '../../modules/adm-data';
+import ADM from '../../modules/data';
 import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -516,7 +516,7 @@ class ViewMain extends React.Component {
         </AppBar>
 
         {/* Left Tool Sidebar */}
-        <ToolsPanel isDisabled={addPropOpen || addEdgeOpen}/>
+        <ToolsPanel isDisabled={addPropOpen || addEdgeOpen} />
 
         <main className={classes.content} ref={this.refMain}>
           <div className={classes.toolbar} ref={this.refToolbar} />

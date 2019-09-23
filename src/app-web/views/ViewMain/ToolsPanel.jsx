@@ -31,7 +31,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
 import DATA from '../../modules/pmc-data';
-import ADM from '../../modules/adm-data';
+import ADM from '../../modules/data';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

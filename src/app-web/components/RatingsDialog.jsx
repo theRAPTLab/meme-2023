@@ -35,7 +35,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/pmc-data';
-import ADM from '../modules/adm-data';
+import ADM from '../modules/data';
 import RatingsList from './RatingsList';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////

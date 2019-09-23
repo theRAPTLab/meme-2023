@@ -57,7 +57,7 @@ import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
-import ADM from '../modules/adm-data';
+import ADM from '../modules/data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,5 +1,5 @@
 import DEFAULTS from './defaults';
-import ADM from './adm-data';
+import ADM from './data';
 import PMC from './pmc-data';
 import UR from '../../system/ursys';
 

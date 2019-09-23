@@ -50,7 +50,7 @@ import RoutedView from './RoutedView';
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
 import DATA from '../../modules/pmc-data';
-import ADM from '../../modules/adm-data';
+import ADM from '../../modules/data';
 import EvidenceList from '../../components/EvidenceList';
 import Login from '../../components/Login';
 import ModelSelect from '../../components/ModelSelect';

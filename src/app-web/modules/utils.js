@@ -1,5 +1,5 @@
 import UR from '../../system/ursys';
-import SESSION from './adm-data'; // FIXME: This is a circular reference because adm-data also loads UTILS
+import SESSION from './data'; // FIXME: This is a circular reference because adm-data also loads UTILS
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

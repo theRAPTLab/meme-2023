@@ -19,10 +19,10 @@ import DATAMAP from '../../system/common-datamap';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// clone ADMData
 let MOD = { ...ADM };
-
+let MIR = {};
 /// OVERRIDE SELECT ADM DATA METHODS //////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.AddTeacher = name => {
+MIR.AddTeacher = name => {
   UR.NetCall('NET:SRV_DBADD', {
     teachers: [{ name }, { name: 'fred' }, { name: 'arnold' }]
   }).then(rdata => {
@@ -32,17 +32,17 @@ MOD.AddTeacher = name => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.SetClassesModelVisibility = isVisible => {};
+MIR.SetClassesModelVisibility = isVisible => {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.AddClassroom = name => {
+MIR.AddClassroom = name => {
   // FIRES 'CLASSROOM_SELECT' classroomId, needsUpdating
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.AddGroup = groupName => {
+MIR.AddGroup = groupName => {
   // FIRES 'ADM_DATA_UPDATED'
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.UpdateGroup = (groupId, group) => {
+MIR.UpdateGroup = (groupId, group) => {
   const groupData = Object.assign({}, group, { id: groupId });
   UR.NetCall('NET:SRV_DBUPDATE', {
     groups: [groupData]
@@ -51,33 +51,33 @@ MOD.UpdateGroup = (groupId, group) => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.AddStudents = (groupId, students) => {
+MIR.AddStudents = (groupId, students) => {
   // FIRES 'ADM_DATA_UPDATED'
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.DeleteStudent = (groupId, student) => {};
+MIR.DeleteStudent = (groupId, student) => {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.Login = loginId => {
+MIR.Login = loginId => {
   // FIRES 'ADM_DATA_UPDATED'
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.Logout = () => {};
+MIR.Logout = () => {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.ModelTitleUpdate = (modelId, title) => {
+MIR.ModelTitleUpdate = (modelId, title) => {
   // FIRES 'MODEL_TITLE_UPDATED' title
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.NewModel = groupId => {
+MIR.NewModel = groupId => {
   // FIRES 'ADM_DATA_UPDATED'
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.UpdateCriteria = criteria => {}; //
+MIR.UpdateCriteria = criteria => {}; //
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.UpdateCriteriaList = criteria => {}; //
+MIR.UpdateCriteriaList = criteria => {}; //
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.UpdateSentenceStarter = sstarter => {}; //
+MIR.UpdateSentenceStarter = sstarter => {}; //
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.UpdateRatingsDefinitions = (classId, rateDef) => {}; //
+MIR.UpdateRatingsDefinitions = (classId, rateDef) => {}; //
 
 /// PMC DATA MOD METHODS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -88,7 +88,8 @@ MOD.UpdateRatingsDefinitions = (classId, rateDef) => {}; //
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// debug
-window.DB = MOD;
+window.db = MIR;
+// replace
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

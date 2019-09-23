@@ -1,4 +1,4 @@
-import ADM from './adm-data';
+import ADM from './data';
 import DATA from './pmc-data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
 import UR from '../../system/ursys';

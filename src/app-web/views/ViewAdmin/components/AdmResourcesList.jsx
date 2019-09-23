@@ -93,16 +93,16 @@ class ResourcesList extends React.Component {
           </TableHead>
           <TableBody>
             {resources.map(resource => (
-              <TableRow key={resource.rsrcId}>
+              <TableRow key={resource.id}>
                 <TableCell>
                   <Checkbox
-                    checked={classroomResources.includes(resource.rsrcId)}
+                    checked={classroomResources.includes(resource.id)}
                     color="primary"
-                    onChange={e => this.OnResourceCheck(resource.rsrcId, e.target.checked)}
+                    onChange={e => this.OnResourceCheck(resource.id, e.target.checked)}
                     disabled={classroomId === ''}
                   />
                 </TableCell>
-                <TableCell>{resource.rsrcId}</TableCell>
+                <TableCell>{resource.id}</TableCell>
                 <TableCell>{resource.label}</TableCell>
                 <TableCell>{resource.notes}</TableCell>
                 <TableCell>{resource.type}</TableCell>

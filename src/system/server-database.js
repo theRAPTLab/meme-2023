@@ -228,15 +228,15 @@ DB.PKT_Update = pkt => {
         error += `item[${index}] has no id`;
         return;
       }
-      let r = dbc
+      let res = dbc
         .chain()
-        .find({ id: { $in: id } })
-        .update(ditem);
-      if (r.length === 1) updatedIds.push(id);
-      console.log('results', r);
+        .find({ id: { $eq: id } })
+        .update(item => {});
+      console.log('results', res);
+      updatedIds.push(id);
     }); // colObjs
     // save list of updated ids
-    results[colName].updated = updatedIds;
+    results[colName] = { updated: updatedIds };
   }); // collections forEach
   // return the processed packet
   if (error) results.error = error;

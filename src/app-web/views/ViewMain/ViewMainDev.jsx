@@ -49,7 +49,7 @@ import { withStyles } from '@material-ui/core/styles';
 import RoutedView from './RoutedView';
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
-import DATA from '../../modules/pmc-data';
+import DATA from '../../modules/data';
 import ADM from '../../modules/data';
 import EvidenceList from '../../components/EvidenceList';
 import Login from '../../components/Login';

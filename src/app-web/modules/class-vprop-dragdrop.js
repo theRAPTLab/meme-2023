@@ -15,7 +15,7 @@
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import DATA from './pmc-data';
+import DATA from './data';
 import UR from '../../system/ursys';
 // import { cssinfo } from './console-styles';
 

@@ -56,7 +56,7 @@ import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
 import UTILS from '../../modules/utils';
 import RoutedView from './RoutedView';
-import DATA from '../../modules/pmc-data';
+import DATA from '../../modules/data';
 import ADM from '../../modules/data';
 import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 
@@ -563,7 +563,7 @@ class ViewMain extends React.Component {
             <div className={classes.resourceListLabel}>RESOURCE LIBRARY</div>
             <List dense>
               {resources.map(resource => (
-                <ResourceItem key={resource.rsrcId} resource={resource} />
+                <ResourceItem key={resource.id} resource={resource} />
               ))}
             </List>
           </Paper>

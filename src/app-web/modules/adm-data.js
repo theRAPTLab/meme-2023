@@ -1,7 +1,7 @@
 import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
 import UTILS from './utils';
-import PMCData from './pmc-data';
+import PMCData from './data';
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

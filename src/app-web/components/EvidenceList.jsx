@@ -12,7 +12,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
-import DATA from '../modules/pmc-data';
+import DATA from '../modules/data';
 import UR from '../../system/ursys';
 import EvidenceLink from './EvidenceLink';
 

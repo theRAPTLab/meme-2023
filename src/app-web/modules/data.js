@@ -9,6 +9,7 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import ADM from './adm-data';
+import PMC from './pmc-data';
 import UR from '../../system/ursys';
 import DATAMAP from '../../system/common-datamap';
 
@@ -18,7 +19,8 @@ import DATAMAP from '../../system/common-datamap';
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// clone ADMData
-let MOD = { ...ADM };
+const MOD = Object.assign({ ...ADM }, { ...PMC });
+console.log(MOD);
 let MIR = {};
 /// OVERRIDE SELECT ADM DATA METHODS //////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

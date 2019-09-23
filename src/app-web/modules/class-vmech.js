@@ -1,5 +1,5 @@
 import ADM from './data';
-import DATA from './pmc-data';
+import DATA from './data';
 import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
 import UR from '../../system/ursys';
 import DEFAULTS from './defaults';

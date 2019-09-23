@@ -164,7 +164,7 @@ PMCData.ClearModel = () => {
   a_commentThreads = [];
   a_resources = [];
   a_evidence = [];
-}
+};
 /**
  *  Loads a graph from model data and saves a local copy.  Replaces PMCData.LoadGraph.
  *  This will self repair bad data, but model.id and model.groupID MUST be defined.
@@ -921,13 +921,18 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
     PMCData.PMC_MechDelete(origMechId);
 
     PMCData.BuildModel();
-    UTILS.RLog('MechanismEdit', `from "${origMechId}" to "${newMechId}" with label "${newMech.label}"`);
+    UTILS.RLog(
+      'MechanismEdit',
+      `from "${origMechId}" to "${newMechId}" with label "${newMech.label}"`
+    );
 
     // 3. Show review dialog alert.
     // HACK: Delay the alert so the system has a chance to redraw first.
     if (evlinks || comments.length > 0) {
       setTimeout(() => {
-        alert('Please review the updated mechanism to make sure the Evidence Links and comments are still relevant.');
+        alert(
+          'Please review the updated mechanism to make sure the Evidence Links and comments are still relevant.'
+        );
       }, 500);
     }
   }
@@ -1047,10 +1052,7 @@ PMCData.SetEvidenceLinkPropId = (evId, propId) => {
   PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
   if (propId !== undefined)
     // Only log when setting, not when programmatically clearing
-    UTILS.RLog(
-      'EvidenceSetTarget',
-      `Attaching evidence "${evlink.note}" to Property "${propId}"`
-    );
+    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evlink.note}" to Property "${propId}"`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
@@ -1063,10 +1065,7 @@ PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
   PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
   if (mechId !== undefined)
     // Only log when setting, not when programmatically clearing
-    UTILS.RLog(
-      'EvidenceSetTarget',
-      `Attaching evidence "${evlink.note}" to Mechanism "${mechId}"`
-    );
+    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evlink.note}" to Mechanism "${mechId}"`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkNote = (evId, note) => {
@@ -1147,7 +1146,7 @@ PMCData.UpdateComments = (parentId, comments) => {
   } else {
     // new comment
     commentThread = { id: parentId, comments };
-    console.error('adding new commentThread',commentThread)
+    console.error('adding new commentThread', commentThread);
     a_commentThreads.push(commentThread);
     console.table(a_commentThreads);
   }

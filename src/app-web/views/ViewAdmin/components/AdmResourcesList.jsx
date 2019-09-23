@@ -47,9 +47,9 @@ class ResourcesList extends React.Component {
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate); // Broadcast when a resource is updated.
   }
 
-  componentDidMount() { }
+  componentDidMount() {}
 
-  componentWillUnmount() { }
+  componentWillUnmount() {}
 
   DoClassroomSelect(data) {
     this.setState({

@@ -509,8 +509,12 @@ class ViewMain extends React.Component {
                 <div>{studentGroup}</div>
               </Button>
               &nbsp;&nbsp; &nbsp;&nbsp;
-              <Button onClick={ADM.Logout} color="inherit">Logout</Button>
-              <Button onClick={this.OnHelp} color="inherit">?</Button>
+              <Button onClick={ADM.Logout} color="inherit">
+                Logout
+              </Button>
+              <Button onClick={this.OnHelp} color="inherit">
+                ?
+              </Button>
             </div>
           </Toolbar>
         </AppBar>

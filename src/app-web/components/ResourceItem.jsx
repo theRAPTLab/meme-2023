@@ -58,7 +58,7 @@ class ResourceItem extends React.Component {
     UR.Subscribe('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.DoEvidenceLinkOpen);
   }
 
-  componentDidMount() { }
+  componentDidMount() {}
 
   componentWillUnmount() {
     UR.Unsubscribe('SHOW_EVIDENCE_LINK', this.DoEvidenceLinkOpen);
@@ -76,7 +76,7 @@ class ResourceItem extends React.Component {
     });
   }
 
-  DoDataUpdate() { }
+  DoDataUpdate() {}
 
   DoEvidenceLinkOpen(data) {
     if (this.props.resource.id === data.rsrcId) {
@@ -142,9 +142,9 @@ class ResourceItem extends React.Component {
             {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
             {evBadge}
             <Button className={classes.resourceExpandButton} onClick={this.DoToggleExpanded}>
-              <ExpandLessIcon className={
-                isExpanded ? classes.lessIconExpanded : classes.lessIconCollapsed
-              } />
+              <ExpandLessIcon
+                className={isExpanded ? classes.lessIconExpanded : classes.lessIconCollapsed}
+              />
             </Button>
           </ListItemSecondaryAction>
         </ListItem>

@@ -79,7 +79,7 @@ class ResourceItem extends React.Component {
   DoDataUpdate() { }
 
   DoEvidenceLinkOpen(data) {
-    if (this.props.resource.rsrcId === data.rsrcId) {
+    if (this.props.resource.id === data.rsrcId) {
       if (DBG) console.log(PKG, 'OPENING Resource', data.rsrcId, ' data.evId is', data);
       this.setState(
         {
@@ -126,7 +126,7 @@ class ResourceItem extends React.Component {
     }
     return (
       <div className={classes.resourceItem}>
-        <ListItem button key={resource.id} onClick={() => this.OnResourceClick(resource.rsrcId)}>
+        <ListItem button key={resource.id} onClick={() => this.OnResourceClick(resource.id)}>
           <ListItemAvatar>
             <Avatar className={classes.resourceViewAvatar}>{resource.referenceLabel}</Avatar>
           </ListItemAvatar>
@@ -150,12 +150,8 @@ class ResourceItem extends React.Component {
         </ListItem>
         <Collapse in={isExpanded}>
           <div className={classes.resourceViewEvList}>
-            <EvidenceList rsrcId={resource.rsrcId} key={`${resource.rsrcId}ev`} />
-            <Button
-              size="small"
-              color="primary"
-              onClick={() => this.OnCreateEvidence(resource.rsrcId)}
-            >
+            <EvidenceList rsrcId={resource.id} key={`${resource.id}ev`} />
+            <Button size="small" color="primary" onClick={() => this.OnCreateEvidence(resource.id)}>
               Create Evidence
             </Button>
           </div>
@@ -175,7 +171,7 @@ ResourceItem.propTypes = {
 ResourceItem.defaultProps = {
   classes: {},
   resource: {
-    rsrcId: '',
+    rsrcId: -1,
     referenceLabel: '',
     label: '',
     notes: '',

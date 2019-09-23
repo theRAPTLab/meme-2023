@@ -343,22 +343,22 @@ PMCData.BuildModel = () => {
   /*/
   h_evlinkByResource = new Map();
   a_resources.forEach(resource => {
-    let evlinkArray = a_evidence.filter(evlink => evlink.rsrcId === resource.rsrcId);
+    let evlinkArray = a_evidence.filter(evlink => evlink.rsrcId === resource.id);
     if (evlinkArray === undefined) evlinkArray = [];
-    h_evlinkByResource.set(resource.rsrcId, evlinkArray);
+    h_evlinkByResource.set(resource.id, evlinkArray);
   });
 
   /*/
    *  Now update all evidence link counts
   /*/
   a_resources.forEach(resource => {
-    let props = h_propByResource.get(resource.rsrcId);
+    let props = h_propByResource.get(resource.id);
     if (props) {
       resource.links = props.length;
     } else {
       resource.links = 0;
     }
-    let mechs = h_mechByResource.get(resource.rsrcId);
+    let mechs = h_mechByResource.get(resource.id);
     if (mechs) {
       resource.links += mechs.length;
     }
@@ -980,7 +980,7 @@ PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
  *  This is used for numbering evidence links, e.g. "2a"
  */
 PMCData.PMC_GetResourceIndex = rsrcId => {
-  const index = a_resources.findIndex(r => r.rsrcId === rsrcId);
+  const index = a_resources.findIndex(r => r.id === rsrcId);
   if (index === -1) console.error(PKG, 'PMC_GetResourceIndex could not find', rsrcId);
   return index + 1;
 };

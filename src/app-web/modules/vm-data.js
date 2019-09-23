@@ -520,7 +520,7 @@ VMData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
  *  This is used for numbering evidence links, e.g. "2a"
  */
 VMData.PMC_GetResourceIndex = rsrcId => {
-  const index = a_resources.findIndex(r => r.rsrcId === rsrcId);
+  const index = a_resources.findIndex(r => r.id === rsrcId);
   if (index === -1) console.error(PKG, 'PMC_GetResourceIndex could not find', rsrcId);
   return index + 1;
 };

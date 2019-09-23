@@ -152,12 +152,12 @@ class ResourceView extends React.Component {
               />
               <Typography variant="caption">OUR EVIDENCE LIST</Typography>
               <div className={classes.resourceViewSidebarEvidenceList}>
-                <EvidenceList rsrcId={resource.rsrcId} />
+                <EvidenceList rsrcId={resource.id} />
               </div>
               <Button
                 className={classes.resourceViewCreatebutton}
                 variant="contained"
-                onClick={() => this.OnCreateEvidence(resource.rsrcId)}
+                onClick={() => this.OnCreateEvidence(resource.id)}
                 color="primary"
               >
                 Create Evidence

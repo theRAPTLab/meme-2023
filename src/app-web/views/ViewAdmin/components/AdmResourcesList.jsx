@@ -96,7 +96,7 @@ class ResourcesList extends React.Component {
               <TableRow key={resource.id}>
                 <TableCell>
                   <Checkbox
-                    checked={classroomResources.includes(resource.id)}
+                    checked={classroomResources.find(res => res.id === resource.id) ? true : false}
                     color="primary"
                     onChange={e => this.OnResourceCheck(resource.id, e.target.checked)}
                     disabled={classroomId === ''}

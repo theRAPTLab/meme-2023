@@ -226,17 +226,28 @@ DB.PKT_Update = pkt => {
       const { id } = ditem;
       if (!id) {
         error += `item[${index}] has no id`;
-        return;
+        return { error };
       }
-      let res = dbc
+      if (DBG) console.log('looking for id', id);
+      dbc
         .chain()
         .find({ id: { $eq: id } })
-        .update(item => {});
-      console.log('results', res);
+        .update(item => {
+          if (DBG) {
+            console.log(`updating ${JSON.stringify(item)}`);
+            console.log(`with ${JSON.stringify(ditem)}`);
+          }
+          Object.assign(item, ditem);
+        });
       updatedIds.push(id);
     }); // colObjs
-    // save list of updated ids
-    results[colName] = { updated: updatedIds };
+    // return updated objects
+    const updated = dbc
+      .chain()
+      .find({ id: { $in: updatedIds } })
+      .data({ removeMeta: true });
+    results[colName] = updated;
+    console.log(`result ${JSON.stringify(updated)}`);
   }); // collections forEach
   // return the processed packet
   if (error) results.error = error;
@@ -283,13 +294,15 @@ function m_GetValidDBFilePath(dataset) {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function u_CopyLokiId(input) {
   if (!Array.isArray(input)) {
-    if (input.id) console.log(PR, `warning, overwriting id '${input.id}' with ${input.$loki}`);
+    if (input.id && typeof input.id !== 'number')
+      console.log(PR, `WARNING: replacing bogus string id '${input.id}' with ${input.$loki}`);
     input.id = input.$loki;
     // console.log(PR, '*** array output.id', input.id);
     return;
   }
   input.forEach(item => {
-    if (item.id) console.log(PR, `warning, overwriting id '${item.id}' with ${item.$loki}`);
+    if (item.id && typeof item.id !== 'number')
+      console.log(PR, `WARNING: replacing bogus string id '${item.id}' with ${item.$loki}`);
     item.id = item.$loki;
     // console.log(PR, '*** non-array output.id', item.id);
   });

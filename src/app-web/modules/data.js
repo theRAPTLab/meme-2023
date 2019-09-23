@@ -20,17 +20,17 @@ import DATAMAP from '../../system/common-datamap';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// clone ADMData
 const MOD = Object.assign({ ...ADM }, { ...PMC });
-console.log(MOD);
-let MIR = {};
+const MIR = {};
+
 /// OVERRIDE SELECT ADM DATA METHODS //////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.AddTeacher = name => {
-  UR.NetCall('NET:SRV_DBADD', {
-    teachers: [{ name }, { name: 'fred' }, { name: 'arnold' }]
-  }).then(rdata => {
-    console.log(`received`, rdata);
-    // FIRES 'TEACHER_SELECT' teacherId
-    // or let the update state handler force it
+  return new Promise((resolve, reject) => {
+    UR.NetCall('NET:SRV_DBADD', {
+      teachers: { name }
+    })
+      .then(rdata => resolve(rdata))
+      .catch(error => reject(error));
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -45,11 +45,13 @@ MIR.AddGroup = groupName => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.UpdateGroup = (groupId, group) => {
-  const groupData = Object.assign({}, group, { id: groupId });
-  UR.NetCall('NET:SRV_DBUPDATE', {
-    groups: [groupData]
-  }).then(rdata => {
-    console.log(`received`, rdata);
+  return new Promise((resolve, reject) => {
+    const groupData = Object.assign({}, group, { id: groupId });
+    UR.NetCall('NET:SRV_DBUPDATE', {
+      groups: [groupData]
+    })
+      .then(rdata => resolve(rdata))
+      .catch(error => reject(error));
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -90,8 +92,20 @@ MIR.UpdateRatingsDefinitions = (classId, rateDef) => {}; //
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// debug
-window.db = MIR;
-// replace
+window.mdat = MIR;
+window.mdat.tupg = id => {
+  const g = ADM.GetGroup(id);
+  g.name = `${g.name}${g.name}`;
+  MIR.UpdateGroup(id, g).then(data => {
+    console.log('got data', data);
+  });
+};
+// test add teacher
+window.mdat.taddt = name => {
+  MIR.AddTeacher(name).then(data => {
+    console.log('got data', data);
+  });
+};
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

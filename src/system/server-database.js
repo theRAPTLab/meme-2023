@@ -197,7 +197,9 @@ DB.PKT_Add = pkt => {
       .find({ id: { $in: insertedIds } })
       .data({ removeMeta: true });
     results[colName] = updated;
+    console.log(PR, `ADDED: ${JSON.stringify(updated)}`);
   });
+
   // return the processed packet
   return results;
 };
@@ -234,8 +236,8 @@ DB.PKT_Update = pkt => {
         .find({ id: { $eq: id } })
         .update(item => {
           if (DBG) {
-            console.log(`updating ${JSON.stringify(item)}`);
-            console.log(`with ${JSON.stringify(ditem)}`);
+            console.log(PR, `updating ${JSON.stringify(item)}`);
+            console.log(PR, `with ${JSON.stringify(ditem)}`);
           }
           Object.assign(item, ditem);
         });
@@ -247,7 +249,7 @@ DB.PKT_Update = pkt => {
       .find({ id: { $in: updatedIds } })
       .data({ removeMeta: true });
     results[colName] = updated;
-    console.log(`result ${JSON.stringify(updated)}`);
+    console.log(PR, `UPDATE: ${JSON.stringify(updated)}`);
   }); // collections forEach
   // return the processed packet
   if (error) results.error = error;

@@ -56,10 +56,52 @@ MIR.UpdateGroup = (groupId, group) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.AddStudents = (groupId, students) => {
-  // FIRES 'ADM_DATA_UPDATED'
+  // Update the group
+  if (!Array.isArray(students)) students = [students];
+  let group = MOD.GetGroup(groupId);
+  if (group === undefined) {
+    console.error('AddStudent could not find group', groupId);
+    return;
+  }
+  students.forEach(student => {
+    if (student === undefined || student === '') {
+      console.error('AddStudent adding blank student', groupId);
+    }
+    group.students.push(student);
+  });
+  // Now update groups, returning promise
+  return new Promise((resolve, reject) => {
+    MIR.UpdateGroup(groupId, group)
+      .then(rdata => {
+        resolve(rdata);
+      })
+      .catch(err => reject(err));
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.DeleteStudent = (groupId, student) => {};
+MIR.DeleteStudent = (groupId, student) => {
+  // Update the group
+  if (typeof student !== 'string') {
+    console.error('DeleteStudent arg2 must be string');
+    return;
+  }
+  let group = MOD.GetGroup(groupId);
+  if (group === undefined) {
+    console.error('DeleteStudent could not find group', groupId);
+    return;
+  }
+  // Remove the student
+  group.students = group.students.filter(stu => student !== stu);
+  // Now update groups, returning promise
+  return new Promise((resolve, reject) => {
+    MIR.UpdateGroup(groupId, group)
+      .then(rdata => {
+        resolve(rdata);
+      })
+      .catch(err => reject(err));
+  });
+};
+// FIRES 'ADM_DATA_UPDATED'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.Login = loginId => {
   // FIRES 'ADM_DATA_UPDATED'
@@ -93,17 +135,35 @@ MIR.UpdateRatingsDefinitions = (classId, rateDef) => {}; //
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// debug
 window.mdat = MIR;
+// test update group
 window.mdat.tupg = id => {
   const g = ADM.GetGroup(id);
   g.name = `${g.name}${g.name}`;
   MIR.UpdateGroup(id, g).then(data => {
-    console.log('got data', data);
+    console.log('updategroup', data);
   });
 };
 // test add teacher
 window.mdat.taddt = name => {
   MIR.AddTeacher(name).then(data => {
-    console.log('got data', data);
+    console.log('addteacher', data);
+    UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
+  });
+};
+// test add students to group
+window.mdat.tadds = (groupId, students) => {
+  MIR.AddStudents(groupId, students).then(data => {
+    console.log('addstudents', data);
+    // FIRES 'ADM_DATA_UPDATED'
+    UR.Publish('ADM_DATA_UPDATED');
+  });
+};
+// test delete student from group
+window.mdat.tdels = (groupId, student) => {
+  MIR.DeleteStudent(groupId, student).then(data => {
+    console.log('deletestudent', data);
+    // FIRES 'ADM_DATA_UPDATED'
+    UR.Publish('ADM_DATA_UPDATED');
   });
 };
 

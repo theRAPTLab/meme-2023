@@ -277,7 +277,7 @@ VBadge.SVGEvLink = (evlink, vparent) => {
     .move(m_pad, m_pad / 2);
 
   gBadge.gRating = VBadge.SVGRating(evlink, gBadge).move(
-    (3 - Math.abs(Math.max(1, evlink.rating))) * 4, // always shift at least 1 symbol, since no rating is 0
+    (3 - Math.max(1, Math.abs(evlink.rating))) * 4, // always shift at least 1 symbol, since no rating is 0
     radius
   );
 

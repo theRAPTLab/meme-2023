@@ -15,6 +15,8 @@ const COL_MECH = COLOR.MECH;
 const COL_MECH_SEL = COLOR.MECH_SEL;
 const COL_HOV = COLOR.MECH_HOV;
 
+const PATHWIDTH = 6;
+
 const DBG = false;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
@@ -75,7 +77,7 @@ class VMech {
       .path()
       .back()
       .fill('none')
-      .stroke({ width: 4, color: COL_MECH, dasharray: '4 2' });
+      .stroke({ width: PATHWIDTH, color: COL_MECH, dasharray: '6 3' });
 
     this.pathLabel = svgRoot.text(add => {
       add.tspan(this.data.name);
@@ -233,13 +235,13 @@ class VMech {
   Draw() {
 
     if (this.visualState.IsSelected('hover')) {
-      this.path.stroke({ width: 6, color: COL_HOV, dasharray: '6 3' });
-      this.pathLabel.fill(COL_MECH_SEL);
+      this.path.stroke({ width: PATHWIDTH, color: COL_HOV, dasharray: '6 3' });
+      this.pathLabel.fill(COL_HOV);
     } else if (this.visualState.IsSelected()) {
-      this.path.stroke({ width: 6, color: COL_MECH_SEL, dasharray: '6 3' });
+      this.path.stroke({ width: PATHWIDTH, color: COL_MECH_SEL, dasharray: '6 3' });
       this.pathLabel.fill(COL_MECH_SEL);
     } else {
-      this.path.stroke({ width: 4, color: COL_MECH, dasharray: '4 2' });
+      this.path.stroke({ width: PATHWIDTH, color: COL_MECH, dasharray: '6 3' });
       this.pathLabel.fill(COL_MECH);
     }
     this.vBadge.Draw(this);

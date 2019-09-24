@@ -42,7 +42,7 @@ const DEFAULTS = {
   COLOR: {
     MECH: 'orange',
     MECH_SEL: '#44F',
-    MECH_HOV: '#FFA244',
+    MECH_HOV: '#FFC78F',
     PROP: '#44F',
     PROP_SEL: '#44F',
     PROP_HOV: '#FFA244'

@@ -345,7 +345,7 @@ class MechDialog extends React.Component {
     } = this.state;
     const { classes } = this.props;
     return (
-      <Card className={classes.edgeDialog} hidden={!isOpen}>
+      <Card hidden={!isOpen}>
         <Paper className={classes.edgeDialogPaper}>
           <form onSubmit={this.OnCreateClick}>
             <div className={classes.edgeDialogWindowLabel}>ADD MECHANISM</div>

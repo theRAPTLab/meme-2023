@@ -295,7 +295,9 @@ DB.PKT_Remove = pkt => {
  * @param {NetMessage} pkt - packet with data object as described above
  * @returns {Object} - data to return (including error if any)
  */
-DB.PKT_Query = pkt => {};
+DB.PKT_Query = pkt => {
+  return { error: 'query is unimplemented' };
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Given a root word, create a full pathname to .loki file in the runtime path.

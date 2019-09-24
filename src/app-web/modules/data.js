@@ -44,6 +44,18 @@ MIR.AddGroup = groupName => {
   // FIRES 'ADM_DATA_UPDATED'
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// this is a test routine; no ADMData routines require a delete group
+/// so this is here to just provide a stub.
+MIR.DeleteGroup = groupId => {
+  return new Promise((resolve, reject) => {
+    UR.NetCall('NET:SRV_DBREMOVE', {
+      groups: [groupId]
+    })
+      .then(rdata => resolve(rdata))
+      .catch(error => reject(error));
+  });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.UpdateGroup = (groupId, group) => {
   return new Promise((resolve, reject) => {
     const groupData = Object.assign({}, group, { id: groupId });
@@ -162,6 +174,14 @@ window.mdat.tadds = (groupId, students) => {
 window.mdat.tdels = (groupId, student) => {
   MIR.DeleteStudent(groupId, student).then(data => {
     console.log('deletestudent', data);
+    // FIRES 'ADM_DATA_UPDATED'
+    UR.Publish('ADM_DATA_UPDATED');
+  });
+};
+// test remove group
+window.mdat.trmg = (groupId, student) => {
+  MIR.DeleteGroup(groupId).then(data => {
+    console.log('deletegroup', data);
     // FIRES 'ADM_DATA_UPDATED'
     UR.Publish('ADM_DATA_UPDATED');
   });

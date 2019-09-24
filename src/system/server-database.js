@@ -68,7 +68,7 @@ DB.InitializeDatabase = (options = {}) => {
   UNET.Subscribe('NET:SRV_DBGET', DB.PKT_GetDatabase);
   UNET.Subscribe('NET:SRV_DBADD', DB.PKT_Add);
   UNET.Subscribe('NET:SRV_DBUPDATE', DB.PKT_Update);
-  UNET.Subscribe('NET:SRV_DBDELETE', DB.PKT_Delete);
+  UNET.Subscribe('NET:SRV_DBREMOVE', DB.PKT_Remove);
   UNET.Subscribe('NET:SRV_DBQUERY', DB.PKT_Query);
 
   // end of initialization code...following are local functions
@@ -262,9 +262,28 @@ DB.PKT_Update = pkt => {
  * The property values must be an id or array of ids
  * If the call fails, the error property will be set as well.
  * @param {NetMessage} pkt - packet with data object as described above
+ * @param {NetMessage} pkt.data - data containing parameters
  * @returns {Object} - data to return (including error if any)
  */
-DB.PKT_Delete = pkt => {};
+DB.PKT_Remove = pkt => {
+  const data = pkt.Data();
+  const results = {};
+  let error = '';
+  const collections = DATAMAP.ExtractCollections(data);
+  collections.forEach(entry => {
+    let [colName, idsToDelete] = entry;
+    const dbc = m_db.getCollection(colName);
+    // return deleted objects
+    const removed = dbc.chain().find({ id: { $in: idsToDelete } });
+    const matching = removed.branch().data({ removeMeta: true });
+    results[colName] = matching;
+    removed.remove();
+    console.log(PR, `REMOVED: ${JSON.stringify(matching)}`);
+  }); // collections forEach
+  // return the processed packet
+  if (error) results.error = error;
+  return results;
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API:
  * Query elements.

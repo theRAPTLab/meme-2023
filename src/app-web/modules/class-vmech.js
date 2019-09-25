@@ -130,10 +130,15 @@ class VMech {
 
   /**
    * @returns {string} associated nodeId
-
    */
   Id() {
     return this.id;
+  }
+  /**
+   * @returns {SVG.Container} - The SVG Container object that the badge should attach to 
+   */
+  GetVBadgeParent() {
+    return this.pathLabelGroup;
   }
 
   HoverState(visible) {

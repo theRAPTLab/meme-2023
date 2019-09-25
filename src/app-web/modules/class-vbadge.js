@@ -48,13 +48,7 @@ class VBadge {
      *           |
      *           +-- gStickyButtons (group)
      */
-    if (m_IsVMech(vparent)) {
-      // FIXME: This is hacky
-      // It reaches into VMech's object hierarcxhy to grab the right element
-      this.gBadges = vparent.pathLabelGroup.group().attr('id', 'gBadges');
-    } else {
-      this.gBadges = vparent.gRoot.group().attr('id', 'gBadges');
-    }
+    this.gBadges = vparent.GetVBadgeParent().group().attr('id', 'gBadges');
     this.gEvLinkBadges = this.gBadges.group().attr('id', 'gEvLinkBadges');
     this.gStickyButtons = VBadge.SVGStickyButton(vparent, 0, 0);
     this.gBadges.add(this.gStickyButtons);

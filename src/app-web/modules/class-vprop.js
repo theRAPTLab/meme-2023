@@ -130,6 +130,13 @@ class VProp {
   }
 
   /**
+   * @returns {SVG.Container} - The SVG Container object that the badge should attach to 
+   */
+  GetVBadgeParent() {
+    return this.gRoot;
+  }
+
+  /**
    * Move to coordinate
    * @param {pt | x,y} - {x,y} or x,y
    */

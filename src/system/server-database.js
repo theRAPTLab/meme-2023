@@ -30,7 +30,7 @@ const DATASETPATH = PATH.join(__dirname, '/datasets/meme');
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 let m_options; // saved initialization options
 let m_db; // loki database
-const DBKEYS = DATAMAP.DBKEYS;
+const { DBKEYS, DBCMDS } = DATAMAP;
 
 /// API METHODS ///////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -65,11 +65,11 @@ DB.InitializeDatabase = (options = {}) => {
   m_options.db_file = db_file; // store for use by DB.WriteJSON
 
   // register handlers
-  UNET.Subscribe('NET:SRV_DBGET', DB.PKT_GetDatabase);
-  UNET.Subscribe('NET:SRV_DBADD', DB.PKT_Add);
-  UNET.Subscribe('NET:SRV_DBUPDATE', DB.PKT_Update);
-  UNET.Subscribe('NET:SRV_DBREMOVE', DB.PKT_Remove);
-  UNET.Subscribe('NET:SRV_DBQUERY', DB.PKT_Query);
+  UNET.NetSubscribe('NET:SRV_DBGET', DB.PKT_GetDatabase);
+  UNET.NetSubscribe('NET:SRV_DBADD', DB.PKT_Add);
+  UNET.NetSubscribe('NET:SRV_DBUPDATE', DB.PKT_Update);
+  UNET.NetSubscribe('NET:SRV_DBREMOVE', DB.PKT_Remove);
+  UNET.NetSubscribe('NET:SRV_DBQUERY', DB.PKT_Query);
 
   // end of initialization code...following are local functions
 
@@ -200,9 +200,18 @@ DB.PKT_Add = pkt => {
     console.log(PR, `ADDED: ${JSON.stringify(updated)}`);
   });
 
-  // return the processed packet
+  // send update to network
+  m_DatabaseChangeEvent('add', results, pkt);
+  // return
   return results;
 };
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function m_DatabaseChangeEvent(dbEvent, data) {
+  if (!DBCMDS.includes(dbEvent)) throw Error(`unknown change event '{dbEvent}'`);
+  data.cmd = dbEvent;
+  UNET.NetPublish('NET:SRV_DB_CHANGE', data);
+}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API:
  * Update a collection.
@@ -251,8 +260,11 @@ DB.PKT_Update = pkt => {
     results[colName] = updated;
     console.log(PR, `UPDATE: ${JSON.stringify(updated)}`);
   }); // collections forEach
-  // return the processed packet
-  if (error) results.error = error;
+  // was there an error?
+  if (error) return { error };
+  // otherwise send update to network
+  m_DatabaseChangeEvent('update', results, pkt);
+  // return
   return results;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -280,8 +292,11 @@ DB.PKT_Remove = pkt => {
     removed.remove();
     console.log(PR, `REMOVED: ${JSON.stringify(matching)}`);
   }); // collections forEach
-  // return the processed packet
-  if (error) results.error = error;
+  // was there an error?
+  if (error) return { error };
+  // otherwise send update to network
+  m_DatabaseChangeEvent('remove', results, pkt);
+  // return
   return results;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

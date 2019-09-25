@@ -15,6 +15,16 @@ import DATAMAP from '../../system/common-datamap';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const ULINK = UR.NewConnection('data');
+
+/// URSYS HOOKS ///////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+UR.Hook(__dirname, 'INITIALIZE', () => {
+  console.log('*** INITIALIZING DATA ***');
+  ULINK.NetSubscribe('NET:SRV_DB_CHANGE', data => {
+    console.log(`*** got '${data.cmd}' command with data.changed:`, data);
+  });
+});
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -139,6 +149,31 @@ MIR.UpdateRatingsDefinitions = (classId, rateDef) => {}; //
 
 /// PMC DATA MOD METHODS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+MIR.ClearModel = () => {};
+MIR.InitializeModel = (model, resources) => {};
+MIR.BuildModel = () => {
+  // derived elements
+  // a_props = nodes
+  // a_mechs = edges
+  // a_components = []; // props that aren't children
+  // h_children = new Map(); // property children
+  // h_outedges = new Map(); // outedges for each prop
+  // a_resources = []; // resource obj { id, label, notes, type, url, links }
+  // a_evidence = []; // evidence link {  id, propId, rsrcId, note }
+  // h_evidenceByEvId = new Map(); // id -> evidence
+  // h_evidenceByProp = new Map(); // prop -> [ evidence, ... ]
+  // h_evlinkByResource = new Map(); //
+};
+MIR.PMC_AddProp = node => {}; // m_graph.setNode()
+MIR.PMC_SetPropParent = (node, parent) => {}; // m_graph.setParent(node, parent)
+MIR.PMC_PropDelete = propid => {}; // m_graph.removeNode(propid)
+MIR.PMC_MechAdd = (sourceId, targetId, label) => {}; // m_graph.setEdge
+MIR.PMC_MechUpdate = (origMech, newMech) => {}; // m_graph.setEdge()
+MIR.PMC_MechDelete = mechId => {}; // m_graph.removeEdge()
+MIR.PMC_AddEvidenceLink = (rsrcId, note) => {}; // a_evidence.push()
+MIR.PMC_DeleteEvidenceLink = evId => {}; // a_evidence.splice()
+MIR.SetEvidenceLinkPropId = (evId, propId) => {}; // a_evidence.find() evidence
+MIR.SetEvidenceLinkMechId = (evId, mechId) => {}; // a_evidence.find() evidence
 
 /// MODULE HELPERS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -159,7 +194,7 @@ window.mdat.tupg = id => {
 window.mdat.taddt = name => {
   MIR.AddTeacher(name).then(data => {
     console.log('addteacher', data);
-    UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
+    UR.Publish('TEACHER_SELECT', { teacherId: change.teacher.id });
   });
 };
 // test add students to group

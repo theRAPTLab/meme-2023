@@ -74,63 +74,14 @@ let a_components = []; // top-level props with no parents, derived
 let h_children = new Map(); // children hash of each prop by id
 let h_outedges = new Map(); // outedges hash of each prop by id
 //
-let a_resources = []; /*/ all resource objects to be displayed in InformationList
-                         a_resource = [
-                            {
-                              rsrcId: '1',
-                              label: 'Food Rot Simulation',
-                              notes: ['water quality', 'food rotting'],
-                              type: 'simulation',
-                              url: '../static/dlc/FishSpawn_Sim_5_SEEDS_v7.html',
-                              links: 0
-                            }
-                          ]
-                      /*/
-let a_evidence = []; /*/ An array of prop-related evidence links.
-                          This is the master list of evidence links.
-
-                          [ evidenceLink,... ]
-                          [ {eid, propId, rsrcId, note},... ]
-
-                          a_evidence.push({ eid: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
-
-                      /*/
-let h_evidenceByEvId = new Map(); /*/
-                          Hash table of an array of evidence links for
-                          look up by evId.
-
-                          Used by class-vprop when displaying
-                          the list of evidenceLink badges for each prop.
-
-                          {evId1: {evId1, propId, rsrcId, note},
-                           evId2: {evId, propId, rsrcId, note},
-                          ...}
-                      /*/
-let h_evidenceByProp = new Map(); /*/
-                          Hash table of an array of evidence links related
-                          to a property id, and grouped by property id.
-
-                          Used by class-vprop when displaying
-                          the list of evidenceLink badges for each prop.
-
-                          {propId: [{evId, propId, rsrcId, note},
-                                    {evId, propId, rsrcId, note},
-                                ...],
-                          ...}
-                      /*/
-let h_evlinkByResource = new Map(); /*/
-                          Used by EvidenceList to look up all evidence related to a resource
-                      /*/
+let a_resources = []; // resource objects { id, label, notes, type, url, links }
+let a_evidence = []; // evidence objects { id, propId, rsrcId, note }
+let h_evidenceById = new Map(); // evidence object for each id (lookup table)
+let h_evidenceByProp = new Map(); // evidence object array associated with each prop
+let h_evidenceByResource = new Map(); // evidence id array associated with each resource
 let h_evidenceByMech = new Map(); // links to evidence by mechanism id
-let h_propByResource = new Map(); /*/
-                          Hash table to look up an array of property IDs related to
-                          a specific resource.
-
-                          Used by InformationList to show props related to each resource.
-
-                          {rsrcId: [propId1, propId2,...],... }
-                      /*/
-let h_mechByResource = new Map(); // calculated links to mechanisms by evidence id
+let h_propByResource = new Map(); // hash of props to a given resource
+let h_mechByResource = new Map(); // hash of mechs to a given resource
 
 /// VIEWMODEL /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -274,11 +225,11 @@ PMCData.BuildModel = () => {
   });
 
   /*/
-   *  Update h_evidenceByEvId table
+   *  Update h_evidenceById table
   /*/
-  h_evidenceByEvId = new Map();
+  h_evidenceById = new Map();
   a_evidence.forEach(ev => {
-    h_evidenceByEvId.set(ev.evId, ev);
+    h_evidenceById.set(ev.evId, ev);
   });
 
   /*/
@@ -341,11 +292,11 @@ PMCData.BuildModel = () => {
   /*/
    *  Used by EvidenceList to look up all evidence related to a resource
   /*/
-  h_evlinkByResource = new Map();
+  h_evidenceByResource = new Map();
   a_resources.forEach(resource => {
     let evlinkArray = a_evidence.filter(evlink => evlink.rsrcId === resource.id);
     if (evlinkArray === undefined) evlinkArray = [];
-    h_evlinkByResource.set(resource.id, evlinkArray);
+    h_evidenceByResource.set(resource.id, evlinkArray);
   });
 
   /*/
@@ -1018,7 +969,7 @@ PMCData.PMC_DeleteEvidenceLink = evId => {
  *  @return {evlink} An evidenceLink object.
  */
 PMCData.PMC_GetEvLinkByEvId = evId => {
-  return h_evidenceByEvId.get(evId);
+  return h_evidenceById.get(evId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -1167,7 +1118,7 @@ PMCData.GetPropIdsByResourceId = rsrcId => {
  *  @return {array} Array of propery ids
  */
 PMCData.GetEvLinksByResourceId = rsrcId => {
-  return h_evlinkByResource.get(rsrcId);
+  return h_evidenceByResource.get(rsrcId);
 };
 
 /// DEBUG UTILS //////////////////////////////////////////////////////////////

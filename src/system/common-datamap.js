@@ -27,6 +27,9 @@ const DBKEYS = [
   `resources`
 ];
 
+/// list of valid database change commands
+const DBCMDS = [`add`, `update`, `remove`];
+
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -108,6 +111,7 @@ class DataMap {
 /// STATIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DataMap.DBKEYS = DBKEYS;
+DataMap.DBCMDS = DBCMDS;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * validate that keyName is a valid DBKEY

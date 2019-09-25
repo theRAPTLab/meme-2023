@@ -10,6 +10,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import ADM from './adm-data';
 import PMC from './pmc-data';
+import VM from './vm-data';
 import UR from '../../system/ursys';
 import DATAMAP from '../../system/common-datamap';
 
@@ -29,7 +30,7 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// clone ADMData
-const MOD = Object.assign({ ...ADM }, { ...PMC });
+const MOD = Object.assign({ ...ADM }, { ...PMC }, { ...VM });
 const MIR = {};
 
 /// OVERRIDE SELECT ADM DATA METHODS //////////////////////////////////////////
@@ -194,7 +195,7 @@ window.mdat.tupg = id => {
 window.mdat.taddt = name => {
   MIR.AddTeacher(name).then(data => {
     console.log('addteacher', data);
-    UR.Publish('TEACHER_SELECT', { teacherId: change.teacher.id });
+    UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
   });
 };
 // test add students to group

@@ -157,17 +157,6 @@ class VBadge {
     // counter offset for each badge
     let xx = 0;
 
-    // FIXME Hack
-    // For VMechs, if baseElement is at 0,0 that means the pathLabel is not drawn yet.
-    // If pathLabel is not drawn yet, we can't get the position of the badges, so
-    // don't draw them.  (Without this, the VBadges will get drawn at 0,0)
-    if (isVMech && x === 0 && y === 0) {
-      // also hide horizText and sticky button offscreen
-      // horiztext appraoch vparent.horizText.move(-100, -100);
-      this.gStickyButtons.move(-100, -100);
-      return;
-    }
-
     // draw evidence link badges
     // -- first clear the group in case objects have changed
     this.gEvLinkBadges.clear();

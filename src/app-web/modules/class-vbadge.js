@@ -48,7 +48,13 @@ class VBadge {
      *           |
      *           +-- gStickyButtons (group)
      */
-    this.gBadges = vparent.gRoot.group().attr('id', 'gBadges');
+    if (m_IsVMech(vparent)) {
+      // FIXME: This is hacky
+      // It reaches into VMech's object hierarcxhy to grab the right element
+      this.gBadges = vparent.pathLabelGroup.group().attr('id', 'gBadges');
+    } else {
+      this.gBadges = vparent.gRoot.group().attr('id', 'gBadges');
+    }
     this.gEvLinkBadges = this.gBadges.group().attr('id', 'gEvLinkBadges');
     this.gStickyButtons = VBadge.SVGStickyButton(vparent, 0, 0);
     this.gBadges.add(this.gStickyButtons);
@@ -120,25 +126,35 @@ class VBadge {
 
     const isVMech = m_IsVMech(vparent);
 
-    let baseElement;
     let xOffset;
     let yOffset;
+    let x;
+    let y;
+    let baseX;
+    let baseY;
     if (isVMech) {
       // VMech
-      baseElement = vparent.pathLabel; // position of the text label along the path
-      // 'eat' is too short @ 19, but 'produce' is too long @ 51.
-      xOffset = 80; // horiz text approach: Math.max(40, vparent.horizText.length()) * 1.5 + m_pad * 3;
-      yOffset = -13; // hoist badges back up even with text baseline.
+      x = 0;
+      y = 0;
+      // xOffset ought to be the text length + padding
+      xOffset = vparent.horizText.length();
+      yOffset = -8; // hoist badges back up even with text baseline.
+      // baseX is the position on the right side of the parent that the badges should start drawing from
+      // it draws right-justified, like rtl text.
+      baseX = x + xOffset - m_pad * 3;
+      baseY = y + yOffset + m_pad * 2;
     } else {
       // VProp
-      baseElement = vparent.visBG; // position of the base prop rectangle
+      let baseElement = vparent.visBG; // position of the base prop rectangle
+      x = baseElement.x();
+      y = baseElement.y();
       xOffset = this.width;
       yOffset = -4;
+      baseX = x + xOffset - m_pad;
+      baseY = y + yOffset + m_pad * 2;
     }
-    const x = baseElement.x();
-    const y = baseElement.y();
-    const baseX = x + xOffset - m_pad;
-    const baseY = y + yOffset + m_pad * 2;
+
+    // counter offset for each badge
     let xx = 0;
 
     // FIXME Hack
@@ -164,7 +180,13 @@ class VBadge {
       evlinks.forEach(evlink => {
         const badge = VBadge.SVGEvLink(evlink, vparent);
         this.gEvLinkBadges.add(badge);
-        badge.move(baseX + xx - badge.width() - m_pad, baseY);
+        if (isVMech) {
+          // Draw left-justified
+          badge.move(baseX + xx + badge.width(), baseY);
+        } else {
+          // Draw right-justified
+          badge.move(baseX + xx - badge.width() - m_pad, baseY);
+        }
         xx += badge.width() + m_pad;
       });
     }
@@ -199,7 +221,13 @@ class VBadge {
     }
 
     // Move gStickyButtons only AFTER setting display state, otherwise, the icon will get drawn at 0,0
-    this.gStickyButtons.move(baseX + xx - this.gStickyButtons.bbox().w - m_pad, baseY); // always move in case evlink badges change
+    if (isVMech) {
+      // left-justified
+      this.gStickyButtons.move(baseX + xx + this.gStickyButtons.bbox().w + m_pad, baseY); // always move in case evlink badges change      
+    } else {
+      // right-justified
+      this.gStickyButtons.move(baseX + xx - this.gStickyButtons.bbox().w - m_pad, baseY); // always move in case evlink badges change
+    }
 
     // adjust for width of vprop
     if (!isVMech) {

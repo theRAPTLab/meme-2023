@@ -21,7 +21,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
-import DATA from '../modules/pmc-data';
+import DATA from '../modules/data';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -103,9 +103,9 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`
 
     return (
       <Paper className={ClassNames(
-          classes.descriptionViewPaper,
-          propId ? classes.descriptionViewPaperPropColor : classes.descriptionViewPaperMechColor
-        )}
+        classes.descriptionViewPaper,
+        propId ? classes.descriptionViewPaperPropColor : classes.descriptionViewPaperMechColor
+      )}
         hidden={!isOpen}
         elevation={24}
       >

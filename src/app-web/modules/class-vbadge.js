@@ -127,7 +127,7 @@ class VBadge {
       // VMech
       baseElement = vparent.pathLabel; // position of the text label along the path
       // 'eat' is too short @ 19, but 'produce' is too long @ 51.
-      xOffset = 60; // horiz text approach: Math.max(40, vparent.horizText.length()) * 1.5 + m_pad * 3;
+      xOffset = 80; // horiz text approach: Math.max(40, vparent.horizText.length()) * 1.5 + m_pad * 3;
       yOffset = -13; // hoist badges back up even with text baseline.
     } else {
       // VProp

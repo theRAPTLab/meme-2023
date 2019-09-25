@@ -104,7 +104,7 @@ class VMech {
       .fill(COLOR.MECH)
       .attr('dy', -6)
       .attr('dx', 0);
-    this.pathLabel.attr('text-anchor', 'end');
+    this.pathLabel.attr('text-anchor', 'middle');
     this.textpath = this.pathLabel.path(this.path).attr('startOffset', this.path.length() - m_blen);
 
     // shared modes
@@ -202,14 +202,14 @@ class VMech {
           // left to right
           this.path.plot(m_MakeQuadraticDrawingString(srcPt, tgtPt));
           this.path.marker('end', SVGDEFS.get('arrowEndHead')).attr('marker-start', '');
-          this.pathLabel.attr('text-anchor', 'end');
-          this.textpath.attr('startOffset', this.path.length() - m_blen);
+          this.pathLabel.attr('text-anchor', 'middle');
+          this.textpath.attr('startOffset', '50%');
         } else {
           // right to left
           this.path.plot(m_MakeQuadraticDrawingString(tgtPt, srcPt));
           this.path.marker('start', SVGDEFS.get('arrowStartHead')).attr('marker-end', '');
-          this.pathLabel.attr('text-anchor', 'start');
-          this.textpath.attr('startOffset', m_blen);
+          this.pathLabel.attr('text-anchor', 'middle');
+          this.textpath.attr('startOffset', '50%');
         }
 
         // // VBadge hack position of horizText

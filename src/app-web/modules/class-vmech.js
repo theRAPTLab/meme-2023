@@ -79,7 +79,8 @@ class VMech {
       .path()
       .back()
       .fill('none')
-      .stroke({ width: PATHWIDTH, color: COL_MECH, dasharray: '6 3' });
+      .stroke({ width: PATHWIDTH, color: COL_MECH, dasharray: '6 3' })
+      .attr({ cursor: 'pointer' });
 
     // The pathLabel is used purely for positioning the pathLabelGroup.
     // We rely on SVGjs's ability to position a text label on a path to 
@@ -96,11 +97,15 @@ class VMech {
     this.pathLabelGroup = svgRoot.nested(); // we use `nested` so we can set x,y
     this.pathLabelBox = this.pathLabelGroup
       .rect(100, 25) // initial value, will get resized to text length.
-      .fill(COL_MECH_LABEL_BG);
+      .fill(COL_MECH_LABEL_BG)
+      .attr({ cursor: 'pointer' });
     this.horizText = this.pathLabelGroup.text(add => {
       add.tspan(this.data.name);
     });
-    this.horizText.fill(COL_MECH_LABEL).move(5, 3); // offset in pathLabelBox for padding
+    this.horizText
+      .fill(COL_MECH_LABEL)
+      .move(5, 3)
+      .attr({ cursor: 'pointer' }); // offset in pathLabelBox for padding
 
     // Add VBadge group -- this needs to be added here for layering purposes
     this.vBadge = VBadge.New(this);
@@ -120,6 +125,7 @@ class VMech {
     this.HandleSelect = this.HandleSelect.bind(this);
     this.path.click(this.HandleSelect);
     this.pathLabel.click(this.HandleSelect);
+    this.pathLabelGroup.click(this.HandleSelect);
 
     // hack hover
     this.path.mouseenter(() => this.HoverState(true));
@@ -134,6 +140,7 @@ class VMech {
   Id() {
     return this.id;
   }
+
   /**
    * @returns {SVG.Container} - The SVG Container object that the badge should attach to 
    */
@@ -254,14 +261,22 @@ class VMech {
   Draw() {
 
     if (this.visualState.IsSelected('hover')) {
+      // Hover
       this.path.stroke({ width: PATHWIDTH, color: COL_HOV, dasharray: '6 3' });
       this.pathLabel.fill(COL_HOV);
+      this.horizText.fill(COL_HOV);
     } else if (this.visualState.IsSelected()) {
+      // Selected
       this.path.stroke({ width: PATHWIDTH, color: COL_MECH_SEL, dasharray: '6 3' });
+      // markers.forEach(marker => marker.fill(COL_MECH_SEL));
       this.pathLabel.fill(COL_MECH_SEL);
+      this.horizText.fill(COL_MECH_SEL);
     } else {
+      // Normal
       this.path.stroke({ width: PATHWIDTH, color: COL_MECH, dasharray: '6 3' });
+      // markers.forEach(marker => marker.fill(COL_MECH));
       this.pathLabel.fill(COL_MECH);
+      this.horizText.fill(COL_MECH_LABEL);
     }
     this.vBadge.Draw(this);
   }

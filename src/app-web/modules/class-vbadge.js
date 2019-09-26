@@ -281,11 +281,13 @@ VBadge.SVGEvLink = (evlink, vparent) => {
   // create vbadge sub elements
   const gBadge = root.group().click(onClick);
   gBadge.gCircle = gBadge.circle(radius).fill('#4db6ac');
+  gBadge.gCircle.attr({ cursor: 'pointer' });
 
   gBadge.gLabel = gBadge
     .text(evlink.number)
     .font({ fill: '#fff', size: '1em', anchor: 'middle' })
-    .move(m_pad, m_pad / 2);
+    .move(m_pad, m_pad / 2)
+    .attr({ cursor: 'pointer' });
 
   gBadge.gRating = VBadge.SVGRating(evlink, gBadge).move(
     (3 - Math.max(1, Math.abs(evlink.rating))) * 4, // always shift at least 1 symbol, since no rating is 0
@@ -353,6 +355,7 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
   let gStickyButtons = vparent.gRoot
     .group()
     .move(x, y)
+    .attr({ cursor: 'pointer' })
     .click(onClick);
 
   // Create SVG Icons

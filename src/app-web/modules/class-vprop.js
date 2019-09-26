@@ -52,6 +52,7 @@ class VProp {
     this.gRoot = svgRoot.group(); // main reference group
     // this order is important
     this.visBG = this.gRoot.rect(this.width, this.height); // background
+    this.visBG.attr({ cursor: 'pointer' });
     this.gData = this.gRoot.group(); // main data properties
     this.gDataName = this.gData.text(this.data.name.toUpperCase()); // label
     this.gDataName.attr('pointer-events', 'none');

@@ -128,10 +128,13 @@ class VMech {
     this.pathLabelGroup.click(this.HandleSelect);
 
     // hack hover
+    // Don't track pathLabelGroup mouseenter/leave because it causes crazy flickers as you move across the group components
+    // Don't track horizText.mouseleave -- rely on pathLabelBox's mouseleave to remove hover
     this.path.mouseenter(() => this.HoverState(true));
     this.path.mouseleave(() => this.HoverState(false));
-    this.pathLabel.mouseenter(() => this.HoverState(true));
-    this.pathLabel.mouseleave(() => this.HoverState(false));
+    this.horizText.mouseenter(() => this.HoverState(true));
+    this.pathLabelBox.mouseenter(() => this.HoverState(true));
+    this.pathLabelBox.mouseleave(() => this.HoverState(false));
   }
 
   /**

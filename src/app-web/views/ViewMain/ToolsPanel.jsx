@@ -97,10 +97,13 @@ class ToolsPanel extends React.Component {
   }
 
   DoMechHoverStart(data) {
-    const mechIdArray = data.mechId.split(':');
-    const hoveredMechId = {};
-    hoveredMechId.v = mechIdArray[0];
-    hoveredMechId.w = mechIdArray[1];
+    let hoveredMechId = data.mechId;
+    if (hoveredMechId.v === undefined) {
+      const mechIdArray = data.mechId.split(':');
+      const hoveredMechId = {};
+      hoveredMechId.v = mechIdArray[0];
+      hoveredMechId.w = mechIdArray[1];
+    }
     this.setState({ hoveredMechId });
   }
 
@@ -187,7 +190,7 @@ class ToolsPanel extends React.Component {
         onClick={e => this.OnPropClick(e, propId)}
         onMouseEnter={e => {
           e.stopPropagation();
-          UR.Publish('DESCRIPTION_OPEN', { propId: propId });
+          UR.Publish('PROP_HOVER_START', { propId: propId });
         }}
       >
         {prop.name}
@@ -219,7 +222,7 @@ class ToolsPanel extends React.Component {
           onClick={e => this.OnMechClick(e, mechId)}
           onMouseEnter={e => {
             e.stopPropagation();
-            UR.Publish('DESCRIPTION_OPEN', { mechId: mechId });
+            UR.Publish('MECH_HOVER_START', { mechId: mechId });
             this.setState({ hoveredMechId: mechId });
           }}
         >

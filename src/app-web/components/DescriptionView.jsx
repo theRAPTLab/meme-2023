@@ -50,15 +50,19 @@ cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
 proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`
     };
 
-    UR.Subscribe('DESCRIPTION_OPEN', this.DoOpen);
-    UR.Subscribe('DESCRIPTION_CLOSE', this.DoClose);
+    UR.Subscribe('PROP_HOVER_START', this.DoOpen);
+    UR.Subscribe('PROP_HOVER_END', this.DoClose);
+    UR.Subscribe('MECH_HOVER_START', this.DoOpen);
+    UR.Subscribe('MECH_HOVER_END', this.DoClose);
   }
 
   componentDidMount() { }
 
   componentWillUnmount() {
-    UR.Unsubscribe('DESCRIPTION_OPEN', this.DoOpen);
-    UR.Unsubscribe('DESCRIPTION_CLOSE', this.DoClose);
+    UR.Unsubscribe('PROP_HOVER_START', this.DoOpen);
+    UR.Unsubscribe('PROP_HOVER_END', this.DoClose);
+    UR.Unsubscribe('MECH_HOVER_START', this.DoOpen);
+    UR.Unsubscribe('MECH_HOVER_END', this.DoClose);
   }
 
   DoOpen(data) {

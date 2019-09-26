@@ -106,13 +106,11 @@ class VProp {
       this.visualState.Select('hover');
       this.visualStyle.fill.color = COL_HOVER;
       this.visualStyle.fill.opacity = COL_HOVER_OPACITY;
-      UR.Publish('DESCRIPTION_OPEN', { propId: this.id });
       UR.Publish('PROP_HOVER_START', { propId: this.id });
     } else {
       this.visualState.Deselect('hover');
       this.visualStyle.fill.color = COL_BG;
       this.visualStyle.fill.opacity = COL_BG_OPACITY;
-      UR.Publish('DESCRIPTION_CLOSE');
       UR.Publish('PROP_HOVER_END', { propId: this.id });
     }
     this.Draw();

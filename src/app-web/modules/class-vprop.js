@@ -82,8 +82,23 @@ class VProp {
     // add VProp extensions
     VProp.AddDragDropHandlers(this);
 
+    this.HoverStart = this.HoverStart.bind(this);
+    this.HoverEnd = this.HoverEnd.bind(this);
+    UR.Subscribe('PROP_HOVER_START', this.HoverStart);
+    UR.Subscribe('PROP_HOVER_END', this.HoverEnd);
+
     // initial drawing
     this.Draw();
+  }
+
+  /**
+   * Remove  gRoot svg element and all its children
+   */
+  Release() {
+    this.vBadge.Release();
+    UR.Unsubscribe('PROP_HOVER_START', this.HoverStart);
+    UR.Unsubscribe('PROP_HOVER_END', this.HoverEnd);
+    return this.gRoot.remove();
   }
 
   /** return associated nodeId
@@ -99,19 +114,28 @@ class VProp {
     return this.posMode.wasMoved;
   }
 
-  HoverState(visible) {
+  HoverStart(data) {
+    const publishEvent = false;
+    if (data.propId === this.id) this.HoverState(true, publishEvent);
+  }
+
+  HoverEnd() {
+    this.HoverState(false, false);
+  }
+
+  HoverState(visible, publishEvent = true) {
     if (typeof visible !== 'boolean') throw Error('must specific true or false');
 
     if (visible) {
       this.visualState.Select('hover');
       this.visualStyle.fill.color = COL_HOVER;
       this.visualStyle.fill.opacity = COL_HOVER_OPACITY;
-      UR.Publish('PROP_HOVER_START', { propId: this.id });
+      if (publishEvent) UR.Publish('PROP_HOVER_START', { propId: this.id });
     } else {
       this.visualState.Deselect('hover');
       this.visualStyle.fill.color = COL_BG;
       this.visualStyle.fill.opacity = COL_BG_OPACITY;
-      UR.Publish('PROP_HOVER_END', { propId: this.id });
+      if (publishEvent) UR.Publish('PROP_HOVER_END', { propId: this.id });
     }
     this.Draw();
   }
@@ -337,14 +361,6 @@ class VProp {
     this.vBadge.Draw(this);
     // move
     if (point) this.gRoot.move(point.x, point.y);
-  }
-
-  /**
-   * Remove  gRoot svg element and all its children
-   */
-  Release() {
-    this.vBadge.Release();
-    return this.gRoot.remove();
   }
 
   /**

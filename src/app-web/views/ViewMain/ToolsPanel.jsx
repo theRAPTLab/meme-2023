@@ -87,6 +87,8 @@ class ToolsPanel extends React.Component {
 
   componentWillUnmount() {
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
+    UR.Unsubscribe('PROP_HOVER_START', this.DoPropHoverStart);
+    UR.Unsubscribe('PROP_HOVER_END', this.DoPropHoverEnd);
     UR.Unsubscribe('MECH_HOVER_START', this.DoMechHoverStart);
     UR.Unsubscribe('MECH_HOVER_END', this.DoMechHoverEnd);
   }
@@ -191,6 +193,10 @@ class ToolsPanel extends React.Component {
         onMouseEnter={e => {
           e.stopPropagation();
           UR.Publish('PROP_HOVER_START', { propId: propId });
+        }}
+        onMouseLeave={e => {
+          e.stopPropagation();
+          UR.Publish('PROP_HOVER_END', { propId: propId });
         }}
       >
         {prop.name}

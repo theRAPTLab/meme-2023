@@ -55,8 +55,10 @@ class ToolsPanel extends React.Component {
   constructor(props) {
     super(props);
 
-    this.DoHoverStart = this.DoHoverStart.bind(this);
-    this.DoHoverEnd = this.DoHoverEnd.bind(this);
+    this.DoPropHoverStart = this.DoPropHoverStart.bind(this);
+    this.DoPropHoverEnd = this.DoPropHoverEnd.bind(this);
+    this.DoMechHoverStart = this.DoMechHoverStart.bind(this);
+    this.DoMechHoverEnd = this.DoMechHoverEnd.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
     this.OnComponentAdd = this.OnComponentAdd.bind(this);
     this.OnMechAdd = this.OnMechAdd.bind(this);
@@ -72,8 +74,10 @@ class ToolsPanel extends React.Component {
     };
 
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
-    UR.Subscribe('MECH_HOVER_START', this.DoHoverStart);
-    UR.Subscribe('MECH_HOVER_END', this.DoHoverEnd);
+    UR.Subscribe('PROP_HOVER_START', this.DoPropHoverStart);
+    UR.Subscribe('PROP_HOVER_END', this.DoPropHoverEnd);
+    UR.Subscribe('MECH_HOVER_START', this.DoMechHoverStart);
+    UR.Subscribe('MECH_HOVER_END', this.DoMechHoverEnd);
   }
 
   componentDidMount() {}
@@ -84,7 +88,15 @@ class ToolsPanel extends React.Component {
     UR.Unsubscribe('MECH_HOVER_END', this.DoHoverEnd);
   }
 
-  DoHoverStart(data) {
+  DoPropHoverStart(data) {
+    this.setState({ hoveredPropId: data.propId });
+  }
+
+  DoPropHoverEnd(data) {
+    this.setState({ hoveredPropId: '' });
+  }
+
+  DoMechHoverStart(data) {
     const mechIdArray = data.mechId.split(':');
     const hoveredMechId = {};
     hoveredMechId.v = mechIdArray[0];
@@ -92,7 +104,7 @@ class ToolsPanel extends React.Component {
     this.setState({ hoveredMechId });
   }
 
-  DoHoverEnd(data) {
+  DoMechHoverEnd(data) {
     this.setState({ hoveredMechId: '' });
   }
 
@@ -159,7 +171,7 @@ class ToolsPanel extends React.Component {
 
   // This supports recursive calls to handle nested components.
   RenderComponentsListItem(propId, isSub = false) {
-    const { selectedPropId } = this.state;
+    const { selectedPropId, hoveredPropId } = this.state;
     const { classes } = this.props;
     const prop = DATA.Prop(propId);
     const children = DATA.Children(propId);
@@ -169,7 +181,8 @@ class ToolsPanel extends React.Component {
         className={ClassNames(
           classes.treeItem,
           isSub ? classes.treeSubPropItem : classes.treePropItem,
-          selectedPropId === propId ? classes.treeItemSelected : ''
+          selectedPropId === propId ? classes.treeItemSelected : '',
+          hoveredPropId === propId ? classes.treeItemHovered : ''
         )}
         onClick={e => this.OnPropClick(e, propId)}
         onMouseEnter={e => {

@@ -389,7 +389,11 @@ class ViewMain extends React.Component {
       // MOST PMCDATA MODEL METHODS CALLS THIS AUTOMATICALLY
       // BUT IN THIS CASE YOU'RE MUTATING THE PROP DIRECTLY
       UTILS.RLog('PropertyEdit', this.state.addPropLabel);
-      DATA.BuildModel();
+      UR.Publish('DATA_UPDATED', { prop });
+      // DATA.BuildModel();
+      // CODE REVIEW: BuildModel() is used when the model linking
+      // changes. Here, you're just doing a data property update.
+      // Instead of BuildModel(), use DATA_UPDATED
     } else {
       // Create new prop
       DATA.PMC_AddProp(this.state.addPropLabel);

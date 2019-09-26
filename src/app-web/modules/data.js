@@ -13,6 +13,7 @@ import PMC from './pmc-data';
 import VM from './vm-data';
 import UR from '../../system/ursys';
 import DATAMAP from '../../system/common-datamap';
+import SESSION from '../../system/common-session';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -179,9 +180,9 @@ MIR.SetEvidenceLinkMechId = (evId, mechId) => {}; // a_evidence.find() evidence
 /// MODULE HELPERS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-/// INITIALIZATION ////////////////////////////////////////////////////////////
+/// DEBUG /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// debug
+
 window.mdat = MIR;
 // test update group
 window.mdat.tupg = id => {

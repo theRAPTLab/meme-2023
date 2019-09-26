@@ -163,6 +163,12 @@ DB.PKT_GetDatabase = pkt => {
   DBKEYS.forEach(colname => {
     adm_db[`a_${colname}`] = f_GetCollectionData(colname);
   });
+  // START TOKEN TEST
+  let token = SESSION.MakeToken('Freddy', { groupId: 12, classroomId: 99 });
+  if (token) console.log(PR, `TEST: Made token '${token}'`);
+  const data = SESSION.DecodeToken(token);
+  if (data.isValid) console.log(PR, `TEST: Decoded token '${token}' to ${JSON.stringify(data)}`);
+  // END TOKEN TEST
   // return object for transaction; URSYS will automatically return
   // to the netdevice that called this
   return adm_db;

@@ -135,6 +135,19 @@ class VMech {
     this.horizText.mouseenter(() => this.HoverState(true));
     this.pathLabelBox.mouseenter(() => this.HoverState(true));
     this.pathLabelBox.mouseleave(() => this.HoverState(false));
+
+  /**
+   * cleans up any SVGJS elements that need cleaning up when this instance is destroyed
+   */
+  Release() {
+    if (this.path) this.path.remove();
+    if (this.pathLabel) this.pathLabel.remove();
+    this.vBadge.Release();
+    if (this.horizText) this.horizText.remove();
+    if (this.pathLabelBox) this.pathLabelBox.remove();
+    if (this.pathLabelGroup) this.pathLabelGroup.remove();
+    UR.Unsubscribe('MECH_HOVER_START', this.HoverStart);
+    UR.Unsubscribe('MECH_HOVER_END', this.HoverEnd);
   }
 
   /**
@@ -162,14 +175,6 @@ class VMech {
       UR.Publish('MECH_HOVER_END', { mechId: this.id });
     }
     this.Draw();
-  }
-
-  /**
-   * cleans up any SVGJS elements that need cleaning up when this instance is destroyed
-   */
-  Release() {
-    if (this.path) this.path.remove();
-    this.vBadge.Release();
   }
 
   /**

@@ -72,6 +72,10 @@ const styles = theme => {
       wordBreak: 'break-all',
       cursor: 'pointer'
     },
+    treeItemHovered: {
+      border: '2px solid',
+      borderColor: orange[800]
+    },
     treeItemSelected: {
       border: '2px solid',
       borderColor: blue[800]

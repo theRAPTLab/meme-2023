@@ -55,6 +55,8 @@ class ToolsPanel extends React.Component {
   constructor(props) {
     super(props);
 
+    this.DoHoverStart = this.DoHoverStart.bind(this);
+    this.DoHoverEnd = this.DoHoverEnd.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
     this.OnComponentAdd = this.OnComponentAdd.bind(this);
     this.OnMechAdd = this.OnMechAdd.bind(this);
@@ -64,16 +66,34 @@ class ToolsPanel extends React.Component {
 
     this.state = {
       selectedPropId: '',
-      selectedMechId: ''
+      selectedMechId: '',
+      hoveredPropId: '',
+      hoveredMechId: ''
     };
 
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
+    UR.Subscribe('MECH_HOVER_START', this.DoHoverStart);
+    UR.Subscribe('MECH_HOVER_END', this.DoHoverEnd);
   }
 
   componentDidMount() {}
 
   componentWillUnmount() {
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
+    UR.Unsubscribe('MECH_HOVER_START', this.DoHoverStart);
+    UR.Unsubscribe('MECH_HOVER_END', this.DoHoverEnd);
+  }
+
+  DoHoverStart(data) {
+    const mechIdArray = data.mechId.split(':');
+    const hoveredMechId = {};
+    hoveredMechId.v = mechIdArray[0];
+    hoveredMechId.w = mechIdArray[1];
+    this.setState({ hoveredMechId });
+  }
+
+  DoHoverEnd(data) {
+    this.setState({ hoveredMechId: '' });
   }
 
   DoSelectionChange() {
@@ -166,7 +186,7 @@ class ToolsPanel extends React.Component {
   }
 
   RenderMechanismsList(mechIds) {
-    const { selectedMechId } = this.state;
+    const { selectedMechId, hoveredMechId } = this.state;
     const { classes } = this.props;
     let i = 0;
     return mechIds.map(mechId => {
@@ -180,12 +200,14 @@ class ToolsPanel extends React.Component {
           className={ClassNames(
             classes.treeItem,
             classes.treeMechItem,
-            selectedMechId.v === mechId.v && selectedMechId.w === mechId.w ? classes.treeItemSelected : ''
+            selectedMechId.v === mechId.v && selectedMechId.w === mechId.w ? classes.treeItemSelected : '',
+            hoveredMechId.v === mechId.v && hoveredMechId.w === mechId.w ? classes.treeItemHovered : ''
           )}
           onClick={e => this.OnMechClick(e, mechId)}
           onMouseEnter={e => {
             e.stopPropagation();
             UR.Publish('DESCRIPTION_OPEN', { mechId: mechId });
+            this.setState({ hoveredMechId: mechId });
           }}
         >
           <span className={classes.treePropItemColor}>{source} </span>

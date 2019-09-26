@@ -1,10 +1,13 @@
 import { blue, green, grey, indigo, orange, red, teal, yellow } from '@material-ui/core/colors';
 import { registerMorphableType } from '@svgdotjs/svg.js/src/main';
 import { Hidden } from '@material-ui/core';
+import DEFAULTS from '../modules/defaults';
+
+const { COLOR } = DEFAULTS;
 
 const m_drawerWidth = 100;
 const m_primary = indigo[500];
-const m_stickynoteIconColor = yellow[800]; // `#ffc904`;
+const m_stickynoteIconColor = COLOR.STICKY_BUTTON; // '#ffd700'; // yellow[800]; // `#ffc904`;
 const m_stickynoteColor = yellow[400]; //`#ffe25a`;
 const m_systemTextColor = 'rgba(0,0,0,0.35)';
 const m_systemLabelFontSize = '0.6em';

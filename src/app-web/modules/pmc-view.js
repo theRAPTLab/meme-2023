@@ -187,7 +187,7 @@ PMCView.DefineDefs = svg => {
  * @param {SVGJSinstance} svg - SVGJS instance to add DEFs to
  */
 PMCView.DefineSymbols = svg => {
-  const chatColor = yellow[800];
+  const chatColor = COLOR.STICKY_BUTTON; // '#ffdd11'; // '#ffd300'; // yellow[800];
   SVGSYMBOLS.set(
     'chatIcon',
     (() => {

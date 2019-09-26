@@ -47,7 +47,8 @@ const DEFAULTS = {
     MECH_LABEL_BG: 'rgba(240,240,255,0.9)', // match background of svg
     PROP: '#44F',
     PROP_SEL: '#44F',
-    PROP_HOV: '#FFA244'
+    PROP_HOV: '#FFA244',
+    STICKY_BUTTON: '#ffdd11'
   }
 };
 

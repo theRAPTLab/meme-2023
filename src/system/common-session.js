@@ -40,48 +40,32 @@ let m_current_idsobj = {};
     complete decode succes. groupId is also set if successful
 /*/
 SESUTIL.DecodeToken = token => {
-  if (token === undefined) return {};
   let tokenBits = token.split('-');
   let studentName, hashedData; // token
   let groupId, classroomId; // decoded data
-  let isValid;
-  // optimistically set valid flag to be negated on failure
-  isValid = true;
+  let isValid = false;
+  if (!token) return { isValid };
   // check for missing dash
-  if (token.substr(-1) === '-') {
-    isValid = false;
-    return { isValid, token, error: 'missing - in token' };
-  }
+  if (token.substr(-1) === '-') return { isValid, token, error: 'missing - in token' };
   // token is of form NAME-HASHEDID
   // (1) check student name
   if (tokenBits[0]) studentName = tokenBits[0].toUpperCase();
-  if (studentName.length < 3) {
-    isValid = false;
+  if (studentName.length < 3)
     return { isValid, token, error: 'student name must have 3 or more letters' };
-  }
 
   // (2) check hashed data
   if (tokenBits[1]) hashedData = tokenBits[1].toUpperCase();
   // initialize hashid structure
-  let hashids = new HashIds(HASH_SALT, HASH_MINLEN, HASH_ABET);
+  let hashids = new HashIds(HASH_SALT + studentName, HASH_MINLEN, HASH_ABET);
   // try to decode the groupId
   const dataIds = hashids.decode(hashedData);
   // invalidate if couldn't decode
-  if (dataIds.length === 0) {
-    isValid = false;
-    return { isValid, token, error: 'invalid token' };
-  }
-  // invalidate if couldn't decode
-  dataIds.forEach(id => {
-    if (id === undefined) isValid = false;
-    if (!Number.isInteger(id)) isValid = false;
-    if (id < 0) isValid = false;
-  });
-  if (!isValid) return { isValid, studentName, token, error: 'invalid range' };
+  if (dataIds.length === 0) return { isValid, token, error: 'invalid token' };
 
   // at this point groupId is valid (begins with ID, all numeric)
   // check for valid subgroupId
   [groupId, classroomId] = dataIds;
+  isValid = true;
   return { isValid, studentName, token, groupId, classroomId };
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -111,7 +95,7 @@ SESUTIL.MakeToken = (studentName, dataIds = {}) => {
   // initialize hashid structure
   studentName = studentName.toUpperCase();
   const { groupId, classroomId } = dataIds;
-  let hashids = new HashIds(HASH_SALT, HASH_MINLEN, HASH_ABET);
+  let hashids = new HashIds(HASH_SALT + studentName, HASH_MINLEN, HASH_ABET);
   let hashedId = hashids.encode(groupId, classroomId);
   return `${studentName}-${hashedId}`;
 

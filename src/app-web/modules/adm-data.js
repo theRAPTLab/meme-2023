@@ -1,5 +1,6 @@
 import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
+import SESSION from '../../system/common-session';
 import UTILS from './utils';
 import PMCData from './data';
 
@@ -47,8 +48,6 @@ UR.Hook(__dirname, 'LOAD_ASSETS', () => {
         return;
       }
       adm_db = data;
-      window.admdb = data;
-      console.log(PKG, 'data loaded', data);
       ADMData.Load();
       resolve();
     });
@@ -396,11 +395,19 @@ ADMData.DeleteStudent = (groupId, student) => {
  *  Call with no 'studentName' to get the group token
  */
 ADMData.GetToken = (groupId, studentName) => {
-  return `BR-${groupId}-XYZ${studentName ? '-' : ''}${studentName}\n`;
+  const classroomId = ADMData.GetClassroomIdByGroup(groupId);
+  const token = SESSION.MakeToken(studentName, { groupId, classroomId });
+  return `${token}\n`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.Login = loginId => {
-  // FIXME: Replace this with a proper token check and lookup
+ADMData.Login = hashedToken => {
+  const decoded = SESSION.DecodeToken(hashedToken);
+  let loginId, groupId, classroomId;
+  if (decoded.isValid) {
+    loginId = decoded.studentName;
+    groupId = decoded.groupId;
+    classroomId = decoded.classroomId;
+  }
   // This assumes we already did validation
   adm_settings.selectedStudentId = loginId;
   // After logging in, we need to tell ADM what the default classroom is
@@ -418,10 +425,8 @@ ADMData.IsLoggedOut = () => {
   return adm_settings.selectedStudentId === undefined || adm_settings.selectedStudentId === '';
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.IsValidLogin = loginId => {
-  // FIXME: Replace this with a proper token check
-  let isValid = ADMData.GetGroupByStudent(loginId) !== undefined;
-  return isValid;
+ADMData.IsValidLogin = hashedToken => {
+  return SESSION.IsValidToken(hashedToken);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetSelectedStudentId = () => {

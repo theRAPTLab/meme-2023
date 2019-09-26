@@ -223,6 +223,8 @@ window.mdat.trmg = (groupId, student) => {
     UR.Publish('ADM_DATA_UPDATED');
   });
 };
+// test sessions
+window.ses = SESSION;
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

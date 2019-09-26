@@ -30,8 +30,11 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // MEME Modules and Utils
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
+import DEFAULTS from '../../modules/defaults';
 import DATA from '../../modules/data';
 import ADM from '../../modules/data';
+
+const { CoerceToEdgeObj } = DEFAULTS;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -68,9 +71,9 @@ class ToolsPanel extends React.Component {
 
     this.state = {
       selectedPropId: '',
-      selectedMechId: '',
+      selectedMechId: '', // edgeObj e.g. {w,v}
       hoveredPropId: '',
-      hoveredMechId: ''
+      hoveredMechId: '' // edgeObj e.g. {w,v}
     };
 
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
@@ -84,8 +87,8 @@ class ToolsPanel extends React.Component {
 
   componentWillUnmount() {
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
-    UR.Unsubscribe('MECH_HOVER_START', this.DoHoverStart);
-    UR.Unsubscribe('MECH_HOVER_END', this.DoHoverEnd);
+    UR.Unsubscribe('MECH_HOVER_START', this.DoMechHoverStart);
+    UR.Unsubscribe('MECH_HOVER_END', this.DoMechHoverEnd);
   }
 
   DoPropHoverStart(data) {
@@ -96,14 +99,12 @@ class ToolsPanel extends React.Component {
     this.setState({ hoveredPropId: '' });
   }
 
+  /**
+   *
+   * @param {*} data - Contains a `mechId` EdgeObject, e.g. {mechId: {w, v}}
+   */
   DoMechHoverStart(data) {
     let hoveredMechId = data.mechId;
-    if (hoveredMechId.v === undefined) {
-      const mechIdArray = data.mechId.split(':');
-      const hoveredMechId = {};
-      hoveredMechId.v = mechIdArray[0];
-      hoveredMechId.w = mechIdArray[1];
-    }
     this.setState({ hoveredMechId });
   }
 
@@ -120,11 +121,10 @@ class ToolsPanel extends React.Component {
       selectedPropId = selectedPropIds[0];
     }
 
+    // Only select the first one
     let selectedMechIds = DATA.VM_SelectedMechIds();
     if (selectedMechIds.length > 0) {
-      const mechIdArray = selectedMechIds[0].split(':');
-      selectedMechId.v = mechIdArray[0];
-      selectedMechId.w = mechIdArray[1];
+      selectedMechId = CoerceToEdgeObj(selectedMechIds[0]);
     }
     this.setState({
       selectedPropId,
@@ -224,6 +224,10 @@ class ToolsPanel extends React.Component {
             e.stopPropagation();
             UR.Publish('MECH_HOVER_START', { mechId: mechId });
             this.setState({ hoveredMechId: mechId });
+          }}
+          onMouseLeave={e => {
+            e.stopPropagation();
+            UR.Publish('MECH_HOVER_END', { mechId: mechId });
           }}
         >
           <span className={classes.treePropItemColor}>{source} </span>

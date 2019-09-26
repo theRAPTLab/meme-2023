@@ -8,7 +8,7 @@ import VBadge from './class-vbadge';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const { VMECH, COLOR, CoerceToEdgeObj, SVGDEFS } = DEFAULTS;
+const { VMECH, COLOR, CoerceToEdgeObj, CoerceToPathId, SVGDEFS } = DEFAULTS;
 const m_up = VMECH.UP;
 const m_blen = VMECH.BLEN;
 const COL_MECH = COLOR.MECH;
@@ -135,6 +135,11 @@ class VMech {
     this.horizText.mouseenter(() => this.HoverState(true));
     this.pathLabelBox.mouseenter(() => this.HoverState(true));
     this.pathLabelBox.mouseleave(() => this.HoverState(false));
+    this.HoverStart = this.HoverStart.bind(this);
+    this.HoverEnd = this.HoverEnd.bind(this);
+    UR.Subscribe('MECH_HOVER_START', this.HoverStart);
+    UR.Subscribe('MECH_HOVER_END', this.HoverEnd);
+  }
 
   /**
    * cleans up any SVGJS elements that need cleaning up when this instance is destroyed
@@ -164,15 +169,34 @@ class VMech {
     return this.pathLabelGroup;
   }
 
-  HoverState(visible) {
+  // This is triggered by the reception of a `MECH_HOVER_START` message
+  // which means that it is triggered by a ToolsPanel hover event
+  // so we want to set the hover state WITHOUT sending out another MECH_HOVER_START call back to ToolsPanel.
+  HoverStart(data) {
+    const mechId = CoerceToPathId(data.mechId);
+    const publishEvent = false;
+    if (mechId === this.id) this.HoverState(true, publishEvent);
+  }
+
+  HoverEnd() {
+    this.HoverState(false, false);
+  }
+
+  /**
+   *
+   * @param {boolean} visible
+   * @param {boolean} publishEvent If true, send out a UR.Publish hover event so that ToolsPanel updates hover state
+   *                               If false, suppress the Publish event, e.g. we got the Hover state from ToolsPanel to avoid endless loop
+   */
+  HoverState(visible, publishEvent = true) {
     if (typeof visible !== 'boolean') throw Error('must specific true or false');
 
     if (visible) {
       this.visualState.Select('hover');
-      UR.Publish('MECH_HOVER_START', { mechId: this.id });
+      if (publishEvent) UR.Publish('MECH_HOVER_START', { mechId: CoerceToEdgeObj(this.id) });
     } else {
       this.visualState.Deselect('hover');
-      UR.Publish('MECH_HOVER_END', { mechId: this.id });
+      if (publishEvent) UR.Publish('MECH_HOVER_END', { mechId: CoerceToEdgeObj(this.id) });
     }
     this.Draw();
   }

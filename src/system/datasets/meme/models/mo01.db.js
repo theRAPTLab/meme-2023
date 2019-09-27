@@ -1,28 +1,28 @@
 module.exports = {
   // components is a 'component' or a 'property' (if it has a parent)
   properties: [
-    { id: 'fertilizer', name: 'fertilizer' },
-    { id: 'nutrients', name: 'nutrients', parent: 'fertilizer' },
-    { id: 'algae', name: 'algae' },
-    { id: 'deadstuff', name: 'dead stuff' },
-    { id: 'decomposers', name: 'decomposers' },
-    { id: 'oxygen', name: 'oxygen' },
-    { id: 'fish', name: 'fish' },
-    { id: 'population', name: 'population', parent: 'fish' }
+    { id: 10, node: 'fertilizer', name: 'fertilizer' },
+    { id: 11, node: 'nutrients', name: 'nutrients', parent: 10 },
+    { id: 12, node: 'algae', name: 'algae' },
+    { id: 13, node: 'deadstuff', name: 'dead stuff' },
+    { id: 14, node: 'decomposers', name: 'decomposers' },
+    { id: 15, node: 'oxygen', name: 'oxygen' },
+    { id: 16, node: 'fish', name: 'fish' },
+    { id: 17, node: 'population', name: 'population', parent: 16 }
   ],
   mechanisms: [
-    { source: 'fertilizer', target: 'nutrients', name: 'increase' },
-    { source: 'nutrients', target: 'algae', name: 'increase' },
-    { source: 'algae', target: 'deadstuff', name: 'die (incrase)' },
-    { source: 'decomposers', target: 'deadstuff', name: 'eat' },
-    { source: 'decomposers', target: 'oxygen', name: 'breath (decrease)' },
-    { source: 'oxygen', target: 'population', name: 'if too low, decreases' },
-    { source: 'fish', target: 'deadstuff', name: 'die (increase)' }
+    { id: 20, edge: 'fertilizer:nutrients', source: 10, target: 11, name: 'increase' },
+    { id: 21, edge: 'nutrients:algae', source: 11, target: 12, name: 'increase' },
+    { id: 22, edge: 'algae:deadstuff', source: 12, target: 13, name: 'die (incrase)' },
+    { id: 23, edge: 'decomposers:deadstuff', source: 14, target: 13, name: 'eat' },
+    { id: 24, edge: 'decomposers:oxygen', source: 14, target: 15, name: 'breath (decrease)' },
+    { id: 25, edge: 'oxygen:population', source: 15, target: 17, name: 'if too low, decreases' },
+    { id: 26, edge: 'fish:deadstuff', source: 16, target: 13, name: 'die (increase)' }
   ],
   evidence: [
     {
-      evId: 'ev1',
-      propId: 'fish',
+      id: 31,
+      propId: 16,
       mechId: undefined,
       rsrcId: 1,
       number: '1a',
@@ -30,17 +30,17 @@ module.exports = {
       note: 'ghoti ghoti gothi need food'
     },
     {
-      evId: 'ev3',
+      id: 33,
       propId: undefined,
-      mechId: 'decomposers:deadstuff',
+      mechId: '14:13',
       rsrcId: 2,
       number: '2a',
       rating: 2,
       note: 'fish need food'
     },
     {
-      evId: 'ev2',
-      propId: 'fish',
+      id: 32,
+      propId: 16,
       mechId: undefined,
       rsrcId: 1,
       number: '1b',
@@ -48,8 +48,8 @@ module.exports = {
       note: 'fish need food'
     },
     {
-      evId: 'ev4',
-      propId: 'nutrients',
+      id: 34,
+      propId: 11,
       mechId: undefined,
       rsrcId: 2,
       number: '2d',
@@ -59,7 +59,7 @@ module.exports = {
   ],
   commentThreads: [
     {
-      id: 'ev3',
+      refId: 33,
       comments: [
         {
           id: 0,
@@ -73,7 +73,7 @@ module.exports = {
       ]
     },
     {
-      id: 'decomposers',
+      refId: 14,
       comments: [
         {
           id: 0,
@@ -96,7 +96,7 @@ module.exports = {
       ]
     },
     {
-      id: 'algae',
+      refId: 12,
       comments: [
         {
           id: 0,
@@ -128,7 +128,7 @@ module.exports = {
       ]
     },
     {
-      id: 'fish',
+      refId: 16,
       comments: [
         {
           id: 0,

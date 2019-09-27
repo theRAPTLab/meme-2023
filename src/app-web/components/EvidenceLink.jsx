@@ -426,8 +426,8 @@ class EvidenceLink extends React.Component {
                       />
                     </MuiThemeProvider>
                   ) : (
-                    <div className={classes.evidenceLabelField}>{note}</div>
-                  )}
+                      <div className={classes.evidenceLabelField}>{note}</div>
+                    )}
                 </Grid>
               </Grid>
 

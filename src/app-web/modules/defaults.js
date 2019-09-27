@@ -99,7 +99,7 @@ DEFAULTS.CoerceToEdgeObj = (vso, ws) => {
       // this is probably a regular pathid
       let bits = vso.split(':');
       if (bits.length !== 2) throw Error(`pathId parse error. Check delimiter char`);
-      return { v: bits[0], w: bits[1] };
+      return { v: parseInt(bits[0]), w: parseInt(bits[1]) };
     }
     // this might be v,w
     return { v: vso, w: ws };
@@ -107,6 +107,10 @@ DEFAULTS.CoerceToEdgeObj = (vso, ws) => {
   if (ptype === 'object' && vso.v && vso.w) {
     return vso; // this is already an edgeobj
   }
+  if (ptype === 'number' && wtype === 'number') {
+    return { v: vso, w: ws };
+  }
+
   throw Error('can not conform');
 };
 // deeconstruct either int,int or object with keys into array

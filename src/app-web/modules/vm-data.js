@@ -34,12 +34,20 @@ MOD.VM_GetVPropChanges = all_props => {
   const removed = [];
   // find what matches and what is new
   all_props.forEach(id => {
-    if (map_vprops.has(id)) updated.push(id);
-    else added.push(id);
+    if (map_vprops.has(id)) {
+      updated.push(id);
+      // if (DBG) console.log('updated prop', id);
+    } else {
+      added.push(id);
+      if (DBG) console.log('added prop', id);
+    }
   });
   // removed ids exist in viewmodelPropMap but not in updated props
   map_vprops.forEach((val, id) => {
-    if (!updated.includes(id)) removed.push(id);
+    if (!updated.includes(id)) {
+      removed.push(id);
+      if (DBG) console.log('removed prop', id);
+    }
   });
   return { added, removed, updated };
 };
@@ -94,17 +102,17 @@ MOD.VM_GetVMechChanges = all_mechs => {
     const pathId = CoerceToPathId(edgeObj);
     if (map_vmechs.has(pathId)) {
       updated.push(pathId);
-      if (DBG) console.log('updated', pathId);
+      // if (DBG) console.log('updated mech', pathId);
     } else {
       added.push(pathId);
-      if (DBG) console.log('added', pathId);
+      if (DBG) console.log('added mech', pathId);
     }
   });
   // removed
   map_vmechs.forEach((val_vmech, key_pathId) => {
     if (!updated.includes(key_pathId)) {
       removed.push(key_pathId);
-      if (DBG) console.log('removed', key_pathId);
+      if (DBG) console.log('removed mech', key_pathId);
     }
   });
   return { added, removed, updated };

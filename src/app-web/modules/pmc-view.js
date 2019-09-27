@@ -44,6 +44,13 @@ UR.Subscribe('PROP_MOVED', data => {
 PMCView.InitializeViewgraph = container => {
   m_element = container;
   m_svgroot = SVGJS(m_element);
+  m_svgroot.size(1000, 1000).panZoom();
+  // 1. This suggests that svg.panzoom.js is working -- we get a value, though "infinity" does seem strange
+  console.error('zoom level is ', m_svgroot.zoom());
+  // 2. Now uncommment out the next line.  When zoom is set to 1, all the objects disappear
+  //    even though you can still see them in dev tools.
+  //    Notice they all have matrix transfomrs `matrix(1,0,0,1,0,0)`
+  // m_svgroot.zoom(1);
   m_svgroot.mousedown(() => {
     DATA.VM_DeselectAllProps();
     DATA.VM_DeselectAllMechs();

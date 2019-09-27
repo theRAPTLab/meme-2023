@@ -2,6 +2,7 @@ import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
 import { cssinfo, cssreset, cssdata } from './console-styles';
 import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
+import VM from './vm-data';
 import UTILS from './utils';
 
 const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
@@ -435,7 +436,7 @@ PMCData.PMC_SetPropParent = (node, parent) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_PropDelete = propid => {
   // Deselect the prop first, otherwise the deleted prop will remain selected
-  PMCData.VM_DeselectAll();
+  VM.VM_DeselectAll();
   // Unlink any evidence
   const evlinks = PMCData.PMC_GetEvLinksByPropId(propid);
   if (evlinks)
@@ -521,7 +522,7 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
 PMCData.PMC_MechDelete = mechId => {
   // mechId is of form "v:w"
   // Deselect the mech first, otherwise the deleted mech will remain selected
-  PMCData.VM_DeselectAll();
+  VM.VM_DeselectAll();
   // Unlink any evidence
   const evlinks = PMCData.PMC_GetEvLinksByMechId(mechId);
   if (evlinks)

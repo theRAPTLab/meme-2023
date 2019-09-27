@@ -48,6 +48,7 @@ PMCView.InitializeViewgraph = container => {
     .size(1000, 1000)
     .viewbox(0, 0, 1000, 1000)
     .panZoom();
+  m_svgroot.zoom(0.5);
   // 1. This suggests that svg.panzoom.js is working -- we get a value, though "infinity" does seem strange
   console.error('zoom level is ', m_svgroot.zoom());
   // 2. Now uncommment out the next line.  When zoom is set to 1, all the objects disappear

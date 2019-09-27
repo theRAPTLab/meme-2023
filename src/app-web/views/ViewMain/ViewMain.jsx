@@ -30,8 +30,12 @@ import TextField from '@material-ui/core/TextField';
 // Material UI Icons
 import AddIcon from '@material-ui/icons/Add';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
 import EditIcon from '@material-ui/icons/Edit';
+import ZoomInIcon from '@material-ui/icons/ZoomIn';
+import ZoomOutIcon from '@material-ui/icons/ZoomOut';
+import MenuIcon from '@material-ui/icons/Menu';
 // MEME App Components
 import DescriptionView from '../../components/DescriptionView';
 import HelpView from '../../components/HelpView';
@@ -112,6 +116,7 @@ class ViewMain extends React.Component {
       studentName: '',
       studentGroup: '',
       viewHeight: 0, // need to init this to prevent error with first render of resourceList
+      resourceLibraryIsOpen: true,
       addPropOpen: false,
       addEdgeOpen: false,
       addEdgeSource: '', // Add Mech Dialog
@@ -408,6 +413,7 @@ class ViewMain extends React.Component {
       studentId,
       studentName,
       studentGroup,
+      resourceLibraryIsOpen,
       addPropOpen,
       addEdgeOpen,
       componentIsSelected,
@@ -444,7 +450,9 @@ class ViewMain extends React.Component {
               onBlur={this.DoSaveModelTitle}
             />
             <Typography variant="caption">&nbsp;&nbsp;by {modelAuthorGroupName} Group</Typography>
-            <div className={classes.appBarRight}>
+            <div
+              className={resourceLibraryIsOpen ? classes.appBarRight : classes.appBarRightExpanded}
+            >
               <StickyNoteButton parentId={modelId} />
               &nbsp;&nbsp; &nbsp;&nbsp;
               <Button onClick={ADM.CloseModel} color="inherit">
@@ -458,6 +466,13 @@ class ViewMain extends React.Component {
               </Button>
               <Button onClick={this.OnHelp} color="inherit">
                 ?
+              </Button>
+              <Button
+                onClick={() => this.setState({ resourceLibraryIsOpen: true })}
+                hidden={resourceLibraryIsOpen}
+                color="inherit"
+              >
+                <MenuIcon />
               </Button>
             </div>
           </Toolbar>
@@ -501,13 +516,32 @@ class ViewMain extends React.Component {
           <RatingsDialog />
           <MechDialog />
           <DescriptionView />
+          
+          <div style={{ position: "absolute", top: "70px", right: "320px" }}>
+            <Button onClick={() => console.log('zoom in')}>
+              <ZoomInIcon size="small" />
+            </Button>
+            <Button onClick={() => console.log('zoom out')}>
+              <ZoomOutIcon size="small" />
+            </Button>
+          </div>
         </main>
 
         {/* Resource Library */}
-        <Drawer variant="permanent" style={{ width: '300px' }} anchor="right">
+        <Drawer variant="persistent" anchor="right" open={resourceLibraryIsOpen}>
           {/*<div style={{ height: this.state.viewHeight + 64, overflowY: 'scroll', zIndex: 1250 }}>*/}
           <Paper className={classes.resourceList}>
-            <div className={classes.resourceListLabel}>RESOURCE LIBRARY</div>
+            <div className={classes.resourceListLabel}>
+              <Button
+                onClick={() => this.setState({ resourceLibraryIsOpen: false })}
+                color="inherit"
+                size="small"
+                style={{ width: '100%' }}
+              >
+                <div style={{ width: '100%', textAlign: 'left' }}>RESOURCE LIBRARY</div>
+                <ChevronRightIcon style={{ float: 'right' }} />
+              </Button>
+            </div>
             <List dense>
               {resources.map(resource => (
                 <ResourceItem key={resource.id} resource={resource} />

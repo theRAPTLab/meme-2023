@@ -148,10 +148,10 @@ PMCData.InitializeModel = (model, resources) => {
   // Load Evidence Links
   m.data.evidence = m.data.evidence || [];
   m.data.evidence.forEach(ev => {
-    let { evId, propId, mechId, rsrcId, number, rating, note, comments } = ev;
+    let { id, propId, mechId, rsrcId, number, rating, note, comments } = ev;
     comments = comments || []; // allow empty comments
     a_evidence.push({
-      evId,
+      id,
       propId,
       mechId,
       rsrcId,
@@ -222,7 +222,7 @@ PMCData.BuildModel = () => {
   /*/
   h_evidenceById = new Map();
   a_evidence.forEach(ev => {
-    h_evidenceById.set(ev.evId, ev);
+    h_evidenceById.set(ev.id, ev);
   });
 
   /*/
@@ -441,7 +441,7 @@ PMCData.PMC_PropDelete = propid => {
   const evlinks = PMCData.PMC_GetEvLinksByPropId(propid);
   if (evlinks)
     evlinks.forEach(evlink => {
-      PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
+      PMCData.SetEvidenceLinkPropId(evlink.id, undefined);
     });
   // Delete any children nodes
   const children = PMCData.Children(propid);
@@ -490,7 +490,7 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
     // 2a. Move evidence over. Modify in place.
     if (evlinks) {
       evlinks.forEach(evlink => {
-        PMCData.SetEvidenceLinkMechId(evlink.evId, newMechId);
+        PMCData.SetEvidenceLinkMechId(evlink.id, newMechId);
       });
     }
     // 2b. Move comments over
@@ -527,7 +527,7 @@ PMCData.PMC_MechDelete = mechId => {
   const evlinks = PMCData.PMC_GetEvLinksByMechId(mechId);
   if (evlinks)
     evlinks.forEach(evlink => {
-      PMCData.SetEvidenceLinkMechId(evlink.evId, undefined);
+      PMCData.SetEvidenceLinkMechId(evlink.id, undefined);
     });
   // Then remove mech
   // FIXME / REVIEW : Do we need to use `name` to distinguish between
@@ -541,8 +541,10 @@ PMCData.PMC_MechDelete = mechId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
+  
+// Retrieve from db?!?  
   // HACK!  FIXME!  Need to properly generate a unique ID.
-  let evId = `ev${Math.trunc(Math.random() * 10000)}`;
+  let id = `ev${Math.trunc(Math.random() * 10000)}`;
 
   // Construct number, e.g. "2c"
   // 1. Ordinal value of resource in resource library, e.g. "2"
@@ -553,11 +555,11 @@ PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
   const count = String.fromCharCode(97 + numberOfEvLinks); // lower case for smaller footprint
 
   const number = String(prefix) + count;
-  a_evidence.push({ evId, propId: undefined, rsrcId, number, note });
+  a_evidence.push({ id, propId: undefined, rsrcId, number, note });
   PMCData.BuildModel();
 
   UTILS.RLog('EvidenceCreate', rsrcId); // note is empty at this point
-  return evId;
+  return id;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -585,7 +587,7 @@ PMCData.PMC_DuplicateEvidenceLink = evId => {
 PMCData.PMC_DeleteEvidenceLink = evId => {
   // Then delete the link(s)
   let i = a_evidence.findIndex(e => {
-    return e.evId === evId;
+    return e.id === evId;
   });
   a_evidence.splice(i, 1);
   PMCData.BuildModel();
@@ -623,9 +625,7 @@ PMCData.PMC_GetEvLinksByMechId = mechId => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Set propId to `undefined` to unlink
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
-  let evlink = a_evidence.find(item => {
-    return item.evId === evId;
-  });
+  let evlink = h_evidenceById.get(evId);
   evlink.propId = propId;
   evlink.mechId = undefined; // clear this in case it was set
   // Call BuildModel to rebuild hash tables since we've added a new propId
@@ -636,9 +636,7 @@ PMCData.SetEvidenceLinkPropId = (evId, propId) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
-  let evlink = a_evidence.find(item => {
-    return item.evId === evId;
-  });
+  let evlink = h_evidenceById.get(evId);
   evlink.mechId = mechId;
   evlink.propId = undefined; // clear this in case it was set
   // Call BuildModel to rebuild hash tables since we've added a new mechId
@@ -649,18 +647,14 @@ PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkNote = (evId, note) => {
-  let evlink = a_evidence.find(item => {
-    return item.evId === evId;
-  });
+  let evlink = h_evidenceById.get(evId);
   evlink.note = note;
   UR.Publish('DATA_UPDATED');
   UTILS.RLog('EvidenceSetNote', `Set evidence note to "${evlink.note}"`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkRating = (evId, rating) => {
-  let evlink = a_evidence.find(item => {
-    return item.evId === evId;
-  });
+  let evlink = h_evidenceById.get(evId);  
   if (evlink) {
     evlink.rating = rating;
     UR.Publish('DATA_UPDATED');

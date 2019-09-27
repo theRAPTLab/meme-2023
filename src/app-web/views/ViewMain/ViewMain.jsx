@@ -33,8 +33,6 @@ import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
 import EditIcon from '@material-ui/icons/Edit';
-import ZoomInIcon from '@material-ui/icons/ZoomIn';
-import ZoomOutIcon from '@material-ui/icons/ZoomOut';
 import MenuIcon from '@material-ui/icons/Menu';
 // MEME App Components
 import DescriptionView from '../../components/DescriptionView';
@@ -516,15 +514,6 @@ class ViewMain extends React.Component {
           <RatingsDialog />
           <MechDialog />
           <DescriptionView />
-          
-          <div style={{ position: "absolute", top: "70px", right: "320px" }}>
-            <Button onClick={() => console.log('zoom in')}>
-              <ZoomInIcon size="small" />
-            </Button>
-            <Button onClick={() => console.log('zoom out')}>
-              <ZoomOutIcon size="small" />
-            </Button>
-          </div>
         </main>
 
         {/* Resource Library */}

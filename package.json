@@ -28,7 +28,7 @@
     "@material-ui/icons": "^4.2.1",
     "@material-ui/lab": "^4.0.0-alpha.26",
     "@svgdotjs/svg.draggable.js": "^3.0.2",
-    "@svgdotjs/svg.js": "^3.0.12",
+    "@svgdotjs/svg.js": "^3.0.13",
     "ajv": "^6.10.0",
     "babel-polyfill": "^6.26.0",
     "bootstrap": "^4.3.1",

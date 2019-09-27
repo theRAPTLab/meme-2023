@@ -36,6 +36,10 @@ const styles = theme => {
       display: 'inline-flex',
       marginRight: m_resourceListWidth
     },
+    appBarRightExpanded: {
+      display: 'inline-flex',
+      marginRight: 0
+    },
     drawer: {
       width: m_drawerWidth,
       flexShrink: 0,

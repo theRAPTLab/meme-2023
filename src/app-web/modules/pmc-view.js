@@ -44,7 +44,10 @@ UR.Subscribe('PROP_MOVED', data => {
 PMCView.InitializeViewgraph = container => {
   m_element = container;
   m_svgroot = SVGJS(m_element);
-  m_svgroot.size(1000, 1000).panZoom();
+  m_svgroot
+    .size(1000, 1000)
+    .viewbox(0, 0, 1000, 1000)
+    .panZoom();
   // 1. This suggests that svg.panzoom.js is working -- we get a value, though "infinity" does seem strange
   console.error('zoom level is ', m_svgroot.zoom());
   // 2. Now uncommment out the next line.  When zoom is set to 1, all the objects disappear
@@ -184,7 +187,7 @@ PMCView.DefineDefs = svg => {
 /**
  * PRIVATE: Define named svg "symbols" for reuse in the view.
  * It shouldn't be called externally.
- * 
+ *
  * To get the path definitions from Material UI icons:
  * 1. Go to the icon page, e.g. https://material.io/resources/icons/?style=baseline
  * 2. Click on the icon

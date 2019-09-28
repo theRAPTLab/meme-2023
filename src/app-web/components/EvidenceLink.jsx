@@ -266,7 +266,7 @@ class EvidenceLink extends React.Component {
       if (DBG) console.log(PKG, 'selection changed propIds:', selectedPropIds);
       if (selectedPropIds.length > 0) {
         // Get the last selection
-        sourceId = Number( selectedPropIds[selectedPropIds.length - 1] );
+        sourceId = selectedPropIds[selectedPropIds.length - 1];
         DATA.SetEvidenceLinkPropId(this.props.evlink.id, sourceId);
         // leave it in a waiting state?  This allows you to change your mind?
         // REVIEW may want another way to exit / confirm the selection?

@@ -152,9 +152,9 @@ PMCData.InitializeModel = (model, resources) => {
     comments = comments || []; // allow empty comments
     a_evidence.push({
       id: String(id), // Model expects string ids
-      propId: String(propId),
-      mechId: String(mechId),
-      rsrcId: String(rsrcId),
+      propId: propId === undefined ? undefined : String(propId),
+      mechId: mechId === undefined ? undefined : String(mechId),
+      rsrcId: rsrcId === undefined ? undefined : String(rsrcId),
       number,
       rating,
       note,

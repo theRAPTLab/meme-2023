@@ -47,8 +47,7 @@ UR.Hook(__dirname, 'LOAD_ASSETS', () => {
         reject(`server says '${data.error}'`);
         return;
       }
-      adm_db = data;
-      ADMData.Load();
+      ADMData.InitializeData(data);
       resolve();
     });
   });
@@ -57,7 +56,7 @@ UR.Hook(__dirname, 'LOAD_ASSETS', () => {
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ADMData.Load = () => {
+ADMData.InitializeData = ( data ) => {
   // INITIALIZE SETTINGS
   adm_settings = {
     selectedTeacherId: '',

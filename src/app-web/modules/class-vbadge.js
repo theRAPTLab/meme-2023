@@ -99,9 +99,7 @@ class VBadge {
    * @param {*} vparent class-vprop or class-vmech
    */
   Update(vparent) {
-    // vparent's ids are strings because they're read from m-graph
-    // so convert to Number for lookup
-    const id = Number(vparent.id);
+    const id = vparent.id;
     if (m_IsVMech(vparent)) {
       // parent is a VMech
       this.evlinks = PMC.PMC_GetEvLinksByMechId(id);

@@ -151,10 +151,10 @@ PMCData.InitializeModel = (model, resources) => {
     let { id, propId, mechId, rsrcId, number, rating, note, comments } = ev;
     comments = comments || []; // allow empty comments
     a_evidence.push({
-      id,
-      propId,
-      mechId,
-      rsrcId,
+      id: String(id), // Model expects string ids
+      propId: String(propId),
+      mechId: String(mechId),
+      rsrcId: String(rsrcId),
       number,
       rating,
       note,
@@ -227,13 +227,10 @@ PMCData.BuildModel = () => {
 
   /*/
    *  Update h_evidenceByProp table
-   *  key is a Number
   /*/
   h_evidenceByProp = new Map();
   a_evidence.forEach(ev => {
     if (ev.propId === undefined) return; // Not a prop ev link
-    if (typeof ev.propId !== 'number') throw Error(`PMCData.BuildModel: ev.propId "${ev.propId}" must an integer`);
-
     let evidenceLinkArray = h_evidenceByProp.get(ev.propId);
     if (evidenceLinkArray === undefined) evidenceLinkArray = [];
     if (!evidenceLinkArray.includes(ev.propId)) evidenceLinkArray.push(ev);
@@ -609,28 +606,28 @@ PMCData.PMC_GetEvLinkByEvId = evId => {
 /** API.MODEL:
  *  Given the passed propid, returns evidence linked to the prop object.
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
- *  @param {Number} propId - if defined, id of the prop (aka `propId`)
+ *  @param {String} propId - if defined, id of the prop (aka `propId`)
  *  @return [evlinks] An array of evidenceLink objects
  */
 PMCData.PMC_GetEvLinksByPropId = propId => {
-  if (typeof propId !== 'number') throw Error('PMCData.PMC_GetEvLinksByPropId: "propId" must an integer');
   return h_evidenceByProp.get(propId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Given the passed mechId (mech object), returns evidence linked to the mech object.
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
- *  @param {string|undefined} mechId - if defined, mechId string of the prop (aka `propId`)
+ *  @param {String|undefined} mechId - if defined, mechId string of the prop (aka `propId`)
  *  @return [evlinks] An array of evidenceLink objects
  */
 PMCData.PMC_GetEvLinksByMechId = mechId => {
   return h_evidenceByMech.get(mechId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Set propId to `undefined` to unlink
+/**
+ *  @param {String} evId
+ *  @param {String||undefined} propId - Set propId to `undefined` to unlink
+ */
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
-  if (typeof evId !== 'number') throw Error('PMCData.SetEvidenceLinkPropId: "evId" must an integer');
-  if (propId !== undefined && typeof propId !== 'number') throw Error('PMCData.SetEvidenceLinkPropId: "propId" must an integer if not undefined');
   let evlink = h_evidenceById.get(evId);
   evlink.propId = propId;
   evlink.mechId = undefined; // clear this in case it was set

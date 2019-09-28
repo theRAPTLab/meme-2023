@@ -99,7 +99,9 @@ class VBadge {
    * @param {*} vparent class-vprop or class-vmech
    */
   Update(vparent) {
-    let id = vparent.id;
+    // vparent's ids are strings because they're read from m-graph
+    // so convert to Number for lookup
+    const id = Number(vparent.id);
     if (m_IsVMech(vparent)) {
       // parent is a VMech
       this.evlinks = PMC.PMC_GetEvLinksByMechId(id);
@@ -107,7 +109,6 @@ class VBadge {
     } else {
       // parent is VProp
       this.evlinks = PMC.PMC_GetEvLinksByPropId(id);
-      //console.log('id', id, 'isProp!',vparent,'evlinks are', this.evlinks);
     }
   }
 

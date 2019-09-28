@@ -227,10 +227,13 @@ PMCData.BuildModel = () => {
 
   /*/
    *  Update h_evidenceByProp table
+   *  key is a Number
   /*/
   h_evidenceByProp = new Map();
   a_evidence.forEach(ev => {
     if (ev.propId === undefined) return; // Not a prop ev link
+    if (typeof ev.propId !== 'number') throw Error(`PMCData.BuildModel: ev.propId "${ev.propId}" must an integer`);
+
     let evidenceLinkArray = h_evidenceByProp.get(ev.propId);
     if (evidenceLinkArray === undefined) evidenceLinkArray = [];
     if (!evidenceLinkArray.includes(ev.propId)) evidenceLinkArray.push(ev);
@@ -604,13 +607,14 @@ PMCData.PMC_GetEvLinkByEvId = evId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Given the passed propid (prop data object), returns evidence linked to the prop object.
+ *  Given the passed propid, returns evidence linked to the prop object.
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
- *  @param {string|undefined} nodeId - if defined, nodeId string of the prop (aka `propId`)
+ *  @param {Number} propId - if defined, id of the prop (aka `propId`)
  *  @return [evlinks] An array of evidenceLink objects
  */
-PMCData.PMC_GetEvLinksByPropId = propid => {
-  return h_evidenceByProp.get(propid);
+PMCData.PMC_GetEvLinksByPropId = propId => {
+  if (typeof propId !== 'number') throw Error('PMCData.PMC_GetEvLinksByPropId: "propId" must an integer');
+  return h_evidenceByProp.get(propId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:

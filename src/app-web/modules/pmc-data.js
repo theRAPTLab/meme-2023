@@ -629,6 +629,8 @@ PMCData.PMC_GetEvLinksByMechId = mechId => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Set propId to `undefined` to unlink
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
+  if (typeof evId !== 'number') throw Error('PMCData.SetEvidenceLinkPropId: "evId" must an integer');
+  if (propId !== undefined && typeof propId !== 'number') throw Error('PMCData.SetEvidenceLinkPropId: "propId" must an integer if not undefined');
   let evlink = h_evidenceById.get(evId);
   evlink.propId = propId;
   evlink.mechId = undefined; // clear this in case it was set

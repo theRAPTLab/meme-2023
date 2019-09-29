@@ -96,8 +96,7 @@ ADMData.InitializeData = ( data ) => {
     }
   });
   data.a_classroomResources = a_classroomResources;
-  console.error('convereted a_classroomResources', a_classroomResources);
-  
+
   adm_db = data;
 };
 

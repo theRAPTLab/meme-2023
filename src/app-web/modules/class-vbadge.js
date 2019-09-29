@@ -103,7 +103,6 @@ class VBadge {
     if (m_IsVMech(vparent)) {
       // parent is a VMech
       this.evlinks = PMC.PMC_GetEvLinksByMechId(id);
-      //console.error('id', id, 'isMech!', vparent, 'evlinks are', this.evlinks);
     } else {
       // parent is VProp
       this.evlinks = PMC.PMC_GetEvLinksByPropId(id);

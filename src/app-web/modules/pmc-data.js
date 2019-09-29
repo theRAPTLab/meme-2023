@@ -165,7 +165,12 @@ PMCData.InitializeModel = (model, resources) => {
   // Comments
   m.data.commentThreads = m.data.commentThreads || [];
   m.data.commentThreads.forEach(cm => {
-    a_commentThreads.push(cm);
+    let { id, refId, comments } = cm;
+    a_commentThreads.push({
+      id: String(id),
+      refId: String(refId),
+      comments
+    });
   });
 
   a_resources = resources || [];
@@ -675,12 +680,12 @@ PMCData.SetEvidenceLinkRating = (evId, rating) => {
 /// STICKIES //////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- * @param {string} id - id of Property or Mechanism
+ * @param {string} refId - id of Property or Mechanism
  * @return [array] Array of comment objects, or [] if none defined.
  */
-PMCData.GetComments = id => {
+PMCData.GetComments = refId => {
   const result = a_commentThreads.find(c => {
-    return c.id === id;
+    return c.refId === refId;
   });
   return result ? result.comments : [];
 };
@@ -717,7 +722,7 @@ PMCData.UpdateComments = (parentId, comments) => {
   let index;
   let commentThread;
   index = a_commentThreads.findIndex(c => {
-    return c.id === parentId;
+    return c.refId === parentId;
   });
   if (index > -1) {
     // existing comment
@@ -726,7 +731,11 @@ PMCData.UpdateComments = (parentId, comments) => {
     a_commentThreads.splice(index, 1, commentThread);
   } else {
     // new comment
-    commentThread = { id: parentId, comments };
+    // FIXME
+    // Temporarily insert a random numeric prop id
+    // This will get replaced with a server promise once that's implemented
+    const id = Math.trunc(Math.random() * 10000000000).toString();
+    commentThread = { id, refId: parentId, comments };
     a_commentThreads.push(commentThread);
   }
   UR.Publish('DATA_UPDATED');

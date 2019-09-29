@@ -204,19 +204,19 @@ function m_HandleMessage(msgEvent) {
     case 'msig':
       // network signal to raise
       if (dbgout) cout_ReceivedStatus(pkt);
-      ULINK.Signal(msg, data, { fromNet: true });
+      ULINK.LocalSignal(msg, data, { fromNet: true });
       pkt.ReturnTransaction();
       break;
     case 'msend':
       // network message received
       if (dbgout) cout_ReceivedStatus(pkt);
-      ULINK.Publish(msg, data, { fromNet: true });
+      ULINK.LocalPublish(msg, data, { fromNet: true });
       pkt.ReturnTransaction();
       break;
     case 'mcall':
       // network call received
       if (dbgout) cout_ReceivedStatus(pkt);
-      ULINK.Call(msg, data, { fromNet: true }).then(result => {
+      ULINK.LocalCall(msg, data, { fromNet: true }).then(result => {
         if (dbgout) cout_ForwardedStatus(pkt, result);
         // now return the packet
         pkt.SetData(result);

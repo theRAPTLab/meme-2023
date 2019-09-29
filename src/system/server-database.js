@@ -30,7 +30,9 @@ const DATASETPATH = PATH.join(__dirname, '/datasets/meme');
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 let m_options; // saved initialization options
 let m_db; // loki database
-const { DBKEYS, DBCMDS } = DATAMAP;
+const { DBKEYS, DBCMDS } = DATAMAP; // key lookup for incoming data packets
+let send_queue = []; // queue outgoing data
+let recv_queue = []; // queue incoming requests
 
 /// API METHODS ///////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -70,6 +72,8 @@ DB.InitializeDatabase = (options = {}) => {
   UNET.NetSubscribe('NET:SRV_DBUPDATE', DB.PKT_Update);
   UNET.NetSubscribe('NET:SRV_DBREMOVE', DB.PKT_Remove);
   UNET.NetSubscribe('NET:SRV_DBQUERY', DB.PKT_Query);
+  UNET.NetSubscribe('NET:SRV_DBSESSION', DB.PKT_Session);
+  // also we publish 'NET:SYSTEM_DBSYNC' { collection key arrays of change }
 
   // end of initialization code...following are local functions
 
@@ -152,6 +156,26 @@ function f_GetCollectionData(col) {
 }
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** Internal Helper:
+ * Utility that sends database synch changes to all subscribing clients.
+ * It is called whenever a change is written to the database.
+ */
+function m_DatabaseChangeEvent(dbEvent, data) {
+  if (!DBCMDS.includes(dbEvent)) throw Error(`unknown change event '{dbEvent}'`);
+  data.cmd = dbEvent;
+  // send data changes to all clients
+  UNET.NetPublish('NET:SYSTEM_DBSYNC', data);
+}
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API:
+ *
+ */
+DB.PKT_Session = pkt => {
+  console.log(PR, `Packet ${JSON.stringify(pkt.Data())}`);
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API:
  * Return the entire admin database structure. Used when initializing client
  * app.
@@ -205,19 +229,12 @@ DB.PKT_Add = pkt => {
     results[colName] = updated;
     console.log(PR, `ADDED: ${JSON.stringify(updated)}`);
   });
-
   // send update to network
   m_DatabaseChangeEvent('add', results, pkt);
   // return
   return results;
 };
 
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function m_DatabaseChangeEvent(dbEvent, data) {
-  if (!DBCMDS.includes(dbEvent)) throw Error(`unknown change event '{dbEvent}'`);
-  data.cmd = dbEvent;
-  UNET.NetPublish('NET:SRV_DB_CHANGE', data);
-}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API:
  * Update a collection.

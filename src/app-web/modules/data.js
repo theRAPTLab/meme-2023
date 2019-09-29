@@ -23,7 +23,11 @@ const ULINK = UR.NewConnection('data');
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 UR.Hook(__dirname, 'INITIALIZE', () => {
   console.log('*** INITIALIZING DATA ***');
-  ULINK.NetSubscribe('NET:SRV_DB_CHANGE', data => {
+  //
+  ULINK.NetSubscribe('NET:SYSTEM_DBSYNC', data => {
+    const cmd = data.cmd;
+    if (!cmd) throw Error('SYSTEM_DBSYNC packet missing cmd property');
+    const collections = DATAMAP.ExtractCollections(data);
     console.log(`*** got '${data.cmd}' command with data.changed:`, data);
   });
 });

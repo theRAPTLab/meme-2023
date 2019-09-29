@@ -261,6 +261,7 @@ B = calls BuildModel()
 D = publishes DATA_UPDATED
 S = publishes SELECTION_CHANGED
 
+    ---
     PMCData.Graph = ()
  D  PMCData.BuildModel = ()
     ---
@@ -274,31 +275,7 @@ B   PMCData.InitializeModel = (model, resources)
     PMCData.Prop = nodeId
     PMCData.PropParent = nodeId
     PMCData.Mech = (evo, ew)
-    PMCData.VM_GetVPropChanges = ()
-    PMCData.VM_VPropExists = nodeId
-    PMCData.VM_VProp = nodeId
-    PMCData.VM_VPropDelete = nodeId --- should be selection aware
-    PMCData.VM_VPropSet = (nodeId, vprop)
-    PMCData.VM_GetVMechChanges = () --- should use DATAMAP
-    PMCData.VM_VMechExists = (evo, ew)
-    PMCData.VM_VMech = (evo, ew)
-    PMCData.VM_VMechDelete = (evo, ew) --- should be selection aware
-    PMCData.VM_VMechSet = (vmech, evo, ew)
-  S PMCData.VM_SelectAddProp = vprop
-  S PMCData.VM_SelectProp = vprop
-    PMCData.VM_PropMouseEnter = vprop
-    PMCData.VM_PropMouseExit = vprop
-    PMCData.VM_PropsMouseOver = ()
-    PMCData.VM_SetSelectionLimit = max
-  S PMCData.VM_DeselectProp = vprop
-  S PMCData.VM_ToggleProp = vprop
-  S PMCData.VM_DeselectAllProps = ()
-    PMCData.VM_DeselectAllMechs = ()
-    PMCData.VM_DeselectAll = ()
-  S PMCData.VM_SelectOneMech = vmech
-  S PMCData.VM_ToggleMech = vmech
-    PMCData.VM_SelectedPropsIds = ()
-    PMCData.VM_SelectedMechIds = ()
+    ---
 B   PMCData.PMC_AddProp = node
 B   PMCData.PMC_SetPropParent = (node, parent)
 B   PMCData.PMC_PropDelete = propid
@@ -307,11 +284,12 @@ B   PMCData.PMC_MechUpdate = (origMech, newMech)
 B   PMCData.PMC_MechDelete = mechId
 B   PMCData.PMC_AddEvidenceLink = (rsrcId, note = '')
     PMCData.PMC_GetResourceIndex = rsrcId
-    PMCData.PMC_DuplicateEvidenceLink = evId
+B   PMCData.PMC_DuplicateEvidenceLink = evId
 B   PMCData.PMC_DeleteEvidenceLink = evId
     PMCData.PMC_GetEvLinkByEvId = evId
     PMCData.PMC_GetEvLinksByPropId = propid
     PMCData.PMC_GetEvLinksByMechId = mechId
+    ---
 B   PMCData.SetEvidenceLinkPropId = (evId, propId)
 B   PMCData.SetEvidenceLinkMechId = (evId, mechId)
  D  PMCData.SetEvidenceLinkNote = (evId, note)
@@ -321,4 +299,30 @@ B   PMCData.SetEvidenceLinkMechId = (evId, mechId)
  D  PMCData.UpdateComments = (parentId, comments)
     PMCData.GetPropIdsByResourceId = rsrcId
     PMCData.GetEvLinksByResourceId = rsrcId
+    ---
+    VMData.VM_GetVPropChanges = ()
+    VMData.VM_VPropExists = nodeId
+    VMData.VM_VProp = nodeId
+    VMData.VM_VPropDelete = nodeId --- should be selection aware
+    VMData.VM_VPropSet = (nodeId, vprop)
+    VMData.VM_GetVMechChanges = () --- should use DATAMAP
+    VMData.VM_VMechExists = (evo, ew)
+    VMData.VM_VMech = (evo, ew)
+    VMData.VM_VMechDelete = (evo, ew) --- should be selection aware
+    VMData.VM_VMechSet = (vmech, evo, ew)
+  S VMData.VM_SelectAddProp = vprop
+  S VMData.VM_SelectProp = vprop
+    VMData.VM_PropMouseEnter = vprop
+    VMData.VM_PropMouseExit = vprop
+    VMData.VM_PropsMouseOver = ()
+    VMData.VM_SetSelectionLimit = max
+  S VMData.VM_DeselectProp = vprop
+  S VMData.VM_ToggleProp = vprop
+  S VMData.VM_DeselectAllProps = ()
+    VMData.VM_DeselectAllMechs = ()
+    VMData.VM_DeselectAll = ()
+  S VMData.VM_SelectOneMech = vmech
+  S VMData.VM_ToggleMech = vmech
+    VMData.VM_SelectedPropsIds = ()
+    VMData.VM_SelectedMechIds = ()
 

@@ -12,7 +12,7 @@ import CENTRAL from './ur-central';
 import NetMessage from './common-netmessage';
 import PROMPTS from './util/prompts';
 
-const DBG = { connect: false, handle: true };
+const DBG = { connect: false, handle: false };
 
 /// DECLARATIONS /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

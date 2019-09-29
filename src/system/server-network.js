@@ -16,7 +16,7 @@ const PROMPTS = require('./util/prompts');
 
 /// DEBUG MESSAGES ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 
 const { TERM_NET: CLR, TR } = PROMPTS;
 const PR = `${CLR}${PROMPTS.Pad('UR_NET')}${TR}`;
@@ -220,7 +220,7 @@ function m_SocketAdd(socket) {
   mu_sockets.set(sid, socket);
   if (DBG) console.log(PR, `socket ADD ${socket.UADDR} to network`);
   LOGGER.Write(socket.UADDR, 'joined network');
-  if (DBG) console_ListSockets(`add ${sid}`);
+  if (DBG) log_ListSockets(`add ${sid}`);
 } // end m_SocketAdd()
 
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -294,7 +294,7 @@ function m_SocketDelete(socket) {
       if (handlers) handlers.delete(uaddr);
     });
   }
-  if (DBG) console_ListSockets(`del ${socket.UADDR}`);
+  if (DBG) log_ListSockets(`del ${socket.UADDR}`);
 } // end m_SoecketDelete()
 
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -315,7 +315,7 @@ async function m_HandleMessage(socket, pkt) {
   // of the original packet and the forwarded duplicate packet(s) that the server
   // recombines and returns to the original packet sender
   if (pkt.IsResponse()) {
-    // console.log(PR,`-- ${pkt.Message()} completing transaction ${pkt.seqlog.join(':')}`);
+    if (DBG) console.log(PR, `-- ${pkt.Message()} completing transaction ${pkt.seqlog.join(':')}`);
     pkt.CompleteTransaction();
     return;
   }
@@ -463,7 +463,7 @@ function m_PromiseRemoteHandlers(pkt) {
 
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // used by m_SocketAdd(), m_SocketDelete()
-function console_ListSockets(change) {
+function log_ListSockets(change) {
   console.log(PR, `socketlist changed: '${change}'`);
   // let's use iterators! for..of
   let values = mu_sockets.values();

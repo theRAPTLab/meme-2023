@@ -421,7 +421,11 @@ PMCData.Mech = (evo, ew) => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddProp = node => {
-  m_graph.setNode(node, { name: `${node}` });
+  // FIXME
+  // Temporarily insert a random numeric prop id
+  // This will get replaced with a server promise once that's implemented
+  const propId = Math.trunc(Math.random() * 10000000000).toString();
+  m_graph.setNode(propId, { name: `${node}` });
   PMCData.BuildModel();
   UTILS.RLog('PropertyAdd', node);
   return `added node ${node}`;

@@ -100,7 +100,7 @@ UNET.StartNetwork = () => {
  * @param {string} mesgName message to register a handler for
  * @param {function} handlerFunc function receiving 'data' object
  */
-UNET.Subscribe = (mesgName, handlerFunc) => {
+UNET.NetSubscribe = (mesgName, handlerFunc) => {
   if (typeof handlerFunc !== 'function') {
     throw Error('arg2 must be a function');
   }
@@ -110,7 +110,7 @@ UNET.Subscribe = (mesgName, handlerFunc) => {
     m_server_handlers.set(mesgName, handlers);
   }
   handlers.add(handlerFunc);
-}; // end Subscribe()
+}; // end NetSubscribe()
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** NetUnsubscribe() revokes a handler function from a registered message.

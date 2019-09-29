@@ -160,8 +160,9 @@ class MechDialog extends React.Component {
   DoSelectionChange() {
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (DBG) console.log('selection changed', selectedPropIds);
-
-    if (this.state.editExisting) {
+    // If both source and target have been defined, allow
+    // user to independently set each link
+    if (this.state.sourceId !== '' && this.state.targetId !== '') {
       /**
        * Edit Existing Mech
        *
@@ -220,16 +221,6 @@ class MechDialog extends React.Component {
       if (selectedPropIds.length > 1) {
         targetId = selectedPropIds[1];
         listenForTargetSelection = false;
-      }
-
-// FIXME: This conflates two uses of `editExisting` -- it means this is sent
-// to pmc as an update rather than a new mech add AND using it to determine
-// whether Link buttons are enabled
-      // If both source and target have been defined, we change the
-      // dialog to edit existing mode so that you can individually
-      // set each link
-      if (sourceId !== '' && targetId !== '') {
-        editExisting = true;
       }
 
       this.setState({

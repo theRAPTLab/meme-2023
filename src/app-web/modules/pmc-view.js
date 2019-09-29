@@ -299,7 +299,7 @@ PMCView.SyncModeSettings = () => {
  */
 PMCView.SyncPropsFromGraphData = () => {
   // if (DBG) console.groupCollapsed(`%c:SyncPropsFromGraphData()`, cssinfo);
-  const { added, removed, updated } = DATA.VM_GetVPropChanges();
+  const { added, removed, updated } = DATA.VM_GetVPropChanges(DATA.AllProps());
   removed.forEach(id => VProp.Release(id));
   added.forEach(id => VProp.New(id, m_svgroot)); // returns vprop instance but not using
   updated.forEach(id => VProp.Update(id));
@@ -319,7 +319,7 @@ PMCView.SyncPropsFromGraphData = () => {
 PMCView.SyncMechsFromGraphData = () => {
   // if (DBG) console.groupCollapsed(`%c:SyncMechsFromGraphData()`, cssinfo);
   // the following arrays contain pathIds
-  const { added, removed, updated } = DATA.VM_GetVMechChanges();
+  const { added, removed, updated } = DATA.VM_GetVMechChanges(DATA.AllMechs());
   removed.forEach(pathId => VMech.Release(pathId));
   added.forEach(pathId => VMech.New(pathId, m_svgroot));
   updated.forEach(pathId => VMech.Update(pathId));

@@ -30,7 +30,7 @@ const DATASETPATH = PATH.join(__dirname, '/datasets/meme');
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 let m_options; // saved initialization options
 let m_db; // loki database
-const DBKEYS = DATAMAP.DBKEYS;
+const { DBKEYS, DBCMDS } = DATAMAP;
 
 /// API METHODS ///////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -65,11 +65,11 @@ DB.InitializeDatabase = (options = {}) => {
   m_options.db_file = db_file; // store for use by DB.WriteJSON
 
   // register handlers
-  UNET.Subscribe('NET:SRV_DBGET', DB.PKT_GetDatabase);
-  UNET.Subscribe('NET:SRV_DBADD', DB.PKT_Add);
-  UNET.Subscribe('NET:SRV_DBUPDATE', DB.PKT_Update);
-  UNET.Subscribe('NET:SRV_DBDELETE', DB.PKT_Delete);
-  UNET.Subscribe('NET:SRV_DBQUERY', DB.PKT_Query);
+  UNET.NetSubscribe('NET:SRV_DBGET', DB.PKT_GetDatabase);
+  UNET.NetSubscribe('NET:SRV_DBADD', DB.PKT_Add);
+  UNET.NetSubscribe('NET:SRV_DBUPDATE', DB.PKT_Update);
+  UNET.NetSubscribe('NET:SRV_DBREMOVE', DB.PKT_Remove);
+  UNET.NetSubscribe('NET:SRV_DBQUERY', DB.PKT_Query);
 
   // end of initialization code...following are local functions
 
@@ -163,6 +163,12 @@ DB.PKT_GetDatabase = pkt => {
   DBKEYS.forEach(colname => {
     adm_db[`a_${colname}`] = f_GetCollectionData(colname);
   });
+  // START TOKEN TEST
+  let token = SESSION.MakeToken('Freddy', { groupId: 12, classroomId: 99 });
+  if (token) console.log(PR, `TEST: Made token '${token}'`);
+  const data = SESSION.DecodeToken(token);
+  if (data.isValid) console.log(PR, `TEST: Decoded token '${token}' to ${JSON.stringify(data)}`);
+  // END TOKEN TEST
   // return object for transaction; URSYS will automatically return
   // to the netdevice that called this
   return adm_db;
@@ -197,10 +203,21 @@ DB.PKT_Add = pkt => {
       .find({ id: { $in: insertedIds } })
       .data({ removeMeta: true });
     results[colName] = updated;
+    console.log(PR, `ADDED: ${JSON.stringify(updated)}`);
   });
-  // return the processed packet
+
+  // send update to network
+  m_DatabaseChangeEvent('add', results, pkt);
+  // return
   return results;
 };
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function m_DatabaseChangeEvent(dbEvent, data) {
+  if (!DBCMDS.includes(dbEvent)) throw Error(`unknown change event '{dbEvent}'`);
+  data.cmd = dbEvent;
+  UNET.NetPublish('NET:SRV_DB_CHANGE', data);
+}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API:
  * Update a collection.
@@ -234,8 +251,8 @@ DB.PKT_Update = pkt => {
         .find({ id: { $eq: id } })
         .update(item => {
           if (DBG) {
-            console.log(`updating ${JSON.stringify(item)}`);
-            console.log(`with ${JSON.stringify(ditem)}`);
+            console.log(PR, `updating ${JSON.stringify(item)}`);
+            console.log(PR, `with ${JSON.stringify(ditem)}`);
           }
           Object.assign(item, ditem);
         });
@@ -247,10 +264,13 @@ DB.PKT_Update = pkt => {
       .find({ id: { $in: updatedIds } })
       .data({ removeMeta: true });
     results[colName] = updated;
-    console.log(`result ${JSON.stringify(updated)}`);
+    console.log(PR, `UPDATE: ${JSON.stringify(updated)}`);
   }); // collections forEach
-  // return the processed packet
-  if (error) results.error = error;
+  // was there an error?
+  if (error) return { error };
+  // otherwise send update to network
+  m_DatabaseChangeEvent('update', results, pkt);
+  // return
   return results;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -260,9 +280,31 @@ DB.PKT_Update = pkt => {
  * The property values must be an id or array of ids
  * If the call fails, the error property will be set as well.
  * @param {NetMessage} pkt - packet with data object as described above
+ * @param {NetMessage} pkt.data - data containing parameters
  * @returns {Object} - data to return (including error if any)
  */
-DB.PKT_Delete = pkt => {};
+DB.PKT_Remove = pkt => {
+  const data = pkt.Data();
+  const results = {};
+  let error = '';
+  const collections = DATAMAP.ExtractCollections(data);
+  collections.forEach(entry => {
+    let [colName, idsToDelete] = entry;
+    const dbc = m_db.getCollection(colName);
+    // return deleted objects
+    const removed = dbc.chain().find({ id: { $in: idsToDelete } });
+    const matching = removed.branch().data({ removeMeta: true });
+    results[colName] = matching;
+    removed.remove();
+    console.log(PR, `REMOVED: ${JSON.stringify(matching)}`);
+  }); // collections forEach
+  // was there an error?
+  if (error) return { error };
+  // otherwise send update to network
+  m_DatabaseChangeEvent('remove', results, pkt);
+  // return
+  return results;
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API:
  * Query elements.
@@ -274,7 +316,9 @@ DB.PKT_Delete = pkt => {};
  * @param {NetMessage} pkt - packet with data object as described above
  * @returns {Object} - data to return (including error if any)
  */
-DB.PKT_Query = pkt => {};
+DB.PKT_Query = pkt => {
+  return { error: 'query is unimplemented' };
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Given a root word, create a full pathname to .loki file in the runtime path.

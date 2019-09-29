@@ -50,11 +50,11 @@ URSYS.Initialize = (options = {}) => {
  */
 URSYS.RegisterHandlers = () => {
   // start logging message
-  UNET.Subscribe('NET:SRV_LOG_EVENT', LOGGER.PKT_LogEvent);
+  UNET.NetSubscribe('NET:SRV_LOG_EVENT', LOGGER.PKT_LogEvent);
   LOGGER.Write(LPR, `registering network services`);
 
   // basic reflection test
-  UNET.Subscribe('NET:SRV_REFLECT', pkt => {
+  UNET.NetSubscribe('NET:SRV_REFLECT', pkt => {
     // get reference to modify
     const data = pkt.Data();
     const props = Object.keys(data);
@@ -76,7 +76,7 @@ URSYS.RegisterHandlers = () => {
   });
 
   // register remote messages
-  UNET.Subscribe('NET:SRV_REG_HANDLERS', pkt => {
+  UNET.NetSubscribe('NET:SRV_REG_HANDLERS', pkt => {
     if (DBG) console.log(PR, sprint_message(pkt));
     // now need to store the handlers somehow.
     let data = UNET.RegisterRemoteHandlers(pkt);

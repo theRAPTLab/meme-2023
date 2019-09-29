@@ -727,9 +727,7 @@ PMCData.UpdateComments = (parentId, comments) => {
   } else {
     // new comment
     commentThread = { id: parentId, comments };
-    console.error('adding new commentThread', commentThread);
     a_commentThreads.push(commentThread);
-    console.table(a_commentThreads);
   }
   UR.Publish('DATA_UPDATED');
 };

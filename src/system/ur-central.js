@@ -94,13 +94,21 @@ const SetVal = (key, value) => {
   binding.setValue(value);
 };
 
-/// INITIALIZE UR PARAMS //////////////////////////////////////////////////////
+/// UR PARAMS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// URSYS parameters are defined in the startup html.
 /// Copy them into URCENTRAL officially
-if (window.URSESSION) {
-  Define('ur_session', window.URSESSION);
-}
+if (!window.URSESSION) window.URSESSION = {};
+Define('ur_session', window.URSESSION);
+if (!window.ur) window.ur = {};
+Define('ur', window.ur);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBGUR = param => {
+  const obj = GetVal('ur');
+  if (param === undefined) return obj;
+  return obj[param];
+};
+
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default { Define, GetVal, SetVal };
+export default { Define, GetVal, SetVal, DBGUR };

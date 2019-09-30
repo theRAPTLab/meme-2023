@@ -550,8 +550,7 @@ PMCData.PMC_MechDelete = mechId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
-  
-// Retrieve from db?!?  
+  // Retrieve from db?!?
   // HACK!  FIXME!  Need to properly generate a unique ID.
   let id = `ev${Math.trunc(Math.random() * 10000)}`;
 
@@ -666,7 +665,7 @@ PMCData.SetEvidenceLinkNote = (evId, note) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkRating = (evId, rating) => {
-  let evlink = h_evidenceById.get(evId);  
+  let evlink = h_evidenceById.get(evId);
   if (evlink) {
     evlink.rating = rating;
     UR.Publish('DATA_UPDATED');

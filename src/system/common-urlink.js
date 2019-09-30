@@ -158,9 +158,9 @@ class URLink {
   Call(mesgName, inData = {}, options = {}) {
     options = Object.assign(options, { type: 'mcall' });
     options.srcUID = this.UID();
-    // return data
-    let rdata = MESSAGER.CallAsync(mesgName, inData, options);
-    return rdata;
+    // returns promise that resolves to data object
+    let result = MESSAGER.CallAsync(mesgName, inData, options);
+    return result;
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -192,7 +192,7 @@ class URLink {
     options = Object.assign(options, { type: 'mcall' });
     options.toLocal = true;
     options.toNet = false;
-    // returns data object
+    // returns promise that resolve to data object
     return this.Call(mesgName, inData, options);
   }
 
@@ -223,7 +223,7 @@ class URLink {
     options = Object.assign(options, { type: 'mcall' });
     options.toLocal = false;
     options.toNet = true;
-    // returns data
+    // returns promise that resolve to data object
     return this.Call(mesgName, inData, options);
   }
 
@@ -270,23 +270,26 @@ class URLink {
     } else {
       messages = MESSAGER.NetMessageNames();
     }
-    // returns data
-    return this.NetCall('NET:SRV_REG_HANDLERS', { messages });
+    // returns promise that resolve to data object
+    const result = this.NetCall('NET:SRV_REG_HANDLERS', { messages });
+    return result;
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /**
-   * Perform data operation to server
+   * Perform data operation to server. Do not call directly, but use
+   * UR.WriteDB(cmd,data)
    * @example
    * DATAMAP.WriteDB('add', { teachers: { name: 'NewTeacher' }});
    */
-  WriteDB(cmd, data) {
+  _WriteDB(cmd, data) {
     const opmsg = DATAMAP.GetCommandMessage(cmd);
     if (!opmsg) return Promise.reject(`invalid operation '${cmd}'`);
-    if (data.cmd) return Promise.reject(`do not include cmnd prop in data pack`);
+    if (data.cmd) return Promise.reject(`do not include 'cmd' prop in data pack`);
+    if (!data.key) return Promise.reject(`data must have access key 'key' defined`);
     data.cmd = cmd;
     if (!DATAMAP.ValidateCollections(data)) return Promise.reject(`no-op: no valid collections`);
     // got this far, so let's do the call!
-    // returns a data object
+    // returns promise that resolve to data object
     return this.NetCall(opmsg, data);
   }
 } // class URLink

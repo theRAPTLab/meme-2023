@@ -66,6 +66,15 @@ const { Call, Signal } = ULINK;
 const { NetPublish, NetSubscribe, NetUnsubscribe } = ULINK;
 const { NetCall, NetSignal } = ULINK;
 
+function WriteDB(cmd, data) {
+  if (!data.key) {
+    const { SESSION_Key } = CENTRAL.GetVal('ur_session');
+    console.log('setting access key', SESSION_Key);
+    data.key = SESSION_Key;
+  }
+  return ULINK._WriteDB(cmd, data);
+}
+
 const { Define, GetVal, SetVal } = CENTRAL;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -100,6 +109,7 @@ const UR = {
   NetUnsubscribe, // ULINK
   NetCall, // ULINK
   NetSignal, // ULINK
+  WriteDB, // ULINK
   Define, // CENTRAL
   GetVal, // CENTRAL
   SetVal, // CENTRAL
@@ -112,6 +122,8 @@ const UR = {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};
 window.ur.SESSION = SESSION;
+window.ur.LINK = ULINK;
+window.ur.WriteDB = WriteDB;
 window.ur.tnc = (msg, data) => {
   NetCall(msg, data).then(rdata => {
     console.log(`netcall '${msg}' returned`, rdata);

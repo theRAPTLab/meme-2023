@@ -37,6 +37,7 @@ const UUID_NAMESPACE = '1abc839d-b04f-481e-87fe-5d69bd1907b2';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let m_current_name = undefined; // global decoded name (only for browsers)
 let m_current_idsobj = {}; // global decoded props (only for browsers)
+let m_access_key = ''; // global access key (saved only for browsers)
 
 /// SESSION ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -156,6 +157,31 @@ SESSION.DecodeAndSet = token => {
     };
   }
   return isValid;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Clear all global session parameters. Do not use from server-based code.
+ */
+SESSION.Clear = () => {
+  m_current_name = undefined;
+  m_current_idsob = undefined;
+  m_access_key = undefined;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Set the global SESSION ACCESS KEY, which is necessary as a parameter for
+ * some operations (e.g. database writes). Do not use from server-based code.
+ */
+SESSION.SetAccessKey = key => {
+  if (typeof key === 'string') m_access_key = key;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Return the global SESSION ACCESS KEY that was set using SetAccessKey(). Don't
+ * use this from server-based code.
+ */
+SESSION.AccessKey = () => {
+  return m_access_key;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**

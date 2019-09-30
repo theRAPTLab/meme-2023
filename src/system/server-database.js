@@ -158,9 +158,9 @@ function f_GetCollectionData(col) {
  * Utility that sends database synch changes to all subscribing clients.
  * It is called whenever a change is written to the database.
  */
-function m_DatabaseChangeEvent(dbEvent, data) {
-  if (!DBCMDS.includes(dbEvent)) throw Error(`unknown change event '{dbEvent}'`);
-  data.cmd = dbEvent;
+function m_DatabaseChangeEvent(cmd, data) {
+  if (!DATAMAP.ValidateCommand(cmd)) throw Error(`unknown change event '{cmd}'`);
+  data.cmd = cmd;
   // send data changes to all clients
   UNET.NetPublish('NET:SYSTEM_DBSYNC', data);
 }

@@ -140,7 +140,7 @@ DataMap.GetCommandMessage = command => DBCMDS.get(command);
 DataMap.ExtractCollections = data => {
   let collections = [];
   // always push an array
-  DBKEYS.forEach(key => {
+  Object.keys(data).forEach(key => {
     // only return keys that match a collection name
     if (!DBKEYS.includes(key)) return;
     // extract the collection
@@ -157,7 +157,6 @@ DataMap.ExtractCollections = data => {
  * @param {string} data - data object
  */
 DataMap.ValidateCollections = data => {
-  console.log('VALIDATE', data);
   let count = 0;
   Object.keys(data).forEach(key => {
     // only return keys that match a collection name

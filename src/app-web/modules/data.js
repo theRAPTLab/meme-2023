@@ -27,8 +27,21 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
   ULINK.NetSubscribe('NET:SYSTEM_DBSYNC', data => {
     const cmd = data.cmd;
     if (!cmd) throw Error('SYSTEM_DBSYNC packet missing cmd property');
+    if (!DATAMAP.ValidateCommand(cmd)) throw Error(`SYSTEM_DBSYNC unrecognized command '${cmd}'`);
+    //
     const collections = DATAMAP.ExtractCollections(data);
-    console.log(`*** got '${data.cmd}' command with data.changed:`, data);
+    switch (cmd) {
+      case 'add':
+        PMC.SyncAddedData(collections);
+        break;
+      case 'update':
+        PMC.SyncUpdatedData(collections);
+        break;
+      case 'remove':
+        PMC.SyncRemovedData(collections);
+        break;
+    }
+    console.log(`*** got '${cmd}' command with data.changed:`, data);
   });
 });
 
@@ -38,15 +51,16 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 const MOD = Object.assign({ ...ADM }, { ...PMC }, { ...VM });
 const MIR = {};
 
-/// OVERRIDE SELECT ADM DATA METHODS //////////////////////////////////////////
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+                                A D M - D A T A
+                                O V E R R I D E
+\* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.AddTeacher = name => {
-  return new Promise((resolve, reject) => {
-    UR.NetCall('NET:SRV_DBADD', {
-      teachers: { name }
-    })
-      .then(rdata => resolve(rdata))
-      .catch(error => reject(error));
+  return UR.NetCall('NET:SRV_DBADD', {
+    teachers: { name },
+    key: SESSION.AccessKey()
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -130,6 +144,12 @@ MIR.DeleteStudent = (groupId, student) => {
       .catch(err => reject(err));
   });
 };
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+                                P M C - D A T A
+                                O V E R R I D E
+\* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.Login = loginToken => {
   return new Promise((resolve, reject) => {
@@ -141,6 +161,9 @@ MIR.Login = loginToken => {
       console.log('updating URSESSION with session data');
       urs.SESSION_Token = rdata.token;
       urs.SESSION_Key = rdata.key;
+      // also save globally
+      SESSION.DecodeAndSet(rdata.token);
+      SESSION.SetAccessKey(rdata.key);
       resolve(rdata);
     });
   }).catch(err => reject(err));
@@ -158,6 +181,7 @@ MIR.Logout = () => {
       if (urs.SESSION_Token && urs.SESSION_Key) {
         urs.SESSION_Token = '';
         urs.SESSION_Key = '';
+        SESSION.Clear();
       } else throw Error('URSESSION key or token was not set');
       resolve(rdata);
     });
@@ -227,6 +251,7 @@ window.ur.tupg = id => {
 window.ur.taddt = name => {
   MIR.AddTeacher(name).then(data => {
     console.log('addteacher', data);
+    const teacher = data.teachers[0];
     UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
   });
 };

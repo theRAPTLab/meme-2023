@@ -221,7 +221,7 @@ UNET.PKT_RegisterRemoteHandlers = pkt => {
       entry = new Set();
       m_remote_handlers.set(msg, entry);
     }
-    if (DBG) console.log(PR, `${uaddr} reg= '${msg}'`);
+    if (DBG) console.log(PR, `${uaddr} regr '${msg}'`);
     entry.add(uaddr);
     regd.push(msg);
   });
@@ -243,7 +243,8 @@ UNET.PKT_SessionLogin = pkt => {
   const uaddr = pkt.SourceAddress();
   const sock = m_SocketLookup(uaddr);
   if (!sock) throw Error(`uaddr '${uaddr}' not associated with a socket`);
-  if (sock.USESS) return { error: `socket '${uaddr}' already has a session '${USESS}'` };
+  if (sock.USESS)
+    return { error: `socket '${uaddr}' already has a session '${JSON.stringify(sock.USESS)}'` };
   const { token } = pkt.Data();
   if (!token || typeof token !== 'string') return { error: `must provide token string` };
   const decoded = SESSION.DecodeToken(token);
@@ -251,6 +252,7 @@ UNET.PKT_SessionLogin = pkt => {
   const key = SESSION.MakeAccessKey(token, uaddr);
   sock.USESS = decoded;
   sock.UKEY = key;
+  if (DBG) console.log(PR, `${uaddr} lgon '${decoded.token}'`);
   return { status: 'logged in', success: true, token, uaddr, key };
 };
 
@@ -279,17 +281,23 @@ UNET.PKT_Session = pkt => {
   const uaddr = pkt.SourceAddress();
   const sock = m_SocketLookup(uaddr);
   if (!sock) {
-    if (DBG) console.log(PR, `Session: ${uaddr} impossible socket lookup failure`);
+    if (DBG) console.log(PR, `${uaddr} impossible socket lookup failure`);
     return { error: `${uaddr} impossible socket lookup failure` };
   }
   if (!sock.USESS) {
-    if (DBG) console.log(PR, `Session: sock.${uaddr} is not logged-in`);
+    if (DBG) console.log(PR, `${uaddr} is not logged-in`);
     return { error: `sock.${uaddr} is not logged-in` };
   }
   const { key } = pkt.Data();
+  if (!key) {
+    if (DBG) console.log(PR, `${uaddr} access key is not set`);
+    return { error: `sock.${uaddr} access key is not set` };
+  }
   if (key !== sock.UKEY) {
-    if (DBG) console.log(PR, `Session: sock.${uaddr} keys do not match packet`);
-    return { error: `sock.${uaddr} keys do not match packet` };
+    if (DBG) {
+      console.log(PR, `Session: sock.${uaddr} keys do not match packet '${sock.UKEY}' '${key}'`);
+    }
+    return { error: `sock.${uaddr} access keys do not match '${sock.UKEY}' '${key}'` };
   }
   // passes all tests, so its good!
   return sock.USESS;

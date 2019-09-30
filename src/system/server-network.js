@@ -258,16 +258,16 @@ UNET.PKT_SessionLogin = pkt => {
  */
 UNET.PKT_SessionLogout = pkt => {
   if (pkt.Message() !== 'NET:SRV_SESSION_LOGOUT') throw Error('not a session logout packet');
-  if (!UNET.Authenticate(pkt)) return { error: `socket '${uaddr}' was never logged-in'` };
+  const uaddr = pkt.SourceAddress();
+  const sock = m_SocketLookup(uaddr);
+  const { key } = pkt.Data();
+  if (sock.UKEY !== key) return { error: `uaddr '${uaddr}' key '${key}'!=='${sock.UKEY}'` };
   sock.UKEY = undefined;
   sock.USESS = undefined;
   return { status: 'logged out', success: true };
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** Authenticate a NetMessage package by looking up its SourceAddress (uaddr)
- * and seeing if it has a valid key, indicating that it's logged in. Returns
- * decoded information in the session object, otherwise it just has an 'error'
- * property
+/** Return a session object based on the passed packet's stored credentials
  */
 UNET.PKT_Session = pkt => {
   const uaddr = pkt.SourceAddress();

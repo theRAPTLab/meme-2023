@@ -166,7 +166,8 @@ DataMap.ValidateCollections = data => {
     // make sure values of type array contains only objects
     if (Array.isArray(values)) {
       values.forEach(element => {
-        if (typeof element === 'object') return;
+        if (typeof element === 'object') return; // objects for add/update
+        if (typeof element === 'number') return; // numeric ids for delete
         throw Error(`collection array '${key}' must contain objects`);
       });
       count++;

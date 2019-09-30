@@ -77,12 +77,8 @@ MIR.AddGroup = groupName => {
 /// this is a test routine; no ADMData routines require a delete group
 /// so this is here to just provide a stub.
 MIR.DeleteGroup = groupId => {
-  return new Promise((resolve, reject) => {
-    UR.NetCall('NET:SRV_DBREMOVE', {
-      groups: [groupId]
-    })
-      .then(rdata => resolve(rdata))
-      .catch(error => reject(error));
+  return UR.WriteDB('remove', {
+    groups: [groupId]
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -124,14 +120,7 @@ MIR.DeleteStudent = (groupId, student) => {
   // Remove the student
   group.students = group.students.filter(stu => student !== stu);
   // Now update groups, returning promise
-  return new Promise((resolve, reject) => {
-    MIR.UpdateGroup(groupId, group)
-      .then(rdata => {
-        resolve(rdata);
-        // FIRES 'ADM_DATA_UPDATED'
-      })
-      .catch(err => reject(err));
-  });
+  return MIR.UpdateGroup(groupId, group);
 };
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
@@ -260,14 +249,16 @@ window.ur.tdels = (groupId, student) => {
     // FIRES 'ADM_DATA_UPDATED'
     UR.Publish('ADM_DATA_UPDATED');
   });
+  return `deleting student  ${student} from group ${groupId}`;
 };
 // test remove group
-window.ur.trmg = (groupId, student) => {
+window.ur.trmg = groupId => {
   MIR.DeleteGroup(groupId).then(data => {
     console.log('deletegroup', data);
     // FIRES 'ADM_DATA_UPDATED'
     UR.Publish('ADM_DATA_UPDATED');
   });
+  return `deleting group ${groupId}`;
 };
 // test login
 window.ur.tlogin = token => {

@@ -92,7 +92,7 @@ DEFAULTS.CoerceToPathId = (vso, ws) => {
  *  ...always return an EdgeObject suitable for use by `dagres/graphlib`.
  * @param {string|object} vso - a PMC pathId, edgeObj, or source nodeId
  * @param {string} ws - the targetNodeId, if `vso` is also a string
- * @returns {object} - object of shape { w, v }
+ * @returns {object} - object of shape { w, v } where w and v are strings
  */
 DEFAULTS.CoerceToEdgeObj = (vso, ws) => {
   const ptype = typeof vso;
@@ -102,9 +102,8 @@ DEFAULTS.CoerceToEdgeObj = (vso, ws) => {
       // this is probably a regular pathid
       let bits = vso.split(':');
       if (bits.length !== 2) throw Error(`pathId parse error. Check delimiter char`);
-      const v = parseInt(bits[0]);
-      const w = parseInt(bits[1]);
-      if (isNaN(v) || isNaN(w)) throw Error(`pathId ${v}:${w} is not a number`);
+      const v = bits[0];
+      const w = bits[1];
       return { v, w };
     }
     // this might be v,w
@@ -114,7 +113,8 @@ DEFAULTS.CoerceToEdgeObj = (vso, ws) => {
     return vso; // this is already an edgeobj
   }
   if (ptype === 'number' && wtype === 'number') {
-    return { v: vso, w: ws };
+    // convert to strings because outside of db, all ids are strings to match m_graph
+    return { v: String(vso), w: String(ws) };
   }
 
   throw Error('can not conform');

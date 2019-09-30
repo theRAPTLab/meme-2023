@@ -125,14 +125,25 @@ MIR.DeleteStudent = (groupId, student) => {
     MIR.UpdateGroup(groupId, group)
       .then(rdata => {
         resolve(rdata);
+        // FIRES 'ADM_DATA_UPDATED'
       })
       .catch(err => reject(err));
   });
 };
-// FIRES 'ADM_DATA_UPDATED'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.Login = loginId => {
-  // FIRES 'ADM_DATA_UPDATED'
+MIR.Login = loginToken => {
+  return new Promise((resolve, reject) => {
+    UR.NetCall('NET:SRV_SESSION_LOGIN', { token: loginToken }).then(rdata => {
+      console.log('login', rdata);
+      if (rdata.error) throw Error(rdata.error);
+      if (window.URSESSION) {
+        console.log('updating URSESSION with session data');
+        window.URSESSION.SESSION_Token = rdata.token;
+        window.URSESSION.SESSION_Key = rdata.key;
+      }
+      resolve(rdata);
+    });
+  }).catch(err => reject(err));
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.Logout = () => {};
@@ -226,6 +237,13 @@ window.ur.trmg = (groupId, student) => {
     // FIRES 'ADM_DATA_UPDATED'
     UR.Publish('ADM_DATA_UPDATED');
   });
+};
+// test login
+window.ur.tlogin = token => {
+  MIR.Login(token).then(() => {
+    window.ur.clientinfo();
+  });
+  return 'logging in...';
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

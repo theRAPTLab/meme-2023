@@ -186,10 +186,10 @@ MIR.SetEvidenceLinkMechId = (evId, mechId) => {}; // a_evidence.find() evidence
 
 /// DEBUG /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-window.mdat = MIR;
+if (!window.ur) window.ur = {};
+window.ur.DATATEST = MIR;
 // test update group
-window.mdat.tupg = id => {
+window.ur.tupg = id => {
   const g = ADM.GetGroup(id);
   g.name = `${g.name}${g.name}`;
   MIR.UpdateGroup(id, g).then(data => {
@@ -197,14 +197,14 @@ window.mdat.tupg = id => {
   });
 };
 // test add teacher
-window.mdat.taddt = name => {
+window.ur.taddt = name => {
   MIR.AddTeacher(name).then(data => {
     console.log('addteacher', data);
     UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
   });
 };
 // test add students to group
-window.mdat.tadds = (groupId, students) => {
+window.ur.tadds = (groupId, students) => {
   MIR.AddStudents(groupId, students).then(data => {
     console.log('addstudents', data);
     // FIRES 'ADM_DATA_UPDATED'
@@ -212,7 +212,7 @@ window.mdat.tadds = (groupId, students) => {
   });
 };
 // test delete student from group
-window.mdat.tdels = (groupId, student) => {
+window.ur.tdels = (groupId, student) => {
   MIR.DeleteStudent(groupId, student).then(data => {
     console.log('deletestudent', data);
     // FIRES 'ADM_DATA_UPDATED'
@@ -220,15 +220,13 @@ window.mdat.tdels = (groupId, student) => {
   });
 };
 // test remove group
-window.mdat.trmg = (groupId, student) => {
+window.ur.trmg = (groupId, student) => {
   MIR.DeleteGroup(groupId).then(data => {
     console.log('deletegroup', data);
     // FIRES 'ADM_DATA_UPDATED'
     UR.Publish('ADM_DATA_UPDATED');
   });
 };
-// test sessions
-window.ses = SESSION;
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

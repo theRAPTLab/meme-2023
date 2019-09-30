@@ -1,19 +1,22 @@
 /* eslint-disable no-param-reassign */
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-    Session Utilities
-    collection of session-related data structures
+  Session Utilities
+  collection of session-related data structures
 
-    For student logins, we just need to encode the groupId, which will give
-    us the classroomId. We also need the name, which is not encoded, but
-    can be checked against the groups database.
+  For student logins, we just need to encode the groupId, which will give
+  us the classroomId. We also need the name, which is not encoded, but
+  can be checked against the groups database.
 
-    <NAME>-HASHED_DATA
-    where HASHED_DATA encodes groupId, classroomId
+  <NAME>-HASHED_DATA
+  where HASHED_DATA encodes groupId, classroomId
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
+/// SYSTEM LIBRARIES //////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const HashIds = require('hashids').default;
+const UUIDv5 = require('uuid/v5');
 const PROMPTS = require('../system/util/prompts');
 
 /// DEBUGGING /////////////////////////////////////////////////////////////////
@@ -21,25 +24,29 @@ const PROMPTS = require('../system/util/prompts');
 const DBG = false;
 const PR = PROMPTS.Pad('SESSUTIL');
 
-/// SYSTEM LIBRARIES //////////////////////////////////////////////////////////
+/// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-/// MODULE DEFS ///////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-let SESUTIL = {};
+/// HASH_* are used as parameters for hashids (login tokens)
 const HASH_ABET = 'ABCDEFGHIJKLMNPQRSTVWXYZ23456789';
 const HASH_MINLEN = 3;
 const HASH_SALT = 'MEMESALT/2019';
-let m_current_name = undefined;
-let m_current_idsobj = {};
+/// UUID_NAMESPACE was arbitrarily generated with 'npx uuid v4' (access keys)
+const UUID_NAMESPACE = '1abc839d-b04f-481e-87fe-5d69bd1907b2';
+
+/// MODULE DECLARATIONS ///////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+let m_current_name = undefined; // global decoded name (only for browsers)
+let m_current_idsobj = {}; // global decoded props (only for browsers)
 
 /// SESSION ///////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+let SESSION = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Given a token of form NAME-HASHED_DATA, return an object
     containing as many decoded values as possible. Check isValid for
     complete decode succes. groupId is also set if successful
 /*/
-SESUTIL.DecodeToken = token => {
+SESSION.DecodeToken = token => {
   let tokenBits = token.split('-');
   let studentName, hashedData; // token
   let groupId, classroomId; // decoded data
@@ -71,8 +78,8 @@ SESUTIL.DecodeToken = token => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Return TRUE if the token decodes into an expected range of values
 /*/
-SESUTIL.IsValidToken = token => {
-  let decoded = SESUTIL.DecodeToken(token);
+SESSION.IsValidToken = token => {
+  let decoded = SESSION.DecodeToken(token);
   return decoded && Number.isInteger(decoded.groupId) && typeof decoded.studentName === 'string';
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -83,7 +90,7 @@ SESUTIL.IsValidToken = token => {
  * @param {Number} dataIds.groupId
  * @param {Number} dataIds.classroomId
  */
-SESUTIL.MakeToken = (studentName, dataIds = {}) => {
+SESSION.MakeToken = (studentName, dataIds = {}) => {
   // type checking
   if (typeof studentName !== 'string') throw Error(`classId arg1 '${studentName}' must be string`);
   let err;
@@ -122,13 +129,24 @@ SESUTIL.MakeToken = (studentName, dataIds = {}) => {
     return error;
   }
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** Makes a 'access key' that is not very secure, but unique enough to serve
+ * as an authentication key based on a login token
+ * @param {...*} var_args - string arguments
+ */
+SESSION.MakeAccessKey = (/* args */) => {
+  const name = [...arguments].join(':');
+  const key = UUIDv5(name, UUID_NAMESPACE);
+  return key;
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ Set the global GROUPID, which is included in all NetMessage
-    packets that are sent to server.
-/*/
-SESUTIL.DecodeAndSet = token => {
-  const decoded = SESUTIL.DecodeToken(token);
+/**
+ * Set the global GROUPID, which is included in all NetMessage packets that are
+ * sent to server. Do not use from server-based code.
+ */
+SESSION.DecodeAndSet = token => {
+  const decoded = SESSION.DecodeToken(token);
   const { isValid, studentName, groupId, classroomId } = decoded;
   if (isValid) {
     m_current_name = studentName;
@@ -140,14 +158,27 @@ SESUTIL.DecodeAndSet = token => {
   return isValid;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SESUTIL.StudentName = () => {
+/**
+ * Return the global StudentName that was set using DecodeAndSet(). Don't use
+ * this from server-based code.
+ */
+SESSION.StudentName = () => {
   return m_current_name;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SESUTIL.Ids = () => {
+/**
+ * Return the global idsObject containing groupId, classroomId that was set
+ * using DecodeAndSet(). Don't use this from server-based code.
+ */
+SESSION.Ids = () => {
   return m_current_idsobj;
 };
 
+/// DEBUG /////////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if (!window.ur) window.ur = {};
+window.ur.SESSION = SESSION;
+
 /// EXPORT MODULE /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-module.exports = SESUTIL;
+module.exports = SESSION;

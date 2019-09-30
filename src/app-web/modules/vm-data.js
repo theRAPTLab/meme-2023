@@ -15,7 +15,7 @@ let max_selections = 1; // Limit the number of objects that can be selected simu
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 const PKG = 'VMDATA';
 const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
 const MOD = {};

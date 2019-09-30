@@ -143,11 +143,6 @@ PMCView.TestGroups = () => {
     .fill({ color: 'blue' })
     .center(grx + 50, gry + 50);
   gr.add(grc);
-
-  console.groupEnd();
-  /* GLOBALS */
-  window.gt = gt;
-  window.gm = gm;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -358,8 +353,10 @@ PMCView.UpdateView = () => {
   // if (DBG) console.groupEnd();
 };
 
-/*/ DEBUG OBJECT /*/
-window.PMC = PMCView;
+/// DEBUG /////////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if (!window.ur) window.ur = {};
+window.ur.PMCVIEW = PMCView;
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -204,6 +204,12 @@ UNET.PKT_RegisterRemoteHandlers = pkt => {
   if (pkt.Message() !== 'NET:SRV_REG_HANDLERS') throw Error('not a registration packet');
   let uaddr = pkt.SourceAddress();
   let { messages = [] } = pkt.Data();
+  // make sure there's no sneaky attempt to subvert the system messages
+  const filtered = messages.filter(msg => !msg.startsWith('NET:SRV'));
+  if (filtered.length !== messages.length) {
+    console.log(PR, `${uaddr} blocked from registering SRV message`);
+    return { error: `do not register system or server messages` };
+  }
   let regd = [];
   // save message list, for later when having to delete
   m_socket_msgs_list.set(uaddr, messages);
@@ -536,8 +542,10 @@ function m_PromiseRemoteHandlers(pkt) {
 
   // generate the list of promises
   let promises = [];
+  // disallow NET:SYSTEM published messages from remote clients
+  if (mesgName.startsWith('NET:SYSTEM')) return promises;
+  // check for handlers
   let handlers = m_remote_handlers.get(mesgName);
-  // no handlers, return no promises
   if (!handlers) return promises;
 
   // if there are handlers to handle, create a NetMessage

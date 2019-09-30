@@ -28,7 +28,11 @@ const DBKEYS = [
 ];
 
 /// list of valid database change commands
-const DBCMDS = [`add`, `update`, `remove`];
+const DBCMDS = new Map([
+  ['add', 'NET:SRV_DBADD'],
+  ['update', 'NET:SRV_DBUPDATE'],
+  ['remove', 'NET:SRV_DBREMOVE']
+]);
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -113,11 +117,20 @@ class DataMap {
 DataMap.DBKEYS = DBKEYS;
 DataMap.DBCMDS = DBCMDS;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * validate that keyName is a valid DBKEY
- * @param
+/** validate that keyName is a valid DBKEY
+ * @param {string} keyName - extract from the DBSYNC data props
  */
 DataMap.ValidateKey = keyName => DBKEYS.includes(keyName);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** validate command is valid
+ * @param {string} command - extract from the DBSYNC data.cmd prop
+ */
+DataMap.ValidateCommand = command => DBCMDS.has(command);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** lookup server message
+ * @param {string} command - a valid key
+ */
+DataMap.GetCommandMessage = command => DBCMDS.get(command);
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** used to parse a data object (such as returned from pkt.Data() for collections
  * to modify or update.
@@ -137,6 +150,38 @@ DataMap.ExtractCollections = data => {
   });
   // returned undefined if no collections
   return collections;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** validate that data has valid keys DB keys. Returns number of found keys
+ * that conform to type
+ * @param {string} data - data object
+ */
+DataMap.ValidateCollections = data => {
+  let count = 0;
+  DBKEYS.forEach(key => {
+    // only return keys that match a collection name
+    if (!DBKEYS.includes(key)) return;
+    // extract the collection
+    const values = data[key];
+    // make sure values of type array contains only objects
+    if (Array.isArray(values)) {
+      values.forEach(element => {
+        if (typeof element === 'object') return;
+        throw Error(`collection array '${key}' must contain objects`);
+      });
+      count++;
+      return;
+    }
+    // count
+    if (typeof values === 'object') {
+      count++;
+      return;
+    }
+    // if we get this far, it's not an object or array of objects, which is bad.
+    throw Error(`collection '${key}' must contain only objects/array of objects`);
+  });
+  // if we get this far, then return the count
+  return count;
 };
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////

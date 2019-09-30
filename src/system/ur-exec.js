@@ -308,7 +308,7 @@ const SetupRun = () => {
     await Execute('START'); // START running
     m_SetValidReactPhases(); // remove leftmost phase
     await Execute('REG_MESSAGE'); // register messages
-    await ULINK.PromiseRegisterSubscribers(); // send messages
+    ULINK.RegisterSubscribers(); // send messages (this awaits internally)
     m_SetValidReactPhases(); // remove leftmost phase
     await Execute('APP_READY'); // app is connected
     m_SetValidReactPhases(); // remove leftmost phase

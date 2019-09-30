@@ -14,7 +14,6 @@ const PATH = require('path');
 const FS = require('fs-extra');
 
 const DATAMAP = require('./common-datamap');
-const SESSION = require('./common-session');
 const LOGGER = require('./server-logger');
 const PROMPTS = require('../system/util/prompts');
 const UNET = require('./server-network');
@@ -72,7 +71,6 @@ DB.InitializeDatabase = (options = {}) => {
   UNET.NetSubscribe('NET:SRV_DBUPDATE', DB.PKT_Update);
   UNET.NetSubscribe('NET:SRV_DBREMOVE', DB.PKT_Remove);
   UNET.NetSubscribe('NET:SRV_DBQUERY', DB.PKT_Query);
-  UNET.NetSubscribe('NET:SRV_DBSESSION', DB.PKT_Session);
   // also we publish 'NET:SYSTEM_DBSYNC' { collection key arrays of change }
 
   // end of initialization code...following are local functions
@@ -169,14 +167,6 @@ function m_DatabaseChangeEvent(dbEvent, data) {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API:
- *
- */
-DB.PKT_Session = pkt => {
-  console.log(PR, `Packet ${JSON.stringify(pkt.Data())}`);
-};
-
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API:
  * Return the entire admin database structure. Used when initializing client
  * app.
  */
@@ -187,16 +177,9 @@ DB.PKT_GetDatabase = pkt => {
   DBKEYS.forEach(colname => {
     adm_db[`a_${colname}`] = f_GetCollectionData(colname);
   });
-  // START TOKEN TEST
-  let token = SESSION.MakeToken('Freddy', { groupId: 12, classroomId: 99 });
-  if (token) console.log(PR, `TEST: Made token '${token}'`);
-  const data = SESSION.DecodeToken(token);
-  if (data.isValid) console.log(PR, `TEST: Decoded token '${token}' to ${JSON.stringify(data)}`);
-  // END TOKEN TEST
   // return object for transaction; URSYS will automatically return
   // to the netdevice that called this
   return adm_db;
-  //
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -210,6 +193,9 @@ DB.PKT_GetDatabase = pkt => {
  * @returns {Object} - data to return to caller
  */
 DB.PKT_Add = pkt => {
+  const session = UNET.PKT_Session(pkt);
+  if (session.error) return { error: session.error };
+  //
   const data = pkt.Data();
   const results = {};
   const collections = DATAMAP.ExtractCollections(data);
@@ -245,6 +231,9 @@ DB.PKT_Add = pkt => {
  * @returns {Object} - data to return (including error if any)
  */
 DB.PKT_Update = pkt => {
+  const session = UNET.PKT_Session(pkt);
+  if (session.error) return { error: session.error };
+  //
   const data = pkt.Data();
   const results = {};
   let error = '';
@@ -301,6 +290,9 @@ DB.PKT_Update = pkt => {
  * @returns {Object} - data to return (including error if any)
  */
 DB.PKT_Remove = pkt => {
+  const session = UNET.PKT_Session(pkt);
+  if (session.error) return { error: session.error };
+  //
   const data = pkt.Data();
   const results = {};
   let error = '';
@@ -334,6 +326,9 @@ DB.PKT_Remove = pkt => {
  * @returns {Object} - data to return (including error if any)
  */
 DB.PKT_Query = pkt => {
+  const session = UNET.PKT_Session(pkt);
+  if (session.error) return { error: session.error };
+  //
   return { error: 'query is unimplemented' };
 };
 

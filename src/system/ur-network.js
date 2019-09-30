@@ -172,6 +172,12 @@ function m_HandleRegistrationMessage(msgEvent) {
   m_status = M4_READY;
   // (4) network is initialized
   if (typeof m_options.success === 'function') m_options.success();
+  // (5) also update window.URSESSION with UADDR
+  if (window.URSESSION) {
+    console.log('updating URSESSION with registration data');
+    window.URSESSION.CLIENT_UADDR = UADDR;
+    window.URSESSION.USRV_UADDR = SERVER_UADDR;
+  }
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**

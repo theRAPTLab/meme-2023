@@ -17,6 +17,7 @@ import ReloadOnViewChange from './util/reload';
 import NetMessage from './common-netmessage';
 import URLink from './common-urlink';
 import REFLECT from './util/reflect';
+import SESSION from './common-session';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -110,11 +111,18 @@ const UR = {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};
+window.ur.SESSION = SESSION;
 window.ur.tnc = (msg, data) => {
   NetCall(msg, data).then(rdata => {
     console.log(`netcall '${msg}' returned`, rdata);
   });
   return `testing netcall '${msg}'`;
+};
+window.ur.serverinfo = () => {
+  window.ur.tnc('NET:SRV_SERVICE_LIST');
+};
+window.ur.clientinfo = () => {
+  console.log(window.URSESSION);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default UR;

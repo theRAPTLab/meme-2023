@@ -16,7 +16,7 @@ const PROMPTS = require('./util/prompts');
 
 /// DEBUG MESSAGES ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 
 const { TERM_NET: CLR, TR } = PROMPTS;
 const PR = `${CLR}${PROMPTS.Pad('UR_NET')}${TR}`;
@@ -220,7 +220,7 @@ function m_SocketAdd(socket) {
   mu_sockets.set(sid, socket);
   if (DBG) console.log(PR, `socket ADD ${socket.UADDR} to network`);
   LOGGER.Write(socket.UADDR, 'joined network');
-  if (DBG) console_ListSockets(`add ${sid}`);
+  if (DBG) log_ListSockets(`add ${sid}`);
 } // end m_SocketAdd()
 
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -294,34 +294,43 @@ function m_SocketDelete(socket) {
       if (handlers) handlers.delete(uaddr);
     });
   }
-  if (DBG) console_ListSockets(`del ${socket.UADDR}`);
+  if (DBG) log_ListSockets(`del ${socket.UADDR}`);
 } // end m_SoecketDelete()
 
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** m_HandleMessage() performs the actual work of dispatching messages on behalf
  * of a client to other remote clients, gathers up all the data, and returns
  * it. There are THREE CASES:
- * 1. The incoming message is intended for the server
- * 2. the incoming message is from a remote reaching another remote
- * 3. the incoming message is the RETURNED data from the other remote
+ * 1. The incoming message is returning from a remote caller to remote sender
+ * 2. The incoming message is intended for the server
+ * 3. the incoming message is from a remote reaching another remote
  * @param {Object} socket messaging socket
  * @param {NetMessage} pkt - NetMessage packet instance
  */
 async function m_HandleMessage(socket, pkt) {
-  // (1) Is the incoming message a response to a message forwarded earlier
+  // (1) Is the incoming message a response to a message that the server sent?
+  // It might have been a duplicate packet ('forwarded') or one the server itself sent.
+  // In either case, the packet will invoke whatever function handler is associated with
+  // it and complete the transaction function. Note that dispatched messages comprise
+  // of the original packet and the forwarded duplicate packet(s) that the server
+  // recombines and returns to the original packet sender
   if (pkt.IsResponse()) {
-    // console.log(PR,`-- ${pkt.Message()} completing transaction ${pkt.seqlog.join(':')}`);
+    if (DBG) console.log(PR, `-- ${pkt.Message()} completing transaction ${pkt.seqlog.join(':')}`);
     pkt.CompleteTransaction();
     return;
   }
-  // (2) Does the server implement any of the messages?
+  // (2) If we got this far, it's a new message.
+  // Does the server implement any of the messages? Let's add that to our
+  // list of promises. It will return empty array if there are none.
   let promises = m_PromiseServerHandlers(pkt);
-  // (3) Are there any remotes that implement the message?
+
+  // (3) If the server doesn't implement any promises, check if there are
+  // any remotes that have registered one.
   if (promises.length === 0) promises = m_PromiseRemoteHandlers(pkt);
 
-  // If there were NO HANDLERS defined for the incoming message, then
-  // this is an error. If the message was a CALL expecting a return value,
-  // then return the error immediately
+  // (3a) If there were NO HANDLERS defined for the incoming message, then
+  // this is an error. If the message is a CALL, then report an error back to
+  // the originator; other message types don't expect a return value.
   if (promises.length === 0) {
     const out = `${pkt.SourceAddress()} cannot resolve call '${pkt.Message()}'`;
     console.log(PR, out);
@@ -334,38 +343,45 @@ async function m_HandleMessage(socket, pkt) {
     return;
   }
 
-  // We have a promises array full of handlers.
-  const DBG_NOSRV = !pkt.Message().startsWith('NET:SRV_');
-  if (DBG) console_PktDirection(pkt, 'call', promises);
-  if (DBG && DBG_NOSRV) console_PktTransaction(pkt, 'queuing', promises);
+  // (3b) We have at least one promise for remote handlers.
+  // It will either be server calls or remote calls. The server
+  // always takes precedence over remote calls so clients can't
+  // subscribe to critical system messages intended only for
+  // the server!
 
-  /* (5) MAGICAL ASYNC/AWAIT BLOCK *****************************/
+  // Print some debugging messages
+  const DBG_NOSRV = !pkt.Message().startsWith('NET:SRV_');
+  if (DBG) log_PktDirection(pkt, 'call', promises);
+  if (DBG && DBG_NOSRV) log_PktTransaction(pkt, 'queuing', promises);
+
+  /* (3c) MAGICAL ASYNC/AWAIT BLOCK ****************************/
   /* pktArray will contain data objects from each resolved */
   /* promise */
   let pktArray = await Promise.all(promises);
   /* END MAGICAL ASYNC/AWAIT BLOCK *****************************/
 
-  // output the condition AFTER async block ran
-  if (DBG && DBG_NOSRV) console_PktTransaction(pkt, 'resolved');
-  if (DBG) console_PktDirection(pkt, 'rtrn', promises);
+  // (3d) Print some more debugging messages after async
+  if (DBG && DBG_NOSRV) log_PktTransaction(pkt, 'resolved');
+  if (DBG) log_PktDirection(pkt, 'rtrn', promises);
 
-  // (6A) If the call type doesn't expect return data, we are done!
+  // (3e) If the call type doesn't expect return data, we are done!
   if (!pkt.IsType('mcall')) return;
 
-  // (6B) The call type is 'mcall', and we need to return the original
+  // (3f) If the call type is 'mcall', and we need to return the original
   // message packet to the original caller. First merge the data into
-  // one data object.
+  // one data object...
   let data = pktArray.reduce((d, p) => {
     let pdata = p instanceof NetMessage ? p.Data() : p;
     let retval = Object.assign(d, pdata);
-    // if (DBG_NOSRV) console.log(PR,`'${pkt.Message()}' reduce`,JSON.stringify(retval));
+    if (DBG_NOSRV) console.log(PR, `'${pkt.Message()}' reduce`, JSON.stringify(retval));
     return retval;
   }, {});
 
-  // (6C) Return the packet using magical NetMessage.ReturnTransaction()
+  // (3g) ...then return the combined data using NetMessage.ReturnTransaction()
   // on the caller's socket, which we have retained through the magic of closures!
+  const dbgData = JSON.stringify(data);
   pkt.SetData(data);
-  // if (DBG_NOSRV) console.log(PR,`'${pkt.Message()}' returning transaction data ${JSON.stringify(data)}`);
+  if (DBG_NOSRV) console.log(PR, `'${pkt.Message()}' returning transaction data ${dbgData}`);
   pkt.ReturnTransaction(socket);
 } // end m_HandleMessage()
 
@@ -388,27 +404,20 @@ function m_HandleState(socket, pkt) {}
 function m_PromiseServerHandlers(pkt) {
   let mesgName = pkt.Message();
   const handlers = m_server_handlers.get(mesgName);
-  /// create promises for all registered handlers
+  /// create promises for all registered handlers in the set
   let promises = [];
-  if (handlers)
-    for (let handlerFunc of handlers) {
-      // handlerFunc signature: (data,dataReturn) => {}
-      let p = f_promise_server_resolver(pkt, handlerFunc);
-      promises.push(p);
-    }
-  /// return all queued promises
-  return promises;
-
-  /// inline utility function /////////////////////////////////////////////
-  function f_promise_server_resolver(srcPkt, handlerFunc) {
-    return new Promise((resolve, reject) => {
-      let retval = handlerFunc(srcPkt);
+  if (!handlers) return promises;
+  handlers.forEach(hFunc => {
+    let p = new Promise((resolve, reject) => {
+      let retval = hFunc(pkt);
       if (retval === undefined)
         throw Error(`'${mesgName}' message handler MUST return object or error string`);
       if (typeof retval !== 'object') reject(retval);
       else resolve(retval);
     });
-  }
+    promises.push(p);
+  }); // handlers forEach
+  return promises;
 } // end m_PromiseServerHandlers()
 
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -423,74 +432,38 @@ function m_PromiseRemoteHandlers(pkt) {
   // debugging values
   let s_uaddr = pkt.SourceAddress();
   // logic values
-  let promises = [];
   let mesgName = pkt.Message();
   let type = pkt.Type();
+  const publishOnly = type === 'msend' || type === 'mcall';
 
   // generate the list of promises
-  // the hard work is done in f_promise_remote_resolver()
+  let promises = [];
   let handlers = m_remote_handlers.get(mesgName);
-
   // no handlers, return no promises
   if (!handlers) return promises;
 
   // if there are handlers to handle, create a NetMessage
   // clone of this packet and forward it and save the promise
   handlers.forEach(d_uaddr => {
-    switch (type) {
-      case 'msig': // signals go to all implementors
-        promises.push(f_promise_remote_resolver(pkt, d_uaddr));
-        break;
-      case 'msend': // send does not mirror
-      case 'mcall': // call does not mirror
-        if (s_uaddr !== d_uaddr) {
-          promises.push(f_promise_remote_resolver(pkt, d_uaddr));
-        } else {
-          // console.log(PR,`${type} '${pkt.Message()}' -NO ECHO- ${d_uaddr}`);
-        }
-        break;
-      default:
-        throw Error(`${ERR_UNKNOWN_PKT} ${type}`);
+    const isOrigin = s_uaddr === d_uaddr;
+    // we want to do this only when
+    if (publishOnly && isOrigin) {
+      if (DBG) console.log(PR, `skipping msend|mcall from ${s_uaddr} to ${d_uaddr}`);
+    } else {
+      let d_sock = mu_sockets.get(d_uaddr);
+      if (d_sock === undefined) throw Error(`${ERR_INVALID_DEST} ${d_uaddr}`);
+      let newpkt = new NetMessage(pkt); // clone packet data to new packet
+      newpkt.MakeNewID(); // make new packet unique
+      newpkt.CopySourceAddress(pkt); // clone original source address
+      promises.push(newpkt.PromiseTransaction(d_sock));
     }
   }); // handlers.forEach
   return promises;
-
-  /// MAGIC PROMISE RESOLVER //////////////////////////////////////////////
-  /// Creates a Promise that resolves when a new package is sent to a remote
-  /// and is received back. The Promise resolves the returned data package.
-  /// Relies on NetMessage to handle the actual socket connection passed to
-  /// PromiseTransaction(socket) to return the promise. Promises on promises!
-  /// But it works!
-  function f_promise_remote_resolver(srcPkt, d_uaddr) {
-    // get the address of the destination implementor of MESSAGE
-    let d_sock = mu_sockets.get(d_uaddr);
-    if (d_sock === undefined) throw Error(`${ERR_INVALID_DEST} ${d_uaddr}`);
-
-    // create a clone packet to forward to a remote
-    // this clone will be returned to the remote sender
-    let newpkt = new NetMessage(srcPkt); // clone packet data to new packet
-    newpkt.MakeNewID(); // make new packet unique
-    newpkt.CopySourceAddress(srcPkt); // clone original source address
-
-    // console.log(PR,`++ '${pkt.Message()}' FWD from ${pkt.SourceAddress()} to ${d_uaddr}`);
-    // console.log(
-    //   'make_resolver_func:',
-    //   `PKT: ${srcPkt.Type()} '${srcPkt.Message()}' from ${srcPkt.Info()} to d_uaddr:${d_uaddr} dispatch to d_sock.UADDR:${
-    //     d_sock.UADDR
-    //   }`
-    // );
-
-    // FORWARD THE NEW PACKET TO DESTINATION SOCKET
-    // PromiseTransaction() stores a hash key that is used to resume the
-    // transaction on return to server by checking NetMessage.IsTransaction(),
-    // and NetMessage.ReturnTransaction().
-    return newpkt.PromiseTransaction(d_sock);
-  }
 }
 
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // used by m_SocketAdd(), m_SocketDelete()
-function console_ListSockets(change) {
+function log_ListSockets(change) {
   console.log(PR, `socketlist changed: '${change}'`);
   // let's use iterators! for..of
   let values = mu_sockets.values();
@@ -502,12 +475,12 @@ function console_ListSockets(change) {
 }
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // used by m_HandleMessage()
-function console_PktDirection(pkt, direction, promises) {
+function log_PktDirection(pkt, direction, promises) {
   console.log(PR, `${pkt.Info()} ${direction} '${pkt.Message()}' (${promises.length} remotes)`);
 }
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // used by m_HandleMessage()
-function console_PktTransaction(pkt, status, promises) {
+function log_PktTransaction(pkt, status, promises) {
   const src = pkt.SourceAddress();
   if (promises && promises.length) {
     console.log(PR, `${src} >> '${pkt.Message()}' ${status} ${promises.length} Promises`);

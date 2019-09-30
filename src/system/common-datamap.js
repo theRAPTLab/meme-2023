@@ -128,8 +128,10 @@ DataMap.ExtractCollections = data => {
   let collections = [];
   // always push an array
   DBKEYS.forEach(key => {
+    // only return keys that match a collection name
+    if (!DBKEYS.includes(key)) return;
+    // extract the collection
     const values = data[key];
-    if (!values) return;
     if (Array.isArray(values)) collections.push([key, values]);
     else collections.push([key, [values]]);
   });

@@ -106,8 +106,8 @@ URSYS.StartWebServer = callback => {
       let out = `\n---\n`;
       out += `${CS}SYSTEM INITIALIZATION COMPLETE${CR}\n`;
       out += `GO TO ONE OF THESE URLS in CHROME WEB BROWSER\n`;
-      out += `MAINAPP - ${SERVER_INFO.main}\n`;
-      out += `CLIENTS - ${SERVER_INFO.client}\n`;
+      out += `ADMIN    - ${SERVER_INFO.main}/#/admin\n`;
+      out += `STUDENTS - ${SERVER_INFO.client}\n`;
       out += `---\n`;
       if (typeof callback === 'function') callback(out);
       console.log(out);

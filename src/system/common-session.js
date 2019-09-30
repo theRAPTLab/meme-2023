@@ -21,7 +21,7 @@ const PROMPTS = require('../system/util/prompts');
 
 /// DEBUGGING /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = false;
+const DBG = true;
 const PR = PROMPTS.Pad('SESSUTIL');
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -155,6 +155,9 @@ SESSION.DecodeAndSet = token => {
       groupId,
       classroomId
     };
+    if (DBG) console.log('DecodeAndSet() sucess', studentName, groupId, classroomId);
+  } else {
+    if (DBG) console.log('DecodeAndSet() failed', token);
   }
   return isValid;
 };
@@ -163,6 +166,7 @@ SESSION.DecodeAndSet = token => {
  * Clear all global session parameters. Do not use from server-based code.
  */
 SESSION.Clear = () => {
+  if (DBG) console.log('Clearing session');
   m_current_name = undefined;
   m_current_idsob = undefined;
   m_access_key = undefined;
@@ -173,7 +177,10 @@ SESSION.Clear = () => {
  * some operations (e.g. database writes). Do not use from server-based code.
  */
 SESSION.SetAccessKey = key => {
-  if (typeof key === 'string') m_access_key = key;
+  if (typeof key === 'string') {
+    m_access_key = key;
+    if (DBG) console.log('setting access key', key);
+  }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -181,6 +188,8 @@ SESSION.SetAccessKey = key => {
  * use this from server-based code.
  */
 SESSION.AccessKey = () => {
+  if (DBG) console.log('AccessKey() returning', m_access_key);
+
   return m_access_key;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

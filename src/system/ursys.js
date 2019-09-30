@@ -68,10 +68,11 @@ const { NetCall, NetSignal } = ULINK;
 
 function WriteDB(cmd, data) {
   if (!data.key) {
-    const { SESSION_Key } = CENTRAL.GetVal('ur_session');
-    console.log('setting access key', SESSION_Key);
-    data.key = SESSION_Key;
+    const accessKey = SESSION.AccessKey();
+    console.log('setting access key', accessKey);
+    data.key = accessKey;
   }
+  // returns a promise that resolves to data
   return ULINK._WriteDB(cmd, data);
 }
 

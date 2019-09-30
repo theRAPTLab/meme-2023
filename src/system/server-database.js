@@ -213,7 +213,7 @@ DB.PKT_Add = pkt => {
       .find({ id: { $in: insertedIds } })
       .data({ removeMeta: true });
     results[colName] = updated;
-    console.log(PR, `ADDED: ${JSON.stringify(updated)}`);
+    if (DBG) console.log(PR, `ADDED '${colName}': ${JSON.stringify(updated)}`);
   });
   // send update to network
   m_DatabaseChangeEvent('add', results, pkt);
@@ -270,7 +270,7 @@ DB.PKT_Update = pkt => {
       .find({ id: { $in: updatedIds } })
       .data({ removeMeta: true });
     results[colName] = updated;
-    console.log(PR, `UPDATE: ${JSON.stringify(updated)}`);
+    if (DBG) console.log(PR, `UPDATED '${colName}': ${JSON.stringify(updated)}`);
   }); // collections forEach
   // was there an error?
   if (error) return { error };
@@ -305,7 +305,7 @@ DB.PKT_Remove = pkt => {
     const matching = removed.branch().data({ removeMeta: true });
     results[colName] = matching;
     removed.remove();
-    console.log(PR, `REMOVED: ${JSON.stringify(matching)}`);
+    console.log(PR, `REMOVED '${colName}': ${JSON.stringify(matching)}`);
   }); // collections forEach
   // was there an error?
   if (error) return { error };

@@ -18,6 +18,7 @@ import SESSION from '../../system/common-session';
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const ULINK = UR.NewConnection('data');
+const DBG = true;
 
 /// URSYS HOOKS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -58,9 +59,8 @@ const MIR = {};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.AddTeacher = name => {
-  return UR.NetCall('NET:SRV_DBADD', {
-    teachers: { name },
-    key: SESSION.AccessKey()
+  return UR.WriteDB('add', {
+    teachers: { name }
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -87,13 +87,9 @@ MIR.DeleteGroup = groupId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.UpdateGroup = (groupId, group) => {
-  return new Promise((resolve, reject) => {
-    const groupData = Object.assign({}, group, { id: groupId });
-    UR.NetCall('NET:SRV_DBUPDATE', {
-      groups: [groupData]
-    })
-      .then(rdata => resolve(rdata))
-      .catch(error => reject(error));
+  const groupData = Object.assign({}, group, { id: groupId });
+  return UR.WriteDB('update', {
+    groups: groupData
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -111,14 +107,7 @@ MIR.AddStudents = (groupId, students) => {
     }
     group.students.push(student);
   });
-  // Now update groups, returning promise
-  return new Promise((resolve, reject) => {
-    MIR.UpdateGroup(groupId, group)
-      .then(rdata => {
-        resolve(rdata);
-      })
-      .catch(err => reject(err));
-  });
+  return MIR.UpdateGroup(groupId, group);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.DeleteStudent = (groupId, student) => {
@@ -156,9 +145,9 @@ MIR.Login = loginToken => {
     const urs = window.URSESSION;
     if (!urs) throw Error('unexpected missing URSESSION global');
     UR.NetCall('NET:SRV_SESSION_LOGIN', { token: loginToken }).then(rdata => {
-      console.log('login', rdata);
+      if (DBG) console.log('login', rdata);
       if (rdata.error) throw Error(rdata.error);
-      console.log('updating URSESSION with session data');
+      if (DBG) console.log('updating URSESSION with session data');
       urs.SESSION_Token = rdata.token;
       urs.SESSION_Key = rdata.key;
       // also save globally
@@ -262,6 +251,7 @@ window.ur.tadds = (groupId, students) => {
     // FIRES 'ADM_DATA_UPDATED'
     UR.Publish('ADM_DATA_UPDATED');
   });
+  return `adding ${JSON.stringify(students)} to group ${groupId}`;
 };
 // test delete student from group
 window.ur.tdels = (groupId, student) => {

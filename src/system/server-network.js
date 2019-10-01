@@ -582,8 +582,8 @@ function m_PromiseRemoteHandlers(pkt) {
       let newpkt = new NetMessage(pkt); // clone packet data to new packet
       newpkt.MakeNewID(); // make new packet unique
       newpkt.CopySourceAddress(pkt); // clone original source address
-      promises.push(newpkt.PromiseTransaction(d_sock));
-    }
+        promises.push(newpkt.PromiseTransaction(d_sock));
+      }
   }); // handlers.forEach
   return promises;
 }

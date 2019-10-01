@@ -135,18 +135,17 @@ DataMap.GetCommandMessage = command => DBCMDS.get(command);
 /** used to parse a data object (such as returned from pkt.Data() for collections
  * to modify or update.
  * @param {Object} data - object with properties matching DBKEY contain array of values
- * @returns {Array} - an array of [collection,items] for each matching DBKEY
+ * @returns {Array} - an array of {collection,propkey,docs} for each matching DBKEY
  */
 DataMap.ExtractCollections = data => {
   let collections = [];
-  // always push an array
-  Object.keys(data).forEach(key => {
+  Object.keys(data).forEach(collection => {
     // only return keys that match a collection name
-    if (!DBKEYS.includes(key)) return;
-    // extract the collection
-    const values = data[key];
-    if (Array.isArray(values)) collections.push([key, values]);
-    else collections.push([key, [values]]);
+    if (!DBKEYS.includes(collection)) return;
+    let docs = data[collection]; // can be an obj or array of objs
+    if (typeof docs === 'object') docs = [docs]; // make sure docs is array
+    const entry = { collection, docs };
+    collections.push(entry);
   });
   // returned undefined if no collections
   return collections;

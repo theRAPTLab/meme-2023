@@ -33,13 +33,13 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
     const collections = DATAMAP.ExtractCollections(data);
     switch (cmd) {
       case 'add':
-        PMC.SyncAddedData(collections);
+        MIR.SyncAddedData(collections);
         break;
       case 'update':
-        PMC.SyncUpdatedData(collections);
+        MIR.SyncUpdatedData(collections);
         break;
       case 'remove':
-        PMC.SyncRemovedData(collections);
+        MIR.SyncRemovedData(collections);
         break;
     }
     console.log(`*** got '${cmd}' command with data.changed:`, data);
@@ -52,6 +52,15 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 const MOD = Object.assign({ ...ADM }, { ...PMC }, { ...VM });
 const MIR = {};
 
+MIR.SyncAddedData = collections => {
+  console.log('SYNC ADD', collections);
+};
+MIR.SyncUpdatedData = collections => {
+  console.log('SYNC UPDATE', collections);
+};
+MIR.SyncRemovedData = collections => {
+  console.log('SYNC REMOVE', collections);
+};
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
                                 A D M - D A T A
                                 O V E R R I D E

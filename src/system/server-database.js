@@ -206,8 +206,8 @@ DB.PKT_Add = pkt => {
   // for 'add' op, docs is a data object or array of data objects WITHOUT an id
   // these data objects will be assigned ids and returned to caller
   collections.forEach(entry => {
-    let [colName, docs] = entry;
-    const dbc = m_db.getCollection(colName);
+    let { collection, docs } = entry;
+    const dbc = m_db.getCollection(collection);
     // INSERT entries
     let inserted = dbc.insert(docs);
     if (!Array.isArray(inserted)) inserted = [inserted];
@@ -218,8 +218,8 @@ DB.PKT_Add = pkt => {
       .chain()
       .find({ id: { $in: insertedIds } })
       .data({ removeMeta: true });
-    results[colName] = updated;
-    if (DBG) console.log(PR, `ADDED '${colName}': ${JSON.stringify(updated)}`);
+    results[collection] = updated;
+    if (DBG) console.log(PR, `ADDED '${collection}': ${JSON.stringify(updated)}`);
   });
   // send update to network
   m_DatabaseChangeEvent('add', results, pkt);
@@ -248,8 +248,8 @@ DB.PKT_Update = pkt => {
   // for 'update' op, docs is a data object or array of data objects WITH an id
   // these data objects will replace matching db items and returned
   collections.forEach(entry => {
-    let [colName, docs] = entry;
-    const dbc = m_db.getCollection(colName);
+    let { collection, docs } = entry;
+    const dbc = m_db.getCollection(collection);
     let updatedIds = [];
     // 1. docs is the objects of the collection
     // 2. grab ids from each colObj
@@ -258,7 +258,7 @@ DB.PKT_Update = pkt => {
       const { id } = ditem;
       if (!id) {
         error += `item[${index}] has no id`;
-        return { error };
+        return;
       }
       if (DBG) console.log('looking for id', id);
       dbc
@@ -278,8 +278,8 @@ DB.PKT_Update = pkt => {
       .chain()
       .find({ id: { $in: updatedIds } })
       .data({ removeMeta: true });
-    results[colName] = updated;
-    if (DBG) console.log(PR, `UPDATED '${colName}': ${JSON.stringify(updated)}`);
+    results[collection] = updated;
+    if (DBG) console.log(PR, `UPDATED '${collection}': ${JSON.stringify(updated)}`);
   }); // collections forEach
   // was there an error?
   if (error) return { error };
@@ -310,14 +310,14 @@ DB.PKT_Remove = pkt => {
   // for 'update' op, docs is a id or array of ids to be removed
   // docs matching these ids are removed and returned to caller
   collections.forEach(entry => {
-    let [colName, idsToDelete] = entry;
-    const dbc = m_db.getCollection(colName);
+    let { collection, docs } = entry;
+    const dbc = m_db.getCollection(collection);
     // return deleted objects
     const removed = dbc.chain().find({ id: { $in: idsToDelete } });
     const matching = removed.branch().data({ removeMeta: true });
-    results[colName] = matching;
+    results[collection] = matching;
     removed.remove();
-    console.log(PR, `REMOVED '${colName}': ${JSON.stringify(matching)}`);
+    console.log(PR, `REMOVED '${collection}': ${JSON.stringify(matching)}`);
   }); // collections forEach
   // was there an error?
   if (error) return { error };

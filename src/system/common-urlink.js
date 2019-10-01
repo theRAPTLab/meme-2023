@@ -277,11 +277,11 @@ class URLink {
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /**
    * Perform data operation to server. Do not call directly, but use
-   * UR.WriteDB(cmd,data)
+   * UR.DBQuery(cmd,data)
    * @example
-   * DATAMAP.WriteDB('add', { teachers: { name: 'NewTeacher' }});
+   * DATAMAP.DBQuery('add', { teachers: { name: 'NewTeacher' }});
    */
-  _WriteDB(cmd, data) {
+  _DBQuery(cmd, data) {
     const opmsg = DATAMAP.GetCommandMessage(cmd);
     if (!opmsg) return Promise.reject(`invalid operation '${cmd}'`);
     if (data.cmd) return Promise.reject(`do not include 'cmd' prop in data pack`);

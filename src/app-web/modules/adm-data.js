@@ -63,7 +63,7 @@ UR.Hook(__dirname, 'LOAD_ASSETS', () => {
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ADMData.InitializeData = ( data ) => {
+ADMData.InitializeData = data => {
   // INITIALIZE SETTINGS
   adm_settings = {
     selectedTeacherId: '',
@@ -71,7 +71,7 @@ ADMData.InitializeData = ( data ) => {
     selectedStudentId: '',
     selectedModelId: ''
   };
-  
+
   // convert ids
   const a_resources = data.a_resources.map(res => {
     const { id, referenceLabel, label, notes, type, url, links } = res;
@@ -86,14 +86,14 @@ ADMData.InitializeData = ( data ) => {
     };
   });
   data.a_resources = a_resources;
-  
+
   const a_classroomResources = data.a_classroomResources.map(rsrcs => {
     const { id, classroomId, resources } = rsrcs;
     return {
       id: id, // String(id),
       classroomId: classroomId, // String(classroomId),
       resources: ConverToStringArray(resources)
-    }
+    };
   });
   data.a_classroomResources = a_classroomResources;
 
@@ -774,6 +774,6 @@ ADMData.SetClassroomResource = (rsrcId, checked, classroomId) => {
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-window.adm = ADMData;
-window.admdb = adm_db;
+if (!window.ur) window.ur = {};
+window.ur.ADM = ADMData;
 export default ADMData;

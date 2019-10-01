@@ -59,7 +59,7 @@ const MIR = {};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.AddTeacher = name => {
-  return UR.WriteDB('add', {
+  return UR.DBQuery('add', {
     teachers: { name }
   });
 };
@@ -77,14 +77,14 @@ MIR.AddGroup = groupName => {
 /// this is a test routine; no ADMData routines require a delete group
 /// so this is here to just provide a stub.
 MIR.DeleteGroup = groupId => {
-  return UR.WriteDB('remove', {
+  return UR.DBQuery('remove', {
     groups: [groupId]
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.UpdateGroup = (groupId, group) => {
   const groupData = Object.assign({}, group, { id: groupId });
-  return UR.WriteDB('update', {
+  return UR.DBQuery('update', {
     groups: groupData
   });
 };

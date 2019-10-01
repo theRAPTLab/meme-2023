@@ -66,14 +66,14 @@ const { Call, Signal } = ULINK;
 const { NetPublish, NetSubscribe, NetUnsubscribe } = ULINK;
 const { NetCall, NetSignal } = ULINK;
 
-function WriteDB(cmd, data) {
+function DBQuery(cmd, data) {
   if (!data.key) {
     const accessKey = SESSION.AccessKey();
     console.log('setting access key', accessKey);
     data.key = accessKey;
   }
   // returns a promise that resolves to data
-  return ULINK._WriteDB(cmd, data);
+  return ULINK._DBQuery(cmd, data);
 }
 
 const { Define, GetVal, SetVal } = CENTRAL;
@@ -110,7 +110,7 @@ const UR = {
   NetUnsubscribe, // ULINK
   NetCall, // ULINK
   NetSignal, // ULINK
-  WriteDB, // ULINK
+  DBQuery, // ULINK
   Define, // CENTRAL
   GetVal, // CENTRAL
   SetVal, // CENTRAL
@@ -124,7 +124,7 @@ const UR = {
 if (!window.ur) window.ur = {};
 window.ur.SESSION = SESSION;
 window.ur.LINK = ULINK;
-window.ur.WriteDB = WriteDB;
+window.ur.DBQuery = DBQuery;
 window.ur.tnc = (msg, data) => {
   NetCall(msg, data).then(rdata => {
     console.log(`netcall '${msg}' returned`, rdata);

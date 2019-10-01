@@ -124,6 +124,7 @@ PMCData.InitializeModel = (model, resources) => {
       `PMCData.InitializeModel called with either bad id (${m.id})or bad groupId (${m.groupId})`
     );
   }
+
   m.data = model.data || {};
 
   // Load Components/Properties

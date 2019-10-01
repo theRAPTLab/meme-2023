@@ -72,6 +72,8 @@ ADMData.InitializeData = data => {
     selectedModelId: ''
   };
 
+  // data has collections from DATAMAP.DBKEYS
+
   // convert ids
   const a_resources = data.resources.map(res => {
     const { id, referenceLabel, label, notes, type, url, links } = res;
@@ -434,24 +436,43 @@ ADMData.GetToken = (groupId, studentName) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.Login = hashedToken => {
-  const decoded = SESSION.DecodeToken(hashedToken);
-  let loginId, groupId, classroomId;
-  if (decoded.isValid) {
-    loginId = decoded.studentName;
-    groupId = decoded.groupId;
-    classroomId = decoded.classroomId;
-  }
-  // This assumes we already did validation
-  adm_settings.selectedStudentId = loginId;
-  // After logging in, we need to tell ADM what the default classroom is
-  ADMData.SelectClassroom();
-  UR.Publish('ADM_DATA_UPDATED');
+  const urs = window.URSESSION;
+  if (!urs) throw Error('unexpected missing URSESSION global');
+  UR.NetCall('NET:SRV_SESSION_LOGIN', { token: hashedToken }).then(rdata => {
+    if (DBG) console.log('login', rdata);
+    if (rdata.error) throw Error(rdata.error);
+    if (DBG) console.log('updating URSESSION with session data');
+    urs.SESSION_Token = rdata.token;
+    urs.SESSION_Key = rdata.key;
+    // also save globally
+    SESSION.DecodeAndSet(rdata.token);
+    SESSION.SetAccessKey(rdata.key);
+
+    // This assumes we already did validation
+    adm_settings.selectedStudentId = rdata.token;
+    // After logging in, we need to tell ADM what the default classroom is
+    ADMData.SelectClassroom();
+    UR.Publish('ADM_DATA_UPDATED');
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.Logout = () => {
-  adm_settings.selectedStudentId = '';
-  ADMData.SelectClassroom('');
-  UR.Publish('ADM_DATA_UPDATED');
+  const urs = window.URSESSION;
+  if (!urs) throw Error('unexpected missing URSESSION global');
+  if (!urs.SESSION_Key) throw Error('missing URSESSION session key');
+  UR.NetCall('NET:SRV_SESSION_LOGOUT', { key: urs.SESSION_Key }).then(rdata => {
+    console.log('logout', rdata);
+    if (rdata.error) throw Error(rdata.error);
+    console.log('removing session data from URSESSION');
+    if (urs.SESSION_Token && urs.SESSION_Key) {
+      urs.SESSION_Token = '';
+      urs.SESSION_Key = '';
+      SESSION.Clear();
+      adm_settings.selectedStudentId = '';
+      ADMData.SelectClassroom('');
+      UR.Publish('ADM_DATA_UPDATED');
+    } else throw Error('URSESSION key or token was not set');
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.IsLoggedOut = () => {

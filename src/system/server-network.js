@@ -17,7 +17,7 @@ const SESSION = require('./common-session');
 
 /// DEBUG MESSAGES ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = { init: true, calls: false, client: true };
 
 const { TERM_NET: CLR, TR } = PROMPTS;
 const PR = `${CLR}${PROMPTS.Pad('UR_NET')}${TR}`;
@@ -78,10 +78,10 @@ UNET.InitializeNetwork = options => {
  */
 UNET.StartNetwork = () => {
   // create listener.
-  if (DBG) console.log(PR, `initializing web socket server on port ${mu_options.port}`);
+  if (DBG.init) console.log(PR, `initializing web socket server on port ${mu_options.port}`);
   mu_wss = new WSS(mu_options);
   mu_wss.on('listening', () => {
-    if (DBG) console.log(PR, `socket server listening on port ${mu_options.port}`);
+    if (DBG.init) console.log(PR, `socket server listening on port ${mu_options.port}`);
     mu_wss.on('connection', (socket, req) => {
       // if (DBG) console.log(PR, 'socket connected');
       // house keeping
@@ -143,7 +143,8 @@ UNET.NetUnsubscribe = (mesgName, handlerFunc) => {
 UNET.NetCall = async (mesgName, data) => {
   let pkt = new NetMessage(mesgName, data);
   let promises = m_PromiseRemoteHandlers(pkt);
-  if (DBG) console.log(PR, `${pkt.Info()} NETCALL ${pkt.Message()} to ${promises.length} remotes`);
+  if (DBG.call)
+    console.log(PR, `${pkt.Info()} NETCALL ${pkt.Message()} to ${promises.length} remotes`);
   /// MAGICAL ASYNC/AWAIT BLOCK ///////
   const results = await Promise.all(promises);
   /// END MAGICAL ASYNC/AWAIT BLOCK ///
@@ -161,7 +162,8 @@ UNET.NetPublish = (mesgName, data) => {
   let pkt = new NetMessage(mesgName, data);
   let promises = m_PromiseRemoteHandlers(pkt);
   // we don't care about waiting for the promise to complete
-  if (DBG) console.log(PR, `${pkt.Info()} NETSEND ${pkt.Message()} to ${promises.length} remotes`);
+  if (DBG.call)
+    console.log(PR, `${pkt.Info()} NETSEND ${pkt.Message()} to ${promises.length} remotes`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Alias for NetPublish(), kept for conceptual symmetry to the client-side URSYS
@@ -221,7 +223,7 @@ UNET.PKT_RegisterRemoteHandlers = pkt => {
       entry = new Set();
       m_remote_handlers.set(msg, entry);
     }
-    if (DBG) console.log(PR, `${uaddr} regr '${msg}'`);
+    if (DBG.client) console.log(PR, `${uaddr} regr '${msg}'`);
     entry.add(uaddr);
     regd.push(msg);
   });
@@ -252,7 +254,7 @@ UNET.PKT_SessionLogin = pkt => {
   const key = SESSION.MakeAccessKey(token, uaddr);
   sock.USESS = decoded;
   sock.UKEY = key;
-  console.log(PR, `${uaddr} user log-in '${decoded.token}'`);
+  if (DBG.client) console.log(PR, `${uaddr} user log-in '${decoded.token}'`);
   return { status: 'logged in', success: true, token, uaddr, key };
 };
 
@@ -270,9 +272,9 @@ UNET.PKT_SessionLogout = pkt => {
   const sock = m_SocketLookup(uaddr);
   const { key } = pkt.Data();
   if (sock.UKEY !== key) return { error: `uaddr '${uaddr}' key '${key}'!=='${sock.UKEY}'` };
+  if (DBG.client) console.log(PR, `${uaddr} user logout '${sock.USESS.token}'`);
   sock.UKEY = undefined;
   sock.USESS = undefined;
-  console.log(PR, `${uaddr} user logout '${decoded.token}'`);
   return { status: 'logged out', success: true };
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -282,24 +284,24 @@ UNET.PKT_Session = pkt => {
   const uaddr = pkt.SourceAddress();
   const sock = m_SocketLookup(uaddr);
   if (!sock) {
-    if (DBG) console.log(PR, `${uaddr} impossible socket lookup failure`);
+    console.log(PR, `${uaddr} impossible socket lookup failure`);
     return { error: `${uaddr} impossible socket lookup failure` };
   }
   if (sock.ULOCAL) {
-    if (DBG) console.log(PR, `${uaddr} is localhost so bypass key check`);
+    if (DBG.client) console.log(PR, `${uaddr} is localhost so bypass key check`);
     return { localhost: true };
   }
   if (!sock.USESS) {
-    if (DBG) console.log(PR, `${uaddr} is not logged-in`);
+    if (DBG.client) console.log(PR, `${uaddr} is not logged-in`);
     return { error: `sock.${uaddr} is not logged-in` };
   }
   const { key } = pkt.Data();
   if (!key) {
-    if (DBG) console.log(PR, `${uaddr} access key is not set`);
+    if (DBG.client) console.log(PR, `${uaddr} access key is not set`);
     return { error: `sock.${uaddr} access key is not set` };
   }
   if (key !== sock.UKEY) {
-    if (DBG) {
+    if (DBG.client) {
       console.log(PR, `Session: sock.${uaddr} keys do not match packet '${sock.UKEY}' '${key}'`);
     }
     return { error: `sock.${uaddr} access keys do not match '${sock.UKEY}' '${key}'` };
@@ -328,9 +330,9 @@ function m_SocketAdd(socket, req) {
   socket.ULOCAL = remoteIp === '127.0.0.1' || remoteIp === '::1';
   // save socket
   mu_sockets.set(sid, socket);
-  if (DBG) console.log(PR, `socket ADD ${socket.UADDR} to network`);
+  if (DBG.init) console.log(PR, `socket ADD ${socket.UADDR} to network`);
   LOGGER.Write(socket.UADDR, 'joined network');
-  if (DBG) log_ListSockets(`add ${sid}`);
+  if (DBG.init) log_ListSockets(`add ${sid}`);
 } // end m_SocketAdd()
 
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -404,7 +406,7 @@ function m_SocketDelete(socket) {
       if (handlers) handlers.delete(uaddr);
     });
   }
-  if (DBG) log_ListSockets(`del ${socket.UADDR}`);
+  if (DBG.init) log_ListSockets(`del ${socket.UADDR}`);
 } // end m_SoecketDelete()
 
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -433,7 +435,8 @@ async function m_HandleMessage(socket, pkt) {
   // of the original packet and the forwarded duplicate packet(s) that the server
   // recombines and returns to the original packet sender
   if (pkt.IsResponse()) {
-    if (DBG) console.log(PR, `-- ${pkt.Message()} completing transaction ${pkt.seqlog.join(':')}`);
+    if (DBG.calls)
+      console.log(PR, `-- ${pkt.Message()} completing transaction ${pkt.seqlog.join(':')}`);
     pkt.CompleteTransaction();
     return;
   }
@@ -469,8 +472,8 @@ async function m_HandleMessage(socket, pkt) {
 
   // Print some debugging messages
   const DBG_NOSRV = !pkt.Message().startsWith('NET:SRV_');
-  if (DBG) log_PktDirection(pkt, 'call', promises);
-  if (DBG && DBG_NOSRV) log_PktTransaction(pkt, 'queuing', promises);
+  if (DBG.calls) log_PktDirection(pkt, 'call', promises);
+  if (DBG.calls && DBG_NOSRV) log_PktTransaction(pkt, 'queuing', promises);
 
   /* (3c) MAGICAL ASYNC/AWAIT BLOCK ****************************/
   /* pktArray will contain data objects from each resolved */
@@ -479,7 +482,7 @@ async function m_HandleMessage(socket, pkt) {
   /* END MAGICAL ASYNC/AWAIT BLOCK *****************************/
 
   // (3d) Print some more debugging messages after async
-  if (DBG) {
+  if (DBG.calls) {
     if (DBG_NOSRV) log_PktTransaction(pkt, 'resolved');
     log_PktDirection(pkt, 'rtrn', promises);
   }
@@ -572,7 +575,7 @@ function m_PromiseRemoteHandlers(pkt) {
     const isOrigin = s_uaddr === d_uaddr;
     // we want to do this only when
     if (publishOnly && isOrigin) {
-      if (DBG) console.log(PR, `skipping msend|mcall from ${s_uaddr} to ${d_uaddr}`);
+      if (DBG.calls) console.log(PR, `skipping msend|mcall from ${s_uaddr} to ${d_uaddr}`);
     } else {
       let d_sock = mu_sockets.get(d_uaddr);
       if (d_sock === undefined) throw Error(`${ERR_INVALID_DEST} ${d_uaddr}`);

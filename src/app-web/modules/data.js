@@ -130,40 +130,34 @@ MIR.DeleteStudent = (groupId, student) => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.Login = loginToken => {
-  return new Promise((resolve, reject) => {
-    const urs = window.URSESSION;
-    if (!urs) throw Error('unexpected missing URSESSION global');
-    UR.NetCall('NET:SRV_SESSION_LOGIN', { token: loginToken }).then(rdata => {
-      if (DBG) console.log('login', rdata);
-      if (rdata.error) throw Error(rdata.error);
-      if (DBG) console.log('updating URSESSION with session data');
-      urs.SESSION_Token = rdata.token;
-      urs.SESSION_Key = rdata.key;
-      // also save globally
-      SESSION.DecodeAndSet(rdata.token);
-      SESSION.SetAccessKey(rdata.key);
-      resolve(rdata);
-    });
-  }).catch(err => reject(err));
+  const urs = window.URSESSION;
+  if (!urs) throw Error('unexpected missing URSESSION global');
+  return UR.NetCall('NET:SRV_SESSION_LOGIN', { token: loginToken }).then(rdata => {
+    if (DBG) console.log('login', rdata);
+    if (rdata.error) throw Error(rdata.error);
+    if (DBG) console.log('updating URSESSION with session data');
+    urs.SESSION_Token = rdata.token;
+    urs.SESSION_Key = rdata.key;
+    // also save globally
+    SESSION.DecodeAndSet(rdata.token);
+    SESSION.SetAccessKey(rdata.key);
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.Logout = () => {
-  return new Promise((resolve, reject) => {
-    const urs = window.URSESSION;
-    if (!urs) throw Error('unexpected missing URSESSION global');
-    if (!urs.SESSION_Key) throw Error('missing URSESSION session key');
-    UR.NetCall('NET:SRV_SESSION_LOGOUT', { key: urs.SESSION_Key }).then(rdata => {
-      console.log('logout', rdata);
-      if (rdata.error) throw Error(rdata.error);
-      console.log('removing session data from URSESSION');
-      if (urs.SESSION_Token && urs.SESSION_Key) {
-        urs.SESSION_Token = '';
-        urs.SESSION_Key = '';
-        SESSION.Clear();
-      } else throw Error('URSESSION key or token was not set');
-      resolve(rdata);
-    });
-  }).catch(err => reject(err));
+  const urs = window.URSESSION;
+  if (!urs) throw Error('unexpected missing URSESSION global');
+  if (!urs.SESSION_Key) throw Error('missing URSESSION session key');
+  return UR.NetCall('NET:SRV_SESSION_LOGOUT', { key: urs.SESSION_Key }).then(rdata => {
+    console.log('logout', rdata);
+    if (rdata.error) throw Error(rdata.error);
+    console.log('removing session data from URSESSION');
+    if (urs.SESSION_Token && urs.SESSION_Key) {
+      urs.SESSION_Token = '';
+      urs.SESSION_Key = '';
+      SESSION.Clear();
+    } else throw Error('URSESSION key or token was not set');
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.ModelTitleUpdate = (modelId, title) => {

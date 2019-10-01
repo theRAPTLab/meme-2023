@@ -99,6 +99,7 @@ class NetMessage {
       }
       // merge properties into this new class instance and return it
       Object.assign(this, msg);
+      this.seqlog = this.seqlog.splice(); // copy array
       m_SeqIncrement(this);
       return this;
     }
@@ -271,11 +272,17 @@ class NetMessage {
         log .seqlog
     /*/
     // is this packet originating from server to a remote?
-    if (this.s_uaddr === NetMessage.DefaultServerUADDR() && !this.msg.startsWith('SVR_')) {
+    if (this.s_uaddr === NetMessage.DefaultServerUADDR() && !this.msg.startsWith('NET:SVR_')) {
       return this.s_uaddr;
     }
     // this is a regular message forward to remote handlers
     return this.IsTransaction() ? this.seqlog[0] : this.s_uaddr;
+  }
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /** Return true if this pkt is from the server targeting remote handlers
+   */
+  IsServerOrigin() {
+    return this.SourceAddress() === NetMessage.DefaultServerUADDR();
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -471,7 +471,7 @@ async function m_HandleMessage(socket, pkt) {
   // the server!
 
   // Print some debugging messages
-  const DBG_NOSRV = !pkt.Message().startsWith('NET:SRV_');
+  const DBG_NOSRV = !pkt.IsServerMessage();
   if (DBG.calls) log_PktDirection(pkt, 'call', promises);
   if (DBG.calls && DBG_NOSRV) log_PktTransaction(pkt, 'queuing', promises);
 
@@ -564,7 +564,7 @@ function m_PromiseRemoteHandlers(pkt) {
   // generate the list of promises
   let promises = [];
   // disallow NET:SYSTEM published messages from remote clients
-  if (mesgName.startsWith('NET:SYSTEM')) return promises;
+  if (!pkt.IsServerOrigin() && mesgName.startsWith('NET:SYSTEM')) return promises;
   // check for handlers
   let handlers = m_remote_handlers.get(mesgName);
   if (!handlers) return promises;

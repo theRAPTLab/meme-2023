@@ -82,10 +82,10 @@ UNET.StartNetwork = () => {
   mu_wss = new WSS(mu_options);
   mu_wss.on('listening', () => {
     if (DBG) console.log(PR, `socket server listening on port ${mu_options.port}`);
-    mu_wss.on('connection', socket => {
+    mu_wss.on('connection', (socket, req) => {
       // if (DBG) console.log(PR, 'socket connected');
       // house keeping
-      m_SocketAdd(socket); // assign UADDR to socket
+      m_SocketAdd(socket, req); // assign UADDR to socket
       m_SocketClientAck(socket); // tell client HELLO with new UADDR
       // subscribe socket to handlers
       socket.on('message', json => m_SocketOnMessage(socket, json));
@@ -252,7 +252,7 @@ UNET.PKT_SessionLogin = pkt => {
   const key = SESSION.MakeAccessKey(token, uaddr);
   sock.USESS = decoded;
   sock.UKEY = key;
-  if (DBG) console.log(PR, `${uaddr} lgon '${decoded.token}'`);
+  console.log(PR, `${uaddr} user log-in '${decoded.token}'`);
   return { status: 'logged in', success: true, token, uaddr, key };
 };
 
@@ -272,6 +272,7 @@ UNET.PKT_SessionLogout = pkt => {
   if (sock.UKEY !== key) return { error: `uaddr '${uaddr}' key '${key}'!=='${sock.UKEY}'` };
   sock.UKEY = undefined;
   sock.USESS = undefined;
+  console.log(PR, `${uaddr} user logout '${decoded.token}'`);
   return { status: 'logged out', success: true };
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -283,6 +284,10 @@ UNET.PKT_Session = pkt => {
   if (!sock) {
     if (DBG) console.log(PR, `${uaddr} impossible socket lookup failure`);
     return { error: `${uaddr} impossible socket lookup failure` };
+  }
+  if (sock.ULOCAL) {
+    if (DBG) console.log(PR, `${uaddr} is localhost so bypass key check`);
+    return { localhost: true };
   }
   if (!sock.USESS) {
     if (DBG) console.log(PR, `${uaddr} is not logged-in`);
@@ -311,12 +316,16 @@ UNET.PKT_Session = pkt => {
  * UADDR property of the socket and adding to mu_sockets map. The connection is
  * logged to the logfile.
  * @param {Object} socket connecting socket
+ * @param {Object} req raw request
  */
-function m_SocketAdd(socket) {
+function m_SocketAdd(socket, req) {
   // save socket by socket_id
   let sid = m_GetNewUADDR();
-  // store additional props in socket
+  // store ursys address
   socket.UADDR = sid;
+  // set ULOCAL flag if socket is local because this is privilleged
+  const remoteIp = req && req.connection ? req.connection.remoteAddress : '';
+  socket.ULOCAL = remoteIp === '127.0.0.1' || remoteIp === '::1';
   // save socket
   mu_sockets.set(sid, socket);
   if (DBG) console.log(PR, `socket ADD ${socket.UADDR} to network`);
@@ -345,7 +354,8 @@ function m_SocketClientAck(socket) {
     HELLO: `Welcome to URSYS, ${socket.UADDR}`,
     UADDR: socket.UADDR,
     SERVER_UADDR,
-    PEERS
+    PEERS,
+    ULOCAL: socket.ULOCAL
   };
   socket.send(JSON.stringify(data));
 } // end m_SocketClientAck()

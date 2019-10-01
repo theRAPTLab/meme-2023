@@ -189,7 +189,6 @@ SESSION.SetAccessKey = key => {
  */
 SESSION.AccessKey = () => {
   if (DBG) console.log('AccessKey() returning', m_access_key);
-
   return m_access_key;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -468,7 +468,7 @@ class NetMessage {
  * @param {Object} [config.uaddr] - URSYS browser address
  */
 NetMessage.GlobalSetup = (config = {}) => {
-  let { uaddr, netsocket, peers } = config;
+  let { uaddr, netsocket, peers, is_local } = config;
   if (uaddr) NetMessage.UADDR = uaddr;
   if (peers) NetMessage.PEERS = peers;
   if (netsocket) {
@@ -479,8 +479,11 @@ NetMessage.GlobalSetup = (config = {}) => {
     m_netsocket = netsocket;
     m_mode = M_ONLINE;
   }
+  if (is_local) NetMessage.ULOCAL = is_local;
 };
 NetMessage.UADDR = 'UNASSIGNED';
+NetMessage.ULOCAL = false; // set if connection is a local connection
+NetMessage.PEERS = undefined;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** NetMessage.GlobalCleanup() is a static method called only by the client,
@@ -494,6 +497,7 @@ NetMessage.GlobalCleanup = () => {
     if (DBG.setup) console.log(PR, 'GlobalCleanup: deallocating netsocket, mode closed');
     m_netsocket = null;
     m_mode = M_CLOSED;
+    NetMessage.ULOCAL = false;
   }
 };
 
@@ -568,6 +572,9 @@ NetMessage.SocketUADDR = () => {
 };
 NetMessage.Peers = () => {
   return NetMessage.PEERS;
+};
+NetMessage.IsLocalhost = () => {
+  return NetMessage.ULOCAL;
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

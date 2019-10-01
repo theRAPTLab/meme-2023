@@ -96,10 +96,21 @@ const SetVal = (key, value) => {
 
 /// UR PARAMS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// URSYS parameters are defined in the startup html.
-/// Copy them into URCENTRAL officially
+/*/
+    URSESSION is a global that stores connection data, injected by
+    web-index.html.ejs/server-express.js
+
+    CLIENT_IP, USRV_Host, USRV_IP, USRV_MsgPort,
+    USRV_Start, CLIENT_UADDR, USRV_UADDR,
+    SESSION_Key, SESSION_Token
+
+/*/
 if (!window.URSESSION) window.URSESSION = {};
 Define('ur_session', window.URSESSION);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*/
+    window.ur is used for console debugging
+/*/
 if (!window.ur) window.ur = {};
 Define('ur', window.ur);
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

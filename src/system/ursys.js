@@ -68,7 +68,7 @@ const { NetCall, NetSignal } = ULINK;
 
 function DBQuery(cmd, data) {
   if (!data.key) {
-    const accessKey = SESSION.AccessKey();
+    const accessKey = SESSION.AccessKey() || NetMessage.IsLocalhost();
     console.log('setting access key', accessKey);
     data.key = accessKey;
   }

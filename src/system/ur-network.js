@@ -153,7 +153,7 @@ NETWORK.Connect = (datalink, opt) => {
 /*/
 function m_HandleRegistrationMessage(msgEvent) {
   let regData = JSON.parse(msgEvent.data);
-  let { HELLO, UADDR, SERVER_UADDR, PEERS } = regData;
+  let { HELLO, UADDR, SERVER_UADDR, PEERS, ULOCAL } = regData;
   // (1) after receiving the initial message, switch over to regular
   // message handler
   NETWORK.RemoveListener('message', m_HandleRegistrationMessage);
@@ -165,7 +165,8 @@ function m_HandleRegistrationMessage(msgEvent) {
     uaddr: UADDR,
     netsocket: NETSOCK.ws,
     server_uaddr: SERVER_UADDR,
-    peers: PEERS
+    peers: PEERS,
+    is_local: ULOCAL
   });
   // (3) connect regular message handler
   NETWORK.AddListener('message', m_HandleMessage);

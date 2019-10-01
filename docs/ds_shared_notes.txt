@@ -242,7 +242,19 @@ NET:SRV_DB_QUERY, {
     <dbkey>: condition || [ condition, condition, ... ]
 }
 
---- ok --- now that these calls are available and capable of firing back their changes, we can try implementing PMC data
+---
+
+  teacher / classroom / group / student (in students)
+
+  teachers.db.js    - array of { id, name }
+  classrooms.db.js  - array of { id, name, teacherId }
+  groups.db.js      - array of { id, name, students [], classroomId }
+  models.db.js      - array of { id, title, groupId, etc }
+  resources.db.js   - array of { id, referenceLabel, etc }
+
+
+--- ok ---
+now that these calls are available and capable of firing back their changes, we can    try implementing PMC data
 
 PMCDATA.InitializeModel(model,resources)
 PMCDATA.PMC_AddProp(node)
@@ -325,4 +337,60 @@ B   PMCData.SetEvidenceLinkMechId = (evId, mechId)
   S VMData.VM_ToggleMech = vmech
     VMData.VM_SelectedPropsIds = ()
     VMData.VM_SelectedMechIds = ()
+
+    B = calls BuildModel()
+    D = publishes DATA_UPDATED
+    S = publishes SELECTION_CHANGED
+
+--- some observations ---
+
+*** BuildModel() to recreate the model
+    and 'DATA_UPDATED', 'ADM_DATA_UPDATED' are the main triggers
+
+    first update BuildModel() to be called whenever a DB_SYNC event happens.
+    so DBSYNC should be written first. It's in data.js hooked during INITIALIZE
+    to capture NET:SYSTEM_DBSYNC
+
+    Ok, once this sync message is available, let's try modifying a call.
+    (1) there are one of three calls: NET:SRV_DBADD, DBUPDATE, DBREMOVE
+    These all expect a data packet
+
+The generic format would look something like:
+
+MIR.SendDataOp = (data, opmsg)=>new Promise((resolve,reject)=>{
+            UR.NetCall(opmsg,data)
+            .then(rdata=> resolve(rdata))
+            .catch(error=>reject(error))
+        });
+
+MIR.AddTeacher = name => {
+  return new Promise((resolve, reject) => {
+    UR.NetCall('NET:SRV_DBADD', {
+      teachers: { name }
+    })
+      .then(rdata => resolve(rdata))
+      .catch(error => reject(error));
+  });
+};
+
+MIR.UpdateGroup = (groupId, group) => {
+  return new Promise((resolve, reject) => {
+    const groupData = Object.assign({}, group, { id: groupId });
+    UR.NetCall('NET:SRV_DBUPDATE', {
+      groups: [groupData]
+    })
+      .then(rdata => resolve(rdata))
+      .catch(error => reject(error));
+  });
+};
+
+MIR.DeleteGroup = groupId => {
+  return new Promise((resolve, reject) => {
+    UR.NetCall('NET:SRV_DBREMOVE', {
+      groups: [groupId]
+    })
+      .then(rdata => resolve(rdata))
+      .catch(error => reject(error));
+  });
+};
 

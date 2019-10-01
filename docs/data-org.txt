@@ -21,7 +21,6 @@ DATA MODEL
     h_propByResource    = new Map();
     h_mechByResource    = new Map();
 
-
 VIEW MODEL
 
     map_vprops          = new Map();
@@ -31,10 +30,23 @@ VIEW MODEL
     selected_vmechs     = new Set();
     map_rollover        = new Map();
 
-array + map
-VM_Get*Changes()
-VM_*Exists(id)
-VM_Get*(id)
-VM_*Delete(id)
-VM_*Set(id,element)
+    array + map
+    VM_Get*Changes()
+    VM_*Exists(id)
+    VM_Get*(id)
+    VM_*Delete(id)
+    VM_*Set(id,element)
+
+PMCDATA
+
+    to access pmcdata models, we need to grab the models collection:
+
+    { id: 1, title: 'Fish Sim', groupId: 1, data: { ... } }
+
+    data is {
+        properties: [ { id, node, name }, ... ]
+        mechanisms: [ { id, edge, source, target, name }, ... ]
+        evidence: [ { id, propId, mechId, rsrcId, number, rating, note }, ... ]
+        commentThreads: [ { id, refId, comments: [ {id, time, author, date,text,criteriaId,readBy: ['student','student'] }] }, ... ]
+
 

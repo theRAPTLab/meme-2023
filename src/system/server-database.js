@@ -3,6 +3,9 @@
 
 DATABASE SERVER
 
+The most readable LokiJS documentation is at:
+http://techfort.github.io/LokiJS/
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
 const DBG = false;
@@ -166,7 +169,7 @@ function m_DatabaseChangeEvent(cmd, data) {
 }
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API:
+/** MESSAGE HANDLER: 'NET:SRV_DBGET'
  * Return the entire admin database structure. Used when initializing client
  * app.
  */
@@ -175,7 +178,7 @@ DB.PKT_GetDatabase = pkt => {
   const adm_db = {};
 
   DBKEYS.forEach(colname => {
-    adm_db[`a_${colname}`] = f_GetCollectionData(colname);
+    adm_db[colname] = f_GetCollectionData(colname);
   });
   // return object for transaction; URSYS will automatically return
   // to the netdevice that called this
@@ -183,7 +186,7 @@ DB.PKT_GetDatabase = pkt => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API:
+/** MESSAGE HANDLER: 'NET:SRV_DBADD'
  * Add an element or elements to the specificed collection.
  * All properties that match an existing DBKEY are considered inputs.
  * The property values must be objects WITHOUT an id property, or an
@@ -199,11 +202,14 @@ DB.PKT_Add = pkt => {
   const data = pkt.Data();
   const results = {};
   const collections = DATAMAP.ExtractCollections(data);
+  // collections is array of [ collectionName, docs ]
+  // for 'add' op, docs is a data object or array of data objects WITHOUT an id
+  // these data objects will be assigned ids and returned to caller
   collections.forEach(entry => {
-    let [colName, colObjs] = entry;
+    let [colName, docs] = entry;
     const dbc = m_db.getCollection(colName);
     // INSERT entries
-    let inserted = dbc.insert(colObjs);
+    let inserted = dbc.insert(docs);
     if (!Array.isArray(inserted)) inserted = [inserted];
     // RETURN ids
     const insertedIds = inserted.map(item => item.id);
@@ -222,7 +228,7 @@ DB.PKT_Add = pkt => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API:
+/** MESSAGE HANDLER: 'NET:SRV_DBUPDATE'
  * Update a collection.
  * All properties that match an existing DBKEY are considered inputs.
  * The property values must be objects WITH an id property.
@@ -238,14 +244,17 @@ DB.PKT_Update = pkt => {
   const results = {};
   let error = '';
   const collections = DATAMAP.ExtractCollections(data);
+  // collections is array of [ collectionName, docs ]
+  // for 'update' op, docs is a data object or array of data objects WITH an id
+  // these data objects will replace matching db items and returned
   collections.forEach(entry => {
-    let [colName, colObjs] = entry;
+    let [colName, docs] = entry;
     const dbc = m_db.getCollection(colName);
     let updatedIds = [];
-    // 1. colObjs is the objects of the collection
+    // 1. docs is the objects of the collection
     // 2. grab ids from each colObj
     // 3. find each object, then update it
-    colObjs.forEach((ditem, index) => {
+    docs.forEach((ditem, index) => {
       const { id } = ditem;
       if (!id) {
         error += `item[${index}] has no id`;
@@ -263,7 +272,7 @@ DB.PKT_Update = pkt => {
           Object.assign(item, ditem);
         });
       updatedIds.push(id);
-    }); // colObjs
+    }); // docs
     // return updated objects
     const updated = dbc
       .chain()
@@ -280,7 +289,7 @@ DB.PKT_Update = pkt => {
   return results;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API:
+/** MESSAGE HANDLER: 'NET:SRV_DBREMOVE'
  * Delete elements from a collection.
  * All properties that match an existing DBKEY are considered inputs.
  * The property values must be an id or array of ids
@@ -297,6 +306,9 @@ DB.PKT_Remove = pkt => {
   const results = {};
   let error = '';
   const collections = DATAMAP.ExtractCollections(data);
+  // collections is array of [ collectionName, docs ]
+  // for 'update' op, docs is a id or array of ids to be removed
+  // docs matching these ids are removed and returned to caller
   collections.forEach(entry => {
     let [colName, idsToDelete] = entry;
     const dbc = m_db.getCollection(colName);

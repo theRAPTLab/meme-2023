@@ -4,6 +4,11 @@ Sticky Note
 
     For documentation, see boilerplate/src/app-web/components/StickyNote.jsx
     
+    NOTE: The text input needs a mouseDown handler to stopProgation of
+    the click to the react-draggable component in the parent 
+    StickyNoteCollection component.  Otherwise, the user won't be able
+    to click on the field to enter text.
+    
 props
 
     comment           Comment data passed from the parent StickyNote
@@ -185,14 +190,18 @@ class StickyNote extends React.Component {
     });
   }
 
-  OnMouseEnter() {
+  OnMouseEnter(e) {
+    e.preventDefault();
+    e.stopPropagation();
     // Show Edit Buttons
     this.setState({
       showEditButtons: true
     });
   }
 
-  OnMouseLeave() {
+  OnMouseLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
     // Hide Edit Buttons
     this.setState({
       showEditButtons: false
@@ -267,7 +276,6 @@ class StickyNote extends React.Component {
     } else {
       criteriaDisplay = ADM.GetCriteriaLabel(comment.id);
     }
-
     return (
       <ClickAwayListener onClickAway={this.OnClickAway}>
         <Paper
@@ -302,6 +310,7 @@ class StickyNote extends React.Component {
                   value={comment.text}
                   placeholder={comment.placeholder}
                   onChange={e => this.OnCommentTextChange(e.target.value)}
+                  onMouseDown={e => e.stopPropagation()}
                   variant="filled"
                   rowsMax="4"
                   multiline

@@ -99,6 +99,7 @@ StickyNote
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
+import Draggable from 'react-draggable';
 // Material UI components
 import Button from '@material-ui/core/Button';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
@@ -303,46 +304,44 @@ class StickyNoteCollection extends React.Component {
     const { comments, isHidden, isBeingEdited, top, left, parentId } = this.state;
 
     return (
-      <div>
-        <ClickAwayListener onClickAway={this.OnClickAway}>
-          <Paper className={classes.stickynotePaper} hidden={isHidden} style={{ top, left }}>
-            <IconButton
-              size="small"
-              style={{ position: 'absolute', right: '-25px', top: '-25px' }}
-              onClick={this.OnCloseClick}
-            >
-              <CloseIcon />
-            </IconButton>
-            {comments.map(comment => {
-              return (
-                <StickyNote
-                  comment={comment}
-                  key={parentId + comment.id}
-                  OnStartEdit={this.OnStartEdit}
-                  OnUpdateComment={this.OnUpdateComment}
-                />
-              );
-            })}
-            <Button
-              size="small"
-              style={{ margin: '5px' }}
-              variant="outlined"
-              hidden={isBeingEdited}
-              onClick={this.OnReplyClick}
-            >
-              Comment
-            </Button>
-            <Button
-              size="small"
-              style={{ float: 'right', margin: '5px' }}
-              variant="outlined"
-              onClick={this.OnCloseClick}
-            >
-              <CloseIcon /> Close
-            </Button>
-          </Paper>
-        </ClickAwayListener>
-      </div>
+      <Draggable>
+        <Paper className={classes.stickynotePaper} hidden={isHidden} style={{ top, left }}>
+          <IconButton
+            size="small"
+            style={{ position: 'absolute', right: '-25px', top: '-25px' }}
+            onClick={this.OnCloseClick}
+          >
+            <CloseIcon />
+          </IconButton>
+          {comments.map(comment => {
+            return (
+              <StickyNote
+                comment={comment}
+                key={parentId + comment.id}
+                OnStartEdit={this.OnStartEdit}
+                OnUpdateComment={this.OnUpdateComment}
+              />
+            );
+          })}
+          <Button
+            size="small"
+            style={{ margin: '5px' }}
+            variant="outlined"
+            hidden={isBeingEdited}
+            onClick={this.OnReplyClick}
+          >
+            Comment
+          </Button>
+          <Button
+            size="small"
+            style={{ float: 'right', margin: '5px' }}
+            variant="outlined"
+            onClick={this.OnCloseClick}
+          >
+            <CloseIcon /> Close
+          </Button>
+        </Paper>
+      </Draggable>
     );
   }
 }

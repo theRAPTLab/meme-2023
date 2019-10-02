@@ -211,6 +211,8 @@ class StickyNoteCollection extends React.Component {
 
   DoCloseSticky() {
     if (DBG) console.log(PKG, 'DoCloseSticky');
+    
+    UR.Publish('STICKY_CLOSED');
 
     // Mark all comments read, then update comments
     this.setState(state => {

@@ -7,8 +7,9 @@ const { COLOR } = DEFAULTS;
 
 const m_drawerWidth = 100;
 const m_primary = indigo[500];
-const m_stickynoteIconColor = COLOR.STICKY_BUTTON; // '#ffd700'; // yellow[800]; // `#ffc904`;
+const m_selectedColor = indigo[800];
 const m_stickynoteColor = yellow[400]; //`#ffe25a`;
+const m_stickynoteIconColor = COLOR.STICKY_BUTTON; // '#ffd700'; // yellow[800]; // `#ffc904`;
 const m_systemTextColor = 'rgba(0,0,0,0.35)';
 const m_systemLabelFontSize = '0.6em';
 const m_systemLabelTextColor = 'rgba(0,0,0,0.25)';
@@ -82,7 +83,7 @@ const styles = theme => {
     },
     treeItemSelected: {
       border: '2px solid',
-      borderColor: blue[800]
+      borderColor: m_selectedColor
     },
     treePropItem: {
       color: indigo[600],
@@ -445,6 +446,9 @@ const styles = theme => {
     },
     stickynoteIcon: {
       color: m_stickynoteIconColor
+    },
+    stickynoteIconOpen: {
+      color: m_selectedColor
     },
     stickynoteCardAuthor: {
       alignItems: 'baseline',

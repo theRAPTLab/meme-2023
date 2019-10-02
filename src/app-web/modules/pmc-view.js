@@ -48,7 +48,7 @@ PMCView.InitializeViewgraph = container => {
     .size(1000, 1000)
     .viewbox(0, 0, 1000, 1000)
     .panZoom({ zoomMin: 0.5, zoomMax: 2 })
-    .zoom(1.5, { x: 1000, y: 0 });
+    .zoom(1);
   m_svgroot.mousedown(() => {
     DATA.VM_DeselectAllProps();
     DATA.VM_DeselectAllMechs();

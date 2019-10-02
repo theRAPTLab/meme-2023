@@ -178,7 +178,7 @@ class StickyNoteCollection extends React.Component {
       isBeingEdited,
       comments,
       top: y,
-      left: x - 325, // width of stickyonotecard HACK!!!
+      left: x - 375, // width of stickyonotecard HACK!!!
       parentId
     });
   }

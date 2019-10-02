@@ -48,6 +48,7 @@ import PropTypes from 'prop-types';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
+import Input from '@material-ui/core/Input';
 import FilledInput from '@material-ui/core/FilledInput';
 import InputLabel from '@material-ui/core/InputLabel';
 import Paper from '@material-ui/core/Paper';
@@ -217,16 +218,20 @@ class StickyNote extends React.Component {
     // See https://github.com/mui-org/material-ui/issues/14905 for details
     const theme = createMuiTheme();
     theme.overrides = {
+      MuiInputBase: {
+        input: {
+          backgroundColor: 'rgba(255,255,255,0.8)',
+          '&:hover': {
+            backgroundColor: 'rgba(255,255,255,1)'
+          },
+          '&:disabled': {
+            backgroundColor: 'rgba(255,255,255,0.1)'
+          }
+        }
+      },
       MuiFilledInput: {
         root: {
-          backgroundColor: 'rgba(250,255,178,0.3)',
-          paddingTop: '3px',
-          '&:hover': {
-            backgroundColor: 'rgba(255,255,255,0.5)'
-          },
-          '&$focused': {
-            backgroundColor: '#fff'
-          }
+          paddingTop: '3px'
         },
         multiline: {
           padding: '0'
@@ -305,7 +310,7 @@ class StickyNote extends React.Component {
                 </div>
               </div>
               <MuiThemeProvider theme={theme}>
-                <FilledInput
+                <Input
                   className={classes.stickynoteCardInput}
                   value={comment.text}
                   placeholder={comment.placeholder}

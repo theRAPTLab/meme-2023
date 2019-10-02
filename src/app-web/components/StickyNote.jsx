@@ -150,6 +150,10 @@ class StickyNote extends React.Component {
   }
 
   OnEditFinished() {
+    // stop editing and close
+    this.setState({
+      isBeingEdited: false
+    });
     // Automatically mark read by author
     const author = ADM.GetSelectedStudentId();
     let comment = this.state.comment;
@@ -157,10 +161,6 @@ class StickyNote extends React.Component {
       comment.readBy.push(author);
     }
     this.props.OnUpdateComment({ comment });
-    // stop editing and close
-    this.setState({
-      isBeingEdited: false
-    });
   }
 
   OnDeleteClick() {

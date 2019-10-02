@@ -5,7 +5,7 @@ Sticky Note Collection
 state
     parent      We don't update the parent object directly, 
                 we call PMC to do the update.
-                The parent object is just used to rretrive comments
+                The parent object is just used to retrieve comments
                 and the parentId.
 
 props
@@ -17,7 +17,7 @@ props
 
 ABOUT THE STICKY NOTE SYSTEM
 
-    There are three components to the Sticky Note System:
+    There are four components to the Sticky Note System:
     
     1. StickyNoteButton
     2. VBadge
@@ -30,10 +30,10 @@ StickyNoteButton
     1. Display the read/unread/blank status of a sticky note
     2. Clicking on the button will open up the sticky note display
     
-    StickyNoteButtons are designed to be attachable to any object (though 
-    currently they only attach to EvidenceLinks).
+    StickyNoteButtons are designed to be attachable to any React component
+    (including Evidence and the model itself).
     
-    They retain only a minimal amount of data: parentId and
+    They retain only a minimal amount of data (parentId) and
     retrieve status updates directly from PMCData.
     
     When they open a StickyNoteCollection, they use an URSYS.Publish call.
@@ -43,16 +43,16 @@ VBadge
     VBadges play the role of StickyNoteButtons for VProps and VMechs
     i.e. SVG objects (StickyNoteButton is used for React Components).
     
-    VBadges independtly display the read/unread status of comments,
+    VBadges independently display the read/unread status of comments,
     creating new comments, and updating existing comments.
     
-    They trigger StickyNoteColleciton via the same STICKY:OPEN
+    They trigger StickyNoteColleciton via the same STICKY:OPEN call.
     
     VBadges also maintain an array of Evidence Link badges.
 
 StickyNoteCollection
     
-    A StickyNote is the container component for StickyNotes.
+    A StickyNoteCollection is the container component for StickyNotes.
     Each StickyNoteCollection can contain any number of StickyNotes.
     StickyNotes display individual comments from different authors.
     
@@ -82,8 +82,8 @@ StickyNote
       by the StickNote.
       
       onStartEdit -- This is called whenever the user clicks on the edit button. 
-      This is passed to StickyNote so that StickyNote can hide buttons that
-      shouldn't be shown during edit (e.g. Reply)
+      This is passed to StickyNoteCollection so that StickyNoteCollection can hide 
+      buttons that shouldn't be shown during edit (e.g. Reply)
       
       onUpdateComment -- This is called whenever the user edits the comment text
       field or when the user is finished editing and ready to close the sticky.  
@@ -192,7 +192,7 @@ class StickyNoteCollection extends React.Component {
     });
   }
 
-  // PMC has upadted sticky data, usually unread status
+  // PMC has updated sticky data, usually unread status
   // Update our existing data directly from PMC.
   DoStickyUpdate() {
     const { parentId } = this.state;
@@ -290,6 +290,8 @@ class StickyNoteCollection extends React.Component {
     // Disable OnClickAway for now because when the user clicks on a StickyButton on a prop,
     // the ClickAwayListener seems to get a click event well after DoOpenSticky is called
     // so the StickyNoteCollection is closed immediately after opening.
+    //
+    // The ClickAway listener should be placed directly on StickyNote instead.
     //
     // console.log(PKG, 'OnClickAway isHidden', this.state.isHidden, 'isBeingEdited', this.state.isBeingEdited, 'close?', (!this.state.isHidden && !this.state.isBeingEdited))
     // if (!this.state.isHidden && !this.state.isBeingEdited) {

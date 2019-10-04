@@ -68,6 +68,8 @@ MIR.SyncRemovedData = collections => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MIR.AddTeacher = name => {
+  console.log('addTeacher', name, typeof name);
+  if (typeof name !== 'string') throw Error('AddTeacher requires a single name');
   return UR.DBQuery('add', {
     teachers: { name }
   });
@@ -85,9 +87,9 @@ MIR.AddGroup = groupName => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// this is a test routine; no ADMData routines require a delete group
 /// so this is here to just provide a stub.
-MIR.DeleteGroup = groupId => {
+MIR.DeleteGroup = groupData => {
   return UR.DBQuery('remove', {
-    groups: [groupId]
+    groups: groupData
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -139,12 +139,12 @@ DataMap.GetCommandMessage = command => DBCMDS.get(command);
  */
 DataMap.ExtractCollections = data => {
   let collections = [];
-  Object.keys(data).forEach(collection => {
+  Object.keys(data).forEach(colKey => {
     // only return keys that match a collection name
-    if (!DBKEYS.includes(collection)) return;
-    let docs = data[collection]; // can be an obj or array of objs
-    if (typeof docs === 'object') docs = [docs]; // make sure docs is array
-    const entry = { collection, docs };
+    if (!DBKEYS.includes(colKey)) return;
+    let docs = data[colKey]; // can be an obj or array of objs
+    if (!Array.isArray(docs)) docs = [docs]; // wrap all non arrays in array
+    const entry = { colKey, docs };
     collections.push(entry);
   });
   // returned undefined if no collections
@@ -156,33 +156,89 @@ DataMap.ExtractCollections = data => {
  * @param {string} data - data object
  */
 DataMap.ValidateCollections = data => {
+  const { cmd } = data;
   let count = 0;
   Object.keys(data).forEach(key => {
     // only return keys that match a collection name
     if (!DBKEYS.includes(key)) return;
     // extract the collection
     const values = data[key];
-    // make sure values of type array contains only objects
     if (Array.isArray(values)) {
+      // make sure values of type array contains only valid types
+      let ok = true;
       values.forEach(element => {
-        if (typeof element === 'object') return; // objects for add/update
-        if (typeof element === 'number') return; // numeric ids for delete
-        throw Error(`collection array '${key}' must contain objects`);
-      });
+        switch (cmd) {
+          case 'add':
+            ok &= f_validateAdd(element, key);
+            break;
+          case 'update':
+            ok &= f_validateUpdate(element, key);
+            break;
+          case 'remove':
+            ok &= f_validateRemove(element, key);
+            break;
+          default:
+            console.log(cmd);
+            throw Error(`${key} unknown command ${cmd}`);
+        }
+        // if code hasn't returned, then this is an error
+        if (!ok) throw Error(`${key}.${cmd} array mystery error`);
+      }); // values foreach
+      // successful processing! increment collection count
       count++;
-      return;
-    }
-    // count
-    if (typeof values === 'object') {
+    } else {
+      // if we got this far, then the key contained a non-array
+      let ok = true;
+      switch (cmd) {
+        case 'add':
+          ok &= f_validateAdd(values, key);
+          break;
+        case 'update':
+          ok &= f_validateUpdate(values, key);
+          break;
+        case 'remove':
+          ok &= f_validateRemove(values, key);
+          break;
+        default:
+          console.log(cmd);
+          throw Error(`${key} unknown command ${cmd}`);
+      } // single value
+      if (!ok) throw Error(`${key}.${cmd} single value mystery error`);
+      // sucessful processing
       count++;
-      return;
     }
-    // if we get this far, it's not an object or array of objects, which is bad.
-    throw Error(`collection '${key}' must contain only objects/array of objects`);
-  });
-  // if we get this far, then return the count
+  }); // foreach key...loop to next one
+
+  // finished processing everything, return the count of processed collection
+  // if we dont' get this far, an error had been thrown
   return count;
 };
+
+function f_validateAdd(el, key = '') {
+  const etype = typeof el;
+  if (etype !== 'object') throw Error(`${key}.add: requires OBJECTS with no id`);
+  if (el.id) throw Error(`${key}.add: object can not have an id; it will be assigned`);
+  return true;
+}
+function f_validateUpdate(el, key = '') {
+  const etype = typeof el;
+  if (etype !== 'object') throw Error(`${key}.update: requires OBJECTS with an id`);
+  if (el.id === undefined) throw Error(`${key}.update: object must have an id`);
+  const idtype = typeof el.id;
+  if (idtype !== 'number')
+    throw Error(`${key}.update: object.id must be an integer, not ${idtype}`);
+  if (Number.parseInt(el.id) !== el.id)
+    throw Error(`${key}.update: object.id ${el} is not an integer`);
+  return true;
+}
+function f_validateRemove(num, key = '') {
+  const etype = typeof num;
+  console.log(num, etype);
+  if (etype !== 'number')
+    throw Error(`${key}.remove: only provide an integer id (typeof=${etype})`);
+  if (Number.parseInt(num) !== num) throw Error(`${key}.remove: ${num} isn't an integer`);
+  return true;
+}
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

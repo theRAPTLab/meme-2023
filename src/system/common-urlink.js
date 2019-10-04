@@ -277,7 +277,8 @@ class URLink {
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /**
    * Perform data operation to server. Do not call directly, but use
-   * UR.DBQuery(cmd,data)
+   * UR.DBQuery(cmd,data). The cmd is looks up the corresponding URSYS
+   * message (e.g. add -> NET:SRV_DBADD)
    * @example
    * DATAMAP.DBQuery('add', { teachers: { name: 'NewTeacher' }});
    */
@@ -287,7 +288,8 @@ class URLink {
     if (data.cmd) return Promise.reject(`do not include 'cmd' prop in data pack`);
     if (!data.key) return Promise.reject(`data must have access key 'key' defined`);
     data.cmd = cmd;
-    if (!DATAMAP.ValidateCollections(data)) return Promise.reject(`no-op: no valid collections`);
+    let res = DATAMAP.ValidateCollections(data);
+    if (!res) return Promise.reject(`no-op: no valid collections found ${res}`);
     // got this far, so let's do the call!
     // returns promise that resolve to data object
     return this.NetCall(opmsg, data);

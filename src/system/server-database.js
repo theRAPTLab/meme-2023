@@ -192,6 +192,8 @@ DB.PKT_GetDatabase = pkt => {
  * The property values must be objects WITHOUT an id property, or an
  * array of such objects. Returns the input with ids added to each object.
  * If the call fails, the error property will be set as well.
+ * data.cmd 'add'
+ * data.collectionName = obj || [ obj ], returns objs with id set
  * @param {NetMessage} pkt - packet with data object as described above
  * @returns {Object} - data to return to caller
  */
@@ -206,8 +208,8 @@ DB.PKT_Add = pkt => {
   // for 'add' op, docs is a data object or array of data objects WITHOUT an id
   // these data objects will be assigned ids and returned to caller
   collections.forEach(entry => {
-    let { collection, docs } = entry;
-    const dbc = m_db.getCollection(collection);
+    let { colKey, docs } = entry;
+    const dbc = m_db.getCollection(colKey);
     // INSERT entries
     let inserted = dbc.insert(docs);
     if (!Array.isArray(inserted)) inserted = [inserted];
@@ -218,8 +220,8 @@ DB.PKT_Add = pkt => {
       .chain()
       .find({ id: { $in: insertedIds } })
       .data({ removeMeta: true });
-    results[collection] = updated;
-    if (DBG) console.log(PR, `ADDED '${collection}': ${JSON.stringify(updated)}`);
+    results[colKey] = updated;
+    if (DBG) console.log(PR, `ADDED '${colKey}': ${JSON.stringify(updated)}`);
   });
   // send update to network
   m_DatabaseChangeEvent('add', results, pkt);
@@ -233,6 +235,9 @@ DB.PKT_Add = pkt => {
  * All properties that match an existing DBKEY are considered inputs.
  * The property values must be objects WITH an id property.
  * If the call fails, the error property will be set as well.
+ *
+ * data.cmd 'update'
+ * data.collectionName = obj || [ obj ], reurns updated items
  * @param {NetMessage} pkt - packet with data object as described above
  * @returns {Object} - data to return (including error if any)
  */
@@ -248,8 +253,8 @@ DB.PKT_Update = pkt => {
   // for 'update' op, docs is a data object or array of data objects WITH an id
   // these data objects will replace matching db items and returned
   collections.forEach(entry => {
-    let { collection, docs } = entry;
-    const dbc = m_db.getCollection(collection);
+    let { colKey, docs } = entry;
+    const dbc = m_db.getCollection(colKey);
     let updatedIds = [];
     // 1. docs is the objects of the collection
     // 2. grab ids from each colObj
@@ -278,8 +283,8 @@ DB.PKT_Update = pkt => {
       .chain()
       .find({ id: { $in: updatedIds } })
       .data({ removeMeta: true });
-    results[collection] = updated;
-    if (DBG) console.log(PR, `UPDATED '${collection}': ${JSON.stringify(updated)}`);
+    results[colKey] = updated;
+    if (DBG) console.log(PR, `UPDATED '${colKey}': ${JSON.stringify(updated)}`);
   }); // collections forEach
   // was there an error?
   if (error) return { error };
@@ -294,6 +299,8 @@ DB.PKT_Update = pkt => {
  * All properties that match an existing DBKEY are considered inputs.
  * The property values must be an id or array of ids
  * If the call fails, the error property will be set as well.
+ * data.cmd 'remove'
+ * data.collectionName = id || [ id ], return deleted items
  * @param {NetMessage} pkt - packet with data object as described above
  * @param {NetMessage} pkt.data - data containing parameters
  * @returns {Object} - data to return (including error if any)
@@ -310,14 +317,17 @@ DB.PKT_Remove = pkt => {
   // for 'update' op, docs is a id or array of ids to be removed
   // docs matching these ids are removed and returned to caller
   collections.forEach(entry => {
-    let { collection, docs } = entry;
-    const dbc = m_db.getCollection(collection);
+    let { colKey, docs } = entry;
+    // check data are numeric ids only
+    if (!docs.every(item => Number.parseInt(item) === item))
+      error += `'${colKey}' docs prop must contain integer ids, not ${JSON.stringify(docs)}`;
+    const dbc = m_db.getCollection(colKey);
     // return deleted objects
-    const removed = dbc.chain().find({ id: { $in: idsToDelete } });
+    const removed = dbc.chain().find({ id: { $in: docs } });
     const matching = removed.branch().data({ removeMeta: true });
-    results[collection] = matching;
+    results[colKey] = matching;
     removed.remove();
-    console.log(PR, `REMOVED '${collection}': ${JSON.stringify(matching)}`);
+    console.log(PR, `REMOVED '${colKey}': ${JSON.stringify(matching)}`);
   }); // collections forEach
   // was there an error?
   if (error) return { error };

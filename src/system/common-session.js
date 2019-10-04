@@ -155,7 +155,7 @@ SESSION.DecodeAndSet = token => {
       groupId,
       classroomId
     };
-    if (DBG) console.log('DecodeAndSet() sucess', studentName, groupId, classroomId);
+    if (DBG) console.log('DecodeAndSet() success', studentName, groupId, classroomId);
   } else {
     if (DBG) console.log('DecodeAndSet() failed', token);
   }

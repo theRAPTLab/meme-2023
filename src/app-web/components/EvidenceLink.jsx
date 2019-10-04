@@ -59,6 +59,7 @@ class EvidenceLink extends React.Component {
       ratingDefs: [],
       isBeingEdited: false,
       isExpanded: false,
+      isHovered: false,
       listenForSourceSelection: false
     };
 
@@ -331,6 +332,7 @@ class EvidenceLink extends React.Component {
       ratingDefs,
       isBeingEdited,
       isExpanded,
+      isHovered,
       listenForSourceSelection
     } = this.state;
     if (id === '') return '';
@@ -354,11 +356,14 @@ class EvidenceLink extends React.Component {
           className={ClassNames(
             classes.evidenceLinkPaper,
             isExpanded ? classes.evidenceLinkPaperExpanded : '',
-            isBeingEdited ? classes.evidenceLinkPaperEditting : ''
+            isBeingEdited ? classes.evidenceLinkPaperEditting : '',
+            isHovered ? classes.evidenceLinkPaperHover : ''
           )}
           onClick={this.DoToggleExpanded}
           key={`${rsrcId}`}
           elevation={isExpanded ? 5 : 1}
+          onMouseEnter={() => this.setState({ isHovered: true })}
+          onMouseLeave={() => this.setState({ isHovered: false })}
         >
           {/* Title Bar */}
           <Button

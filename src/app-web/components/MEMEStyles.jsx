@@ -337,7 +337,11 @@ const styles = theme => {
       width: '290px',
       margin: '1px auto 1px 0',
       padding: '1px 0 10px 10px',
-      backgroundColor: teal[100]
+      backgroundColor: teal[100],
+      cursor: 'pointer'
+    },
+    evidenceLinkPaperHover: {
+      backgroundColor: teal[200]
     },
     evidenceLinkPaperExpanded: {
       height: 'auto',

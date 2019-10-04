@@ -21,18 +21,8 @@ const PKG = 'ADMDATA'; // prefix for console.log
 
 /// MODEL /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-let adm_db = {
-  a_teacher: [],
-  a_classrooms: [],
-  a_groups: [],
-  a_models: [],
-  a_criteria: [],
-  a_sentenceStarters: [],
-  a_ratingsDefinitions: [],
-  a_classroomResources: [],
-  a_resources: []
-}; // server database object by reference
-let adm_settings = {}; // local settings, state of the admin view (current displayed class/teacher)
+let adm_db = {}; // see DATAMAP.DBKEYS for a list of properties this will contains
+let adm_settings = {}; // state of the admin view (current displayed class/teacher)
 
 /// UTILITY ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -505,7 +495,7 @@ ADMData.GetStudentGroupName = (studentId = adm_settings.selectedStudentId) => {
 /// MODELS ////////////////////////////////////////////////////////////////////
 ///
 ADMData.GetModelById = (modelId = adm_settings.selectedModelId) => {
-  return adm_db.models.find(model => model.id === modelId);
+  return adm_db.pmcData.find(model => model.id === modelId);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -795,4 +785,5 @@ ADMData.SetClassroomResource = (rsrcId, checked, classroomId) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};
 window.ur.ADM = ADMData;
+window.ur.admdb = adm_db;
 export default ADMData;

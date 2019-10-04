@@ -1,4 +1,6 @@
 module.exports = {
+  // pmcdata id
+  id: 1,
   // entities
   entities: [
     // props
@@ -21,7 +23,7 @@ module.exports = {
     // evidence
     {
       id: 31,
-      type: 'ev',
+      type: 'evidence',
       propId: 16,
       mechId: undefined,
       rsrcId: 1,
@@ -31,7 +33,7 @@ module.exports = {
     },
     {
       id: 33,
-      type: 'ev',
+      type: 'evidence',
       propId: undefined,
       mechId: '14:13',
       rsrcId: 2,
@@ -41,7 +43,7 @@ module.exports = {
     },
     {
       id: 32,
-      type: 'ev',
+      type: 'evidence',
       propId: 16,
       mechId: undefined,
       rsrcId: 1,
@@ -51,7 +53,7 @@ module.exports = {
     },
     {
       id: 34,
-      type: 'ev',
+      type: 'evidence',
       propId: 11,
       mechId: undefined,
       rsrcId: 2,

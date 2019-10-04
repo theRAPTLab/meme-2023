@@ -24,7 +24,8 @@ const DBKEYS = [
   `sentenceStarters`,
   `ratingsDefinitions`,
   `classroomResources`,
-  `resources`
+  `resources`,
+  `pmcData`
 ];
 
 /// list of valid database change commands

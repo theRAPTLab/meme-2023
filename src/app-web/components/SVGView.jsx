@@ -98,7 +98,7 @@ class SVGView extends React.Component {
     }
     // returns a root svg that is the PARENT of the SVGJS-created draw surface
     return (
-      <svg ref={this.refContainer} width={this.props.viewWidth} height={this.props.viewHeight} />
+      <svg id="modelSVG" ref={this.refContainer} width={this.props.viewWidth} height={this.props.viewHeight} />
     );
   }
 }

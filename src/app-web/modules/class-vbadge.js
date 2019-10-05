@@ -335,6 +335,10 @@ VBadge.SVGRating = (evlink, gBadge) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Creates and returns a sticky button group object with three buttons to turn on/off
+ * 
+ *  Click Events
+ *  VProp's drag handler prevents click and mouseup events from propagating
+ *  down to the gStickyButtons group.
  */
 VBadge.SVGStickyButton = (vparent, x, y) => {
   const onClick = customEvent => {
@@ -353,7 +357,10 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
   let gStickyButtons = vparent.gRoot
     .group()
     .move(x, y)
-    .attr({ cursor: 'pointer' })
+    .attr({
+      id: 'gStickyNoteBtn',
+      cursor: 'pointer'
+    })
     .click(onClick);
 
   // Create SVG Icons

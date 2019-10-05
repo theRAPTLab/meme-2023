@@ -17,6 +17,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import DATA from './data';
 import UR from '../../system/ursys';
+import UTILS from './utils';
 // import { cssinfo } from './console-styles';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
@@ -184,6 +185,8 @@ const AddDragDropHandlers = vprop => {
 
     // it did move, so do drop target magic
     const dropId = DATA.VM_PropsMouseOver().pop();
+    
+    const dropXY = `(${DragState(vprop).gRootXY.x},${DragState(vprop).gRootXY.y})`;
 
     if (dropId) {
       // there is a drop target
@@ -193,6 +196,7 @@ const AddDragDropHandlers = vprop => {
       // this has to come last because this automatically fires layout
       DATA.PMC_SetPropParent(vpropId, dropId);
       if (DBG) console.log(`[${vpropId}] moved to [${dropId}]`);
+      UTILS.RLog('PropertyDrag', `Drag property id=${vprop.id} onto id=${dropId} at ${dropXY}`);
     } else {
       // dropped on the desktop, no parent
       const parent = DATA.PropParent(vpropId);
@@ -201,11 +205,13 @@ const AddDragDropHandlers = vprop => {
         vprop.LayoutDisabled(true);
         const { x, y } = DragState(vprop).gRootXY;
         vprop.Move(x + dx, y + dy);
+        UTILS.RLog('PropertyDrag', `Drag property id=${vprop.id} from id=${parent} to ${dropXY}`);
       } else {
         if (DBG) console.log(`[${vpropId}] moved on desktop`);
         vprop.LayoutDisabled(true);
         const { x, y } = DragState(vprop).gRootXY;
         vprop.Move(x + dx, y + dy);
+        UTILS.RLog('PropertyDrag', `Drag property id=${vprop.id} to ${dropXY}`);
       }
       // this has to come last because this automatically fires layout
       DATA.PMC_SetPropParent(vpropId, undefined);

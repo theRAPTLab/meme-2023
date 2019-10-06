@@ -53,7 +53,7 @@ class Login extends React.Component {
     this.DoADMDataUpdate();
   }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {}
 
   DoADMDataUpdate() {
     if (ADM.IsLoggedOut()) {

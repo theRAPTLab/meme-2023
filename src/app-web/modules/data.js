@@ -14,6 +14,8 @@ import VM from './vm-data';
 import UR from '../../system/ursys';
 import DATAMAP from '../../system/common-datamap';
 import SESSION from '../../system/common-session';
+import ADMData from './adm-data';
+import ASET from './adm-settings';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,13 +35,13 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
     const collections = DATAMAP.ExtractCollections(data);
     switch (cmd) {
       case 'add':
-        MIR.SyncAddedData(collections);
+        NEW.SyncAddedData(collections);
         break;
       case 'update':
-        MIR.SyncUpdatedData(collections);
+        NEW.SyncUpdatedData(collections);
         break;
       case 'remove':
-        MIR.SyncRemovedData(collections);
+        NEW.SyncRemovedData(collections);
         break;
     }
     console.log(`*** got '${cmd}' command with data.changed:`, data);
@@ -48,17 +50,17 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// clone ADMData
-const MOD = Object.assign({ ...ADM }, { ...PMC }, { ...VM });
-const MIR = {};
+/// clone ADMData, PMC, VM into $
+const $ = Object.assign({ ...ADM }, { ...PMC }, { ...VM });
+const NEW = {};
 
-MIR.SyncAddedData = collections => {
+$.SyncAddedData = collections => {
   console.log('SYNC ADD', collections);
 };
-MIR.SyncUpdatedData = collections => {
+$.SyncUpdatedData = collections => {
   console.log('SYNC UPDATE', collections);
 };
-MIR.SyncRemovedData = collections => {
+$.SyncRemovedData = collections => {
   console.log('SYNC REMOVE', collections);
 };
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
@@ -67,7 +69,7 @@ MIR.SyncRemovedData = collections => {
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.AddTeacher = name => {
+$.AddTeacher = name => {
   console.log('addTeacher', name, typeof name);
   if (typeof name !== 'string') throw Error('AddTeacher requires a single name');
   return UR.DBQuery('add', {
@@ -75,35 +77,35 @@ MIR.AddTeacher = name => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.SetClassesModelVisibility = isVisible => {};
+NEW.SetClassesModelVisibility = isVisible => {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.AddClassroom = name => {
+NEW.AddClassroom = name => {
   // FIRES 'CLASSROOM_SELECT' classroomId, needsUpdating
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.AddGroup = groupName => {
+NEW.AddGroup = groupName => {
   // FIRES 'ADM_DATA_UPDATED'
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// this is a test routine; no ADMData routines require a delete group
 /// so this is here to just provide a stub.
-MIR.DeleteGroup = groupData => {
+NEW.DeleteGroup = groupData => {
   return UR.DBQuery('remove', {
     groups: groupData
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.UpdateGroup = (groupId, group) => {
+NEW.UpdateGroup = (groupId, group) => {
   const groupData = Object.assign({}, group, { id: groupId });
   return UR.DBQuery('update', {
     groups: groupData
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.AddStudents = (groupId, students) => {
+NEW.AddStudents = (groupId, students) => {
   // Update the group
   if (!Array.isArray(students)) students = [students];
-  let group = MOD.GetGroup(groupId);
+  let group = $.GetGroup(groupId);
   if (group === undefined) {
     console.error('AddStudent could not find group', groupId);
     return;
@@ -114,16 +116,16 @@ MIR.AddStudents = (groupId, students) => {
     }
     group.students.push(student);
   });
-  return MIR.UpdateGroup(groupId, group);
+  return NEW.UpdateGroup(groupId, group);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.DeleteStudent = (groupId, student) => {
+NEW.DeleteStudent = (groupId, student) => {
   // Update the group
   if (typeof student !== 'string') {
     console.error('DeleteStudent arg2 must be string');
     return;
   }
-  let group = MOD.GetGroup(groupId);
+  let group = $.GetGroup(groupId);
   if (group === undefined) {
     console.error('DeleteStudent could not find group', groupId);
     return;
@@ -131,16 +133,20 @@ MIR.DeleteStudent = (groupId, student) => {
   // Remove the student
   group.students = group.students.filter(stu => student !== stu);
   // Now update groups, returning promise
-  return MIR.UpdateGroup(groupId, group);
+  return NEW.UpdateGroup(groupId, group);
 };
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
                                 P M C - D A T A
                                 O V E R R I D E
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/// STATE CALLS
+/// $.SelectTeacher(teacherId)
+/// $.SelectClassroom(classroomId = GetClassroomIdByStudent)
+/// $.Login sets .selectedStudentId
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.Login = loginToken => {
+$.Login = loginToken => {
   const urs = window.URSESSION;
   if (!urs) throw Error('unexpected missing URSESSION global');
   return UR.NetCall('NET:SRV_SESSION_LOGIN', { token: loginToken }).then(rdata => {
@@ -152,10 +158,12 @@ MIR.Login = loginToken => {
     // also save globally
     SESSION.DecodeAndSet(rdata.token);
     SESSION.SetAccessKey(rdata.key);
+    //
+    ADMData.GetSelectedStudentId();
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.Logout = () => {
+$.Logout = () => {
   const urs = window.URSESSION;
   if (!urs) throw Error('unexpected missing URSESSION global');
   if (!urs.SESSION_Key) throw Error('missing URSESSION session key');
@@ -171,27 +179,27 @@ MIR.Logout = () => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.ModelTitleUpdate = (modelId, title) => {
+NEW.ModelTitleUpdate = (modelId, title) => {
   // FIRES 'MODEL_TITLE_UPDATED' title
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.NewModel = groupId => {
+NEW.NewModel = groupId => {
   // FIRES 'ADM_DATA_UPDATED'
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.UpdateCriteria = criteria => {}; //
+NEW.UpdateCriteria = criteria => {}; //
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.UpdateCriteriaList = criteria => {}; //
+NEW.UpdateCriteriaList = criteria => {}; //
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.UpdateSentenceStarter = sstarter => {}; //
+NEW.UpdateSentenceStarter = sstarter => {}; //
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.UpdateRatingsDefinitions = (classId, rateDef) => {}; //
+NEW.UpdateRatingsDefinitions = (classId, rateDef) => {}; //
 
-/// PMC DATA MOD METHODS //////////////////////////////////////////////////////
+/// PMC DATA $ METHODS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.ClearModel = () => {};
-MIR.InitializeModel = (model, resources) => {};
-MIR.BuildModel = () => {
+NEW.ClearModel = () => {};
+NEW.InitializeModel = (model, resources) => {};
+NEW.BuildModel = () => {
   // derived elements
   // a_props = nodes
   // a_mechs = edges
@@ -204,16 +212,16 @@ MIR.BuildModel = () => {
   // h_evidenceByProp = new Map(); // prop -> [ evidence, ... ]
   // h_evlinkByResource = new Map(); //
 };
-MIR.PMC_AddProp = node => {}; // m_graph.setNode()
-MIR.PMC_SetPropParent = (node, parent) => {}; // m_graph.setParent(node, parent)
-MIR.PMC_PropDelete = propid => {}; // m_graph.removeNode(propid)
-MIR.PMC_MechAdd = (sourceId, targetId, label) => {}; // m_graph.setEdge
-MIR.PMC_MechUpdate = (origMech, newMech) => {}; // m_graph.setEdge()
-MIR.PMC_MechDelete = mechId => {}; // m_graph.removeEdge()
-MIR.PMC_AddEvidenceLink = (rsrcId, note) => {}; // a_evidence.push()
-MIR.PMC_DeleteEvidenceLink = evId => {}; // a_evidence.splice()
-MIR.SetEvidenceLinkPropId = (evId, propId) => {}; // a_evidence.find() evidence
-MIR.SetEvidenceLinkMechId = (evId, mechId) => {}; // a_evidence.find() evidence
+NEW.PMC_AddProp = node => {}; // m_graph.setNode()
+NEW.PMC_SetPropParent = (node, parent) => {}; // m_graph.setParent(node, parent)
+NEW.PMC_PropDelete = propid => {}; // m_graph.removeNode(propid)
+NEW.PMC_MechAdd = (sourceId, targetId, label) => {}; // m_graph.setEdge
+NEW.PMC_MechUpdate = (origMech, newMech) => {}; // m_graph.setEdge()
+NEW.PMC_MechDelete = mechId => {}; // m_graph.removeEdge()
+NEW.PMC_AddEvidenceLink = (rsrcId, note) => {}; // a_evidence.push()
+NEW.PMC_DeleteEvidenceLink = evId => {}; // a_evidence.splice()
+NEW.SetEvidenceLinkPropId = (evId, propId) => {}; // a_evidence.find() evidence
+NEW.SetEvidenceLinkMechId = (evId, mechId) => {}; // a_evidence.find() evidence
 
 /// MODULE HELPERS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -221,18 +229,18 @@ MIR.SetEvidenceLinkMechId = (evId, mechId) => {}; // a_evidence.find() evidence
 /// DEBUG /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};
-window.ur.DATATEST = MIR;
+window.ur.DATATEST = NEW;
 // test update group
 window.ur.tupg = id => {
   const g = ADM.GetGroup(id);
   g.name = `${g.name}${g.name}`;
-  MIR.UpdateGroup(id, g).then(data => {
+  NEW.UpdateGroup(id, g).then(data => {
     console.log('updategroup', data);
   });
 };
 // test add teacher
 window.ur.taddt = name => {
-  MIR.AddTeacher(name).then(data => {
+  NEW.AddTeacher(name).then(data => {
     console.log('addteacher', data);
     const teacher = data.teachers[0];
     UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
@@ -240,7 +248,7 @@ window.ur.taddt = name => {
 };
 // test add students to group
 window.ur.tadds = (groupId, students) => {
-  MIR.AddStudents(groupId, students).then(data => {
+  NEW.AddStudents(groupId, students).then(data => {
     console.log('addstudents', data);
     // FIRES 'ADM_DATA_UPDATED'
     UR.Publish('ADM_DATA_UPDATED');
@@ -249,7 +257,7 @@ window.ur.tadds = (groupId, students) => {
 };
 // test delete student from group
 window.ur.tdels = (groupId, student) => {
-  MIR.DeleteStudent(groupId, student).then(data => {
+  NEW.DeleteStudent(groupId, student).then(data => {
     console.log('deletestudent', data);
     // FIRES 'ADM_DATA_UPDATED'
     UR.Publish('ADM_DATA_UPDATED');
@@ -258,7 +266,7 @@ window.ur.tdels = (groupId, student) => {
 };
 // test remove group
 window.ur.trmg = groupId => {
-  MIR.DeleteGroup(groupId).then(data => {
+  NEW.DeleteGroup(groupId).then(data => {
     console.log('deletegroup', data);
     // FIRES 'ADM_DATA_UPDATED'
     UR.Publish('ADM_DATA_UPDATED');
@@ -267,14 +275,14 @@ window.ur.trmg = groupId => {
 };
 // test login
 window.ur.tlogin = token => {
-  MIR.Login(token).then(() => {
+  $.Login(token).then(() => {
     window.ur.clientinfo();
   });
   return 'logging in...';
 };
 // test logout
 window.ur.tlogout = () => {
-  MIR.Logout().then(() => {
+  $.Logout().then(() => {
     window.ur.clientinfo();
   });
   return 'logging out...';
@@ -282,8 +290,9 @@ window.ur.tlogout = () => {
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default MOD;
-/// export default MODULE; // import MOD from './module'
+/// $ is the combined ADM, PMC, VM plus overrides
+export default $;
+/// export default MODULE; // import $ from './module'
 /// export default MyClass; // import MyClass from  './module'
 /// export { A, B }; // import { A, B } from './module'
 /// export { A as B }; // import { B } from './module'

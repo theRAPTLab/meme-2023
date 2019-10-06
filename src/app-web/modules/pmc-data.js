@@ -110,22 +110,40 @@ PMCData.ClearModel = () => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  Loads a graph from model data and saves a local copy.  Replaces PMCData.LoadGraph.
- *  This will self repair bad data, but model.id and model.groupID MUST be defined.
- *  This should be only be called by ADMData.InitializeModel. Never call this direcly.
+ * Loads a graph from model data and saves a local copy.  Replaces PMCData.LoadGraph.
+ * This will self repair bad data, but model.id and model.groupID MUST be defined.
+ * This should be only be called by ADMData.InitializeModel().
+ * NEVER CALL THIS FUNCTION DIRECTLY
  */
-PMCData.InitializeModel = (model, resources) => {
+PMCData.InitializeModel = (model, admdb) => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
+  if (!admdb) console.error(`PMCData.InitializeModel() arg2 must be an instance of adm_db`);
+
+  // get essential
+  const { resources, pmcData } = admdb;
 
   // Self repair bad data
-  let m = model;
-  if (m.id === undefined || m.groupId === undefined) {
+  const { id, groupId, pmcDataId } = model;
+  if (id === undefined || groupId === undefined || pmcDataId === undefined) {
     console.error(
-      `PMCData.InitializeModel called with either bad id (${m.id})or bad groupId (${m.groupId})`
+      `PMCData.InitializeModel called with either bad id (${id}) or bad groupId (${groupId}) or bad pmcDataId (${pmcDataId})`
     );
   }
 
-  m.data = model.data || {};
+  /*/
+  The model data format changed in october 2019 to better separate pmcdata from model
+  adm_db.models contain model objects that formerly contained a .data prop which has
+  been replaced with a .pmcDataId prop that refers to the actual data stored in
+  the 'pmcData' collection.
+
+  To avoid a rewrite, this code has been modified to produce the original structure,
+  by model.data = pmcData[pmcDataId]
+  /*/
+
+  let m = model;
+
+  // zap-in pmcdata
+  m.data = pmcData[pmcDataId];
 
   // Load Components/Properties
   m.data.properties = m.data.properties || [];
@@ -174,15 +192,19 @@ PMCData.InitializeModel = (model, resources) => {
     });
   });
 
+  // Resources
   a_resources = resources || [];
 
-  /***************************************************************************/
   // test serial write out, then serial read back in
+  // this doesn't really do anything other than ensure data
   const cleanGraphObj = GraphJSON.write(g);
   const json = JSON.stringify(cleanGraphObj);
   m_graph = GraphJSON.read(JSON.parse(json));
+
+  // update the essential data structures
   PMCData.BuildModel();
 
+  // return the cleaned model
   return m;
 };
 

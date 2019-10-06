@@ -1,5 +1,6 @@
 import UR from '../../system/ursys';
-import SESSION from './data'; // FIXME: This is a circular reference because adm-data also loads UTILS
+import ADATA from './data';
+import ASET from './adm-settings';
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -16,11 +17,13 @@ const UTILS = {};
  */
 UTILS.RLog = (event, params) => {
   const cleanedParams = params || '';
-  const username = SESSION.GetSelectedStudentId(); // FIXME: Pull data from session
-  const group = SESSION.GetGroupNameByStudent(username);
-  const modelId = SESSION.GetSelectedModelId();
-  const modelName = SESSION.GetModelTitle(modelId);
-  const items = [username, group, modelId, modelName, cleanedParams];
+  const username = ADATA.GetSelectedStudentId().toUpperCase();
+  const groupId = ASET.selectedGroupId;
+  const group = ADATA.GetGroupNameByStudent(username);
+  const modelId = ASET.selectedModelId;
+  const model = ADATA.GetModelById(modelId);
+  const modelName = ADATA.GetModelTitle(modelId);
+  const items = [username, group, groupId, modelName, modelId, cleanedParams];
   UR.NetPublish('NET:SRV_LOG_EVENT', { event, items });
 };
 

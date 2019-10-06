@@ -255,6 +255,7 @@ UNET.PKT_SessionLogin = pkt => {
   sock.USESS = decoded;
   sock.UKEY = key;
   if (DBG.client) console.log(PR, `${uaddr} user log-in '${decoded.token}'`);
+  LOGGER.Write(sock.UADDR, 'log-in', decoded.token);
   return { status: 'logged in', success: true, token, uaddr, key };
 };
 
@@ -273,6 +274,7 @@ UNET.PKT_SessionLogout = pkt => {
   const { key } = pkt.Data();
   if (sock.UKEY !== key) return { error: `uaddr '${uaddr}' key '${key}'!=='${sock.UKEY}'` };
   if (DBG.client) console.log(PR, `${uaddr} user logout '${sock.USESS.token}'`);
+  if (sock.USESS) LOGGER.Write(sock.UADDR, 'logout', sock.USESS.token);
   sock.UKEY = undefined;
   sock.USESS = undefined;
   return { status: 'logged out', success: true };
@@ -395,7 +397,8 @@ function m_SocketDelete(socket) {
   let uaddr = socket.UADDR;
   if (!mu_sockets.has(uaddr)) throw Error(DBG_SOCK_BADCLOSE);
   if (DBG) console.log(PR, `socket DEL ${uaddr} from network`);
-  LOGGER.Write(socket.UADDR, 'left network');
+  const user = socket.USESS ? socket.USESS.token : '';
+  LOGGER.Write(socket.UADDR, 'left network', user.toUpperCase());
   mu_sockets.delete(uaddr);
   // delete socket reference from previously registered handlers
   let rmesgs = m_socket_msgs_list.get(uaddr);
@@ -582,8 +585,8 @@ function m_PromiseRemoteHandlers(pkt) {
       let newpkt = new NetMessage(pkt); // clone packet data to new packet
       newpkt.MakeNewID(); // make new packet unique
       newpkt.CopySourceAddress(pkt); // clone original source address
-        promises.push(newpkt.PromiseTransaction(d_sock));
-      }
+      promises.push(newpkt.PromiseTransaction(d_sock));
+    }
   }); // handlers.forEach
   return promises;
 }

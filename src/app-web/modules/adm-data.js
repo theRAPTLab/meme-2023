@@ -450,8 +450,8 @@ ADMData.GetSelectedStudentId = () => {
  * @return {string} Name of student, or '' if not found
  */
 ADMData.GetStudentName = (studentId = ASET.selectedStudentId) => {
-  // FIXME: Eventually use actual name instead of ID?
-  return studentId;
+  // return just the first part of the studentid without the hash
+  return studentId.split('-')[0];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetStudentGroupName = (studentId = ASET.selectedStudentId) => {

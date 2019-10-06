@@ -47,16 +47,18 @@ let SESSION = {};
     containing as many decoded values as possible. Check isValid for
     complete decode succes. groupId is also set if successful
 /*/
-SESSION.DecodeToken = token => {
-  let tokenBits = token.split('-');
+SESSION.DecodeToken = hashedToken => {
   let studentName, hashedData; // token
   let groupId, classroomId; // decoded data
   let isValid = false;
-  if (!token) return { isValid };
-  // check for missing dash
-  if (token.substr(-1) === '-') return { isValid, token, error: 'missing - in token' };
+  // is a valid token?
+  if (typeof hashedToken !== 'string') return { isValid, error: 'token must be a string' };
   // token is of form NAME-HASHEDID
   // (1) check student name
+  const token = hashedToken.toUpperCase();
+  const tokenBits = token.toUpperCase().split('-');
+  if (tokenBits.length === 1) return { isValid, token, error: 'missing - in token' };
+  if (tokenBits.length > 2) return { isValid, token, error: 'too many - in token' };
   if (tokenBits[0]) studentName = tokenBits[0].toUpperCase();
   if (studentName.length < 3)
     return { isValid, token, error: 'student name must have 3 or more letters' };

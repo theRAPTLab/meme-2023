@@ -119,10 +119,6 @@ PMCData.InitializeModel = (model, admdb) => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
   if (!admdb) console.error(`PMCData.InitializeModel() arg2 must be an instance of adm_db`);
 
-  // get essential
-  const { resources, pmcData } = admdb;
-
-  // Self repair bad data
   const { id, groupId, pmcDataId } = model;
   if (id === undefined || groupId === undefined || pmcDataId === undefined) {
     console.error(
@@ -130,60 +126,12 @@ PMCData.InitializeModel = (model, admdb) => {
     );
   }
 
-  /*/
-  The model data format changed in october 2019 to better separate pmcdata from model
-  adm_db.models contain model objects that formerly contained a .data prop which has
-  been replaced with a .pmcDataId prop that refers to the actual data stored in
-  the 'pmcData' collection.
-
-  To avoid a rewrite, this code has been modified to produce the original structure,
-  by model.data = pmcData[pmcDataId]
-  /*/
-
-  let m = model;
-
-  // zap-in pmcdata
-  m.data = pmcData[pmcDataId];
-
-  // Load Components/Properties
-  m.data.properties = m.data.properties || [];
-  m.data.properties.forEach(obj => {
-    g.setNode(obj.id, { name: obj.name });
-  });
-
-  // Set Parents
-  m.data.properties.forEach(obj => {
-    if (obj.parent !== undefined) {
-      g.setParent(obj.id, obj.parent);
-    }
-  });
-
-  // Load Mechanisms
-  m.data.mechanisms = m.data.mechanisms || [];
-  m.data.mechanisms.forEach(mech => {
-    g.setEdge(mech.source, mech.target, { name: mech.name });
-  });
-
-  // Load Evidence Links
-  m.data.evidence = m.data.evidence || [];
-  m.data.evidence.forEach(ev => {
-    let { id, propId, mechId, rsrcId, number, rating, note, comments } = ev;
-    comments = comments || []; // allow empty comments
-    a_evidence.push({
-      id: String(id), // Model expects string ids
-      propId: propId === undefined ? undefined : String(propId),
-      mechId: mechId === undefined ? undefined : String(mechId),
-      rsrcId: rsrcId === undefined ? undefined : String(rsrcId),
-      number,
-      rating,
-      note,
-      comments
-    });
-  });
+  // get essentials
+  const { resources, pmcData } = admdb;
 
   // Comments
-  m.data.commentThreads = m.data.commentThreads || [];
-  m.data.commentThreads.forEach(cm => {
+  model.commentThreads = model.commentThreads || [];
+  model.commentThreads.forEach(cm => {
     let { id, refId, comments } = cm;
     a_commentThreads.push({
       id: String(id),
@@ -195,6 +143,48 @@ PMCData.InitializeModel = (model, admdb) => {
   // Resources
   a_resources = resources || [];
 
+  /*/
+  The model data format changed in october 2019 to better separate pmcdata from model
+  adm_db.models contain model objects that formerly contained a .data prop which has
+  been replaced with a .pmcDataId prop that refers to the actual data stored in
+  the 'pmcData' collection.
+
+  To avoid a rewrite, this code has been modified to produce the original structure,
+  by model.data = pmcData[pmcDataId]
+  /*/
+
+  const data = pmcData.find(data => data.id === pmcDataId);
+
+  data.entities.forEach(obj => {
+    switch (obj.type) {
+      case 'prop':
+        g.setNode(obj.id, { name: obj.name });
+        if (obj.parent !== undefined) {
+          g.setParent(obj.id, obj.parent);
+        }
+        break;
+      case 'mech':
+        g.setEdge(obj.source, obj.target, { name: obj.name });
+        break;
+      case 'evidence':
+        let { id, propId, mechId, rsrcId, number, rating, note, comments } = obj;
+        comments = comments || []; // allow empty comments
+        a_evidence.push({
+          id: String(id), // Model expects string ids
+          propId: propId === undefined ? undefined : String(propId),
+          mechId: mechId === undefined ? undefined : String(mechId),
+          rsrcId: rsrcId === undefined ? undefined : String(rsrcId),
+          number,
+          rating,
+          note,
+          comments
+        });
+        break;
+      default:
+        console.error('PMCData.InitializeModel could not map', obj);
+    }
+  });
+
   // test serial write out, then serial read back in
   // this doesn't really do anything other than ensure data
   const cleanGraphObj = GraphJSON.write(g);
@@ -205,7 +195,7 @@ PMCData.InitializeModel = (model, admdb) => {
   PMCData.BuildModel();
 
   // return the cleaned model
-  return m;
+  return model;
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

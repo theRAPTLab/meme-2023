@@ -35,13 +35,13 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
     const collections = DATAMAP.ExtractCollections(data);
     switch (cmd) {
       case 'add':
-        NEW.SyncAddedData(collections);
+        $$$.SyncAddedData(collections);
         break;
       case 'update':
-        NEW.SyncUpdatedData(collections);
+        $$$.SyncUpdatedData(collections);
         break;
       case 'remove':
-        NEW.SyncRemovedData(collections);
+        $$$.SyncRemovedData(collections);
         break;
     }
     console.log(`*** got '${cmd}' command with data.changed:`, data);
@@ -50,17 +50,17 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// clone ADMData, PMC, VM into $
-const $ = Object.assign({ ...ADM }, { ...PMC }, { ...VM });
+/// clone ADMData, PMC, VM into $ object
+const $$$ = Object.assign({ ...ADM }, { ...PMC }, { ...VM });
 const NEW = {};
 
-$.SyncAddedData = collections => {
+$$$.SyncAddedData = collections => {
   console.log('SYNC ADD', collections);
 };
-$.SyncUpdatedData = collections => {
+$$$.SyncUpdatedData = collections => {
   console.log('SYNC UPDATE', collections);
 };
-$.SyncRemovedData = collections => {
+$$$.SyncRemovedData = collections => {
   console.log('SYNC REMOVE', collections);
 };
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
@@ -69,7 +69,7 @@ $.SyncRemovedData = collections => {
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-$.AddTeacher = name => {
+NEW.AddTeacher = name => {
   console.log('addTeacher', name, typeof name);
   if (typeof name !== 'string') throw Error('AddTeacher requires a single name');
   return UR.DBQuery('add', {
@@ -105,7 +105,7 @@ NEW.UpdateGroup = (groupId, group) => {
 NEW.AddStudents = (groupId, students) => {
   // Update the group
   if (!Array.isArray(students)) students = [students];
-  let group = $.GetGroup(groupId);
+  let group = $$$.GetGroup(groupId);
   if (group === undefined) {
     console.error('AddStudent could not find group', groupId);
     return;
@@ -125,7 +125,7 @@ NEW.DeleteStudent = (groupId, student) => {
     console.error('DeleteStudent arg2 must be string');
     return;
   }
-  let group = $.GetGroup(groupId);
+  let group = $$$.GetGroup(groupId);
   if (group === undefined) {
     console.error('DeleteStudent could not find group', groupId);
     return;
@@ -141,12 +141,12 @@ NEW.DeleteStudent = (groupId, student) => {
                                 O V E R R I D E
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /// STATE CALLS
-/// $.SelectTeacher(teacherId)
-/// $.SelectClassroom(classroomId = GetClassroomIdByStudent)
-/// $.Login sets .selectedStudentId
+/// $$$.SelectTeacher(teacherId)
+/// $$$.SelectClassroom(classroomId = GetClassroomIdByStudent)
+/// $$$.Login sets .selectedStudentId
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-$.Login = loginToken => {
+NEW.Login = loginToken => {
   const urs = window.URSESSION;
   if (!urs) throw Error('unexpected missing URSESSION global');
   return UR.NetCall('NET:SRV_SESSION_LOGIN', { token: loginToken }).then(rdata => {
@@ -163,7 +163,7 @@ $.Login = loginToken => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-$.Logout = () => {
+NEW.Logout = () => {
   const urs = window.URSESSION;
   if (!urs) throw Error('unexpected missing URSESSION global');
   if (!urs.SESSION_Key) throw Error('missing URSESSION session key');
@@ -275,14 +275,14 @@ window.ur.trmg = groupId => {
 };
 // test login
 window.ur.tlogin = token => {
-  $.Login(token).then(() => {
+  $$$.Login(token).then(() => {
     window.ur.clientinfo();
   });
   return 'logging in...';
 };
 // test logout
 window.ur.tlogout = () => {
-  $.Logout().then(() => {
+  $$$.Logout().then(() => {
     window.ur.clientinfo();
   });
   return 'logging out...';
@@ -291,7 +291,7 @@ window.ur.tlogout = () => {
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// $ is the combined ADM, PMC, VM plus overrides
-export default $;
+export default $$$;
 /// export default MODULE; // import $ from './module'
 /// export default MyClass; // import MyClass from  './module'
 /// export { A, B }; // import { A, B } from './module'

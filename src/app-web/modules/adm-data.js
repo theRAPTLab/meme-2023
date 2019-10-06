@@ -7,7 +7,7 @@ import ASET from './adm-settings';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 const PKG = 'ADMDATA'; // prefix for console.log
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
@@ -59,14 +59,16 @@ ADMData.InitializeData = data => {
   for consistency with loki database autoindexing ids
   /*/
   data.resources.forEach(res => {
-    res.id = String(res.id);
+    // DSNOTE: there's no reason to convert these to strings
+    // res.id = String(res.id);
   });
   data.classroomResources.forEach(classRes => {
+    // DSNOTE: there's no reason to convert these to strings
     // classRes.id = String(classRes.id);
     // classRes.classroomId = String(classRes.classroomId);
-    classRes.resources.forEach(resId => {
-      resId = String(resId);
-    });
+    // classRes.resources.forEach(resId => {
+    //   resId = String(resId);
+    // });
   });
   /*/ model data is cleaned in PMCDATA.InitializeModel() /*/
 
@@ -298,15 +300,13 @@ ADMData.GetGroupIdsByClassroom = classroomId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  Finds the first group with a matching student id
- *  Used to validate student login
- *  As well as to look up models associated with student.
+ *  Finds the first group with for provided student id
+ *  Used to look up models associated with student.
  */
 ADMData.GetGroupByStudent = (studentId = ASET.selectedStudentId) => {
   if (studentId === '' || adm_db.groups === undefined) return undefined;
-  return adm_db.groups.find(grp => {
-    return grp.students.includes(studentId);
-  });
+  const { groupId } = SESSION.DecodeToken(studentId);
+  if (groupId) return adm_db.groups.find(grp => grp.id === groupId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetGroupIdByStudent = studentId => {
@@ -479,9 +479,11 @@ ADMData.GetStudentGroupName = (studentId = ASET.selectedStudentId) => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// MODELS ////////////////////////////////////////////////////////////////////
-///
+/**
+ * return the model meta data
+ */
 ADMData.GetModelById = (modelId = ASET.selectedModelId) => {
-  return adm_db.pmcData.find(model => model.id === modelId);
+  return adm_db.models.find(model => model.id === modelId);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -24,13 +24,6 @@ const ADMData = {}; // module object to export
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let adm_db; // set in InitializeData
 
-/// UTILITY ///////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-function ConverToStringArray(arr) {
-  return arr.map(item => String(item));
-}
-
 /// URSYS HOOKS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 UR.Hook(__dirname, 'LOAD_ASSETS', () => {
@@ -55,24 +48,13 @@ UR.Hook(__dirname, 'LOAD_ASSETS', () => {
 
 ADMData.InitializeData = data => {
   /*/
-  make sure numeric ids are converted to strings
-  for consistency with loki database autoindexing ids
+  All ids are now integers.
+  We used to have to scrub them manually, but we were able
+  to monkey-patch @dagre/graphlib (which is really old) to
+  not convert numeric keys to string keys
+  See PMCData.InitializeModel() to see how it's added to the
+  m_graph instance.
   /*/
-  data.resources.forEach(res => {
-    // DSNOTE: there's no reason to convert these to strings
-    // res.id = String(res.id);
-  });
-  data.classroomResources.forEach(classRes => {
-    // DSNOTE: there's no reason to convert these to strings
-    // classRes.id = String(classRes.id);
-    // classRes.classroomId = String(classRes.classroomId);
-    // classRes.resources.forEach(resId => {
-    //   resId = String(resId);
-    // });
-  });
-  /*/ model data is cleaned in PMCDATA.InitializeModel() /*/
-
-  // now update local db
   adm_db = data;
   // clear settings
   ASET.clear();

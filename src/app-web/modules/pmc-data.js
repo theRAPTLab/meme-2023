@@ -129,17 +129,6 @@ PMCData.InitializeModel = (model, admdb) => {
   // get essentials
   const { resources, pmcData } = admdb;
 
-  // Comments
-  model.commentThreads = model.commentThreads || [];
-  model.commentThreads.forEach(cm => {
-    let { id, refId, comments } = cm;
-    a_commentThreads.push({
-      id: String(id),
-      refId: String(refId),
-      comments
-    });
-  });
-
   // Resources
   a_resources = resources || [];
 
@@ -167,35 +156,29 @@ PMCData.InitializeModel = (model, admdb) => {
         g.setEdge(obj.source, obj.target, { name: obj.name });
         break;
       case 'evidence':
-        let { id, propId, mechId, rsrcId, number, rating, note, comments } = obj;
-        comments = comments || []; // allow empty comments
-        a_evidence.push({
-          id: String(id), // Model expects string ids
-          propId: propId === undefined ? undefined : String(propId),
-          mechId: mechId === undefined ? undefined : String(mechId),
-          rsrcId: rsrcId === undefined ? undefined : String(rsrcId),
-          number,
-          rating,
-          note,
-          comments
-        });
+        obj.comments = obj.comments || [];
+        a_evidence.push(obj);
         break;
       default:
         console.error('PMCData.InitializeModel could not map', obj);
     }
   });
 
+  // Comments
+  a_commentThreads = data.commentThreads;
+
   // test serial write out, then serial read back in
-  // this doesn't really do anything other than ensure data
+  // this doesn't do anything other than ensure data
+  // format is OK (and to remind me that we can do this)
   const cleanGraphObj = GraphJSON.write(g);
   const json = JSON.stringify(cleanGraphObj);
   m_graph = GraphJSON.read(JSON.parse(json));
+  // MONKEY PATCH graphlib so it doesn't use ancient lodash _.keys()
+  // command, which converts numbers to string.
+  m_graph.nodes = () => Object.keys(m_graph._nodes);
 
   // update the essential data structures
   PMCData.BuildModel();
-
-  // return the cleaned model
-  return model;
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -205,7 +188,7 @@ PMCData.InitializeModel = (model, admdb) => {
  */
 PMCData.BuildModel = () => {
   // test graphlib
-  a_props = m_graph.nodes(); // returns node ids
+  a_props = m_graph.nodes(); // returns numeric node ids
   a_mechs = m_graph.edges(); // returns edgeObjects {v,w}
   a_components = [];
   h_children = new Map(); // property children
@@ -758,6 +741,7 @@ PMCData.UpdateComments = (parentId, comments) => {
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  */
 PMCData.GetPropIdsByResourceId = rsrcId => {
+  // console.log('props by rsrcId', ...Object.keys(h_propByResource));
   return h_propByResource.get(rsrcId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -767,6 +751,7 @@ PMCData.GetPropIdsByResourceId = rsrcId => {
  *  @return {array} Array of propery ids
  */
 PMCData.GetEvLinksByResourceId = rsrcId => {
+  // console.log('evlinks by rsrcId', ...Object.keys(h_evidenceByResource));
   return h_evidenceByResource.get(rsrcId);
 };
 

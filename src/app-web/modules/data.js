@@ -14,7 +14,6 @@ import VM from './vm-data';
 import UR from '../../system/ursys';
 import DATAMAP from '../../system/common-datamap';
 import SESSION from '../../system/common-session';
-import ADMData from './adm-data';
 import ASET from './adm-settings';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -159,7 +158,7 @@ NEW.Login = loginToken => {
     SESSION.DecodeAndSet(rdata.token);
     SESSION.SetAccessKey(rdata.key);
     //
-    ADMData.GetSelectedStudentId();
+    ADM.GetSelectedStudentId();
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

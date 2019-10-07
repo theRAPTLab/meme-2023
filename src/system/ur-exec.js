@@ -161,8 +161,7 @@ const IsReactPhase = phase => {
 */
 const Execute = async phase => {
   // require scope to be set
-  if (EXEC_SCOPE === undefined)
-    throw Error(`UR EXEC scope is not set. Did you attach MOD_ID to your main React view?`);
+  if (EXEC_SCOPE === undefined) console.error(`UR EXEC scope is not set. Route may not exist`);
 
   // note: contents of PHASE_HOOKs are promise-generating functions
   if (!PHASES.includes(phase)) throw Error(`${phase} is not a recognized EXEC phase`);

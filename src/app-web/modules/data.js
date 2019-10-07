@@ -30,20 +30,23 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
     const cmd = data.cmd;
     if (!cmd) throw Error('SYSTEM_DBSYNC packet missing cmd property');
     if (!DATAMAP.ValidateCommand(cmd)) throw Error(`SYSTEM_DBSYNC unrecognized command '${cmd}'`);
-    //
-    const collections = DATAMAP.ExtractCollections(data);
     switch (cmd) {
       case 'add':
-        $$$.SyncAddedData(collections);
+        ADM.SyncAddedData(data);
+        PMC.SyncAddedData(data);
         break;
       case 'update':
-        $$$.SyncUpdatedData(collections);
+        ADM.SyncUpdatedData(data);
+        PMC.SyncUpdatedData(data);
         break;
       case 'remove':
-        $$$.SyncRemovedData(collections);
+        ADM.SyncRemovedData(data);
+        PMC.SyncRemovedData(data);
         break;
+      default:
+        console.error('unrecognized command', cmd);
     }
-    console.log(`*** got '${cmd}' command with data.changed:`, data);
+    if (DBG) console.log(`SYSTEM_DBSYNC '${cmd}'\n${JSON.stringify(data)}`);
   });
 });
 
@@ -53,15 +56,6 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 const $$$ = Object.assign({ ...ADM }, { ...PMC }, { ...VM });
 const NEW = {};
 
-$$$.SyncAddedData = collections => {
-  console.log('SYNC ADD', collections);
-};
-$$$.SyncUpdatedData = collections => {
-  console.log('SYNC UPDATE', collections);
-};
-$$$.SyncRemovedData = collections => {
-  console.log('SYNC REMOVE', collections);
-};
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
                                 A D M - D A T A
                                 O V E R R I D E

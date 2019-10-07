@@ -71,11 +71,37 @@ const GenerateUID = (prefix = '', suffix = '') => {
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.MODEL:
- *  Return array of all the properties of the PMC model. Note that a PMC
- *  component is just a property that isn't a child of any other property.
- *  @returns {array} - array of nodeId strings
+/** URSYS: DATABASE SYNC
+ * Receive a list of ONLY changed objects to the specified collections so
+ * adm_db can be updated in a single place. Afterwards, fire any necessary
+ * UPDATE or BUILD or SELECT.
+ * See common-datamap.js for the collection keys itemized in DBKEYS. Called from
+ * data.js.
+ * @param {Object} data - a collection object
  */
+ADMData.SyncAddedData = data => {
+  console.log('ADMData received collections to add', data);
+  // do stuff here
+  if (data.teachers) {
+    const teacherId = data.teachers[0];
+    adm_db.teachers.push(teacherId);
+    ASET.selectedTeacherId = teacherId;
+    UR.Publish('ADM_DATA_UPDATED', data);
+  }
+  // can add better logic to avoid updating too much
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.SyncUpdatedData = data => {
+  console.log('ADMData received collections to update', data);
+  // can add better logic to avoid updating too much
+  UR.Publish('ADM_DATA_UPDATED', data);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.SyncRemovedData = data => {
+  console.log('ADMData received collections to remove', data);
+  // can add better logic to avoid updating too much
+  UR.Publish('ADM_DATA_UPDATED', data);
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// TEACHERS //////////////////////////////////////////////////////////////////
@@ -130,6 +156,13 @@ ADMData.SelectTeacher = teacherId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.AddTeacher = name => {
+  return UR.DBQuery('add', {
+    teachers: { name }
+  });
+  // let round-trip handle update logic
+  // e.g.  ASET.selectedTeacherId = teacherId; UR.Publish('TEACHER_SELECT', { teacherId: teacherId });
+
+  /* OLD STUFF TO DELETE
   const teacher = {};
   teacher.id = GenerateUID('tc');
   teacher.name = name;
@@ -137,6 +170,7 @@ ADMData.AddTeacher = name => {
   // Select the new teacher
   ASET.selectedTeacherId = teacher.id;
   UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
+  */
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

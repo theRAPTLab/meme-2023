@@ -182,6 +182,43 @@ PMCData.InitializeModel = (model, admdb) => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** URSYS: DATABASE SYNC
+ * Receive a list of ONLY changed objects to the specified collections so
+ * adm_db can be updated in a single place. Afterwards, fire any necessary
+ * UPDATE or BUILD or SELECT.
+ * See common-datamap.js for the collection keys itemized in DBKEYS. Called from
+ * data.js.
+ * @param {Object} data - a collection object
+ */
+PMCData.SyncAddedData = data => {
+  if (!data.pmcData) return;
+  const { pmcData } = data;
+  console.log('PMCData received add', pmcData);
+  // do stuff here
+  // can add better logic to avoid updating too much
+  PMCData.BuildModel();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.SyncUpdatedData = data => {
+  if (!data.pmcData) return;
+  const { pmcData } = data;
+  console.log('PMCData received update', pmcData);
+  // do stuff here
+
+  // can add better logic to avoid updating too much
+  PMCData.BuildModel();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.SyncRemovedData = data => {
+  if (!data.pmcData) return;
+  const { pmcData } = data;
+  console.log('PMCData received removed', pmcData);
+  // do stuff here
+  // can add better logic to avoid updating too much
+  PMCData.BuildModel();
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Builds the PROPS, MECHS, COMPONENTS, CHILDREN, and OUTEDGES lists
  *  from the raw GraphLibJS data store.

@@ -150,12 +150,14 @@ DataMap.GetCommandMessage = command => DBCMDS.get(command);
  */
 DataMap.ExtractCollections = data => {
   let collections = [];
-  Object.keys(data).forEach(colKey => {
+  // the colKey might be a compound key (e.g. pmcData.entities)
+  Object.keys(data).forEach(foundKey => {
     // only return keys that match a collection name
-    if (!DataMap.ValidateKey(colKey)) return;
-    let docs = data[colKey]; // can be an obj or array of objs
+    if (!DataMap.ValidateKey(foundKey)) return;
+    let docs = data[foundKey]; // can be an obj or array of objs
     if (!Array.isArray(docs)) docs = [docs]; // wrap all non arrays in array
-    const entry = { colKey, docs };
+    const [colKey, subKey] = foundKey.split('.');
+    const entry = { colKey, subKey, docs };
     collections.push(entry);
   });
   // returned undefined if no collections

@@ -120,6 +120,12 @@ class DataMap {
 DataMap.DBKEYS = DBKEYS;
 DataMap.DBCMDS = DBCMDS;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** returns an array of valid TOP LEVEL collections
+ */
+DataMap.Collections = () => {
+  return DBKEYS.filter(el => !el.includes('.'));
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** validate that keyName is a valid DBKEY
  * @param {string} keyName - extract from the DBSYNC data props
  */

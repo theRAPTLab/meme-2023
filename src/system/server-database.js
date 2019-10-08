@@ -32,7 +32,7 @@ const DATASETPATH = PATH.join(__dirname, '/datasets/meme');
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 let m_options; // saved initialization options
 let m_db; // loki database
-const { DBKEYS, DBCMDS } = DATAMAP; // key lookup for incoming data packets
+const { DBCMDS } = DATAMAP; // key lookup for incoming data packets
 let send_queue = []; // queue outgoing data
 let recv_queue = []; // queue incoming requests
 
@@ -89,7 +89,7 @@ DB.InitializeDatabase = (options = {}) => {
       const fname = `'datasets/${DB_CONFIG.dataset}'`;
       console.log(PR, `${CCRIT}DEV OVERRIDE${TR}...reloading database from ${fname}`);
     }
-    DBKEYS.forEach(name => f_LoadCollection(name));
+    DATAMAP.Collections().forEach(name => f_LoadCollection(name));
     console.log(PR, `database ready`);
     console.log(PR, fout_CountCollections());
     m_db.saveDatabase();
@@ -135,7 +135,7 @@ DB.InitializeDatabase = (options = {}) => {
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function fout_CountCollections() {
     let out = '';
-    DBKEYS.forEach(colname => {
+    DATAMAP.Collections().forEach(colname => {
       out += count(colname);
     });
     //
@@ -177,7 +177,7 @@ DB.PKT_GetDatabase = pkt => {
   LOGGER.Write(pkt.Info(), `getdatabase`);
   const adm_db = {};
 
-  DBKEYS.forEach(colname => {
+  DATAMAP.Collections().forEach(colname => {
     adm_db[colname] = f_GetCollectionData(colname);
   });
   // return object for transaction; URSYS will automatically return

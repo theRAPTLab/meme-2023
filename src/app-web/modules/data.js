@@ -205,7 +205,7 @@ NEW.BuildModel = () => {
   // h_evidenceByProp = new Map(); // prop -> [ evidence, ... ]
   // h_evlinkByResource = new Map(); //
 };
-NEW.PMC_AddProp = node => {}; // m_graph.setNode()
+NEW.PMC_PropAdd = node => {}; // m_graph.setNode()
 NEW.PMC_SetPropParent = (node, parent) => {}; // m_graph.setParent(node, parent)
 NEW.PMC_PropDelete = propid => {}; // m_graph.removeNode(propid)
 NEW.PMC_MechAdd = (sourceId, targetId, label) => {}; // m_graph.setEdge

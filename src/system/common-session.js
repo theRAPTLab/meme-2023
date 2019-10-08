@@ -21,7 +21,7 @@ const PROMPTS = require('../system/util/prompts');
 
 /// DEBUGGING /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 const PR = PROMPTS.Pad('SESSUTIL');
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////

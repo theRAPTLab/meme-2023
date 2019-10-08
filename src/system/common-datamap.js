@@ -25,7 +25,9 @@ const DBKEYS = [
   `ratingsDefinitions`,
   `classroomResources`,
   `resources`,
-  `pmcData`
+  `pmcData`,
+  `pmcData.entities`,
+  `pmcData.commentThreads`
 ];
 
 /// list of valid database change commands
@@ -121,7 +123,9 @@ DataMap.DBCMDS = DBCMDS;
 /** validate that keyName is a valid DBKEY
  * @param {string} keyName - extract from the DBSYNC data props
  */
-DataMap.ValidateKey = keyName => DBKEYS.includes(keyName);
+DataMap.ValidateKey = keyName => {
+  return DBKEYS.includes(keyName);
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** validate command is valid
  * @param {string} command - extract from the DBSYNC data.cmd prop
@@ -142,7 +146,7 @@ DataMap.ExtractCollections = data => {
   let collections = [];
   Object.keys(data).forEach(colKey => {
     // only return keys that match a collection name
-    if (!DBKEYS.includes(colKey)) return;
+    if (!DataMap.ValidateKey(colKey)) return;
     let docs = data[colKey]; // can be an obj or array of objs
     if (!Array.isArray(docs)) docs = [docs]; // wrap all non arrays in array
     const entry = { colKey, docs };
@@ -159,56 +163,56 @@ DataMap.ExtractCollections = data => {
 DataMap.ValidateCollections = data => {
   const { cmd } = data;
   let count = 0;
-  Object.keys(data).forEach(key => {
-    // only return keys that match a collection name
-    if (!DBKEYS.includes(key)) return;
+  Object.keys(data).forEach(colKey => {
+    // only return colKey that match a collection name
+    if (!DataMap.ValidateKey(colKey)) return;
     // extract the collection
-    const values = data[key];
+    const values = data[colKey];
     if (Array.isArray(values)) {
       // make sure values of type array contains only valid types
       let ok = true;
       values.forEach(element => {
         switch (cmd) {
           case 'add':
-            ok &= f_validateAdd(element, key);
+            ok &= f_validateAdd(element, colKey);
             break;
           case 'update':
-            ok &= f_validateUpdate(element, key);
+            ok &= f_validateUpdate(element, colKey);
             break;
           case 'remove':
-            ok &= f_validateRemove(element, key);
+            ok &= f_validateRemove(element, colKey);
             break;
           default:
             console.log(cmd);
-            throw Error(`${key} unknown command ${cmd}`);
+            throw Error(`${colKey} unknown command ${cmd}`);
         }
         // if code hasn't returned, then this is an error
-        if (!ok) throw Error(`${key}.${cmd} array mystery error`);
+        if (!ok) throw Error(`${colKey}.${cmd} array mystery error`);
       }); // values foreach
       // successful processing! increment collection count
       count++;
     } else {
-      // if we got this far, then the key contained a non-array
+      // if we got this far, then the colKey contained a non-array
       let ok = true;
       switch (cmd) {
         case 'add':
-          ok &= f_validateAdd(values, key);
+          ok &= f_validateAdd(values, colKey);
           break;
         case 'update':
-          ok &= f_validateUpdate(values, key);
+          ok &= f_validateUpdate(values, colKey);
           break;
         case 'remove':
-          ok &= f_validateRemove(values, key);
+          ok &= f_validateRemove(values, colKey);
           break;
         default:
           console.log(cmd);
-          throw Error(`${key} unknown command ${cmd}`);
+          throw Error(`${colKey} unknown command ${cmd}`);
       } // single value
       if (!ok) throw Error(`${key}.${cmd} single value mystery error`);
       // sucessful processing
       count++;
     }
-  }); // foreach key...loop to next one
+  }); // foreach colKey...loop to next one
 
   // finished processing everything, return the count of processed collection
   // if we dont' get this far, an error had been thrown
@@ -223,11 +227,11 @@ function f_validateAdd(el, key = '') {
 }
 function f_validateUpdate(el, key = '') {
   const etype = typeof el;
-  if (etype !== 'object') throw Error(`${key}.update: requires OBJECTS with an id`);
+  if (etype !== 'object') throw Error(`${key}.update: requires OBJECTS with an id, not ${etype}`);
   if (el.id === undefined) throw Error(`${key}.update: object must have an id`);
   const idtype = typeof el.id;
   if (idtype !== 'number')
-    throw Error(`${key}.update: object.id must be an integer, not ${idtype}`);
+    throw Error(`${key}.update: object.id <${el.id}> must be an integer, not ${idtype}`);
   if (Number.parseInt(el.id) !== el.id)
     throw Error(`${key}.update: object.id ${el} is not an integer`);
   return true;

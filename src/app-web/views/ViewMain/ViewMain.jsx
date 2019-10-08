@@ -373,26 +373,19 @@ class ViewMain extends React.Component {
         let parentPropId = selectedPropIds[0];
         if (DBG) console.log('...setting parent of', this.state.addPropLabel, 'to', parentPropId);
         // Create new prop
-        DATA.PMC_AddProp(this.state.addPropLabel);
+        DATA.PMC_PropAdd(this.state.addPropLabel);
         // Add it to the parent component
         DATA.PMC_SetPropParent(this.state.addPropLabel, parentPropId);
       }
     } else if (this.state.addPropPropId !== '') {
       // Update existing prop
-      let prop = DATA.Prop(this.state.addPropPropId);
-      prop.name = this.state.addPropLabel;
-      // IF YOU UPDATE THE MODEL THEN BUILD IT SO VIEW UPDATES
-      // MOST PMCDATA MODEL METHODS CALLS THIS AUTOMATICALLY
-      // BUT IN THIS CASE YOU'RE MUTATING THE PROP DIRECTLY
+      const id = parseInt(this.state.addPropPropId);
+      const name = this.state.addPropLabel
+      DATA.PMC_PropUpdate({ id, name });
       UTILS.RLog('PropertyEdit', this.state.addPropLabel);
-      UR.Publish('DATA_UPDATED', { prop });
-      // DATA.BuildModel();
-      // CODE REVIEW: BuildModel() is used when the model linking
-      // changes. Here, you're just doing a data property update.
-      // Instead of BuildModel(), use DATA_UPDATED
     } else {
       // Create new prop
-      DATA.PMC_AddProp(this.state.addPropLabel);
+      DATA.PMC_PropAdd(this.state.addPropLabel);
     }
     this.OnPropDialogClose();
   }

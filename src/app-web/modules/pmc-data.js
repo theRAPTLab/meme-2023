@@ -62,7 +62,7 @@ const PMCData = {};
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true;
-const PKG = 'PMCDATA';
+const PR = 'PMCDATA';
 
 /// MODEL /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -458,7 +458,7 @@ PMCData.Mech = (evo, ew) => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddProp = node => {
+PMCData.PMC_PropAdd = node => {
   // FIXME
   // Temporarily insert a random numeric prop id
   // This will get replaced with a server promise once that's implemented
@@ -467,6 +467,23 @@ PMCData.PMC_AddProp = node => {
   PMCData.BuildModel();
   UTILS.RLog('PropertyAdd', node);
   return `added node ${node}`;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** update through database
+ */
+PMCData.PMC_PropUpdate = propData => {
+  // should we validate propData.id?
+  // we need to update pmcdata which looks like
+  // { entities:[], commentThreads:[] }
+  UR.DBQuery('update', {
+    'pmcData.entities': propData
+  })
+    .then(rdata => {
+      PMCData.BuildModel();
+    })
+    .catch(err => {
+      console.error(PR, err);
+    });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_SetPropParent = (node, parent) => {
@@ -609,7 +626,7 @@ PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
  */
 PMCData.PMC_GetResourceIndex = rsrcId => {
   const index = a_resources.findIndex(r => r.id === rsrcId);
-  if (index === -1) console.error(PKG, 'PMC_GetResourceIndex could not find', rsrcId);
+  if (index === -1) console.error(PR, 'PMC_GetResourceIndex could not find', rsrcId);
   return index + 1;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -6,6 +6,8 @@
   (1) manages differences - an array of just keys of your object is
       passed in, and DataMap returns what's the same or different.
   (2) stores related data by key into a Map()
+  (3) utility methods for managing collections and their objects from
+      the LokiJS database
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -230,6 +232,7 @@ function f_validateAdd(el, key = '') {
   return true;
 }
 function f_validateUpdate(el, key = '') {
+  // TOFIX: need to validate subkeys...this only validates the top collection
   const etype = typeof el;
   if (etype !== 'object') throw Error(`${key}.update: requires OBJECTS with an id, not ${etype}`);
   if (el.id === undefined) throw Error(`${key}.update: object must have an id`);
@@ -240,12 +243,12 @@ function f_validateUpdate(el, key = '') {
     throw Error(`${key}.update: object.id ${el} is not an integer`);
   return true;
 }
-function f_validateRemove(num, key = '') {
-  const etype = typeof num;
-  console.log(num, etype);
+function f_validateRemove(el, key = '') {
+  if (typeof el === 'object') return true; // TOFIX: this is a hack, need to validate subkeys
+  const etype = typeof el;
   if (etype !== 'number')
     throw Error(`${key}.remove: only provide an integer id (typeof=${etype})`);
-  if (Number.parseInt(num) !== num) throw Error(`${key}.remove: ${num} isn't an integer`);
+  if (Number.parseInt(el) !== el) throw Error(`${key}.remove: ${el} isn't an integer`);
   return true;
 }
 // called by DataMap.GetChange() instance method
@@ -269,6 +272,17 @@ function f_deltaFilterIDArray(arr, elementMap = new Map()) {
 }
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** given an input, insure that it is an int >=0 or an array of such ints
+ */
+DataMap.IsValidIds = ids => {
+  if (!Array.isArray(ids)) ids = [ids];
+  return ids.every(id => {
+    let test = Number.parseInt(id) === id;
+    return test && id >= 0;
+  });
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** given an original object, modify a key inside it with the supplied data
  */
 DataMap.UpdateObjectProp = (record, key, subDocs) => {
@@ -289,6 +303,7 @@ DataMap.UpdateObjectProp = (record, key, subDocs) => {
     }
   });
 };
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** overwrite the original object with changes in second object
  */

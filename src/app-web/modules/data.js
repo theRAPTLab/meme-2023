@@ -56,6 +56,40 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 const $$$ = Object.assign({ ...ADM }, { ...PMC }, { ...VM });
 const NEW = {};
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW.Login = loginToken => {
+  const urs = window.URSESSION;
+  if (!urs) throw Error('unexpected missing URSESSION global');
+  return UR.NetCall('NET:SRV_SESSION_LOGIN', { token: loginToken }).then(rdata => {
+    if (DBG) console.log('login', rdata);
+    if (rdata.error) throw Error(rdata.error);
+    if (DBG) console.log('updating URSESSION with session data');
+    urs.SESSION_Token = rdata.token;
+    urs.SESSION_Key = rdata.key;
+    // also save globally
+    SESSION.DecodeAndSet(rdata.token);
+    SESSION.SetAccessKey(rdata.key);
+    //
+    ADM.GetSelectedStudentId();
+  });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW.Logout = () => {
+  const urs = window.URSESSION;
+  if (!urs) throw Error('unexpected missing URSESSION global');
+  if (!urs.SESSION_Key) throw Error('missing URSESSION session key');
+  return UR.NetCall('NET:SRV_SESSION_LOGOUT', { key: urs.SESSION_Key }).then(rdata => {
+    console.log('logout', rdata);
+    if (rdata.error) throw Error(rdata.error);
+    console.log('removing session data from URSESSION');
+    if (urs.SESSION_Token && urs.SESSION_Key) {
+      urs.SESSION_Token = '';
+      urs.SESSION_Key = '';
+      SESSION.Clear();
+    } else throw Error('URSESSION key or token was not set');
+  });
+};
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
                                 A D M - D A T A
                                 O V E R R I D E
@@ -133,44 +167,102 @@ NEW.DeleteStudent = (groupId, student) => {
                                 P M C - D A T A
                                 O V E R R I D E
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+NEW.PMC_PropAdd = name => {
+  // FIXME
+  // Temporarily insert a random numeric prop id
+  // This will get replaced with a server promise once that's implemented
+  const propId = Math.trunc(Math.random() * 10000000000).toString();
+  m_graph.setNode(propId, { name });
+  $$$.BuildModel();
+  UTILS.RLog('PropertyAdd', name);
+  return `added node:name ${name}`;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW.PMC_PropUpdate = (nodeId, newData) => {
+  const prop = m_graph.node(nodeId);
+  // make a copy of the prop with overwritten new data
+  // local data will be updated on DBSYNC event, so don't write it here
+  const propData = Object.assign({ id: nodeId }, prop, newData);
+  console.log('prop', prop, 'newdata', newData, 'propdata', propData);
+  const modelId = ASET.selectedModelId;
+  // we need to update pmcdata which looks like
+  // { id, entities:[ { id, name } ] }
+  return UR.DBQuery('update', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: propData
+    }
+  })
+    .then(rdata => {
+      $$$.BuildModel();
+    })
+    .catch(err => {
+      console.error(PR, err);
+    });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW.PMC_PropDelete = propId => {
+  // largely this has to just send the message
+  const modelId = ASET.selectedModelId;
+  return UR.DBQuery('remove', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: [propId]
+    }
+  })
+    .then(rdata => {
+      if (rdata.error) console.log(rdata.error);
+      else {
+        console.log('got', rdata);
+        $$$.BuildModel();
+      }
+    })
+    .catch(err => {
+      console.error(err);
+    });
+  /*/
+  // Unlink any evidence
+  const evlinks = $$$.PMC_GetEvLinksByPropId(propId);
+  if (evlinks)
+    evlinks.forEach(evlink => {
+      $$$.SetEvidenceLinkPropId(evlink.id, undefined);
+    });
+  // Delete any children nodes
+  const children = $$$.Children(propId);
+  if (children)
+    children.forEach(cid => {
+      $$$.PMC_SetPropParent(cid, undefined);
+    });
+  // Then remove propId
+  m_graph.removeNode(propId);
+  $$$.BuildModel();
+  UTILS.RLog('PropertyDelete', propId);
+  /*/
+  return `deleted propId ${propId}`;
+}; // m_graph.removeNode(propid)
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW.PMC_SetPropParent = (node, parent) => {}; // m_graph.setParent(node, parent)
+NEW.PMC_MechAdd = (sourceId, targetId, label) => {}; // m_graph.setEdge
+NEW.PMC_MechUpdate = (origMech, newMech) => {}; // m_graph.setEdge()
+NEW.PMC_MechDelete = mechId => {}; // m_graph.removeEdge()
+NEW.PMC_AddEvidenceLink = (rsrcId, note) => {}; // a_evidence.push()
+NEW.PMC_DeleteEvidenceLink = evId => {}; // a_evidence.splice()
+NEW.SetEvidenceLinkPropId = (evId, propId) => {}; // a_evidence.find() evidence
+NEW.SetEvidenceLinkMechId = (evId, mechId) => {}; // a_evidence.find() evidence
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// STATE CALLS
 /// $$$.SelectTeacher(teacherId)
 /// $$$.SelectClassroom(classroomId = GetClassroomIdByStudent)
 /// $$$.Login sets .selectedStudentId
 
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NEW.Login = loginToken => {
-  const urs = window.URSESSION;
-  if (!urs) throw Error('unexpected missing URSESSION global');
-  return UR.NetCall('NET:SRV_SESSION_LOGIN', { token: loginToken }).then(rdata => {
-    if (DBG) console.log('login', rdata);
-    if (rdata.error) throw Error(rdata.error);
-    if (DBG) console.log('updating URSESSION with session data');
-    urs.SESSION_Token = rdata.token;
-    urs.SESSION_Key = rdata.key;
-    // also save globally
-    SESSION.DecodeAndSet(rdata.token);
-    SESSION.SetAccessKey(rdata.key);
-    //
-    ADM.GetSelectedStudentId();
-  });
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NEW.Logout = () => {
-  const urs = window.URSESSION;
-  if (!urs) throw Error('unexpected missing URSESSION global');
-  if (!urs.SESSION_Key) throw Error('missing URSESSION session key');
-  return UR.NetCall('NET:SRV_SESSION_LOGOUT', { key: urs.SESSION_Key }).then(rdata => {
-    console.log('logout', rdata);
-    if (rdata.error) throw Error(rdata.error);
-    console.log('removing session data from URSESSION');
-    if (urs.SESSION_Token && urs.SESSION_Key) {
-      urs.SESSION_Token = '';
-      urs.SESSION_Key = '';
-      SESSION.Clear();
-    } else throw Error('URSESSION key or token was not set');
-  });
-};
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+                                   O T H E R
+                                O V E R R I D E
+\* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NEW.ModelTitleUpdate = (modelId, title) => {
   // FIRES 'MODEL_TITLE_UPDATED' title
@@ -188,34 +280,6 @@ NEW.UpdateSentenceStarter = sstarter => {}; //
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NEW.UpdateRatingsDefinitions = (classId, rateDef) => {}; //
 
-/// PMC DATA $ METHODS //////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NEW.ClearModel = () => {};
-NEW.InitializeModel = (model, resources) => {};
-NEW.BuildModel = () => {
-  // derived elements
-  // a_props = nodes
-  // a_mechs = edges
-  // a_components = []; // props that aren't children
-  // h_children = new Map(); // property children
-  // h_outedges = new Map(); // outedges for each prop
-  // a_resources = []; // resource obj { id, label, notes, type, url, links }
-  // a_evidence = []; // evidence link {  id, propId, rsrcId, note }
-  // h_evidenceByEvId = new Map(); // id -> evidence
-  // h_evidenceByProp = new Map(); // prop -> [ evidence, ... ]
-  // h_evlinkByResource = new Map(); //
-};
-NEW.PMC_PropAdd = node => {}; // m_graph.setNode()
-NEW.PMC_SetPropParent = (node, parent) => {}; // m_graph.setParent(node, parent)
-NEW.PMC_PropDelete = propid => {}; // m_graph.removeNode(propid)
-NEW.PMC_MechAdd = (sourceId, targetId, label) => {}; // m_graph.setEdge
-NEW.PMC_MechUpdate = (origMech, newMech) => {}; // m_graph.setEdge()
-NEW.PMC_MechDelete = mechId => {}; // m_graph.removeEdge()
-NEW.PMC_AddEvidenceLink = (rsrcId, note) => {}; // a_evidence.push()
-NEW.PMC_DeleteEvidenceLink = evId => {}; // a_evidence.splice()
-NEW.SetEvidenceLinkPropId = (evId, propId) => {}; // a_evidence.find() evidence
-NEW.SetEvidenceLinkMechId = (evId, mechId) => {}; // a_evidence.find() evidence
-
 /// MODULE HELPERS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -223,6 +287,7 @@ NEW.SetEvidenceLinkMechId = (evId, mechId) => {}; // a_evidence.find() evidence
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};
 window.ur.DATATEST = NEW;
+// - - - - - - - - - - - - - - - - - - - - -
 // test update group
 window.ur.tupg = id => {
   const g = ADM.GetGroup(id);
@@ -266,6 +331,15 @@ window.ur.trmg = groupId => {
   });
   return `deleting group ${groupId}`;
 };
+// - - - - - - - - - - - - - - - - - - - - -
+// test pmc entity delete
+window.ur.tpropd = propId => {
+  NEW.PMC_PropDelete(propId).then(data => {
+    console.log('deleteprop', data);
+  });
+  return `deleting pmc prop`;
+};
+// - - - - - - - - - - - - - - - - - - - - -
 // test login
 window.ur.tlogin = token => {
   $$$.Login(token).then(() => {

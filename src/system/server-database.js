@@ -323,21 +323,56 @@ DB.PKT_Remove = pkt => {
   // collection is object with { colKey, docs, subKey, subDocs }
   // for 'update' op, docs is an array of ids to be removed
   // docs matching these ids are removed and returned to caller
-  collections.forEach(entry => {
-    let { colKey, docs, subKey, subDocs } = entry;
-    // check data are numeric ids only
-    if (!docs.every(item => Number.parseInt(item) === item))
-      error += `'${colKey}' docs prop must contain integer ids, not ${JSON.stringify(docs)}`;
+  collections.forEach(collection => {
+    let { colKey, docs, subKey, subDocs } = collection;
+    console.log(`${colKey} has ${JSON.stringify(docs)}`);
+    // process collections
     const dbc = m_db.getCollection(colKey);
-    // return deleted objects
-    const removed = dbc.chain().find({ id: { $in: docs } });
-    const matching = removed.branch().data({ removeMeta: true });
-    results[colKey] = matching;
-    removed.remove();
-    console.log(PR, `REMOVED '${colKey}': ${JSON.stringify(matching)}`);
-  }); // collections forEach
+    let reskey = colKey;
+    docs.forEach(doc => {
+      const id = doc.id;
+      if (!id) {
+        error += `doc doesn't have an id: ${JSON.stringify(doc)}`;
+        return;
+      }
+      const record = dbc.chain().find({ id: { $eq: id } }); // e.g. pmcdata model
+      if (record.count() === 0) {
+        error += `could not find matching ${id} in ${colKey} collection.`;
+        return;
+      }
+      console.log(`found ${record.count()} matches with ${id}`);
+      if (!subKey) {
+        const reskey = colKey;
+        results[reskey] = results[reskey] || [];
+        const rdata = record.branch().data({ removeMeta: true });
+        record.remove();
+        results[reskey].push(rdata);
+        console.log(`${colKey} delete ${JSON.stringify(rdata)}`);
+      } else {
+        record.update(match => {
+          const subrecord = match[subKey]; // e.g. pmcdata model entities array
+          // subrecord is an array of objs to update
+          const removed = [];
+          const keep = subrecord.filter(element => {
+            const toDelete = subDocs.includes(element.id);
+            if (toDelete) removed.push(element);
+            return !toDelete;
+          }); // filter subrecord
+          console.log('keep', JSON.stringify(keep));
+          match[subKey] = keep;
+          const reskey = `${colKey}.${subKey}`;
+          results[reskey] = results[reskey] || [];
+          results[reskey].push(removed);
+          console.log(`${colKey}.${subKey} delete ${subDocs}`, JSON.stringify(removed));
+        }); // record update
+      } // else subkey
+    }); // docs foreach
+  }); // collections
   // was there an error?
-  if (error) return { error };
+  if (error) {
+    console.log('error', error);
+    return { error };
+  }
   // otherwise send update to network
   m_DatabaseChangeEvent('remove', results, pkt);
   // return

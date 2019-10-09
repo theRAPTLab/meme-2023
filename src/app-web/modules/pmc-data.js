@@ -4,6 +4,7 @@ import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
 import VM from './vm-data';
 import UTILS from './utils';
+import ASET from './adm-settings';
 
 const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
 
@@ -61,7 +62,7 @@ const PMCData = {};
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 const PR = 'PMCDATA';
 
 /// MODEL /////////////////////////////////////////////////////////////////////
@@ -143,7 +144,7 @@ PMCData.InitializeModel = (model, admdb) => {
   /*/
 
   const data = pmcData.find(data => data.id === pmcDataId);
-
+  console.log('loaded data', data);
   data.entities.forEach(obj => {
     switch (obj.type) {
       case 'prop':
@@ -458,25 +459,33 @@ PMCData.Mech = (evo, ew) => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_PropAdd = node => {
+PMCData.PMC_PropAdd = name => {
   // FIXME
   // Temporarily insert a random numeric prop id
   // This will get replaced with a server promise once that's implemented
   const propId = Math.trunc(Math.random() * 10000000000).toString();
-  m_graph.setNode(propId, { name: `${node}` });
+  m_graph.setNode(propId, { name });
   PMCData.BuildModel();
-  UTILS.RLog('PropertyAdd', node);
-  return `added node ${node}`;
+  UTILS.RLog('PropertyAdd', name);
+  return `added node:name ${name}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** update through database
  */
-PMCData.PMC_PropUpdate = propData => {
-  // should we validate propData.id?
+PMCData.PMC_PropUpdate = (nodeId, newData) => {
+  const prop = m_graph.node(nodeId);
+  // make a copy of the prop with overwritten new data
+  // local data will be updated on DBSYNC event, so don't write it here
+  const propData = Object.assign({ id: nodeId }, prop, newData);
+  console.log('prop', prop, 'newdata', newData, 'propdata', propData);
+  const modelId = ASET.selectedModelId;
   // we need to update pmcdata which looks like
-  // { entities:[], commentThreads:[] }
+  // { id, entities:[ { id, name } ] }
   UR.DBQuery('update', {
-    'pmcData.entities': propData
+    'pmcData.entities': {
+      id: modelId,
+      entities: propData
+    }
   })
     .then(rdata => {
       PMCData.BuildModel();
@@ -486,33 +495,33 @@ PMCData.PMC_PropUpdate = propData => {
     });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_SetPropParent = (node, parent) => {
-  m_graph.setParent(node, parent);
+PMCData.PMC_SetPropParent = (nodeId, parent) => {
+  m_graph.setParent(nodeId, parent);
   PMCData.BuildModel();
-  UTILS.RLog('PropertySetParent', node, parent);
-  return `set parent ${parent} to node ${node}`;
+  UTILS.RLog('PropertySetParent', nodeId, parent);
+  return `set parent ${parent} to node ${nodeId}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_PropDelete = propid => {
+PMCData.PMC_PropDelete = propId => {
   // Deselect the prop first, otherwise the deleted prop will remain selected
   VM.VM_DeselectAll();
   // Unlink any evidence
-  const evlinks = PMCData.PMC_GetEvLinksByPropId(propid);
+  const evlinks = PMCData.PMC_GetEvLinksByPropId(propId);
   if (evlinks)
     evlinks.forEach(evlink => {
       PMCData.SetEvidenceLinkPropId(evlink.id, undefined);
     });
   // Delete any children nodes
-  const children = PMCData.Children(propid);
+  const children = PMCData.Children(propId);
   if (children)
     children.forEach(cid => {
       PMCData.PMC_SetPropParent(cid, undefined);
     });
-  // Then remove propid
-  m_graph.removeNode(propid);
+  // Then remove propId
+  m_graph.removeNode(propId);
   PMCData.BuildModel();
-  UTILS.RLog('PropertyDelete', propid);
-  return `deleted propid ${propid}`;
+  UTILS.RLog('PropertyDelete', propId);
+  return `deleted propId ${propId}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_MechAdd = (sourceId, targetId, label) => {

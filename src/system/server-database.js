@@ -204,11 +204,11 @@ DB.PKT_Add = pkt => {
   const data = pkt.Data();
   const results = {};
   const collections = DATAMAP.ExtractCollections(data);
-  // collections is array of [ collectionName, docs ]
-  // for 'add' op, docs is a data object or array of data objects WITHOUT an id
+  // collection is object with { colKey, docs, subKey, subDocs }
+  // for 'add' op, docs is an array of data objects WITHOUT an id
   // these data objects will be assigned ids and returned to caller
   collections.forEach(entry => {
-    let { colKey, docs } = entry;
+    let { colKey, docs, subKey, subDocs } = entry;
     const dbc = m_db.getCollection(colKey);
     // INSERT entries
     let inserted = dbc.insert(docs);
@@ -249,39 +249,46 @@ DB.PKT_Update = pkt => {
   const results = {};
   let error = '';
   const collections = DATAMAP.ExtractCollections(data);
-  // collections is array of [ collectionName, docs ]
-  // for 'update' op, docs is a data object or array of data objects WITH an id
+  // collection is object with { colKey, docs, subKey, subDocs }
+  // for 'update' op, docs is always an array of data objects WITH an id
   // these data objects will replace matching db items and returned
-  collections.forEach(entry => {
-    let { colKey, docs } = entry;
+  collections.forEach(collection => {
+    let { colKey, docs, subKey, subDocs } = collection;
+    // console.log(`COLLECTION: ${JSON.stringify(collection)}`);
     const dbc = m_db.getCollection(colKey);
     let updatedIds = [];
     // 1. docs is the objects of the collection
     // 2. grab ids from each colObj
     // 3. find each object, then update it
-    docs.forEach((ditem, index) => {
-      const { id } = ditem;
+    docs.forEach((colData, index) => {
+      const { id } = colData; // id of the object in collection
       if (!id) {
         error += `item[${index}] has no id`;
         return;
       }
-      if (DBG) console.log('looking for id', id);
-      dbc
+      // got this far, we found an id to update
+      if (DBG) console.log(`looking for id:${id} in collection:${colKey}`);
+      const found = dbc
         .chain()
         .find({ id: { $eq: id } })
-        .update(item => {
-          if (DBG) {
-            console.log(PR, `updating ${JSON.stringify(item)}`);
-            console.log(PR, `with ${JSON.stringify(ditem)}`);
-          }
-          Object.assign(item, ditem);
+        .update(match => {
+          if (DBG) console.log(`found match for id:${id} in collection:${colKey}`);
+          /*/
+          match is a matching update object that we can modify it's always the
+          matching top-level record in the collection however, how we process it
+          depends on whether there is a subkey or not.
+          /*/
+          if (subKey) DATAMAP.UpdateObjectProp(match, subKey, subDocs);
+          else DATAMAP.AssignObject(match, newData);
         });
       updatedIds.push(id);
-    }); // docs
-    // return updated objects
+    }); // docs foreach
+    // return updated objects fom collection
     const updated = dbc
       .chain()
-      .find({ id: { $in: updatedIds } })
+      .where(item => {
+        return updatedIds.includes(item.id);
+      })
       .data({ removeMeta: true });
     results[colKey] = updated;
     if (DBG) console.log(PR, `UPDATED '${colKey}': ${JSON.stringify(updated)}`);
@@ -313,11 +320,11 @@ DB.PKT_Remove = pkt => {
   const results = {};
   let error = '';
   const collections = DATAMAP.ExtractCollections(data);
-  // collections is array of [ collectionName, docs ]
-  // for 'update' op, docs is a id or array of ids to be removed
+  // collection is object with { colKey, docs, subKey, subDocs }
+  // for 'update' op, docs is an array of ids to be removed
   // docs matching these ids are removed and returned to caller
   collections.forEach(entry => {
-    let { colKey, docs } = entry;
+    let { colKey, docs, subKey, subDocs } = entry;
     // check data are numeric ids only
     if (!docs.every(item => Number.parseInt(item) === item))
       error += `'${colKey}' docs prop must contain integer ids, not ${JSON.stringify(docs)}`;

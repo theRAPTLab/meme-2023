@@ -69,22 +69,11 @@ class DataMap {
    * @returns {ArrayChangeObject} - { added, updated, removed }
    */
   GetChanges(arr) {
-    const added = [];
-    const updated = [];
-    const removed = [];
-
-    // find what matches and what is new
-    arr.forEach(id => {
-      if (this.map.has(id)) updated.push();
-      else added.push(id);
-    });
-    this.map.forEach((val, id) => {
-      if (!updated.includes(id)) removed.push(id);
-    });
+    const results = DataMap.f_deltaFilterIDArray(arr, this.map);
     // save results
-    this.idsAdded = added;
-    this.idsRemoved = removed;
-    this.idsUpdated = updated;
+    this.idsAdded = results.added;
+    this.idsRemoved = results.removed;
+    this.idsUpdated = results.updated;
     // return results
     return { added, removed, updated };
   }
@@ -129,7 +118,7 @@ DataMap.Collections = () => {
 /** validate that keyName is a valid DBKEY
  * @param {string} keyName - extract from the DBSYNC data props
  */
-DataMap.ValidateKey = keyName => {
+DataMap.IsValidKey = keyName => {
   return DBKEYS.includes(keyName);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -143,8 +132,12 @@ DataMap.ValidateCommand = command => DBCMDS.has(command);
  */
 DataMap.GetCommandMessage = command => DBCMDS.get(command);
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** used to parse a data object (such as returned from pkt.Data() for collections
- * to modify or update.
+/** Used to parse a data object (such as returned from pkt.Data() for collections
+ * to modify or update. If a subkey is detected, the collection format is different
+ * key    { 'pmcData': data }
+ *        .. where data is a model object (or array of)
+ * subkey { 'pmcData.entities': { id, entities: data }
+ *        .. where id is a modelId and data is an entity obj
  * @param {Object} data - object with properties matching DBKEY contain array of values
  * @returns {Array} - an array of {collection,propkey,docs} for each matching DBKEY
  */
@@ -153,11 +146,14 @@ DataMap.ExtractCollections = data => {
   // the colKey might be a compound key (e.g. pmcData.entities)
   Object.keys(data).forEach(foundKey => {
     // only return keys that match a collection name
-    if (!DataMap.ValidateKey(foundKey)) return;
+    if (!DataMap.IsValidKey(foundKey)) return;
     let docs = data[foundKey]; // can be an obj or array of objs
-    if (!Array.isArray(docs)) docs = [docs]; // wrap all non arrays in array
     const [colKey, subKey] = foundKey.split('.');
-    const entry = { colKey, subKey, docs };
+    const subDocs = subKey ? docs[subKey] : undefined;
+    if (subKey && !subDocs) console.warn(`subkey ${subKey} missing subdocs from`, data);
+    // prepare for write
+    if (!Array.isArray(docs)) docs = [docs]; // wrap all non arrays in array
+    const entry = { colKey, docs, subKey, subDocs };
     collections.push(entry);
   });
   // returned undefined if no collections
@@ -166,14 +162,14 @@ DataMap.ExtractCollections = data => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** validate that data has valid keys DB keys. Returns number of found keys
  * that conform to type
- * @param {string} data - data object
+ * @param {string} data - data object with collection keys
  */
 DataMap.ValidateCollections = data => {
   const { cmd } = data;
   let count = 0;
   Object.keys(data).forEach(colKey => {
     // only return colKey that match a collection name
-    if (!DataMap.ValidateKey(colKey)) return;
+    if (!DataMap.IsValidKey(colKey)) return;
     // extract the collection
     const values = data[colKey];
     if (Array.isArray(values)) {
@@ -252,6 +248,53 @@ function f_validateRemove(num, key = '') {
   if (Number.parseInt(num) !== num) throw Error(`${key}.remove: ${num} isn't an integer`);
   return true;
 }
+// called by DataMap.GetChange() instance method
+// modifies elementMap
+// returns added, removed, updated arrays id list
+function f_deltaFilterIDArray(arr, elementMap = new Map()) {
+  // find what matches and what is new
+  const added = [];
+  const updated = [];
+  const removed = [];
+
+  arr.forEach(id => {
+    if (elementMap.has(id)) updated.push();
+    else added.push(id);
+  });
+  elementMap.forEach((val, id) => {
+    if (!updated.includes(id)) removed.push(id);
+  });
+  // return results
+  return { added, removed, updated };
+}
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** given an original object, modify a key inside it with the supplied data
+ */
+DataMap.UpdateObjectProp = (record, key, subDocs) => {
+  if (typeof record !== 'object') throw Error('arg1 must be object with id');
+  if (typeof key !== 'string') throw Error('arg2 must be string');
+  if (!Array.isArray(subDocs)) subDocs = [subDocs];
+  const dbdata = record[key];
+  subDocs.forEach(sd => {
+    const obj = dbdata.find(dbd => dbd.id === sd.id);
+    // this mutates the original object, which mutates the database
+    if (!obj) console.warn(`couldn't find ${sd.id} in record[${key}]`);
+    else {
+      const oldobj = JSON.stringify(obj);
+      const sdobj = JSON.stringify(sd);
+      Object.assign(obj, sd);
+      const newobj = JSON.stringify(obj);
+      console.log('UpdateObjectProp:\n.. old:', oldobj, 'mutated with', sdobj, '\n.. new:', newobj);
+    }
+  });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** overwrite the original object with changes in second object
+ */
+DataMap.AssignObject = (original, newdata) => {
+  Object.assign(original, newdata);
+};
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

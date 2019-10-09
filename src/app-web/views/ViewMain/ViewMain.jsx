@@ -381,7 +381,7 @@ class ViewMain extends React.Component {
       // Update existing prop
       const id = parseInt(this.state.addPropPropId);
       const name = this.state.addPropLabel
-      DATA.PMC_PropUpdate({ id, name });
+      DATA.PMC_PropUpdate(id, { name });
       UTILS.RLog('PropertyEdit', this.state.addPropLabel);
     } else {
       // Create new prop

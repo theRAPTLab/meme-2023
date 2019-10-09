@@ -4,22 +4,22 @@ module.exports = {
   // entities
   entities: [
     // props
-    { id: 10, type:'prop', node: 'fertilizer', name: 'fertilizer' },
-    { id: 11, type:'prop', node: 'nutrients', name: 'nutrients', parent: 10 },
-    { id: 12, type:'prop', node: 'algae', name: 'algae' },
-    { id: 13, type:'prop', node: 'deadstuff', name: 'dead stuff' },
-    { id: 14, type:'prop', node: 'decomposers', name: 'decomposers' },
-    { id: 15, type:'prop', node: 'oxygen', name: 'oxygen' },
-    { id: 16, type:'prop', node: 'fish', name: 'fish' },
-    { id: 17, type:'prop', node: 'population', name: 'population', parent: 16 },
+    { id: 10, type:'prop', name: 'fertilizer' },
+    { id: 11, type:'prop', name: 'nutrients', parent: 10 },
+    { id: 12, type:'prop', name: 'algae' },
+    { id: 13, type:'prop', name: 'dead stuff' },
+    { id: 14, type:'prop', name: 'decomposers' },
+    { id: 15, type:'prop', name: 'oxygen' },
+    { id: 16, type:'prop', name: 'fish' },
+    { id: 17, type:'prop', name: 'population', parent: 16 },
     // mechs
-    { id: 20, type:'mech', edge: 'fertilizer:nutrients', source: 10, target: 11, name: 'increase' },
-    { id: 21, type:'mech', edge: 'nutrients:algae', source: 11, target: 12, name: 'increase' },
-    { id: 22, type:'mech', edge: 'algae:deadstuff', source: 12, target: 13, name: 'die (incrase)' },
-    { id: 23, type:'mech', edge: 'decomposers:deadstuff', source: 14, target: 13, name: 'eat' },
-    { id: 24, type:'mech', edge: 'decomposers:oxygen', source: 14, target: 15, name: 'breath (decrease)' },
-    { id: 25, type:'mech', edge: 'oxygen:population', source: 15, target: 17, name: 'if too low, decreases' },
-    { id: 26, type:'mech', edge: 'fish:deadstuff', source: 16, target: 13, name: 'die (increase)' },
+    { id: 20, type:'mech', source: 10, target: 11, name: 'increase' },
+    { id: 21, type:'mech', source: 11, target: 12, name: 'increase' },
+    { id: 22, type:'mech', source: 12, target: 13, name: 'die (incrase)' },
+    { id: 23, type:'mech', source: 14, target: 13, name: 'eat' },
+    { id: 24, type:'mech', source: 14, target: 15, name: 'breath (decrease)' },
+    { id: 25, type:'mech', source: 15, target: 17, name: 'if too low, decreases' },
+    { id: 26, type:'mech', source: 16, target: 13, name: 'die (increase)' },
     // evidence
     {
       id: 31,

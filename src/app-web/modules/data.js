@@ -46,7 +46,7 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
       default:
         console.error('unrecognized command', cmd);
     }
-    if (DBG) console.log(`SYSTEM_DBSYNC '${cmd}'\n${JSON.stringify(data)}`);
+    if (DBG) console.log(`SYSTEM_DBSYNC '${cmd}'\n`, data);
   });
 });
 

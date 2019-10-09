@@ -15,7 +15,7 @@ import CENTRAL from './ur-central';
 import EXEC from './ur-exec';
 import ReloadOnViewChange from './util/reload';
 import NetMessage from './common-netmessage';
-import URLink from './common-urlink';
+import URLink from './ur-link';
 import REFLECT from './util/reflect';
 import SESSION from './common-session';
 

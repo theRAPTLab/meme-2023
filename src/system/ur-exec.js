@@ -13,7 +13,7 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import URNET from './ur-network';
-import URLink from './common-urlink';
+import URLink from './ur-link';
 import { cssuri, cssalert, cssinfo, cssblue, cssreset } from '../app-web/modules/console-styles';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////

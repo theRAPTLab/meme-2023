@@ -137,26 +137,24 @@ DataMap.GetCommandMessage = command => DBCMDS.get(command);
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Used to parse a data object (such as returned from pkt.Data() for collections
  * to modify or update. If a subkey is detected, the collection format is different
- * key    { 'pmcData': data }
- *        .. where data is a model object (or array of)
- * subkey { 'pmcData.entities': { id, entities: data }
- *        .. where id is a modelId and data is an entity obj
+ * key    { 'pmcData': value }
+ *        .. where val is an object with an id
+ * subkey { 'pmcData.entities': { id, entities: value }
+ *        .. where id is a modelId and val is a single entity obj
  * @param {Object} data - object with properties matching DBKEY contain array of values
- * @returns {Array} - an array of {collection,propkey,docs} for each matching DBKEY
+ * @returns {Array} - an array of {colkey,subkey,value} for each matching DBKEY
  */
 DataMap.ExtractCollections = data => {
   let collections = [];
-  // the colKey might be a compound key (e.g. pmcData.entities)
+  // the colkey might be a compound key (e.g. pmcData.entities)
   Object.keys(data).forEach(foundKey => {
     // only return keys that match a collection name
     if (!DataMap.IsValidKey(foundKey)) return;
-    let docs = data[foundKey]; // can be an obj or array of objs
-    const [colKey, subKey] = foundKey.split('.');
-    const subDocs = subKey ? docs[subKey] : undefined;
-    if (subKey && !subDocs) console.warn(`subkey ${subKey} missing subdocs from`, data);
+    let value = data[foundKey]; // can be an obj or array of objs
+    const [colkey, subkey] = foundKey.split('.');
+    if (subkey && !value[subkey]) console.warn(`subkey ${subkey} missing subdocs from`, value);
     // prepare for write
-    if (!Array.isArray(docs)) docs = [docs]; // wrap all non arrays in array
-    const entry = { colKey, docs, subKey, subDocs };
+    const entry = { colkey, subkey, value };
     collections.push(entry);
   });
   // returned undefined if no collections
@@ -165,91 +163,70 @@ DataMap.ExtractCollections = data => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** validate that data has valid keys DB keys. Returns number of found keys
  * that conform to type
- * @param {string} data - data object with collection keys
+ * key    { 'pmcData': value }
+ *        .. where val is an object with an id
+ * subkey { 'pmcData.entities': { id, entities: value }
+ *        .. where id is a modelId and val is a single entity obj
+ * @param {string} cobj - collection object with collection keys
  */
-DataMap.ValidateCollections = data => {
-  const { cmd } = data;
+DataMap.ValidateCollections = cobj => {
+  const { cmd } = cobj;
   let count = 0;
-  Object.keys(data).forEach(colKey => {
-    // only return colKey that match a collection name
-    if (!DataMap.IsValidKey(colKey)) return;
+  Object.keys(cobj).forEach(colkey => {
+    // only return colkey that match a collection name
+    if (!DataMap.IsValidKey(colkey)) return;
     // extract the collection
-    const values = data[colKey];
-    if (Array.isArray(values)) {
-      // make sure values of type array contains only valid types
-      let ok = true;
-      values.forEach(element => {
-        switch (cmd) {
-          case 'add':
-            ok &= f_validateAdd(element, colKey);
-            break;
-          case 'update':
-            ok &= f_validateUpdate(element, colKey);
-            break;
-          case 'remove':
-            ok &= f_validateRemove(element, colKey);
-            break;
-          default:
-            console.log(cmd);
-            throw Error(`${colKey} unknown command ${cmd}`);
-        }
-        // if code hasn't returned, then this is an error
-        if (!ok) throw Error(`${colKey}.${cmd} array mystery error`);
-      }); // values foreach
-      // successful processing! increment collection count
-      count++;
-    } else {
-      // if we got this far, then the colKey contained a non-array
-      let ok = true;
-      switch (cmd) {
-        case 'add':
-          ok &= f_validateAdd(values, colKey);
-          break;
-        case 'update':
-          ok &= f_validateUpdate(values, colKey);
-          break;
-        case 'remove':
-          ok &= f_validateRemove(values, colKey);
-          break;
-        default:
-          console.log(cmd);
-          throw Error(`${colKey} unknown command ${cmd}`);
-      } // single value
-      if (!ok) throw Error(`${key}.${cmd} single value mystery error`);
-      // sucessful processing
-      count++;
-    }
-  }); // foreach colKey...loop to next one
+    const value = cobj[colkey];
+    // if we got this far, then the colkey contained a non-array
+    let ok = true;
+    switch (cmd) {
+      case 'add':
+        ok &= f_validateAdd(value, colkey);
+        break;
+      case 'update':
+        ok &= f_validateUpdate(value, colkey);
+        break;
+      case 'remove':
+        ok &= f_validateRemove(value, colkey);
+        break;
+      default:
+        console.log(cmd);
+        throw Error(`${colkey} unknown command ${cmd}`);
+    } // switch
+    if (!ok) throw Error(`${key}.${cmd} single value mystery error`);
+    // sucessful processing
+    count++;
+  }); // foreach colkey...loop to next one
 
   // finished processing everything, return the count of processed collection
   // if we dont' get this far, an error had been thrown
   return count;
 };
 
-function f_validateAdd(el, key = '') {
-  const etype = typeof el;
-  if (etype !== 'object') throw Error(`${key}.add: requires OBJECTS with no id`);
-  if (el.id) throw Error(`${key}.add: object can not have an id; it will be assigned`);
+function f_validateAdd(value, key = '') {
+  const vtype = typeof value;
+  if (vtype !== 'object') throw Error(`${key}.add: requires OBJECTS with no id`);
+  if (value.id) throw Error(`${key}.add: object can not have an id; it will be assigned`);
   return true;
 }
-function f_validateUpdate(el, key = '') {
+function f_validateUpdate(value, key = '') {
   // TOFIX: need to validate subkeys...this only validates the top collection
-  const etype = typeof el;
-  if (etype !== 'object') throw Error(`${key}.update: requires OBJECTS with an id, not ${etype}`);
-  if (el.id === undefined) throw Error(`${key}.update: object must have an id`);
-  const idtype = typeof el.id;
+  const vtype = typeof value;
+  if (vtype !== 'object') throw Error(`${key}.update: requires OBJECTS with an id, not ${vtype}`);
+  if (value.id === undefined) throw Error(`${key}.update: object must have an id`);
+  const idtype = typeof value.id;
   if (idtype !== 'number')
-    throw Error(`${key}.update: object.id <${el.id}> must be an integer, not ${idtype}`);
-  if (Number.parseInt(el.id) !== el.id)
-    throw Error(`${key}.update: object.id ${el} is not an integer`);
+    throw Error(`${key}.update: object.id <${value.id}> must be an integer, not ${idtype}`);
+  if (Number.parseInt(value.id) !== value.id)
+    throw Error(`${key}.update: object.id ${value} is not an integer`);
   return true;
 }
-function f_validateRemove(el, key = '') {
-  if (typeof el === 'object') return true; // TOFIX: this is a hack, need to validate subkeys
-  const etype = typeof el;
-  if (etype !== 'number')
-    throw Error(`${key}.remove: only provide an integer id (typeof=${etype})`);
-  if (Number.parseInt(el) !== el) throw Error(`${key}.remove: ${el} isn't an integer`);
+function f_validateRemove(value, key = '') {
+  if (typeof value === 'object') return true; // TOFIX: this is a hack, need to validate subkeys
+  const vtype = typeof value;
+  if (vtype !== 'number')
+    throw Error(`${key}.remove: only provide an integer id (typeof=${vtype})`);
+  if (Number.parseInt(value) !== value) throw Error(`${key}.remove: ${value} isn't an integer`);
   return true;
 }
 // called by DataMap.GetChange() instance method
@@ -273,57 +250,58 @@ function f_deltaFilterIDArray(arr, elementMap = new Map()) {
 }
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** given an input, insure that it is an int >=0 or an array of such ints
+/** given an input, insure that it is an int >=0
  */
-DataMap.IsValidIds = ids => {
-  if (!Array.isArray(ids)) ids = [ids];
-  return ids.every(id => {
-    let test = Number.parseInt(id) === id;
-    return test && id >= 0;
-  });
+DataMap.IsValidId = id => {
+  let test = Number.parseInt(id) === id;
+  return test && id >= 0;
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** given an original object, modify a key inside it with the supplied data
+ * It's assumed the the propname is for an array of idObjs { id, ... }
+ * @param {object} obj - object with property to modify
+ * @param {string} propname - name of prop[] to manipulate
+ * @param {object} idObj - object with id to find and overwrite
  */
-DataMap.UpdateObjectProp = (record, key, subDocs) => {
-  if (typeof record !== 'object') throw Error('arg1 must be object with id');
-  if (typeof key !== 'string') throw Error('arg2 must be string');
-  if (!Array.isArray(subDocs)) subDocs = [subDocs];
-  const dbdata = record[key];
-  const mutated = [];
-  subDocs.forEach(sd => {
-    const obj = dbdata.find(dbd => dbd.id === sd.id);
-    // this mutates the original object, which mutates the database
-    if (!obj) console.warn(`couldn't find ${sd.id} in record[${key}]`);
-    else {
-      const oldobj = JSON.stringify(obj);
-      const sdobj = JSON.stringify(sd);
-      Object.assign(obj, sd);
-      let mobj = Object.assign({}, obj);
-      mobj.$loki = undefined;
-      mobj.meta = undefined;
-      mutated.push(mobj);
-      const newobj = JSON.stringify(obj);
-      if (DBG)
-        console.log(
-          'UpdateObjectProp:\n.. old:',
-          oldobj,
-          'mutated with',
-          sdobj,
-          '\n.. new:',
-          newobj
-        );
-    }
-  });
-  return mutated;
+DataMap.MutateObjectProp = (obj, propname, idObj) => {
+  if (typeof obj !== 'object') throw Error('arg1 must be object');
+  if (typeof propname !== 'string') throw Error('arg2 must be string');
+  if (typeof idObj !== 'object') throw Error('arg3 must be object');
+  if (!DataMap.IsValidId(idObj.id)) throw Error('arg3 must be object with id');
+  const id = idObj.id;
+  const list = obj[propname];
+  const found = list.find(el => el.id === id);
+  if (!found) {
+    console.warn(`couldn't find ${id} in obj[${propname}]`, list);
+    return undefined;
+  }
+  // if we got this far, mutate
+  const sBefore = JSON.stringify(obj);
+  const sIdObj = JSON.stringify(idObj);
+  Object.assign(found, idObj);
+  const sAfter = JSON.stringify(obj);
+  // return a copy without loki metadata for return
+  const retobj = Object.assign({}, found);
+  retobj.$loki = undefined;
+  retobj.meta = undefined;
+  if (DBG) console.log(`UpdateObjectProp:\n.. old:${sBefore}\n.. new:${sAFter}`);
+  return retobj;
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** overwrite the original object with changes in second object
  */
-DataMap.AssignObject = (original, newdata) => {
-  Object.assign(original, newdata);
+DataMap.MutateObject = (obj, idObj) => {
+  if (typeof obj !== 'object') throw Error('arg1 must be object');
+  if (typeof idObj !== 'object') throw Error('arg2 must be object');
+  if (!DataMap.IsValidId(idObj.id)) throw Error('arg2 must be object with id');
+  Object.assign(obj, idObj);
+  // return a copy without loki metadata for return
+  const retobj = Object.assign({}, obj);
+  retobj.$loki = undefined;
+  retobj.meta = undefined;
+  return retobj;
 };
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////

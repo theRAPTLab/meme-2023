@@ -508,12 +508,12 @@ PMCData.PMC_SetPropParent = (nodeId, parent) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_PropDelete = propId => {
-  if (!DATAMAP.IsValidIds(propId)) throw Error('invalid id');
+  if (!DATAMAP.IsValidId(propId)) throw Error('invalid id');
   const modelId = ASET.selectedModelId;
   return UR.DBQuery('remove', {
     'pmcData.entities': {
       id: modelId,
-      entities: [propId]
+      entities: { id: propId }
     }
   })
     .then(rdata => {

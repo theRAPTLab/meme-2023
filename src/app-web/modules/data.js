@@ -122,6 +122,8 @@ NEW.DeleteGroup = groupData => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** update groups collection with new data
+ */
 NEW.UpdateGroup = (groupId, group) => {
   const groupData = Object.assign({}, group, { id: groupId });
   return UR.DBQuery('update', {
@@ -129,6 +131,8 @@ NEW.UpdateGroup = (groupId, group) => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** add a single student or a list of students to a group by Id
+ */
 NEW.AddStudents = (groupId, students) => {
   // Update the group
   if (!Array.isArray(students)) students = [students];
@@ -146,6 +150,8 @@ NEW.AddStudents = (groupId, students) => {
   return NEW.UpdateGroup(groupId, group);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** delete a student from a group by groupId
+ */
 NEW.DeleteStudent = (groupId, student) => {
   // Update the group
   if (typeof student !== 'string') {
@@ -183,15 +189,15 @@ NEW.PMC_PropUpdate = (nodeId, newData) => {
   const prop = m_graph.node(nodeId);
   // make a copy of the prop with overwritten new data
   // local data will be updated on DBSYNC event, so don't write it here
-  const propData = Object.assign({ id: nodeId }, prop, newData);
-  console.log('prop', prop, 'newdata', newData, 'propdata', propData);
+  const propObj = Object.assign({}, prop, newData, { id: nodeId });
+  console.log('prop', prop, 'newdata', newData, 'propdata', propObj);
   const modelId = ASET.selectedModelId;
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
   return UR.DBQuery('update', {
     'pmcData.entities': {
       id: modelId,
-      entities: propData
+      entities: propObj
     }
   })
     .then(rdata => {
@@ -204,10 +210,11 @@ NEW.PMC_PropUpdate = (nodeId, newData) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NEW.PMC_PropDelete = propId => {
   const modelId = ASET.selectedModelId;
+  const propObj = { id: propId };
   return UR.DBQuery('remove', {
     'pmcData.entities': {
       id: modelId,
-      entities: [propId]
+      entities: propObj
     }
   })
     .then(rdata => {

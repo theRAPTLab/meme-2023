@@ -203,28 +203,79 @@ DB.PKT_Add = pkt => {
   //
   const data = pkt.Data();
   const results = {};
+  let error = '';
+  const added = [];
   const collections = DATAMAP.ExtractCollections(data);
   // collection is object with { colKey, docs, subKey, subDocs }
   // for 'add' op, docs is an array of data objects WITHOUT an id
   // these data objects will be assigned ids and returned to caller
+  /*/
+    'teachers', { name }
+    'pmcData.entities', { id:, entities: [ { name } ]
+  /*/
   collections.forEach(entry => {
     let { colKey, docs, subKey, subDocs } = entry;
     const dbc = m_db.getCollection(colKey);
-    // INSERT entries
-    let inserted = dbc.insert(docs);
-    if (!Array.isArray(inserted)) inserted = [inserted];
-    // RETURN ids
-    const insertedIds = inserted.map(item => item.id);
-    // grab filtered values
-    const entitiesUpdated = dbc
-      .chain()
-      .find({ id: { $in: insertedIds } })
-      .data({ removeMeta: true });
-    results[colKey] = entitiesUpdated;
-    if (DBG) console.log(PR, `ADDED '${colKey}': ${JSON.stringify(entitiesUpdated)}`);
-  });
+    docs.forEach(colData => {
+      const { id } = colData;
+      const record = dbc.chain().find({ id: { $eq: id } });
+      if (!id) {
+        error += `record in ${colKey} doesn't can't find id: ${JSON.stringify(doc)}`;
+        return;
+      }
+      if (!subKey) {
+        // IS NORMAL ADD
+        const reskey = colkey;
+        results[reskey] = results[reskey] || [];
+        let inserted = dbc.insert(docs);
+        if (!Array.isArray(inserted)) inserted = [inserted];
+        const insertedIds = inserted.map(item => item.id);
+        const entitiesUpdated = dbc
+          .chain()
+          .find({ id: { $in: insertedIds } })
+          .data({ removeMeta: true });
+        results[reskey] = entitiesUpdated;
+      } else {
+        // IS SUBKEY ADD
+        if (record.count() === 0) {
+          error += `add could not find matching ${id} in ${colKey} collection`;
+          return;
+        }
+        record.update(match => {
+          // subrecord is an array of objs to add
+          const subrecord = match[subKey];
+          // special case processing
+          if (subKey === 'entities') {
+            // find max index
+            const maxidx = subrecord.reduce((acc, cv) => {
+              return cv.id > acc ? cv.id : acc;
+            }, 0);
+            subDocs.forEach(sd => {
+              sd.id = ++maxidx;
+              if (DBG) console.log(PR, `.. writing new id into ${JSON.stringify(sd)}`);
+              subrecord.push(sd);
+              const sdcopy = Object.assign({}, sd);
+              added.push(sdcopy);
+            });
+            // rewrite match
+            match[subKey] = subrecord;
+            //
+          } // subkey entities
+          const reskey = `${colKey}.${subKey}`;
+          results[reskey] = results[reskey] || [];
+          results[reskey].push(...added);
+        }); // record update
+      } // if subkey
+      if (DBG) console.log(PR, `ADDED '${colKey}': ${JSON.stringify(entitiesUpdated)}`);
+    }); // docs foreach
+  }); // collections foreach
+
+  if (error) {
+    console.log(PR, 'PKT_Add:', error);
+    return { error };
+  }
   // send update to network
-  m_DatabaseChangeEvent('add', results, pkt);
+  m_DatabaseChangeEvent('add', results);
   // return
   return results;
 };
@@ -235,10 +286,7 @@ DB.PKT_Add = pkt => {
  * All properties that match an existing DBKEY are considered inputs.
  * The property values must be objects WITH an id property.
  * If the call fails, the error property will be set as well.
- *
- * data.cmd 'update'
- * data.collectionName = obj || [ obj ], reurns entitiesUpdated items
- * @param {NetMessage} pkt - packet with data object as described above
+ * @param {NetMessage} pkt - packet with data object with collection keys
  * @returns {Object} - data to return (including error if any)
  */
 DB.PKT_Update = pkt => {
@@ -249,54 +297,39 @@ DB.PKT_Update = pkt => {
   const results = {};
   let error = '';
   const collections = DATAMAP.ExtractCollections(data);
-  // collection is object with { colKey, docs, subKey, subDocs }
-  // for 'update' op, docs is always an array of data objects WITH an id
-  // these data objects will replace matching db items and returned
+  // collection is object with { colkey, subkey, value }
   collections.forEach(collection => {
-    let { colKey, docs, subKey, subDocs } = collection;
-    // console.log(`COLLECTION: ${JSON.stringify(collection)}`);
-    const dbc = m_db.getCollection(colKey);
-    let entitiesUpdatedIds = [];
-    // 1. docs is the objects of the collection
-    // 2. grab ids from each colObj
-    // 3. find each object, then update it
-    docs.forEach((colData, index) => {
-      const { id } = colData; // id of the object in collection
-      if (!id) {
-        error += `item[${index}] has no id`;
-        return;
-      }
-      // got this far, we found an id to update
-      if (DBG) console.log(PR, `looking for id:${id} in collection:${colKey}`);
-      let retval;
-      const found = dbc
-        .chain()
-        .find({ id: { $eq: id } })
-        .update(match => {
-          if (DBG) console.log(PR, `found match for id:${id} in collection:${colKey}`);
-          /*/
-          match is a matching update object that we can modify it's always the
+    let { colkey, subkey, value } = collection;
+    const dbc = m_db.getCollection(colkey);
+    if (!DATAMAP.IsValidId(value.id)) {
+      error += `${colkey} no id in ${JSON.stringify(value)}`;
+      return;
+    }
+    const colid = value.id;
+    if (DBG) console.log(PR, `matching id:${colid} in collection:${colkey}...`);
+    let retval;
+    // update!
+    const found = dbc
+      .chain()
+      .find({ id: { $eq: colid } })
+      .update(record => {
+        /*/
+          record is a matching update object that we can modify it's always the
           matching top-level record in the collection however, how we process it
           depends on whether there is a subkey or not.
           /*/
-          let reskey = colKey;
-          if (subKey) {
-            reskey = `${colKey}.${subKey}`;
-            retval = DATAMAP.UpdateObjectProp(match, subKey, subDocs); // arr
-          } else {
-            DATAMAP.AssignObject(match, colData);
-            const matchcopy = Object.assign({}, match);
-            matchcopy.$loki = undefined;
-            matchcopy.meta = undefined;
-            retval = [matchcopy]; // force arr
-          }
-          //
-          results[reskey] = results[reskey] || [];
-          results[reskey].push(...retval); // push arr as individual bits
-        });
-      entitiesUpdatedIds.push(id);
-    }); // docs foreach
-    if (DBG) console.log(PR, `updated: ${JSON.stringify(results)}`);
+        let reskey = colkey;
+        if (subkey) {
+          reskey = `${colkey}.${subkey}`;
+          retval = DATAMAP.MutateObjectProp(record, subkey, value[subkey]);
+        } else {
+          retval = DATAMAP.MutateObject(record, value);
+        }
+        //
+        results[reskey] = results[reskey] || [];
+        results[reskey].push(retval); // update results object
+        if (DBG) console.log(PR, `updated: ${reskey} ${JSON.stringify(retval)}`);
+      });
   }); // collections forEach
   // was there an error?
   if (error) {
@@ -327,98 +360,109 @@ DB.PKT_Remove = pkt => {
   const data = pkt.Data();
   const results = {};
   const removed = [];
-  const entitiesUpdated = [];
+  const updated = [];
   let error = '';
   const collections = DATAMAP.ExtractCollections(data);
-  // collection is object with { colKey, docs, subKey, subDocs }
-  // for 'update' op, docs is an array of ids to be removed
-  // docs matching these ids are removed and returned to caller
+  // collection is object with { colkey, subkey, value }
   collections.forEach(collection => {
-    let { colKey, docs, subKey, subDocs } = collection;
-    if (DBG) console.log(PR, `${colKey} has ${JSON.stringify(docs)}`);
+    let { colkey, subkey, value } = collection;
+    if (DBG) console.log(PR, `${colkey} has ${JSON.stringify(value)}`);
     // process collections
-    const dbc = m_db.getCollection(colKey);
-    let reskey = colKey;
-    docs.forEach(doc => {
-      const id = doc.id;
-      if (!id) {
-        error += `doc doesn't have an id: ${JSON.stringify(doc)}`;
-        return;
-      }
-      const record = dbc.chain().find({ id: { $eq: id } }); // e.g. pmcdata model
-      if (record.count() === 0) {
-        error += `could not find matching ${id} in ${colKey} collection.`;
-        return;
-      }
-      if (DBG) console.log(PR, `found ${record.count()} matches with ${colKey}.${id}`);
-      if (!subKey) {
-        // IS NORMAL COLLECTION
-        const reskey = colKey;
+    const dbc = m_db.getCollection(colkey);
+    if (!DATAMAP.IsValidId(value.id)) {
+      error += `${colkey} no id in ${JSON.stringify(value)}`;
+      return;
+    }
+    const colid = value.id;
+    let reskey = colkey;
+    // remove
+    const found = dbc.chain().find({ id: { $eq: colid } }); // e.g. pmcdata model
+    if (found.count() === 0) {
+      error += `remove could not find matching ${colid} in ${colkey} collection.`;
+      return;
+    }
+    if (DBG) console.log(PR, `remove found match for id:${colid} in collection:${colkey}`);
+    if (!subkey) {
+      // IS NORMAL REMOVE - pure database remove
+      const reskey = colkey;
+      results[reskey] = results[reskey] || [];
+      const retval = record.branch().data({ removeMeta: true });
+      found.remove();
+      results[reskey].push(retval);
+      if (DBG) console.log(PR, `${colkey} delete ${JSON.stringify(retval)}`);
+    } else {
+      // IS SUBKEY REMOVE - database modify and update record
+      found.update(record => {
+        const reskey = `${colkey}.${subkey}`;
         results[reskey] = results[reskey] || [];
-        const rdata = record.branch().data({ removeMeta: true });
-        record.remove();
-        results[reskey].push(rdata);
-        if (DBG) console.log(PR, `${colKey} delete ${JSON.stringify(rdata)}`);
-      } else {
-        // IS SUBKEY
-        record.update(match => {
-          const subrecord = match[subKey]; // e.g. pmcdata model entities array
-          // subrecord is an array of objs to update
-          const reskey = `${colKey}.${subKey}`;
-          results[reskey] = results[reskey] || [];
-          let keep = subrecord.filter(element => {
-            const toDelete = subDocs.includes(element.id);
-            // if (DBG) console.log(PR, '.. filtering', element, 'against', subDocs, toDelete);
-            if (toDelete) removed.push(element);
-            return !toDelete;
-          }); // filter subrecord
+        const subrecord = record[subkey]; // this is what we want to modify
+        if (!DATAMAP.IsValidId(value[subkey].id)) {
+          error += `${reskey} no id in ${JSON.stringify(value[subkey])}`;
+          return; // exit update(), process afterwards
+        }
+        const subid = value[subkey].id;
+        if (DBG) console.log(PR, `matching id:${subid} in ${reskey} list...`);
+        let keep = subrecord.filter(element => {
+          const b_delete = subid === element.id;
+          if (b_delete) {
+            removed.push(element);
+            if (DBG) console.log(PR, `.. removing ${JSON.stringify(element).substring(0, 40)}`);
+          }
+          return !b_delete;
+        }); // filter subrecord
 
-          // special case processing
-          if (subKey === 'entities') {
-            if (DBG) console.log(PR, `scrubbing entities in ${colKey} id=${match.id}`);
-            // now remove linked entities
-            keep.forEach(entity => {
-              // for every removed entity, remove links to it in kept entities
-              removed.forEach(r => {
-                if (entity.propId === r.id) {
-                  if (DBG)
-                    console.log(PR, `.. evidence ${entity.id} removed propId ${entity.propId}`);
-                  entity.propId = undefined;
-                  entitiesUpdated.push(entity);
-                } // if propId
-                if (entity.parent === r.id) {
-                  if (DBG) console.log(PR, `.. prop ${entity.id} removed parent ${entity.parent}`);
-                  entity.parent = undefined;
-                  entitiesUpdated.push(entity);
-                } // if parent
-                if (entity.type === 'mech') {
-                  let changed = false;
-                  if (entity.source === r.id) {
-                    changed = true;
-                    if (DBG)
-                      console.log(PR, `.. mech ${entity.id} removed source ${entity.source}`);
-                    entity.source = undefined;
-                  }
-                  if (entity.target === r.id) {
-                    changed = true;
-                    if (DBG)
-                      console.log(PR, `.. mech ${entity.id} removed target ${entity.target}`);
-                    entity.target = undefined;
-                  }
-                  if (changed) entitiesUpdated.push(entity);
-                } // if mech
-              }); // removed
-            }); // keep forEach
-          } // special case entities
-          // now remove child nodes
-          match[subKey] = keep;
-          results[reskey].push(...removed);
-          if (DBG) console.log(PR, `${reskey} delete ${subDocs}`, JSON.stringify(removed));
-          if (DBG) console.log(PR, `${reskey} entitiesUpdated`, JSON.stringify(entitiesUpdated));
-          if (!removed.length) error += `no matching subKey id ${subDocs} in ${reskey}`;
-        }); // record update
-      } // else subkey
-    }); // docs foreach
+        // keep[]    - has items to save (probably more than one)
+        // removed[] - saved the removed items (probably just be one)
+
+        // if there are no removed items, that is a problem
+        if (!removed.length) {
+          error += `no matching subkey id ${subid} in subrecord ${JSON.stringify(record[subkey])}`;
+          return; // exit update(), process afterwards
+        }
+
+        // special case processing
+        if (subkey === 'entities') {
+          if (DBG) console.log(PR, `scrubbing entities referring to id:${subid}`);
+          // now remove linked entities
+          keep.forEach(entity => {
+            // for every removed entity, remove links to it in kept entities
+            removed.forEach(r => {
+              if (entity.propId === r.id) {
+                if (DBG)
+                  console.log(PR, `.. evidence ${entity.id} removed propId ${entity.propId}`);
+                entity.propId = undefined;
+                updated.push(entity);
+              } // if propId
+              if (entity.parent === r.id) {
+                if (DBG) console.log(PR, `.. prop ${entity.id} removed parent ${entity.parent}`);
+                entity.parent = undefined;
+                updated.push(entity);
+              } // if parent
+              if (entity.type === 'mech') {
+                let changed = false;
+                if (entity.source === r.id) {
+                  changed = true;
+                  if (DBG) console.log(PR, `.. mech ${entity.id} removed source ${entity.source}`);
+                  entity.source = undefined;
+                }
+                if (entity.target === r.id) {
+                  changed = true;
+                  if (DBG) console.log(PR, `.. mech ${entity.id} removed target ${entity.target}`);
+                  entity.target = undefined;
+                }
+                if (changed) updated.push(entity);
+              } // if mech
+            }); // end removed forEach
+          }); // end keep forEach
+        } // end special case entities
+
+        // now remove child nodes
+        record[subkey] = keep;
+        results[reskey].push(...removed);
+        if (DBG) console.log(PR, `${reskey} deleted`, JSON.stringify(removed));
+        if (DBG) console.log(PR, `${reskey} updated`, JSON.stringify(updated));
+      }); // end found update
+    } // end if-else subkey
   }); // collections
   // was there an error?
   if (error) {
@@ -427,8 +471,7 @@ DB.PKT_Remove = pkt => {
   }
   // otherwise send update to network
   m_DatabaseChangeEvent('remove', results);
-  if (entitiesUpdated.length)
-    m_DatabaseChangeEvent('update', { 'pmcData.entities': entitiesUpdated });
+  if (updated.length) m_DatabaseChangeEvent('update', { 'pmcData.entities': updated });
   // return
   return results;
 };

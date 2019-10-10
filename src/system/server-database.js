@@ -216,12 +216,12 @@ DB.PKT_Add = pkt => {
     // RETURN ids
     const insertedIds = inserted.map(item => item.id);
     // grab filtered values
-    const updated = dbc
+    const entitiesUpdated = dbc
       .chain()
       .find({ id: { $in: insertedIds } })
       .data({ removeMeta: true });
-    results[colKey] = updated;
-    if (DBG) console.log(PR, `ADDED '${colKey}': ${JSON.stringify(updated)}`);
+    results[colKey] = entitiesUpdated;
+    if (DBG) console.log(PR, `ADDED '${colKey}': ${JSON.stringify(entitiesUpdated)}`);
   });
   // send update to network
   m_DatabaseChangeEvent('add', results, pkt);
@@ -256,7 +256,7 @@ DB.PKT_Update = pkt => {
     let { colKey, docs, subKey, subDocs } = collection;
     // console.log(`COLLECTION: ${JSON.stringify(collection)}`);
     const dbc = m_db.getCollection(colKey);
-    let updatedIds = [];
+    let entitiesUpdatedIds = [];
     // 1. docs is the objects of the collection
     // 2. grab ids from each colObj
     // 3. find each object, then update it
@@ -281,22 +281,25 @@ DB.PKT_Update = pkt => {
           if (subKey) DATAMAP.UpdateObjectProp(match, subKey, subDocs);
           else DATAMAP.AssignObject(match, newData);
         });
-      updatedIds.push(id);
+      entitiesUpdatedIds.push(id);
     }); // docs foreach
-    // return updated objects fom collection
-    const updated = dbc
+    // return entitiesUpdated objects fom collection
+    const entitiesUpdated = dbc
       .chain()
       .where(item => {
-        return updatedIds.includes(item.id);
+        return entitiesUpdatedIds.includes(item.id);
       })
       .data({ removeMeta: true });
-    results[colKey] = updated;
-    if (DBG) console.log(PR, `UPDATED '${colKey}': ${JSON.stringify(updated)}`);
+    results[colKey] = entitiesUpdated;
+    if (DBG) console.log(PR, `entitiesUpdated '${colKey}': ${JSON.stringify(entitiesUpdated)}`);
   }); // collections forEach
   // was there an error?
-  if (error) return { error };
+  if (error) {
+    console.log(PR, 'PKT_Update:', error);
+    return { error };
+  }
   // otherwise send update to network
-  m_DatabaseChangeEvent('update', results, pkt);
+  m_DatabaseChangeEvent('update', results);
   // return
   return results;
 };
@@ -318,6 +321,8 @@ DB.PKT_Remove = pkt => {
   //
   const data = pkt.Data();
   const results = {};
+  const removed = [];
+  const entitiesUpdated = [];
   let error = '';
   const collections = DATAMAP.ExtractCollections(data);
   // collection is object with { colKey, docs, subKey, subDocs }
@@ -325,7 +330,7 @@ DB.PKT_Remove = pkt => {
   // docs matching these ids are removed and returned to caller
   collections.forEach(collection => {
     let { colKey, docs, subKey, subDocs } = collection;
-    console.log(`${colKey} has ${JSON.stringify(docs)}`);
+    if (DBG) console.log(PR, `${colKey} has ${JSON.stringify(docs)}`);
     // process collections
     const dbc = m_db.getCollection(colKey);
     let reskey = colKey;
@@ -340,41 +345,86 @@ DB.PKT_Remove = pkt => {
         error += `could not find matching ${id} in ${colKey} collection.`;
         return;
       }
-      console.log(`found ${record.count()} matches with ${id}`);
+      if (DBG) console.log(PR, `found ${record.count()} matches with ${colKey}.${id}`);
       if (!subKey) {
+        // IS NORMAL COLLECTION
         const reskey = colKey;
         results[reskey] = results[reskey] || [];
         const rdata = record.branch().data({ removeMeta: true });
         record.remove();
         results[reskey].push(rdata);
-        console.log(`${colKey} delete ${JSON.stringify(rdata)}`);
+        if (DBG) console.log(PR, `${colKey} delete ${JSON.stringify(rdata)}`);
       } else {
+        // IS SUBKEY
         record.update(match => {
           const subrecord = match[subKey]; // e.g. pmcdata model entities array
           // subrecord is an array of objs to update
-          const removed = [];
-          const keep = subrecord.filter(element => {
+          const reskey = `${colKey}.${subKey}`;
+          results[reskey] = results[reskey] || [];
+          let keep = subrecord.filter(element => {
             const toDelete = subDocs.includes(element.id);
             if (toDelete) removed.push(element);
             return !toDelete;
           }); // filter subrecord
-          console.log('keep', JSON.stringify(keep));
+
+          // special case processing
+          if (subKey === 'entities') {
+            if (DBG) console.log(PR, `scrubbing entities in ${colKey} id=${match.id}`);
+            // now remove linked entities
+            keep.forEach(entity => {
+              // for every removed entity, remove links to it in kept entities
+              removed.forEach(r => {
+                if (entity.propId === r.id) {
+                  if (DBG)
+                    console.log(PR, `.. evidence ${entity.id} removed propId ${entity.propId}`);
+                  entity.propId = undefined;
+                  entitiesUpdated.push(entity);
+                } // if propId
+                if (entity.parent === r.id) {
+                  if (DBG) console.log(PR, `.. prop ${entity.id} removed parent ${entity.parent}`);
+                  entity.parent = undefined;
+                  entitiesUpdated.push(entity);
+                } // if parent
+                if (entity.type === 'mech') {
+                  let changed = false;
+                  if (entity.source === r.id) {
+                    changed = true;
+                    if (DBG)
+                      console.log(PR, `.. mech ${entity.id} removed source ${entity.source}`);
+                    entity.source = undefined;
+                  }
+                  if (entity.target === r.id) {
+                    changed = true;
+                    if (DBG)
+                      console.log(PR, `.. mech ${entity.id} removed target ${entity.target}`);
+                    entity.target = undefined;
+                  }
+                  if (changed) entitiesUpdated.push(entity);
+                } // if mech
+              }); // removed
+            }); // keep forEach
+          } // special case entities
+          // now remove child nodes
           match[subKey] = keep;
-          const reskey = `${colKey}.${subKey}`;
-          results[reskey] = results[reskey] || [];
           results[reskey].push(removed);
-          console.log(`${colKey}.${subKey} delete ${subDocs}`, JSON.stringify(removed));
+          if (DBG)
+            console.log(PR, `${colKey}.${subKey} delete ${subDocs}`, JSON.stringify(removed));
+          if (DBG)
+            console.log(PR, `${colKey}.${subKey} entitiesUpdated`, JSON.stringify(entitiesUpdated));
+          if (!removed.length) error += `no matching subKey id ${subDocs} in ${reskey}`;
         }); // record update
       } // else subkey
     }); // docs foreach
   }); // collections
   // was there an error?
   if (error) {
-    console.log('error', error);
+    console.log(PR, 'PKT_Remove:', error);
     return { error };
   }
   // otherwise send update to network
-  m_DatabaseChangeEvent('remove', results, pkt);
+  m_DatabaseChangeEvent('remove', results);
+  if (entitiesUpdated.length)
+    m_DatabaseChangeEvent('update', { 'pmcData.entities': entitiesUpdated });
   // return
   return results;
 };

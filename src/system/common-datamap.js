@@ -41,6 +41,7 @@ const DBCMDS = new Map([
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = false;
 
 /**
  * An object containing the differences detected between an array NOW vs
@@ -299,7 +300,15 @@ DataMap.UpdateObjectProp = (record, key, subDocs) => {
       const sdobj = JSON.stringify(sd);
       Object.assign(obj, sd);
       const newobj = JSON.stringify(obj);
-      console.log('UpdateObjectProp:\n.. old:', oldobj, 'mutated with', sdobj, '\n.. new:', newobj);
+      if (DBG)
+        console.log(
+          'UpdateObjectProp:\n.. old:',
+          oldobj,
+          'mutated with',
+          sdobj,
+          '\n.. new:',
+          newobj
+        );
     }
   });
 };

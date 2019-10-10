@@ -144,17 +144,19 @@ PMCData.InitializeModel = (model, admdb) => {
   /*/
 
   const data = pmcData.find(data => data.id === pmcDataId);
-  console.log('loaded data', data);
+  if (DBG) console.log('loaded data', data);
+  if (DBG) console.log('data.entities start processing');
   data.entities.forEach(obj => {
+    if (DBG) console.log(obj.type, obj.id, obj);
     switch (obj.type) {
       case 'prop':
         g.setNode(obj.id, { name: obj.name });
-        if (obj.parent !== undefined) {
+        if (obj.parent) {
           g.setParent(obj.id, obj.parent);
         }
         break;
       case 'mech':
-        g.setEdge(obj.source, obj.target, { name: obj.name });
+        if (obj.source && obj.target) g.setEdge(obj.source, obj.target, { name: obj.name });
         break;
       case 'evidence':
         obj.comments = obj.comments || [];
@@ -164,6 +166,7 @@ PMCData.InitializeModel = (model, admdb) => {
         console.error('PMCData.InitializeModel could not map', obj);
     }
   });
+  if (DBG) console.log('data.entities processed');
 
   // Comments
   a_commentThreads = data.commentThreads;
@@ -477,7 +480,6 @@ PMCData.PMC_PropUpdate = (nodeId, newData) => {
   // make a copy of the prop with overwritten new data
   // local data will be updated on DBSYNC event, so don't write it here
   const propData = Object.assign({ id: nodeId }, prop, newData);
-  console.log('prop', prop, 'newdata', newData, 'propdata', propData);
   const modelId = ASET.selectedModelId;
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }

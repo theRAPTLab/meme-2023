@@ -1,6 +1,7 @@
 import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
 import { cssinfo, cssreset, cssdata } from './console-styles';
 import DEFAULTS from './defaults';
+import DATAMAP from '../../system/common-datamap';
 import UR from '../../system/ursys';
 import VM from './vm-data';
 import UTILS from './utils';
@@ -195,18 +196,19 @@ PMCData.InitializeModel = (model, admdb) => {
  * @param {Object} data - a collection object
  */
 PMCData.SyncAddedData = data => {
-  if (!data.pmcData) return;
-  const { pmcData } = data;
-  console.log('PMCData received add', pmcData);
+  if (data['pmcData']) console.log('PMCData add');
+  if (data['pmcData.entities']) console.log('PMCData.entities add');
+  if (data['pmcData.commentThreads']) console.log('PMCData.commentThreads add');
   // do stuff here
+
   // can add better logic to avoid updating too much
   PMCData.BuildModel();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SyncUpdatedData = data => {
-  if (!data.pmcData) return;
-  const { pmcData } = data;
-  console.log('PMCData received update', pmcData);
+  if (data['pmcData']) console.log('PMCData update');
+  if (data['pmcData.entities']) console.log('PMCData.entities update');
+  if (data['pmcData.commentThreads']) console.log('PMCData.commentThreads update');
   // do stuff here
 
   // can add better logic to avoid updating too much
@@ -214,10 +216,11 @@ PMCData.SyncUpdatedData = data => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SyncRemovedData = data => {
-  if (!data.pmcData) return;
-  const { pmcData } = data;
-  console.log('PMCData received removed', pmcData);
+  if (data['pmcData']) console.log('PMCData remove');
+  if (data['pmcData.entities']) console.log('PMCData.entities remove');
+  if (data['pmcData.commentThreads']) console.log('PMCData.commentThreads remove');
   // do stuff here
+
   // can add better logic to avoid updating too much
   PMCData.BuildModel();
 };
@@ -505,6 +508,26 @@ PMCData.PMC_SetPropParent = (nodeId, parent) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_PropDelete = propId => {
+  if (!DATAMAP.IsValidIds(propId)) throw Error('invalid id');
+  const modelId = ASET.selectedModelId;
+  return UR.DBQuery('remove', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: [propId]
+    }
+  })
+    .then(rdata => {
+      if (rdata.error) console.log(rdata.error);
+      else {
+        console.log('got', rdata);
+        PMCData.BuildModel();
+      }
+    })
+    .catch(err => {
+      console.error(err);
+    });
+  // round-trip calls BuildModel() for us
+  /* OLD CODE
   // Deselect the prop first, otherwise the deleted prop will remain selected
   VM.VM_DeselectAll();
   // Unlink any evidence
@@ -524,6 +547,7 @@ PMCData.PMC_PropDelete = propId => {
   PMCData.BuildModel();
   UTILS.RLog('PropertyDelete', propId);
   return `deleted propId ${propId}`;
+  */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_MechAdd = (sourceId, targetId, label) => {

@@ -149,6 +149,7 @@ class ViewMain extends React.Component {
     // the root component renders in SystemInit.
     // SystemInit fires `WINDOW_SIZE` to force the
     // relayout
+
   }
 
   componentWillUnmount() {
@@ -267,7 +268,7 @@ class ViewMain extends React.Component {
   OnPropDelete() {
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (selectedPropIds.length > 0) {
-      let propId = selectedPropIds[0];
+      let propId = Number(selectedPropIds[0]);
       DATA.PMC_PropDelete(propId);
       if (this.state.addEdgeSource === propId) {
         this.setState({

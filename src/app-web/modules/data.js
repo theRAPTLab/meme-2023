@@ -203,7 +203,6 @@ NEW.PMC_PropUpdate = (nodeId, newData) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NEW.PMC_PropDelete = propId => {
-  // largely this has to just send the message
   const modelId = ASET.selectedModelId;
   return UR.DBQuery('remove', {
     'pmcData.entities': {
@@ -221,24 +220,6 @@ NEW.PMC_PropDelete = propId => {
     .catch(err => {
       console.error(err);
     });
-  /*/
-  // Unlink any evidence
-  const evlinks = $$$.PMC_GetEvLinksByPropId(propId);
-  if (evlinks)
-    evlinks.forEach(evlink => {
-      $$$.SetEvidenceLinkPropId(evlink.id, undefined);
-    });
-  // Delete any children nodes
-  const children = $$$.Children(propId);
-  if (children)
-    children.forEach(cid => {
-      $$$.PMC_SetPropParent(cid, undefined);
-    });
-  // Then remove propId
-  m_graph.removeNode(propId);
-  $$$.BuildModel();
-  UTILS.RLog('PropertyDelete', propId);
-  /*/
   return `deleted propId ${propId}`;
 }; // m_graph.removeNode(propid)
 

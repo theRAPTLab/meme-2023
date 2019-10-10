@@ -291,6 +291,7 @@ DataMap.UpdateObjectProp = (record, key, subDocs) => {
   if (typeof key !== 'string') throw Error('arg2 must be string');
   if (!Array.isArray(subDocs)) subDocs = [subDocs];
   const dbdata = record[key];
+  const mutated = [];
   subDocs.forEach(sd => {
     const obj = dbdata.find(dbd => dbd.id === sd.id);
     // this mutates the original object, which mutates the database
@@ -299,6 +300,10 @@ DataMap.UpdateObjectProp = (record, key, subDocs) => {
       const oldobj = JSON.stringify(obj);
       const sdobj = JSON.stringify(sd);
       Object.assign(obj, sd);
+      let mobj = Object.assign({}, obj);
+      mobj.$loki = undefined;
+      mobj.meta = undefined;
+      mutated.push(mobj);
       const newobj = JSON.stringify(obj);
       if (DBG)
         console.log(
@@ -311,6 +316,7 @@ DataMap.UpdateObjectProp = (record, key, subDocs) => {
         );
     }
   });
+  return mutated;
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

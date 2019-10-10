@@ -8,7 +8,7 @@ http://techfort.github.io/LokiJS/
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
-const DBG = false;
+const DBG = true;
 
 /// LOAD LIBRARIES ////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -237,7 +237,7 @@ DB.PKT_Add = pkt => {
  * If the call fails, the error property will be set as well.
  *
  * data.cmd 'update'
- * data.collectionName = obj || [ obj ], reurns updated items
+ * data.collectionName = obj || [ obj ], reurns entitiesUpdated items
  * @param {NetMessage} pkt - packet with data object as described above
  * @returns {Object} - data to return (including error if any)
  */
@@ -267,31 +267,36 @@ DB.PKT_Update = pkt => {
         return;
       }
       // got this far, we found an id to update
-      if (DBG) console.log(`looking for id:${id} in collection:${colKey}`);
+      if (DBG) console.log(PR, `looking for id:${id} in collection:${colKey}`);
+      let retval;
       const found = dbc
         .chain()
         .find({ id: { $eq: id } })
         .update(match => {
-          if (DBG) console.log(`found match for id:${id} in collection:${colKey}`);
+          if (DBG) console.log(PR, `found match for id:${id} in collection:${colKey}`);
           /*/
           match is a matching update object that we can modify it's always the
           matching top-level record in the collection however, how we process it
           depends on whether there is a subkey or not.
           /*/
-          if (subKey) DATAMAP.UpdateObjectProp(match, subKey, subDocs);
-          else DATAMAP.AssignObject(match, newData);
+          let reskey = colKey;
+          if (subKey) {
+            reskey = `${colKey}.${subKey}`;
+            retval = DATAMAP.UpdateObjectProp(match, subKey, subDocs); // arr
+          } else {
+            DATAMAP.AssignObject(match, colData);
+            const matchcopy = Object.assign({}, match);
+            matchcopy.$loki = undefined;
+            matchcopy.meta = undefined;
+            retval = [matchcopy]; // force arr
+          }
+          //
+          results[reskey] = results[reskey] || [];
+          results[reskey].push(...retval); // push arr as individual bits
         });
       entitiesUpdatedIds.push(id);
     }); // docs foreach
-    // return entitiesUpdated objects fom collection
-    const entitiesUpdated = dbc
-      .chain()
-      .where(item => {
-        return entitiesUpdatedIds.includes(item.id);
-      })
-      .data({ removeMeta: true });
-    results[colKey] = entitiesUpdated;
-    if (DBG) console.log(PR, `entitiesUpdated '${colKey}': ${JSON.stringify(entitiesUpdated)}`);
+    if (DBG) console.log(PR, `updated: ${JSON.stringify(results)}`);
   }); // collections forEach
   // was there an error?
   if (error) {
@@ -363,6 +368,7 @@ DB.PKT_Remove = pkt => {
           results[reskey] = results[reskey] || [];
           let keep = subrecord.filter(element => {
             const toDelete = subDocs.includes(element.id);
+            // if (DBG) console.log(PR, '.. filtering', element, 'against', subDocs, toDelete);
             if (toDelete) removed.push(element);
             return !toDelete;
           }); // filter subrecord
@@ -406,11 +412,9 @@ DB.PKT_Remove = pkt => {
           } // special case entities
           // now remove child nodes
           match[subKey] = keep;
-          results[reskey].push(removed);
-          if (DBG)
-            console.log(PR, `${colKey}.${subKey} delete ${subDocs}`, JSON.stringify(removed));
-          if (DBG)
-            console.log(PR, `${colKey}.${subKey} entitiesUpdated`, JSON.stringify(entitiesUpdated));
+          results[reskey].push(...removed);
+          if (DBG) console.log(PR, `${reskey} delete ${subDocs}`, JSON.stringify(removed));
+          if (DBG) console.log(PR, `${reskey} entitiesUpdated`, JSON.stringify(entitiesUpdated));
           if (!removed.length) error += `no matching subKey id ${subDocs} in ${reskey}`;
         }); // record update
       } // else subkey

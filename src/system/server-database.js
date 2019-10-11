@@ -276,12 +276,15 @@ DB.PKT_Add = pkt => {
           // we're only handling entities with magic inserts
           // because these aren't automatically handled by loki
           if (subkey === 'entities') {
-            // find max index within the list
+            // HACKY ensure that entityids are not reused during a server run
+            // so researchers can clearly see the user behaviors in the log
             let maxid = list.reduce((acc, cv) => {
               return cv.id > acc ? cv.id : acc;
             }, 0);
+            m_SetMaxEntityId(maxid);
             //
-            const newobj = Object.assign({ id: ++maxid }, value[subkey]);
+            const newobj = Object.assign({ id: m_NextEntityId() }, value[subkey]);
+            // save data
             list.push(newobj);
             added.push(newobj);
             match[subkey] = list;
@@ -546,6 +549,17 @@ function u_CopyLokiId(input) {
     item.id = item.$loki;
     // console.log(PR, '*** non-array output.id', item.id);
   });
+}
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+let m_max_entityid = 0;
+function m_SetMaxEntityId(id) {
+  if (id > m_max_entityid) m_max_entityid = id;
+}
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function m_NextEntityId() {
+  return ++m_max_entityid;
 }
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////

@@ -406,13 +406,31 @@ ur.tpropd(11) attempts to remove prop 11, which currently doesn't return the del
 [X] -   DATAMAP.ExtractCollections() now returns {colkey, subkey, value} where value is
         one of the below:
 
-        add    pmcData: value:{ ...props }
-        update pmcData: value:{ id, ...props }
-        remove pmcData: value:{ id }
+    add    pmcData: value:{ ...props }
+    update pmcData: value:{ id, ...props }
+    remove pmcData: value:{ id }
 
-        add    pmcData.entities: value:{ id, entities: { ...props } }
-        update pmcData.entities: value:{ id, entities: { id, ...props } }
-        remove pmcData.entities: value:{ id, entities: { id } }
+    add    pmcData.entities: value:{ id, entities: { ...props } }
+    update pmcData.entities: value:{ id, entities: { id, ...props } }
+    remove pmcData.entities: value:{ id, entities: { id } }
 
 [X] -   rewrite data.js for single use
 [X] -   rewrite server-database.js for single use
+
+---
+
+FRIDAY CODE-ALONG
+
+.. pull req 55 - Client-Server Database API
+implements round-trip. short version:
+
+* UR.DBQuery('cmd',{ ... }) (note: returns a promise, can chain .then(rdata=>{})
+* system then fires DATA SYNC event that calls PMCDATA or ADM SyncAddedData, SyncUpdatedDate, etc
+
+THE CHALLENGE: Hookup the Sync* methods!
+
+try sync PMC.propUpdate
+
+
+
+

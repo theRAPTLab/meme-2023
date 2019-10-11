@@ -135,8 +135,9 @@ DataMap.ValidateCommand = command => DBCMDS.has(command);
  */
 DataMap.GetCommandMessage = command => DBCMDS.get(command);
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** Used to parse a data object for DB query modify, add, or update.
- *  There are several data formats
+/** Used by server to parse DBQuery data object for modify, add, or update ops.
+ *  For parsing the response, see ExtractSyncData
+ *  There are several data formats:
  *  key    { 'pmcData': value }
  *         .. where val is an object with an id
  *  subkey { 'pmcData.entities': { id, entities: value }
@@ -168,7 +169,8 @@ DataMap.ExtractCollections = data => {
   return collections;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** return an array of keys and update objects
+/** Return an array of keys and update objects. Used to parse the update or
+ *  response from a DBQuery. Formats are:
  *  key     { 'pmcData': [ {...} ] }
  *  subkey  { 'pmcData.entities': [ {...} ] }
  */

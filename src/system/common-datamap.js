@@ -203,30 +203,43 @@ DataMap.ValidateCollections = cobj => {
   return count;
 };
 
-function f_validateAdd(value, key = '') {
+function f_validateAdd(value, key) {
+  if (!key) throw Error(`arg2 key required`);
+  const [colkey, subkey] = key.split('.');
   const vtype = typeof value;
   if (vtype !== 'object') throw Error(`${key}.add: requires OBJECTS with no id`);
-  if (value.id) throw Error(`${key}.add: object can not have an id; it will be assigned`);
+  if (subkey) {
+    if (!value.id) throw Error(`${key}.add requires a top-level id to select subkey field`);
+    if (value[subkey].id) throw Error(`${key}.add: ${subkey} value can not have an id`);
+  } else {
+    if (value.id) throw Error(`${key}.add: ${colkey} value can not have an id`);
+  }
   return true;
 }
-function f_validateUpdate(value, key = '') {
-  // TOFIX: need to validate subkeys...this only validates the top collection
+function f_validateUpdate(value, key) {
+  if (!key) throw Error(`arg2 key required`);
+  const [colkey, subkey] = key.split('.');
   const vtype = typeof value;
   if (vtype !== 'object') throw Error(`${key}.update: requires OBJECTS with an id, not ${vtype}`);
-  if (value.id === undefined) throw Error(`${key}.update: object must have an id`);
-  const idtype = typeof value.id;
-  if (idtype !== 'number')
-    throw Error(`${key}.update: object.id <${value.id}> must be an integer, not ${idtype}`);
-  if (Number.parseInt(value.id) !== value.id)
-    throw Error(`${key}.update: object.id ${value} is not an integer`);
+  if (!DataMap.IsValidId(value.id)) throw Error(`${colkey}.update has invalid id ${value.id}`);
+  if (subkey) {
+    if (typeof value[subkey] !== 'object') throw Error(`${key}.update expected sub object`);
+    const subid = value[subkey].id;
+    if (!DataMap.IsValidId(subid)) throw Error(`${key}.update invalid id ${subid}`);
+  }
   return true;
 }
-function f_validateRemove(value, key = '') {
-  if (typeof value === 'object') return true; // TOFIX: this is a hack, need to validate subkeys
+function f_validateRemove(value, key) {
+  if (!key) throw Error(`arg2 key required`);
+  const [colkey, subkey] = key.split('.');
   const vtype = typeof value;
-  if (vtype !== 'number')
-    throw Error(`${key}.remove: only provide an integer id (typeof=${vtype})`);
-  if (Number.parseInt(value) !== value) throw Error(`${key}.remove: ${value} isn't an integer`);
+  if (vtype !== 'object') throw Error(`${key}.remove expected object value`);
+  if (!DataMap.IsValidId(value.id)) throw Error(`${key}.remove has invalid id ${value.id}`);
+  if (subkey) {
+    if (typeof value[subkey] !== 'object') throw Error(`${key}.remove expects sub object with id`);
+    if (!DataMap.IsValidId(value[subkey].id))
+      throw Error(`${key}.remove subobject must have valid id`);
+  }
   return true;
 }
 // called by DataMap.GetChange() instance method
@@ -256,20 +269,26 @@ DataMap.IsValidId = id => {
   let test = Number.parseInt(id) === id;
   return test && id >= 0;
 };
+/** given an array of idsObjs, insure that it is an int >=0
+ */
+DataMap.HasValidIdObjs = ids => {
+  if (!Array.isArray(ids)) throw Error(`arg1 must be array of objects`);
+  return ids.every(idObj => DataMap.IsValidId(idObj.id));
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** given an original object, modify a key inside it with the supplied data
- * It's assumed the the propname is for an array of idObjs { id, ... }
- * @param {object} obj - object with property to modify
- * @param {string} propname - name of prop[] to manipulate
- * @param {object} idObj - object with id to find and overwrite
+ * It's assumed the the propname is for an array of objs w/ id { id, ... }
+ * @param {object} obj - object with property list to search/modify
+ * @param {string} propname - name of property to extract list from obj
+ * @param {object} updObj - new data to replace existing object by id match
  */
-DataMap.MutateObjectProp = (obj, propname, idObj) => {
+DataMap.MutateObjectProp = (obj, propname, updObj) => {
   if (typeof obj !== 'object') throw Error('arg1 must be object');
   if (typeof propname !== 'string') throw Error('arg2 must be string');
-  if (typeof idObj !== 'object') throw Error('arg3 must be object');
-  if (!DataMap.IsValidId(idObj.id)) throw Error('arg3 must be object with id');
-  const id = idObj.id;
+  if (typeof updObj !== 'object') throw Error('arg3 must be object');
+  if (!DataMap.IsValidId(updObj.id)) throw Error('arg3 must be object with id');
+  const id = updObj.id;
   const list = obj[propname];
   const found = list.find(el => el.id === id);
   if (!found) {
@@ -278,8 +297,8 @@ DataMap.MutateObjectProp = (obj, propname, idObj) => {
   }
   // if we got this far, mutate
   const sBefore = JSON.stringify(obj);
-  const sIdObj = JSON.stringify(idObj);
-  Object.assign(found, idObj);
+  const sIdObj = JSON.stringify(updObj);
+  Object.assign(found, updObj);
   const sAfter = JSON.stringify(obj);
   // return a copy without loki metadata for return
   const retobj = Object.assign({}, found);

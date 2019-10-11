@@ -116,9 +116,9 @@ NEW.AddGroup = groupName => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// this is a test routine; no ADMData routines require a delete group
 /// so this is here to just provide a stub.
-NEW.DeleteGroup = groupData => {
+NEW.DeleteGroup = groupId => {
   return UR.DBQuery('remove', {
-    groups: groupData
+    groups: { id: groupId }
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -175,15 +175,15 @@ NEW.DeleteStudent = (groupId, student) => {
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 NEW.PMC_PropAdd = name => {
-  // FIXME
-  // Temporarily insert a random numeric prop id
-  // This will get replaced with a server promise once that's implemented
-  const propId = Math.trunc(Math.random() * 10000000000).toString();
-  m_graph.setNode(propId, { name });
-  $$$.BuildModel();
-  UTILS.RLog('PropertyAdd', name);
-  return `added node:name ${name}`;
-};
+  const modelId = ASET.selectedModelId;
+  const propObj = { name, type: 'prop' };
+  return UR.DBQuery('add', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: propObj
+    }
+  });
+}; // m_graph.setNode(propId, { name });
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NEW.PMC_PropUpdate = (nodeId, newData) => {
   const prop = m_graph.node(nodeId);
@@ -199,13 +199,7 @@ NEW.PMC_PropUpdate = (nodeId, newData) => {
       id: modelId,
       entities: propObj
     }
-  })
-    .then(rdata => {
-      $$$.BuildModel();
-    })
-    .catch(err => {
-      console.error(PR, err);
-    });
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NEW.PMC_PropDelete = propId => {
@@ -216,18 +210,7 @@ NEW.PMC_PropDelete = propId => {
       id: modelId,
       entities: propObj
     }
-  })
-    .then(rdata => {
-      if (rdata.error) console.log(rdata.error);
-      else {
-        console.log('got', rdata);
-        $$$.BuildModel();
-      }
-    })
-    .catch(err => {
-      console.error(err);
-    });
-  return `deleted propId ${propId}`;
+  });
 }; // m_graph.removeNode(propid)
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -327,6 +310,14 @@ window.ur.tpropd = propId => {
   });
   return `deleting pmc prop`;
 };
+// - - - - - - - - - - - - - - - - - - - - -
+window.ur.tpropa = name => {
+  NEW.PMC_PropAdd(name).then(data => {
+    console.log('addprop', data);
+  });
+  return `adding pmc prop`;
+};
+
 // - - - - - - - - - - - - - - - - - - - - -
 // test login
 window.ur.tlogin = token => {

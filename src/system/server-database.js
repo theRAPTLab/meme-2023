@@ -101,7 +101,7 @@ DB.InitializeDatabase = (options = {}) => {
   } // end f_DatabaseInitialize
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function f_AutosaveStatus() {
-    const status = fout_CountCollections();
+    const status = fout_CountCollections() || '(records updated)';
     console.log(PR, `AUTOSAVING! ${status}`);
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -136,14 +136,27 @@ DB.InitializeDatabase = (options = {}) => {
   function fout_CountCollections() {
     let out = '';
     DATAMAP.Collections().forEach(colname => {
-      out += count(colname);
+      out += f_count(colname);
     });
-    //
-    function count(col) {
-      return `${col}: ${m_db.getCollection(col).count()} `;
-    }
-    //
     return out;
+  }
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  const map_count = new Map();
+  function f_count(col) {
+    let out;
+    const currcount = m_db.getCollection(col).count();
+    let lastcount = map_count.get(col);
+    if (lastcount === undefined) {
+      out = `=${currcount}`;
+      lastcount = currcount;
+    } else {
+      const delta = currcount - lastcount;
+      if (delta > 0) out = `=${currcount} (+${delta})`;
+      if (delta < 0) out = `=${currcount} (-${Math.abs(delta)})`;
+    }
+    map_count.set(col, currcount);
+    if (out) return `${col}${out} `;
+    return '';
   }
 }; // Initialize Database
 
@@ -203,71 +216,81 @@ DB.PKT_Add = pkt => {
   //
   const data = pkt.Data();
   const results = {};
-  let error = '';
+  let reskey;
   const added = [];
+  let error = '';
   const collections = DATAMAP.ExtractCollections(data);
-  // collection is object with { colKey, docs, subKey, subDocs }
-  // for 'add' op, docs is an array of data objects WITHOUT an id
-  // these data objects will be assigned ids and returned to caller
-  /*/
-    'teachers', { name }
-    'pmcData.entities', { id:, entities: [ { name } ]
-  /*/
-  collections.forEach(entry => {
-    let { colKey, docs, subKey, subDocs } = entry;
-    const dbc = m_db.getCollection(colKey);
-    docs.forEach(colData => {
-      const { id } = colData;
-      const record = dbc.chain().find({ id: { $eq: id } });
-      if (!id) {
-        error += `record in ${colKey} doesn't can't find id: ${JSON.stringify(doc)}`;
+  // collection is object with { colkey, subkey, value }
+  collections.forEach(collection => {
+    let { colkey, subkey, value } = collection;
+    const dbc = m_db.getCollection(colkey);
+    let retval;
+    // add!
+    if (!subkey) {
+      // IS NORMAL ADD
+      if (DATAMAP.IsValidId(value.id)) {
+        error += `${colkey} should not have an id ${JSON.stringify(value)}`;
         return;
       }
-      if (!subKey) {
-        // IS NORMAL ADD
-        const reskey = colkey;
-        results[reskey] = results[reskey] || [];
-        let inserted = dbc.insert(docs);
-        if (!Array.isArray(inserted)) inserted = [inserted];
-        const insertedIds = inserted.map(item => item.id);
-        const entitiesUpdated = dbc
-          .chain()
-          .find({ id: { $in: insertedIds } })
-          .data({ removeMeta: true });
-        results[reskey] = entitiesUpdated;
-      } else {
-        // IS SUBKEY ADD
-        if (record.count() === 0) {
-          error += `add could not find matching ${id} in ${colKey} collection`;
-          return;
-        }
-        record.update(match => {
+      reskey = colkey;
+      results[reskey] = results[reskey] || [];
+      let inserted = dbc.insert(value);
+      // result from add might be an array or not, so make it an array
+      if (!Array.isArray(inserted)) inserted = [inserted];
+      const insertedIds = inserted.map(item => item.id);
+      const newObjects = dbc
+        .chain()
+        .find({ id: { $in: insertedIds } })
+        .data({ removeMeta: true });
+      results[reskey] = newObjects;
+    } else {
+      // IS SUBKEY ADD
+      reskey = `${colkey}.${subkey}`;
+      results[reskey] = results[reskey] || [];
+      if (!DATAMAP.IsValidId(value.id)) {
+        error += `${colkey} needs valid id in ${JSON.stringify(value)}`;
+        return;
+      }
+      const colid = value.id;
+      const found = dbc
+        .chain()
+        .find({ id: { $eq: colid } })
+        .update(match => {
+          // now that we have the matching record,
+          // need to update the list
           // subrecord is an array of objs to add
-          const subrecord = match[subKey];
-          // special case processing
-          if (subKey === 'entities') {
-            // find max index
-            const maxidx = subrecord.reduce((acc, cv) => {
+          if (!value[subkey]) {
+            error += `${reskey} value missing subkey, got ${JSON.stringify(value)}`;
+            return; // process error outside collection loop
+          }
+          if (value[subkey].id) {
+            error += `${reskey} should not have an id prop ${JSON.stringify(newobj)}`;
+            return; // process error outside collection loop
+          }
+
+          const list = match[subkey];
+          if (!DATAMAP.HasValidIdObjs(list)) {
+            error += `${reskey} list missing ids ${JSON.stringify(list)}`;
+            return; // process error outside collection loop
+          }
+          // we're only handling entities with magic inserts
+          // because these aren't automatically handled by loki
+          if (subkey === 'entities') {
+            // find max index within the list
+            let maxid = list.reduce((acc, cv) => {
               return cv.id > acc ? cv.id : acc;
             }, 0);
-            subDocs.forEach(sd => {
-              sd.id = ++maxidx;
-              if (DBG) console.log(PR, `.. writing new id into ${JSON.stringify(sd)}`);
-              subrecord.push(sd);
-              const sdcopy = Object.assign({}, sd);
-              added.push(sdcopy);
-            });
-            // rewrite match
-            match[subKey] = subrecord;
             //
-          } // subkey entities
-          const reskey = `${colKey}.${subKey}`;
-          results[reskey] = results[reskey] || [];
+            const newobj = Object.assign({ id: ++maxid }, value[subkey]);
+            list.push(newobj);
+            added.push(newobj);
+            match[subkey] = list;
+          }
+
           results[reskey].push(...added);
-        }); // record update
-      } // if subkey
-      if (DBG) console.log(PR, `ADDED '${colKey}': ${JSON.stringify(entitiesUpdated)}`);
-    }); // docs foreach
+        });
+    } // if subkey
+    if (DBG) console.log(PR, `ADDED '${colkey}': ${JSON.stringify(results[reskey])}`);
   }); // collections foreach
 
   if (error) {
@@ -386,7 +409,7 @@ DB.PKT_Remove = pkt => {
       // IS NORMAL REMOVE - pure database remove
       const reskey = colkey;
       results[reskey] = results[reskey] || [];
-      const retval = record.branch().data({ removeMeta: true });
+      const retval = found.branch().data({ removeMeta: true });
       found.remove();
       results[reskey].push(retval);
       if (DBG) console.log(PR, `${colkey} delete ${JSON.stringify(retval)}`);

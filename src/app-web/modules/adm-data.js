@@ -94,13 +94,13 @@ ADMData.SyncAddedData = data => {
 ADMData.SyncUpdatedData = data => {
   console.log('ADMData received collections to update', data);
   // can add better logic to avoid updating too much
-  UR.Publish('ADM_DATA_UPDATED', data);
+  // UR.Publish('ADM_DATA_UPDATED', data);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SyncRemovedData = data => {
   console.log('ADMData received collections to remove', data);
   // can add better logic to avoid updating too much
-  UR.Publish('ADM_DATA_UPDATED', data);
+  // UR.Publish('ADM_DATA_UPDATED', data);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

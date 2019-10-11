@@ -164,7 +164,7 @@ PMCData.InitializeModel = (model, admdb) => {
         a_evidence.push(obj);
         break;
       default:
-        console.error('PMCData.InitializeModel could not map', obj);
+        console.error('PMCData.InitializeModel could not map unknown type', obj);
     }
   });
   if (DBG) console.log('data.entities processed');
@@ -202,7 +202,7 @@ PMCData.SyncAddedData = data => {
   // do stuff here
 
   // can add better logic to avoid updating too much
-  PMCData.BuildModel();
+  // PMCData.BuildModel();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SyncUpdatedData = data => {
@@ -212,7 +212,7 @@ PMCData.SyncUpdatedData = data => {
   // do stuff here
 
   // can add better logic to avoid updating too much
-  PMCData.BuildModel();
+  // PMCData.BuildModel();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SyncRemovedData = data => {
@@ -222,7 +222,7 @@ PMCData.SyncRemovedData = data => {
   // do stuff here
 
   // can add better logic to avoid updating too much
-  PMCData.BuildModel();
+  // PMCData.BuildModel();
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -466,6 +466,17 @@ PMCData.Mech = (evo, ew) => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_PropAdd = name => {
+  const modelId = ASET.selectedModelId;
+  const propObj = { name, type: 'prop' };
+  return UR.DBQuery('add', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: propObj
+    }
+  });
+  // round-trip will call BuildModel() for us
+
+  /** OLD STUFF
   // FIXME
   // Temporarily insert a random numeric prop id
   // This will get replaced with a server promise once that's implemented
@@ -474,6 +485,7 @@ PMCData.PMC_PropAdd = name => {
   PMCData.BuildModel();
   UTILS.RLog('PropertyAdd', name);
   return `added node:name ${name}`;
+  **/
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** update through database
@@ -491,20 +503,10 @@ PMCData.PMC_PropUpdate = (nodeId, newData) => {
       id: modelId,
       entities: propData
     }
-  })
-    .then(rdata => {
-      PMCData.BuildModel();
-    })
-    .catch(err => {
-      console.error(PR, err);
-    });
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_SetPropParent = (nodeId, parent) => {
-  m_graph.setParent(nodeId, parent);
-  PMCData.BuildModel();
-  UTILS.RLog('PropertySetParent', nodeId, parent);
-  return `set parent ${parent} to node ${nodeId}`;
+  });
+  // round-trip will call BuildModel() for us
+
+  /** THIS METHOD DID NOT EXIST BEFORE **/
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_PropDelete = propId => {
@@ -515,19 +517,10 @@ PMCData.PMC_PropDelete = propId => {
       id: modelId,
       entities: { id: propId }
     }
-  })
-    .then(rdata => {
-      if (rdata.error) console.log(rdata.error);
-      else {
-        console.log('got', rdata);
-        PMCData.BuildModel();
-      }
-    })
-    .catch(err => {
-      console.error(err);
-    });
-  // round-trip calls BuildModel() for us
-  /* OLD CODE
+  });
+  // round-trip will call BuildModel() for us
+
+  /** OLD CODE
   // Deselect the prop first, otherwise the deleted prop will remain selected
   VM.VM_DeselectAll();
   // Unlink any evidence
@@ -547,7 +540,18 @@ PMCData.PMC_PropDelete = propId => {
   PMCData.BuildModel();
   UTILS.RLog('PropertyDelete', propId);
   return `deleted propId ${propId}`;
-  */
+  **/
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.PMC_SetPropParent = (nodeId, parentId) => {
+  console.error('PMC_SetPropParent needs to be reimplemented');
+  // round-trip will call BuildModel() for us
+  /** OLD CODE
+  m_graph.setParent(nodeId, parentId);
+  PMCData.BuildModel();
+  UTILS.RLog('PropertySetParent', nodeId, parent);
+  return `set parentId ${parentId} to node ${nodeId}`;
+  **/
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_MechAdd = (sourceId, targetId, label) => {

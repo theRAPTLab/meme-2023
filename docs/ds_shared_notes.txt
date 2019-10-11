@@ -259,7 +259,7 @@ NEW DATABASE METHODS
     *   ValidateCollections() is used before data is sent to the server to ensure
         data formats are correct (numeric ids, etc)
     *   ExtractCollections() is used by both server and client to access data
-        in a loop-friendly way.
+        in a loop-friendly way. It always returns docs, subDocs as arrays
 
     DATA now uses the 'NET:SYSTEM_DBSYNC' message to receive sync messages from
     the server. It contains the change data returned from the DB ADD, UPDATE, REMOVE
@@ -339,13 +339,80 @@ PMCDATA
 
 WEDNESDAY - ADDING SUBKEYS
 
-It turns out that even with the new PMCDATA structure, we still need subkey
-modification. Ugh!
+    It turns out that even with the new PMCDATA structure, we still need subkey
+    modification. Ugh!
 
-I've added subkey support to DATAMAP
+    I've added subkey support to DATAMAP
 
-ADD: 'pmcData.entities': { id, entities:[ { }, ... ] }    --> { id, entities:[ { id } ... ] }
-UPD: 'pmcData.entities': { id, entities:[ { id }, ... ] } --> { id, entities:[ { id } ... ] }
-REM: 'pmcData.entities': { id, entities:[ id, ... ] }     --> { id, entities:[ { id } ... ] }
+    ADD: 'pmcData.entities': { id, entities:[ { }, ... ] }    --> { id, entities:[ { id } ... ] }
+    UPD: 'pmcData.entities': { id, entities:[ { id }, ... ] } --> { id, entities:[ { id } ... ] }
+    REM: 'pmcData.entities': { id, entities:[ id, ... ] }     --> { id, entities:[ { id } ... ] }
 
-where am I  now?
+    Where am I now?
+
+    PMC_PropUpdate(propId, propData)
+    ...
+    UR.DBQuery('update', {
+        'pmcData.entities': {
+        id: modelId,
+        entities: propData
+    })
+
+    .
+    .
+    .
+
+    server-database UPDATE
+    const collections = DATAMAP.ExtractCollections(data);
+    collections.forEach
+        let { colKey, docs, subKey, subDocs } = entry;
+        get the pmcData collection using the docs.id property.
+        After we find the matching docs.id pmcdata, we need to pull the entities out of it.
+        That happens in the update() function. We can write a utility to handle this object
+        in datamap.
+
+        DITEM = pmcData model matching id
+
+        item => {
+            Object.assign(item, ditem) // normal
+            // if subkey then ditem[subkey] has the items
+            DATAMAP.UpdateSubCollection(data,
+            const sub = DATAMAP.ExtractSubCollection(data,subkey);
+        }
+
+on the update, we get a matching item
+
+instead of overwriting pmcmodel with entities, we want to take the matching item
+and update just the subCol with subDocs
+
+... ok, the UPDATE works... but the update object coming back is too large.
+
+    extractCollections now provides colKey, docs, subkey, subdocs
+    docs.forEach(coldata,index)
+    find(...).update(match=>)
+        if subKey DATAMAP.UpdateObjectProp(match,subKey,subDocs)
+        else DATAMAP.AssignObject(match,newData)
+
+... for REMOVE, we are getting a list of ids.
+
+ur.tpropd(11) attempts to remove prop 11, which currently doesn't return the deleted thing OR delete anything yet.
+
+... for ADD...ugh, this is just as confusing.
+
+## TAKING A STEP BACK
+## LET'S REMOVE THE MULTIPLE ITEM UPDATE CONDITIONS.
+
+[X] -   DATAMAP.ExtractCollections still returns multiple collection objects
+[X] -   DATAMAP.ExtractCollections() now returns {colkey, subkey, value} where value is
+        one of the below:
+
+        add    pmcData: value:{ ...props }
+        update pmcData: value:{ id, ...props }
+        remove pmcData: value:{ id }
+
+        add    pmcData.entities: value:{ id, entities: { ...props } }
+        update pmcData.entities: value:{ id, entities: { id, ...props } }
+        remove pmcData.entities: value:{ id, entities: { id } }
+
+[X] -   rewrite data.js for single use
+[X] -   rewrite server-database.js for single use

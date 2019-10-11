@@ -131,16 +131,16 @@ DataMap.IsValidKey = keyName => {
 DataMap.ValidateCommand = command => DBCMDS.has(command);
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** lookup server message
- * @param {string} command - a valid key
+ *  @param {string} command - a valid key
  */
 DataMap.GetCommandMessage = command => DBCMDS.get(command);
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** Used to parse a data object (such as returned from pkt.Data() for collections
- * to modify or update. If a subkey is detected, the collection format is different
- * key    { 'pmcData': value }
- *        .. where val is an object with an id
- * subkey { 'pmcData.entities': { id, entities: value }
- *        .. where id is a modelId and val is a single entity obj
+/** Used to parse a data object for DB query modify, add, or update.
+ *  There are several data formats
+ *  key    { 'pmcData': value }
+ *         .. where val is an object with an id
+ *  subkey { 'pmcData.entities': { id, entities: value }
+ *         .. where id is a modelId and val is a single entity obj
  * @param {Object} data - object with properties matching DBKEY contain array of values
  * @returns {Array} - an array of {colkey,subkey,value} for each matching DBKEY
  */
@@ -150,23 +150,50 @@ DataMap.ExtractCollections = data => {
   Object.keys(data).forEach(foundKey => {
     // only return keys that match a collection name
     if (!DataMap.IsValidKey(foundKey)) return;
-    let value = data[foundKey]; // can be an obj or array of objs
-    const [colkey, subkey] = foundKey.split('.');
-    if (subkey && !value[subkey]) console.warn(`subkey ${subkey} missing subdocs from`, value);
+    // process valid key
+    let value = data[foundKey]; // should be an object always
+    if (Array.isArray(value)) {
+      console.warn(`key: ${foundKey} is an array; did you mean to use ExtractSyncData() instead?`);
+      return;
+    }
+    if (typeof value !== 'object') {
+      console.warn(`key: ${foundKey} value is not an object`);
+      return;
+    }
     // prepare for write
+    const [colkey, subkey] = foundKey.split('.');
     const entry = { colkey, subkey, value };
     collections.push(entry);
   });
-  // returned undefined if no collections
   return collections;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** return an array of keys and update objects
+ *  key     { 'pmcData': [ {...} ] }
+ *  subkey  { 'pmcData.entities': [ {...} ] }
+ */
+DataMap.ExtractSyncData = data => {
+  const syncitems = [];
+  Object.keys(data).forEach(foundKey => {
+    // only return keys that match a collection name
+    if (!DataMap.IsValidKey(foundKey)) return;
+    // process valid key
+    let values = data[foundKey]; // should be an object always
+    const [colkey, subkey] = foundKey.split('.');
+    values.forEach(value => {
+      const entry = { colkey, subkey, value };
+      syncitems.push(entry);
+    });
+  });
+  return syncitems;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** validate that data has valid keys DB keys. Returns number of found keys
- * that conform to type
- * key    { 'pmcData': value }
- *        .. where val is an object with an id
- * subkey { 'pmcData.entities': { id, entities: value }
- *        .. where id is a modelId and val is a single entity obj
+ *  that conform to type
+ *  key    { 'pmcData': value }
+ *         .. where val is an object with an id
+ *  subkey { 'pmcData.entities': { id, entities: value }
+ *         .. where id is a modelId and val is a single entity obj
  * @param {string} cobj - collection object with collection keys
  */
 DataMap.ValidateCollections = cobj => {

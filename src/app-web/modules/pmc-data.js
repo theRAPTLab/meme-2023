@@ -196,6 +196,13 @@ PMCData.InitializeModel = (model, admdb) => {
  * @param {Object} data - a collection object
  */
 PMCData.SyncAddedData = data => {
+  const syncitems = DATAMAP.ExtractSyncData(data);
+  syncitems.forEach(item => {
+    const { colkey, subkey, value } = item;
+    console.log('added', colkey, subkey || '', value);
+  });
+
+  // old way
   if (data['pmcData']) console.log('PMCData add');
   if (data['pmcData.entities']) console.log('PMCData.entities add');
   if (data['pmcData.commentThreads']) console.log('PMCData.commentThreads add');
@@ -206,8 +213,28 @@ PMCData.SyncAddedData = data => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SyncUpdatedData = data => {
-  if (data['pmcData']) console.log('PMCData update');
-  if (data['pmcData.entities']) console.log('PMCData.entities update');
+  const syncitems = DATAMAP.ExtractSyncData(data);
+  syncitems.forEach(item => {
+    const { colkey, subkey, value } = item;
+    console.log('updated', colkey, subkey || '', value);
+    if (subkey === 'entities') {
+      // has id, type, name
+      switch (value.type) {
+        case 'prop':
+          m_graph.setNode(value.id, { name: value.name });
+          PMCData.BuildModel();
+          break;
+        case 'mech':
+          console.log('update mech');
+          break;
+        case 'evidence':
+          console.log('update evidence');
+          break;
+        default:
+          throw Error('unexpected proptype');
+      }
+    }
+  }); // syncitems
   if (data['pmcData.commentThreads']) console.log('PMCData.commentThreads update');
   // do stuff here
 
@@ -216,10 +243,16 @@ PMCData.SyncUpdatedData = data => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SyncRemovedData = data => {
-  if (data['pmcData']) console.log('PMCData remove');
-  if (data['pmcData.entities']) console.log('PMCData.entities remove');
-  if (data['pmcData.commentThreads']) console.log('PMCData.commentThreads remove');
-  // do stuff here
+  const syncitems = DATAMAP.ExtractSyncData(data);
+  syncitems.forEach(item => {
+    const { colkey, subkey, value } = item;
+    console.log('removed', colkey, subkey || '', value);
+  });
+  // oldway
+  // if (data['pmcData']) console.log('PMCData remove');
+  // if (data['pmcData.entities']) console.log('PMCData.entities remove');
+  // if (data['pmcData.commentThreads']) console.log('PMCData.commentThreads remove');
+  // // do stuff here
 
   // can add better logic to avoid updating too much
   // PMCData.BuildModel();

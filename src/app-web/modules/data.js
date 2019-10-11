@@ -53,7 +53,7 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// clone ADMData, PMC, VM into $ object
-const $$$ = Object.assign({ ...ADM }, { ...PMC }, { ...VM });
+const $$$ = Object.assign({}, { ...ADM }, { ...PMC }, { ...VM });
 const NEW = {};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -296,7 +296,7 @@ window.ur.tdels = (groupId, student) => {
 // test remove group
 window.ur.trmg = groupId => {
   NEW.DeleteGroup(groupId).then(data => {
-    console.log('deletegroup', data);
+    console.log('deletegroup', JSON.stringify(data));
     // FIRES 'ADM_DATA_UPDATED'
     UR.Publish('ADM_DATA_UPDATED');
   });

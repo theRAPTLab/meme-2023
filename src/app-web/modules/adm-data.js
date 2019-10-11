@@ -2,7 +2,8 @@ import DEFAULTS from './defaults';
 import UR from '../../system/ursys';
 import SESSION from '../../system/common-session';
 import UTILS from './utils';
-import PMCData from './data';
+import DATAMAP from '../../system/common-datamap';
+import PMCData from './data'; // this is a bit problematicn (circular ref)
 import ASET from './adm-settings';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
@@ -80,8 +81,13 @@ const GenerateUID = (prefix = '', suffix = '') => {
  * @param {Object} data - a collection object
  */
 ADMData.SyncAddedData = data => {
-  console.log('ADMData received collections to add', data);
-  // do stuff here
+  // the syncitems iterating way
+  const syncitems = DATAMAP.ExtractSyncData(data);
+  syncitems.forEach(item => {
+    const { colkey, subkey, value } = item;
+    console.log('added', colkey, subkey || '', value);
+  });
+  // the manual inspection way (more HACKY)
   if (data.teachers) {
     const teacherId = data.teachers[0];
     adm_db.teachers.push(teacherId);
@@ -92,13 +98,21 @@ ADMData.SyncAddedData = data => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SyncUpdatedData = data => {
-  console.log('ADMData received collections to update', data);
+  const syncitems = DATAMAP.ExtractSyncData(data);
+  syncitems.forEach(item => {
+    const { colkey, subkey, value } = item;
+    console.log('updated', colkey, subkey || '', value);
+  });
   // can add better logic to avoid updating too much
   // UR.Publish('ADM_DATA_UPDATED', data);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SyncRemovedData = data => {
-  console.log('ADMData received collections to remove', data);
+  const syncitems = DATAMAP.ExtractSyncData(data);
+  syncitems.forEach(item => {
+    const { colkey, subkey, value } = item;
+    console.log('removed', colkey, subkey || '', value);
+  });
   // can add better logic to avoid updating too much
   // UR.Publish('ADM_DATA_UPDATED', data);
 };

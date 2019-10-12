@@ -204,6 +204,9 @@ PMCData.SyncAddedData = data => {
       switch (value.type) {
         case 'prop':
           m_graph.setNode(value.id, { name: value.name });
+          if (value.parent) {
+            m_graph.setParent(value.id, value.parent);
+          }
           PMCData.BuildModel();
           break;
         case 'mech':
@@ -238,6 +241,9 @@ PMCData.SyncUpdatedData = data => {
       switch (value.type) {
         case 'prop':
           m_graph.setNode(value.id, { name: value.name });
+          if (value.parent) {
+            m_graph.setParent(value.id, value.parent);
+          }
           PMCData.BuildModel();
           break;
         case 'mech':
@@ -514,9 +520,16 @@ PMCData.Mech = (evo, ew) => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_PropAdd = name => {
+/**
+ *  @param {string} name - label for the property
+ *  @param {number} [parentId] - if defined, id of the parent object 
+ */
+PMCData.PMC_PropAdd = (name, parentId) => {
   const modelId = ASET.selectedModelId;
   const propObj = { name, type: 'prop' };
+  if (parentId !== undefined) {
+    propObj.parent = parentId;
+  }
   return UR.DBQuery('add', {
     'pmcData.entities': {
       id: modelId,
@@ -593,7 +606,12 @@ PMCData.PMC_PropDelete = propId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_SetPropParent = (nodeId, parentId) => {
-  console.error('PMC_SetPropParent needs to be reimplemented');
+  // REVIEW/FIXME: Is this coercion necessary once we convert to ints?
+  const id = Number(nodeId);
+  const pid = Number(parentId);  
+  PMCData.PMC_PropUpdate(id, { parent: pid });
+  UTILS.RLog('PropertySetParent', id, pid);
+
   // round-trip will call BuildModel() for us
   /** OLD CODE
   m_graph.setParent(nodeId, parentId);

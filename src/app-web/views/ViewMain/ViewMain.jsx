@@ -374,9 +374,7 @@ class ViewMain extends React.Component {
         let parentPropId = selectedPropIds[0];
         if (DBG) console.log('...setting parent of', this.state.addPropLabel, 'to', parentPropId);
         // Create new prop
-        DATA.PMC_PropAdd(this.state.addPropLabel);
-        // Add it to the parent component
-        DATA.PMC_SetPropParent(this.state.addPropLabel, parentPropId);
+        DATA.PMC_PropAdd(this.state.addPropLabel, parentPropId);
       }
     } else if (this.state.addPropPropId !== '') {
       // Update existing prop

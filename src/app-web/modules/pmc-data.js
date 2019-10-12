@@ -200,6 +200,22 @@ PMCData.SyncAddedData = data => {
   syncitems.forEach(item => {
     const { colkey, subkey, value } = item;
     console.log('added', colkey, subkey || '', value);
+    if (subkey === 'entities') {
+      switch (value.type) {
+        case 'prop':
+          m_graph.setNode(value.id, { name: value.name });
+          PMCData.BuildModel();
+          break;
+        case 'mech':
+          console.log('add mech');
+          break;
+        case 'evidence':
+          console.log('add evidence');
+          break;
+        default:
+          throw Error('unexpected proptype');
+      }
+    }
   });
 
   // old way

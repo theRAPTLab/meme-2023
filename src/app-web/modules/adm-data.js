@@ -801,6 +801,11 @@ ADMData.SetClassroomResource = (rsrcId, checked, classroomId) => {
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};
-ADMData._admdb = () => adm_db;
+window.ur.getadmdb = () => adm_db;
+window.ur.getpmcdata = () => adm_db.pmcData;
+window.ur.getmodel = id => {
+  if (typeof id === 'number') return adm_db.pmcData.find(el => el.id === id);
+  return adm_db.pmcData(ASET.selectedModelId);
+};
 window.ur.ADM = ADMData;
 export default ADMData;

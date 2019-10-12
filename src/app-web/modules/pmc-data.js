@@ -157,7 +157,10 @@ PMCData.InitializeModel = (model, admdb) => {
         }
         break;
       case 'mech':
-        if (obj.source && obj.target) g.setEdge(obj.source, obj.target, { name: obj.name });
+        if (obj.source && obj.target) g.setEdge(obj.source, obj.target, {
+          name: obj.name,
+          id: obj.id
+        });
         break;
       case 'evidence':
         obj.comments = obj.comments || [];
@@ -207,7 +210,6 @@ PMCData.SyncAddedData = data => {
           if (value.parent) {
             m_graph.setParent(value.id, value.parent);
           }
-          PMCData.BuildModel();
           break;
         case 'mech':
           console.log('add mech');
@@ -222,6 +224,7 @@ PMCData.SyncAddedData = data => {
         default:
           throw Error('unexpected proptype');
       }
+      PMCData.BuildModel();
     }
   });
 
@@ -248,7 +251,6 @@ PMCData.SyncUpdatedData = data => {
           if (value.parent) {
             m_graph.setParent(value.id, value.parent);
           }
-          PMCData.BuildModel();
           break;
         case 'mech':
           console.log('update mech');
@@ -263,6 +265,7 @@ PMCData.SyncUpdatedData = data => {
         default:
           throw Error('unexpected proptype');
       }
+      PMCData.BuildModel();
     }
   }); // syncitems
   if (data['pmcData.commentThreads']) console.log('PMCData.commentThreads update');
@@ -534,7 +537,7 @@ PMCData.Mech = (evo, ew) => {
  */
 PMCData.PMC_PropAdd = (name, parentId) => {
   const modelId = ASET.selectedModelId;
-  const propObj = { name, type: 'prop' };
+  const propObj = { type: 'prop', name };
   if (parentId !== undefined) {
     propObj.parent = parentId;
   }
@@ -630,10 +633,27 @@ PMCData.PMC_SetPropParent = (nodeId, parentId) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_MechAdd = (sourceId, targetId, label) => {
+  const modelId = ASET.selectedModelId;
+  const mechObj = {
+    type: 'mech',
+    name: label,
+    source: sourceId,
+    target: targetId
+  };
+  return UR.DBQuery('add', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: mechObj
+    }
+  });
+
+  /** OLD CODE
+   * 
   m_graph.setEdge(sourceId, targetId, { name: label });
   PMCData.BuildModel();
   UTILS.RLog('MechanismAdd', sourceId, targetId, label);
   return `added edge ${sourceId} ${targetId} ${label}`;
+   */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -643,13 +663,30 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label) => {
  *  assets over from the old mech to the new mech.
  */
 PMCData.PMC_MechUpdate = (origMech, newMech) => {
-  // If we're only changing the label, then don't do the fancy swap, just update the label.
   if (origMech.sourceId === newMech.sourceId && origMech.targetId === newMech.targetId) {
+    // If we're only changing the label, then don't do the fancy swap, just update the label.
     // Just change label
     const { sourceId, targetId, label } = newMech;
+    const mechObj = {
+      type: 'mech',
+      id: origMech.id,
+      name: label,
+      source: sourceId,
+      target: targetId
+    };
+    return UR.DBQuery('update', {
+      'pmcData.entities': {
+        id: modelId,
+        entities: mechObj
+      }
+    });
+    
+    
+    /* OLD CODE
     m_graph.setEdge(sourceId, targetId, { name: label });
     PMCData.BuildModel();
     UTILS.RLog('MechanismEditLabel', label);
+    */
   } else {
     // 1. Add the new mech
     m_graph.setEdge(newMech.sourceId, newMech.targetId, { name: newMech.label });

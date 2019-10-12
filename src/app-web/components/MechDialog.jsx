@@ -107,11 +107,12 @@ class MechDialog extends React.Component {
 
   DoEdit(data) {
     if (DBG) console.log(PKG, 'Edit Mech!', data);
-    const { label, sourceId, targetId } = data;
+    const { id, label, sourceId, targetId } = data;
     this.setState(
       {
         isOpen: true,
         editExisting: true,
+        id,
         sourceId,
         sourceLabel: DATA.Prop(sourceId).name,
         targetId,
@@ -284,9 +285,9 @@ class MechDialog extends React.Component {
   }
 
   DoSaveData() {
-    const { sourceId, targetId, origSourceId, origTargetId, label, editExisting } = this.state;
+    const { id, sourceId, targetId, origSourceId, origTargetId, label, editExisting } = this.state;
     if (editExisting) {
-      const origMech = { sourceId: origSourceId, targetId: origTargetId };
+      const origMech = { sourceId: origSourceId, targetId: origTargetId, id };
       const newMech = { sourceId, targetId, label };
       DATA.PMC_MechUpdate(origMech, newMech);
     } else {

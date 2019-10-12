@@ -1,7 +1,7 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
   A class for managing hash-mapped data and detecting differences
-  in a dataset. Keys must be unique.
+  in a dataset.
 
   (1) manages differences - an array of just keys of your object is
       passed in, and DataMap returns what's the same or different.
@@ -44,12 +44,12 @@ const DBCMDS = new Map([
 const DBG = false;
 
 /**
- * An object containing the differences detected between an array NOW vs
- * an array the LAST TIME
- * @typedef {Object} ArrayChangeObject
- * @property {Array} added -
- * @property {Array} removed -
- * @property {Array} updated -
+ *  An object containing the differences detected between an array NOW vs
+ *  an array the LAST TIME
+ *  @typedef {Object} ArrayChangeObject
+ *  @property {Array} added -
+ *  @property {Array} removed -
+ *  @property {Array} updated -
  */
 /// CLASS /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -63,13 +63,12 @@ class DataMap {
     this.selection = new Set();
   }
 
-  /**
-   * Given an array of elements, return the differences since the last
-   * call. Useful for managing data protocols that send the entire list
-   * of entities in an array.
-   * @param {Array<string>} arr - array of elements. The elements should be usable
-   * as keys in a Map.
-   * @returns {ArrayChangeObject} - { added, updated, removed }
+  /** Given an array of elements, return the differences since the last
+   *  call. Useful for managing data protocols that send the entire list
+   *  of entities in an array.
+   *  @param {Array<string>} arr - array of elements. The elements should be usable
+   *  as keys in a Map.
+   *  @returns {ArrayChangeObject} - { added, updated, removed }
    */
   GetChanges(arr) {
     const results = DataMap.f_deltaFilterIDArray(arr, this.map);
@@ -82,25 +81,24 @@ class DataMap {
   }
 
   /**
-   * @param {*} id - array value to compare
-   * @returns {boolean} - true if id exists in the map
+   *  @param {*} id - array value to compare
+   *  @returns {boolean} - true if id exists in the map
    */
   Has(id) {
     return this.map.has(id);
   }
 
-  /**
-   * Retrieve
-   * @param {string} id - key
-   * @returns {string} - the object associated with the key
+  /** Retrieve
+   *  @param {string} id - key
+   *  @returns {string} - the object associated with the key
    */
   Get(id) {
     return this.map.get(id);
   }
 
   /**
-   * @param {string} id - key
-   * @param {string} element - element
+   *  @param {string} id - key
+   *  @param {string} element - element
    */
   Set(id, element) {
     this.map.set(id, element);
@@ -119,14 +117,14 @@ DataMap.Collections = () => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** validate that keyName is a valid DBKEY
- * @param {string} keyName - extract from the DBSYNC data props
+ *  @param {string} keyName - extract from the DBSYNC data props
  */
 DataMap.IsValidKey = keyName => {
   return DBKEYS.includes(keyName);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** validate command is valid
- * @param {string} command - extract from the DBSYNC data.cmd prop
+ *  @param {string} command - extract from the DBSYNC data.cmd prop
  */
 DataMap.ValidateCommand = command => DBCMDS.has(command);
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -137,13 +135,13 @@ DataMap.GetCommandMessage = command => DBCMDS.get(command);
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Used by server to parse DBQuery data object for modify, add, or update ops.
  *  For parsing the response, see ExtractSyncData
- *  There are several data formats:
+ *  There are two input data formats:
  *  key    { 'pmcData': value }
  *         .. where val is an object with an id
  *  subkey { 'pmcData.entities': { id, entities: value }
  *         .. where id is a modelId and val is a single entity obj
- * @param {Object} data - object with properties matching DBKEY contain array of values
- * @returns {Array} - an array of {colkey,subkey,value} for each matching DBKEY
+ *  @param {Object} data - object with properties matching DBKEY contain array of values
+ *  @returns {Array} - an array of { colkey, subkey, value } for each matching DBKEY
  */
 DataMap.ExtractQueryData = data => {
   let queries = [];
@@ -170,9 +168,13 @@ DataMap.ExtractQueryData = data => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Return an array of keys and update objects. Used to parse the update or
- *  response from a DBQuery. Formats are:
- *  key     { 'pmcData': [ {...} ] }
- *  subkey  { 'pmcData.entities': [ {...} ] }
+ *  response from a DBQuery. Input formats are:
+ *  .. key            { 'pmcData': [ {...} ] }
+ *  .. key w/subkey   { 'pmcData.entities': [ {...} ] }
+ *  Return values are:
+ * .. colkey : string (e.g. 'pmcData' )
+ * .. subkey : string (e.g. 'entities' )
+ * .. value  : object (e.g. { id:2, type:'prop', name:'Fish' } )
  */
 DataMap.ExtractSyncData = data => {
   const syncitems = [];
@@ -292,7 +294,7 @@ function f_deltaFilterIDArray(arr, elementMap = new Map()) {
 }
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** given an input, insure that it is an int >=0
+/** Given an input, insure that it is an int >=0
  */
 DataMap.IsValidId = id => {
   let test = Number.parseInt(id) === id;
@@ -306,8 +308,8 @@ DataMap.HasValidIdObjs = ids => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** given an original object, modify a key inside it with the supplied data
- * It's assumed the the propname is for an array of objs w/ id { id, ... }
+/** Given an original object, modify a key inside it with the supplied data
+ *  It's assumed the the propname is for an array of objs w/ id { id, ... }
  * @param {object} obj - object with property list to search/modify
  * @param {string} propname - name of property to extract list from obj
  * @param {object} updObj - new data to replace existing object by id match
@@ -338,7 +340,7 @@ DataMap.MutateObjectProp = (obj, propname, updObj) => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** overwrite the original object with changes in second object
+/** Overwrite the original object with changes in second object
  */
 DataMap.MutateObject = (obj, idObj) => {
   if (typeof obj !== 'object') throw Error('arg1 must be object');

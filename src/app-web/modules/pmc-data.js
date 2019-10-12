@@ -211,6 +211,10 @@ PMCData.SyncAddedData = data => {
           break;
         case 'mech':
           console.log('add mech');
+          m_graph.setEdge(value.source, value.target, {
+            id: value.id,
+            name: value.name
+          });
           break;
         case 'evidence':
           console.log('add evidence');
@@ -248,6 +252,10 @@ PMCData.SyncUpdatedData = data => {
           break;
         case 'mech':
           console.log('update mech');
+          m_graph.setEdge(value.source, value.target, {
+            id: value.id,
+            name: value.name
+          });
           break;
         case 'evidence':
           console.log('update evidence');

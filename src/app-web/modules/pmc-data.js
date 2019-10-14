@@ -219,7 +219,10 @@ PMCData.SyncAddedData = data => {
           });
           break;
         case 'evidence':
-          console.log('add evidence');
+          const { id, propId, mechId, rsrcId, numberLabel, note } = value;
+          a_evidence.push({
+            id, propId, mechId, rsrcId, numberLabel, note
+          })
           break;
         default:
           throw Error('unexpected proptype');
@@ -754,7 +757,84 @@ PMCData.PMC_MechDelete = mechId => {
   return `deleted edge ${mechId}`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
+/**
+ *  Checks to make sure the numberLabel already exists
+ *  Called by GenerateNumberLabel, below
+ */
+function NumberLabelExists(numberLabel, evlinks) {
+  return evlinks.find(ev => ev.numberLabel === numberLabel);
+}
+/**
+ *  Construct numberLabel, e.g. "2c".
+ *  Called by PMCData.PMC_AddEvidenceLink, below.
+ *  @param {string} rsrcId 
+ *  @return {string} - A new numberLabel, e.g. "2c"
+ */
+function GenerateNumberLabel (rsrcId) {
+  // 1. Ordinal value of resource in resource library, e.g. "2"
+  const prefix = PMCData.PMC_GetResourceIndex(rsrcId);
+  // 2. Ordinal value of evlink in evlink list, e.g. "c"
+  const evlinks = PMCData.GetEvLinksByResourceId(rsrcId);
+  let numberOfEvLinks = evlinks.length;
+  let letter;
+  let numberLabel;
+  do {
+    letter = String.fromCharCode(97 + numberOfEvLinks); // lower case for smaller footprint
+    numberLabel = String(prefix) + letter;
+    numberOfEvLinks++;
+  } while (NumberLabelExists(numberLabel, evlinks))
+  
+  return numberLabel;
+}
+/**
+ *  Adds a new evidence link object to the database and generates a new id for it.
+ *  This also calculates the numberLabel automatically based on the assets already
+ *  in the system.
+ * 
+ *  @param {string} rsrcId - string id of the parent resource
+ *  @param {function} cb - callback function will be called with the new id as a parameter
+ *                         e.g. cb(id);
+ *  @param {string} [note] - optional initial value of the note
+ */
+PMCData.PMC_AddEvidenceLink = (rsrcId, cb, note = '') => {
+  const modelId = ASET.selectedModelId;
+  const numberLabel = GenerateNumberLabel(rsrcId);
+  
+  // propId and mechId remain undefined until the user sets it later
+  const evObj = {
+    type: 'evidence',
+    propId: undefined,
+    mechId: undefined,
+    rsrcId,
+    numberLabel,
+    rating: undefined,
+    note
+  };
+  UR.DBQuery('add', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: evObj
+    }
+  }).then(rdata => {
+    const syncitems = DATAMAP.ExtractSyncData(rdata);
+    syncitems.forEach(item => {
+      const { colkey, subkey, value } = item;
+      if (subkey === 'entities') {
+        switch (value.type) {
+          case 'evidence':
+            const id = value.id;
+            if (typeof cb === 'function') {
+              cb(id);
+            } else {
+              throw Error('PMC_AddEvidenceLink callback cb is not a function!  Skipping...');
+            }
+            break;
+        }
+      }
+    })
+  });
+  
+  /** OLD CODE
   // Retrieve from db?!?
   // HACK!  FIXME!  Need to properly generate a unique ID.
   let id = `ev${Math.trunc(Math.random() * 10000)}`;
@@ -773,6 +853,7 @@ PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
 
   UTILS.RLog('EvidenceCreate', rsrcId); // note is empty at this point
   return id;
+  */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:

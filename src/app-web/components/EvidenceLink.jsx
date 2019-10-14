@@ -183,8 +183,8 @@ class EvidenceLink extends React.Component {
   }
 
   DoEvidenceLinkOpen(data) {
-    if (this.props.evlink.id === data.evId) {
-      if (DBG) console.log(PKG, 'Expanding', data.evId);
+    if (this.props.evlink.id === data.id) {
+      if (DBG) console.log(PKG, 'Expanding', data.id);
 
       // If we're being opened for the first time, notes is empty
       // and no links have been set, so automatically go into edit mode

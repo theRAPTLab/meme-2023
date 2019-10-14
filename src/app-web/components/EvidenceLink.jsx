@@ -140,7 +140,8 @@ class EvidenceLink extends React.Component {
   OnCancelButtonClick(e) {
     e.stopPropagation();
     this.setState({
-      isBeingEdited: false
+      isBeingEdited: false,
+      note: this.props.evlink.note
     });
   }
 

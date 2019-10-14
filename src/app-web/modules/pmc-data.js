@@ -663,6 +663,7 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label) => {
  *  assets over from the old mech to the new mech.
  */
 PMCData.PMC_MechUpdate = (origMech, newMech) => {
+  const modelId = ASET.selectedModelId;
   if (origMech.sourceId === newMech.sourceId && origMech.targetId === newMech.targetId) {
     // If we're only changing the label, then don't do the fancy swap, just update the label.
     // Just change label
@@ -689,7 +690,10 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
     */
   } else {
     // 1. Add the new mech
-    m_graph.setEdge(newMech.sourceId, newMech.targetId, { name: newMech.label });
+    m_graph.setEdge(newMech.sourceId, newMech.targetId, {
+      name: newMech.label,
+      id: newMech.id
+    });
 
     // 2. Update the old mech
     const origMechId = `${origMech.sourceId}:${origMech.targetId}`;

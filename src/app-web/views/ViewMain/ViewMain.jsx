@@ -330,6 +330,7 @@ class ViewMain extends React.Component {
       let mech = DATA.Mech(mechId);
       let vw = mechId.split(':');
       let data = {
+        id: mech.id, // we want db id, not graphlib mechId
         label: mech.name,
         sourceId: vw[0],
         targetId: vw[1]

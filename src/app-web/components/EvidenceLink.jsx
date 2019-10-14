@@ -377,7 +377,7 @@ class EvidenceLink extends React.Component {
               <div style={{ position: 'absolute', right: '0px' }}>
                 <StickyNoteButton parentId={id} />
               </div>
-              <Avatar className={classes.evidenceBodyNumber}>{evlink.number}</Avatar>
+              <Avatar className={classes.evidenceBodyNumber}>{evlink.numberLabel}</Avatar>
             </Grid>
             <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
               How does this resource support this component / property / mechanism?
@@ -575,7 +575,7 @@ EvidenceLink.defaultProps = {
     propId: '',
     mechId: '',
     rsrcId: '',
-    number: '',
+    numberLabel: '',
     note: '',
     rating: 0
   }

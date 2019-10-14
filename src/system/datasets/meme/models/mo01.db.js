@@ -27,7 +27,7 @@ module.exports = {
       propId: 16,
       mechId: undefined,
       rsrcId: 1,
-      number: '1a',
+      numberLabel: '1a',
       rating: 3,
       note: 'ghoti ghoti gothi need food'
     },
@@ -37,7 +37,7 @@ module.exports = {
       propId: undefined,
       mechId: '14:13',
       rsrcId: 2,
-      number: '2a',
+      numberLabel: '2a',
       rating: 2,
       note: 'fish need food'
     },
@@ -47,7 +47,7 @@ module.exports = {
       propId: 16,
       mechId: undefined,
       rsrcId: 1,
-      number: '1b',
+      numberLabel: '1b',
       rating: -3,
       note: 'fish need food'
     },
@@ -57,7 +57,7 @@ module.exports = {
       propId: 11,
       mechId: undefined,
       rsrcId: 2,
-      number: '2d',
+      numberLabel: '2d',
       rating: 1,
       note: 'ammonia is bad'
     }

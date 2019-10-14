@@ -66,7 +66,7 @@ module.exports = {
   commentThreads: [
     {
       id: 51,
-      refId: 33,
+      refId: "33",
       comments: [
         {
           id: 0,
@@ -81,7 +81,7 @@ module.exports = {
     },
     {
       id: 52,
-      refId: 14,
+      refId: "14",
       comments: [
         {
           id: 0,
@@ -105,7 +105,7 @@ module.exports = {
     },
     {
       id: 53,
-      refId: 12,
+      refId: "12",
       comments: [
         {
           id: 0,

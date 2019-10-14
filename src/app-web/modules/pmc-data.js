@@ -173,7 +173,10 @@ PMCData.InitializeModel = (model, admdb) => {
   if (DBG) console.log('data.entities processed');
 
   // Comments
-  a_commentThreads = data.commentThreads;
+  // Clean up data: Make sure refIds are strings.
+  a_commentThreads = data.commentThreads.map(c => {
+    return Object.assign({ refId: String(c.refId) }, c);
+  });
 
   // test serial write out, then serial read back in
   // this doesn't do anything other than ensure data
@@ -1040,7 +1043,10 @@ PMCData.SetEvidenceLinkRating = (evId, rating) => {
  */
 PMCData.GetComments = refId => {
   const result = a_commentThreads.find(c => {
-    return c.refId === refId;
+    // FIXME / REVIEW: Coercing commentThread refId to strings!
+    // They should always be strings since all prop/mech objects
+    // on the client side use string Ids
+    return String(c.refId) === refId;
   });
   return result ? result.comments : [];
 };

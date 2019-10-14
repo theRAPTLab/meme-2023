@@ -109,9 +109,15 @@ class EvidenceLink extends React.Component {
       const model = ADM.GetModelById();
       const classroomId = ADM.GetClassroomIdByGroup(model.groupId);
       const ratingDefs = ADM.GetRatingsDefinition(classroomId);
+      let { note, rating } = evlink;
+
+      // if we're currently editing, don't let data update reset the note
+      if (this.state.isBeingEdited) {
+        note = this.state.note;
+      }
       this.setState({
-        note: evlink.note,
-        rating: evlink.rating,
+        note,
+        rating,
         ratingDefs
       });
     }
@@ -184,8 +190,8 @@ class EvidenceLink extends React.Component {
   }
 
   DoEvidenceLinkOpen(data) {
-    if (this.props.evlink.id === data.id) {
-      if (DBG) console.log(PKG, 'Expanding', data.id);
+    if (this.props.evlink.id === data.evId) {
+      if (DBG) console.log(PKG, 'Expanding', data.evId);
 
       // If we're being opened for the first time, notes is empty
       // and no links have been set, so automatically go into edit mode
@@ -427,8 +433,8 @@ class EvidenceLink extends React.Component {
                       />
                     </MuiThemeProvider>
                   ) : (
-                      <div className={classes.evidenceLabelField}>{note}</div>
-                    )}
+                    <div className={classes.evidenceLabelField}>{note}</div>
+                  )}
                 </Grid>
               </Grid>
 

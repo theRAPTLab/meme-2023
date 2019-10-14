@@ -220,8 +220,9 @@ PMCData.SyncAddedData = data => {
           break;
         case 'evidence':
           const { id, propId, mechId, rsrcId, numberLabel, note } = value;
+          const { id, propId, mechId, rsrcId, numberLabel, rating, note } = value;
           a_evidence.push({
-            id, propId, mechId, rsrcId, numberLabel, note
+            id, propId, mechId, rsrcId, numberLabel, rating, note
           })
           break;
         default:
@@ -264,6 +265,18 @@ PMCData.SyncUpdatedData = data => {
           break;
         case 'evidence':
           console.log('update evidence');
+          const { id, propId, mechId, rsrcId, numberLabel, rating, note } = value;
+          const evlink = {
+            id,
+            propId,
+            mechId,
+            rsrcId,
+            numberLabel,
+            rating,
+            note
+          };
+          const i = a_evidence.findIndex(e => e.id === id);
+          a_evidence.splice(i, 1, evlink);
           break;
         default:
           throw Error('unexpected proptype');
@@ -918,21 +931,60 @@ PMCData.PMC_GetEvLinksByMechId = mechId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
+ *  Geneeral Evidence Update call
+ *  Called by all the setters
+ */
+PMCData.PMC_EvidenceUpdate = (evId, newData) => {
+  const ev = h_evidenceById.get(evId);
+  // make a copy of the prop with overwritten new data
+  // local data will be updated on DBSYNC event, so don't write it here
+  const evData = Object.assign({ id: evId }, ev, newData);
+  const modelId = ASET.selectedModelId;
+  // we need to update pmcdata which looks like
+  // { id, entities:[ { id, name } ] }
+  UR.DBQuery('update', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: evData
+    }
+  });
+  // round-trip will call BuildModel() for us
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
  *  @param {String} evId
  *  @param {String||undefined} propId - Set propId to `undefined` to unlink
  */
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
+  const newData = {
+    propId,
+    mechId: undefined // clear this in case it was set
+  };
+  PMCData.PMC_EvidenceUpdate(evId, newData);
+  if (propId !== undefined)
+    // Only log when setting, not when programmatically clearing
+    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Property "${propId}"`);
+
+  /** old code
   let evlink = h_evidenceById.get(evId);
   evlink.propId = propId;
   evlink.mechId = undefined; // clear this in case it was set
   // Call BuildModel to rebuild hash tables since we've added a new propId
   PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
-  if (propId !== undefined)
-    // Only log when setting, not when programmatically clearing
-    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evlink.note}" to Property "${propId}"`);
+  */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
+  const newData = {
+    propId: undefined, // clear this in case it was set
+    mechId
+  };
+  PMCData.PMC_EvidenceUpdate(evId, newData);
+  if (mechId !== undefined)
+    // Only log when setting, not when programmatically clearing
+    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Mechanism "${mechId}"`);
+
+  /** old code
   let evlink = h_evidenceById.get(evId);
   evlink.mechId = mechId;
   evlink.propId = undefined; // clear this in case it was set
@@ -940,17 +992,34 @@ PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
   PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
   if (mechId !== undefined)
     // Only log when setting, not when programmatically clearing
-    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evlink.note}" to Mechanism "${mechId}"`);
+    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Mechanism "${mechId}"`);
+  */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkNote = (evId, note) => {
+  const newData = {
+    note
+  };
+  PMCData.PMC_EvidenceUpdate(evId, newData);
+  UTILS.RLog('EvidenceSetNote', `Set evidence note to "${note}"`);
+
+  /** old data
   let evlink = h_evidenceById.get(evId);
   evlink.note = note;
   UR.Publish('DATA_UPDATED');
   UTILS.RLog('EvidenceSetNote', `Set evidence note to "${evlink.note}"`);
+   */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkRating = (evId, rating) => {
+  console.error('setting ev rating to',evId,rating)
+  const newData = {
+    rating
+  };
+  PMCData.PMC_EvidenceUpdate(evId, newData);
+  UTILS.RLog('EvidenceSetRating', `Set evidence "${evId}" to "${rating}"`);
+
+  /** old data
   let evlink = h_evidenceById.get(evId);
   if (evlink) {
     evlink.rating = rating;
@@ -959,6 +1028,7 @@ PMCData.SetEvidenceLinkRating = (evId, rating) => {
     return;
   }
   throw Error(`no evidence link with evId '${evId}' exists`);
+  */
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

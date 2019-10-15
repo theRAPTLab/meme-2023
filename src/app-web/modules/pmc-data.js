@@ -212,6 +212,7 @@ PMCData.SyncAddedData = data => {
   syncitems.forEach(item => {
     const { colkey, subkey, value } = item;
     console.log('added', colkey, subkey || '', value);
+
     if (subkey === 'entities') {
       switch (value.type) {
         case 'prop':
@@ -221,14 +222,12 @@ PMCData.SyncAddedData = data => {
           }
           break;
         case 'mech':
-          console.log('add mech');
           m_graph.setEdge(value.source, value.target, {
             id: value.id,
             name: value.name
           });
           break;
         case 'evidence':
-          const { id, propId, mechId, rsrcId, numberLabel, note } = value;
           const { id, propId, mechId, rsrcId, numberLabel, rating, note } = value;
           a_evidence.push({
             id, propId, mechId, rsrcId, numberLabel, rating, note
@@ -238,6 +237,13 @@ PMCData.SyncAddedData = data => {
           throw Error('unexpected proptype');
       }
       PMCData.BuildModel();
+    }
+
+    if (subkey === 'commentThreads') {
+      const { id, refId, comments } = value;
+      const thread = { id, refId, comments };
+      a_commentThreads.push(thread);
+      UR.Publish('DATA_UPDATED');
     }
   });
 
@@ -256,6 +262,7 @@ PMCData.SyncUpdatedData = data => {
   syncitems.forEach(item => {
     const { colkey, subkey, value } = item;
     console.log('updated', colkey, subkey || '', value);
+
     if (subkey === 'entities') {
       // has id, type, name
       switch (value.type) {
@@ -291,6 +298,17 @@ PMCData.SyncUpdatedData = data => {
           throw Error('unexpected proptype');
       }
       PMCData.BuildModel();
+    }
+
+    if (subkey === 'commentThreads') {
+      const { id, refId, comments } = value;
+      const newThread = { id, refId, comments };
+      const i = a_commentThreads.findIndex(c => c.refId === refId);
+      if (i < 0) throw Error('Trying to update non-existent commentThread');
+      const oldThread = a_commentThreads[i];
+      const thread = Object.assign(oldThread, newThread);
+      a_commentThreads.splice(i, 1, thread);
+      UR.Publish('DATA_UPDATED');
     }
   }); // syncitems
   if (data['pmcData.commentThreads']) console.log('PMCData.commentThreads update');
@@ -1082,29 +1100,125 @@ PMCData.NewComment = (author, sentenceStarter) => {
   return {
     id,
     author,
-    date: new Date(),
+    date: new Date().toJSON(),
     text: '',
     placeholder: sentenceStarter,
     criteriaId: '',
     readBy: []
   };
 };
+/**
+ *  Add or Update individual comment item, then the thread itself
+ */
+PMCData.CommentAdd = (refId, newComment) => {
+  console.log('PMCData.CommentAdd', refId, newComment);
+  const comments = PMCData.GetCommentThreadComments(refId);
+  if (comments.length < 1) {
+    // Add new comment to new comment thread
+    PMCData.CommentThreadAdd(refId, [newComment]);
+  } else {
+    // Add/Update comment to existing comment thread
+    PMCData.CommentUpdate(refId, newComment);
+  }
+};
+/**
+ *  Update individual comment item, then the thread itself
+ */
+PMCData.CommentUpdate = (refId, newComment) => {
+  console.log('PMCData.CommentUpdate', refId, newComment);
+  const comments = PMCData.GetCommentThreadComments(refId);
+  if (comments < 1) throw Error(`Trying to update a non-existent thread refId=${refId}`);
+
+  // update existing comment or add a new comment?
+  const i = comments.findIndex(c => c.id === newComment.id);
+  if (i > -1) {
+    // existing comment
+    comments.splice(i, 1, newComment);
+  } else {
+    // new comment
+    comments.push(newComment);
+  }
+
+  let thread = PMCData.GetCommentThread(refId);
+  thread.comments = comments;
+  const modelId = ASET.selectedModelId;
+  console.log('updating model', modelId, 'with commentThread', thread);
+  // we need to update pmcdata which looks like
+  // { id, entities:[ { id, name } ] }
+  UR.DBQuery('update', {
+    'pmcData.commentThreads': {
+      id: modelId,
+      commentThreads: thread
+    }
+  });
+  // round-trip will call BuildModel() for us
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Updates the respective data structure (a_commentThreads or a_evidence) with the
- *  updated comment text.
- *  @param {string} parentId - if defined, id string of the resource object
+ *  Adds a mew comment thread to refId
+ *  @param {string} refId - if defined, id string of the target of the comment
  *                  propId, mechId, or evId
- *  @param [object] comments - Array of comment objects
+ *  @param [object] newComments - Array of comment objects
  *
  *  This is primarily used by the Sticky Notes system to save chagnes to
  *  comment text.
  */
-PMCData.UpdateComments = (parentId, comments) => {
+PMCData.CommentThreadAdd = (refId, newComments) => {
+  // local data will be updated on DBSYNC event, so don't write it here
+  const threadData = Object.assign({ refId }, { comments: newComments });
+  const modelId = ASET.selectedModelId;
+  console.log('PMCData.CommentThreadAdd: adding model', modelId, 'with commentThread', threadData);
+  // we need to update pmcdata which looks like
+  // { id, entities:[ { id, name } ] }
+  UR.DBQuery('add', {
+    'pmcData.commentThreads': {
+      id: modelId,
+      commentThreads: threadData
+    }
+  });
+  // round-trip will call BuildModel() for us
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.MODEL:
+ *  Updates the respective data structure (a_commentThreads or a_evidence) with the
+ *  updated comment text.
+ *  @param {string} refId - if defined, id string of the target of the comment
+ *                  propId, mechId, or evId
+ *  @param [object] newComments - Array of comment objects
+ *
+ *  This is primarily used by the Sticky Notes system to save changes to
+ *  comment text.
+ */
+PMCData.CommentThreadUpdate = (refId, newComments) => {
+  const thread = PMCData.GetCommentThreadComments(refId);
+  if (thread === undefined) {
+    throw Error('PMCData.CommentThreadUpdate trying to update non-existent thread with refId', refId);
+  }
+
+  // make a copy of the prop with overwritten new data
+  // local data will be updated on DBSYNC event, so don't write it here
+  const threadData = Object.assign(thread, { comments: newComments });
+  const modelId = ASET.selectedModelId;
+  console.log('updating model', modelId, 'with commentThread', threadData);
+  // we need to update pmcdata which looks like
+  // { id, entities:[ { id, name } ] }
+  UR.DBQuery('update', {
+    'pmcData.commentThreads': {
+      id: modelId,
+      commentThreads: threadData
+    }
+  });
+  // round-trip will call BuildModel() for us
+
+
+
+  /* OLD CODE 
+  return;
+  
   let index;
   let commentThread;
   index = a_commentThreads.findIndex(c => {
-    return c.refId === parentId;
+    return c.refId === refId;
   });
   if (index > -1) {
     // existing comment
@@ -1117,10 +1231,11 @@ PMCData.UpdateComments = (parentId, comments) => {
     // Temporarily insert a random numeric prop id
     // This will get replaced with a server promise once that's implemented
     const id = Math.trunc(Math.random() * 10000000000).toString();
-    commentThread = { id, refId: parentId, comments };
+    commentThread = { id, refId: refId, comments };
     a_commentThreads.push(commentThread);
   }
   UR.Publish('DATA_UPDATED');
+  */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:

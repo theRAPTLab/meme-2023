@@ -58,6 +58,7 @@ import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import ADM from '../modules/data';
+import PMC from '../modules/pmc-data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -73,6 +74,8 @@ class StickyNote extends React.Component {
     this.DoOpenSticky = this.DoOpenSticky.bind(this);
     this.OnEditClick = this.OnEditClick.bind(this);
     this.DoEditStart = this.DoEditStart.bind(this);
+    this.DoSave = this.DoSave.bind(this);
+    this.DoDelete = this.DoDelete.bind(this);
     this.FocusTextInput = this.FocusTextInput.bind(this);
     this.OnEditFinished = this.OnEditFinished.bind(this);
     this.OnDeleteClick = this.OnDeleteClick.bind(this);
@@ -127,6 +130,18 @@ class StickyNote extends React.Component {
     });
   }
 
+  DoSave() {
+    PMC.CommentAdd(this.props.refId, this.state.comment);
+    this.props.OnUpdateComment({ comment: this.state.comment });
+  }
+
+  DoDelete() {
+    this.props.OnUpdateComment({
+      action: 'delete',
+      comment: this.state.comment
+    });
+  }
+
   OnEditClick(e) {
     e.preventDefault();
     this.DoEditStart();
@@ -150,7 +165,7 @@ class StickyNote extends React.Component {
     if (!comment.readBy.includes(author)) {
       comment.readBy.push(author);
     }
-    this.props.OnUpdateComment({ comment });
+    this.DoSave();
     // stop editing and close
     this.setState({
       isBeingEdited: false
@@ -158,10 +173,7 @@ class StickyNote extends React.Component {
   }
 
   OnDeleteClick() {
-    this.props.OnUpdateComment({
-      action: 'delete',
-      comment: this.state.comment
-    });
+    this.DoDelete();
     // stop editing and close
     this.setState({
       isBeingEdited: false
@@ -348,6 +360,7 @@ StickyNote.propTypes = {
   classes: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
   comment: PropTypes.object,
+  refId: PropTypes.string,
   OnStartEdit: PropTypes.func,
   OnUpdateComment: PropTypes.func
 };
@@ -361,6 +374,7 @@ StickyNote.defaultProps = {
     text: '',
     criteriaId: ''
   },
+  refId: '',
   OnStartEdit: () => {
     console.error('StickyNote: OnStartEdit prop was not defined!');
   },

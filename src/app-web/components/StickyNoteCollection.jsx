@@ -229,7 +229,7 @@ class StickyNoteCollection extends React.Component {
         comments,
         isHidden: true
       };
-    }, this.DoSaveSticky);
+    });
   }
 
   OnReplyClick(e) {
@@ -253,32 +253,37 @@ class StickyNoteCollection extends React.Component {
    * @param {Object} data - {comment} [action] - `action` is used for delete
    */
   OnUpdateComment(data) {
-    if (DBG) console.log(PKG, 'OnUpdateComment: comments', data);
-    let { comments } = this.state;
-    if (data === undefined) {
-      console.error(PKG, "OnUpdateComment got undefined data.  This should'nt happen");
-    } else if (data.action && data.action === 'delete') {
-      // Handle Delete Request
-      comments = comments.filter(co => {
-        return co.id !== data.comment.id;
-      });
-      UTILS.RLog('CommentDelete', `"${data.comment.text}" from "${this.state.parentId}"`);
-    } else {
-      // Regular data update
-      const index = comments.findIndex(co => co.id === data.comment.id);
-      if (index > -1) comments.splice(index, 1, data.comment); // ignore if it's been culled
-      UTILS.RLog(
-        'CommentUpdate',
-        `"${data.comment.text}" with criteria "${data.comment.criteriaId}" on "${this.state.parentId}"`
-      );
-    }
-    this.setState(
-      {
-        comments,
-        isBeingEdited: false
-      },
-      this.DoSaveSticky
-    );
+    // StickyNote now handles data updates.
+    // We just need to update the Collection view
+    this.setState({ isBeingEdited: false });
+    
+    // old code
+    // if (DBG) console.log(PKG, 'OnUpdateComment: comments', data);
+    // let { comments } = this.state;
+    // if (data === undefined) {
+    //   console.error(PKG, "OnUpdateComment got undefined data.  This should'nt happen");
+    // } else if (data.action && data.action === 'delete') {
+    //   // Handle Delete Request
+    //   comments = comments.filter(co => {
+    //     return co.id !== data.comment.id;
+    //   });
+    //   UTILS.RLog('CommentDelete', `"${data.comment.text}" from "${this.state.parentId}"`);
+    // } else {
+    //   // Regular data update
+    //   const index = comments.findIndex(co => co.id === data.comment.id);
+    //   if (index > -1) comments.splice(index, 1, data.comment); // ignore if it's been culled
+    //   UTILS.RLog(
+    //     'CommentUpdate',
+    //     `"${data.comment.text}" with criteria "${data.comment.criteriaId}" on "${this.state.parentId}"`
+    //   );
+    // }
+    // this.setState(
+    //   {
+    //     comments,
+    //     isBeingEdited: false
+    //   },
+    //   this.DoSaveSticky
+    // );
   }
 
   OnCloseClick() {
@@ -317,6 +322,7 @@ class StickyNoteCollection extends React.Component {
               return (
                 <StickyNote
                   comment={comment}
+                  refId={parentId}
                   key={parentId + comment.id}
                   OnStartEdit={this.OnStartEdit}
                   OnUpdateComment={this.OnUpdateComment}

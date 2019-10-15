@@ -163,6 +163,8 @@ PMCData.InitializeModel = (model, admdb) => {
         });
         break;
       case 'evidence':
+        // stringify
+        obj.id = String(obj.id);
         obj.comments = obj.comments || [];
         a_evidence.push(obj);
         break;
@@ -174,9 +176,13 @@ PMCData.InitializeModel = (model, admdb) => {
 
   // Comments
   // Clean up data: Make sure refIds are strings.
-  a_commentThreads = data.commentThreads.map(c => {
-    return Object.assign({ refId: String(c.refId) }, c);
-  });
+  if (data.commentThreads) {
+    a_commentThreads = data.commentThreads.map(c => {
+      return Object.assign({ refId: String(c.refId) }, c);
+    });
+  } else {
+    a_commentThreads = [];
+  }
 
   // test serial write out, then serial read back in
   // this doesn't do anything other than ensure data

@@ -170,7 +170,7 @@ class VBadge {
     // Set Current Read/Unreaad status
     let hasNoComments;
     let hasUnreadComments;
-    const comments = PMC.GetComments(vparent.id);
+    const comments = PMC.GetCommentThreadComments(vparent.id);
     if (comments === undefined) {
       hasNoComments = true;
       hasUnreadComments = false;

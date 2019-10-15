@@ -727,8 +727,8 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
       });
     }
     // 2b. Move comments over
-    const comments = PMCData.GetComments(origMechId);
-    PMCData.UpdateComments(newMechId, comments);
+    const comments = PMCData.GetCommentThreadComments(origMechId);
+    PMCData.CommentThreadUpdate(newMechId, comments);
 
     // 2c. Remove the old mech
     PMCData.PMC_MechDelete(origMechId);
@@ -1039,15 +1039,30 @@ PMCData.SetEvidenceLinkRating = (evId, rating) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
  * @param {string} refId - id of Property or Mechanism
- * @return [array] Array of comment objects, or [] if none defined.
+ * @return {object} Comment thread object, or [] if none defined.
+// or undefined
  */
-PMCData.GetComments = refId => {
-  const result = a_commentThreads.find(c => {
+PMCData.GetCommentThread = refId => {
+  return a_commentThreads.find(c => {
     // FIXME / REVIEW: Coercing commentThread refId to strings!
     // They should always be strings since all prop/mech objects
     // on the client side use string Ids
+    if (typeof c.refId !== 'string') {
+      console.error(
+        'review GetCommentThread -- coercion here is probably not necessary? comment.refId is',
+        typeof c.refId
+      );
+    }
     return String(c.refId) === refId;
   });
+};
+/** API.VIEWMODEL:
+ * @param {string} refId - id of Property or Mechanism
+ * @return [array] Array of comment objects, or [] if none defined.
+// or undefined
+ */
+PMCData.GetCommentThreadComments = refId => {
+  const result = PMCData.GetCommentThread(refId);
   return result ? result.comments : [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

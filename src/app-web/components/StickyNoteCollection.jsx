@@ -163,7 +163,7 @@ class StickyNoteCollection extends React.Component {
   DoOpenSticky(data) {
     if (DBG) console.log(PKG, 'DoOpenSticky', data);
     const { parentId, x, y } = data;
-    let comments = PMC.GetComments(parentId);
+    let comments = PMC.GetCommentThreadComments(parentId);
     let isBeingEdited = false;
     // if no comments yet, add an empty comment automatically
     if (comments === undefined || comments.length === 0) {
@@ -195,7 +195,7 @@ class StickyNoteCollection extends React.Component {
   // Update our existing data directly from PMC.
   DoStickyUpdate() {
     const { parentId } = this.state;
-    let comments = PMC.GetComments(parentId);
+    let comments = PMC.GetCommentThreadComments(parentId);
     if (DBG) console.log(PKG, 'DoStickyUpdate with comments', comments);
     if (DBG) console.table(comments);
     this.setState({

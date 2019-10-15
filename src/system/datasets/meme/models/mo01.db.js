@@ -109,7 +109,6 @@ module.exports = {
       comments: [
         {
           id: 0,
-          time: 0,
           author: 'Bob',
           date: 'DateStringHere',
           text: 'Algae green',
@@ -118,7 +117,6 @@ module.exports = {
         },
         {
           id: 1,
-          time: 10,
           author: 'Bill',
           date: 'DateStringHere',
           text: 'Algae seein you',
@@ -127,7 +125,6 @@ module.exports = {
         },
         {
           id: 2,
-          time: 11,
           author: 'Mary',
           date: 'DateStringHere',
           text: 'You can call me Algae',
@@ -142,7 +139,6 @@ module.exports = {
       comments: [
         {
           id: 0,
-          time: 0,
           author: 'Bill',
           date: 'DateStringHere',
           text: 'Fish need O2',
@@ -151,7 +147,6 @@ module.exports = {
         },
         {
           id: 1,
-          time: 10,
           author: 'Bill',
           date: 'DateStringHere',
           text: 'Fish pop pop',

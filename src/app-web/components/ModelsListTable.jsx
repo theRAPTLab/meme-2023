@@ -54,7 +54,7 @@ class ModelsListTable extends React.Component {
             {models.map(model => (
               <TableRow key={model.id}>
                 <TableCell>
-                  <Button color="primary" onClick={e => this.OnModelSelect(model.id)}>
+                  <Button color="primary" onClick={e => this.OnModelSelect(model.pmcDataId)}>
                     {model.title}
                   </Button>
                 </TableCell>

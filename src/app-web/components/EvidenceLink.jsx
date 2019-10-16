@@ -112,9 +112,15 @@ class EvidenceLink extends React.Component {
       const model = ADM.GetModelById();
       const classroomId = ADM.GetClassroomIdByGroup(model.groupId);
       const ratingDefs = ADM.GetRatingsDefinition(classroomId);
+      let { note, rating } = evlink;
+
+      // if we're currently editing, don't let data update reset the note
+      if (this.state.isBeingEdited) {
+        note = this.state.note;
+      }
       this.setState({
-        note: evlink.note,
-        rating: evlink.rating,
+        note,
+        rating,
         ratingDefs
       });
     }
@@ -143,7 +149,8 @@ class EvidenceLink extends React.Component {
   OnCancelButtonClick(e) {
     e.stopPropagation();
     this.setState({
-      isBeingEdited: false
+      isBeingEdited: false,
+      note: this.props.evlink.note
     });
   }
 
@@ -384,7 +391,7 @@ class EvidenceLink extends React.Component {
               <div style={{ position: 'absolute', right: '0px' }}>
                 <StickyNoteButton parentId={id} />
               </div>
-              <Avatar className={classes.evidenceBodyNumber}>{evlink.number}</Avatar>
+              <Avatar className={classes.evidenceBodyNumber}>{evlink.numberLabel}</Avatar>
             </Grid>
             <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
               How does this resource support this component / property / mechanism?
@@ -433,8 +440,8 @@ class EvidenceLink extends React.Component {
                       />
                     </MuiThemeProvider>
                   ) : (
-                      <div className={classes.evidenceLabelField}>{note}</div>
-                    )}
+                    <div className={classes.evidenceLabelField}>{note}</div>
+                  )}
                 </Grid>
               </Grid>
 
@@ -582,7 +589,7 @@ EvidenceLink.defaultProps = {
     propId: '',
     mechId: '',
     rsrcId: '',
-    number: '',
+    numberLabel: '',
     note: '',
     rating: 0
   }

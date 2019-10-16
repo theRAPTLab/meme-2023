@@ -14,10 +14,12 @@ import VM from './vm-data';
 import UR from '../../system/ursys';
 import DATAMAP from '../../system/common-datamap';
 import SESSION from '../../system/common-session';
+import ASET from './adm-settings';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const ULINK = UR.NewConnection('data');
+const DBG = false;
 
 /// URSYS HOOKS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -27,66 +29,114 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
   ULINK.NetSubscribe('NET:SYSTEM_DBSYNC', data => {
     const cmd = data.cmd;
     if (!cmd) throw Error('SYSTEM_DBSYNC packet missing cmd property');
-    const collections = DATAMAP.ExtractCollections(data);
-    console.log(`*** got '${data.cmd}' command with data.changed:`, data);
+    if (!DATAMAP.ValidateCommand(cmd)) throw Error(`SYSTEM_DBSYNC unrecognized command '${cmd}'`);
+    switch (cmd) {
+      case 'add':
+        ADM.SyncAddedData(data);
+        PMC.SyncAddedData(data);
+        break;
+      case 'update':
+        ADM.SyncUpdatedData(data);
+        PMC.SyncUpdatedData(data);
+        break;
+      case 'remove':
+        ADM.SyncRemovedData(data);
+        PMC.SyncRemovedData(data);
+        break;
+      default:
+        console.error('unrecognized command', cmd);
+    }
+    if (DBG) console.log(`SYSTEM_DBSYNC '${cmd}'\n`, data);
   });
 });
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// clone ADMData
-const MOD = Object.assign({ ...ADM }, { ...PMC }, { ...VM });
-const MIR = {};
+/// clone ADMData, PMC, VM into $ object
+const $$$ = Object.assign({}, { ...ADM }, { ...PMC }, { ...VM });
+const NEW = {};
 
-/// OVERRIDE SELECT ADM DATA METHODS //////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.AddTeacher = name => {
-  return new Promise((resolve, reject) => {
-    UR.NetCall('NET:SRV_DBADD', {
-      teachers: { name }
-    })
-      .then(rdata => resolve(rdata))
-      .catch(error => reject(error));
+NEW.Login = loginToken => {
+  const urs = window.URSESSION;
+  if (!urs) throw Error('unexpected missing URSESSION global');
+  return UR.NetCall('NET:SRV_SESSION_LOGIN', { token: loginToken }).then(rdata => {
+    if (DBG) console.log('login', rdata);
+    if (rdata.error) throw Error(rdata.error);
+    if (DBG) console.log('updating URSESSION with session data');
+    urs.SESSION_Token = rdata.token;
+    urs.SESSION_Key = rdata.key;
+    // also save globally
+    SESSION.DecodeAndSet(rdata.token);
+    SESSION.SetAccessKey(rdata.key);
+    //
+    ADM.GetSelectedStudentId();
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.SetClassesModelVisibility = isVisible => {};
+NEW.Logout = () => {
+  const urs = window.URSESSION;
+  if (!urs) throw Error('unexpected missing URSESSION global');
+  if (!urs.SESSION_Key) throw Error('missing URSESSION session key');
+  return UR.NetCall('NET:SRV_SESSION_LOGOUT', { key: urs.SESSION_Key }).then(rdata => {
+    console.log('logout', rdata);
+    if (rdata.error) throw Error(rdata.error);
+    console.log('removing session data from URSESSION');
+    if (urs.SESSION_Token && urs.SESSION_Key) {
+      urs.SESSION_Token = '';
+      urs.SESSION_Key = '';
+      SESSION.Clear();
+    } else throw Error('URSESSION key or token was not set');
+  });
+};
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+                                A D M - D A T A
+                                O V E R R I D E
+\* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.AddClassroom = name => {
+NEW.AddTeacher = name => {
+  console.log('addTeacher', name, typeof name);
+  if (typeof name !== 'string') throw Error('AddTeacher requires a single name');
+  return UR.DBQuery('add', {
+    teachers: { name }
+  });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW.SetClassesModelVisibility = isVisible => {};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW.AddClassroom = name => {
   // FIRES 'CLASSROOM_SELECT' classroomId, needsUpdating
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.AddGroup = groupName => {
+NEW.AddGroup = groupName => {
   // FIRES 'ADM_DATA_UPDATED'
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// this is a test routine; no ADMData routines require a delete group
 /// so this is here to just provide a stub.
-MIR.DeleteGroup = groupId => {
-  return new Promise((resolve, reject) => {
-    UR.NetCall('NET:SRV_DBREMOVE', {
-      groups: [groupId]
-    })
-      .then(rdata => resolve(rdata))
-      .catch(error => reject(error));
+NEW.DeleteGroup = groupId => {
+  return UR.DBQuery('remove', {
+    groups: { id: groupId }
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.UpdateGroup = (groupId, group) => {
-  return new Promise((resolve, reject) => {
-    const groupData = Object.assign({}, group, { id: groupId });
-    UR.NetCall('NET:SRV_DBUPDATE', {
-      groups: [groupData]
-    })
-      .then(rdata => resolve(rdata))
-      .catch(error => reject(error));
+/** update groups collection with new data
+ */
+NEW.UpdateGroup = (groupId, group) => {
+  const groupData = Object.assign({}, group, { id: groupId });
+  return UR.DBQuery('update', {
+    groups: groupData
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.AddStudents = (groupId, students) => {
+/** add a single student or a list of students to a group by Id
+ */
+NEW.AddStudents = (groupId, students) => {
   // Update the group
   if (!Array.isArray(students)) students = [students];
-  let group = MOD.GetGroup(groupId);
+  let group = $$$.GetGroup(groupId);
   if (group === undefined) {
     console.error('AddStudent could not find group', groupId);
     return;
@@ -97,23 +147,18 @@ MIR.AddStudents = (groupId, students) => {
     }
     group.students.push(student);
   });
-  // Now update groups, returning promise
-  return new Promise((resolve, reject) => {
-    MIR.UpdateGroup(groupId, group)
-      .then(rdata => {
-        resolve(rdata);
-      })
-      .catch(err => reject(err));
-  });
+  return NEW.UpdateGroup(groupId, group);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.DeleteStudent = (groupId, student) => {
+/** delete a student from a group by groupId
+ */
+NEW.DeleteStudent = (groupId, student) => {
   // Update the group
   if (typeof student !== 'string') {
     console.error('DeleteStudent arg2 must be string');
     return;
   }
-  let group = MOD.GetGroup(groupId);
+  let group = $$$.GetGroup(groupId);
   if (group === undefined) {
     console.error('DeleteStudent could not find group', groupId);
     return;
@@ -121,92 +166,90 @@ MIR.DeleteStudent = (groupId, student) => {
   // Remove the student
   group.students = group.students.filter(stu => student !== stu);
   // Now update groups, returning promise
-  return new Promise((resolve, reject) => {
-    MIR.UpdateGroup(groupId, group)
-      .then(rdata => {
-        resolve(rdata);
-        // FIRES 'ADM_DATA_UPDATED'
-      })
-      .catch(err => reject(err));
+  return NEW.UpdateGroup(groupId, group);
+};
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+                                P M C - D A T A
+                                O V E R R I D E
+\* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+NEW.PMC_PropAdd = name => {
+  const modelId = ASET.selectedModelId;
+  const propObj = { name, type: 'prop' };
+  return UR.DBQuery('add', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: propObj
+    }
+  });
+}; // m_graph.setNode(propId, { name });
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW.PMC_PropUpdate = (nodeId, newData) => {
+  const prop = m_graph.node(nodeId);
+  // make a copy of the prop with overwritten new data
+  // local data will be updated on DBSYNC event, so don't write it here
+  const propObj = Object.assign({}, prop, newData, { id: nodeId });
+  console.log('prop', prop, 'newdata', newData, 'propdata', propObj);
+  const modelId = ASET.selectedModelId;
+  // we need to update pmcdata which looks like
+  // { id, entities:[ { id, name } ] }
+  return UR.DBQuery('update', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: propObj
+    }
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.Login = loginToken => {
-  return new Promise((resolve, reject) => {
-    const urs = window.URSESSION;
-    if (!urs) throw Error('unexpected missing URSESSION global');
-    UR.NetCall('NET:SRV_SESSION_LOGIN', { token: loginToken }).then(rdata => {
-      console.log('login', rdata);
-      if (rdata.error) throw Error(rdata.error);
-      console.log('updating URSESSION with session data');
-      urs.SESSION_Token = rdata.token;
-      urs.SESSION_Key = rdata.key;
-      resolve(rdata);
-    });
-  }).catch(err => reject(err));
-};
+NEW.PMC_PropDelete = propId => {
+  const modelId = ASET.selectedModelId;
+  const propObj = { id: propId };
+  return UR.DBQuery('remove', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: propObj
+    }
+  });
+}; // m_graph.removeNode(propid)
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.Logout = () => {
-  return new Promise((resolve, reject) => {
-    const urs = window.URSESSION;
-    if (!urs) throw Error('unexpected missing URSESSION global');
-    if (!urs.SESSION_Key) throw Error('missing URSESSION session key');
-    UR.NetCall('NET:SRV_SESSION_LOGOUT', { key: urs.SESSION_Key }).then(rdata => {
-      console.log('logout', rdata);
-      if (rdata.error) throw Error(rdata.error);
-      console.log('removing session data from URSESSION');
-      if (urs.SESSION_Token && urs.SESSION_Key) {
-        urs.SESSION_Token = '';
-        urs.SESSION_Key = '';
-      } else throw Error('URSESSION key or token was not set');
-      resolve(rdata);
-    });
-  }).catch(err => reject(err));
-};
+NEW.PMC_SetPropParent = (node, parent) => {}; // m_graph.setParent(node, parent)
+NEW.PMC_MechAdd = (sourceId, targetId, label) => {}; // m_graph.setEdge
+NEW.PMC_MechUpdate = (origMech, newMech) => {}; // m_graph.setEdge()
+NEW.PMC_MechDelete = mechId => {}; // m_graph.removeEdge()
+NEW.PMC_AddEvidenceLink = (rsrcId, note) => {}; // a_evidence.push()
+NEW.PMC_DeleteEvidenceLink = evId => {}; // a_evidence.splice()
+NEW.SetEvidenceLinkPropId = (evId, propId) => {}; // a_evidence.find() evidence
+NEW.SetEvidenceLinkMechId = (evId, mechId) => {}; // a_evidence.find() evidence
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.ModelTitleUpdate = (modelId, title) => {
+/// STATE CALLS
+/// $$$.SelectTeacher(teacherId)
+/// $$$.SelectClassroom(classroomId = GetClassroomIdByStudent)
+/// $$$.Login sets .selectedStudentId
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+                                   O T H E R
+                                O V E R R I D E
+\* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW.ModelTitleUpdate = (modelId, title) => {
   // FIRES 'MODEL_TITLE_UPDATED' title
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.NewModel = groupId => {
+NEW.NewModel = groupId => {
   // FIRES 'ADM_DATA_UPDATED'
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.UpdateCriteria = criteria => {}; //
+NEW.UpdateCriteria = criteria => {}; //
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.UpdateCriteriaList = criteria => {}; //
+NEW.UpdateCriteriaList = criteria => {}; //
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.UpdateSentenceStarter = sstarter => {}; //
+NEW.UpdateSentenceStarter = sstarter => {}; //
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.UpdateRatingsDefinitions = (classId, rateDef) => {}; //
-
-/// PMC DATA MOD METHODS //////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MIR.ClearModel = () => {};
-MIR.InitializeModel = (model, resources) => {};
-MIR.BuildModel = () => {
-  // derived elements
-  // a_props = nodes
-  // a_mechs = edges
-  // a_components = []; // props that aren't children
-  // h_children = new Map(); // property children
-  // h_outedges = new Map(); // outedges for each prop
-  // a_resources = []; // resource obj { id, label, notes, type, url, links }
-  // a_evidence = []; // evidence link {  id, propId, rsrcId, note }
-  // h_evidenceByEvId = new Map(); // id -> evidence
-  // h_evidenceByProp = new Map(); // prop -> [ evidence, ... ]
-  // h_evlinkByResource = new Map(); //
-};
-MIR.PMC_AddProp = node => {}; // m_graph.setNode()
-MIR.PMC_SetPropParent = (node, parent) => {}; // m_graph.setParent(node, parent)
-MIR.PMC_PropDelete = propid => {}; // m_graph.removeNode(propid)
-MIR.PMC_MechAdd = (sourceId, targetId, label) => {}; // m_graph.setEdge
-MIR.PMC_MechUpdate = (origMech, newMech) => {}; // m_graph.setEdge()
-MIR.PMC_MechDelete = mechId => {}; // m_graph.removeEdge()
-MIR.PMC_AddEvidenceLink = (rsrcId, note) => {}; // a_evidence.push()
-MIR.PMC_DeleteEvidenceLink = evId => {}; // a_evidence.splice()
-MIR.SetEvidenceLinkPropId = (evId, propId) => {}; // a_evidence.find() evidence
-MIR.SetEvidenceLinkMechId = (evId, mechId) => {}; // a_evidence.find() evidence
+NEW.UpdateRatingsDefinitions = (classId, rateDef) => {}; //
 
 /// MODULE HELPERS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -214,56 +257,78 @@ MIR.SetEvidenceLinkMechId = (evId, mechId) => {}; // a_evidence.find() evidence
 /// DEBUG /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};
-window.ur.DATATEST = MIR;
+window.ur.DATATEST = NEW;
+// - - - - - - - - - - - - - - - - - - - - -
 // test update group
 window.ur.tupg = id => {
   const g = ADM.GetGroup(id);
   g.name = `${g.name}${g.name}`;
-  MIR.UpdateGroup(id, g).then(data => {
+  NEW.UpdateGroup(id, g).then(data => {
     console.log('updategroup', data);
   });
 };
 // test add teacher
 window.ur.taddt = name => {
-  MIR.AddTeacher(name).then(data => {
+  NEW.AddTeacher(name).then(data => {
     console.log('addteacher', data);
+    const teacher = data.teachers[0];
     UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
   });
 };
 // test add students to group
 window.ur.tadds = (groupId, students) => {
-  MIR.AddStudents(groupId, students).then(data => {
+  NEW.AddStudents(groupId, students).then(data => {
     console.log('addstudents', data);
     // FIRES 'ADM_DATA_UPDATED'
     UR.Publish('ADM_DATA_UPDATED');
   });
+  return `adding ${JSON.stringify(students)} to group ${groupId}`;
 };
 // test delete student from group
 window.ur.tdels = (groupId, student) => {
-  MIR.DeleteStudent(groupId, student).then(data => {
+  NEW.DeleteStudent(groupId, student).then(data => {
     console.log('deletestudent', data);
     // FIRES 'ADM_DATA_UPDATED'
     UR.Publish('ADM_DATA_UPDATED');
   });
+  return `deleting student  ${student} from group ${groupId}`;
 };
 // test remove group
-window.ur.trmg = (groupId, student) => {
-  MIR.DeleteGroup(groupId).then(data => {
-    console.log('deletegroup', data);
+window.ur.trmg = groupId => {
+  NEW.DeleteGroup(groupId).then(data => {
+    console.log('deletegroup', JSON.stringify(data));
     // FIRES 'ADM_DATA_UPDATED'
     UR.Publish('ADM_DATA_UPDATED');
   });
+  return `deleting group ${groupId}`;
 };
+// - - - - - - - - - - - - - - - - - - - - -
+// test pmc entity delete
+window.ur.tpropd = propId => {
+  NEW.PMC_PropDelete(propId).then(data => {
+    console.log('deleteprop', data);
+  });
+  return `deleting pmc prop`;
+};
+// - - - - - - - - - - - - - - - - - - - - -
+window.ur.tpropa = name => {
+  NEW.PMC_PropAdd(name).then(data => {
+    console.log('addprop', data);
+  });
+  return `adding pmc prop`;
+};
+
+// - - - - - - - - - - - - - - - - - - - - -
 // test login
 window.ur.tlogin = token => {
-  MIR.Login(token).then(() => {
+  $$$.Login(token).then(() => {
     window.ur.clientinfo();
   });
   return 'logging in...';
 };
 // test logout
 window.ur.tlogout = () => {
-  MIR.Logout().then(() => {
+  $$$.Logout().then(() => {
     window.ur.clientinfo();
   });
   return 'logging out...';
@@ -271,8 +336,9 @@ window.ur.tlogout = () => {
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default MOD;
-/// export default MODULE; // import MOD from './module'
+/// $ is the combined ADM, PMC, VM plus overrides
+export default $$$;
+/// export default MODULE; // import $ from './module'
 /// export default MyClass; // import MyClass from  './module'
 /// export { A, B }; // import { A, B } from './module'
 /// export { A as B }; // import { B } from './module'

@@ -3,9 +3,12 @@
 
 DATABASE SERVER
 
+The most readable LokiJS documentation is at:
+http://techfort.github.io/LokiJS/
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
-const DBG = false;
+const DBG = true;
 
 /// LOAD LIBRARIES ////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -29,7 +32,7 @@ const DATASETPATH = PATH.join(__dirname, '/datasets/meme');
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 let m_options; // saved initialization options
 let m_db; // loki database
-const { DBKEYS, DBCMDS } = DATAMAP; // key lookup for incoming data packets
+const { DBCMDS } = DATAMAP; // key lookup for incoming data packets
 let send_queue = []; // queue outgoing data
 let recv_queue = []; // queue incoming requests
 
@@ -50,6 +53,9 @@ DB.InitializeDatabase = (options = {}) => {
   FS.ensureDirSync(PATH.dirname(db_file));
   if (!FS.existsSync(db_file)) {
     console.log(PR, `CREATING NEW DATABASE FILE '${db_file}'`);
+  }
+  if (options.memehost !== 'devserver') {
+    console.log(PR, `non-devserver mode:'${options.memehost}' will not overwrite dataset`);
   }
 
   // initialize database with given options
@@ -86,7 +92,7 @@ DB.InitializeDatabase = (options = {}) => {
       const fname = `'datasets/${DB_CONFIG.dataset}'`;
       console.log(PR, `${CCRIT}DEV OVERRIDE${TR}...reloading database from ${fname}`);
     }
-    DBKEYS.forEach(name => f_LoadCollection(name));
+    DATAMAP.Collections().forEach(name => f_LoadCollection(name));
     console.log(PR, `database ready`);
     console.log(PR, fout_CountCollections());
     m_db.saveDatabase();
@@ -98,7 +104,7 @@ DB.InitializeDatabase = (options = {}) => {
   } // end f_DatabaseInitialize
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function f_AutosaveStatus() {
-    const status = fout_CountCollections();
+    const status = fout_CountCollections() || '(records updated)';
     console.log(PR, `AUTOSAVING! ${status}`);
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -119,7 +125,7 @@ DB.InitializeDatabase = (options = {}) => {
     collection.on('insert', u_CopyLokiId);
     // if not running devserver, don't overwrite database
     if (options.memehost !== 'devserver') {
-      console.log(PR, `loaded '${col}' w/ ${collection.count()} elements`);
+      console.log(PR, `${options.memehost}: using '${col}' w/ ${collection.count()} elements`);
       return;
     }
     // otherwise...reset the dataset from template .db.js files
@@ -132,15 +138,28 @@ DB.InitializeDatabase = (options = {}) => {
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function fout_CountCollections() {
     let out = '';
-    DBKEYS.forEach(colname => {
-      out += count(colname);
+    DATAMAP.Collections().forEach(colname => {
+      out += f_count(colname);
     });
-    //
-    function count(col) {
-      return `${col}: ${m_db.getCollection(col).count()} `;
-    }
-    //
     return out;
+  }
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  const map_count = new Map();
+  function f_count(col) {
+    let out;
+    const currcount = m_db.getCollection(col).count();
+    let lastcount = map_count.get(col);
+    if (lastcount === undefined) {
+      out = `=${currcount}`;
+      lastcount = currcount;
+    } else {
+      const delta = currcount - lastcount;
+      if (delta > 0) out = `=${currcount} (+${delta})`;
+      if (delta < 0) out = `=${currcount} (-${Math.abs(delta)})`;
+    }
+    map_count.set(col, currcount);
+    if (out) return `${col}${out} `;
+    return '';
   }
 }; // Initialize Database
 
@@ -158,15 +177,15 @@ function f_GetCollectionData(col) {
  * Utility that sends database synch changes to all subscribing clients.
  * It is called whenever a change is written to the database.
  */
-function m_DatabaseChangeEvent(dbEvent, data) {
-  if (!DBCMDS.includes(dbEvent)) throw Error(`unknown change event '{dbEvent}'`);
-  data.cmd = dbEvent;
+function m_DatabaseChangeEvent(cmd, data) {
+  if (!DATAMAP.ValidateCommand(cmd)) throw Error(`unknown change event '{cmd}'`);
+  data.cmd = cmd;
   // send data changes to all clients
   UNET.NetPublish('NET:SYSTEM_DBSYNC', data);
 }
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API:
+/** MESSAGE HANDLER: 'NET:SRV_DBGET'
  * Return the entire admin database structure. Used when initializing client
  * app.
  */
@@ -174,8 +193,8 @@ DB.PKT_GetDatabase = pkt => {
   LOGGER.Write(pkt.Info(), `getdatabase`);
   const adm_db = {};
 
-  DBKEYS.forEach(colname => {
-    adm_db[`a_${colname}`] = f_GetCollectionData(colname);
+  DATAMAP.Collections().forEach(colname => {
+    adm_db[colname] = f_GetCollectionData(colname);
   });
   // return object for transaction; URSYS will automatically return
   // to the netdevice that called this
@@ -183,14 +202,16 @@ DB.PKT_GetDatabase = pkt => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API:
- * Add an element or elements to the specificed collection.
- * All properties that match an existing DBKEY are considered inputs.
- * The property values must be objects WITHOUT an id property, or an
- * array of such objects. Returns the input with ids added to each object.
- * If the call fails, the error property will be set as well.
- * @param {NetMessage} pkt - packet with data object as described above
- * @returns {Object} - data to return to caller
+/** MESSAGE HANDLER: 'NET:SRV_DBADD'
+ *  Add an element or elements to the specificed collection.
+ *  All properties that match an existing DBKEY are considered inputs.
+ *  The property values must be objects WITHOUT an id property, or an
+ *  array of such objects. Returns the input with ids added to each object.
+ *  If the call fails, the error property will be set as well.
+ *  data.cmd 'add'
+ *  data.collectionName = obj || [ obj ], returns objs with id set
+ *  @param {NetMessage} pkt - packet with data object as described above
+ *  @returns {Object} - data to return to caller
  */
 DB.PKT_Add = pkt => {
   const session = UNET.PKT_Session(pkt);
@@ -198,37 +219,108 @@ DB.PKT_Add = pkt => {
   //
   const data = pkt.Data();
   const results = {};
-  const collections = DATAMAP.ExtractCollections(data);
-  collections.forEach(entry => {
-    let [colName, colObjs] = entry;
-    const dbc = m_db.getCollection(colName);
-    // INSERT entries
-    let inserted = dbc.insert(colObjs);
-    if (!Array.isArray(inserted)) inserted = [inserted];
-    // RETURN ids
-    const insertedIds = inserted.map(item => item.id);
-    // grab filtered values
-    const updated = dbc
-      .chain()
-      .find({ id: { $in: insertedIds } })
-      .data({ removeMeta: true });
-    results[colName] = updated;
-    console.log(PR, `ADDED: ${JSON.stringify(updated)}`);
-  });
+  let reskey;
+  const added = [];
+  let error = '';
+  const queries = DATAMAP.ExtractQueryData(data);
+  // query is object with { colkey, subkey, value }
+  queries.forEach(query => {
+    let { colkey, subkey, value } = query;
+    const dbc = m_db.getCollection(colkey);
+    let retval;
+    // add!
+    if (!subkey) {
+      // IS NORMAL ADD
+      if (DATAMAP.IsValidId(value.id)) {
+        error += `${colkey} should not have an id in ${JSON.stringify(value)}`;
+        return;
+      }
+      reskey = colkey;
+      results[reskey] = results[reskey] || [];
+      let inserted = dbc.insert(value);
+      // result from add might be an array or not, so make it an array
+      if (!Array.isArray(inserted)) inserted = [inserted];
+      const insertedIds = inserted.map(item => item.id);
+      const newObjects = dbc
+        .chain()
+        .find({ id: { $in: insertedIds } })
+        .data({ removeMeta: true });
+      results[reskey] = newObjects;
+    } else {
+      // IS SUBKEY ADD
+      reskey = `${colkey}.${subkey}`;
+      results[reskey] = results[reskey] || [];
+      if (!DATAMAP.IsValidId(value.id)) {
+        error += `${colkey} needs valid id in ${JSON.stringify(value)}`;
+        return;
+      }
+      const colid = value.id;
+      const found = dbc
+        .chain()
+        .find({ id: { $eq: colid } })
+        .update(match => {
+          // now that we have the matching record,
+          // need to update the list
+          // subrecord is an array of objs to add
+          if (!value[subkey]) {
+            error += `${reskey} value missing subkey, got ${JSON.stringify(value)}`;
+            return; // process error outside query loop
+          }
+          if (value[subkey].id) {
+            error += `${reskey} should not have an id prop ${JSON.stringify(newobj)}`;
+            return; // process error outside query loop
+          }
+
+          const list = match[subkey];
+          if (!DATAMAP.HasValidIdObjs(list)) {
+            error += `${reskey} list missing ids ${JSON.stringify(list)}`;
+            return; // process error outside query loop
+          }
+          // we're only handling entities with magic inserts
+          // because these aren't automatically handled by loki
+          if (subkey === 'entities' || subkey === 'commentThreads') {
+            // HACKY ensure that entityids are not reused during a server run
+            // so researchers can clearly see the user behaviors in the log
+            let maxid = list.reduce((acc, cv) => {
+              return cv.id > acc ? cv.id : acc;
+            }, 0);
+            m_SetMaxEntityId(maxid);
+            //
+            const newobj = Object.assign({ id: m_NextEntityId() }, value[subkey]);
+            // save data
+            list.push(newobj);
+            added.push(newobj);
+            match[subkey] = list;
+          }
+
+          results[reskey].push(...added);
+        });
+      if (DBG) {
+        if (!found.count()) error += `could not match id:${colid} in ${colkey}.${subkey}`;
+        else console.log(PR, `PKT_Add: found id:${colid} in collection:${colkey}.${subkey}`);
+      }
+    } // if subkey
+    if (DBG) console.log(PR, `added '${colkey}': ${JSON.stringify(results[reskey])}`);
+  }); // queries foreach
+
+  if (error) {
+    console.log(PR, 'PKT_Add:', error);
+    return { error };
+  }
   // send update to network
-  m_DatabaseChangeEvent('add', results, pkt);
+  m_DatabaseChangeEvent('add', results);
   // return
   return results;
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API:
- * Update a collection.
- * All properties that match an existing DBKEY are considered inputs.
- * The property values must be objects WITH an id property.
- * If the call fails, the error property will be set as well.
- * @param {NetMessage} pkt - packet with data object as described above
- * @returns {Object} - data to return (including error if any)
+/** MESSAGE HANDLER: 'NET:SRV_DBUPDATE'
+ *  Update a collection.
+ *  All properties that match an existing DBKEY are considered inputs.
+ *  The property values must be objects WITH an id property.
+ *  If the call fails, the error property will be set as well.
+ *  @param {NetMessage} pkt - packet with data object with collection keys
+ *  @returns {Object} - data to return (including error if any)
  */
 DB.PKT_Update = pkt => {
   const session = UNET.PKT_Session(pkt);
@@ -237,54 +329,63 @@ DB.PKT_Update = pkt => {
   const data = pkt.Data();
   const results = {};
   let error = '';
-  const collections = DATAMAP.ExtractCollections(data);
-  collections.forEach(entry => {
-    let [colName, colObjs] = entry;
-    const dbc = m_db.getCollection(colName);
-    let updatedIds = [];
-    // 1. colObjs is the objects of the collection
-    // 2. grab ids from each colObj
-    // 3. find each object, then update it
-    colObjs.forEach((ditem, index) => {
-      const { id } = ditem;
-      if (!id) {
-        error += `item[${index}] has no id`;
-        return { error };
-      }
-      if (DBG) console.log('looking for id', id);
-      dbc
-        .chain()
-        .find({ id: { $eq: id } })
-        .update(item => {
-          if (DBG) {
-            console.log(PR, `updating ${JSON.stringify(item)}`);
-            console.log(PR, `with ${JSON.stringify(ditem)}`);
-          }
-          Object.assign(item, ditem);
-        });
-      updatedIds.push(id);
-    }); // colObjs
-    // return updated objects
-    const updated = dbc
+  const queries = DATAMAP.ExtractQueryData(data);
+  // queries is object with { colkey, subkey, value }
+  queries.forEach(query => {
+    let { colkey, subkey, value } = query;
+    const dbc = m_db.getCollection(colkey);
+    if (!DATAMAP.IsValidId(value.id)) {
+      error += `${colkey} no id in ${JSON.stringify(value)}`;
+      return;
+    }
+    const colid = value.id;
+    let retval;
+    // update!
+    const found = dbc
       .chain()
-      .find({ id: { $in: updatedIds } })
-      .data({ removeMeta: true });
-    results[colName] = updated;
-    console.log(PR, `UPDATE: ${JSON.stringify(updated)}`);
-  }); // collections forEach
+      .find({ id: { $eq: colid } })
+      .update(record => {
+        /*/
+          record is a matching update object that we can modify it's always the
+          matching top-level record in the collection however, how we process it
+          depends on whether there is a subkey or not.
+          /*/
+        let reskey = colkey;
+        if (subkey) {
+          reskey = `${colkey}.${subkey}`;
+          retval = DATAMAP.MutateObjectProp(record, subkey, value[subkey]);
+        } else {
+          retval = DATAMAP.MutateObject(record, value);
+        }
+        //
+        results[reskey] = results[reskey] || [];
+        results[reskey].push(retval); // update results object
+        if (DBG) console.log(PR, `updated: ${reskey} ${JSON.stringify(retval)}`);
+      });
+    if (DBG) {
+      if (!found.count()) error += `could not match id:${colid} in ${colkey}.${subkey}`;
+      else console.log(PR, `PKT_Update: found id:${colid} in collection:${colkey}.${subkey}`);
+    }
+  }); // queries forEach
+
   // was there an error?
-  if (error) return { error };
+  if (error) {
+    console.log(PR, 'PKT_Update:', error);
+    return { error };
+  }
   // otherwise send update to network
-  m_DatabaseChangeEvent('update', results, pkt);
+  m_DatabaseChangeEvent('update', results);
   // return
   return results;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API:
+/** MESSAGE HANDLER: 'NET:SRV_DBREMOVE'
  * Delete elements from a collection.
  * All properties that match an existing DBKEY are considered inputs.
  * The property values must be an id or array of ids
  * If the call fails, the error property will be set as well.
+ * data.cmd 'remove'
+ * data.collectionName = id || [ id ], return deleted items
  * @param {NetMessage} pkt - packet with data object as described above
  * @param {NetMessage} pkt.data - data containing parameters
  * @returns {Object} - data to return (including error if any)
@@ -295,22 +396,121 @@ DB.PKT_Remove = pkt => {
   //
   const data = pkt.Data();
   const results = {};
+  const removed = [];
+  const updated = [];
   let error = '';
-  const collections = DATAMAP.ExtractCollections(data);
-  collections.forEach(entry => {
-    let [colName, idsToDelete] = entry;
-    const dbc = m_db.getCollection(colName);
-    // return deleted objects
-    const removed = dbc.chain().find({ id: { $in: idsToDelete } });
-    const matching = removed.branch().data({ removeMeta: true });
-    results[colName] = matching;
-    removed.remove();
-    console.log(PR, `REMOVED: ${JSON.stringify(matching)}`);
-  }); // collections forEach
+  const queries = DATAMAP.ExtractQueryData(data);
+  // query is object with { colkey, subkey, value }
+  queries.forEach(query => {
+    let { colkey, subkey, value } = query;
+    if (DBG) console.log(PR, `${colkey} has ${JSON.stringify(value)}`);
+    // process queries
+    const dbc = m_db.getCollection(colkey);
+    if (!DATAMAP.IsValidId(value.id)) {
+      error += `${colkey} no id in ${JSON.stringify(value)}`;
+      return;
+    }
+    const colid = value.id;
+    let reskey = colkey;
+    // remove
+    const found = dbc.chain().find({ id: { $eq: colid } }); // e.g. pmcdata model
+    if (found.count() === 0) {
+      error += `remove could not find matching ${colid} in ${colkey} collection.`;
+      if (DBG) console.log(PR, `PKT_Remove: could not find record ${colid} i ${colkey} to remove.`);
+      return;
+    }
+    if (DBG) console.log(PR, `remove found match for id:${colid} in collection:${colkey}`);
+    if (!subkey) {
+      // IS NORMAL REMOVE - pure database remove
+      const reskey = colkey;
+      results[reskey] = results[reskey] || [];
+      const retval = found.branch().data({ removeMeta: true });
+      found.remove();
+      results[reskey].push(retval);
+      if (DBG) console.log(PR, `${colkey} delete ${JSON.stringify(retval)}`);
+    } else {
+      // IS SUBKEY REMOVE - database modify and update record
+      found.update(record => {
+        const reskey = `${colkey}.${subkey}`;
+        results[reskey] = results[reskey] || [];
+        const subrecord = record[subkey]; // this is what we want to modify
+        if (!DATAMAP.IsValidId(value[subkey].id)) {
+          error += `${reskey} no id in ${JSON.stringify(value[subkey])}`;
+          return; // exit update(), process afterwards
+        }
+        const subid = value[subkey].id;
+        if (DBG) console.log(PR, `matching id:${subid} in ${reskey} list...`);
+        let keep = subrecord.filter(element => {
+          const b_delete = subid === element.id;
+          if (b_delete) {
+            removed.push(element);
+            if (DBG) console.log(PR, `.. removing ${JSON.stringify(element).substring(0, 40)}`);
+          }
+          return !b_delete;
+        }); // filter subrecord
+
+        // keep[]    - has items to save (probably more than one)
+        // removed[] - saved the removed items (probably just be one)
+
+        // if there are no removed items, that is a problem
+        if (!removed.length) {
+          error += `no matching subkey id ${subid} in subrecord ${JSON.stringify(record[subkey])}`;
+          if (DBG) console.log(PR, `PKT_Remove: no matching id ${subid} in ${colkey}.${subkey}`);
+          return; // exit update(), process afterwards
+        }
+
+        // special case processing
+        if (subkey === 'entities') {
+          if (DBG) console.log(PR, `scrubbing entities referring to id:${subid}`);
+          // now remove linked entities
+          keep.forEach(entity => {
+            // for every removed entity, remove links to it in kept entities
+            removed.forEach(r => {
+              if (entity.propId === r.id) {
+                if (DBG)
+                  console.log(PR, `.. evidence ${entity.id} removed propId ${entity.propId}`);
+                entity.propId = undefined;
+                updated.push(entity);
+              } // if propId
+              if (entity.parent === r.id) {
+                if (DBG) console.log(PR, `.. prop ${entity.id} removed parent ${entity.parent}`);
+                entity.parent = undefined;
+                updated.push(entity);
+              } // if parent
+              if (entity.type === 'mech') {
+                let changed = false;
+                if (entity.source === r.id) {
+                  changed = true;
+                  if (DBG) console.log(PR, `.. mech ${entity.id} removed source ${entity.source}`);
+                  entity.source = undefined;
+                }
+                if (entity.target === r.id) {
+                  changed = true;
+                  if (DBG) console.log(PR, `.. mech ${entity.id} removed target ${entity.target}`);
+                  entity.target = undefined;
+                }
+                if (changed) updated.push(entity);
+              } // if mech
+            }); // end removed forEach
+          }); // end keep forEach
+        } // end special case entities
+
+        // now remove child nodes
+        record[subkey] = keep;
+        results[reskey].push(...removed);
+        if (DBG) console.log(PR, `${reskey} deleted`, JSON.stringify(removed));
+        if (DBG) console.log(PR, `${reskey} updated`, JSON.stringify(updated));
+      }); // end found update
+    } // end if-else subkey
+  }); // queries
   // was there an error?
-  if (error) return { error };
+  if (error) {
+    console.log(PR, 'PKT_Remove:', error);
+    return { error };
+  }
   // otherwise send update to network
-  m_DatabaseChangeEvent('remove', results, pkt);
+  m_DatabaseChangeEvent('remove', results);
+  if (updated.length) m_DatabaseChangeEvent('update', { 'pmcData.entities': updated });
   // return
   return results;
 };
@@ -362,6 +562,17 @@ function u_CopyLokiId(input) {
     item.id = item.$loki;
     // console.log(PR, '*** non-array output.id', item.id);
   });
+}
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+let m_max_entityid = 0;
+function m_SetMaxEntityId(id) {
+  if (id > m_max_entityid) m_max_entityid = id;
+}
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function m_NextEntityId() {
+  return ++m_max_entityid;
 }
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////

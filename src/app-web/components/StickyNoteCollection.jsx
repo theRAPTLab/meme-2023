@@ -46,7 +46,7 @@ VBadge
     VBadges independently display the read/unread status of comments,
     creating new comments, and updating existing comments.
     
-    They trigger StickyNoteColleciton via the same STICKY:OPEN call.
+    They trigger StickyNoteCollection via the same STICKY:OPEN call.
     
     VBadges also maintain an array of Evidence Link badges.
 
@@ -59,22 +59,26 @@ StickyNoteCollection
     There is only a single StickyNoteCollection object in ViewMain.  It gets 
     repurposed for each note that is opened.
     
-    StickNotes are opened via an URSYS.Publish('STICKY:OPEN') call.
+    StickNotesCollection are opened via an URSYS.Publish('STICKY:OPEN') call.
     
-    StickyNotes handle all the data for the StickyNotes, passing
-    individual comments as props: onStartEdit, onUpdateComment.
+    StickNotesCollection does not handle the data for StickyNotes.
+    StickyNotes handles data itself.
     
-    Updates to the comment data are sent directly to PMCData via a
-    PMC.UpdateComments() call.
-    
+    StickNotesCollection manages the read status of notes, marking
+    each notes as read when it closes.
+        
 StickyNote
 
     StickyNotes display individual comments from different authors.
     
     Text changes on the text input field are updated locally via the 
-    props reference to the StickyNoteCollection's comment object.  We
-    then trigger onUpdateComment to tell StickyNoteCollection to 
-    send the updated comment info to PMCData.
+    props reference to the StickyNoteCollection's comment object.  
+    
+    Updates to the comment data are sent directly to PMCData via a
+    PMC.CommentThreadUpdate() call.
+
+    We then trigger onUpdateComment to tell StickyNoteCollection to 
+    exit edit state.
 
     props
       
@@ -164,7 +168,7 @@ class StickyNoteCollection extends React.Component {
   DoOpenSticky(data) {
     if (DBG) console.log(PKG, 'DoOpenSticky', data);
     const { parentId, x, y } = data;
-    let comments = PMC.GetComments(parentId);
+    let comments = PMC.GetCommentThreadComments(parentId);
     let isBeingEdited = false;
     // if no comments yet, add an empty comment automatically
     if (comments === undefined || comments.length === 0) {
@@ -183,6 +187,7 @@ class StickyNoteCollection extends React.Component {
     });
   }
 
+  // User has clicked on "Comment" button on the StickyNoteCollection
   DoAddComment() {
     const author = ADM.GetSelectedStudentId();
     const starter = ADM.GetSentenceStartersByClassroom().sentences;
@@ -196,7 +201,7 @@ class StickyNoteCollection extends React.Component {
   // Update our existing data directly from PMC.
   DoStickyUpdate() {
     const { parentId } = this.state;
-    let comments = PMC.GetComments(parentId);
+    let comments = PMC.GetCommentThreadComments(parentId);
     if (DBG) console.log(PKG, 'DoStickyUpdate with comments', comments);
     if (DBG) console.table(comments);
     this.setState({
@@ -204,10 +209,12 @@ class StickyNoteCollection extends React.Component {
     });
   }
 
-  DoSaveSticky() {
-    const { parentId, comments } = this.state;
-    PMC.UpdateComments(parentId, comments);
-  }
+  // this might not be necessary anymore since StickyNotes now take care of their own saving
+  //   DoSaveSticky() {
+  //     const { parentId, comments } = this.state;
+  //     console.error('StickyNoteCllection.DoSaveSticky needs to be reviewed');
+  //     PMC.CommentThreadUpdate(parentId, comments);
+  //   }
 
   DoCloseSticky() {
     if (DBG) console.log(PKG, 'DoCloseSticky');
@@ -220,19 +227,24 @@ class StickyNoteCollection extends React.Component {
       const comments = state.comments.filter(c => {
         return String(c.text).trim() !== '';
       });
+
       const author = ADM.GetSelectedStudentId();
       comments.forEach(comment => {
         if (comment.readBy.includes(author)) return;
         comment.readBy.push(author);
         UTILS.RLog('CommentMarkRead', `"${comment.text}" read by "${author}"`);
       });
+
+      // now save it
+      PMC.CommentThreadUpdate(this.state.parentId, comments);
+
       if (DBG) console.log(PKG, 'DoCloseSticky: comments should be:');
       if (DBG) console.table(comments);
       return {
         comments,
         isHidden: true
       };
-    }, this.DoSaveSticky);
+    });
   }
 
   OnReplyClick(e) {
@@ -256,32 +268,37 @@ class StickyNoteCollection extends React.Component {
    * @param {Object} data - {comment} [action] - `action` is used for delete
    */
   OnUpdateComment(data) {
-    if (DBG) console.log(PKG, 'OnUpdateComment: comments', data);
-    let { comments } = this.state;
-    if (data === undefined) {
-      console.error(PKG, "OnUpdateComment got undefined data.  This should'nt happen");
-    } else if (data.action && data.action === 'delete') {
-      // Handle Delete Request
-      comments = comments.filter(co => {
-        return co.id !== data.comment.id;
-      });
-      UTILS.RLog('CommentDelete', `"${data.comment.text}" from "${this.state.parentId}"`);
-    } else {
-      // Regular data update
-      const index = comments.findIndex(co => co.id === data.comment.id);
-      if (index > -1) comments.splice(index, 1, data.comment); // ignore if it's been culled
-      UTILS.RLog(
-        'CommentUpdate',
-        `"${data.comment.text}" with criteria "${data.comment.criteriaId}" on "${this.state.parentId}"`
-      );
-    }
-    this.setState(
-      {
-        comments,
-        isBeingEdited: false
-      },
-      this.DoSaveSticky
-    );
+    // StickyNote now handles data updates.
+    // We just need to update the Collection view
+    this.setState({ isBeingEdited: false });
+
+    // old code
+    // if (DBG) console.log(PKG, 'OnUpdateComment: comments', data);
+    // let { comments } = this.state;
+    // if (data === undefined) {
+    //   console.error(PKG, "OnUpdateComment got undefined data.  This should'nt happen");
+    // } else if (data.action && data.action === 'delete') {
+    //   // Handle Delete Request
+    //   comments = comments.filter(co => {
+    //     return co.id !== data.comment.id;
+    //   });
+    //   UTILS.RLog('CommentDelete', `"${data.comment.text}" from "${this.state.parentId}"`);
+    // } else {
+    //   // Regular data update
+    //   const index = comments.findIndex(co => co.id === data.comment.id);
+    //   if (index > -1) comments.splice(index, 1, data.comment); // ignore if it's been culled
+    //   UTILS.RLog(
+    //     'CommentUpdate',
+    //     `"${data.comment.text}" with criteria "${data.comment.criteriaId}" on "${this.state.parentId}"`
+    //   );
+    // }
+    // this.setState(
+    //   {
+    //     comments,
+    //     isBeingEdited: false
+    //   },
+    //   this.DoSaveSticky
+    // );
   }
 
   OnCloseClick() {
@@ -321,6 +338,7 @@ class StickyNoteCollection extends React.Component {
             return (
               <StickyNote
                 comment={comment}
+                refId={parentId}
                 key={parentId + comment.id}
                 OnStartEdit={this.OnStartEdit}
                 OnUpdateComment={this.OnUpdateComment}

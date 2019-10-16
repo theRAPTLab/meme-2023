@@ -153,9 +153,9 @@ class VBadge {
     // -- first clear the group in case objects have changed
     this.gEvLinkBadges.clear();
     if (this.evlinks) {
-      // First sort evlinks by number
+      // First sort evlinks by numberLabel
       const evlinks = this.evlinks.sort((a, b) => {
-        return a.number > b.number ? 1 : -1;
+        return a.numberLabel > b.numberLabel ? 1 : -1;
       });
       // Then draw each badge
       evlinks.forEach(evlink => {
@@ -175,7 +175,7 @@ class VBadge {
     // Set Current Read/Unreaad status
     let hasNoComments;
     let hasUnreadComments;
-    const comments = PMC.GetComments(vparent.id);
+    const comments = PMC.GetCommentThreadComments(vparent.id);
     if (comments === undefined) {
       hasNoComments = true;
       hasUnreadComments = false;
@@ -282,7 +282,7 @@ VBadge.SVGEvLink = (evlink, vparent) => {
   gBadge.gCircle.attr({ cursor: 'pointer' });
 
   gBadge.gLabel = gBadge
-    .text(evlink.number)
+    .text(evlink.numberLabel)
     .font({ fill: '#fff', size: '1em', anchor: 'middle' })
     .move(m_pad, m_pad / 2)
     .attr({ cursor: 'pointer' });

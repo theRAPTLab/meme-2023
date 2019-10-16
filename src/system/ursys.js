@@ -15,7 +15,7 @@ import CENTRAL from './ur-central';
 import EXEC from './ur-exec';
 import ReloadOnViewChange from './util/reload';
 import NetMessage from './common-netmessage';
-import URLink from './common-urlink';
+import URLink from './ur-link';
 import REFLECT from './util/reflect';
 import SESSION from './common-session';
 
@@ -66,6 +66,16 @@ const { Call, Signal } = ULINK;
 const { NetPublish, NetSubscribe, NetUnsubscribe } = ULINK;
 const { NetCall, NetSignal } = ULINK;
 
+function DBQuery(cmd, data) {
+  if (!data.key) {
+    const accessKey = SESSION.AccessKey() || NetMessage.IsLocalhost();
+    console.log('setting access key', accessKey);
+    data.key = accessKey;
+  }
+  // returns a promise that resolves to data
+  return ULINK._DBQuery(cmd, data);
+}
+
 const { Define, GetVal, SetVal } = CENTRAL;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -100,6 +110,7 @@ const UR = {
   NetUnsubscribe, // ULINK
   NetCall, // ULINK
   NetSignal, // ULINK
+  DBQuery, // ULINK
   Define, // CENTRAL
   GetVal, // CENTRAL
   SetVal, // CENTRAL
@@ -112,6 +123,8 @@ const UR = {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};
 window.ur.SESSION = SESSION;
+window.ur.LINK = ULINK;
+window.ur.DBQuery = DBQuery;
 window.ur.tnc = (msg, data) => {
   NetCall(msg, data).then(rdata => {
     console.log(`netcall '${msg}' returned`, rdata);

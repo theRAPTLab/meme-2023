@@ -80,8 +80,7 @@ class ResourceView extends React.Component {
 
   OnCreateEvidence(rsrcId) {
     if (DBG) console.log(PKG, 'create new evidence:', rsrcId);
-    let evId = DATA.PMC_AddEvidenceLink(rsrcId);
-    UR.Publish('SHOW_EVIDENCE_LINK', { evId, rsrcId });
+    DATA.PMC_AddEvidenceLink(rsrcId, id => UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }));
   }
 
   OnClose() {

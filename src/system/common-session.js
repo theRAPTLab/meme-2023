@@ -37,6 +37,7 @@ const UUID_NAMESPACE = '1abc839d-b04f-481e-87fe-5d69bd1907b2';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let m_current_name = undefined; // global decoded name (only for browsers)
 let m_current_idsobj = {}; // global decoded props (only for browsers)
+let m_access_key = ''; // global access key (saved only for browsers)
 
 /// SESSION ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -46,16 +47,18 @@ let SESSION = {};
     containing as many decoded values as possible. Check isValid for
     complete decode succes. groupId is also set if successful
 /*/
-SESSION.DecodeToken = token => {
-  let tokenBits = token.split('-');
+SESSION.DecodeToken = hashedToken => {
   let studentName, hashedData; // token
   let groupId, classroomId; // decoded data
   let isValid = false;
-  if (!token) return { isValid };
-  // check for missing dash
-  if (token.substr(-1) === '-') return { isValid, token, error: 'missing - in token' };
+  // is a valid token?
+  if (typeof hashedToken !== 'string') return { isValid, error: 'token must be a string' };
   // token is of form NAME-HASHEDID
   // (1) check student name
+  const token = hashedToken.toUpperCase();
+  const tokenBits = token.toUpperCase().split('-');
+  if (tokenBits.length === 1) return { isValid, token, error: 'missing - in token' };
+  if (tokenBits.length > 2) return { isValid, token, error: 'too many - in token' };
   if (tokenBits[0]) studentName = tokenBits[0].toUpperCase();
   if (studentName.length < 3)
     return { isValid, token, error: 'student name must have 3 or more letters' };
@@ -154,8 +157,41 @@ SESSION.DecodeAndSet = token => {
       groupId,
       classroomId
     };
+    if (DBG) console.log('DecodeAndSet() success', studentName, groupId, classroomId);
+  } else {
+    if (DBG) console.log('DecodeAndSet() failed', token);
   }
   return isValid;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Clear all global session parameters. Do not use from server-based code.
+ */
+SESSION.Clear = () => {
+  if (DBG) console.log('Clearing session');
+  m_current_name = undefined;
+  m_current_idsob = undefined;
+  m_access_key = undefined;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Set the global SESSION ACCESS KEY, which is necessary as a parameter for
+ * some operations (e.g. database writes). Do not use from server-based code.
+ */
+SESSION.SetAccessKey = key => {
+  if (typeof key === 'string') {
+    m_access_key = key;
+    if (DBG) console.log('setting access key', key);
+  }
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Return the global SESSION ACCESS KEY that was set using SetAccessKey(). Don't
+ * use this from server-based code.
+ */
+SESSION.AccessKey = () => {
+  if (DBG) console.log('AccessKey() returning', m_access_key);
+  return m_access_key;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**

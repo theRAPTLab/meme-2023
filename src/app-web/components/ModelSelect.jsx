@@ -102,13 +102,13 @@ class ModelSelect extends React.Component {
   OnModelEdit(modelId) {
     ADM.LoadModel(modelId);
     UR.Publish('MODEL:ALLOW_EDIT');
-    UTILS.RLog('ModelOpenEdit', modelId);
+    UTILS.RLog('ModelOpenEdit');
     this.OnModelDialogClose();
   }
 
   OnModelView(modelId) {
     ADM.LoadModel(modelId);
-    UTILS.RLog('ModelOpenView', modelId);
+    UTILS.RLog('ModelOpenView');
     this.OnModelDialogClose();
   }
 
@@ -154,7 +154,7 @@ class ModelSelect extends React.Component {
               </Button>
             </Grid>
           </Grid>
-          <Divider style={{ margin: '2em' }}/>
+          <Divider style={{ margin: '2em' }} />
           <Grid container spacing={2}>
             <Grid item>
               <Typography variant="h4">{ADM.GetStudentGroupName()} Group&lsquo;s Models</Typography>

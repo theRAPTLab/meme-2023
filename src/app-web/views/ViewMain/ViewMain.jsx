@@ -132,6 +132,7 @@ class ViewMain extends React.Component {
     // the root component renders in SystemInit.
     // SystemInit fires `WINDOW_SIZE` to force the
     // relayout
+
   }
 
   componentWillUnmount() {
@@ -252,7 +253,7 @@ class ViewMain extends React.Component {
   OnPropDelete() {
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (selectedPropIds.length > 0) {
-      let propId = selectedPropIds[0];
+      let propId = Number(selectedPropIds[0]);
       DATA.PMC_PropDelete(propId);
       if (this.state.addEdgeSource === propId) {
         this.setState({
@@ -314,6 +315,7 @@ class ViewMain extends React.Component {
       let mech = DATA.Mech(mechId);
       let vw = mechId.split(':');
       let data = {
+        id: mech.id, // we want db id, not graphlib mechId
         label: mech.name,
         description: mech.description,
         sourceId: vw[0],
@@ -340,6 +342,33 @@ class ViewMain extends React.Component {
     this.setState({
       mechIsSelected: false
     });
+  }
+
+  OnPropDialogCreateClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (DBG) console.log('create prop');
+    if (this.state.addPropIsProperty) {
+      // Add a property to the selected component
+      let selectedPropIds = DATA.VM_SelectedPropsIds();
+      if (selectedPropIds.length > 0) {
+        let parentPropId = selectedPropIds[0];
+        if (DBG) console.log('...setting parent of', this.state.addPropLabel, 'to', parentPropId);
+        // Create new prop
+        DATA.PMC_PropAdd(this.state.addPropLabel, parentPropId);
+      }
+    } else if (this.state.addPropPropId !== '') {
+      // Update existing prop
+      const id = parseInt(this.state.addPropPropId);
+      const name = this.state.addPropLabel
+      DATA.PMC_PropUpdate(id, { name });
+      UTILS.RLog('PropertyEdit', this.state.addPropLabel);
+    } else {
+      // Create new prop
+      DATA.PMC_PropAdd(this.state.addPropLabel);
+    }
+    this.OnPropDialogClose();
   }
 
   /*/

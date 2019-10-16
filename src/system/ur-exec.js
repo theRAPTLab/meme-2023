@@ -13,7 +13,7 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import URNET from './ur-network';
-import URLink from './common-urlink';
+import URLink from './ur-link';
 import { cssuri, cssalert, cssinfo, cssblue, cssreset } from '../app-web/modules/console-styles';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
@@ -161,8 +161,7 @@ const IsReactPhase = phase => {
 */
 const Execute = async phase => {
   // require scope to be set
-  if (EXEC_SCOPE === undefined)
-    throw Error(`UR EXEC scope is not set. Did you attach MOD_ID to your main React view?`);
+  if (EXEC_SCOPE === undefined) console.error(`UR EXEC scope is not set. Route may not exist`);
 
   // note: contents of PHASE_HOOKs are promise-generating functions
   if (!PHASES.includes(phase)) throw Error(`${phase} is not a recognized EXEC phase`);
@@ -308,7 +307,7 @@ const SetupRun = () => {
     await Execute('START'); // START running
     m_SetValidReactPhases(); // remove leftmost phase
     await Execute('REG_MESSAGE'); // register messages
-    await ULINK.PromiseRegisterSubscribers(); // send messages
+    ULINK.RegisterSubscribers(); // send messages (this awaits internally)
     m_SetValidReactPhases(); // remove leftmost phase
     await Execute('APP_READY'); // app is connected
     m_SetValidReactPhases(); // remove leftmost phase

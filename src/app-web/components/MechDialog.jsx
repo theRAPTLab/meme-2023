@@ -110,11 +110,12 @@ class MechDialog extends React.Component {
 
   DoEdit(data) {
     if (DBG) console.log(PKG, 'Edit Mech!', data);
-    const { label, description, sourceId, targetId } = data;
+    const { id, label, description, sourceId, targetId } = data;
     this.setState(
       {
         isOpen: true,
         editExisting: true,
+        id,
         sourceId,
         sourceLabel: DATA.Prop(sourceId).name,
         targetId,
@@ -293,6 +294,7 @@ class MechDialog extends React.Component {
 
   DoSaveData() {
     const {
+      id,
       sourceId,
       targetId,
       origSourceId,
@@ -302,7 +304,7 @@ class MechDialog extends React.Component {
       editExisting
     } = this.state;
     if (editExisting) {
-      const origMech = { sourceId: origSourceId, targetId: origTargetId };
+      const origMech = { sourceId: origSourceId, targetId: origTargetId, id };
       const newMech = { sourceId, targetId, label, description };
       DATA.PMC_MechUpdate(origMech, newMech);
     } else {
@@ -336,7 +338,7 @@ class MechDialog extends React.Component {
     } = this.state;
     const { classes } = this.props;
     return (
-      <Card hidden={!isOpen}>
+      <Card className={classes.edgeDialog} hidden={!isOpen}>
         <Paper className={classes.edgeDialogPaper}>
           <form onSubmit={this.OnCreateClick}>
             <div className={classes.edgeDialogWindowLabel}>ADD MECHANISM</div>

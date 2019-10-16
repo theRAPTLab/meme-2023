@@ -24,6 +24,10 @@ import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import ADM from '../modules/data';
 
+/// DEBUG /////////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const AUTOBOB = true;
+
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -51,6 +55,11 @@ class Login extends React.Component {
 
   componentDidMount() {
     this.DoADMDataUpdate();
+    if (AUTOBOB) {
+      this.setState({ loginId: 'bob-z4in' }, () => {
+        this.OnLogin({ preventDefault: function () { } });
+      });
+    }
   }
 
   componentWillUnmount() { }

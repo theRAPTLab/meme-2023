@@ -64,6 +64,7 @@ import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import ADM from '../modules/data';
+import PMC from '../modules/pmc-data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -79,6 +80,8 @@ class StickyNote extends React.Component {
     this.DoOpenSticky = this.DoOpenSticky.bind(this);
     this.OnEditClick = this.OnEditClick.bind(this);
     this.DoEditStart = this.DoEditStart.bind(this);
+    this.DoSave = this.DoSave.bind(this);
+    this.DoDelete = this.DoDelete.bind(this);
     this.FocusTextInput = this.FocusTextInput.bind(this);
     this.OnEditFinished = this.OnEditFinished.bind(this);
     this.OnDeleteClick = this.OnDeleteClick.bind(this);
@@ -132,6 +135,18 @@ class StickyNote extends React.Component {
       this.props.OnStartEdit();
     });
   }
+  
+  DoSave() {
+    PMC.CommentAdd(this.props.refId, this.state.comment);
+    this.props.OnUpdateComment({ comment: this.state.comment });
+  }
+
+  DoDelete() {
+    this.props.OnUpdateComment({
+      action: 'delete',
+      comment: this.state.comment
+    });
+  }
 
   OnEditClick(e) {
     e.preventDefault();
@@ -150,24 +165,22 @@ class StickyNote extends React.Component {
   }
 
   OnEditFinished() {
-    // stop editing and close
-    this.setState({
-      isBeingEdited: false
-    });
     // Automatically mark read by author
+    // NOTE: This is only called if the note was being edited
     const author = ADM.GetSelectedStudentId();
     let comment = this.state.comment;
     if (!comment.readBy.includes(author)) {
       comment.readBy.push(author);
     }
-    this.props.OnUpdateComment({ comment });
+    this.DoSave();
+    // stop editing and close
+    this.setState({
+      isBeingEdited: false
+    });
   }
 
   OnDeleteClick() {
-    this.props.OnUpdateComment({
-      action: 'delete',
-      comment: this.state.comment
-    });
+    this.DoDelete();
     // stop editing and close
     this.setState({
       isBeingEdited: false
@@ -362,6 +375,7 @@ StickyNote.propTypes = {
   classes: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
   comment: PropTypes.object,
+  refId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   OnStartEdit: PropTypes.func,
   OnUpdateComment: PropTypes.func
 };
@@ -375,6 +389,7 @@ StickyNote.defaultProps = {
     text: '',
     criteriaId: ''
   },
+  refId: '',
   OnStartEdit: () => {
     console.error('StickyNote: OnStartEdit prop was not defined!');
   },

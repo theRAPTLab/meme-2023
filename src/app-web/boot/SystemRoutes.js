@@ -15,7 +15,6 @@ import PropTypes from 'prop-types';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import ViewMain from '../views/ViewMain/ViewMain';
-import ViewMainDev from '../views/ViewMain/ViewMainDev';
 import DevTest from '../views/DevTest/TestRoot';
 import ViewAdmin from '../views/ViewAdmin/ViewAdmin';
 
@@ -48,11 +47,6 @@ const SystemRoutes = [
     path: '/admin',
     exact: true,
     component: ViewAdmin
-  },
-  {
-    path: '/:mode',
-    exact: true,
-    component: ViewMainDev
   },
   {
     path: '/',

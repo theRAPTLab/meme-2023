@@ -163,8 +163,6 @@ PMCData.InitializeModel = (model, admdb) => {
         });
         break;
       case 'evidence':
-        // stringify
-        obj.id = String(obj.id);
         obj.comments = obj.comments || [];
         a_evidence.push(obj);
         break;
@@ -913,10 +911,13 @@ PMCData.PMC_DeleteEvidenceLink = evId => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Given the passed evidence ID, returns the EvidenceLink object.
+ *  NEVER access h_evidenceById directly!
+ * 
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  *  @return {evlink} An evidenceLink object.
  */
 PMCData.PMC_GetEvLinkByEvId = evId => {
+  if (typeof evId !== 'number') throw Error('PMCData.PMC_GetEvLinkByEvId requested evId with non-Number', evId, typeof evId);
   return h_evidenceById.get(evId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -936,7 +937,12 @@ PMCData.PMC_GetEvLinksByPropId = propId => {
        use of a string id).  Changing this would require cascading changes across 
        many different code areas.
     */
-    console.warn('PMCData.PMC_GetEvLinksByPropId expected Number but got', propId, typeof propId,'!  Coercing to Number!  Review the calling function to see why non-Number was passed.');
+    console.log(
+      'PMCData.PMC_GetEvLinksByPropId expected Number but got',
+      typeof propId,
+      propId,
+      '!  Coercing to Number!  Review the calling function to see why non-Number was passed.'
+    );
     cleanedPropId = Number(propId);
   }
   return h_evidenceByProp.get(cleanedPropId);
@@ -953,15 +959,25 @@ PMCData.PMC_GetEvLinksByMechId = mechId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  Geneeral Evidence Update call
+ *  General Evidence Update call
  *  Called by all the setters
  */
 PMCData.PMC_EvidenceUpdate = (evId, newData) => {
-  const ev = h_evidenceById.get(evId);
+  if (typeof evId === 'string') {
+    console.warn('got string evId')
+  }
+  const ev = PMCData.PMC_GetEvLinkByEvId(evId);
   // db wants int ids, so replace existing string id with int id
   const numericEvId = Number(evId);
   // make a copy of the prop with overwritten new data
   // local data will be updated on DBSYNC event, so don't write it here
+
+  // data validation to make sure Object assign doesn't die.
+  if (typeof ev !== 'object') throw Error('ev is not an object', typeof ev)
+  if (typeof newData !== 'object') throw Error('newData is not an object', typeof newData);
+  if (typeof numericEvId !== 'number')
+    throw Error('numericEvId is not an number', typeof numericEvId);
+
   const evData = Object.assign(ev, newData, { id: numericEvId });
   const modelId = ASET.selectedModelId;
   // we need to update pmcdata which looks like
@@ -1059,26 +1075,17 @@ PMCData.SetEvidenceLinkRating = (evId, rating) => {
 /// STICKIES //////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
- * @param {string} refId - id of Property or Mechanism
+ * @param {string||number} refId - id of Property (Number) or Mechanism (String)
  * @return {object} Comment thread object, or [] if none defined.
 // or undefined
  */
 PMCData.GetCommentThread = refId => {
   return a_commentThreads.find(c => {
-    // FIXME / REVIEW: Coercing commentThread refId to strings!
-    // They should always be strings since all prop/mech objects
-    // on the client side use string Ids
-    if (typeof c.refId !== 'string') {
-      console.error(
-        'review GetCommentThread -- coercion here is probably not necessary? comment.refId is',
-        typeof c.refId
-      );
-    }
-    return String(c.refId) === refId;
+    return c.refId === refId;
   });
 };
 /** API.VIEWMODEL:
- * @param {string} refId - id of Property or Mechanism
+ * @param {string||number} refId - id of Property (Number) or Mechanism (String)
  * @return [array] Array of comment objects, or [] if none defined.
 // or undefined
  */

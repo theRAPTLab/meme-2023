@@ -361,7 +361,7 @@ StickyNote.propTypes = {
   classes: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
   comment: PropTypes.object,
-  refId: PropTypes.string,
+  refId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   OnStartEdit: PropTypes.func,
   OnUpdateComment: PropTypes.func
 };

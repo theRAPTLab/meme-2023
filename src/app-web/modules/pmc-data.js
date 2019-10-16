@@ -707,44 +707,31 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label) => {
  */
 PMCData.PMC_MechUpdate = (origMech, newMech) => {
   const modelId = ASET.selectedModelId;
-  if (origMech.sourceId === newMech.sourceId && origMech.targetId === newMech.targetId) {
-    // If we're only changing the label, then don't do the fancy swap, just update the label.
-    // Just change label
-    const { sourceId, targetId, label } = newMech;
-    const mechObj = {
-      type: 'mech',
-      id: origMech.id,
-      name: label,
-      source: sourceId,
-      target: targetId
-    };
-    return UR.DBQuery('update', {
-      'pmcData.entities': {
-        id: modelId,
-        entities: mechObj
-      }
-    });
-    
-    
-    /* OLD CODE
-    m_graph.setEdge(sourceId, targetId, { name: label });
-    PMCData.BuildModel();
-    UTILS.RLog('MechanismEditLabel', label);
-    */
-  } else {
-    // 1. Add the new mech
-    m_graph.setEdge(newMech.sourceId, newMech.targetId, {
-      name: newMech.label,
-      id: newMech.id
-    });
 
+  // Update the data
+  const { sourceId, targetId, label } = newMech;
+  const mechObj = {
+    type: 'mech',
+    id: origMech.id,
+    name: label,
+    source: sourceId,
+    target: targetId
+  };
+  UR.DBQuery('update', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: mechObj
+    }
+  });
+
+  // Did we change source or target?  Then move evidence and comments
+  if (origMech.sourceId !== newMech.sourceId || origMech.targetId !== newMech.targetId) {
     // 2. Update the old mech
     const origMechId = `${origMech.sourceId}:${origMech.targetId}`;
     const newMechId = `${newMech.sourceId}:${newMech.targetId}`;
 
-    // 2a. Move assets over
+    // 2a. Move evidence over.
     const evlinks = PMCData.PMC_GetEvLinksByMechId(origMechId);
-    // 2a. Move evidence over. Modify in place.
     if (evlinks) {
       evlinks.forEach(evlink => {
         PMCData.SetEvidenceLinkMechId(evlink.id, newMechId);
@@ -753,11 +740,9 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
     // 2b. Move comments over
     const comments = PMCData.GetCommentThreadComments(origMechId);
     PMCData.CommentThreadUpdate(newMechId, comments);
-
     // 2c. Remove the old mech
     PMCData.PMC_MechDelete(origMechId);
 
-    PMCData.BuildModel();
     UTILS.RLog(
       'MechanismEdit',
       `from "${origMechId}" to "${newMechId}" with label "${newMech.label}"`
@@ -839,7 +824,7 @@ function GenerateNumberLabel (rsrcId) {
 PMCData.PMC_AddEvidenceLink = (rsrcId, cb, note = '') => {
   const modelId = ASET.selectedModelId;
   const numberLabel = GenerateNumberLabel(rsrcId);
-  
+
   // propId and mechId remain undefined until the user sets it later
   const evObj = {
     type: 'evidence',

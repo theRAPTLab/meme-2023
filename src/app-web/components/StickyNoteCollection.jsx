@@ -52,29 +52,33 @@ VBadge
 
 StickyNoteCollection
     
-    A StickyNote is the container component for StickyNotes.
+    A StickNotesCollection is the container component for StickyNotes.
     Each StickyNoteCollection can contain any number of StickyNotes.
     StickyNotes display individual comments from different authors.
     
     There is only a single StickyNoteCollection object in ViewMain.  It gets 
     repurposed for each note that is opened.
     
-    StickNotes are opened via an URSYS.Publish('STICKY:OPEN') call.
+    StickNotesCollection are opened via an URSYS.Publish('STICKY:OPEN') call.
     
-    StickyNotes handle all the data for the StickyNotes, passing
-    individual comments as props: onStartEdit, onUpdateComment.
+    StickNotesCollection does not handle the data for StickyNotes.
+    StickyNotes handles data itself.
     
-    Updates to the comment data are sent directly to PMCData via a
-    PMC.UpdateComments() call.
-    
+    StickNotesCollection manages the read status of notes, marking
+    each notes as read when it closes.
+        
 StickyNote
 
     StickyNotes display individual comments from different authors.
     
     Text changes on the text input field are updated locally via the 
-    props reference to the StickyNoteCollection's comment object.  We
-    then trigger onUpdateComment to tell StickyNoteCollection to 
-    send the updated comment info to PMCData.
+    props reference to the StickyNoteCollection's comment object.  
+    
+    Updates to the comment data are sent directly to PMCData via a
+    PMC.CommentThreadUpdate() call.
+
+    We then trigger onUpdateComment to tell StickyNoteCollection to 
+    exit edit state.
 
     props
       
@@ -182,6 +186,7 @@ class StickyNoteCollection extends React.Component {
     });
   }
 
+  // User has clicked on "Comment" button on the StickyNoteCollection
   DoAddComment() {
     const author = ADM.GetSelectedStudentId();
     const starter = ADM.GetSentenceStartersByClassroom().sentences;
@@ -191,7 +196,7 @@ class StickyNoteCollection extends React.Component {
     });
   }
 
-  // PMC has upadted sticky data, usually unread status
+  // PMC has updated sticky data, usually unread status
   // Update our existing data directly from PMC.
   DoStickyUpdate() {
     const { parentId } = this.state;
@@ -203,10 +208,12 @@ class StickyNoteCollection extends React.Component {
     });
   }
 
-  DoSaveSticky() {
-    const { parentId, comments } = this.state;
-    PMC.UpdateComments(parentId, comments);
-  }
+  // this might not be necessary anymore since StickyNotes now take care of their own saving
+  //   DoSaveSticky() {
+  //     const { parentId, comments } = this.state;
+  //     console.error('StickyNoteCllection.DoSaveSticky needs to be reviewed');
+  //     PMC.CommentThreadUpdate(parentId, comments);
+  //   }
 
   DoCloseSticky() {
     if (DBG) console.log(PKG, 'DoCloseSticky');
@@ -261,7 +268,7 @@ class StickyNoteCollection extends React.Component {
     // StickyNote now handles data updates.
     // We just need to update the Collection view
     this.setState({ isBeingEdited: false });
-    
+
     // old code
     // if (DBG) console.log(PKG, 'OnUpdateComment: comments', data);
     // let { comments } = this.state;

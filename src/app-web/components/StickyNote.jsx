@@ -160,6 +160,7 @@ class StickyNote extends React.Component {
 
   OnEditFinished() {
     // Automatically mark read by author
+    // NOTE: This is only called if the note was being edited
     const author = ADM.GetSelectedStudentId();
     let comment = this.state.comment;
     if (!comment.readBy.includes(author)) {

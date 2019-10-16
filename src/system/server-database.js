@@ -54,6 +54,9 @@ DB.InitializeDatabase = (options = {}) => {
   if (!FS.existsSync(db_file)) {
     console.log(PR, `CREATING NEW DATABASE FILE '${db_file}'`);
   }
+  if (options.memehost !== 'devserver') {
+    console.log(PR, `non-devserver mode:'${options.memehost}' will not overwrite dataset`);
+  }
 
   // initialize database with given options
   console.log(PR, `loading database ${db_file}`);
@@ -122,7 +125,7 @@ DB.InitializeDatabase = (options = {}) => {
     collection.on('insert', u_CopyLokiId);
     // if not running devserver, don't overwrite database
     if (options.memehost !== 'devserver') {
-      console.log(PR, `loaded '${col}' w/ ${collection.count()} elements`);
+      console.log(PR, `${options.memehost}: using '${col}' w/ ${collection.count()} elements`);
       return;
     }
     // otherwise...reset the dataset from template .db.js files
@@ -229,7 +232,7 @@ DB.PKT_Add = pkt => {
     if (!subkey) {
       // IS NORMAL ADD
       if (DATAMAP.IsValidId(value.id)) {
-        error += `${colkey} should not have an id ${JSON.stringify(value)}`;
+        error += `${colkey} should not have an id in ${JSON.stringify(value)}`;
         return;
       }
       reskey = colkey;
@@ -292,8 +295,12 @@ DB.PKT_Add = pkt => {
 
           results[reskey].push(...added);
         });
+      if (DBG) {
+        if (!found.count()) error += `could not match id:${colid} in ${colkey}.${subkey}`;
+        else console.log(PR, `PKT_Add: found id:${colid} in collection:${colkey}.${subkey}`);
+      }
     } // if subkey
-    if (DBG) console.log(PR, `ADDED '${colkey}': ${JSON.stringify(results[reskey])}`);
+    if (DBG) console.log(PR, `added '${colkey}': ${JSON.stringify(results[reskey])}`);
   }); // queries foreach
 
   if (error) {
@@ -332,7 +339,6 @@ DB.PKT_Update = pkt => {
       return;
     }
     const colid = value.id;
-    if (DBG) console.log(PR, `matching id:${colid} in collection:${colkey}...`);
     let retval;
     // update!
     const found = dbc
@@ -356,7 +362,12 @@ DB.PKT_Update = pkt => {
         results[reskey].push(retval); // update results object
         if (DBG) console.log(PR, `updated: ${reskey} ${JSON.stringify(retval)}`);
       });
+    if (DBG) {
+      if (!found.count()) error += `could not match id:${colid} in ${colkey}.${subkey}`;
+      else console.log(PR, `PKT_Update: found id:${colid} in collection:${colkey}.${subkey}`);
+    }
   }); // queries forEach
+
   // was there an error?
   if (error) {
     console.log(PR, 'PKT_Update:', error);
@@ -405,6 +416,7 @@ DB.PKT_Remove = pkt => {
     const found = dbc.chain().find({ id: { $eq: colid } }); // e.g. pmcdata model
     if (found.count() === 0) {
       error += `remove could not find matching ${colid} in ${colkey} collection.`;
+      if (DBG) console.log(PR, `PKT_Remove: could not find record ${colid} i ${colkey} to remove.`);
       return;
     }
     if (DBG) console.log(PR, `remove found match for id:${colid} in collection:${colkey}`);
@@ -443,6 +455,7 @@ DB.PKT_Remove = pkt => {
         // if there are no removed items, that is a problem
         if (!removed.length) {
           error += `no matching subkey id ${subid} in subrecord ${JSON.stringify(record[subkey])}`;
+          if (DBG) console.log(PR, `PKT_Remove: no matching id ${subid} in ${colkey}.${subkey}`);
           return; // exit update(), process afterwards
         }
 

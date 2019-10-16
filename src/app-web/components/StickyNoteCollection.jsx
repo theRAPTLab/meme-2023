@@ -217,12 +217,17 @@ class StickyNoteCollection extends React.Component {
       const comments = state.comments.filter(c => {
         return String(c.text).trim() !== '';
       });
+
       const author = ADM.GetSelectedStudentId();
       comments.forEach(comment => {
         if (comment.readBy.includes(author)) return;
         comment.readBy.push(author);
         UTILS.RLog('CommentMarkRead', `"${comment.text}" read by "${author}"`);
       });
+
+      // now save it
+      PMC.CommentThreadUpdate(this.state.parentId, comments);
+
       if (DBG) console.log(PKG, 'DoCloseSticky: comments should be:');
       if (DBG) console.table(comments);
       return {

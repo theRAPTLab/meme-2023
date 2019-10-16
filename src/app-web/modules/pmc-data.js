@@ -963,9 +963,11 @@ PMCData.PMC_GetEvLinksByMechId = mechId => {
  */
 PMCData.PMC_EvidenceUpdate = (evId, newData) => {
   const ev = h_evidenceById.get(evId);
+  // db wants int ids, so replace existing string id with int id
+  const numericEvId = Number(evId);
   // make a copy of the prop with overwritten new data
   // local data will be updated on DBSYNC event, so don't write it here
-  const evData = Object.assign({ id: evId }, ev, newData);
+  const evData = Object.assign(ev, newData, { id: numericEvId });
   const modelId = ASET.selectedModelId;
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
@@ -1190,9 +1192,13 @@ PMCData.CommentThreadAdd = (refId, newComments) => {
  *  comment text.
  */
 PMCData.CommentThreadUpdate = (refId, newComments) => {
-  const thread = PMCData.GetCommentThreadComments(refId);
+  const thread = PMCData.GetCommentThread(refId);
   if (thread === undefined) {
-    throw Error('PMCData.CommentThreadUpdate trying to update non-existent thread with refId', refId);
+    // When a StickyNote is created, the note doesn't know if there is a parent
+    // thread or not, it just calls CommentThreadUpdate
+    // If there's no existing thread, we need to create one.
+    PMCData.CommentThreadAdd(refId, newComments);
+    return;
   }
 
   // make a copy of the prop with overwritten new data

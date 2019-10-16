@@ -273,14 +273,12 @@ PMCData.SyncUpdatedData = data => {
           }
           break;
         case 'mech':
-          console.log('update mech');
           m_graph.setEdge(value.source, value.target, {
             id: value.id,
             name: value.name
           });
           break;
         case 'evidence':
-          console.log('update evidence');
           const { id, propId, mechId, rsrcId, numberLabel, rating, note } = value;
           const evlink = {
             id,
@@ -929,7 +927,19 @@ PMCData.PMC_GetEvLinkByEvId = evId => {
  *  @return [evlinks] An array of evidenceLink objects
  */
 PMCData.PMC_GetEvLinksByPropId = propId => {
-  return h_evidenceByProp.get(propId);
+  let cleanedPropId = propId;
+  if (typeof propId !== 'number') {
+    // coercing to Number because h_evidenceByProp is indexed by Number
+    /* This is mostly to deal with calls from class-vbadge.Update()
+       The issue is that VBadges get propIds from the parent vprop's id,
+       but the VProp constructor requires a string id (mostly to match m_graphs'
+       use of a string id).  Changing this would require cascading changes across 
+       many different code areas.
+    */
+    console.warn('PMCData.PMC_GetEvLinksByPropId expected Number but got', propId, typeof propId,'!  Coercing to Number!  Review the calling function to see why non-Number was passed.');
+    cleanedPropId = Number(propId);
+  }
+  return h_evidenceByProp.get(cleanedPropId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:

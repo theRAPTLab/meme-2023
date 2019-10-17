@@ -98,7 +98,7 @@ class PropDialog extends React.Component {
         let parentPropId = selectedPropIds[0];
         if (DBG) console.log('...setting parent of', label, 'to', parentPropId);
         // Create new prop
-        DATA.PMC_AddProp(label, description);
+        DATA.PMC_PropAdd(label, description);
         // Add it to the parent component
         DATA.PMC_SetPropParent(label, parentPropId);
       }
@@ -114,7 +114,7 @@ class PropDialog extends React.Component {
       DATA.BuildModel();
     } else {
       // Create new prop
-      DATA.PMC_AddProp(label, description);
+      DATA.PMC_PropAdd(label, description);
     }
     this.DoClose();
   }

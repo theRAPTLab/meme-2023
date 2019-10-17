@@ -643,7 +643,7 @@ PMCData.PMC_PropUpdate = (propId, newData) => {
   const modelId = ASET.selectedModelId;
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
-  UR.DBQuery('update', {
+  return UR.DBQuery('update', {
     'pmcData.entities': {
       id: modelId,
       entities: propData
@@ -786,7 +786,7 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
     source: sourceId,
     target: targetId
   };
-  UR.DBQuery('update', {
+  return UR.DBQuery('update', {
     'pmcData.entities': {
       id: modelId,
       entities: mechObj
@@ -908,7 +908,7 @@ PMCData.PMC_AddEvidenceLink = (rsrcId, cb, note = '') => {
     rating: undefined,
     note
   };
-  UR.DBQuery('add', {
+  return UR.DBQuery('add', {
     'pmcData.entities': {
       id: modelId,
       entities: evObj
@@ -1060,7 +1060,7 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
   const modelId = ASET.selectedModelId;
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
-  UR.DBQuery('update', {
+  return UR.DBQuery('update', {
     'pmcData.entities': {
       id: modelId,
       entities: evData
@@ -1227,7 +1227,7 @@ PMCData.CommentUpdate = (refId, newComment) => {
   console.log('updating model', modelId, 'with commentThread', thread);
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
-  UR.DBQuery('update', {
+  return UR.DBQuery('update', {
     'pmcData.commentThreads': {
       id: modelId,
       commentThreads: thread
@@ -1252,7 +1252,7 @@ PMCData.CommentThreadAdd = (refId, newComments) => {
   console.log('PMCData.CommentThreadAdd: adding model', modelId, 'with commentThread', threadData);
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
-  UR.DBQuery('add', {
+  return UR.DBQuery('add', {
     'pmcData.commentThreads': {
       id: modelId,
       commentThreads: threadData
@@ -1288,7 +1288,7 @@ PMCData.CommentThreadUpdate = (refId, newComments) => {
   console.log('updating model', modelId, 'with commentThread', threadData);
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
-  UR.DBQuery('update', {
+  return UR.DBQuery('update', {
     'pmcData.commentThreads': {
       id: modelId,
       commentThreads: threadData

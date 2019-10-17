@@ -571,15 +571,17 @@ PMCData.Mech = (evo, ew) => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  @param {string} name - label for the property
- *  @param {number} [parentId] - if defined, id of the parent object 
+ *  @param {Object} newPropObj - {name, description, parent} for the property
  */
-PMCData.PMC_PropAdd = (name, parentId) => {
+PMCData.PMC_PropAdd = newPropObj => {
   const modelId = ASET.selectedModelId;
-  const propObj = { type: 'prop', name };
-  if (parentId !== undefined) {
-    propObj.parent = parentId;
-  }
+  const propObj = Object.assign(newPropObj, { type: 'prop' });
+  UTILS.RLog(
+    'PropertyAdd',
+    newPropObj.name,
+    newPropObj.description,
+    newPropObj.parent ? `with parent ${newPropObj.parent}` : ''
+  );
   return UR.DBQuery('add', {
     'pmcData.entities': {
       id: modelId,
@@ -601,12 +603,25 @@ PMCData.PMC_PropAdd = (name, parentId) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** update through database
+ *  @param {Integer} propId - id of the prop being updated
+ *  @param {Object} newData - propObject, could be partial, e.g. just {name}
  */
-PMCData.PMC_PropUpdate = (nodeId, newData) => {
-  const prop = m_graph.node(nodeId);
+PMCData.PMC_PropUpdate = (propId, newData) => {
+  let cleanedId = propId;
+  if (typeof propId !== 'number') {
+    console.log(
+      'PMCData.PMC_PropUpdate expected Number but got',
+      typeof propId,
+      propId,
+      '!  Coercing to Number!  Review the calling function to see why non-Number was passed.'
+    );
+    cleanedId = Number(propId);
+  }
+  if (!DATAMAP.IsValidId(cleanedId)) throw Error('invalid id');
+  const prop = m_graph.node(cleanedId);
   // make a copy of the prop with overwritten new data
   // local data will be updated on DBSYNC event, so don't write it here
-  const propData = Object.assign({ id: nodeId }, prop, newData);
+  const propData = Object.assign(prop, newData, { id: cleanedId }); // id last to make sure we're using a cleaned one
   const modelId = ASET.selectedModelId;
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
@@ -621,8 +636,21 @@ PMCData.PMC_PropUpdate = (nodeId, newData) => {
   /** THIS METHOD DID NOT EXIST BEFORE **/
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** 
+ *  @param {Integer} propId - id of the prop being updated
+ * */
 PMCData.PMC_PropDelete = propId => {
-  if (!DATAMAP.IsValidId(propId)) throw Error('invalid id');
+  let cleanedId = propId;
+  if (typeof propId !== 'number') {
+    console.log(
+      'PMCData.PMC_PropDelete expected Number but got',
+      typeof propId,
+      propId,
+      '!  Coercing to Number!  Review the calling function to see why non-Number was passed.'
+    );
+    cleanedId = Number(propId);
+  }
+  if (!DATAMAP.IsValidId(cleanedId)) throw Error('invalid id');
   const modelId = ASET.selectedModelId;
   return UR.DBQuery('remove', {
     'pmcData.entities': {
@@ -924,7 +952,7 @@ PMCData.PMC_GetEvLinkByEvId = evId => {
 /** API.MODEL:
  *  Given the passed propid, returns evidence linked to the prop object.
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
- *  @param {String} propId - if defined, id of the prop (aka `propId`)
+ *  @param {Integer} propId - if defined, id of the prop (aka `propId`)
  *  @return [evlinks] An array of evidenceLink objects
  */
 PMCData.PMC_GetEvLinksByPropId = propId => {
@@ -945,6 +973,7 @@ PMCData.PMC_GetEvLinksByPropId = propId => {
     );
     cleanedPropId = Number(propId);
   }
+  if (!DATAMAP.IsValidId(cleanedPropId)) throw Error('invalid id');
   return h_evidenceByProp.get(cleanedPropId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

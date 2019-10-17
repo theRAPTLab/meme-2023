@@ -98,23 +98,17 @@ class PropDialog extends React.Component {
         let parentPropId = selectedPropIds[0];
         if (DBG) console.log('...setting parent of', label, 'to', parentPropId);
         // Create new prop
-        DATA.PMC_PropAdd(label, description);
-        // Add it to the parent component
-        DATA.PMC_SetPropParent(label, parentPropId);
+        const propObj = { name: label, description, parent: parentPropId };
+        DATA.PMC_PropAdd(propObj);
       }
     } else if (propId !== '') {
       // Update existing prop
-      let prop = DATA.Prop(propId);
-      prop.name = label;
-      prop.description = description;
-      // IF YOU UPDATE THE MODEL THEN BUILD IT SO VIEW UPDATES
-      // MOST PMCDATA MODEL METHODS CALLS THIS AUTOMATICALLY
-      // BUT IN THIS CASE YOU'RE MUTATING THE PROP DIRECTLY
-      UTILS.RLog('PropertyEdit', label);
-      DATA.BuildModel();
+      const propObj = { name: label, description };
+      DATA.PMC_PropUpdate(propId, propObj);
     } else {
       // Create new prop
-      DATA.PMC_PropAdd(label, description);
+      const propObj = { name: label, description };
+      DATA.PMC_PropAdd(propObj);
     }
     this.DoClose();
   }

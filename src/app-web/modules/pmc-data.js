@@ -194,7 +194,25 @@ PMCData.InitializeModel = (model, admdb) => {
   m_graph.nodes = () => Object.keys(m_graph._nodes);
 
   // update the essential data structures
+  // this also fires DATA_UPDATED
   PMCData.BuildModel();
+
+  // data and view are now stable
+  // on first load, move visuals to saved places
+  if (data.visuals) {
+    data.visuals.forEach(vstate => {
+      const id = String(vstate.id);
+      const pos = vstate.pos;
+      const vprop = VM.VM_VProp(id);
+      // only position components, not props
+      // because visuals array doesn't remove stuff
+      if (PMCData.PropParent()) return;
+      if (DBG) console.log(`init vprop ${id} to ${pos.x}, ${pos.y}`);
+      vprop.Move(pos);
+      vprop.LayoutDisabled(true);
+    });
+    UR.Publish('PROP_MOVED', { visuals: data.visuals });
+  }
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -64,7 +64,7 @@ module.exports = {
   ],
   // visuals do not share ids
   visuals: [
-    { id: 10, type:'prop', pos:{x:0,y:0}, state:{} }
+    { id: 10, type:'vprop', pos:{x:0,y:0}, state:{} }
   ],
   // commentTreads do not share ids since they are not referenceable by other elements
   commentThreads: [

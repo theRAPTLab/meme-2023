@@ -44,7 +44,7 @@ VM.SyncUpdatedData = data => {
           if (DBG) console.log(`vprop ${id} update ${pos.x},${pos.y}`);
           const vprop = VM.VM_VProp(String(id));
           if (!vprop) {
-            console.error(`couldn't get vprop ${id}`);
+            if (DBG) console.error(`vprop ${id} doesn't exist`);
             break;
           }
           vprop.Move(pos);

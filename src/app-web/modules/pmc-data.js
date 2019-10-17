@@ -74,7 +74,7 @@ let a_mechs = []; // all mechanisms (pathId strings)
 let a_commentThreads = []; // all prop and mech comments
 //
 let a_components = []; // top-level props with no parents, derived
-let h_children = new Map(); // children hash of each prop by id
+let h_children = new Map(); // children hash of each prop by id (string)
 let h_outedges = new Map(); // outedges hash of each prop by id
 //
 let a_resources = []; // resource objects { id, label, notes, type, url, links }
@@ -498,10 +498,11 @@ PMCData.Components = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Return array of all the children.
- *  @param {string} nodeId - the nodeId that might have children
- *  @returns {array} - an array of nodeId strings, or empty array
+ *  @param {String} nodeId - the nodeId that might have children
+ *  @returns {Array} - an array of nodeId strings, or empty array
  */
 PMCData.Children = nodeId => {
+  if (typeof nodeId !== 'string') throw Error('PMCData.Children expected a string id');
   return h_children.get(nodeId) || [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -607,7 +608,7 @@ PMCData.PMC_PropAdd = newPropObj => {
  *  @param {Object} newData - propObject, could be partial, e.g. just {name}
  */
 PMCData.PMC_PropUpdate = (propId, newData) => {
-  let cleanedId = propId;
+  let numericId = propId;
   if (typeof propId !== 'number') {
     console.log(
       'PMCData.PMC_PropUpdate expected Number but got',
@@ -615,13 +616,13 @@ PMCData.PMC_PropUpdate = (propId, newData) => {
       propId,
       '!  Coercing to Number!  Review the calling function to see why non-Number was passed.'
     );
-    cleanedId = Number(propId);
+    numericId = Number(propId);
   }
-  if (!DATAMAP.IsValidId(cleanedId)) throw Error('invalid id');
-  const prop = m_graph.node(cleanedId);
+  if (!DATAMAP.IsValidId(numericId)) throw Error('invalid id');
+  const prop = m_graph.node(numericId);
   // make a copy of the prop with overwritten new data
   // local data will be updated on DBSYNC event, so don't write it here
-  const propData = Object.assign(prop, newData, { id: cleanedId }); // id last to make sure we're using a cleaned one
+  const propData = Object.assign(prop, newData, { id: numericId }); // id last to make sure we're using a cleaned one
   const modelId = ASET.selectedModelId;
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
@@ -640,7 +641,7 @@ PMCData.PMC_PropUpdate = (propId, newData) => {
  *  @param {Integer} propId - id of the prop being updated
  * */
 PMCData.PMC_PropDelete = propId => {
-  let cleanedId = propId;
+  let numericId = propId;
   if (typeof propId !== 'number') {
     console.log(
       'PMCData.PMC_PropDelete expected Number but got',
@@ -648,9 +649,30 @@ PMCData.PMC_PropDelete = propId => {
       propId,
       '!  Coercing to Number!  Review the calling function to see why non-Number was passed.'
     );
-    cleanedId = Number(propId);
+    numericId = Number(propId);
   }
-  if (!DATAMAP.IsValidId(cleanedId)) throw Error('invalid id');
+  if (!DATAMAP.IsValidId(numericId)) throw Error('invalid id');
+
+  // 1. Deselect the prop first, otherwise the deleted prop will remain selected
+  VM.VM_DeselectAll();
+
+  // 2. Unlink any evidence (don't delete them)
+  PMCData.PMC_GetEvLinksByPropId(numericId).forEach(evlink => {
+    PMCData.SetEvidenceLinkPropId(evlink.id, undefined);
+  });
+
+  // 3. Delete any comments?
+  // We don't need to update commentThreads since they are
+  // retrieved by their parent objects?
+
+  // 4. Delete any children
+  // h_children uses string ids
+  PMCData.Children(String(numericId)).forEach(cid => PMCData.PMC_PropDelete(Number(cid)));
+
+  // 5. Log it
+  UTILS.RLog('PropertyDelete', propId);
+
+  // 6. Remove the actual prop
   const modelId = ASET.selectedModelId;
   return UR.DBQuery('remove', {
     'pmcData.entities': {
@@ -658,7 +680,6 @@ PMCData.PMC_PropDelete = propId => {
       entities: { id: propId }
     }
   });
-  // round-trip will call BuildModel() for us
 
   /** OLD CODE
   // Deselect the prop first, otherwise the deleted prop will remain selected
@@ -953,7 +974,7 @@ PMCData.PMC_GetEvLinkByEvId = evId => {
  *  Given the passed propid, returns evidence linked to the prop object.
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
  *  @param {Integer} propId - if defined, id of the prop (aka `propId`)
- *  @return [evlinks] An array of evidenceLink objects
+ *  @return {Array} - An array of evidenceLink objects, [] if not found
  */
 PMCData.PMC_GetEvLinksByPropId = propId => {
   let cleanedPropId = propId;
@@ -974,7 +995,7 @@ PMCData.PMC_GetEvLinksByPropId = propId => {
     cleanedPropId = Number(propId);
   }
   if (!DATAMAP.IsValidId(cleanedPropId)) throw Error('invalid id');
-  return h_evidenceByProp.get(cleanedPropId);
+  return h_evidenceByProp.get(cleanedPropId) || [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:

@@ -34,14 +34,17 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
       case 'add':
         ADM.SyncAddedData(data);
         PMC.SyncAddedData(data);
+        // no VM.SyncAddedData
         break;
       case 'update':
         ADM.SyncUpdatedData(data);
         PMC.SyncUpdatedData(data);
+        VM.SyncUpdatedData(data);
         break;
       case 'remove':
         ADM.SyncRemovedData(data);
         PMC.SyncRemovedData(data);
+        // no VM.SyncRemovedData
         break;
       default:
         console.error('unrecognized command', cmd);

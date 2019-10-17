@@ -330,6 +330,8 @@ PMCData.SyncRemovedData = data => {
           m_graph.removeEdge(value.source, value.target);
           break;
         case 'evidence':
+          let i = a_evidence.findIndex(e => e.id === value.id);
+          a_evidence.splice(i, 1);
           break;
         default:
           throw Error('unexpected proptype');
@@ -977,13 +979,13 @@ PMCData.PMC_DuplicateEvidenceLink = evId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_DeleteEvidenceLink = evId => {
-  // Then delete the link(s)
-  let i = a_evidence.findIndex(e => {
-    return e.id === evId;
+  const modelId = ASET.selectedModelId;
+  return UR.DBQuery('remove', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: { id: evId }
+    }
   });
-  a_evidence.splice(i, 1);
-  PMCData.BuildModel();
-  return evId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:

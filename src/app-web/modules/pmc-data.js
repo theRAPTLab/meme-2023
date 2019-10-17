@@ -207,6 +207,10 @@ PMCData.InitializeModel = (model, admdb) => {
       // only position components, not props
       // because visuals array doesn't remove stuff
       if (PMCData.PropParent()) return;
+      if (!vprop) {
+        if (DBG) console.warn(`InitializeModel data.visuals: skipping missing prop ${id}`);
+        return;
+      }
       if (DBG) console.log(`init vprop ${id} to ${pos.x}, ${pos.y}`);
       vprop.Move(pos);
       vprop.LayoutDisabled(true);
@@ -568,7 +572,7 @@ PMCData.HasMech = (evo, ew) => {
 PMCData.Prop = nodeId => {
   const prop = m_graph.node(nodeId);
   if (prop) return prop;
-  throw Error(`no prop with id '${nodeId}' exists`);
+  console.error(`no prop with id '${nodeId}' exists`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:

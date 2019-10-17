@@ -319,6 +319,23 @@ PMCData.SyncRemovedData = data => {
   syncitems.forEach(item => {
     const { colkey, subkey, value } = item;
     console.log('removed', colkey, subkey || '', value);
+
+    if (subkey === 'entities') {
+      // has id, type, name
+      switch (value.type) {
+        case 'prop':
+          m_graph.removeNode(value.id);
+          break;
+        case 'mech':
+          m_graph.removeEdge(value.source, value.target);
+          break;
+        case 'evidence':
+          break;
+        default:
+          throw Error('unexpected proptype');
+      }
+      PMCData.BuildModel();
+    }
   });
   // oldway
   // if (data['pmcData']) console.log('PMCData remove');
@@ -661,18 +678,25 @@ PMCData.PMC_PropDelete = propId => {
     PMCData.SetEvidenceLinkPropId(evlink.id, undefined);
   });
 
-  // 3. Delete any comments?
+  // 3. Unlink any related mechs
+  PMCData.AllMechs().forEach(mid => {
+    if (mid.v === String(numericId) || mid.w === String(numericId)) {
+      PMCData.PMC_MechDelete(mid);
+    }
+  });
+
+  // 4. Delete any comments?
   // We don't need to update commentThreads since they are
   // retrieved by their parent objects?
 
-  // 4. Delete any children
+  // 5. Delete any children
   // h_children uses string ids
   PMCData.Children(String(numericId)).forEach(cid => PMCData.PMC_PropDelete(Number(cid)));
 
-  // 5. Log it
+  // 6. Log it
   UTILS.RLog('PropertyDelete', propId);
 
-  // 6. Remove the actual prop
+  // 7. Remove the actual prop
   const modelId = ASET.selectedModelId;
   return UR.DBQuery('remove', {
     'pmcData.entities': {
@@ -810,21 +834,25 @@ PMCData.PMC_MechDelete = mechId => {
   // mechId is of form "v:w"
   // Deselect the mech first, otherwise the deleted mech will remain selected
   VM.VM_DeselectAll();
+
   // Unlink any evidence
   const evlinks = PMCData.PMC_GetEvLinksByMechId(mechId);
   if (evlinks)
     evlinks.forEach(evlink => {
       PMCData.SetEvidenceLinkMechId(evlink.id, undefined);
     });
+
   // Then remove mech
   // FIXME / REVIEW : Do we need to use `name` to distinguish between
   // multiple edges between the same source target?
-  // FIXME / REVIEW: Do we need add a definition for splitting a
-  // pathId to v / w ?
-  let vw = mechId.split(':');
-  m_graph.removeEdge(vw[0], vw[1]);
-  PMCData.BuildModel();
-  return `deleted edge ${mechId}`;
+  const mech = PMCData.Mech(mechId);
+  const modelId = ASET.selectedModelId;
+  return UR.DBQuery('remove', {
+    'pmcData.entities': {
+      id: modelId,
+      entities: { id: mech.id }
+    }
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -977,7 +1005,7 @@ PMCData.PMC_GetEvLinkByEvId = evId => {
  *  @return {Array} - An array of evidenceLink objects, [] if not found
  */
 PMCData.PMC_GetEvLinksByPropId = propId => {
-  let cleanedPropId = propId;
+  let numericId = propId;
   if (typeof propId !== 'number') {
     // coercing to Number because h_evidenceByProp is indexed by Number
     /* This is mostly to deal with calls from class-vbadge.Update()
@@ -992,10 +1020,10 @@ PMCData.PMC_GetEvLinksByPropId = propId => {
       propId,
       '!  Coercing to Number!  Review the calling function to see why non-Number was passed.'
     );
-    cleanedPropId = Number(propId);
+    numericId = Number(propId);
   }
-  if (!DATAMAP.IsValidId(cleanedPropId)) throw Error('invalid id');
-  return h_evidenceByProp.get(cleanedPropId) || [];
+  if (!DATAMAP.IsValidId(numericId)) throw Error('invalid id');
+  return h_evidenceByProp.get(numericId) || [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:

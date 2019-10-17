@@ -157,7 +157,8 @@ PMCData.InitializeModel = (model, admdb) => {
         }
         break;
       case 'mech':
-        if (obj.source && obj.target) g.setEdge(obj.source, obj.target, {
+        if (obj.source && obj.target)
+          g.setEdge(obj.source, obj.target, {
             name: obj.name,
             id: obj.id
           });
@@ -683,7 +684,7 @@ PMCData.PMC_SetPropParent = (nodeId, parentId) => {
   const pid = Number(parentId);
   UTILS.RLog('PropertySetParent', id, pid);
   return PMCData.PMC_PropUpdate(id, { parent: pid }).then(rdata => {
-    console.log('PropUpdate', JSON.stringify(rdata['pmcData.entities']));
+    if (DBG) console.log('PropUpdate', JSON.stringify(rdata['pmcData.entities']));
   });
 
   // round-trip will call BuildModel() for us

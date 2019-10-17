@@ -448,7 +448,7 @@ VM.VM_SaveVPropPosition = vprop => {
   const x = Number(vprop.X());
   const y = Number(vprop.Y());
   const type = 'vprop';
-  console.log(`save positions`, vprop.Id());
+  if (DBG) console.log(`save positions`, id);
   const visuals = { id, type, pos: { x, y } };
   UR.DBQuery('update', {
     'pmcData.visuals': { id: modelId, visuals }

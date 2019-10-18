@@ -152,7 +152,10 @@ PMCData.InitializeModel = (model, admdb) => {
       if (DBG) console.log(obj.type, obj.id, obj);
       switch (obj.type) {
         case 'prop':
-          g.setNode(obj.id, { name: obj.name });
+          g.setNode(obj.id, {
+            name: obj.name,
+            description: obj.description
+          });
           if (obj.parent) {
             g.setParent(obj.id, obj.parent);
           }
@@ -160,8 +163,9 @@ PMCData.InitializeModel = (model, admdb) => {
         case 'mech':
           if (obj.source && obj.target)
             g.setEdge(obj.source, obj.target, {
+              id: obj.id,
               name: obj.name,
-              id: obj.id
+              description: obj.description
             });
           break;
         case 'evidence':
@@ -238,13 +242,17 @@ PMCData.SyncAddedData = data => {
     if (subkey === 'entities') {
       switch (value.type) {
         case 'prop':
-          m_graph.setNode(value.id, { name: value.name });
+          m_graph.setNode(value.id, {
+            name: value.name,
+            description: value.description
+          });
           f_NodeSetParent(value.id, value.parent); // enforces type
           break;
         case 'mech':
           m_graph.setEdge(value.source, value.target, {
             id: value.id,
-            name: value.name
+            name: value.name,
+            description: value.description
           });
           break;
         case 'evidence':
@@ -293,13 +301,17 @@ PMCData.SyncUpdatedData = data => {
       // has id, type, name
       switch (value.type) {
         case 'prop':
-          m_graph.setNode(value.id, { name: value.name });
+          m_graph.setNode(value.id, {
+            name: value.name,
+            description: value.description
+          });
           f_NodeSetParent(value.id, value.parent);
           break;
         case 'mech':
           m_graph.setEdge(value.source, value.target, {
             id: value.id,
-            name: value.name
+            name: value.name,
+            description: value.description
           });
           break;
         case 'evidence':
@@ -796,7 +808,7 @@ PMCData.PMC_SetPropParent = (nodeId, parentId) => {
   **/
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_MechAdd = (sourceId, targetId, label) => {
+PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
   if (DBG) {
     if (typeof sourceId !== 'number')
       console.log('coercing sourceId to Number from', typeof sourceId);
@@ -808,7 +820,8 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label) => {
     type: 'mech',
     name: label,
     source: Number(sourceId),
-    target: Number(targetId)
+    target: Number(targetId),
+    description
   };
   return UR.DBQuery('add', {
     'pmcData.entities': {
@@ -836,20 +849,21 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
   const modelId = ASET.selectedModelId;
 
   // Update the data
-  const { sourceId, targetId, label } = newMech;
+  const { sourceId, targetId, label, description } = newMech;
   if (DBG) {
     if (typeof sourceId !== 'number')
       console.log('coercing sourceId to Number from', typeof sourceId);
     if (typeof targetId !== 'number')
       console.log('coercing targetId to Number from', typeof targetId);
   }
-
+//
   const mechObj = {
     type: 'mech',
     id: origMech.id,
     name: label,
     source: Number(sourceId),
-    target: Number(targetId)
+    target: Number(targetId),
+    description
   };
   return UR.DBQuery('update', {
     'pmcData.entities': {

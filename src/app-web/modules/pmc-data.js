@@ -572,7 +572,7 @@ PMCData.HasMech = (evo, ew) => {
 PMCData.Prop = nodeId => {
   const prop = m_graph.node(nodeId);
   if (prop) return prop;
-  console.error(`no prop with id '${nodeId}' exists`);
+  console.error(`no prop with id '${nodeId}' typeof ${typeof nodeId} exists`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:

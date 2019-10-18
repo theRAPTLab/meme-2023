@@ -481,7 +481,6 @@ DB.PKT_Remove = pkt => {
           keep.forEach(entity => {
             // for every removed entity, remove links to it in kept entities
             removed.forEach(r => {
-              console.log(r, entity);
               if (entity.propId === r.id) {
                 if (DBG)
                   console.log(PR, `.. evidence ${entity.id} removed propId ${entity.propId}`);

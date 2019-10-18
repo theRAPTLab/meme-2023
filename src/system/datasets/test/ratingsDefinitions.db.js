@@ -10,5 +10,16 @@ module.exports = [
       { label: 'Medium support', rating: 2 },
       { label: 'Rocks!!', rating: 3 }
     ]
+  },
+  {
+    classroomId: 2,
+    definitions: [
+      { label: 'Will this!', rating: -2 },
+      { label: 'break', rating: -1 },
+      { label: 'with not', rating: 0 },
+      { label: 'enough', rating: 1 },
+      { label: 'elements', rating: 2 },
+      { label: 'here?', rating: 3 }
+    ]
   }
 ];

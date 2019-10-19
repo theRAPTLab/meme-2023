@@ -308,6 +308,11 @@ PMCData.SyncUpdatedData = data => {
           f_NodeSetParent(value.id, value.parent);
           break;
         case 'mech':
+          // 1. Remove the old edge first.
+          const oldMechPathObj = PMCData.MechById(value.id);
+          m_graph.removeEdge(oldMechPathObj);
+
+          // 2. Then create the updated edge as a new edge
           m_graph.setEdge(value.source, value.target, {
             id: value.id,
             name: value.name,
@@ -629,14 +634,33 @@ PMCData.PropParent = nodeId => {
  *
  *  This function can accept one of three formats: an edgeObject, a pathId,
  *  or a source/target pair of nodeId strings.
- *  @param {object|string} evo - edgeObj {w,v}, pathId, or nodeId string of source
+ *  @param {object|string} evo - edgeObj {v,w}, pathId, or nodeId string of source
  *  @param {string|undefined} ew - if defined, nodeId string of the target prop
  */
 PMCData.Mech = (evo, ew) => {
   const eobj = CoerceToEdgeObj(evo, ew);
   return m_graph.edge(eobj);
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Return the mech pathObj matching the db id.
+ *  This is necessary during SyncUpdateData to remove an old edge that has
+ *  changed its source/target (since the old source/target path is not known
+ *  to SyncUpdateData).
+ * 
+ *  An alternative approach would be to trigger a deletion in MechUpdate, but
+ *  that would cause another server roundtrip.
+ * 
+ *  @param {Integer} id - The mech id of the db record (not a pathId)
+ *  @return {Object} A pathObj {v,w}}
+ */
+PMCData.MechById = id => {
+  const all_mechs = PMCData.AllMechs();
+  return all_mechs.find(pathObj => {
+    const edgeAttr = PMCData.Mech(pathObj);
+    if (edgeAttr.id === id) return pathObj;
+  });
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  @param {Object} newPropObj - {name, description, parent} for the property
@@ -846,7 +870,6 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
  *  assets over from the old mech to the new mech.
  */
 PMCData.PMC_MechUpdate = (origMech, newMech) => {
-  const modelId = ASET.selectedModelId;
 
   // Update the data
   const { sourceId, targetId, label, description } = newMech;
@@ -857,6 +880,7 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
       console.log('coercing targetId to Number from', typeof targetId);
   }
 //
+  const modelId = ASET.selectedModelId;
   const mechObj = {
     type: 'mech',
     id: origMech.id,

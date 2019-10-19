@@ -870,16 +870,15 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
  *  assets over from the old mech to the new mech.
  */
 PMCData.PMC_MechUpdate = (origMech, newMech) => {
-
   // Update the data
   const { sourceId, targetId, label, description } = newMech;
   if (DBG) {
+    console.log('MechUpdate: Updating', origMech.sourceId, '=>', sourceId, 'and', origMech.targetId, '=>', targetId)
     if (typeof sourceId !== 'number')
       console.log('coercing sourceId to Number from', typeof sourceId);
     if (typeof targetId !== 'number')
       console.log('coercing targetId to Number from', typeof targetId);
   }
-//
   const modelId = ASET.selectedModelId;
   const mechObj = {
     type: 'mech',
@@ -894,43 +893,39 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
       id: modelId,
       entities: mechObj
     }
+  }).then(() => {
+    // If source or target changed,  move evidence and comments
+    if (origMech.sourceId !== newMech.sourceId || origMech.targetId !== newMech.targetId) {
+      const origMechId = CoerceToPathId(origMech.sourceId, origMech.targetId);
+      const newMechId = CoerceToPathId(newMech.sourceId, newMech.targetId);
+
+      // 2a. Move evidence over.
+      const evlinks = PMCData.PMC_GetEvLinksByMechId(origMechId);
+      if (evlinks) {
+        evlinks.forEach(evlink => {
+          PMCData.SetEvidenceLinkMechId(evlink.id, newMechId);
+        });
+      }
+      // 2b. Move comments over
+      const comments = PMCData.GetCommentThreadComments(origMechId);
+      PMCData.CommentThreadUpdate(newMechId, comments);
+
+      UTILS.RLog(
+        'MechanismEdit',
+        `from "${origMechId}" to "${newMechId}" with label "${newMech.label}"`
+      );
+
+      // 3. Show review dialog alert.
+      // HACK: Delay the alert so the system has a chance to redraw first.
+      if (evlinks || comments.length > 0) {
+        setTimeout(() => {
+          alert(
+            'Please review the updated mechanism to make sure the Evidence Links and comments are still relevant.'
+          );
+        }, 500);
+      }
+    }
   });
-
-  // Did we change source or target?  Then move evidence and comments
-  if (origMech.sourceId !== newMech.sourceId || origMech.targetId !== newMech.targetId) {
-    // 2. Update the old mech
-    const origMechId = `${origMech.sourceId}:${origMech.targetId}`;
-    const newMechId = `${newMech.sourceId}:${newMech.targetId}`;
-
-    // 2a. Move evidence over.
-    const evlinks = PMCData.PMC_GetEvLinksByMechId(origMechId);
-    if (evlinks) {
-      evlinks.forEach(evlink => {
-        PMCData.SetEvidenceLinkMechId(evlink.id, newMechId);
-      });
-    }
-    // 2b. Move comments over
-    const comments = PMCData.GetCommentThreadComments(origMechId);
-    PMCData.CommentThreadUpdate(newMechId, comments);
-    // 2c. Remove the old mech
-    PMCData.PMC_MechDelete(origMechId);
-
-    UTILS.RLog(
-      'MechanismEdit',
-      `from "${origMechId}" to "${newMechId}" with label "${newMech.label}"`
-    );
-
-    // 3. Show review dialog alert.
-    // HACK: Delay the alert so the system has a chance to redraw first.
-    if (evlinks || comments.length > 0) {
-      setTimeout(() => {
-        alert(
-          'Please review the updated mechanism to make sure the Evidence Links and comments are still relevant.'
-        );
-      }, 500);
-    }
-  }
-  return `updated edge`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_MechDelete = mechId => {
@@ -1388,6 +1383,7 @@ PMCData.CommentThreadAdd = (refId, newComments) => {
  *  comment text.
  */
 PMCData.CommentThreadUpdate = (refId, newComments) => {
+  
   const thread = PMCData.GetCommentThread(refId);
   if (thread === undefined) {
     // When a StickyNote is created, the note doesn't know if there is a parent

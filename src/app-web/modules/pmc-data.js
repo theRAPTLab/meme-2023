@@ -1161,15 +1161,14 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
      Not every key will be set, so only coerce if present
   
      propId is coming from EvidenceLink's target, which in turn is
-     set fom vm-data's selected_vprops array. That array is set from
+     set from vm-data's selected_vprops array. That array is set from
      vprop ids, which means the ids are strings.  So we always want to
      coerce propIds to numbers here.
   */
-  const cleanedData = {};
+  const cleanedData = Object.assign(newData); // copy everything first
   cleanedData.id = Number(evId); // Always coerce
   if (newData.propId) cleanedData.propId = Number(newData.propId);
   if (newData.rsrcId) cleanedData.rsrcId = Number(newData.rsrcId);
-
   const evData = Object.assign(ev, cleanedData);
   const modelId = ASET.selectedModelId;
   // we need to update pmcdata which looks like
@@ -1190,7 +1189,7 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
   const newData = {
     propId,
-    mechId: undefined // clear this in case it was set
+    mechId: null // clear this in case it was set
   };
   PMCData.PMC_EvidenceUpdate(evId, newData);
   if (propId !== undefined)
@@ -1208,7 +1207,7 @@ PMCData.SetEvidenceLinkPropId = (evId, propId) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
   const newData = {
-    propId: undefined, // clear this in case it was set
+    propId: null, // clear this in case it was set
     mechId
   };
   PMCData.PMC_EvidenceUpdate(evId, newData);

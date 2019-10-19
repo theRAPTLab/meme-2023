@@ -237,8 +237,7 @@ class EvidenceLink extends React.Component {
     DATA.VM_DeselectAll();
     UR.Publish('SELECTION_CHANGED');
     // Remove any existing evidence links
-    DATA.SetEvidenceLinkPropId(evlink.id, undefined);
-    DATA.SetEvidenceLinkMechId(evlink.id, undefined);
+    DATA.PMC_EvidenceUpdate(evlink.id, { propId: null, mechId: null });
     // Then trigger editing
     if (this.state.isBeingEdited) {
       UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId: evlink.id, rsrcId: evlink.rsrcId });
@@ -346,10 +345,10 @@ class EvidenceLink extends React.Component {
 
     let sourceType;
     let sourceLabel;
-    if (propId !== undefined && DATA.HasProp(propId) && DATA.Prop(propId)) {
+    if (propId !== undefined && propId !== null && DATA.HasProp(propId) && DATA.Prop(propId)) {
       sourceType = 'prop';
       sourceLabel = DATA.Prop(propId).name;
-    } else if (mechId !== undefined && DATA.Mech(mechId)) {
+    } else if (mechId !== undefined && mechId !== null && DATA.Mech(mechId)) {
       sourceType = 'mech';
       sourceLabel = DATA.Mech(mechId).name;
     } else {

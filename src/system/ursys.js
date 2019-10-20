@@ -104,6 +104,13 @@ function IsAdminLoggedIn() {
   return SESSION.AdminKey() || IsLocalhost();
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function DisableAdminPowers() {
+  const hbits = window.location.href.split('?');
+  if (hbits.length > 1) {
+    window.location.href = hbits[0];
+  }
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // TEMP: return the number of peers on the network
 function PeerCount() {
   return NetMessage.PEERS.count;
@@ -142,6 +149,7 @@ const UR = {
   ReloadOnViewChange, // UTIL
   IsLocalhost,
   IsAdminLoggedIn,
+  DisableAdminPowers,
   PeerCount,
   ReactPreflight,
   RoutePreflight,

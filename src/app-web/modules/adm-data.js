@@ -102,6 +102,17 @@ ADMData.SyncUpdatedData = data => {
   syncitems.forEach(item => {
     const { colkey, subkey, value } = item;
     if (DBG) console.log('updated', colkey, subkey || '', value);
+
+    switch (colkey) {
+      case 'models':
+        console.error('updating model title', value);
+        const model = ADMData.GetModelById(value.id);
+        model.title = value.title;
+        UR.Publish('MODEL_TITLE:UPDATED', { title: value.title });
+        break;
+      default:
+        throw Error('unexpected colkey', colkey);
+    }
   });
   // can add better logic to avoid updating too much
   // UR.Publish('ADM_DATA_UPDATED', data);
@@ -571,10 +582,21 @@ ADMData.GetModelTitle = (modelId = ASET.selectedModelId) => {
  * @param {string} title
  */
 ADMData.ModelTitleUpdate = (modelId, title) => {
+  return UR.DBQuery('update', {
+    'models': {
+      id: modelId,
+      title: title
+    }
+  }).then(() => {
+    UTILS.RLog('ModelRename', `from "${model.title}" to "${title}"`);
+  });
+
+  /** Old CODE
   const model = ADMData.GetModelById(modelId);
   UTILS.RLog('ModelRename', `from "${model.title}" to "${title}"`);
   model.title = title;
   UR.Publish('MODEL_TITLE:UPDATED', { title });
+   */
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

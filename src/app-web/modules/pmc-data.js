@@ -1150,18 +1150,26 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
     console.warn('got string evId');
   }
   const ev = PMCData.PMC_GetEvLinkByEvId(evId);
-  // db wants int ids, so replace existing string id with int id
-  const numericEvId = Number(evId);
-  // make a copy of the prop with overwritten new data
-  // local data will be updated on DBSYNC event, so don't write it here
 
   // data validation to make sure Object assign doesn't die.
   if (typeof ev !== 'object') throw Error('ev is not an object', typeof ev);
   if (typeof newData !== 'object') throw Error('newData is not an object', typeof newData);
-  if (typeof numericEvId !== 'number')
-    throw Error('numericEvId is not an number', typeof numericEvId);
 
-  const evData = Object.assign(ev, newData, { id: numericEvId });
+  // Clean Data
+  /* This data is being sent to the database, so all ids referring to
+     the evidence, properties and resources should be integers.
+     Not every key will be set, so only coerce if present
+  
+     propId is coming from EvidenceLink's target, which in turn is
+     set from vm-data's selected_vprops array. That array is set from
+     vprop ids, which means the ids are strings.  So we always want to
+     coerce propIds to numbers here.
+  */
+  const cleanedData = Object.assign(newData); // copy everything first
+  cleanedData.id = Number(evId); // Always coerce
+  if (newData.propId) cleanedData.propId = Number(newData.propId);
+  if (newData.rsrcId) cleanedData.rsrcId = Number(newData.rsrcId);
+  const evData = Object.assign(ev, cleanedData);
   const modelId = ASET.selectedModelId;
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
@@ -1181,7 +1189,7 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
   const newData = {
     propId,
-    mechId: undefined // clear this in case it was set
+    mechId: null // clear this in case it was set
   };
   PMCData.PMC_EvidenceUpdate(evId, newData);
   if (propId !== undefined)
@@ -1199,7 +1207,7 @@ PMCData.SetEvidenceLinkPropId = (evId, propId) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
   const newData = {
-    propId: undefined, // clear this in case it was set
+    propId: null, // clear this in case it was set
     mechId
   };
   PMCData.PMC_EvidenceUpdate(evId, newData);

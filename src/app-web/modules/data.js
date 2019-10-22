@@ -167,6 +167,7 @@ NEW.DB_NewModel = groupId => {
       //
       const groupId = ASET.selectedGroupId;
       const pmcDataId = rdata.pmcData[0].id;
+      const title = 'untitled model';
       return UR.DBQuery('add', { models: { title, groupId, pmcDataId } });
     }
   );

@@ -95,8 +95,7 @@ class ModelSelect extends React.Component {
   }
 
   OnNewModel() {
-    ADM.NewModel();
-    this.OnModelDialogClose();
+    ADM.NewModel(() => this.OnModelDialogClose());
   }
 
   OnModelEdit(modelId) {
@@ -106,8 +105,8 @@ class ModelSelect extends React.Component {
     this.OnModelDialogClose();
   }
 
-  OnModelView(modelId) {
-    ADM.LoadModel(modelId);
+  OnModelView(pmcDataId) {
+    ADM.LoadModel(pmcDataId);
     UTILS.RLog('ModelOpenView');
     this.OnModelDialogClose();
   }

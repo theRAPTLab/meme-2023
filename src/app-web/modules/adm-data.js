@@ -4,6 +4,7 @@ import SESSION from '../../system/common-session';
 import UTILS from './utils';
 import DATAMAP from '../../system/common-datamap';
 import PMCData from './data'; // this is a bit problematicn (circular ref)
+import ADMObj from './adm-objects';
 import ASET from './adm-settings';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
@@ -85,8 +86,35 @@ ADMData.SyncAddedData = data => {
   const syncitems = DATAMAP.ExtractSyncData(data);
   syncitems.forEach(item => {
     const { colkey, subkey, value } = item;
-    if (DBG) console.log('added', colkey, subkey || '', value);
+    if (DBG) console.log('SyncAddedData: added', colkey, subkey || '', value);
+
+    switch (colkey) {
+      case 'teachers':
+        const teacherId = value.id;
+        adm_db.teachers.push(teacherId);
+        ASET.selectedTeacherId = teacherId;
+        UR.Publish('ADM_DATA_UPDATED', data);
+        break;
+      case 'models':
+        console.log('...adding model', value);
+        // Only add it if it doesn't already exist
+        // This is necessary because a local call to
+        // DB_NewModel will also update adm_db.models.
+        if (!ADMData.GetModelById(value.pmcDataId)) {
+          const model = ADMObj.Model(value);
+          adm_db.models.push(model);
+          UR.Publish('ADM_DATA_UPDATED', data);
+        } else {
+          // Usually tjos fires before DB_NewModel's then() so the model is already added
+          if (DBG) console.error(`SyncAddedData: Model ${value.id} already added, skipping`);
+        }
+        break;
+      default:
+        // ignore pmcData updates
+        // throw Error('unexpected colkey', colkey);
+    }
   });
+  /** Old code
   // the manual inspection way (more HACKY)
   if (data.teachers) {
     const teacherId = data.teachers[0];
@@ -95,6 +123,7 @@ ADMData.SyncAddedData = data => {
     UR.Publish('ADM_DATA_UPDATED', data);
   }
   // can add better logic to avoid updating too much
+   */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SyncUpdatedData = data => {
@@ -107,11 +136,15 @@ ADMData.SyncUpdatedData = data => {
       case 'models':
         console.error('updating model title', value);
         const model = ADMData.GetModelById(value.id);
-        model.title = value.title;
-        UR.Publish('MODEL_TITLE:UPDATED', { title: value.title });
+        model.dateModified = value.dateModified;
+        if (model.title !== value.title) {
+          model.title = value.title;
+          UR.Publish('MODEL_TITLE:UPDATED', { title: value.title });          
+        }
         break;
       default:
-        throw Error('unexpected colkey', colkey);
+        // ignore pmcData updates
+        // throw Error('unexpected colkey', colkey);
     }
   });
   // can add better logic to avoid updating too much
@@ -520,11 +553,104 @@ ADMData.GetStudentGroupName = (studentId = ASET.selectedStudentId) => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// MODELS ////////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Creates a new db model
+ *  @param {Object} data - ADMObj.Model object.  groupID MUST be defined
+ *  @param {Function} cb - A callback function
+ */
+ADMData.DB_NewModel = (data, cb) => {
+  return UR.DBQuery('add', {
+    pmcData: { entities: [], commentThreads: [], visuals: [] }
+  }).then(rdata => {
+    if (rdata.error) throw Error(rdata.error);
+    const groupId = data.groupId;
+    const pmcDataId = rdata.pmcData[0].id;
+    const title = data.title;
+    UR.DBQuery('add', {
+      models: { groupId, pmcDataId, title }
+    }).then(rdata => {
+      if (rdata.error) throw Error(rdata.error);
+      const model = rdata.models[0];
+      if (!ADMData.GetModelById(model.pmcDataId)) {
+        adm_db.models.push(model);
+      } else {
+        // Usually SyncAddedData fires before this so the model is already added
+        if (DBG) console.error(`DB_NewModel model id ${model.id} already exits. Skipping add.`)
+      }
+      UTILS.RLog('ModelCreate');
+      cb(rdata);
+    });
+  });
+
+  /* old
+  return UR.DBQuery('add', {
+    'models': {
+      ...data
+    }
+  }).then(rdata => {
+    UTILS.RLog('ModelCreate');
+    cb(rdata);
+  });
+  */
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Handles text input updates for the model title
+ * @param {string} title
+ */
+ADMData.DB_ModelTitleUpdate = (modelId, title) => {
+  return UR.DBQuery('update', {
+    'models': {
+      id: modelId,
+      title: title,
+      dateModified: new Date()
+    }
+  }).then(() => {
+    UTILS.RLog('ModelRename', `id "${modelId}" to "${title}"`);
+  });
+
+  /** Old CODE
+  const model = ADMData.GetModelById(modelId);
+  UTILS.RLog('ModelRename', `from "${model.title}" to "${title}"`);
+  model.title = title;
+  UR.Publish('MODEL_TITLE:UPDATED', { title });
+   */
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Called by ModelSelect when user requests a new model
+ *  This will add a new model to the db and then open the new model
+ *  It uses the currently selected GroupID.
+ *  @param {Function} cb - Callback function
+ */
+ADMData.NewModel = cb => {
+  const data = {
+    groupId: ADMData.GetSelectedGroupId()
+  };
+  ADMData.DB_NewModel(data, rdata => {
+    if (rdata && rdata.models && rdata.models.length > 0) {
+      // grab the first model returned
+      const model = rdata.models[0];
+      ADMData.LoadModel(model.pmcDataId);
+    }
+    cb();
+  });
+
+  //** OLD CODE */
+  // adm_db.models.push(model);
+  // UR.Publish('ADM_DATA_UPDATED');
+  // ADMData.LoadModel(model.id, groupId);
+  // UTILS.RLog('ModelCreate');
+};
 /**
  * return the model meta data
+ *  @param {Integer} pmcDataId - Not db model id
  */
-ADMData.GetModelById = (modelId = ASET.selectedModelId) => {
-  return adm_db.models.find(model => model.id === modelId);
+ADMData.GetModelById = (pmcDataId = ASET.selectedModelId) => {
+  return adm_db.models.find(model => model.pmcDataId === pmcDataId);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -576,54 +702,15 @@ ADMData.GetModelTitle = (modelId = ASET.selectedModelId) => {
   const model = ADMData.GetModelById(modelId);
   return model ? model.title : '';
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * Handles text input updates for the model title
- * @param {string} title
- */
-ADMData.ModelTitleUpdate = (modelId, title) => {
-  return UR.DBQuery('update', {
-    'models': {
-      id: modelId,
-      title: title
-    }
-  }).then(() => {
-    UTILS.RLog('ModelRename', `from "${model.title}" to "${title}"`);
-  });
-
-  /** Old CODE
-  const model = ADMData.GetModelById(modelId);
-  UTILS.RLog('ModelRename', `from "${model.title}" to "${title}"`);
-  model.title = title;
-  UR.Publish('MODEL_TITLE:UPDATED', { title });
-   */
-};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.NewModel = (groupId = ADMData.GetSelectedGroupId()) => {
-  let model = {
-    id: GenerateUID('mo'),
-    title: 'new',
-    groupId,
-    dateCreated: new Date(),
-    dateModified: new Date(),
-    data: {}
-  };
-  adm_db.models.push(model);
-  UR.Publish('ADM_DATA_UPDATED');
-  ADMData.LoadModel(model.id, groupId);
-
-  UTILS.RLog('ModelCreate');
-};
-
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.LoadModel = modelId => {
-  let model = ADMData.GetModelById(modelId);
+ADMData.LoadModel = pmcDataId => {
+  let model = ADMData.GetModelById(pmcDataId);
   if (model === undefined) {
-    console.error(PKG, 'LoadModel could not find a valid modelId', modelId);
+    console.error(PKG, 'LoadModel could not find a valid modelId', pmcDataId);
   }
   PMCData.ClearModel();
-  ADMData.SetSelectedModelId(modelId); // Remember the selected modelId locally
+  ADMData.SetSelectedModelId(pmcDataId); // Remember the selected modelId locally
   PMCData.InitializeModel(model, adm_db);
 };
 

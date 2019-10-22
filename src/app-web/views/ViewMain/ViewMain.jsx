@@ -208,7 +208,7 @@ class ViewMain extends React.Component {
   }
 
   DoSaveModelTitle() {
-    ADM.ModelTitleUpdate(this.state.modelId, this.state.title);
+    ADM.DB_ModelTitleUpdate(this.state.modelId, this.state.title);
   }
 
   // User clicked on "(+) Add Component" drawer button

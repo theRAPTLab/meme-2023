@@ -86,6 +86,8 @@ function DBQuery(cmd, data) {
   return ULINK._DBQuery(cmd, data)
     .then(rdata => {
       console.log(rdata);
+      // rdata MUST to be returned here otherwise it is not passed to DBQuery
+      return rdata;
     })
     .catch(err => {
       console.error(`DBQUERY '${cmd}' failed:`, err);

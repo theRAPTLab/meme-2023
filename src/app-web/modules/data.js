@@ -57,6 +57,7 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// clone ADMData, PMC, VM into $ object
 const $$$ = Object.assign({}, { ...ADM }, { ...PMC }, { ...VM });
+const NEW = {};
 
 /// NEW METHOD PROTOTYPING AREA ///////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -159,7 +160,16 @@ NEW.DB_ModelTitleUpdate = (modelId = ASET.selectedModelId, title) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NEW.DB_NewModel = groupId => {
-  return UR.DBQuery('add', { models: { entities: [], commentThreads: [], visuals: [] } });
+  // new pmcData, then read the id and make new model
+  return UR.DBQuery('add', { pmcData: { entities: [], visuals: [], commentThreads: [] } }).then(
+    rdata => {
+      if (rdata.error) throw Error(rdata.error);
+      //
+      const groupId = ASET.selectedGroupId;
+      const pmcDataId = rdata.pmcData[0].id;
+      return UR.DBQuery('add', { models: { title, groupId, pmcDataId } });
+    }
+  );
   // FIRES 'ADM_DATA_UPDATED'
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -263,6 +273,23 @@ window.ur.tlogout = () => {
     window.ur.clientinfo();
   });
   return 'logging out...';
+};
+
+// - - - - - - - - - - - - - - - - - - - - -
+window.ur.tnewmodel = title => {
+  // first create the pmcData
+  return UR.DBQuery('add', { pmcData: { entities: [], visuals: [], commentThreads: [] } })
+    .then(rdata => {
+      if (rdata.error) throw Error(rdata.error);
+      //
+      const groupId = ASET.selectedGroupId;
+      const pmcDataId = rdata.pmcData[0].id;
+      return UR.DBQuery('add', { models: { title, groupId, pmcDataId } });
+    })
+    .then(rdata => {
+      console.log('rdata2', rdata);
+      return rdata;
+    });
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

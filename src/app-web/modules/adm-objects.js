@@ -31,7 +31,8 @@ ADMObj.Classroom = data => {
   return {
     id: data.id,
     teacherId: data.teacherId,
-    name: data.name
+    name: data.name || 'Untitled',
+    canViewOthers: data.canViewOthers || false
   };
 };
 

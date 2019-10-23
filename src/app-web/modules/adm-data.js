@@ -135,28 +135,21 @@ ADMData.SyncUpdatedData = data => {
   syncitems.forEach(item => {
     const { colkey, subkey, value } = item;
     if (DBG) console.log('updated', colkey, subkey || '', value);
-
     switch (colkey) {
       case 'teachers':
-        const teacher = ADMObj.Teacher(value);
-        if (!ADMData.GetTeacher(teacher.id)) {
-          adm_db.teachers.push(teacher);
-          UR.Publish('ADM_DATA_UPDATED', data);
-        }
+        throw Error('This should not ever get called');
         break;
       case 'classrooms':
-        const classroom = ADMObj.Classroom(value);
-        if (!ADMData.GetClassroom(classroom.id)) {
-          adm_db.classrooms.push(classroom);
-          UR.Publish('ADM_DATA_UPDATED', data);
-        }
+        const classroom = ADMData.GetClassroom(value.id);
+        classroom.canViewOthers = value.canViewOthers;
+        UR.Publish('ADM_DATA_UPDATED', data);
         break;
       case 'models':
         const model = ADMData.GetModelById(value.id);
         model.dateModified = value.dateModified;
         if (model.title !== value.title) {
           model.title = value.title;
-          UR.Publish('MODEL_TITLE:UPDATED', { title: value.title });          
+          UR.Publish('MODEL_TITLE:UPDATED', { title: value.title });
         }
         break;
       default:
@@ -291,6 +284,16 @@ ADMData.DB_AddClassroom = name => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
+ *  Updates existing classroom
+ *  Primarily used to set the CanViewOthersModels property
+ *  @param {String} data - New teacher name
+ */
+ADMData.DB_UpdateClassroom = (id, data) => {
+  const classroom = Object.assign(ADMData.GetClassroom(id), data, { id }); // make sure id doens't get clobbered
+  return UR.DBQuery('update', { classrooms: classroom });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
  * Retrieves the classroom by classoomId or the currently selected classroom
  * @param {string} [classroomId = current selected classroomId]
  * @return {object} Clasroom Objectm, undefined if not found
@@ -335,20 +338,26 @@ ADMData.GetClassroomNameByStudent = (studentId = ASET.selectedStudentId) => {
   const classroom = ADMData.GetClassroom(classroomId);
   return classroom ? classroom.name : '';
 };
+/* replaced by DB_Classroomupdate
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * @param isVisible - bool
- */
+ * /
 ADMData.SetClassesModelVisibility = isVisible => {
   const classroom = ADMData.GetClassroom();
-  classroom.showClassesModels = isVisible;
+  classroom.canViewOthers = isVisible;
   console.log('setting visibility to ', isVisible);
   return isVisible;
 };
+*/
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.ClassesModelsAreVisible = () => {
+/**
+ *  Students in this classroom are a allowed to view the models of their
+ *  fellow classmates.  Used for commenting.
+ */
+ADMData.CanViewOthers = () => {
   const classroom = ADMData.GetClassroom();
-  return classroom.showClassesModels;
+  return classroom.canViewOthers;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomIdByStudent()) => {
@@ -641,7 +650,6 @@ ADMData.DB_NewModel = (data, cb) => {
  * @param {string} title
  */
 ADMData.DB_ModelTitleUpdate = (modelId, title) => {
-
   return UR.DBQuery('update', {
     'models': {
       id: modelId,

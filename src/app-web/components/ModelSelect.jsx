@@ -48,7 +48,7 @@ class ModelSelect extends React.Component {
     this.state = {
       modelId: '',
       modelSelectDialogOpen: false,
-      showClassesModels: false,
+      canViewOthers: false,
       studentId: '',
       groupName: '',
       classroomName: '',
@@ -76,7 +76,7 @@ class ModelSelect extends React.Component {
       this.setState({
         modelId: ADM.GetSelectedModelId(),
         modelSelectDialogOpen: true,
-        showClassesModels: true, //ADM.ClassesModelsAreVisible(),
+        canViewOthers: ADM.CanViewOthers(),
         studentId,
         groupName,
         classroomName,
@@ -119,7 +119,7 @@ class ModelSelect extends React.Component {
     const { classes } = this.props;
     const {
       modelSelectDialogOpen,
-      showClassesModels,
+      canViewOthers,
       studentId,
       groupName,
       classroomName,
@@ -156,11 +156,11 @@ class ModelSelect extends React.Component {
           <Divider style={{ margin: '2em' }} />
           <Grid container spacing={2}>
             <Grid item>
-              <Typography variant="h4">{ADM.GetStudentGroupName()} Group&lsquo;s Models</Typography>
+              <Typography variant="h4">{ADM.GetStudentGroupName()} Group&rsquo;s Models</Typography>
               <ModelsListTable models={myModels} OnModelSelect={this.OnModelEdit} />
             </Grid>
-            <Grid item hidden={!showClassesModels}>
-              <Typography variant="h4">My Class&lsquo; Models</Typography>
+            <Grid item hidden={!canViewOthers}>
+              <Typography variant="h4">My Class&rsquo; Models</Typography>
               <ModelsListTable models={ourModels} OnModelSelect={this.OnModelView} />
             </Grid>
           </Grid>

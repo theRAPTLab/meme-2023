@@ -27,6 +27,20 @@ import ADM from '../modules/data';
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+function HumanDate(timestamp) {
+  if (timestamp === undefined || timestamp === '') return '<no date>';
+  const date = new Date(timestamp);
+  const timestring = date.toLocaleTimeString('en-Us', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  const datestring = date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
+  });
+  return `${datestring} ${timestring}`;
+}
+
 class ModelsListTable extends React.Component {
   componentDidMount() { }
 
@@ -54,11 +68,13 @@ class ModelsListTable extends React.Component {
             {models.map(model => (
               <TableRow key={model.id}>
                 <TableCell>
-                  <Button color="primary" onClick={e => this.OnModelSelect(model.pmcDataId)}>
+                  <Button color="primary" onClick={e => this.OnModelSelect(model.modelId)}>
                     {model.title}
                   </Button>
                 </TableCell>
                 <TableCell>{ADM.GetGroupName(model.groupId)}</TableCell>
+                <TableCell>{HumanDate(model.dateModified)}</TableCell>
+                <TableCell>{HumanDate(model.dateCreated)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

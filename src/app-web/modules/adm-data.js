@@ -94,6 +94,11 @@ ADMData.SyncAddedData = data => {
         adm_db.teachers.push(teacher);
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
+      case 'classrooms':
+        const classroom = ADMObj.Classroom(value);
+        adm_db.classrooms.push(classroom);
+        UR.Publish('ADM_DATA_UPDATED', data);
+        break;
       case 'models':
         console.log('...adding model', value);
         // Only add it if it doesn't already exist
@@ -134,11 +139,19 @@ ADMData.SyncUpdatedData = data => {
     switch (colkey) {
       case 'teachers':
         const teacher = ADMObj.Teacher(value);
-        adm_db.teachers.push(teacher);
-        UR.Publish('ADM_DATA_UPDATED', data);
+        if (!ADMData.GetTeacher(teacher.id)) {
+          adm_db.teachers.push(teacher);
+          UR.Publish('ADM_DATA_UPDATED', data);
+        }
+        break;
+      case 'classrooms':
+        const classroom = ADMObj.Classroom(value);
+        if (!ADMData.GetClassroom(classroom.id)) {
+          adm_db.classrooms.push(classroom);
+          UR.Publish('ADM_DATA_UPDATED', data);
+        }
         break;
       case 'models':
-        console.error('updating model title', value);
         const model = ADMData.GetModelById(value.id);
         model.dateModified = value.dateModified;
         if (model.title !== value.title) {
@@ -168,6 +181,32 @@ ADMData.SyncRemovedData = data => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// TEACHERS //////////////////////////////////////////////////////////////////
 ///
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Creates a new teacher and then selects the teacher
+ *  @param {String} name - New teacher name
+ */
+ADMData.DB_AddTeacher = name => {
+  return UR.DBQuery('add', {
+    teachers: { name }
+  }).then(rdata => {
+    if (rdata.error) throw Error(rdata.error);
+    ADMData.SelectTeacher(rdata.teachers[0].id);
+  });
+  // let round-trip handle update logic
+  // e.g.  ASET.selectedTeacherId = teacherId; UR.Publish('TEACHER_SELECT', { teacherId: teacherId });
+
+  /* OLD STUFF TO DELETE
+  const teacher = {};
+  teacher.id = GenerateUID('tc');
+  teacher.name = name;
+  adm_db.teachers.push(teacher);
+  // Select the new teacher
+  ASET.selectedTeacherId = teacher.id;
+  UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
+  */
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetAllTeachers = () => {
   return adm_db.teachers;
 };
@@ -176,10 +215,7 @@ ADMData.GetAllTeachers = () => {
  * @return {object} Teacher Object, undefined if not found
  */
 ADMData.GetTeacher = (teacherId = ASET.selectedTeacherId) => {
-  let teacher = adm_db.teachers.find(tch => {
-    return tch.id === teacherId;
-  });
-  return teacher;
+  return adm_db.teachers.find(tch => tch.id === teacherId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -216,31 +252,43 @@ ADMData.SelectTeacher = teacherId => {
   ASET.selectedTeacherId = teacherId;
   UR.Publish('TEACHER_SELECT', { teacherId });
 };
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.DB_AddTeacher = name => {
-  return UR.DBQuery('add', {
-    teachers: { name }
-  }).then(rdata => {
-    if (rdata.error) throw Error(rdata.error);
-    ADMData.SelectTeacher(rdata.teachers[0].id);
-  });
-  // let round-trip handle update logic
-  // e.g.  ASET.selectedTeacherId = teacherId; UR.Publish('TEACHER_SELECT', { teacherId: teacherId });
 
-  /* OLD STUFF TO DELETE
-  const teacher = {};
-  teacher.id = GenerateUID('tc');
-  teacher.name = name;
-  adm_db.teachers.push(teacher);
-  // Select the new teacher
-  ASET.selectedTeacherId = teacher.id;
-  UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
-  */
-};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// CLASSROOMS ////////////////////////////////////////////////////////////////
 ///
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Creates a new classroom and then selects the classroom
+ *  @param {String} name - New teacher name
+ */
+ADMData.DB_AddClassroom = name => {
+  const classroom = ADMObj.Classroom({
+    teacherId: ASET.selectedTeacherId,
+    name
+  });
+  return UR.DBQuery('add', { classrooms: classroom }).then(rdata => {
+    if (rdata.error) throw Error(rdata.error);
+    ADMData.SelectClassroom(rdata.classrooms[0].id);
+  });
+
+/** old/
+  const classroom = {};
+  classroom.id = GenerateUID('tc');
+  classroom.name = name;
+  classroom.teacherId = ASET.selectedTeacherId;
+  adm_db.classrooms.push(classroom);
+  // Select the new classroom
+  ASET.selectedClassroomId = classroom.id;
+  // Special case of CLASSROOM_SELECT: We need to update the list of classrooms
+  // when a new classroom is added, so we pass the flag and let the component
+  // do the updating.
+  UR.Publish('CLASSROOM_SELECT', {
+    classroomId: classroom.id,
+    classroomListNeedsUpdating: true
+  });
+  */
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Retrieves the classroom by classoomId or the currently selected classroom
@@ -310,23 +358,6 @@ ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomIdByStudent()) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetSelectedClassroomId = () => {
   return ASET.selectedClassroomId;
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.AddClassroom = name => {
-  const classroom = {};
-  classroom.id = GenerateUID('tc');
-  classroom.name = name;
-  classroom.teacherId = ASET.selectedTeacherId;
-  adm_db.classrooms.push(classroom);
-  // Select the new classroom
-  ASET.selectedClassroomId = classroom.id;
-  // Special case of CLASSROOM_SELECT: We need to update the list of classrooms
-  // when a new classroom is added, so we pass the flag and let the component
-  // do the updating.
-  UR.Publish('CLASSROOM_SELECT', {
-    classroomId: classroom.id,
-    classroomListNeedsUpdating: true
-  });
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

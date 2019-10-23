@@ -44,6 +44,7 @@ class ClassroomsSelector extends React.Component {
   constructor(props) {
     super(props);
 
+    this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.DoClassroomListUpdate = this.DoClassroomListUpdate.bind(this);
     this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
@@ -52,6 +53,7 @@ class ClassroomsSelector extends React.Component {
     this.OnClassesModelsVisibilityChange = this.OnClassesModelsVisibilityChange.bind(this);
     this.OnAddClassroomDialogClose = this.OnAddClassroomDialogClose.bind(this);
 
+    UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('TEACHER_SELECT', this.DoTeacherSelect);
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
 
@@ -68,6 +70,10 @@ class ClassroomsSelector extends React.Component {
 
   componentWillUnmount() { }
 
+  DoADMDataUpdate() {
+    this.DoClassroomListUpdate();
+  }
+
   DoClassroomListUpdate() {
     this.setState({
       classrooms: ADM.GetClassroomsByTeacher()
@@ -83,11 +89,6 @@ class ClassroomsSelector extends React.Component {
   // Update the state and inform subscribers (groupList, models, criteria, resources
   DoClassroomSelect(data) {
     if (DBG) console.log('AdmClassroomsSelector: Setting classroom to', data);
-    if (data.classroomListNeedsUpdating) {
-      // REVIEW: Instead of doing two set staes in a row (selectedCLassroomId below)
-      // we might want to use the setState callback to set one then the other?
-      this.DoClassroomListUpdate();
-    }
     this.setState({ selectedClassroomId: data.classroomId });
   }
 
@@ -105,10 +106,10 @@ class ClassroomsSelector extends React.Component {
     e.preventDefault();
     e.stopPropagation();
     let name = this.state.addClassroomDialogName;
-    ADM.AddClassroom(name);
+    ADM.DB_AddClassroom(name);
     this.OnAddClassroomDialogClose();
   }
-  
+
   OnClassesModelsVisibilityChange(e) {
     console.error('toggling visiblity')
     this.setState({ showClassesModels: ADM.SetClassesModelVisibility( e.target.checked )});

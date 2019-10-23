@@ -14,20 +14,31 @@ const PKG = 'ADMObj'; // prefix for console.log
 const ADMObj = {}; // module object to export
 
 /**
- *  Returns a new pmcData data object (used in models)
+ *  @return {Object} Returns a new teacher data object
  */
-ADMObj.Teacher = (data) => {
+ADMObj.Teacher = data => {
   return {
     id: data.id,
-    name: data.name || 'something went wrong'
+    name: data.name
   };
 };
 
+/**
+ *  @return {Object} Returns a new classroom data object
+ */
+ADMObj.Classroom = data => {
+  if (data.teacherId === undefined) throw Error('Classroom requires a teacherID!');
+  return {
+    id: data.id,
+    teacherId: data.teacherId,
+    name: data.name
+  };
+};
 
 /**
- *  Returns a new model object
  *  @param {Object} data - Initial data for the model
  *                        `groupId` is required.
+ *  @return {Object} Returns a new model object
  */
 ADMObj.Model = data => {
   if (data.groupId === undefined) throw Error('Model requires a groupId!');

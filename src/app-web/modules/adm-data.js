@@ -90,9 +90,8 @@ ADMData.SyncAddedData = data => {
 
     switch (colkey) {
       case 'teachers':
-        const teacherId = value.id;
-        adm_db.teachers.push(teacherId);
-        ASET.selectedTeacherId = teacherId;
+        const teacher = ADMObj.Teacher(value);
+        adm_db.teachers.push(teacher);
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       case 'models':
@@ -133,6 +132,11 @@ ADMData.SyncUpdatedData = data => {
     if (DBG) console.log('updated', colkey, subkey || '', value);
 
     switch (colkey) {
+      case 'teachers':
+        const teacher = ADMObj.Teacher(value);
+        adm_db.teachers.push(teacher);
+        UR.Publish('ADM_DATA_UPDATED', data);
+        break;
       case 'models':
         console.error('updating model title', value);
         const model = ADMData.GetModelById(value.id);
@@ -213,9 +217,12 @@ ADMData.SelectTeacher = teacherId => {
   UR.Publish('TEACHER_SELECT', { teacherId });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.AddTeacher = name => {
+ADMData.DB_AddTeacher = name => {
   return UR.DBQuery('add', {
     teachers: { name }
+  }).then(rdata => {
+    if (rdata.error) throw Error(rdata.error);
+    ADMData.SelectTeacher(rdata.teachers[0].id);
   });
   // let round-trip handle update logic
   // e.g.  ASET.selectedTeacherId = teacherId; UR.Publish('TEACHER_SELECT', { teacherId: teacherId });

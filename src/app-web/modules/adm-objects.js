@@ -14,6 +14,17 @@ const PKG = 'ADMObj'; // prefix for console.log
 const ADMObj = {}; // module object to export
 
 /**
+ *  Returns a new pmcData data object (used in models)
+ */
+ADMObj.Teacher = (data) => {
+  return {
+    id: data.id,
+    name: data.name || 'something went wrong'
+  };
+};
+
+
+/**
  *  Returns a new model object
  *  @param {Object} data - Initial data for the model
  *                        `groupId` is required.

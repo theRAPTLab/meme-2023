@@ -100,7 +100,7 @@ ADMData.SyncAddedData = data => {
         // Only add it if it doesn't already exist
         // This is necessary because a local call to
         // DB_NewModel will also update adm_db.models.
-        if (!ADMData.GetModelById(value.pmcDataId)) {
+        if (!ADMData.GetModelById(value.id)) {
           const model = ADMObj.Model(value);
           adm_db.models.push(model);
           UR.Publish('ADM_DATA_UPDATED', data);
@@ -562,25 +562,27 @@ ADMData.GetStudentGroupName = (studentId = ASET.selectedStudentId) => {
  */
 ADMData.DB_NewModel = (data, cb) => {
   return UR.DBQuery('add', {
-    pmcData: { entities: [], commentThreads: [], visuals: [] }
+    pmcData: ADMObj.ModelPMCData()
   }).then(rdata => {
     if (rdata.error) throw Error(rdata.error);
-    const groupId = data.groupId;
-    const pmcDataId = rdata.pmcData[0].id;
-    const title = data.title;
+    const mdata = {};
+    mdata.groupId = data.groupId;
+    mdata.pmcDataId = rdata.pmcData[0].id;
+    mdata.title = data.title;
+    const model = ADMObj.Model(mdata); // set creation date
     UR.DBQuery('add', {
-      models: { groupId, pmcDataId, title }
-    }).then(rdata => {
-      if (rdata.error) throw Error(rdata.error);
-      const model = rdata.models[0];
-      if (!ADMData.GetModelById(model.pmcDataId)) {
+      models: model // db will set id
+    }).then(rdata2 => {
+      if (rdata2.error) throw Error(rdata2.error);
+      const model = rdata2.models[0];
+      if (!ADMData.GetModelById(model.id)) {
         adm_db.models.push(model);
       } else {
         // Usually SyncAddedData fires before this so the model is already added
         if (DBG) console.error(`DB_NewModel model id ${model.id} already exits. Skipping add.`)
       }
       UTILS.RLog('ModelCreate');
-      cb(rdata);
+      cb(rdata2);
     });
   });
 
@@ -601,6 +603,7 @@ ADMData.DB_NewModel = (data, cb) => {
  * @param {string} title
  */
 ADMData.DB_ModelTitleUpdate = (modelId, title) => {
+
   return UR.DBQuery('update', {
     'models': {
       id: modelId,
@@ -634,7 +637,7 @@ ADMData.NewModel = cb => {
     if (rdata && rdata.models && rdata.models.length > 0) {
       // grab the first model returned
       const model = rdata.models[0];
-      ADMData.LoadModel(model.pmcDataId);
+      ADMData.LoadModel(model.id);
     }
     cb();
   });
@@ -647,10 +650,10 @@ ADMData.NewModel = cb => {
 };
 /**
  * return the model meta data
- *  @param {Integer} pmcDataId - Not db model id
+ *  @param {Integer} modelId
  */
-ADMData.GetModelById = (pmcDataId = ASET.selectedModelId) => {
-  return adm_db.models.find(model => model.pmcDataId === pmcDataId);
+ADMData.GetModelById = (modelId = ASET.selectedModelId) => {
+  return adm_db.models.find(model => model.id === modelId);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -704,13 +707,11 @@ ADMData.GetModelTitle = (modelId = ASET.selectedModelId) => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.LoadModel = pmcDataId => {
-  let model = ADMData.GetModelById(pmcDataId);
-  if (model === undefined) {
-    console.error(PKG, 'LoadModel could not find a valid modelId', pmcDataId);
-  }
+ADMData.LoadModel = modelId => {
+  let model = ADMData.GetModelById(modelId);
+  if (model === undefined) throw Error(`${PKG}.LoadModel could not find a valid modelId ${modelId}`);
   PMCData.ClearModel();
-  ADMData.SetSelectedModelId(pmcDataId); // Remember the selected modelId locally
+  ADMData.SetSelectedModelId(modelId); // Remember the selected modelId locally
   PMCData.InitializeModel(model, adm_db);
 };
 

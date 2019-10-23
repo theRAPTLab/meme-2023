@@ -31,6 +31,13 @@ ADMObj.Model = data => {
   return model;
 };
 
+/**
+ *  Returns a new pmcData data object (used in models)
+ */
+ADMObj.ModelPMCData = () => {
+  return { entities: [], commentThreads: [], visuals: [] };
+};
+
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default ADMObj;

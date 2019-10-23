@@ -105,8 +105,8 @@ class ModelSelect extends React.Component {
     this.OnModelDialogClose();
   }
 
-  OnModelView(pmcDataId) {
-    ADM.LoadModel(pmcDataId);
+  OnModelView(modelId) {
+    ADM.LoadModel(modelId);
     UTILS.RLog('ModelOpenView');
     this.OnModelDialogClose();
   }

@@ -144,7 +144,6 @@ PMCData.InitializeModel = (model, admdb) => {
   by model.data = pmcData[pmcDataId]
   /*/
 
-  const data = pmcData.find(data => data.id === pmcDataId);
   const data = pmcData.find(data => data.id === pmcDataId) || {}; // empty object if new pmcData
   if (DBG) console.log('loaded data', data);
   if (DBG) console.log('data.entities start processing');

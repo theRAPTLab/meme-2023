@@ -368,6 +368,8 @@ PMCData.SyncRemovedData = data => {
       switch (value.type) {
         case 'prop':
           m_graph.removeNode(value.id);
+          // Fire PROP_DELETE so that any open dialogs can remove it
+          UR.Publish('PROP_DELETE', { id: value.id });
           break;
         case 'mech':
           m_graph.removeEdge(value.source, value.target);

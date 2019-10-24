@@ -46,6 +46,7 @@ class MechDialog extends React.Component {
     this.OnClose = this.OnClose.bind(this);
     this.DoSelectSourceAndTarget = this.DoSelectSourceAndTarget.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
+    this.DoPropDelete = this.DoPropDelete.bind(this);
     this.OnSourceLinkButtonClick = this.OnSourceLinkButtonClick.bind(this);
     this.OnTargetLinkButtonClick = this.OnTargetLinkButtonClick.bind(this);
     this.OnTextChange = this.OnTextChange.bind(this);
@@ -75,6 +76,7 @@ class MechDialog extends React.Component {
     UR.Subscribe('MECHDIALOG:ADD', this.DoAdd);
     UR.Subscribe('MECHDIALOG:EDIT', this.DoEdit);
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
+    UR.Subscribe('PROP_DELETE', this.DoPropDelete);
   }
 
   componentDidMount() {}
@@ -83,6 +85,7 @@ class MechDialog extends React.Component {
     UR.Unsubscribe('MECHDIALOG:ADD', this.DoAdd);
     UR.Unsubscribe('MECHDIALOG:EDIT', this.DoEdit);
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
+    UR.Unsubscribe('PROP_DELETE', this.DoPropDelete);
   }
 
   DoAdd() {
@@ -233,6 +236,30 @@ class MechDialog extends React.Component {
         listenForSourceSelection,
         listenForTargetSelection
       });
+    }
+  }
+  
+  DoPropDelete(data) {
+    const { isOpen, sourceId, targetId } = this.state;
+    const deletedPropId = String(data.id); // coerce to String because sourceID and targetId are strings
+    if (isOpen) {
+      if (sourceId === deletedPropId) {
+        // deselect it
+        this.setState({
+          sourceId: '',
+          sourceLabel: undefined,
+          listenForSourceSelection: true
+        });
+      }
+      if (targetId === deletedPropId) {
+        // deselect it
+        this.setState({
+          targetId: '',
+          targetLabel: undefined,
+          listenForTargetSelection: true
+        });
+      }
+      alert('The component or property you were linking was deleted by someone else.  Please select a different component or property.');
     }
   }
 

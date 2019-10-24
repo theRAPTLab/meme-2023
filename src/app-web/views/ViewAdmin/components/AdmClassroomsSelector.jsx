@@ -68,7 +68,11 @@ class ClassroomsSelector extends React.Component {
 
   componentDidMount() { }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {
+    UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+    UR.Unsubscribe('TEACHER_SELECT', this.DoTeacherSelect);
+    UR.Unsubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
+  }
 
   DoADMDataUpdate() {
     this.DoClassroomListUpdate();

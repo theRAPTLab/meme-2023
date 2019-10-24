@@ -75,7 +75,10 @@ class GroupsList extends React.Component {
 
   componentDidMount() { }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {
+    UR.Unubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
+    UR.Unubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+  }
 
   DoClassroomSelect(data) {
     if (DBG) console.log('AdmGroupsList: DoClassroomSelect', data);

@@ -57,7 +57,10 @@ class TeacherSelector extends React.Component {
     this.DoADMDataUpdate();
   }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {
+    UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+    UR.Unsubscribe('TEACHER_SELECT', this.DoTeacherSelect);
+  }
 
   DoADMDataUpdate() {
     this.setState({ teachers: ADM.GetAllTeachers() });

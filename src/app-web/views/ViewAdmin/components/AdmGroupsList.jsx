@@ -109,7 +109,7 @@ class GroupsList extends React.Component {
   OnAddGroupName(e) {
     e.preventDefault();
     e.stopPropagation();
-    ADM.AddGroup(this.state.addGroupDialogName);
+    ADM.DB_AddGroup(this.state.addGroupDialogName);
     this.OnAddGroupDialogClose();
   }
 

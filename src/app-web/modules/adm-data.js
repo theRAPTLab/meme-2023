@@ -99,6 +99,11 @@ ADMData.SyncAddedData = data => {
         adm_db.classrooms.push(classroom);
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
+      case 'groups':
+        const group = ADMObj.Group(value);
+        adm_db.groups.push(group);
+        UR.Publish('ADM_DATA_UPDATED', data);
+        break;
       case 'models':
         console.log('...adding model', value);
         // Only add it if it doesn't already exist
@@ -142,6 +147,11 @@ ADMData.SyncUpdatedData = data => {
       case 'classrooms':
         const classroom = ADMData.GetClassroom(value.id);
         classroom.canViewOthers = value.canViewOthers;
+        UR.Publish('ADM_DATA_UPDATED', data);
+        break;
+      case 'groups':
+        const group = ADMData.GetGroup(value.id);
+        group.students = value.students;
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       case 'models':
@@ -253,7 +263,7 @@ ADMData.SelectTeacher = teacherId => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Creates a new classroom and then selects the classroom
- *  @param {String} name - New teacher name
+ *  @param {String} name - New classroom name
  */
 ADMData.DB_AddClassroom = name => {
   const classroom = ADMObj.Classroom({
@@ -373,9 +383,16 @@ ADMData.GetSelectedClassroomId = () => {
 /// GROUPS ////////////////////////////////////////////////////////////////////
 ///
 /**
- *  Add a new group
+ *  Creates a new group object and saves it to the db
  */
-ADMData.AddGroup = groupName => {
+ADMData.DB_AddGroup = groupName => {
+  const group = ADMObj.Group({
+    classroomId: ASET.selectedClassroomId,
+    name: groupName
+  });
+  return UR.DBQuery('add', { groups: group });
+
+  /** old code
   let group = {};
   group.id = GenerateUID('gr');
   group.name = groupName;
@@ -385,6 +402,25 @@ ADMData.AddGroup = groupName => {
   adm_db.groups.push(group);
 
   UR.Publish('ADM_DATA_UPDATED');
+  */
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Updates the db with the group info
+ *  Allows partial update of group data
+ */
+ADMData.DB_UpdateGroup = (groupId, group) => {
+  const groupData = Object.assign(ADMData.GetGroup(groupId), group, { id: groupId });
+  return UR.DBQuery('update', { groups: groupData });
+
+  /* old code
+  let i = adm_db.groups.findIndex(grp => grp.id === groupId);
+  if (i < 0) {
+    console.error(PKG, 'UpdateGroup could not find group with id', groupId);
+    return;
+  }
+  adm_db.groups.splice(i, 1, group);
+  */
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -460,40 +496,38 @@ ADMData.GetSelectedGroupName = () => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  Updates a_groups with latest group info
+ *  Adds new students to the existing array of students
  */
-ADMData.UpdateGroup = (groupId, group) => {
-  let i = adm_db.groups.findIndex(grp => grp.id === groupId);
-  if (i < 0) {
-    console.error(PKG, 'UpdateGroup could not find group with id', groupId);
-    return;
-  }
-  adm_db.groups.splice(i, 1, group);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.AddStudents = (groupId, students) => {
-  let studentsArr;
-  if (typeof students === 'string') {
-    studentsArr = [students];
-  } else {
-    studentsArr = students;
-  }
-  // Update the group
-  let group = ADMData.GetGroup(groupId);
-  if (group === undefined) {
-    console.error(PKG, 'AddStudent could not find group', groupId);
-    return;
-  }
-  studentsArr.forEach(student => {
-    if (student === undefined || student === '') {
-      console.error(PKG, 'AddStudent adding blank student', groupId);
-    }
-    group.students.push(student);
-  });
-  // Now update a_groups
-  ADMData.UpdateGroup(groupId, group);
-  // Tell components to update
-  UR.Publish('ADM_DATA_UPDATED');
+  // convert to array if necessary
+  const studentsArr = typeof students === 'string' ? [students] : students;
+
+  // remove empty students
+  const cleanedArr = studentsArr.filter(s => s !== '');
+
+  const group = ADMData.GetGroup(groupId);
+  if (group === undefined) throw Error(`${PKG}.AddStudent could not find group ${groupId}`);
+  const oldStudents = group.students;
+
+  const newStudents = oldStudents.concat(cleanedArr);
+
+  ADMData.DB_UpdateGroup(groupId, { students: newStudents });
+
+  /* old code
+    // Update the group
+  // const group = { students: [] };
+  // let group = ADMData.GetGroup(groupId);
+  // if (group === undefined) {
+  //   console.error(PKG, 'AddStudent could not find group', groupId);
+  //   return;
+  // }
+  // studentsArr.forEach(student => {
+  //   if (student === undefined || student === '') {
+  //     console.error(PKG, 'AddStudent adding blank student', groupId);
+  //   }
+  //   group.students.push(student);
+  // });
+  */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.DeleteStudent = (groupId, student) => {

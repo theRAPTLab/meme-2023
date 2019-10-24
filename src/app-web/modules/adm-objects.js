@@ -27,12 +27,25 @@ ADMObj.Teacher = data => {
  *  @return {Object} Returns a new classroom data object
  */
 ADMObj.Classroom = data => {
-  if (data.teacherId === undefined) throw Error('Classroom requires a teacherID!');
+  if (data.teacherId === undefined) throw Error('Classroom requires a teacherId!');
   return {
     id: data.id,
     teacherId: data.teacherId,
     name: data.name || 'Untitled',
     canViewOthers: data.canViewOthers || false
+  };
+};
+
+/**
+ *  @return {Object} Returns a new group data object
+ */
+ADMObj.Group = data => {
+  if (data.classroomId === undefined) throw Error('Group requires a classroomId!');
+  return {
+    id: data.id,
+    classroomId: data.classroomId,
+    name: data.name || 'Untitled',
+    students: data.students || []
   };
 };
 

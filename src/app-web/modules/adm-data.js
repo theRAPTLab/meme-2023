@@ -105,7 +105,6 @@ ADMData.SyncAddedData = data => {
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       case 'models':
-        console.log('...adding model', value);
         // Only add it if it doesn't already exist
         // This is necessary because a local call to
         // DB_NewModel will also update adm_db.models.
@@ -117,6 +116,11 @@ ADMData.SyncAddedData = data => {
           // Usually tjos fires before DB_NewModel's then() so the model is already added
           if (DBG) console.error(`SyncAddedData: Model ${value.id} already added, skipping`);
         }
+        break;
+      case 'ratingsDefinitions':
+        const ratingsDefinition = ADMObj.RatingsDefinition(value);
+        adm_db.ratingsDefinitions.push(ratingsDefinition);
+        UR.Publish('ADM_DATA_UPDATED', data);
         break;
       default:
         // ignore pmcData updates
@@ -161,6 +165,12 @@ ADMData.SyncUpdatedData = data => {
           model.title = value.title;
           UR.Publish('MODEL_TITLE:UPDATED', { title: value.title });
         }
+        break;
+      case 'ratingsDefinitions':
+        const index = adm_db.ratingsDefinitions.findIndex(r => r.classroomId === value.id);
+        const ratingsDefinition = ADMObj.RatingsDefinition(value);
+        adm_db.ratingsDefinitions.splice(index, 1, ratingsDefinition);
+        UR.Publish('ADM_DATA_UPDATED', data);
         break;
       default:
         // ignore pmcData updates
@@ -936,17 +946,25 @@ ADMData.GetRatingsDefinition = classroomId => {
   return ratings.definitions;
 };
 
-ADMData.UpdateRatingsDefinitions = (classroomId, ratingsDef) => {
+ADMData.DB_RatingsUpdate = (classroomId, ratingsDef) => {
+  const ratingsDefinition = Object.assign(
+    adm_db.ratingsDefinitions.find(r => r.classroomId === classroomId),
+    { definitions: ratingsDef }
+  );
+  // replace existing ratings
+  return UR.DBQuery('update', { ratingsDefinitions: ratingsDefinition });
+
+  /** old code
   const ratings = adm_db.ratingsDefinitions.find(ratings => ratings.classroomId === classroomId);
   if (ratings) {
     ratings.definitions = ratingsDef;
   } else {
     console.error(
       PKG,
-      '.UpdateRatingsDefinitions could not find ratings definition for classroomId',
+      '.DB_RatingsUpdate could not find ratings definition for classroomId',
       classroomId
     );
-  }
+  } */
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

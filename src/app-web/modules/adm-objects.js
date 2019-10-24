@@ -74,6 +74,19 @@ ADMObj.ModelPMCData = () => {
   return { entities: [], commentThreads: [], visuals: [] };
 };
 
+/**
+ *  @return {Object} Returns a new ratings definition data object
+ */
+ADMObj.RatingsDefinition = data => {
+  if (data.classroomId === undefined) throw Error('RatingsDefinition requires a classroomId!');
+  return {
+    id: data.id,
+    classroomId: data.classroomId,
+    definitions: data.definitions || []
+  };
+};
+
+
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default ADMObj;

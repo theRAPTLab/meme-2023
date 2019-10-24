@@ -55,6 +55,7 @@ class RatingsView extends React.Component {
   constructor(props) {
     super(props);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
+    this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.DoLoadRatings = this.DoLoadRatings.bind(this);
     this.OnEditClick = this.OnEditClick.bind(this);
     this.OnSave = this.OnSave.bind(this);
@@ -70,20 +71,31 @@ class RatingsView extends React.Component {
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
+    UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
   }
 
   componentDidMount() { }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {
+    UR.Unsubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
+    UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+  }
 
   DoClassroomSelect(data) {
-    this.setState({
-      classroomId: data.classroomId
-    }, () => {
-      this.DoLoadRatings();
-    });
+    this.setState(
+      {
+        classroomId: data.classroomId
+      },
+      () => {
+        this.DoLoadRatings();
+      }
+    );
   }
-  
+
+  DoADMDataUpdate() {
+    this.DoLoadRatings();
+  }
+
   DoLoadRatings() {
     let ratingsDef = ADM.GetRatingsDefinition(this.state.classroomId);
     if (ratingsDef.length === 0) {
@@ -103,7 +115,7 @@ class RatingsView extends React.Component {
   }
 
   OnSave(e) {
-    ADM.UpdateRatingsDefinitions(this.state.classroomId, this.state.ratingsDef);
+    ADM.DB_RatingsUpdate(this.state.classroomId, this.state.ratingsDef);
     this.DoClose();
   }
 

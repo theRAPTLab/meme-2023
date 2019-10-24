@@ -9,7 +9,7 @@ import ASET from './adm-settings';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = false;
+const DBG = true;
 const PKG = 'ADMDATA'; // prefix for console.log
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
@@ -122,6 +122,8 @@ ADMData.SyncAddedData = data => {
         adm_db.ratingsDefinitions.push(ratingsDefinition);
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
+      case 'pmcData':
+        console.error('SyncAddedData got pmcData', value);
       default:
         // ignore pmcData updates
         // throw Error('unexpected colkey', colkey);
@@ -172,6 +174,8 @@ ADMData.SyncUpdatedData = data => {
         adm_db.ratingsDefinitions.splice(index, 1, ratingsDefinition);
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
+      case 'pmcData':
+        console.error('SyncUpdatedData got pmcData', value);
       default:
         // ignore pmcData updates
         // throw Error('unexpected colkey', colkey);
@@ -804,12 +808,29 @@ ADMData.GetModelTitle = (modelId = ASET.selectedModelId) => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Retrieves the latest pmcData object from the database.
+ *  This is necessary because adm_db's pmcData array is not
+ *  updated with SyncAdd and SyncUpdate.
+ *  @param {Function} cb - A callback function
+ */
+ADMData.DB_RefreshPMCData = cb => {
+  UR.NetCall('NET:SRV_DBGET', {}).then(data => {
+    if (data.error) {
+      reject(`server says '${data.error}'`);
+      return;
+    }
+    adm_db.pmcData = data.pmcData;
+    cb();
+  });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.LoadModel = modelId => {
   let model = ADMData.GetModelById(modelId);
   if (model === undefined) throw Error(`${PKG}.LoadModel could not find a valid modelId ${modelId}`);
   PMCData.ClearModel();
   ADMData.SetSelectedModelId(modelId); // Remember the selected modelId locally
-  PMCData.InitializeModel(model, adm_db);
+  ADMData.DB_RefreshPMCData(() => PMCData.InitializeModel(model, adm_db));
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

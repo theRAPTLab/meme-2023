@@ -173,7 +173,8 @@ class StickyNoteCollection extends React.Component {
     // if no comments yet, add an empty comment automatically
     if (comments === undefined || comments.length === 0) {
       const author = ADM.GetSelectedStudentId();
-      const starter = ADM.GetSentenceStartersByClassroom().sentences;
+      const sentenceStarters = ADM.GetSentenceStartersByClassroom();
+      const starter = sentenceStarters ? sentenceStarters.sentences : '';
       comments = [PMC.NewComment(author, starter)];
       isBeingEdited = true;
     }

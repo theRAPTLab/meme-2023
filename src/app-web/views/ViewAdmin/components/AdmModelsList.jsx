@@ -33,20 +33,37 @@ class ModelsList extends React.Component {
   constructor(props) {
     super(props);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
+    this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.OnModelSelect = this.OnModelSelect.bind(this);
 
-    this.state = { models: [] };
+    this.state = {
+      classroomId: '',
+      models: []
+    };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
+    UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate); // Broadcast when a group is added.
+    UR.Subscribe('MODEL_TITLE:UPDATED', this.DoADMDataUpdate);
   }
 
   componentDidMount() { }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {
+    UR.Unsubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
+    UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+    UR.Unsubscribe('MODEL_TITLE:UPDATED', this.DoADMDataUpdate);
+  }
 
   DoClassroomSelect(data) {
     this.setState({
+      classroomId: data.classroomId,
       models: ADM.GetModelsByClassroom(data.classroomId)
+    });
+  }
+
+  DoADMDataUpdate() {
+    this.setState({
+      models: ADM.GetModelsByClassroom(this.state.classroomId)
     });
   }
 

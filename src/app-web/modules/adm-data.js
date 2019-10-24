@@ -531,6 +531,12 @@ ADMData.AddStudents = (groupId, students) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.DeleteStudent = (groupId, student) => {
+  const group = ADMData.GetGroup(groupId);
+  if (group === undefined) throw Error(`${PKG}.AddStudent could not find group ${groupId}`);
+  const updatedStudents = group.students.filter(stu => student !== stu);
+  ADMData.DB_UpdateGroup(groupId, { students: updatedStudents });
+
+  /** old code
   // Get the group
   const group = ADMData.GetGroup(groupId);
   if (group === undefined) {
@@ -546,12 +552,13 @@ ADMData.DeleteStudent = (groupId, student) => {
   const filteredStudents = students.filter(stu => student !== stu);
   group.students = filteredStudents;
   // Now update a_groups
-  ADMData.UpdateGroup(groupId, group);
+  ADMData.DB_UpdateGroup(groupId, group);
   /*/
 
   /*/
   // Tell components to update
   UR.Publish('ADM_DATA_UPDATED');
+  */
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

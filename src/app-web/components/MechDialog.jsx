@@ -173,7 +173,7 @@ class MechDialog extends React.Component {
        *
        * If either source or target are already set, then consider it
        * an existing mech
-       * 
+       *
        * If we're editting an existing mech, we want to allow the user
        * to individually toggle the source / target components on and off
        */

@@ -385,7 +385,7 @@ PMCData.SyncRemovedData = data => {
           PMCData.BuildModel();
           // 4. Fire PROP_DELETE so that any open dialogs can remove it
           UR.Publish('PROP_DELETE', { id: value.id });
-          return;
+          return; // so we don't fire BuildModel again
           break;
         case 'mech':
           m_graph.removeEdge(value.source, value.target);
@@ -684,7 +684,7 @@ PMCData.MechById = id => {
  *  @param {Object} newPropObj - {name, description, parent} for the property
  */
 PMCData.PMC_PropAdd = newPropObj => {
-  const modelId = ASET.selectedModelId;
+  const pmcDataId = ASET.selectedPMCDataId;
   const propObj = Object.assign(newPropObj, { type: 'prop' });
   UTILS.RLog(
     'PropertyAdd',
@@ -694,7 +694,7 @@ PMCData.PMC_PropAdd = newPropObj => {
   );
   return UR.DBQuery('add', {
     'pmcData.entities': {
-      id: modelId,
+      id: pmcDataId,
       entities: propObj
     }
   });
@@ -733,12 +733,12 @@ PMCData.PMC_PropUpdate = (propId, newData) => {
   // make a copy of the prop with overwritten new data
   // local data will be updated on DBSYNC event, so don't write it here
   const propData = Object.assign(prop, newData, { id: numericId }); // id last to make sure we're using a cleaned one
-  const modelId = ASET.selectedModelId;
+  const pmcDataId = ASET.selectedPMCDataId;
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
   return UR.DBQuery('update', {
     'pmcData.entities': {
-      id: modelId,
+      id: pmcDataId,
       entities: propData
     }
   });
@@ -791,10 +791,10 @@ PMCData.PMC_PropDelete = propId => {
   UTILS.RLog('PropertyDelete', propId);
 
   // 7. Remove the actual prop
-  const modelId = ASET.selectedModelId;
+  const pmcDataId = ASET.selectedPMCDataId;
   return UR.DBQuery('remove', {
     'pmcData.entities': {
-      id: modelId,
+      id: pmcDataId,
       entities: { id: propId }
     }
   });
@@ -866,7 +866,7 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
     console.error('PMCData.PMC_MechAdd trying to add non existent target prop', targetId);
     return;
   }
-  const modelId = ASET.selectedModelId;
+  const pmcDataId = ASET.selectedPMCDataId;
   const mechObj = {
     type: 'mech',
     name: label,
@@ -876,7 +876,7 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
   };
   return UR.DBQuery('add', {
     'pmcData.entities': {
-      id: modelId,
+      id: pmcDataId,
       entities: mechObj
     }
   });
@@ -915,7 +915,7 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
     console.error('PMCData.PMC_MechAdd trying to add non existent target prop', targetId);
     return;
   }
-  const modelId = ASET.selectedModelId;
+  const pmcDataId = ASET.selectedPMCDataId;
   const mechObj = {
     type: 'mech',
     id: origMech.id,
@@ -926,7 +926,7 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
   };
   return UR.DBQuery('update', {
     'pmcData.entities': {
-      id: modelId,
+      id: pmcDataId,
       entities: mechObj
     }
   }).then(() => {
@@ -985,10 +985,10 @@ PMCData.PMC_MechDelete = mechId => {
     if (typeof mechId !== 'number') console.log('coercing mechId to Number from', typeof mechId);
   }
 
-  const modelId = ASET.selectedModelId;
+  const pmcDataId = ASET.selectedPMCDataId;
   return UR.DBQuery('remove', {
     'pmcData.entities': {
-      id: modelId,
+      id: pmcDataId,
       entities: { id: Number(mech.id) }
     }
   });
@@ -1034,7 +1034,7 @@ function GenerateNumberLabel(rsrcId) {
  *  @param {string} [note] - optional initial value of the note
  */
 PMCData.PMC_AddEvidenceLink = (rsrcId, cb, note = '') => {
-  const modelId = ASET.selectedModelId;
+  const pmcDataId = ASET.selectedPMCDataId;
   const numberLabel = GenerateNumberLabel(rsrcId);
 
   // propId and mechId remain undefined until the user sets it later
@@ -1049,7 +1049,7 @@ PMCData.PMC_AddEvidenceLink = (rsrcId, cb, note = '') => {
   };
   return UR.DBQuery('add', {
     'pmcData.entities': {
-      id: modelId,
+      id: pmcDataId,
       entities: evObj
     }
   }).then(rdata => {
@@ -1116,10 +1116,10 @@ PMCData.PMC_DuplicateEvidenceLink = evId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_DeleteEvidenceLink = evId => {
-  const modelId = ASET.selectedModelId;
+  const pmcDataId = ASET.selectedPMCDataId;
   return UR.DBQuery('remove', {
     'pmcData.entities': {
-      id: modelId,
+      id: pmcDataId,
       entities: { id: evId }
     }
   });
@@ -1206,12 +1206,12 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
   if (newData.propId) cleanedData.propId = Number(newData.propId);
   if (newData.rsrcId) cleanedData.rsrcId = Number(newData.rsrcId);
   const evData = Object.assign(ev, cleanedData);
-  const modelId = ASET.selectedModelId;
+  const pmcDataId = ASET.selectedPMCDataId;
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
   return UR.DBQuery('update', {
     'pmcData.entities': {
-      id: modelId,
+      id: pmcDataId,
       entities: evData
     }
   });
@@ -1372,13 +1372,13 @@ PMCData.CommentUpdate = (refId, newComment) => {
 
   let thread = PMCData.GetCommentThread(refId);
   thread.comments = comments;
-  const modelId = ASET.selectedModelId;
+  const pmcDataId = ASET.selectedPMCDataId;
   if (DBG) console.log('updating model', modelId, 'with commentThread', thread);
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
   return UR.DBQuery('update', {
     'pmcData.commentThreads': {
-      id: modelId,
+      id: pmcDataId,
       commentThreads: thread
     }
   });
@@ -1397,11 +1397,11 @@ PMCData.CommentUpdate = (refId, newComment) => {
 PMCData.CommentThreadAdd = (refId, newComments) => {
   // local data will be updated on DBSYNC event, so don't write it here
   const threadData = Object.assign({ refId }, { comments: newComments });
-  const modelId = ASET.selectedModelId;
+  const pmcDataId = ASET.selectedPMCDataId;
   if (DBG)
     console.log(
       'PMCData.CommentThreadAdd: adding model',
-      modelId,
+      pmcDataId,
       'with commentThread',
       threadData
     );
@@ -1409,7 +1409,7 @@ PMCData.CommentThreadAdd = (refId, newComments) => {
   // { id, entities:[ { id, name } ] }
   return UR.DBQuery('add', {
     'pmcData.commentThreads': {
-      id: modelId,
+      id: pmcDataId,
       commentThreads: threadData
     }
   });
@@ -1440,13 +1440,13 @@ PMCData.CommentThreadUpdate = (refId, newComments) => {
   // make a copy of the prop with overwritten new data
   // local data will be updated on DBSYNC event, so don't write it here
   const threadData = Object.assign(thread, { comments: newComments });
-  const modelId = ASET.selectedModelId;
+  const pmcDataId = ASET.selectedPMCDataId;
   if (DBG) console.log('updating model', modelId, 'with commentThread', threadData);
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
   return UR.DBQuery('update', {
     'pmcData.commentThreads': {
-      id: modelId,
+      id: pmcDataId,
       commentThreads: threadData
     }
   });

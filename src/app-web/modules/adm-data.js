@@ -829,18 +829,19 @@ ADMData.LoadModel = modelId => {
   let model = ADMData.GetModelById(modelId);
   if (model === undefined) throw Error(`${PKG}.LoadModel could not find a valid modelId ${modelId}`);
   PMCData.ClearModel();
-  ADMData.SetSelectedModelId(modelId); // Remember the selected modelId locally
+  ADMData.SetSelectedModelId(modelId, model.pmcDataId); // Remember the selected modelId locally
   ADMData.DB_RefreshPMCData(() => PMCData.InitializeModel(model, adm_db));
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This does not load the model, it just sets the currently selected model id
-ADMData.SetSelectedModelId = modelId => {
+ADMData.SetSelectedModelId = (modelId, pmcDataId) => {
   // verify it's valid
   if (adm_db.models.find(mdl => mdl.id === modelId) === undefined) {
     console.error(PKG, 'SetSelectedModelId could not find valid modelId', modelId);
   }
   ASET.selectedModelId = modelId;
+  ASET.selectedPMCDataId = pmcDataId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetSelectedModelId = () => {

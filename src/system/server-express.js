@@ -155,6 +155,7 @@ function Start() {
   // handle file uploads
   app.post('/screenshots/upload', upload.single('screenshot'), function(req, res, next) {
     console.log('received file', req.file);
+    res.send();
   });
   // for everything else...
   app.use('/', express.static(DOCROOT));

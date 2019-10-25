@@ -43,11 +43,13 @@ function StyledDropzone(props) {
   // fires only if dropzone is successful
   const onDrop = useCallback(files => {
     const req = request.post('/screenshots/upload');
+    req.then(res => {
+      console.log('yay', JSON.stringify(res));
+    });
     files.forEach(file => {
       if (DBG) console.log(`uploading file '${file.name}'`);
       req.attach('screenshot', file);
     });
-    req.end();
   }, []);
 
   // define drop failure handler
@@ -56,7 +58,7 @@ function StyledDropzone(props) {
   }, []);
 
   // get dropzone props and state via dropzone hook
-  // note: event handlers like 'onDrop' must be defined before
+  // note: event handlers like 'onDrop' must be defined before this is called
   const {
     getRootProps,
     getInputProps,

@@ -383,7 +383,7 @@ ADMData.SetClassesModelVisibility = isVisible => {
  */
 ADMData.CanViewOthers = () => {
   const classroom = ADMData.GetClassroom();
-  return classroom.canViewOthers;
+  return classroom ? classroom.canViewOthers : false;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomIdByStudent()) => {
@@ -607,6 +607,7 @@ ADMData.Login = hashedToken => {
     // After logging in, we need to tell ADM what the default classroom is
     ADMData.SelectClassroom();
     UR.Publish('ADM_DATA_UPDATED');
+    UR.Publish('MODEL_SELECT_OPEN');
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -853,6 +854,7 @@ ADMData.GetSelectedModelId = () => {
 ADMData.CloseModel = () => {
   ASET.selectedModelId = '';
   UR.Publish('ADM_DATA_UPDATED');
+  UR.Publish('MODEL_SELECT_OPEN');
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -59,9 +59,13 @@ class ADMSettings {
   }
   set selectedStudentId(id) {
     this.sStudentId = id;
-    const { isValid, groupId } = SESSION.DecodeToken(id);
-    if (!isValid) throw Error(`invalid studentId '${id}'`);
-    this.sStudentGroupId = groupId;
+    // studentId is set to '' to log out.
+    // Only validate and load group if a non empty id is passed.
+    if (id !== '') {
+      const { isValid, groupId } = SESSION.DecodeToken(id);
+      if (!isValid) throw Error(`invalid studentId '${id}'`);
+      this.sStudentGroupId = groupId;
+    }
   }
   set selectedModelId(id) {
     this.sModelId = id;

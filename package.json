@@ -48,6 +48,7 @@
     "lokijs": "^1.5.7",
     "markdown-react-js": "^1.0.2",
     "mini-css-extract-plugin": "^0.4.3",
+    "multer": "^1.4.2",
     "prop-types": "^15.7.2",
     "react": "^16.10.1",
     "react-dom": "^16.10.1",

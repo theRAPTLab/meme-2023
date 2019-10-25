@@ -1,4 +1,7 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
+
+  https://github.com/react-dropzone/react-dropzone
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////
@@ -7,12 +10,8 @@ import React, { useMemo, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import request from 'superagent';
 
-/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// DROPAREA STYLING //////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-/// DECLARATIONS //////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 const baseStyle = {
   flex: 1,
   display: 'flex',
@@ -28,26 +27,24 @@ const baseStyle = {
   outline: 'none',
   transition: 'border .24s ease-in-out'
 };
+const activeStyle = { borderColor: '#2196f3' };
+const acceptStyle = { borderColor: '#00e676' };
+const rejectStyle = { borderColor: '#ff1744' };
 
-const activeStyle = {
-  borderColor: '#2196f3'
-};
-
-const acceptStyle = {
-  borderColor: '#00e676'
-};
-
-const rejectStyle = {
-  borderColor: '#ff1744'
-};
-
+/// FUNCTION COMPONENTS  //////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function StyledDropzone(props) {
-
+  // define onDrop handler
   const onDrop = useCallback(acceptedFiles => {
     // do something here
     console.log('GOT DROP', acceptedFiles);
+    const req = request.post('/screenshots/upload');
+    acceptedFiles.forEach(file => {
+      req.attach('screenshot', file);
+    });
+    req.end();
   }, []);
-
+  // get dropzone props and state via dropzone hook
   const {
     getRootProps,
     getInputProps,
@@ -56,24 +53,29 @@ function StyledDropzone(props) {
     isDragReject,
     //
     acceptedFiles
-  } = useDropzone({ accept: 'image/*', onDrop });
+  } = useDropzone({ accept: 'image/*', onDrop, multiple: false });
 
+  // react memoize hook, which runs at rendertime
+  // and returns computed value from function
+  // only if the tracked objects change
   const style = useMemo(() => ({
     ...baseStyle,
     ...(isDragActive ? activeStyle : {}),
     ...(isDragAccept ? acceptStyle : {}),
     ...(isDragReject ? rejectStyle : {})
   }), [
-    isDragActive,
+    isDragActive, // tracked objects
     isDragReject
   ]);
 
+  // create a file listing
   const files = acceptedFiles.map(file => (
     <li key={file.path}>
       {file.path} - {file.size} bytes
     </li>
   ));
 
+  // render
   return (
     <div className="container">
       <div {...getRootProps({ style })}>

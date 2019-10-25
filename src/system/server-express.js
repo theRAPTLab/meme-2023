@@ -1,6 +1,6 @@
 /*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  server-express creates an express instance and
+  server-express creates an express instance serving a webapp on port 3000
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 
@@ -11,8 +11,10 @@ const wpack_mid = require('webpack-dev-middleware'); //webpack hot reloading mid
 const wpack_hot = require('webpack-hot-middleware');
 const express = require('express'); //your original BE server
 const path = require('path');
+const fs = require('fs-extra');
 const IP = require('ip');
 const cookiep = require('cookie-parser');
+const multer = require('multer'); // handle multipart form data (images)
 //
 const configWebApp = require('../config/webpack.webapp.config');
 const PROMPTS = require('../system/util/prompts');
@@ -22,10 +24,25 @@ const PROMPTS = require('../system/util/prompts');
 const { TERM_EXP: CLR, TERM_WPACK, TR } = PROMPTS;
 const PORT = 3000;
 const PR = `${CLR}${PROMPTS.Pad('UR_EXPRESS')}${TR}`;
+const RUNTIMEPATH = path.join(__dirname, '../../runtime');
+const UPLOADPATH = path.join(RUNTIMEPATH, 'uploads/images/');
 
 /// SERVER DECLARATIONS ///////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const app = express();
+const storage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    console.log('destination', UPLOADPATH);
+    callback(null, UPLOADPATH);
+  },
+  filename: (req, file, callback) => {
+    const ext = path.extname(file.originalname);
+    const fname = `foo${ext}`;
+    console.log('filename', fname);
+    callback(null, fname);
+  }
+});
+const upload = multer({ storage }); // form data saver to disk
 let server; // server object returned by app.listen()
 let DOCROOT; // docroot (changes based on dev or standalone mode)
 
@@ -117,6 +134,8 @@ function Start() {
 
   // RESUME WITH COMMON SERVER SETUP //
 
+  // make sure upload path exists
+  fs.ensureDirSync(UPLOADPATH);
   // configure cookies middleware (appears in req.cookies)
   app.use(cookiep());
   // configure headers to allow cross-domain requests of media elements
@@ -132,6 +151,10 @@ function Start() {
   app.get('/', (req, res) => {
     const URSessionParams = GetTemplateValues(req);
     res.render(`${DOCROOT}/index`, URSessionParams);
+  });
+  // handle file uploads
+  app.post('/screenshots/upload', upload.single('screenshot'), function(req, res, next) {
+    console.log('received file', req.file);
   });
   // for everything else...
   app.use('/', express.static(DOCROOT));

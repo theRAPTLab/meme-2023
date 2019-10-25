@@ -116,7 +116,9 @@ async function StartCapture(displayMediaOptions) {
     if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
       captureStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
     } else {
-      console.log('invalid navigator', window.navigator);
+      console.log('!!! no navigator.mediaDevices', window.navigator);
+      if (location.hostname !== 'localhost')
+        console.log('!!! only works from localhost/secure server');
     }
   } catch (err) {
     console.error('Error: ' + err);

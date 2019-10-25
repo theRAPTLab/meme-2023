@@ -99,7 +99,7 @@ class NetMessage {
       }
       // merge properties into this new class instance and return it
       Object.assign(this, msg);
-      this.seqlog = this.seqlog.splice(); // copy array
+      this.seqlog = this.seqlog.slice(); // copy array
       m_SeqIncrement(this);
       return this;
     }

@@ -375,9 +375,17 @@ PMCData.SyncRemovedData = data => {
       // has id, type, name
       switch (value.type) {
         case 'prop':
+          // 1. deselect the prop before deleting it
+          //    otherwise, it remains on selectedProps list causing all kinds of havoc
+          VM.VM_DeselectAllProps();
+          // 2. now remove it
           m_graph.removeNode(value.id);
-          // Fire PROP_DELETE so that any open dialogs can remove it
+          // 3. force build before publishing PROP_DELETE
+          //    otherwise ToolsPanel rebuilds with missing component
+          PMCData.BuildModel();
+          // 4. Fire PROP_DELETE so that any open dialogs can remove it
           UR.Publish('PROP_DELETE', { id: value.id });
+          return;
           break;
         case 'mech':
           m_graph.removeEdge(value.source, value.target);

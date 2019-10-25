@@ -341,7 +341,7 @@ function DeselectAllProps() {
   // tell all vprops to clear themselves
   selected_vprops.forEach(vpid => {
     const vprop = VM.VM_VProp(vpid);
-    if (vprop) { // if vprop has been deleted, it still might be selected
+    if (vprop) { // even if vprop has been deleted, it still might be selected
       vprop.visualState.Deselect();
       vprop.Draw();
     }

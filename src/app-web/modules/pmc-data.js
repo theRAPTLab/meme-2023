@@ -582,7 +582,7 @@ PMCData.Children = nodeId => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Returns TRUE if the passed nodeId exists in the graph data store
- *  @param {string} nodeId - the nodeId to test
+ *  @param {String} nodeId - the nodeId to test
  *  @returns {boolean} - true if the nodeId exists
  */
 PMCData.HasProp = nodeId => {
@@ -841,6 +841,15 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
     if (typeof targetId !== 'number')
       console.log('coercing targetId to Number from', typeof targetId);
   }
+  // Validate: Make sure source and target still exist before saving
+  if (!PMCData.HasProp(sourceId)) {
+    console.error('PMCData.PMC_MechAdd trying to add non existent source prop', sourceId);
+    return;
+  }
+  if (!PMCData.HasProp(targetId)) {
+    console.error('PMCData.PMC_MechAdd trying to add non existent target prop', targetId);
+    return;
+  }
   const modelId = ASET.selectedModelId;
   const mechObj = {
     type: 'mech',
@@ -880,6 +889,15 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
       console.log('coercing sourceId to Number from', typeof sourceId);
     if (typeof targetId !== 'number')
       console.log('coercing targetId to Number from', typeof targetId);
+  }
+  // Validate: Make sure source and target still exist before saving
+  if (!PMCData.HasProp(sourceId)) {
+    console.error('PMCData.PMC_MechAdd trying to add non existent source prop', sourceId);
+    return;
+  }
+  if (!PMCData.HasProp(targetId)) {
+    console.error('PMCData.PMC_MechAdd trying to add non existent target prop', targetId);
+    return;
   }
   const modelId = ASET.selectedModelId;
   const mechObj = {

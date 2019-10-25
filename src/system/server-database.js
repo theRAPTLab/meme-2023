@@ -293,6 +293,9 @@ DB.PKT_Add = pkt => {
           }
 
           results[reskey].push(...added);
+
+          // return pmcDataId so SyncAdd knows whether it needs to update
+          results.pmcDataId = colid;
         });
       if (DBG) {
         if (!found.count()) error += `could not match id:${colid} in ${colkey}.${subkey}`;
@@ -374,6 +377,10 @@ DB.PKT_Update = pkt => {
         //
         results[reskey] = results[reskey] || [];
         results[reskey].push(retval); // update results object
+
+        // return pmcDataId so SyncAdd knows whether it needs to update
+        results.pmcDataId = colid;
+
         if (DBG) console.log(PR, `updated: ${reskey} ${JSON.stringify(retval)}`);
       });
     if (DBG) {
@@ -513,6 +520,10 @@ DB.PKT_Remove = pkt => {
         // now remove child nodes
         record[subkey] = keep;
         results[reskey].push(...removed);
+
+        // return pmcDataId so SyncAdd knows whether it needs to update
+        results.pmcDataId = colid;
+
         if (DBG) console.log(PR, `${reskey} deleted`, JSON.stringify(removed));
         if (DBG) console.log(PR, `${reskey} updated`, JSON.stringify(updated));
       }); // end found update

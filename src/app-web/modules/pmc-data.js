@@ -236,6 +236,8 @@ PMCData.InitializeModel = (model, admdb) => {
 PMCData.SyncAddedData = data => {
   // skip update if no model is loaded
   if (ASET.selectedModelId === '' || m_graph === undefined) return;
+  // skip update if data is for a different model
+  if (data.pmcDataId !== ASET.selectedPMCDataId) return;
 
   const syncitems = DATAMAP.ExtractSyncData(data);
   syncitems.forEach(item => {
@@ -296,6 +298,8 @@ PMCData.SyncAddedData = data => {
 PMCData.SyncUpdatedData = data => {
   // skip update if no model is loaded
   if (ASET.selectedModelId === '' || m_graph === undefined) return;
+  // skip update if data is for a different model
+  if (data.pmcDataId !== ASET.selectedPMCDataId) return;
 
   const syncitems = DATAMAP.ExtractSyncData(data);
   syncitems.forEach(item => {
@@ -365,6 +369,8 @@ PMCData.SyncUpdatedData = data => {
 PMCData.SyncRemovedData = data => {
   // skip update if no model is loaded
   if (ASET.selectedModelId === '' || m_graph === undefined) return;
+  // skip update if data is for a different model
+  if (data.pmcDataId !== ASET.selectedPMCDataId) return;
 
   const syncitems = DATAMAP.ExtractSyncData(data);
   syncitems.forEach(item => {

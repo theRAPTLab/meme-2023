@@ -123,9 +123,10 @@ ADMData.SyncAddedData = data => {
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       case 'pmcData':
-        console.error('SyncAddedData got pmcData', value);
-      default:
         // ignore pmcData updates
+        // console.log('SyncAddedData got pmcData', value);
+      default:
+        // ignore any other updates
         // throw Error('unexpected colkey', colkey);
     }
   });
@@ -175,9 +176,10 @@ ADMData.SyncUpdatedData = data => {
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       case 'pmcData':
-        console.error('SyncUpdatedData got pmcData', value);
-      default:
         // ignore pmcData updates
+        // console.log('SyncUpdatedData got pmcData', value);
+      default:
+        // ignore any other updates
         // throw Error('unexpected colkey', colkey);
     }
   });

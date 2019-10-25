@@ -15,7 +15,7 @@ import PropTypes from 'prop-types';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import ViewMain from '../views/ViewMain/ViewMain';
-import DevTest from '../views/DevTest/TestRoot';
+import TestUr from '../views/DevTest/TestUr';
 import ViewAdmin from '../views/ViewAdmin/ViewAdmin';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
@@ -34,14 +34,14 @@ const DBG = true;
 
 const SystemRoutes = [
   {
-    path: '/test',
+    path: '/test-ur',
     exact: true,
-    component: DevTest
+    component: TestUr
   },
   {
     path: '/test/:feature',
     exact: true,
-    component: DevTest
+    component: TestUr
   },
   {
     path: '/admin',

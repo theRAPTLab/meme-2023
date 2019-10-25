@@ -234,11 +234,13 @@ PMCData.InitializeModel = (model, admdb) => {
  * @param {Object} data - a collection object
  */
 PMCData.SyncAddedData = data => {
+  // skip update if no model is loaded
+  if (ASET.selectedModelId === '' || m_graph === undefined) return;
+
   const syncitems = DATAMAP.ExtractSyncData(data);
   syncitems.forEach(item => {
     const { colkey, subkey, value } = item;
     if (DBG) console.log('added', colkey, subkey || '', value);
-
     if (subkey === 'entities') {
       switch (value.type) {
         case 'prop':
@@ -292,6 +294,9 @@ PMCData.SyncAddedData = data => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SyncUpdatedData = data => {
+  // skip update if no model is loaded
+  if (ASET.selectedModelId === '' || m_graph === undefined) return;
+
   const syncitems = DATAMAP.ExtractSyncData(data);
   syncitems.forEach(item => {
     const { colkey, subkey, value } = item;
@@ -358,6 +363,9 @@ PMCData.SyncUpdatedData = data => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SyncRemovedData = data => {
+  // skip update if no model is loaded
+  if (ASET.selectedModelId === '' || m_graph === undefined) return;
+
   const syncitems = DATAMAP.ExtractSyncData(data);
   syncitems.forEach(item => {
     const { colkey, subkey, value } = item;

@@ -238,7 +238,7 @@ class MechDialog extends React.Component {
       });
     }
   }
-  
+
   DoPropDelete(data) {
     const { isOpen, sourceId, targetId } = this.state;
     const deletedPropId = String(data.id); // coerce to String because sourceID and targetId are strings

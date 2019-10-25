@@ -10,6 +10,10 @@ import React, { useMemo, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import request from 'superagent';
 
+/// DEBUG FLAGS ///////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = true;
+
 /// DROPAREA STYLING //////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const baseStyle = {
@@ -34,17 +38,25 @@ const rejectStyle = { borderColor: '#ff1744' };
 /// FUNCTION COMPONENTS  //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function StyledDropzone(props) {
+
   // define onDrop handler
-  const onDrop = useCallback(acceptedFiles => {
-    // do something here
-    console.log('GOT DROP', acceptedFiles);
+  // fires only if dropzone is successful
+  const onDrop = useCallback(files => {
     const req = request.post('/screenshots/upload');
-    acceptedFiles.forEach(file => {
+    files.forEach(file => {
+      if (DBG) console.log(`uploading file '${file.name}'`);
       req.attach('screenshot', file);
     });
     req.end();
   }, []);
+
+  // define drop failure handler
+  const onDropRejected = useCallback(files => {
+    if (DBG) console.log('drop only one file, not', files.length);
+  }, []);
+
   // get dropzone props and state via dropzone hook
+  // note: event handlers like 'onDrop' must be defined before
   const {
     getRootProps,
     getInputProps,
@@ -53,7 +65,7 @@ function StyledDropzone(props) {
     isDragReject,
     //
     acceptedFiles
-  } = useDropzone({ accept: 'image/*', onDrop, multiple: false });
+  } = useDropzone({ accept: 'image/*', onDrop, onDropRejected, multiple: false });
 
   // react memoize hook, which runs at rendertime
   // and returns computed value from function

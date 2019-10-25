@@ -13,6 +13,8 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import UR from '../../../system/ursys';
 import NETTEST from './network-tests';
+import SCREENCAP from './screencap-tests';
+
 import { cssinfo, cssalert } from '../../modules/console-styles';
 
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
@@ -97,6 +99,9 @@ class ViewTest extends React.Component {
     switch (this.feature) {
       case 'ur':
         NETTEST.DoMountTests(this);
+        break;
+      case 'screencap':
+        SCREENCAP.DoTest(this);
         break;
       default:
         console.log('no matching test run for', this.feature);

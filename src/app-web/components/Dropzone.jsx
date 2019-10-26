@@ -43,13 +43,22 @@ function StyledDropzone(props) {
   // fires only if dropzone is successful
   const onDrop = useCallback(files => {
     const req = request.post('/screenshots/upload');
-    req.then(res => {
-      console.log('yay', JSON.stringify(res));
-    });
-    files.forEach(file => {
+    if (files.length === 1) {
+      const file = files[0];
       if (DBG) console.log(`uploading file '${file.name}'`);
-      req.attach('screenshot', file);
-    });
+      req.attach('screenshot', file).then(res => {
+        const data = JSON.parse(res.text);
+        if (data) {
+          const href = `http://localhost:3000/screenshots/${data.filename}`;
+          console.log('file saved!', href);
+          window.open(href);
+        } else {
+          console.error('file save failure?');
+        }
+      });
+    } else {
+      console.warn('unexpected files.length!==1', files);
+    }
   }, []);
 
   // define drop failure handler

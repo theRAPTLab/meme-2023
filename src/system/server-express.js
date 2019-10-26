@@ -19,29 +19,36 @@ const multer = require('multer'); // handle multipart form data (images)
 const configWebApp = require('../config/webpack.webapp.config');
 const PROMPTS = require('../system/util/prompts');
 
+/// DEBUG /////////////////////////////////////////////////////////////////////
+///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = false;
+
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const { TERM_EXP: CLR, TERM_WPACK, TR } = PROMPTS;
 const PORT = 3000;
 const PR = `${CLR}${PROMPTS.Pad('UR_EXPRESS')}${TR}`;
 const RUNTIMEPATH = path.join(__dirname, '../../runtime');
-const UPLOADPATH = path.join(RUNTIMEPATH, 'uploads/images/');
+const UPLOADPATH = path.join(RUNTIMEPATH, 'screenshots/');
 
 /// SERVER DECLARATIONS ///////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const app = express();
+
+/*** STORAGE ***/
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
-    console.log('destination', UPLOADPATH);
+    if (DBG) console.log(PR, 'destination', UPLOADPATH);
     callback(null, UPLOADPATH);
   },
   filename: (req, file, callback) => {
     const ext = path.extname(file.originalname);
-    const fname = `foo${ext}`;
-    console.log('filename', fname);
-    callback(null, fname);
+    const fname = Date.now().toString(32);
+    callback(null, fname + ext);
   }
 });
+/*** STORAGE ***/
+
 const upload = multer({ storage }); // form data saver to disk
 let server; // server object returned by app.listen()
 let DOCROOT; // docroot (changes based on dev or standalone mode)
@@ -152,13 +159,17 @@ function Start() {
     const URSessionParams = GetTemplateValues(req);
     res.render(`${DOCROOT}/index`, URSessionParams);
   });
-  // handle file uploads
-  app.post('/screenshots/upload', upload.single('screenshot'), function(req, res, next) {
-    console.log('received file', req.file);
-    res.send();
-  });
   // for everything else...
   app.use('/', express.static(DOCROOT));
+  // handle image uploads
+  app.post('/screenshots/upload', upload.single('screenshot'), function(req, res, next) {
+    const { originalname, mimetype, destination, filename } = req.file;
+    const data = { originalname, filename };
+    res.header('Content-Type', mimetype);
+    res.type('json').send(data);
+  });
+  // handle image serving
+  app.use('/screenshots', express.static(UPLOADPATH));
 
   // return promise for async users
   return promise;

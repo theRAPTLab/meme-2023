@@ -65,6 +65,10 @@ class TestScreencap extends React.Component {
     this._mounted = false;
   }
 
+  onDrop(href) {
+    console.log(`TestScreencap.jsx prop.onDrop received '${href}'`);
+  }
+
   render() {
     const { classes } = this.props;
     return (
@@ -74,7 +78,7 @@ class TestScreencap extends React.Component {
             <Paper className={classes.paper}>Module:{this.cstrName}</Paper>
           </Grid>
           <Grid item xs={12}>
-            <Dropzone />
+            <Dropzone onDrop={this.onDrop} />
           </Grid>
         </Grid>
       </div>

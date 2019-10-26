@@ -88,6 +88,7 @@ function StyledDropzone(props) {
           console.log('file saved at...opening window', href);
           window.open(href);
         }
+        if (typeof props.onDrop === 'function') props.onDrop(href);
       }); // req.attach.then
   }, []);
 

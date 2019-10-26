@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  TestScreencap - rudimentary screencap tests
+  TestScreencap - screencap/upload tests
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -74,7 +74,6 @@ class TestScreencap extends React.Component {
             <Paper className={classes.paper}>Module:{this.cstrName}</Paper>
           </Grid>
           <Grid item xs={12}>
-
             <Dropzone />
           </Grid>
         </Grid>

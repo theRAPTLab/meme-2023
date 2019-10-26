@@ -1,6 +1,28 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  https://github.com/react-dropzone/react-dropzone
+  React Dropzone - https://github.com/react-dropzone/react-dropzone
+  To see in action, go to /#/test-screencap
+
+  This uses a React 16.8.0+ feature called "Hooks" with "Functional Components",
+  which is just a function that accepts props and returns JSX. Instead of
+  maintaining state (e.g. this.setState) and lifecycle methods (e.g.
+  componentDidMount) inside a "Class Component", function objects are defined
+  and passed to one of the React hook interfaces. The hooks in use here are:
+
+  useCallback - Used to match handlers that are passed eponymous keys.
+                See the use of onDrop and onDropRejected, which are
+                registered by react-dropzone using the callback hook.
+  useMemo     - Used to calculate "memoized" values only when they change.
+                They monitor a set of objects for change and fire the
+                calculation function only when they do.
+
+  Otherwise, this is very similar to a React.Component in structure.
+  The functional component is StyledDropzone(props), which is essentially
+  a render function returning JSX and used as any other function. See
+  TestScreencap.jsx for it in use.
+
+  In addition to react-dropzone, the AJAX library 'superagent' is used
+  to fire asynchronize POST to the server
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -9,6 +31,12 @@
 import React, { useMemo, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import request from 'superagent';
+import SESSION from '../../system/common-session';
+
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const SSHOT_URL = SESSION.ScreenshotURL();
+const UPLOAD_URL = SESSION.ScreenshotPostURL()
 
 /// DEBUG FLAGS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -38,27 +66,29 @@ const rejectStyle = { borderColor: '#ff1744' };
 /// FUNCTION COMPONENTS  //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function StyledDropzone(props) {
-
-  // define onDrop handler
-  // fires only if dropzone is successful
+  /*/
+    define onDrop handler
+    fires only if dropzone is successful
+  /*/
   const onDrop = useCallback(files => {
-    const req = request.post('/screenshots/upload');
-    if (files.length === 1) {
-      const file = files[0];
-      if (DBG) console.log(`uploading file '${file.name}'`);
-      req.attach('screenshot', file).then(res => {
+    if (files.length !== 1) return;
+    const req = request.post(UPLOAD_URL);
+    const file = files[0];
+    if (DBG) console.log(`uploading file '${file.name}'`);
+    //
+    req.attach('screenshot', file)
+      .then(res => {
         const data = JSON.parse(res.text);
-        if (data) {
-          const href = `http://localhost:3000/screenshots/${data.filename}`;
-          console.log('file saved!', href);
-          window.open(href);
-        } else {
-          console.error('file save failure?');
+        if (!data) {
+          if (DBG) console.error('no data');
+          return;
         }
-      });
-    } else {
-      console.warn('unexpected files.length!==1', files);
-    }
+        const href = `${SSHOT_URL}/${data.filename}`;
+        if (DBG) {
+          console.log('file saved at...opening window', href);
+          window.open(href);
+        }
+      }); // req.attach.then
   }, []);
 
   // define drop failure handler

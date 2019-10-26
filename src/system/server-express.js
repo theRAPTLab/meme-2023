@@ -18,6 +18,7 @@ const multer = require('multer'); // handle multipart form data (images)
 //
 const configWebApp = require('../config/webpack.webapp.config');
 const PROMPTS = require('../system/util/prompts');
+const SESSION = require('../system/common-session');
 
 /// DEBUG /////////////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -28,8 +29,10 @@ const DBG = false;
 const { TERM_EXP: CLR, TERM_WPACK, TR } = PROMPTS;
 const PORT = 3000;
 const PR = `${CLR}${PROMPTS.Pad('UR_EXPRESS')}${TR}`;
+const SCREENSHOT_POST_URL = SESSION.ScreenshotPostURL();
+const SCREENSHOT_URL = SESSION.ScreenshotURL();
 const RUNTIMEPATH = path.join(__dirname, '../../runtime');
-const UPLOADPATH = path.join(RUNTIMEPATH, 'screenshots/');
+const UPLOADPATH = path.join(RUNTIMEPATH, SCREENSHOT_URL);
 
 /// SERVER DECLARATIONS ///////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -43,7 +46,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, callback) => {
     const ext = path.extname(file.originalname);
-    const fname = Date.now().toString(32);
+    const fname = Date.now().toString(36);
     callback(null, fname + ext);
   }
 });
@@ -162,14 +165,14 @@ function Start() {
   // for everything else...
   app.use('/', express.static(DOCROOT));
   // handle image uploads
-  app.post('/screenshots/upload', upload.single('screenshot'), function(req, res, next) {
+  app.post(SCREENSHOT_POST_URL, upload.single('screenshot'), function(req, res, next) {
     const { originalname, mimetype, destination, filename } = req.file;
     const data = { originalname, filename };
     res.header('Content-Type', mimetype);
     res.type('json').send(data);
   });
   // handle image serving
-  app.use('/screenshots', express.static(UPLOADPATH));
+  app.use(SCREENSHOT_URL, express.static(UPLOADPATH));
 
   // return promise for async users
   return promise;

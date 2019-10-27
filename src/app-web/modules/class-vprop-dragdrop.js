@@ -39,10 +39,18 @@ const SaveEventCoordsToBox = (ev, box) => {
   if (box.x === undefined || box.y === undefined) {
     throw Error(`arg2 box has undefined x or y prop`);
   }
+
+  // hack for transform
+  let svg = document.getElementById('modelSVG');
+  let inverse = svg.getScreenCTM().inverse();
+  let pt = svg.createSVGPoint();
+  pt.x = ev.detail.event.clientX;
+  pt.y = ev.detail.event.clientY;
+  const { x, y } = pt.matrixTransform(inverse);
   // eslint-disable-next-line no-param-reassign
-  box.x = ev.detail.event.clientX;
+  box.x = x;
   // eslint-disable-next-line no-param-reassign
-  box.y = ev.detail.event.clientY;
+  box.y = y;
 };
 /**
  * Utility to find the distance of the drag operation
@@ -54,6 +62,7 @@ const DragMetrics = vprop => {
   if (!boxes) throw Error(`VProp ${vprop.Id()} doesn't implement VEX.DragDrop`);
   let { x: x1, y: y1 } = boxes.startPt;
   let { x: x2, y: y2 } = boxes.endPt;
+
   const dx = x2 - x1;
   const dy = y2 - y1;
   const d = Math.sqrt(dx * dx + dy * dy);

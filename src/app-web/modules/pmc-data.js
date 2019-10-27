@@ -841,7 +841,11 @@ PMCData.PMC_IsDifferentPropParent = (propId, newParentId) => {
 PMCData.PMC_SetPropParent = (nodeId, parentId) => {
   // NOTE: a parentId of value of 'undefined' because that's how
   // graphlib removes a parent from a node
-  if (!PMCData.PMC_IsDifferentPropParent(nodeId, parentId)) return;
+  if (!PMCData.PMC_IsDifferentPropParent(nodeId, parentId)) {
+    // only write to the database (and roundtrip) if the propparent
+    // is different from last time
+    return false;
+  }
   // REVIEW/FIXME: Is this coercion necessary once we convert to ints?
   const id = Number(nodeId);
   const pid = Number(parentId);

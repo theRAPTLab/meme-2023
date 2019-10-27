@@ -205,7 +205,12 @@ const AddDragDropHandlers = vprop => {
       vparent.LayoutDisabled(true);
       vprop.LayoutDisabled(true);
       // this has to come last because this automatically fires layout
-      DATA.PMC_SetPropParent(vpropId, dropId);
+      if (!DATA.PMC_SetPropParent(vpropId, dropId)) {
+        console.log(`parent didn't change!`);
+        const { x, y } = DragState(vprop).gRootXY;
+        vprop.Move(x, y);
+        return;
+      }
       DATA.VM_ClearVPropPosition(vprop);
       if (DBG) console.log(`[${vpropId}] moved to [${dropId}]`);
       UTILS.RLog('PropertyDrag', `Drag property id=${vprop.id} onto id=${dropId} at ${dropXY}`);

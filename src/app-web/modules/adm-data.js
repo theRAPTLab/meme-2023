@@ -123,9 +123,10 @@ ADMData.SyncAddedData = data => {
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       case 'pmcData':
-        console.error('SyncAddedData got pmcData', value);
-      default:
         // ignore pmcData updates
+        // console.log('SyncAddedData got pmcData', value);
+      default:
+        // ignore any other updates
         // throw Error('unexpected colkey', colkey);
     }
   });
@@ -175,9 +176,10 @@ ADMData.SyncUpdatedData = data => {
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       case 'pmcData':
-        console.error('SyncUpdatedData got pmcData', value);
-      default:
         // ignore pmcData updates
+        // console.log('SyncUpdatedData got pmcData', value);
+      default:
+        // ignore any other updates
         // throw Error('unexpected colkey', colkey);
     }
   });
@@ -381,7 +383,7 @@ ADMData.SetClassesModelVisibility = isVisible => {
  */
 ADMData.CanViewOthers = () => {
   const classroom = ADMData.GetClassroom();
-  return classroom.canViewOthers;
+  return classroom ? classroom.canViewOthers : false;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomIdByStudent()) => {
@@ -605,6 +607,7 @@ ADMData.Login = hashedToken => {
     // After logging in, we need to tell ADM what the default classroom is
     ADMData.SelectClassroom();
     UR.Publish('ADM_DATA_UPDATED');
+    UR.Publish('MODEL_SELECT_OPEN');
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -829,18 +832,19 @@ ADMData.LoadModel = modelId => {
   let model = ADMData.GetModelById(modelId);
   if (model === undefined) throw Error(`${PKG}.LoadModel could not find a valid modelId ${modelId}`);
   PMCData.ClearModel();
-  ADMData.SetSelectedModelId(modelId); // Remember the selected modelId locally
+  ADMData.SetSelectedModelId(modelId, model.pmcDataId); // Remember the selected modelId locally
   ADMData.DB_RefreshPMCData(() => PMCData.InitializeModel(model, adm_db));
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This does not load the model, it just sets the currently selected model id
-ADMData.SetSelectedModelId = modelId => {
+ADMData.SetSelectedModelId = (modelId, pmcDataId) => {
   // verify it's valid
   if (adm_db.models.find(mdl => mdl.id === modelId) === undefined) {
     console.error(PKG, 'SetSelectedModelId could not find valid modelId', modelId);
   }
   ASET.selectedModelId = modelId;
+  ASET.selectedPMCDataId = pmcDataId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetSelectedModelId = () => {
@@ -850,6 +854,7 @@ ADMData.GetSelectedModelId = () => {
 ADMData.CloseModel = () => {
   ASET.selectedModelId = '';
   UR.Publish('ADM_DATA_UPDATED');
+  UR.Publish('MODEL_SELECT_OPEN');
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -95,12 +95,15 @@ class MechDialog extends React.Component {
       {
         isOpen: true,
         editExisting: false,
+        id: '',
         sourceId: '',
         sourceLabel: undefined,
         targetId: '',
         targetLabel: undefined,
         label: '',
         description: '',
+        origSourceId: '',
+        origTargetId: '',
         listenForSourceSelection: true,
         listenForTargetSelection: true,
         saveButtonLabel: 'Add'
@@ -164,11 +167,12 @@ class MechDialog extends React.Component {
   DoSelectionChange() {
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (DBG) console.log('selection changed', selectedPropIds);
-    // If both source and target have been defined, allow
-    // user to independently set each link
-    if (this.state.sourceId !== '' && this.state.targetId !== '') {
+    if (this.state.sourceId !== '' || this.state.targetId !== '') {
       /**
        * Edit Existing Mech
+       *
+       * If either source or target are already set, then consider it
+       * an existing mech
        *
        * If we're editting an existing mech, we want to allow the user
        * to individually toggle the source / target components on and off
@@ -190,7 +194,8 @@ class MechDialog extends React.Component {
       }
       if (this.state.listenForTargetSelection) {
         if (selectedPropIds.length > 0) {
-          const targetId = selectedPropIds[0];
+          // if two are selected, grab the second one, since source would grabed the first?
+          const targetId = selectedPropIds.length > 1 ? selectedPropIds[1] : selectedPropIds[0];
           if (targetId === this.state.sourceId) {
             alert(`${DATA.Prop(targetId).name} is already selected!  Please select a different component / property!`);
             DATA.VM_DeselectAll();
@@ -220,11 +225,19 @@ class MechDialog extends React.Component {
 
       if (selectedPropIds.length > 0) {
         sourceId = selectedPropIds[0];
-        listenForSourceSelection = false;
+        if (!DATA.HasProp(sourceId)) {
+          sourceId = '';
+        } else {
+          listenForSourceSelection = false;
+        }
       }
       if (selectedPropIds.length > 1) {
         targetId = selectedPropIds[1];
-        listenForTargetSelection = false;
+        if (!DATA.HasProp(targetId)) {
+          targetId = '';
+        } else {
+          listenForTargetSelection = false;
+        }
       }
 
       this.setState({
@@ -267,7 +280,7 @@ class MechDialog extends React.Component {
     // Deselect so that the first selection becomes the next source
     DATA.VM_DeselectAll();
     this.setState({
-      sourceId: undefined,
+      sourceId: '',
       sourceLabel: undefined,
       listenForSourceSelection: true
     });
@@ -277,7 +290,7 @@ class MechDialog extends React.Component {
     // Deselect so that the first selection becomes the next target
     DATA.VM_DeselectAll();
     this.setState({
-      targetId: undefined,
+      targetId: '',
       targetLabel: undefined,
       listenForTargetSelection: true
     });

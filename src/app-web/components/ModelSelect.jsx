@@ -37,6 +37,7 @@ class ModelSelect extends React.Component {
   constructor(props) {
     super(props);
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
+    this.DoModelDialogOpen = this.DoModelDialogOpen.bind(this);
     this.OnModelDialogClose = this.OnModelDialogClose.bind(this);
     this.OnNewModel = this.OnNewModel.bind(this);
     this.OnModelEdit = this.OnModelEdit.bind(this);
@@ -44,6 +45,7 @@ class ModelSelect extends React.Component {
     this.OnLogout = this.OnLogout.bind(this);
 
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+    UR.Subscribe('MODEL_SELECT_OPEN', this.DoModelDialogOpen);
 
     this.state = {
       modelId: '',
@@ -60,15 +62,20 @@ class ModelSelect extends React.Component {
     this.DoADMDataUpdate();
   }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {
+    UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+    UR.Unsubscribe('MODEL_SELECT_OPEN', this.DoModelDialogOpen);
+  }
 
   DoADMDataUpdate() {
-    if (ADM.IsLoggedOut()) {
-      this.setState({
-        modelId: '',
-        modelSelectDialogOpen: false
-      });
-    } else if (ADM.GetSelectedModelId() !== undefined) {
+    this.setState({
+      canViewOthers: ADM.CanViewOthers()
+    });
+  }
+
+  DoModelDialogOpen() {
+    if (ADM.GetSelectedModelId() !== undefined) {
+      console.log('@@@@@@ ModelSelect opening b/c of ADMDAataUpdate, selecteModelId is"', ADM.GetSelectedModelId(), '"')
       const studentId = ADM.GetSelectedStudentId();
       const groupName = ADM.GetGroupNameByStudent(studentId);
       const classroomName = ADM.GetClassroomNameByStudent(studentId);
@@ -81,11 +88,6 @@ class ModelSelect extends React.Component {
         groupName,
         classroomName,
         teacherName
-      });
-    } else {
-      // model already selected, so hide
-      this.setState({
-        modelSelectDialogOpen: false
       });
     }
   }

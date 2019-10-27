@@ -25,6 +25,7 @@ class ADMSettings {
     this.sTeacherId = ''; // an id
     this.sStudentId = ''; // a login token (string)
     this.sModelId = ''; // an id
+    this.sPMCDataId = ''; // an id
     //
     this.sClassroomId = ''; // set from login token
     this.sStudentGroupId = ''; // set from login token
@@ -45,6 +46,10 @@ class ADMSettings {
   get selectedModelId() {
     if (DBG) console.log('sModelId', this.sModelId, typeof this.sModelId);
     return this.sModelId;
+  }
+  get selectedPMCDataId() {
+    if (DBG) console.log('sPMCDataId', this.sPMCDataId, typeof this.sPMCDataId);
+    return this.sPMCDataId;
   }
   get selectedGroupId() {
     if (DBG) console.log('get sStudentGroupId', this.sStudentGroupId, typeof this.sStudentGroupId);
@@ -69,6 +74,9 @@ class ADMSettings {
   }
   set selectedModelId(id) {
     this.sModelId = id;
+  }
+  set selectedPMCDataId(id) {
+    this.sPMCDataId = id;
   }
 } // class
 

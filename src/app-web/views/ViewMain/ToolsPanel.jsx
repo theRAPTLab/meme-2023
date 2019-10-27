@@ -179,6 +179,12 @@ class ToolsPanel extends React.Component {
     const { selectedPropId, hoveredPropId } = this.state;
     const { classes } = this.props;
     const prop = DATA.Prop(propId);
+    if (prop === undefined) {
+      // Catch error if a component has not been correctly deleted, so a mech
+      // is left with a stray propId.
+      console.error('ToolsPanel.RenderComponentsListItem skipping missing propId', propId);
+      return '';
+    }
     const children = DATA.Children(propId);
     return (
       <div
@@ -213,8 +219,11 @@ class ToolsPanel extends React.Component {
     let i = 0;
     return mechIds.map(mechId => {
       const mech = DATA.Mech(mechId);
-      const source = DATA.Prop(mechId.v).name;
-      const target = DATA.Prop(mechId.w).name;
+      const sourceObj = DATA.Prop(mechId.v);
+      const targetObj = DATA.Prop(mechId.w);
+      // protect against corrupt data
+      const source = sourceObj ? sourceObj.name : 'missing prop';
+      const target = targetObj ? targetObj.name : 'missing prop';
       i++;
       return (
         <div

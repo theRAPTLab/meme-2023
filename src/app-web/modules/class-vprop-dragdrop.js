@@ -190,13 +190,8 @@ const AddDragDropHandlers = vprop => {
       return;
     }
 
-    // for every move, move vprop back to root to 'reset' it
-    // before subsequent reparenting
-    vprop.ToRoot();
-
     // it did move, so do drop target magic
     const dropId = DATA.VM_PropsMouseOver().pop();
-
     const dropXY = `(${DragState(vprop).gRootXY.x},${DragState(vprop).gRootXY.y})`;
 
     if (dropId) {
@@ -206,16 +201,19 @@ const AddDragDropHandlers = vprop => {
       vprop.LayoutDisabled(true);
       // this has to come last because this automatically fires layout
       if (!DATA.PMC_SetPropParent(vpropId, dropId)) {
-        console.log(`parent didn't change!`);
+        if (DBG) console.log(`parent didn't change! moving back`);
         const { x, y } = DragState(vprop).gRootXY;
         vprop.Move(x, y);
         return;
       }
+      // move vprop back to root to 'reset' it before subsequent reparenting
+      vprop.ToRoot();
       DATA.VM_ClearVPropPosition(vprop);
       if (DBG) console.log(`[${vpropId}] moved to [${dropId}]`);
       UTILS.RLog('PropertyDrag', `Drag property id=${vprop.id} onto id=${dropId} at ${dropXY}`);
     } else {
       // dropped on the desktop, no parent
+      vprop.ToRoot();
       const parent = DATA.PropParent(vpropId);
       if (parent) {
         if (DBG) console.log(`[${vpropId}] moved from [${parent}]`);

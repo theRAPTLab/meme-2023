@@ -671,10 +671,10 @@ PMCData.Mech = (evo, ew) => {
  *  This is necessary during SyncUpdateData to remove an old edge that has
  *  changed its source/target (since the old source/target path is not known
  *  to SyncUpdateData).
- * 
+ *
  *  An alternative approach would be to trigger a deletion in MechUpdate, but
  *  that would cause another server roundtrip.
- * 
+ *
  *  @param {Integer} id - The mech id of the db record (not a pathId)
  *  @return {Object} A pathObj {v,w}}
  */
@@ -1201,7 +1201,7 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
   /* This data is being sent to the database, so all ids referring to
      the evidence, properties and resources should be integers.
      Not every key will be set, so only coerce if present
-  
+
      propId is coming from EvidenceLink's target, which in turn is
      set from vm-data's selected_vprops array. That array is set from
      vprop ids, which means the ids are strings.  So we always want to
@@ -1433,7 +1433,6 @@ PMCData.CommentThreadAdd = (refId, newComments) => {
  *  comment text.
  */
 PMCData.CommentThreadUpdate = (refId, newComments) => {
-  
   const thread = PMCData.GetCommentThread(refId);
   if (thread === undefined) {
     // When a StickyNote is created, the note doesn't know if there is a parent
@@ -1505,6 +1504,8 @@ PMCData.GetEvLinksByResourceId = rsrcId => {
 
 /// DEBUG UTILS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if (!window.ur) window.ur = {};
+window.ur.PMC = PMCData;
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

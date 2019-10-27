@@ -164,7 +164,7 @@ const AddDragDropHandlers = vprop => {
       pt.y = mouseEvent.clientY;
       let svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
       if (DBG) console.log('Clicked at screen', pt, ' / SVG coordinate', svgPt);
-      
+
       // gStickyNoteButton is actually just a group object
       // but it does have a bbox with the right coordinates.
       // NOTE testing for 'inside' with the chat/chatBubble/chatOutline svg icons doesn't work
@@ -187,7 +187,7 @@ const AddDragDropHandlers = vprop => {
 
     // it did move, so do drop target magic
     const dropId = DATA.VM_PropsMouseOver().pop();
-    
+
     const dropXY = `(${DragState(vprop).gRootXY.x},${DragState(vprop).gRootXY.y})`;
 
     if (dropId) {
@@ -197,6 +197,7 @@ const AddDragDropHandlers = vprop => {
       vprop.LayoutDisabled(true);
       // this has to come last because this automatically fires layout
       DATA.PMC_SetPropParent(vpropId, dropId);
+      DATA.VM_ClearVPropPosition(vprop);
       if (DBG) console.log(`[${vpropId}] moved to [${dropId}]`);
       UTILS.RLog('PropertyDrag', `Drag property id=${vprop.id} onto id=${dropId} at ${dropXY}`);
     } else {

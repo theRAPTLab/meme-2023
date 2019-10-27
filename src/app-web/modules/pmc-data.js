@@ -211,7 +211,10 @@ PMCData.InitializeModel = (model, admdb) => {
       const vprop = VM.VM_VProp(id);
       // only position components, not props
       // because visuals array doesn't remove stuff
-      if (PMCData.PropParent()) return;
+      if (PMCData.PropParent()) {
+        if (DBG) console.warn(`vprop ${id} has a parent: skipping`);
+        return;
+      }
       if (!vprop) {
         if (DBG) console.warn(`InitializeModel data.visuals: skipping missing prop ${id}`);
         return;
@@ -1506,6 +1509,8 @@ PMCData.GetEvLinksByResourceId = rsrcId => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};
 window.ur.PMC = PMCData;
+window.ur.props = () => a_props;
+window.ur.mechs = () => a_mechs;
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

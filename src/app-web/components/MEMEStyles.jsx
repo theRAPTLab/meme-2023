@@ -320,6 +320,10 @@ const styles = theme => {
       width: '90%',
       margin: '0'
     },
+    screenshotViewScreenshot: {
+      width: '100%',
+      margin: '0'
+    },
     evidenceBadge: {
       height: '16px',
       width: '16px',
@@ -504,6 +508,18 @@ const styles = theme => {
     helpViewText: {
       display: 'block', // override default MDReactComponent <span>
       padding: '10px 0 5px 0'
+    },
+    screenshotViewPaper: {
+      position: 'absolute',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      top: '5%',
+      left: '5%',
+      width: '90%',
+      zIndex: m_zHelp,
+      padding: '10px',
+      backgroundColor: teal[100]
     },
     descriptionLabel: {
       fontSize: m_systemLabelFontSize,

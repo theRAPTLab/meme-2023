@@ -6,7 +6,7 @@ state
     parent      We don't update the parent object directly, 
                 we call PMC to do the update.
                 The parent object is just used to retrieve comments
-                and the parentId.
+                and the refId.
 
 props
     classes     MEMEStyles MaterialUI styles implementation.
@@ -33,7 +33,7 @@ StickyNoteButton
     StickyNoteButtons are designed to be attachable to any React component
     (including Evidence and the model itself).
     
-    They retain only a minimal amount of data (parentId) and
+    They retain only a minimal amount of data (refId) and
     retrieve status updates directly from PMCData.
     
     When they open a StickyNoteCollection, they use an URSYS.Publish call.
@@ -151,7 +151,7 @@ class StickyNoteCollection extends React.Component {
       comments: [],
       top: 0,
       left: 0,
-      parentId: ''
+      refId: ''
     };
 
     UR.Subscribe('STICKY:OPEN', this.DoOpenSticky);
@@ -339,8 +339,8 @@ class StickyNoteCollection extends React.Component {
             return (
               <StickyNote
                 comment={comment}
-                refId={parentId}
-                key={parentId + comment.id}
+                refId={refId}
+                key={comment.date}
                 OnStartEdit={this.OnStartEdit}
                 OnUpdateComment={this.OnUpdateComment}
               />

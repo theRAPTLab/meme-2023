@@ -220,7 +220,10 @@ PMCData.InitializeModel = (model, admdb) => {
       const vprop = VM.VM_VProp(id);
       // only position components, not props
       // because visuals array doesn't remove stuff
-      if (PMCData.PropParent()) return;
+      if (PMCData.PropParent()) {
+        if (DBG) console.warn(`vprop ${id} has a parent: skipping`);
+        return;
+      }
       if (!vprop) {
         if (DBG) console.warn(`InitializeModel data.visuals: skipping missing prop ${id}`);
         return;
@@ -690,10 +693,10 @@ PMCData.Mech = (evo, ew) => {
  *  This is necessary during SyncUpdateData to remove an old edge that has
  *  changed its source/target (since the old source/target path is not known
  *  to SyncUpdateData).
- * 
+ *
  *  An alternative approach would be to trigger a deletion in MechUpdate, but
  *  that would cause another server roundtrip.
- * 
+ *
  *  @param {Integer} id - The mech id of the db record (not a pathId)
  *  @return {Object} A pathObj {v,w}}
  */
@@ -824,7 +827,11 @@ PMCData.PMC_IsDifferentPropParent = (propId, newParentId) => {
 PMCData.PMC_SetPropParent = (nodeId, parentId) => {
   // NOTE: a parentId of value of 'undefined' because that's how
   // graphlib removes a parent from a node
-  if (!PMCData.PMC_IsDifferentPropParent(nodeId, parentId)) return;
+  if (!PMCData.PMC_IsDifferentPropParent(nodeId, parentId)) {
+    // only write to the database (and roundtrip) if the propparent
+    // is different from last time
+    return false;
+  }
   // REVIEW/FIXME: Is this coercion necessary once we convert to ints?
   const id = Number(nodeId);
   const pid = Number(parentId);
@@ -1151,7 +1158,7 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
   /* This data is being sent to the database, so all ids referring to
      the evidence, properties and resources should be integers.
      Not every key will be set, so only coerce if present
-  
+
      propId is coming from EvidenceLink's target, which in turn is
      set from vm-data's selected_vprops array. That array is set from
      vprop ids, which means the ids are strings.  So we always want to
@@ -1378,6 +1385,10 @@ PMCData.GetEvLinksByResourceId = rsrcId => {
 
 /// DEBUG UTILS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if (!window.ur) window.ur = {};
+window.ur.PMC = PMCData;
+window.ur.props = () => a_props;
+window.ur.mechs = () => a_mechs;
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1233,7 +1233,8 @@ PMCData.DB_CommentAdd = (refId, commentData, cb) => {
     refId: commentData.refId,
     author: commentData.author,
     text: commentData.text,
-    criteriaId: commentData.criteriaId
+    criteriaId: commentData.criteriaId,
+    placeholder: commentData.placeholder
   });
   UTILS.RLog(
     'CommentAdd',

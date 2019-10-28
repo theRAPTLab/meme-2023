@@ -176,6 +176,10 @@ class StickyNoteCollection extends React.Component {
     });
   }
 
+  /**
+   * 
+   * @param {Object} data - {refId, x, y}
+   */
   DoOpenSticky(data) {
     if (DBG) console.log(PKG, 'DoOpenSticky', data);
     const { refId, x, y } = data;

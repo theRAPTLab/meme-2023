@@ -128,6 +128,10 @@ function RoutePreflight(routes) {
   const err = EXEC.SetScopeFromRoutes(routes);
   if (err) console.error(err);
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function MyNetAddress() {
+  return NetMessage.SocketUADDR();
+}
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -151,6 +155,7 @@ const UR = {
   ReloadOnViewChange, // UTIL
   IsLocalhost,
   IsAdminLoggedIn,
+  MyNetAddress,
   DisableAdminPowers,
   PeerCount,
   ReactPreflight,

@@ -17,6 +17,7 @@ import PropTypes from 'prop-types';
 import ViewMain from '../views/ViewMain/ViewMain';
 import TestUr from '../views/DevTest/TestUr';
 import TestScreencap from '../views/DevTest/TestScreencap';
+import TestLockSync from '../views/DevTest/TestLockSync';
 import ViewAdmin from '../views/ViewAdmin/ViewAdmin';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
@@ -43,6 +44,11 @@ const SystemRoutes = [
     path: '/test-screencap',
     exact: true,
     component: TestScreencap
+  },
+  {
+    path: '/test-locksync',
+    exact: true,
+    component: TestLockSync
   },
   {
     path: '/admin',

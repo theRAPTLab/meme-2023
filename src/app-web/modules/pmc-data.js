@@ -71,7 +71,8 @@ const PR = 'PMCDATA';
 let m_graph; // dagresjs/graphlib instance
 let a_props = []; // all properties (strings)
 let a_mechs = []; // all mechanisms (pathId strings)
-let a_commentThreads = []; // all prop and mech comments
+let a_comments = []; // all comments
+let a_markedread = []; // ids of comments that have been read by students
 //
 let a_components = []; // top-level props with no parents, derived
 let h_children = new Map(); // children hash of each prop by id (string)
@@ -106,7 +107,8 @@ PMCData.Graph = () => {
 PMCData.ClearModel = () => {
   a_props = [];
   a_mechs = [];
-  a_commentThreads = [];
+  a_comments = [];
+  a_markedread = [];
   a_resources = [];
   a_evidence = [];
 };
@@ -180,12 +182,17 @@ PMCData.InitializeModel = (model, admdb) => {
 
   // Comments
   // Clean up data: Make sure refIds are strings.
-  if (data.commentThreads) {
-    a_commentThreads = data.commentThreads.map(c => {
+  if (data.comments) {
+    a_comments = data.comments.map(c => {
       return Object.assign({ refId: String(c.refId) }, c);
     });
   } else {
-    a_commentThreads = [];
+    a_comments = [];
+  }
+  if (data.markedread) {
+    a_markedread = data.markedread.slice(0);
+  } else {
+    a_markedread = [];
   }
 
   // test serial write out, then serial read back in
@@ -277,10 +284,15 @@ PMCData.SyncAddedData = data => {
       PMCData.BuildModel();
     }
 
-    if (subkey === 'commentThreads') {
-      const { id, refId, comments } = value;
-      const thread = { id, refId, comments };
-      a_commentThreads.push(thread);
+    if (subkey === 'comments') {
+      const comment = PMCObj.Comment(value);
+      console.log('....adding comment', comment);
+      a_comments.push(comment);
+      UR.Publish('DATA_UPDATED');
+    }
+
+    if (subkey === 'markedread') {
+      a_markedread.push(value);
       UR.Publish('DATA_UPDATED');
     }
   });

@@ -17,7 +17,6 @@ const PMCObj = {}; // module object to export
  *  @return {Object} Returns a new classroom data object
  */
 PMCObj.Comment = data => {
-console.log('PMCObj.Comment data',data)
   if (data.refId === undefined) throw Error('Comment requires a refId!');
   if (data.author === undefined) throw Error('Comment requires an author!');
   return {

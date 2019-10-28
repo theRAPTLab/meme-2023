@@ -69,6 +69,7 @@ class StickyNoteButton extends React.Component {
 
   componentWillUnmount() {
     UR.Unsubscribe('DATA_UPDATED', this.DoDataUpdate);
+    UR.Unsubscribe('STICKY_CLOSED', this.DoSetClosed);
   }
 
   DoDataUpdate() {

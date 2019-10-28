@@ -724,17 +724,6 @@ PMCData.PMC_PropAdd = newPropObj => {
     }
   });
   // round-trip will call BuildModel() for us
-
-  /** OLD STUFF
-  // FIXME
-  // Temporarily insert a random numeric prop id
-  // This will get replaced with a server promise once that's implemented
-  const propId = Math.trunc(Math.random() * 10000000000).toString();
-  m_graph.setNode(propId, { name });
-  PMCData.BuildModel();
-  UTILS.RLog('PropertyAdd', name);
-  return `added node:name ${name}`;
-  **/
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** update through database
@@ -823,28 +812,6 @@ PMCData.PMC_PropDelete = propId => {
       entities: { id: propId }
     }
   });
-
-  /** OLD CODE
-  // Deselect the prop first, otherwise the deleted prop will remain selected
-  VM.VM_DeselectAll();
-  // Unlink any evidence
-  const evlinks = PMCData.PMC_GetEvLinksByPropId(propId);
-  if (evlinks)
-    evlinks.forEach(evlink => {
-      PMCData.SetEvidenceLinkPropId(evlink.id, undefined);
-    });
-  // Delete any children nodes
-  const children = PMCData.Children(propId);
-  if (children)
-    children.forEach(cid => {
-      PMCData.PMC_SetPropParent(cid, undefined);
-    });
-  // Then remove propId
-  m_graph.removeNode(propId);
-  PMCData.BuildModel();
-  UTILS.RLog('PropertyDelete', propId);
-  return `deleted propId ${propId}`;
-  **/
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Return true if the prop designated by propId has a parent that is
@@ -865,14 +832,6 @@ PMCData.PMC_SetPropParent = (nodeId, parentId) => {
   return PMCData.PMC_PropUpdate(id, { parent: pid }).then(rdata => {
     if (DBG) console.log('PropUpdate', JSON.stringify(rdata['pmcData.entities']));
   });
-
-  // round-trip will call BuildModel() for us
-  /** OLD CODE
-  m_graph.setParent(nodeId, parentId);
-  PMCData.BuildModel();
-  UTILS.RLog('PropertySetParent', nodeId, parent);
-  return `set parentId ${parentId} to node ${nodeId}`;
-  **/
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
@@ -905,14 +864,6 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
       entities: mechObj
     }
   });
-
-  /** OLD CODE
-   *
-  m_graph.setEdge(sourceId, targetId, { name: label });
-  PMCData.BuildModel();
-  UTILS.RLog('MechanismAdd', sourceId, targetId, label);
-  return `added edge ${sourceId} ${targetId} ${label}`;
-   */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -1096,27 +1047,6 @@ PMCData.PMC_AddEvidenceLink = (rsrcId, cb, note = '') => {
       }
     });
   });
-
-  /** OLD CODE
-  // Retrieve from db?!?
-  // HACK!  FIXME!  Need to properly generate a unique ID.
-  let id = `ev${Math.trunc(Math.random() * 10000)}`;
-
-  // Construct number, e.g. "2c"
-  // 1. Ordinal value of resource in resource library, e.g. "2"
-  const prefix = PMCData.PMC_GetResourceIndex(rsrcId);
-  // 2. Ordinal value of evlink in evlink list, e.g. "c"
-  const evlinks = PMCData.GetEvLinksByResourceId(rsrcId);
-  const numberOfEvLinks = evlinks.length;
-  const count = String.fromCharCode(97 + numberOfEvLinks); // lower case for smaller footprint
-
-  const number = String(prefix) + count;
-  a_evidence.push({ id, propId: undefined, rsrcId, number, note });
-  PMCData.BuildModel();
-
-  UTILS.RLog('EvidenceCreate', rsrcId); // note is empty at this point
-  return id;
-  */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -1257,14 +1187,6 @@ PMCData.SetEvidenceLinkPropId = (evId, propId) => {
   if (propId !== undefined)
     // Only log when setting, not when programmatically clearing
     UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Property "${propId}"`);
-
-  /** old code
-  let evlink = h_evidenceById.get(evId);
-  evlink.propId = propId;
-  evlink.mechId = undefined; // clear this in case it was set
-  // Call BuildModel to rebuild hash tables since we've added a new propId
-  PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
-  */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
@@ -1276,17 +1198,6 @@ PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
   if (mechId !== undefined)
     // Only log when setting, not when programmatically clearing
     UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Mechanism "${mechId}"`);
-
-  /** old code
-  let evlink = h_evidenceById.get(evId);
-  evlink.mechId = mechId;
-  evlink.propId = undefined; // clear this in case it was set
-  // Call BuildModel to rebuild hash tables since we've added a new mechId
-  PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
-  if (mechId !== undefined)
-    // Only log when setting, not when programmatically clearing
-    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Mechanism "${mechId}"`);
-  */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkNote = (evId, note) => {
@@ -1295,13 +1206,6 @@ PMCData.SetEvidenceLinkNote = (evId, note) => {
   };
   PMCData.PMC_EvidenceUpdate(evId, newData);
   UTILS.RLog('EvidenceSetNote', `Set evidence note to "${note}"`);
-
-  /** old data
-  let evlink = h_evidenceById.get(evId);
-  evlink.note = note;
-  UR.Publish('DATA_UPDATED');
-  UTILS.RLog('EvidenceSetNote', `Set evidence note to "${evlink.note}"`);
-   */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkRating = (evId, rating) => {
@@ -1311,17 +1215,6 @@ PMCData.SetEvidenceLinkRating = (evId, rating) => {
   };
   PMCData.PMC_EvidenceUpdate(evId, newData);
   UTILS.RLog('EvidenceSetRating', `Set evidence "${evId}" to "${rating}"`);
-
-  /** old data
-  let evlink = h_evidenceById.get(evId);
-  if (evlink) {
-    evlink.rating = rating;
-    UR.Publish('DATA_UPDATED');
-    UTILS.RLog('EvidenceSetRating', `Set evidence "${evlink.note}" to "${rating}"`);
-    return;
-  }
-  throw Error(`no evidence link with evId '${evId}' exists`);
-  */
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

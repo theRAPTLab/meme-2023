@@ -90,13 +90,13 @@ class StickyNoteButton extends React.Component {
    */
   OnUpdateReadStatus() {
     let comments;
-    comments = PMC.GetCommentThreadComments(this.props.parentId);
+    comments = PMC.GetComments(this.props.refId);
     const author = ADM.GetSelectedStudentId();
+    const hasNoComments = comments ? comments.length < 1 : true;
+    const hasUnreadComments = PMC.HasUnreadComments(comments, author);
     this.setState({
-      hasNoComments: comments ? comments.length < 1 : true,
-      hasUnreadComments: comments ? comments.find(comment => {
-        return comment.readBy ? !comment.readBy.includes(author) : false;
-      }) : false
+      hasNoComments,
+      hasUnreadComments
     });
   }
 

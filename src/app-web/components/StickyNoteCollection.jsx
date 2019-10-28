@@ -75,7 +75,7 @@ StickyNote
     props reference to the StickyNoteCollection's comment object.  
     
     Updates to the comment data are sent directly to PMCData via a
-    PMC.CommentThreadUpdate() call.
+    PMC.DB_CommentUpdate() call.
 
     We then trigger onUpdateComment to tell StickyNoteCollection to 
     exit edit state.
@@ -120,6 +120,7 @@ import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import ADM from '../modules/data';
 import PMC from '../modules/data';
+import PMCObj from '../modules/pmc-objects';
 import UTILS from '../modules/utils';
 import StickyNote from './StickyNote';
 
@@ -165,86 +166,71 @@ class StickyNoteCollection extends React.Component {
     UR.Unsubscribe('DATA_UPDATED', this.DoStickyUpdate);
   }
 
+  NewComment(refId) {
+    return PMCObj.Comment({
+      refId,
+      author: ADM.GetSelectedStudentId(),
+      text: '',
+      placeholder: ADM.GetSentenceStarter(),
+      criteriaId: ''
+    });
+  }
+
   DoOpenSticky(data) {
     if (DBG) console.log(PKG, 'DoOpenSticky', data);
-    const { parentId, x, y } = data;
-    let comments = PMC.GetCommentThreadComments(parentId);
+    const { refId, x, y } = data;
     let isBeingEdited = false;
-    // if no comments yet, add an empty comment automatically
-    if (comments === undefined || comments.length === 0) {
-      const author = ADM.GetSelectedStudentId();
-      const sentenceStarters = ADM.GetSentenceStartersByClassroom();
-      const starter = sentenceStarters ? sentenceStarters.sentences : '';
-      comments = [PMC.NewComment(author, starter)];
+    const comments = PMC.GetComments(refId);
+    if (comments.length < 1) {
+      // if no comments yet, add an empty comment automatically
+      const comment = this.NewComment(refId);
+      PMC.DB_CommentAdd(refId, comment);
       isBeingEdited = true;
     }
     this.setState({
+      comments,
       isHidden: false,
       isBeingEdited,
-      comments,
       top: y,
       left: x - 375, // width of stickyonotecard HACK!!!
-      parentId
+      refId
     });
   }
 
   // User has clicked on "Comment" button on the StickyNoteCollection
   DoAddComment() {
-    const author = ADM.GetSelectedStudentId();
-    const starter = ADM.GetSentenceStartersByClassroom().sentences;
-    let comment = PMC.NewComment(author, starter);
-    this.setState(state => {
-      return { comments: state.comments.concat([comment]) };
-    });
+    const comment = this.NewComment(this.state.refId);
+    PMC.DB_CommentAdd(this.state.refId, comment);
+    // comment will get added via sync
   }
-
+  
   // PMC has updated sticky data, usually unread status
   // Update our existing data directly from PMC.
   DoStickyUpdate() {
-    const { parentId } = this.state;
-    let comments = PMC.GetCommentThreadComments(parentId);
-    if (DBG) console.log(PKG, 'DoStickyUpdate with comments', comments);
+    const { refId } = this.state;
+    let comments = PMC.GetComments(refId);
+    if (DBG) console.log(PKG, 'DoStickyUpdate with refId, comments', refId, comments);
     if (DBG) console.table(comments);
     this.setState({
       comments
     });
   }
 
-  // this might not be necessary anymore since StickyNotes now take care of their own saving
-  //   DoSaveSticky() {
-  //     const { parentId, comments } = this.state;
-  //     console.error('StickyNoteCllection.DoSaveSticky needs to be reviewed');
-  //     PMC.CommentThreadUpdate(parentId, comments);
-  //   }
-
   DoCloseSticky() {
     if (DBG) console.log(PKG, 'DoCloseSticky');
     
     UR.Publish('STICKY_CLOSED');
 
-    // Mark all comments read, then update comments
-    this.setState(state => {
-      // Cull empty comments
-      const comments = state.comments.filter(c => {
-        return String(c.text).trim() !== '';
-      });
+    // Mark Comments Read
+    const author = ADM.GetSelectedStudentId();
+    this.state.comments.forEach(comment => {
+      if (!PMC.HasBeenRead(comment.id, author)) {
+        PMC.DB_MarkRead(comment.id, author);
+      }
+    });
 
-      const author = ADM.GetSelectedStudentId();
-      comments.forEach(comment => {
-        if (comment.readBy.includes(author)) return;
-        comment.readBy.push(author);
-        UTILS.RLog('CommentMarkRead', `"${comment.text}" read by "${author}"`);
-      });
-
-      // now save it
-      PMC.CommentThreadUpdate(this.state.parentId, comments);
-
-      if (DBG) console.log(PKG, 'DoCloseSticky: comments should be:');
-      if (DBG) console.table(comments);
-      return {
-        comments,
-        isHidden: true
-      };
+    this.setState({
+      isHidden: true
     });
   }
 
@@ -272,34 +258,6 @@ class StickyNoteCollection extends React.Component {
     // StickyNote now handles data updates.
     // We just need to update the Collection view
     this.setState({ isBeingEdited: false });
-
-    // old code
-    // if (DBG) console.log(PKG, 'OnUpdateComment: comments', data);
-    // let { comments } = this.state;
-    // if (data === undefined) {
-    //   console.error(PKG, "OnUpdateComment got undefined data.  This should'nt happen");
-    // } else if (data.action && data.action === 'delete') {
-    //   // Handle Delete Request
-    //   comments = comments.filter(co => {
-    //     return co.id !== data.comment.id;
-    //   });
-    //   UTILS.RLog('CommentDelete', `"${data.comment.text}" from "${this.state.parentId}"`);
-    // } else {
-    //   // Regular data update
-    //   const index = comments.findIndex(co => co.id === data.comment.id);
-    //   if (index > -1) comments.splice(index, 1, data.comment); // ignore if it's been culled
-    //   UTILS.RLog(
-    //     'CommentUpdate',
-    //     `"${data.comment.text}" with criteria "${data.comment.criteriaId}" on "${this.state.parentId}"`
-    //   );
-    // }
-    // this.setState(
-    //   {
-    //     comments,
-    //     isBeingEdited: false
-    //   },
-    //   this.DoSaveSticky
-    // );
   }
 
   OnCloseClick() {
@@ -323,8 +281,7 @@ class StickyNoteCollection extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { comments, isHidden, isBeingEdited, top, left, parentId } = this.state;
-
+    const { comments, isHidden, isBeingEdited, top, left, refId } = this.state;
     return (
       <Draggable>
         <Paper className={classes.stickynotePaper} hidden={isHidden} style={{ top, left }}>

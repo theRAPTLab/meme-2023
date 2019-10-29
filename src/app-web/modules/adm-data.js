@@ -834,6 +834,7 @@ ADMData.LoadModel = modelId => {
   let model = ADMData.GetModelById(modelId);
   if (model === undefined) throw Error(`${PKG}.LoadModel could not find a valid modelId ${modelId}`);
   PMCData.ClearModel();
+  UR.Publish('SVG_PANZOOM_RESET');
   ADMData.SetSelectedModelId(modelId, model.pmcDataId); // Remember the selected modelId locally
   ADMData.DB_RefreshPMCData(() => PMCData.InitializeModel(model, adm_db));
 };

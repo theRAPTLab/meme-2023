@@ -44,9 +44,9 @@ PMCView.InitializeViewgraph = container => {
   m_svgroot = SVGJS(m_element);
   m_svgroot
     .size(1000, 1000)
-    .viewbox(0, 0, 1000, 1000)
     .panZoom({ zoomMin: 0.5, zoomMax: 2 })
-    .zoom(1);
+    .zoom(1)
+    .viewbox(0, 0, 1000, 1000);
   m_svgroot.mousedown(() => {
     DATA.VM_DeselectAllProps();
     DATA.VM_DeselectAllMechs();
@@ -54,6 +54,11 @@ PMCView.InitializeViewgraph = container => {
   });
   PMCView.DefineDefs(m_svgroot);
   PMCView.DefineSymbols(m_svgroot);
+};
+PMCView.PanZoomReset = () => {
+  if (m_svgroot) {
+    m_svgroot.zoom(1).viewbox(0, 0, 1000, 1000);
+  }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCView.TestGroups = () => {

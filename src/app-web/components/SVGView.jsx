@@ -29,13 +29,15 @@ class SVGView extends React.Component {
     this.refContainer = React.createRef();
     // bindings
     this.DoAppLoop = this.DoAppLoop.bind(this);
+    this.DoPanZoomReset = this.DoPanZoomReset.bind(this);
     // LIFECYCLE: Initialize DataGraph
 
     // Graph is now loaded by ADM.LoadModel.
     // DATA.LoadGraph();
 
     // Look for Data Updates
-    UR.Subscribe('DATA_UPDATED', this.DoAppLoop)
+    UR.Subscribe('DATA_UPDATED', this.DoAppLoop);
+    UR.Subscribe('SVG_PANZOOM_RESET', this.DoPanZoomReset);
   }
 
   componentDidMount() {
@@ -65,8 +67,13 @@ class SVGView extends React.Component {
 
   componentWillUnmount() {
     UR.Unsubscribe('DATA_UPDATED', this.DoAppLoop);
+    UR.Unsubscribe('SVG_PANZOOM_RESET', this.DoPanZoomReset);
   }
 
+  DoPanZoomReset() { 
+    PMCView.PanZoomReset();
+  }
+  
   DoAppLoop() {
     // TEST DRAWING
     // PMCView.TestGroups();

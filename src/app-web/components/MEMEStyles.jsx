@@ -67,7 +67,11 @@ const styles = theme => {
       marginBottom: '8px'
     },
     projectTitle: {
-      color: '#fff'
+      backgroundColor: 'transparent'
+    },
+    primaryProjectTitle: {
+      color: '#fff',
+      backgroundColor: 'transparent'
     },
     treeItem: {
       margin: '0 2px 2px -24px',

@@ -26,7 +26,7 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
-import TextField from '@material-ui/core/TextField';
+import InputBase from '@material-ui/core/InputBase';
 // Material UI Icons
 import AddIcon from '@material-ui/icons/Add';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
@@ -466,14 +466,16 @@ class ViewMain extends React.Component {
             <Button onClick={ADM.CloseModel} color="inherit">
               Model:&nbsp;&nbsp;
             </Button>
-            <TextField
+            <InputBase
               id="projectTitle"
-              InputProps={{ className: classes.projectTitle }}
               style={{ flexGrow: 1 }}
               placeholder="Untitled Model"
               value={title}
               onChange={this.OnChangeModelTitle}
               onBlur={this.DoSaveModelTitle}
+              classes={{
+                input: isModelAuthor ? classes.primaryProjectTitle : classes.projectTitle
+              }}
             />
             <Typography variant="caption">&nbsp;&nbsp;by {modelAuthorGroupName} Group</Typography>
             <div

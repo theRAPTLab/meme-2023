@@ -167,9 +167,12 @@ class EvidenceLink extends React.Component {
   }
 
   OnDuplicateButtonClick() {
-    const newEvId = DATA.PMC_DuplicateEvidenceLink(this.props.evlink.id);
-    const newEvLink = DATA.PMC_GetEvLinkByEvId(newEvId);
-    UR.Publish('SHOW_EVIDENCE_LINK', { evId: newEvLink.id, rsrcId: newEvLink.rsrcId });
+    DATA.PMC_DuplicateEvidenceLink(this.props.evlink.id,
+      id => {
+        const newEvLink = DATA.PMC_GetEvLinkByEvId(id);
+        UR.Publish('SHOW_EVIDENCE_LINK', { evId: newEvLink.id, rsrcId: newEvLink.rsrcId });
+      }
+    );
   }
 
   OnEditButtonClick(e) {

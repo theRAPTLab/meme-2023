@@ -1068,15 +1068,20 @@ PMCData.PMC_GetResourceIndex = rsrcId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- * @returns {string} EvId of the duplicated EvidenceLink object
+ *  @param {Integer} evId - id of the source evidence link to duplicate
+ *  @param {function} cb - callback function will be called with the new id as a parameter
+ *                         e.g. cb(id);
  */
-PMCData.PMC_DuplicateEvidenceLink = evId => {
+PMCData.PMC_DuplicateEvidenceLink = (evId, cb) => {
   // First get the old link
   const oldlink = PMCData.PMC_GetEvLinkByEvId(evId);
-  // Create new evlink
-  let newEvId = PMCData.PMC_AddEvidenceLink(oldlink.rsrcId, oldlink.note);
   UTILS.RLog('EvidenceDuplicate', oldlink.note);
-  return newEvId;
+  // Create new evlink
+  PMCData.PMC_AddEvidenceLink(
+    oldlink.rsrcId,
+    id => { if (typeof cb === 'function') cb(id) },
+    oldlink.note
+  );
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_DeleteEvidenceLink = evId => {
@@ -1098,7 +1103,7 @@ PMCData.PMC_DeleteEvidenceLink = evId => {
  */
 PMCData.PMC_GetEvLinkByEvId = evId => {
   if (typeof evId !== 'number')
-    throw Error('PMCData.PMC_GetEvLinkByEvId requested evId with non-Number', evId, typeof evId);
+    throw Error(`PMCData.PMC_GetEvLinkByEvId requested evId with non-Number ${evId} typeof ${typeof evId}`);
   return h_evidenceById.get(evId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -664,7 +664,7 @@ function m_CheckRMode(mode) {
 /// EXPORT CLASS DEFINITION ///////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NetMessage.CODE_OK = 0;
-NetMessage.CODE_NO_MESSAGE = 1;
+NetMessage.CODE_NO_MESSAGE = 1; // requested message doesn't exist
 NetMessage.CODE_SOC_NOSOCK = -100;
 NetMessage.CODE_SES_REQUIRE_KEY = -200; // access key not set
 NetMessage.CODE_SES_REQUIRE_LOGIN = -201; // socket was not logged-in

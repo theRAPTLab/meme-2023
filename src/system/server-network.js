@@ -102,6 +102,7 @@ UNET.StartNetwork = () => {
  */
 UNET.NetSubscribe = (mesgName, handlerFunc) => {
   if (typeof handlerFunc !== 'function') {
+    console.log(PR, mesgName, 'subscription failure');
     throw Error('arg2 must be a function');
   }
   let handlers = m_server_handlers.get(mesgName);
@@ -111,7 +112,6 @@ UNET.NetSubscribe = (mesgName, handlerFunc) => {
   }
   handlers.add(handlerFunc);
 }; // end NetSubscribe()
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Revokes a handler function from a registered message. The handler function
  * object must be the same one used to register it.
@@ -150,6 +150,22 @@ UNET.NetCall = async (mesgName, data) => {
   /// END MAGICAL ASYNC/AWAIT BLOCK ///
   // const result = Object.assign({}, ...resArray);
   return results; // array of data objects
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** Server-side local server subscription. It's the same as NetSubscribe
+ */
+UNET.LocalSubscribe = UNET.NetSubscribe;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** Server-side local server publishing. It executes synchronously, unlike the
+ *  remote version. Doesn't return vsalues.
+ */
+UNET.LocalPublish = (mesgName, data) => {
+  const handlers = m_server_handlers.get(mesgName);
+  if (!handlers) return undefined;
+  const results = [];
+  handlers.forEach(hFunc => {
+    results.push(hFunc(data));
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Server-side method for sending a remote message. It fires the messages but
@@ -432,7 +448,9 @@ function m_SocketDelete(socket) {
     });
   }
   if (DBG.init) log_ListSockets(`del ${socket.UADDR}`);
-} // end m_SoecketDelete()
+  // tell subscribers socket is gone
+  UNET.LocalPublish('SRV_SOCKET_DELETED', { uaddr });
+} // end m_SocketDelete()
 
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Returns the socket associated with a uaddr. The UADDR

@@ -53,7 +53,7 @@ class TestDBLock extends React.Component {
   constructor(props) {
     super(props);
     UR.ReactPreflight(TestDBLock, module);
-    this.cstrName = `${this.constructor.name} ${UR.MyNetAddress()}`;
+    this.cstrName = `${this.constructor.name} ${UR.SocketUADDR()}`;
     this._mounted = false;
     this.state = {
       status: 'loading'
@@ -68,6 +68,18 @@ class TestDBLock extends React.Component {
     console.log(`<${this.cstrName}> mounted`);
     this._mounted = true;
     // immediately-executed asynchronous function
+    UR.DBTryLock('pmcData.entities', [1, 1])
+      .then(rdata => {
+        const { success, semaphore, uaddr, lockedBy } = rdata;
+        const status = success ? `${semaphore} lock acquired by ${uaddr}` : `failed to acquired ${semaphore} lock`;
+        console.log(rdata, status);
+        this.setState({ status });
+        if (rdata.success) {
+          console.log('do something here because u-locked!');
+        } else {
+          console.log('aw, locked by', rdata.lockedBy);
+        }
+      })
   }
 
   componentWillUnmount() {

@@ -69,7 +69,7 @@ class TestLockSync extends React.Component {
   constructor(props) {
     super(props);
     UR.ReactPreflight(TestLockSync, module);
-    this.cstrName = `${this.constructor.name} ${UR.MyNetAddress()}`;
+    this.cstrName = `${this.constructor.name} ${UR.SocketUADDR()}`;
     this._mounted = false;
     this.state = {
       status: 'loading'
@@ -103,7 +103,7 @@ class TestLockSync extends React.Component {
     // save key based on netsocket address w/ current edited item
     // if it's undefined, then it doesn't get encoded
     if (data.id == this.editingCommentId) {
-      retval[UR.MyNetAddress()] = this.editingCommentId;
+      retval[UR.SocketUADDR()] = this.editingCommentId;
       this.setState({
         status: `I have the lock! Retaining control of '${data.id}'`
       });

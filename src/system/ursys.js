@@ -93,7 +93,28 @@ function DBQuery(cmd, data) {
   // returns a promise that resolves to data
   return ULINK._DBQuery(cmd, data);
 }
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function DBTryLock(dbkey, dbids) {
+  const data = {
+    key: SESSION.AccessKey() || SESSION.AdminKey(),
+    dbkey,
+    dbids,
+    uaddr: SocketUADDR()
+  };
+  // returns a promise that resolves to data
+  return ULINK._DBLock(data);
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function DBTryRelease(dbkey, dbids) {
+  const data = {
+    key: SESSION.AccessKey() || SESSION.AdminKey(),
+    dbkey,
+    dbids,
+    uaddr: SocketUADDR()
+  };
+  // returns a promise that resolves to data
+  return ULINK._DBRelease(data);
+}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const { Define, GetVal, SetVal } = CENTRAL;
 
@@ -129,7 +150,7 @@ function RoutePreflight(routes) {
   if (err) console.error(err);
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function MyNetAddress() {
+function SocketUADDR() {
   return NetMessage.SocketUADDR();
 }
 
@@ -149,13 +170,15 @@ const UR = {
   NetCall, // ULINK
   NetSignal, // ULINK
   DBQuery, // ULINK
+  DBTryLock, // ULINK
+  DBTryRelease, // ULINK
   Define, // CENTRAL
   GetVal, // CENTRAL
   SetVal, // CENTRAL
   ReloadOnViewChange, // UTIL
   IsLocalhost,
   IsAdminLoggedIn,
-  MyNetAddress,
+  SocketUADDR,
   DisableAdminPowers,
   PeerCount,
   ReactPreflight,
@@ -167,6 +190,18 @@ if (!window.ur) window.ur = {};
 window.ur.SESSION = SESSION;
 window.ur.LINK = ULINK;
 window.ur.DBQuery = DBQuery;
+window.ur.DBLock = (dbkey, dbids) => {
+  DBTryLock(dbkey, dbids).then(data => {
+    console.log(data);
+  });
+  return 'testing DBLock...';
+};
+window.ur.DBRelease = (dbkey, dbids) => {
+  DBTryRelease(dbkey, dbids).then(data => {
+    console.log(data);
+  });
+  return 'testing DBRelease...';
+};
 window.ur.tnc = (msg, data) => {
   NetCall(msg, data).then(rdata => {
     console.log(`netcall '${msg}' returned`, rdata);
@@ -174,10 +209,11 @@ window.ur.tnc = (msg, data) => {
   return `testing netcall '${msg}'`;
 };
 window.ur.serverinfo = () => {
-  window.ur.tnc('NET:SRV_SERVICE_LIST');
+  return window.ur.tnc('NET:SRV_SERVICE_LIST');
 };
 window.ur.clientinfo = () => {
   console.log(window.URSESSION);
+  return `testing clientinfo`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default UR;

@@ -17,6 +17,7 @@ import Fade from '@material-ui/core/Fade'
 /// MODULES ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import UR from '../../../system/ursys';
+import ADM from '../../modules/data';
 
 /// CSS IMPORTS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -67,19 +68,22 @@ class TestDBLock extends React.Component {
   componentDidMount() {
     console.log(`<${this.cstrName}> mounted`);
     this._mounted = true;
+    let status = '';
     // immediately-executed asynchronous function
-    UR.DBTryLock('pmcData.entities', [1, 1])
-      .then(rdata => {
-        const { success, semaphore, uaddr, lockedBy } = rdata;
-        const status = success ? `${semaphore} lock acquired by ${uaddr}` : `failed to acquired ${semaphore} lock`;
-        console.log(rdata, status);
-        this.setState({ status });
-        if (rdata.success) {
-          console.log('do something here because u-locked!');
-        } else {
-          console.log('aw, locked by', rdata.lockedBy);
-        }
-      })
+    ADM.Login('bob-z4in').then(rdata => {
+      if (rdata.success) status += `'${rdata.token.split('-')[0]}' ${rdata.status}! `;
+      UR.DBTryLock('pmcData.entities', [1, 1])
+        .then(rdata => {
+          const { success, semaphore, uaddr, lockedBy } = rdata;
+          status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
+          this.setState({ status });
+          if (rdata.success) {
+            console.log('do something here because u-locked!');
+          } else {
+            console.log('aw, locked by', rdata.lockedBy);
+          }
+        });
+    });
   }
 
   componentWillUnmount() {

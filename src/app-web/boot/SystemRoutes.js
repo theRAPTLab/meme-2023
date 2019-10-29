@@ -18,6 +18,7 @@ import ViewMain from '../views/ViewMain/ViewMain';
 import TestUr from '../views/DevTest/TestUr';
 import TestScreencap from '../views/DevTest/TestScreencap';
 import TestLockSync from '../views/DevTest/TestLockSync';
+import TestDBLock from '../views/DevTest/TestDBLock';
 import ViewAdmin from '../views/ViewAdmin/ViewAdmin';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
@@ -44,6 +45,11 @@ const SystemRoutes = [
     path: '/test-screencap',
     exact: true,
     component: TestScreencap
+  },
+  {
+    path: '/test-dblock',
+    exact: true,
+    component: TestDBLock
   },
   {
     path: '/test-locksync',

@@ -28,6 +28,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import Fade from '@material-ui/core/Fade'
 
 /// MODULES ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -68,7 +69,7 @@ class TestLockSync extends React.Component {
   constructor(props) {
     super(props);
     UR.ReactPreflight(TestLockSync, module);
-    this.cstrName = this.constructor.name;
+    this.cstrName = `${this.constructor.name} ${UR.MyNetAddress()}`;
     this._mounted = false;
     this.state = {
       status: 'loading'
@@ -89,7 +90,6 @@ class TestLockSync extends React.Component {
     // immediately-executed asynchronous function
     (async () => {
       const status = await this.PUB_TryEditComment(12);
-      this.setState({ status });
     })();
   }
 
@@ -105,11 +105,11 @@ class TestLockSync extends React.Component {
     if (data.id == this.editingCommentId) {
       retval[UR.MyNetAddress()] = this.editingCommentId;
       this.setState({
-        status: `DENYING request for ${data.id}`
+        status: `I have the lock! Retaining control of '${data.id}'`
       });
     } else {
       this.setState({
-        status: `approving request for ${data.id}`
+        status: `I don't have the lock, so allowing control of '${data.id}'`
       });
     }
     return retval;
@@ -131,10 +131,11 @@ class TestLockSync extends React.Component {
         // lock it
         if (!inUse) {
           this.editingCommentId = id;
-          status += `${UR.MyNetAddress()} grabs control of '${id} for ${SEC} secs`;
+          status += `Grabbing control of '${id}' for ${SEC} secs!!!`;
+          this.setState({ status });
           console.log(status);
           setTimeout(() => {
-            const status = `${UR.MyNetAddress()} releases control of ${id}!`;
+            const status = `Released control of '${id}'!`;
             this.setState({ status });
             console.log(status);
             this.editingCommentId = undefined;
@@ -143,6 +144,7 @@ class TestLockSync extends React.Component {
           return status;
         } else {
           status += `${inUse[0]} already has the lock on ${id}`;
+          this.setState({ status });
           console.log(status);
         }
       });
@@ -162,11 +164,15 @@ class TestLockSync extends React.Component {
                 OPEN TWO or MORE instance of /#/test-locksync and observe console
                 Try refreshing different instances
               </p>
-              <p>{this.state.status}</p>
             </Paper>
+            <Fade in={true} timeout={1000}>
+              <Paper className={classes.paper}>
+                <p>{this.state.status}</p>
+              </Paper>
+            </Fade>
           </Grid>
         </Grid>
-      </div>
+      </div >
     );
   }
 } // TestLockSync component

@@ -202,6 +202,15 @@ window.ur.DBRelease = (dbkey, dbids) => {
   });
   return 'testing DBRelease...';
 };
+window.ur.GetLockTable = () => {
+  NetCall('NET:SRV_DBLOCKS').then(data => {
+    Object.keys(data).forEach((key, index) => {
+      const item = data[key];
+      console.log(`${index})\t"${item.semaphore}" locked by ${item.uaddr}`);
+    });
+  });
+  return 'retrieving lock table';
+};
 window.ur.tnc = (msg, data) => {
   NetCall(msg, data).then(rdata => {
     console.log(`netcall '${msg}' returned`, rdata);

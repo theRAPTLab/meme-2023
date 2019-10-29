@@ -78,6 +78,7 @@ DB.InitializeDatabase = (options = {}) => {
   UNET.NetSubscribe('NET:SRV_DBQUERY', DB.PKT_Query);
   UNET.NetSubscribe('NET:SRV_DBLOCK', DB.PKT_Lock);
   UNET.NetSubscribe('NET:SRV_DBRELEASE', DB.PKT_Release);
+  UNET.NetSubscribe('NET:SRV_DBLOCKS', DB.PKT_GetLockTable);
   UNET.LocalSubscribe('SRV_SOCKET_DELETED', m_RemoveSocketLocks);
   // also we publish 'NET:SYSTEM_DBSYNC' { collection key arrays of change }
 
@@ -271,6 +272,13 @@ DB.PKT_Release = pkt => {
   }, '');
   if (DBG) console.log(PR, `${uaddr} denied release semaphore "${semaphore} by ${lockedBy}"`);
   return { semaphore, uaddr, success: false, lockedBy };
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** MESSAGE HANDLER: 'NET:SRV_DBLOCKS'
+ * return contents of LOCKS database
+ */ DB.PKT_GetLockTable = pkt => {
+  const locks = m_db.getCollection('session_locks');
+  return locks.chain().data({ removeMeta: true });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // helper to remove locks from db on socket lost
@@ -651,19 +659,6 @@ DB.PKT_Query = pkt => {
   if (session.error) return { error: session.error };
   //
   return { error: 'query is unimplemented' };
-};
-
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API:
- * { 'pmcData.locks': { id, locks: { name, id, uaddr } };
- * @param {NetMessage} pkt - packet with data object as described above
- * @returns {Object} - data to return (including error if any)
- */
-PKT_LockResource = pkt => {
-  const session = UNET.PKT_Session(pkt);
-  if (session.error) return { error: session.error };
-  //
-  const data = pkt.Data();
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

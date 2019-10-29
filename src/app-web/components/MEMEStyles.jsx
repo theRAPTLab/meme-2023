@@ -8,6 +8,7 @@ const { COLOR } = DEFAULTS;
 const m_drawerWidth = 100;
 const m_primary = indigo[500];
 const m_selectedColor = indigo[800];
+const m_evidenceColor = teal[100];
 const m_stickynoteColor = yellow[400]; //`#ffe25a`;
 const m_stickynoteIconColor = COLOR.STICKY_BUTTON; // '#ffd700'; // yellow[800]; // `#ffc904`;
 const m_systemTextColor = 'rgba(0,0,0,0.35)';
@@ -320,10 +321,6 @@ const styles = theme => {
       width: '90%',
       margin: '0'
     },
-    screenshotViewScreenshot: {
-      width: '100%',
-      margin: '0'
-    },
     evidenceBadge: {
       height: '16px',
       width: '16px',
@@ -341,7 +338,7 @@ const styles = theme => {
       width: '290px',
       margin: '1px auto 1px 0',
       padding: '1px 0 10px 10px',
-      backgroundColor: teal[100],
+      backgroundColor: m_evidenceColor,
       cursor: 'pointer'
     },
     evidenceLinkPaperHover: {
@@ -516,10 +513,17 @@ const styles = theme => {
       alignItems: 'center',
       top: '5%',
       left: '5%',
-      width: '90%',
+      bottom: '5%',
+      right: '5%',
       zIndex: m_zHelp,
       padding: '10px',
-      backgroundColor: teal[100]
+      backgroundColor: m_evidenceColor
+    },
+    screenshotViewScreenshot: {
+      objectFit: 'contain',
+      width: '100%',
+      height: '100%',
+      margin: '0'
     },
     descriptionLabel: {
       fontSize: m_systemLabelFontSize,

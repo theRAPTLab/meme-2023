@@ -15,6 +15,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
@@ -88,28 +89,35 @@ class ScreenshotView extends React.Component {
     return (
       <Draggable>
         <Paper className={classes.screenshotViewPaper} hidden={!isOpen}>
-          {imageURL === undefined
-            ? <Dropzone onDrop={this.OnDrop} />
-            : <div>
-                <img
+          <Grid container spacing={5} style={{ height: '100%' }}>
+            <Grid item xs={12} style={{ height: '100%' }}>
+              {imageURL === undefined
+                ? <Dropzone onDrop={this.OnDrop} />
+                : <img
                   src={imageURL}
                   alt="screenshot"
                   className={classes.screenshotViewScreenshot}
                 />
-              </div> 
-          }
-          <Button
-            style={{ alignSelf: 'flex-start' }}
-            onClick={this.DoReplaceScreenshot}
-            hidden={imageURL===undefined}
-          >
-            Replace Screenshot
-          </Button>
-          <Button
-            onClick={this.DoClose}
-          >
-            Close
-          </Button>
+              }
+            </Grid>
+          </Grid>
+          <Grid container spacing={5}>
+            <Grid item xs={6}>
+              <Button
+                onClick={this.DoReplaceScreenshot}
+                hidden={imageURL===undefined}
+              >
+                Replace Screenshot
+              </Button>
+            </Grid>
+            <Grid item xs={6} style={{ textAlign: 'right'}}>
+              <Button
+                onClick={this.DoClose}
+              >
+                Close
+              </Button>
+            </Grid>
+          </Grid>
         </Paper>
       </Draggable>
     );

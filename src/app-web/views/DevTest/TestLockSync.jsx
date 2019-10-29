@@ -119,23 +119,25 @@ class TestLockSync extends React.Component {
     // NetCall returns a Promise
     return this.ULINK.NetCall('NET:SYNC_EDIT_COMMENT', { id })
       .then(rdata => {
-        // hack around lack of NetSync command
-        if (rdata.error) {
-          if (rdata.error !== 'message NET:SYNC_EDIT_COMMENT not found') return;
+        let status = '';
+        // if the SYNC_EDIT_COMMENT message isn't there, we can assume log
+        if (rdata.code === 1) {
           rdata = {};
+          status += `We are only client, so grabbing lock! `;
+          this.setState({ status });
+          console.log(status);
         }
         // search keys for matching id
         const responses = Object.entries(rdata);
         const inUse = responses.find(kvp => kvp[1] == id);
-        let status = '';
         // lock it
         if (!inUse) {
           this.editingCommentId = id;
-          status += `Grabbing control of '${id}' for ${SEC} secs!!!`;
+          status += `Grabbing control of '${id}' for ${SEC} secs!!! `;
           this.setState({ status });
           console.log(status);
           setTimeout(() => {
-            const status = `Released control of '${id}'!`;
+            status += `Released control of '${id}'! `;
             this.setState({ status });
             console.log(status);
             this.editingCommentId = undefined;
@@ -143,7 +145,7 @@ class TestLockSync extends React.Component {
           // return implicitly resolved value promise
           return status;
         } else {
-          status += `${inUse[0]} already has the lock on ${id}`;
+          status += `${inUse[0]} already has the lock on ${id} `;
           this.setState({ status });
           console.log(status);
         }

@@ -209,8 +209,9 @@ UNET.PKT_RegisterRemoteHandlers = pkt => {
   // make sure there's no sneaky attempt to subvert the system messages
   const filtered = messages.filter(msg => !msg.startsWith('NET:SRV'));
   if (filtered.length !== messages.length) {
-    console.log(PR, `${uaddr} blocked from registering SRV message`);
-    return { error: `do not register system or server messages` };
+    const error = `${uaddr} blocked from registering SRV message`;
+    console.log(PR, error);
+    return { error, code: NetMessage.CODE_REG_DENIED };
   }
   let regd = [];
   // save message list, for later when having to delete
@@ -245,12 +246,17 @@ UNET.PKT_SessionLogin = pkt => {
   const uaddr = pkt.SourceAddress();
   const sock = m_SocketLookup(uaddr);
   if (!sock) throw Error(`uaddr '${uaddr}' not associated with a socket`);
-  if (sock.USESS)
-    return { error: `socket '${uaddr}' already has a session '${JSON.stringify(sock.USESS)}'` };
+  if (sock.USESS) {
+    const error = `socket '${uaddr}' already has a session '${JSON.stringify(sock.USESS)}'`;
+    return { error, code: NetMessage.CODE_SES_RE_REGISTER };
+  }
   const { token } = pkt.Data();
   if (!token || typeof token !== 'string') return { error: `must provide token string` };
   const decoded = SESSION.DecodeToken(token);
-  if (!decoded.isValid) return { error: `token '${token}' is not valid` };
+  if (!decoded.isValid) {
+    const error = `token '${token}' is not valid`;
+    return { error, code: NetMessage.CODE_SES_INVALID_TOKEN };
+  }
   const key = SESSION.MakeAccessKey(token, uaddr);
   sock.USESS = decoded;
   sock.UKEY = key;
@@ -286,8 +292,9 @@ UNET.PKT_Session = pkt => {
   const uaddr = pkt.SourceAddress();
   const sock = m_SocketLookup(uaddr);
   if (!sock) {
-    console.log(PR, `${uaddr} impossible socket lookup failure`);
-    return { error: `${uaddr} impossible socket lookup failure` };
+    const error = `${uaddr} impossible socket lookup failure`;
+    console.log(PR, error);
+    return { error, code: NetMessage.CODE_SOC_NOSOCK };
   }
   const { key } = pkt.Data();
   if (sock.ULOCAL) {
@@ -295,8 +302,9 @@ UNET.PKT_Session = pkt => {
     return { localhost: true };
   }
   if (!key) {
-    if (DBG.client) console.log(PR, `${uaddr} access key is not set`);
-    return { error: `sock.${uaddr} access key is not set` };
+    const error = `${uaddr} access key is not set`;
+    if (DBG.client) console.log(PR, error);
+    return { error, code: NetMessage.CODE_SES_REQUIRE_KEY };
   }
   const evil_backdoor = SESSION.AdminPlaintextPassphrase();
   if (key === evil_backdoor) {
@@ -311,14 +319,16 @@ UNET.PKT_Session = pkt => {
     }
   }
   if (!sock.USESS) {
+    const error = `sock.${uaddr} is not logged-in`;
     if (DBG.client) console.log(PR, `${uaddr} is not logged-in`);
-    return { error: `sock.${uaddr} is not logged-in` };
+    return { error, code: NetMessage.CODE_SES_REQUIRE_LOGIN };
   }
   if (key !== sock.UKEY) {
     if (DBG.client) {
       console.log(PR, `Session: sock.${uaddr} keys do not match packet '${sock.UKEY}' '${key}'`);
     }
-    return { error: `sock.${uaddr} access keys do not match '${sock.UKEY}' '${key}'` };
+    const error = `sock.${uaddr} access keys do not match '${sock.UKEY}' '${key}'`;
+    return { error, code: NetMessage.CODE_SES_INVALID_KEY };
   }
   // passes all tests, so its good!
   return sock.USESS;
@@ -473,7 +483,8 @@ async function m_HandleMessage(socket, pkt) {
     // return transaction to resolve callee
     pkt.SetData({
       URserver: `info: ${out}`,
-      error: `message ${pkt.Message()} not found`
+      error: `message ${pkt.Message()} not found`,
+      code: NetMessage.CODE_NO_MESSAGE
     });
     if (pkt.IsType('mcall')) pkt.ReturnTransaction(socket);
     return;

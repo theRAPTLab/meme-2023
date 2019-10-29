@@ -643,12 +643,14 @@ ADMData.GetSelectedStudentId = () => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- * @param {string} [studentId = currently selected studentId]
- * @return {string} Name of student, or '' if not found
+ *  Returns student name, normalizing the case to initial caps.
+ *  @param {string} [studentId = currently selected studentId]
+ *  @return {string} Name of student, or '' if not found
  */
 ADMData.GetStudentName = (studentId = ASET.selectedStudentId) => {
   // return just the first part of the studentid without the hash
-  return studentId.split('-')[0];
+  let name = studentId.split('-')[0];
+  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetStudentGroupName = (studentId = ASET.selectedStudentId) => {

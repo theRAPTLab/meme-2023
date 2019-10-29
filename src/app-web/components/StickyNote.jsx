@@ -330,7 +330,7 @@ class StickyNote extends React.Component {
           <Grid container>
             <Grid item xs={3}>
               <Typography variant="subtitle2" className={classes.stickynoteCardAuthor}>
-                {`${comment.author} ${ADM.GetGroupNameByStudent(comment.author)}`}
+                {`${ADM.GetStudentName(comment.author)} ${ADM.GetGroupNameByStudent(comment.author)}`}
               </Typography>
               <Typography variant="caption" className={classes.stickynoteCardLabel}>
                 {`${timestring}`}

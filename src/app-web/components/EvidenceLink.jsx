@@ -390,7 +390,7 @@ class EvidenceLink extends React.Component {
           <Button
             className={classes.evidenceExpandButton}
             onClick={this.DoToggleExpanded}
-            hidden={!isExpanded}
+            hidden={!isExpanded || isBeingEdited}
           >
             <ExpandMoreIcon className={isExpanded ? classes.lessIconCollapsed : ''} />
           </Button>

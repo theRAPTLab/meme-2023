@@ -273,7 +273,7 @@ PMCData.SyncAddedData = data => {
           });
           break;
         case 'evidence':
-          const { id, propId, mechId, rsrcId, numberLabel, rating, note } = value;
+          const { id, propId, mechId, rsrcId, numberLabel, rating, note, imageURL } = value;
           a_evidence.push({
             id,
             propId,
@@ -281,7 +281,8 @@ PMCData.SyncAddedData = data => {
             rsrcId,
             numberLabel,
             rating,
-            note
+            note,
+            imageURL
           });
           break;
         default:
@@ -1012,26 +1013,23 @@ function GenerateNumberLabel(rsrcId) {
  *  This also calculates the numberLabel automatically based on the assets already
  *  in the system.
  *
- *  @param {string} rsrcId - string id of the parent resource
- *  @param {function} cb - callback function will be called with the new id as a parameter
+ *  @param {Object} evObjData - Any subset of PMBObj.Evidence keys
+ *  @param {Function} cb - callback function will be called with the new id as a parameter
  *                         e.g. cb(id);
- *  @param {string} [note] - optional initial value of the note
  */
-PMCData.PMC_AddEvidenceLink = (rsrcId, cb, note = '') => {
-  const pmcDataId = ASET.selectedPMCDataId;
-  const numberLabel = GenerateNumberLabel(rsrcId);
-
-  // propId and mechId remain undefined until the user sets it later
-  const evObj = {
-    type: 'evidence',
-    propId: undefined,
-    mechId: undefined,
-    rsrcId,
+PMCData.PMC_AddEvidenceLink = (evObjData, cb) => {
+  const numberLabel = GenerateNumberLabel(evObjData.rsrcId);
+  const evObj = PMCObj.Evidence({
+    // no id - id should be undefined since we're defining a new db object
+    // propId and mechId remain undefined until the user sets it later
+    rsrcId: evObjData.rsrcId,
     numberLabel,
-    rating: undefined,
-    note
-  };
-  UTILS.RLog('EvidenceCreate', rsrcId); // note is empty at this point
+    note: evObjData.note,
+    imageURL: evObjData.imageURL
+  });
+  
+  UTILS.RLog('EvidenceCreate', evObj.rsrcId); // note is empty at this point
+  const pmcDataId = ASET.selectedPMCDataId;
   return UR.DBQuery('add', {
     'pmcData.entities': {
       id: pmcDataId,
@@ -1074,13 +1072,17 @@ PMCData.PMC_GetResourceIndex = rsrcId => {
  */
 PMCData.PMC_DuplicateEvidenceLink = (evId, cb) => {
   // First get the old link
-  const oldlink = PMCData.PMC_GetEvLinkByEvId(evId);
-  UTILS.RLog('EvidenceDuplicate', oldlink.note);
+  const oldev = PMCData.PMC_GetEvLinkByEvId(evId);
+  const newev = Object.assign(
+    {},
+    oldev,
+    { id: undefined, propId: undefined, mechId: undefined }
+  );
+  UTILS.RLog('EvidenceDuplicate', oldev.note);
   // Create new evlink
   PMCData.PMC_AddEvidenceLink(
-    oldlink.rsrcId,
+    newev,
     id => { if (typeof cb === 'function') cb(id) },
-    oldlink.note
   );
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

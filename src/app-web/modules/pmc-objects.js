@@ -16,6 +16,25 @@ const PMCObj = {}; // module object to export
 /**
  *  @return {Object} Returns a new classroom data object
  */
+PMCObj.Evidence = data => {
+  if (data.rsrcId === undefined) throw Error('Evidence requires a rsrcId!');
+  return {
+    type: 'evidence',
+    id: data.id,
+    propId: data.propId,
+    mechId: data.mechId,
+    rsrcId: data.rsrcId,
+    numberLabel: data.numberLabel,
+    rating: data.rating,
+    note: data.note,
+    imageURL: data.imageURL
+  };
+};
+
+
+/**
+ *  @return {Object} Returns a new classroom data object
+ */
 PMCObj.Comment = data => {
   if (data.refId === undefined) throw Error('Comment requires a refId!');
   if (data.author === undefined) throw Error('Comment requires an author!');

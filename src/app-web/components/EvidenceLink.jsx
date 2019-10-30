@@ -528,8 +528,10 @@ class EvidenceLink extends React.Component {
                 </Typography>
               </Grid>
               <Grid item xs>
-                {imageURL === undefined
-                  ? <Dropzone onDrop={this.OnDrop} />
+                {imageURL === undefined 
+                  ? isBeingEdited
+                    ? <Dropzone onDrop={this.OnDrop} />
+                    : <Typography variant="caption">no screenshot</Typography>
                   : <Button
                       className={classes.evidenceScreenshotButton}
                       onClick={this.OnScreenShotClick}

@@ -112,30 +112,55 @@ SESSION.MakeToken = (studentName, dataIds = {}) => {
   let hashids = new HashIds(HASH_SALT + studentName, HASH_MINLEN, HASH_ABET);
   let hashedId = hashids.encode(groupId, classroomId);
   return `${studentName}-${hashedId}`;
-
-  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /// support function
-  function f_checkIdValue(idsObj) {
-    const ids = Object.keys(idsObj);
-    let error = '';
-    ids.forEach(key => {
-      const val = idsObj[key];
-      if (!Number.isInteger(val)) {
-        error += `'${key}' is not an integer. `;
-        return;
-      }
-      if (val < 0) {
-        error += `'${key}' must be non-negative integer. `;
-        return;
-      }
-      if (val > Number.MAX_SAFE_INTEGER) {
-        error += `'${key}' exceeds MAX_SAFE_INTEGER. `;
-        return;
-      }
-    });
-    return error;
-  }
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Returns a token string of form NAME-HASHED_DATA
+ * @param {String} teacherName
+ * @param {Object} dataIds
+ * @param {Number} dataIds.groupId
+ * @param {Number} dataIds.teacherId
+ */
+SESSION.MakeTeacherToken = (teacherName, dataIds = {}) => {
+  // type checking
+  if (typeof teacherName !== 'string') throw Error(`classId arg1 '${teacherName}' must be string`);
+  let err;
+  if ((err = f_checkIdValue(dataIds))) {
+    console.warn(`Could not make token. ${err}`);
+    return undefined;
+  }
+  // convert to alphanumeric no spaces
+  const tokName = teacherName.replace(/\W/g, '');
+  // initialize hashid structure
+  teacherName = tokName.toUpperCase();
+  const { groupId, teacherId } = dataIds;
+  let hashids = new HashIds(HASH_SALT + teacherName, HASH_MINLEN, HASH_ABET);
+  let hashedId = hashids.encode(groupId, teacherId);
+  return `${teacherName}-${hashedId}`;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// support function
+function f_checkIdValue(idsObj) {
+  const ids = Object.keys(idsObj);
+  let error = '';
+  ids.forEach(key => {
+    const val = idsObj[key];
+    if (!Number.isInteger(val)) {
+      error += `'${key}' is not an integer. `;
+      return;
+    }
+    if (val < 0) {
+      error += `'${key}' must be non-negative integer. `;
+      return;
+    }
+    if (val > Number.MAX_SAFE_INTEGER) {
+      error += `'${key}' exceeds MAX_SAFE_INTEGER. `;
+      return;
+    }
+  });
+  return error;
+}
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Makes a 'access key' that is not very secure, but unique enough to serve
  * as an authentication key based on a login token

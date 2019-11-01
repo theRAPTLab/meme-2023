@@ -642,6 +642,18 @@ ADMData.IsValidLogin = hashedToken => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
+ *  Returns true of user has write priviledges as the author of the model
+ *  The user's group grants the priviledges
+ */
+ADMData.IsViewOnly = () => {
+  const author = ADMData.GetAuthorId();
+  const groupAuthorId = ADMData.GetGroup()
+  const model = ADMData.GetModelById(); // Current model
+  const modelGroupAuthorId = model ? model.groupId : '';  
+  return groupAuthorId !== modelGroupAuthorId;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
  *  Returns studentId or teacheId depending on who's logged in.
  */
 ADMData.GetAuthorId = () => {

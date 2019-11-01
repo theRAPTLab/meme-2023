@@ -451,6 +451,9 @@ class ViewMain extends React.Component {
     const model = ADM.GetModelById(modelId);
     const classroomId = model ? ADM.GetClassroomIdByGroup(model.groupId) : '';
     const resources = classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
+    
+    const isViewOnly = ADM.IsViewOnly();
+    
     return (
       <div className={classes.root}>
         <CssBaseline />
@@ -473,6 +476,7 @@ class ViewMain extends React.Component {
               style={{ flexGrow: 1 }}
               placeholder="Untitled Model"
               value={title}
+              disabled={isViewOnly}
               onChange={this.OnChangeModelTitle}
               onBlur={this.DoSaveModelTitle}
               classes={{
@@ -599,7 +603,7 @@ class ViewMain extends React.Component {
           hidden={suppressSelection}
         >
           <Fab
-            hidden={!(componentIsSelected || mechIsSelected)}
+            hidden={!(componentIsSelected || mechIsSelected) || isViewOnly}
             onClick={componentIsSelected ? this.OnPropDelete : this.OnMechDelete}
             color="secondary"
             variant="extended"
@@ -609,7 +613,7 @@ class ViewMain extends React.Component {
             &nbsp;&nbsp;Delete&nbsp;
           </Fab>
           <Fab
-            hidden={!(componentIsSelected || mechIsSelected)}
+            hidden={!(componentIsSelected || mechIsSelected) || isViewOnly}
             onClick={componentIsSelected ? this.DoPropEdit : this.OnMechEdit}
             color="primary"
             variant="extended"
@@ -618,7 +622,7 @@ class ViewMain extends React.Component {
             &nbsp;&nbsp;Edit {componentIsSelected ? 'Component / Property' : 'Mechanism'}
           </Fab>
           <Fab
-            hidden={!componentIsSelected}
+            hidden={!componentIsSelected || isViewOnly}
             onClick={this.OnPropAdd}
             color="primary"
             variant="extended"

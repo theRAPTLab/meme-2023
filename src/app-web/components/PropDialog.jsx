@@ -61,8 +61,22 @@ class PropDialog extends React.Component {
   }
 
   DoOpen(data) {
+    if (data.propId === undefined) {
+      // new prop, so just open the dialog
+      this.setState({
+        isOpen: true,
+        propId: data.propId || '', // new prop, so clear propId
+        label: data.label || '', // clear the old property name
+        description: data.description || '',
+        isProperty: data.isProperty
+      });
+      return;
+    }
     const pmcDataId = ASET.selectedPMCDataId;
     const intPropId = Number(data.propId);
+    if (intPropId === undefined || intPropId === NaN)
+      throw Error(`DoOpen called with bad propId ${data.propId}`);
+    // existing prop, so lock it
     UR.DBTryLock('pmcData.entities', [pmcDataId, intPropId])
       .then(rdata => {
         const { success, semaphore, uaddr, lockedBy } = rdata;

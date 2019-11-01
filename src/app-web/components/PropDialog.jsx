@@ -93,6 +93,7 @@ class PropDialog extends React.Component {
         } else {
           console.log('aw, locked by', rdata.lockedBy);
           alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Component / Property right now.  Please try again later.`)
+          UR.Publish('PROPDIALOG_CLOSE'); // tell ViewMain to re-enable ToolsPanel 
         }
       });
   }

@@ -108,7 +108,7 @@ class ViewMain extends React.Component {
     UR.Subscribe('PROPDIALOG_CLOSE', this.OnPropDialogClose);
     UR.Subscribe('MECH_ADD', this.OnMechAdd);
     UR.Subscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
-    UR.Subscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
+    UR.Subscribe('MECHDIALOG_CLOSED', this.DoMechClosed);
     this.state = {
       title: '',
       modelId: '',
@@ -149,7 +149,7 @@ class ViewMain extends React.Component {
     UR.Unsubscribe('PROPDIALOG_CLOSE', this.OnPropDialogClose);
     UR.Unsubscribe('MECH_ADD', this.OnMechAdd);
     UR.Unsubscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
-    UR.Unsubscribe('MECHDIALOG:CLOSED', this.DoMechClosed);
+    UR.Unsubscribe('MECHDIALOG_CLOSED', this.DoMechClosed);
   }
 
   // PMCData calls DATA_UPDATED after loading model.

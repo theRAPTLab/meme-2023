@@ -634,7 +634,7 @@ ADMData.Logout = () => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.IsLoggedOut = () => {
-  return ASET.selectedStudentId === undefined || ASET.selectedStudentId === '';
+  return (!SESSION.IsStudent() && !SESSION.IsTeacher());
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.IsValidLogin = hashedToken => {

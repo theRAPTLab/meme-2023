@@ -646,11 +646,12 @@ ADMData.IsValidLogin = hashedToken => {
  *  The user's group grants the priviledges
  */
 ADMData.IsViewOnly = () => {
-  const author = ADMData.GetAuthorId();
-  const groupAuthorId = ADMData.GetGroup()
+  const authorId = ADMData.GetAuthorId();
+  const authorGroup = ADMData.GetGroupByStudent(authorId); // selectedStudentId
+  const authorGroupId = authorGroup ? authorGroup.id : '';
   const model = ADMData.GetModelById(); // Current model
-  const modelGroupAuthorId = model ? model.groupId : '';  
-  return groupAuthorId !== modelGroupAuthorId;
+  const modelGroupId = model ? model.groupId : '';  
+  return authorGroupId !== modelGroupId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**

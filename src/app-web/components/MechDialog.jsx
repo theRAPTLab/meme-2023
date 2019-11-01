@@ -185,6 +185,8 @@ class MechDialog extends React.Component {
   }
 
   DoSelectionChange() {
+    if (!this.state.isOpen) return; // ignore selection change if we're not active
+    
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (DBG) console.log('selection changed', selectedPropIds);
     if (this.state.sourceId !== '' || this.state.targetId !== '') {

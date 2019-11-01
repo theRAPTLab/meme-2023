@@ -929,7 +929,7 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
       }
       // 2b. Move comments over
       const comments = PMCData.GetComments(origMechId);
-      PMCData.CommentThreadUpdate(newMechId, comments);
+      if (comments.length > 0) PMCData.DB_CommentsUpdate(newMechId, comments);
 
       UTILS.RLog(
         'MechanismEdit',
@@ -1266,7 +1266,7 @@ PMCData.DB_CommentAdd = (refId, commentData, cb) => {
   });
 };
 /**
- *  Updates an array of comment items
+ *  Updates a single comment items
  *  @param {String} refId - id of the parent object the comment is pointing to
  *  @param {Object} comment - a PMCObj.Comment-like object with
  *                                three optional parameters: text, criteriaId
@@ -1299,6 +1299,26 @@ PMCData.DB_CommentUpdate = (refId, comment, cb) => {
     if (cb && typeof cb === 'function') cb(rdata);
   });
 };
+/**
+ *  Updates an array of comment items
+ *  @param {String} refId - id of the parent object the comment is pointing to
+ *  @param {Object} comments - an array of PMCObj.Comment-like object with
+ *                                three optional parameters: text, criteriaId
+ *  @param {Function} cb - a callback function
+ *  */
+PMCData.DB_CommentsUpdate = (refId, comments, cb) => {
+  if (!Array.isArray(comments)) throw Error(`comments is not an array: ${comments} ${typeof comments}`);
+  const count = comments.length;
+  let callback = undefined;
+  for (let i = 0; i++; i < count) {
+    if (i === count - 1) {
+      // last one so add the callback
+      callback = cb;
+    }
+    PMCData.DB_CommentUpdate(refId, comment[i], callback);
+  }
+}
+
 /**
  *  Remove comment from the db
  *  @param {String} id - id of the comment object (not refId)

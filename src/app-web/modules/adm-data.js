@@ -649,6 +649,28 @@ ADMData.GetAuthorId = () => {
   if (SESSION.IsTeacher()) return ASET.selectedTeacherId;
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Returns logged in user name, normalizing the case to initial caps.
+ *  @return {string} Name of student, or '' if not found
+ */
+ADMData.GetLggedInUserName = () => {
+  // return just the first part of the studentid without the hash
+  // note SESSION.LoggedInName() is also an option
+  let authorId = ADMData.GetAuthorId();
+  let name = authorId.split('-')[0];
+  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Returns logged in user's group
+ *  @return {string} Name of group, or '' if not found
+ */
+ADMData.GetLoggedInGroupName = () => {
+  if (SESSION.IsTeacher()) return 'Teacher';
+  const grp = ADMData.GetGroupByStudent(ASET.selectedStudentId);
+  return grp ? grp.name : '';
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetSelectedStudentId = () => {
   return ASET.selectedStudentId;
 };

@@ -171,8 +171,8 @@ class ViewMain extends React.Component {
       modelAuthorGroupName,
       isModelAuthor,
       studentId: userStudentId,
-      studentName: ADM.GetStudentName(),
-      studentGroup: ADM.GetStudentGroupName()
+      studentName: ADM.GetLggedInUserName(),
+      studentGroup: ADM.GetLoggedInGroupName()
     });
   }
 

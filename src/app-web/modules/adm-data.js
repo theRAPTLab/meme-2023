@@ -670,6 +670,7 @@ ADMData.GetLggedInUserName = () => {
   // return just the first part of the studentid without the hash
   // note SESSION.LoggedInName() is also an option
   let authorId = ADMData.GetAuthorId();
+  if (authorId === undefined) return ''; // if user logged out
   let name = authorId.split('-')[0];
   return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 };

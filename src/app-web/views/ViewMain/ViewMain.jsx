@@ -447,8 +447,10 @@ class ViewMain extends React.Component {
       suppressSelection
     } = this.state;
 
-    const classroomId = ADM.GetClassroomIdByStudent(studentId);
-    const resources = ADM.GetResourcesForClassroom(classroomId);
+    // we need to use the model author here, not the currently logged in student.
+    const model = ADM.GetModelById(modelId);
+    const classroomId = model ? ADM.GetClassroomIdByGroup(model.groupId) : '';
+    const resources = classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
     return (
       <div className={classes.root}>
         <CssBaseline />

@@ -26,6 +26,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
+import SESSION from '../../system/common-session';
 import ADM from '../modules/data';
 import ModelsListTable from './ModelsListTable';
 import UTILS from '../modules/utils';
@@ -127,7 +128,8 @@ class ModelSelect extends React.Component {
       classroomName,
       teacherName
     } = this.state;
-    const myModels = ADM.GetModelsByStudent();
+    const isTeacher = SESSION.IsTeacher();
+    const myModels = isTeacher ? ADM.GetModelsByTeacher() : ADM.GetModelsByStudent();
     const ourModels = ADM.GetMyClassmatesModels(ADM.GetSelectedClassroomId(), studentId);
     return (
       <Dialog

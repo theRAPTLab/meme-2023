@@ -190,6 +190,9 @@ const AddDragDropHandlers = vprop => {
       return;
     }
 
+    // If view only, skip the drop
+    if (DATA.IsViewOnly()) return;
+    
     // it did move, so do drop target magic
     const dropId = DATA.VM_PropsMouseOver().pop();
     const dropXY = `(${DragState(vprop).gRootXY.x},${DragState(vprop).gRootXY.y})`;

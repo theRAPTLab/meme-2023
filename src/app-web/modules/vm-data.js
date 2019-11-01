@@ -2,7 +2,7 @@ import { cssinfo, cssreset, cssdata } from './console-styles';
 import DEFAULTS from './defaults';
 import DATAMAP from '../../system/common-datamap';
 import UR from '../../system/ursys';
-import UTILS from './utils';
+import DATA from './data';
 import ASET from './adm-settings';
 
 /// VIEWMODEL /////////////////////////////////////////////////////////////////
@@ -445,6 +445,8 @@ VM.VM_SelectedMechIds = () => {
  *  write to database
  */
 VM.VM_SaveVPropPosition = vprop => {
+  if (DATA.IsViewOnly()) return; // don't save position of view only
+  
   const modelId = ASET.selectedModelId;
   const id = Number(vprop.Id());
   const x = Number(vprop.X());

@@ -162,7 +162,7 @@ class ViewMain extends React.Component {
     const model = ADM.GetModelById(modelId);
     const title = ADM.GetModelTitle(modelId);
     const modelAuthorGroupName = ADM.GetGroupName(model ? model.groupId : '');
-    const userStudentId = ADM.GetSelectedStudentId(); // FIXME: Replace this with session?
+    const userStudentId = ADM.GetAuthorId();
     const userGroupId = ADM.GetGroupIdByStudent(userStudentId);
     const isModelAuthor = userGroupId === (model ? model.groupId : '');
     this.setState({

@@ -501,7 +501,7 @@ ADMData.GetGroupNameByStudent = studentId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetSelectedGroupId = () => {
-  const studentId = ADMData.GetSelectedStudentId();
+  const studentId = ADMData.GetAuthorId();
   return ADMData.GetGroupIdByStudent(studentId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -640,6 +640,14 @@ ADMData.IsLoggedOut = () => {
 ADMData.IsValidLogin = hashedToken => {
   return SESSION.IsValidToken(hashedToken);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Returns studentId or teacheId depending on who's logged in.
+ */
+ADMData.GetAuthorId = () => {
+  if (SESSION.IsStudent()) return ASET.selectedStudentId;
+  if (SESSION.IsTeacher()) return ASET.selectedTeacherId;
+}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetSelectedStudentId = () => {
   return ASET.selectedStudentId;

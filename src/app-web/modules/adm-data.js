@@ -117,6 +117,11 @@ ADMData.SyncAddedData = data => {
           if (DBG) console.error(`SyncAddedData: Model ${value.id} already added, skipping`);
         }
         break;
+      case 'criteria':
+        const crit = ADMObj.Criterion(value);
+        adm_db.criteria.push(crit);
+        UR.Publish('ADM_DATA_UPDATED', data);
+        break;
       case 'ratingsDefinitions':
         const ratingsDefinition = ADMObj.RatingsDefinition(value);
         adm_db.ratingsDefinitions.push(ratingsDefinition);
@@ -169,6 +174,13 @@ ADMData.SyncUpdatedData = data => {
           UR.Publish('MODEL_TITLE:UPDATED', { title: value.title });
         }
         break;
+      case 'criteria':
+        // criteria always updates the whole object, so we can just replace it
+        const crit = ADMObj.Criterion(value);
+        const i = adm_db.criteria.findIndex(c => c.id === crit.id);
+        adm_db.criteria.splice(i, 1, crit);
+        UR.Publish('ADM_DATA_UPDATED', data);
+        break;
       case 'ratingsDefinitions':
         const index = adm_db.ratingsDefinitions.findIndex(r => r.classroomId === value.id);
         const ratingsDefinition = ADMObj.RatingsDefinition(value);
@@ -192,6 +204,16 @@ ADMData.SyncRemovedData = data => {
   syncitems.forEach(item => {
     const { colkey, subkey, value } = item;
     if (DBG) console.log('removed', colkey, subkey || '', value);
+    switch (colkey) {
+      case 'criteria':
+        // for some reason value is an array?
+        value.forEach(val => {
+          const i = adm_db.criteria.findIndex(c => c.id === val.id);
+          adm_db.criteria.splice(i, 1);
+        })
+        UR.Publish('ADM_DATA_UPDATED', data);
+        break;
+    }
   });
   // can add better logic to avoid updating too much
   // UR.Publish('ADM_DATA_UPDATED', data);
@@ -938,16 +960,27 @@ ADMData.CloseModel = () => {
 /// CRITERIA //////////////////////////////////////////////////////////////////
 ///
 /**
- *  NewCriteria
- *  1. Creates a new empty criteria object with a unqiue ID.
- *  2. Returns the criteria object.
- *
- *  Calling `NewCriteria()` will automatically use the currently
- *  selectedClassssroomId as the classroomId.
- *
- *  Call `NewCriteria('xxId')` to set the classroomId manually.
+ *  Creates a new empty criteria object with a unqiue ID.
+ *  If data.classroomId is not defined, we use the current selected classroomId
+ * 
+ *  @param {Object} data - a ADMObj.Criterion-like data object
+ *  @param {Function} cb - callback function will be called
  */
-ADMData.NewCriteria = (classroomId = ASET.selectedClassroomId) => {
+ADMData.DB_NewCriteria = (data, cb) => {
+  const crit = ADMObj.Criterion({
+    classroomId: data.classroomId || ASET.selectedClassroomId,
+    label: data.label,
+    description: data.description
+  });
+  return UR.DBQuery('add', { criteria: crit }).then(rdata => {
+    if (rdata.error) throw Error(rdata.error);
+    if (typeof cb === 'function') {
+      cb();
+    }
+  });
+
+  
+  /* OLD CODE
   const id = GenerateUID('cr');
   if (classroomId === undefined) {
     console.error(PKG, 'NewCriteria called with bad classroomId:', classroomId);
@@ -961,7 +994,7 @@ ADMData.NewCriteria = (classroomId = ASET.selectedClassroomId) => {
   };
   // Don't add it to a_criteria -- user might cancel the edit
   // a_criteria.push(crit);
-  return crit;
+  return crit; */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetCriteriaByClassroom = (classroomId = ASET.selectedClassroomId) => {
@@ -974,7 +1007,12 @@ ADMData.GetCriteriaLabel = (criteriaId, classroomId = ADMData.GetSelectedClassro
   return criteria ? criteria.label : '';
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.UpdateCriteria = criteria => {
+ADMData.DB_UpdateCriterion = criterion => {
+  return UR.DBQuery('update', {
+    criteria: criterion
+  });
+
+  /*
   const i = adm_db.criteria.findIndex(cr => cr.id === criteria.id);
   if (i < 0) {
     // Criteria not found, so it must be a new criteria.  Add it.
@@ -982,9 +1020,15 @@ ADMData.UpdateCriteria = criteria => {
     return;
   }
   adm_db.criteria.splice(i, 1, criteria);
+  */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.UpdateCriteriaList = criteriaList => {
+ADMData.DB_UpdateCriteriaList = criteriaList => {
+  criteriaList.forEach(crit => {
+    ADMData.DB_UpdateCriterion(crit);
+  });
+  
+  /* OLD
   // Remove any deleted criteria
   const updatedCriteriaIds = criteriaList.map(criteria => criteria.id);
   adm_db.criteria = adm_db.criteria.filter(
@@ -992,7 +1036,12 @@ ADMData.UpdateCriteriaList = criteriaList => {
   );
   // Update existing criteria
   criteriaList.forEach(criteria => ADMData.UpdateCriteria(criteria));
+  */
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.DB_CriteriaDelete = critId => {
+  return UR.DBQuery('remove', { 'criteria': { id: critId } });
+}
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// SENTENCE STARTERS

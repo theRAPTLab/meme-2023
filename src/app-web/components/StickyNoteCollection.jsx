@@ -46,7 +46,7 @@ VBadge
     VBadges independently display the read/unread status of comments,
     creating new comments, and updating existing comments.
     
-    They trigger StickyNoteCollection via the same STICKY:OPEN call.
+    They trigger StickyNoteCollection via the same STICKY_OPEN call.
     
     VBadges also maintain an array of Evidence Link badges.
 
@@ -59,10 +59,10 @@ StickyNoteCollection
     There is only a single StickyNoteCollection object in ViewMain.  It gets 
     repurposed for each note that is opened.
     
-    StickNotesCollection are opened via an URSYS.Publish('STICKY:OPEN') call.
+    StickNotesCollection are opened via an URSYS.Publish('STICKY_OPEN') call.
     
     StickNotesCollection does not handle the data for StickyNotes.
-    StickyNotes handles data itself.
+    StickyNotes handles data itself, except...
     
     StickNotesCollection manages the read status of notes, marking
     each notes as read when it closes.

@@ -2,7 +2,7 @@
 
 Sticky Note
 
-    For documentation, see boilerplate/src/app-web/components/StickyNote.jsx
+    For documentation, see boilerplate/src/app-web/components/StickyNoteCollection.jsx
     
     NOTE: The text input needs a mouseDown handler to stopProgation of
     the click to the react-draggable component in the parent 
@@ -168,18 +168,19 @@ class StickyNote extends React.Component {
         this.props.refId,
         comment,
         rdata => {
-          // retrieve the comment.id so we can mark it read
-          const syncitems = DATAMAP.ExtractSyncData(rdata);
-          syncitems.forEach(item => {
-            const { colkey, subkey, value } = item;
-            if (subkey === 'comments') {
-              if (value.id !== undefined) {
-                // save it locally
-                comment.id = value.id;
-                PMC.DB_MarkRead(value.id, author);
-              }
-            }
-          });
+          // Don't Mark Read.  Let StickyNoteCollection take care of that.
+          // // retrieve the comment.id so we can mark it read
+          // const syncitems = DATAMAP.ExtractSyncData(rdata);
+          // syncitems.forEach(item => {
+          //   const { colkey, subkey, value } = item;
+          //   if (subkey === 'comments') {
+          //     if (value.id !== undefined) {
+          //       // save it locally
+          //       comment.id = value.id;
+          //       PMC.DB_MarkRead(value.id, author);
+          //     }
+          //   }
+          // });
           // then tell StickyNoteCollection to exit edit mode
           this.props.OnUpdateComment();
         }

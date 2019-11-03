@@ -24,9 +24,7 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 // Material UI Icons
-import CreateIcon from '@material-ui/icons/Create';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 // Material UI Theming
 import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
@@ -439,7 +437,7 @@ class EvidenceLink extends React.Component {
             onClick={this.DoToggleExpanded}
             hidden={!isExpanded || isBeingEdited}
           >
-            <ExpandMoreIcon className={isExpanded ? classes.lessIconCollapsed : ''} />
+            <ExpandLessIcon className={isExpanded ? classes.lessIconCollapsed : ''} />
           </Button>
           <Typography className={classes.evidenceWindowLabel} hidden={!isExpanded}>
             EVIDENCE LINK

@@ -17,7 +17,7 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import DescriptionIcon from '@material-ui/icons/Description';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ImageIcon from '@material-ui/icons/Image';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
@@ -141,7 +141,7 @@ class ResourceItem extends React.Component {
             {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
             {evBadge}
             <Button className={classes.resourceExpandButton} onClick={this.DoToggleExpanded}>
-              <ExpandLessIcon
+              <ExpandMoreIcon
                 className={isExpanded ? classes.lessIconExpanded : classes.lessIconCollapsed}
               />
             </Button>

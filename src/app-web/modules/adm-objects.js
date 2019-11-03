@@ -88,6 +88,18 @@ ADMObj.Criterion = data => {
 };
 
 /**
+ *  @return {Object} Returns a new sentenceStarter data object
+ */
+ADMObj.SentenceStarter = data => {
+  if (data.classroomId === undefined) throw Error('SentenceStarter requires a classroomId!');
+  return {
+    id: data.id,
+    classroomId: data.classroomId,
+    sentences: data.sentences || '' // default to prevent uncontrolled component
+  };
+};
+
+/**
  *  @return {Object} Returns a new ratings definition data object
  */
 ADMObj.RatingsDefinition = data => {

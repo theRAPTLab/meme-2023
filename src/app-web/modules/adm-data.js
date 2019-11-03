@@ -9,7 +9,7 @@ import ASET from './adm-settings';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = false;
+const DBG = true;
 const PKG = 'ADMDATA'; // prefix for console.log
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
@@ -122,6 +122,11 @@ ADMData.SyncAddedData = data => {
         adm_db.criteria.push(crit);
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
+      case 'sentenceStarters':
+        const ss = ADMObj.SentenceStarter(value);
+        adm_db.sentenceStarters.push(ss);
+        UR.Publish('ADM_DATA_UPDATED', data);
+        break;
       case 'ratingsDefinitions':
         const ratingsDefinition = ADMObj.RatingsDefinition(value);
         adm_db.ratingsDefinitions.push(ratingsDefinition);
@@ -177,8 +182,15 @@ ADMData.SyncUpdatedData = data => {
       case 'criteria':
         // criteria always updates the whole object, so we can just replace it
         const crit = ADMObj.Criterion(value);
-        const i = adm_db.criteria.findIndex(c => c.id === crit.id);
-        adm_db.criteria.splice(i, 1, crit);
+        const criti = adm_db.criteria.findIndex(c => c.id === crit.id);
+        adm_db.criteria.splice(criti, 1, crit);
+        UR.Publish('ADM_DATA_UPDATED', data);
+        break;
+      case 'sentenceStarters':
+        // sentenceStarters always updates the whole object, so we can just replace it
+        const ss = ADMObj.SentenceStarter(value);
+        const ssi = adm_db.sentenceStarters.findIndex(c => c.id === ss.id);
+        adm_db.sentenceStarters.splice(ssi, 1, ss);
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       case 'ratingsDefinitions':
@@ -1047,7 +1059,42 @@ ADMData.DB_CriteriaDelete = critId => {
 /// SENTENCE STARTERS
 ///
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Creates a new empty sentenceStarter with a unqiue ID.
+ *  If data.classroomId is not defined, we use the current selected classroomId
+ * 
+ *  @param {Object} data - a ADMObj.SentenceStarter-like data object
+ */
+ADMData.DB_SentenceStarterNew = data => {
+  const ss = ADMObj.SentenceStarter({
+    classroomId: data.classroomId || ASET.selectedClassroomId,
+    sentences: data.sentences
+  });
+  return UR.DBQuery('add', { sentenceStarters: ss });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * 
+ *  @param {Object} sentenceStarter - a ADMObj.SentenceStarter-like data object
+ */
+ADMData.DB_SentenceStarterUpdate = sentenceStarter => {
+  return UR.DBQuery('update', {
+    sentenceStarters: sentenceStarter
+  });
+  
+  /* old code
+  const i = adm_db.sentenceStarters.findIndex(ss => ss.id === sentenceStarter.id);
+  if (i < 0) {
+    // Sentence starter not found, so it must be new.  Add it.
+    adm_db.sentenceStarters.push(sentenceStarter);
+    return;
+  }
+  adm_db.sentenceStarters.splice(i, 1, sentenceStarter);
+  */
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Returns a single sentenceStarter object, if not found, undefined
+// (We used to support multiple sentence starters per classroom)
 ADMData.GetSentenceStartersByClassroom = (classroomId = ADMData.GetSelectedClassroomId()) => {
   const sentenceStarter = adm_db.sentenceStarters.filter(ss => ss.classroomId === classroomId);
   let result;
@@ -1071,17 +1118,6 @@ ADMData.GetSentenceStarter = () => {
   } else {
     return sentenceStarter.sentences;
   }
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-ADMData.UpdateSentenceStarter = sentenceStarter => {
-  const i = adm_db.sentenceStarters.findIndex(ss => ss.id === sentenceStarter.id);
-  if (i < 0) {
-    // Sentence starter not found, so it must be new.  Add it.
-    adm_db.sentenceStarters.push(sentenceStarter);
-    return;
-  }
-  adm_db.sentenceStarters.splice(i, 1, sentenceStarter);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

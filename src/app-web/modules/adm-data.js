@@ -127,6 +127,11 @@ ADMData.SyncAddedData = data => {
         adm_db.sentenceStarters.push(ss);
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
+      case 'classroomResources':
+        const res = ADMObj.ClassroomResource(value);
+        adm_db.classroomResources.push(res);
+        UR.Publish('ADM_DATA_UPDATED', data);
+        break;
       case 'ratingsDefinitions':
         const ratingsDefinition = ADMObj.RatingsDefinition(value);
         adm_db.ratingsDefinitions.push(ratingsDefinition);
@@ -191,6 +196,13 @@ ADMData.SyncUpdatedData = data => {
         const ss = ADMObj.SentenceStarter(value);
         const ssi = adm_db.sentenceStarters.findIndex(c => c.id === ss.id);
         adm_db.sentenceStarters.splice(ssi, 1, ss);
+        UR.Publish('ADM_DATA_UPDATED', data);
+        break;
+      case 'classroomResources':
+        // classroomResources always updates the whole object, so we can just replace it
+        const res = ADMObj.ClassroomResource(value);
+        const resi = adm_db.classroomResources.findIndex(c => c.id === res.id);
+        adm_db.classroomResources.splice(resi, 1, res);
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       case 'ratingsDefinitions':
@@ -1197,17 +1209,57 @@ ADMData.GetResourcesForClassroom = classroomId => {
   return classroomResources ? classroomResources : [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.SetClassroomResource = (rsrcId, checked, classroomId) => {
-  let classroomResources = adm_db.classroomResources.find(rsrc => rsrc.classroomId === classroomId);
-
+/**
+ *  @param {Object} data - ADMObj.ClassroomResource-like object
+ */
+ADMData.DB_ClassroomResourceAdd = data => {
+  const res = ADMObj.ClassroomResource({
+    classroomId: data.classroomId || ASET.selectedClassroomId,
+    resources: data.resources
+  });
+  return UR.DBQuery('add', { classroomResources: res });
+};
+/**
+ * 
+ *  @param {Object} classroomResource - ADMObj.ClassroomResource object
+ */
+ADMData.DB_ClassroomResourceUpdate = classroomResource => {
+  return UR.DBQuery('update', {
+    classroomResources: classroomResource
+  });  
+};
+/**
+ *  @param {Integer} rsrcId - id of the parent resources
+ *  @param {Boolean} checked - Whether the resource is selected or unselected
+ *  @param {INteger} classroomId - The classroom this resource is being enabled/disabled for
+ */
+ADMData.DB_ClassroomResourceSet = (rsrcId, checked, classroomId) => {
+  let classroomResource = adm_db.classroomResources.find(rsrc => rsrc.classroomId === classroomId);
+  if (classroomResource === undefined) {
+    // New Classrooms don't have a classroomResource defined by default.
+    classroomResource = ADMObj.ClassroomResource({ classroomId });
+  }
+    
+  // Update the resource list
   if (checked) {
     // Add resource
-    classroomResources.resources.push(rsrcId);
+    classroomResource.resources.push(rsrcId);
   } else {
     // Remove resource
-    classroomResources.resources = classroomResources.resources.filter(rsrc => rsrc.id !== rsrcId);
+    classroomResource.resources = classroomResource.resources.filter(rsrc => rsrc !== rsrcId);
   }
+  
+  // Update the DB
+  if (classroomResource.id !== undefined) {
+    ADMData.DB_ClassroomResourceUpdate(classroomResource);
+  } else {
+    // new classroomResource
+    ADMData.DB_ClassroomResourceAdd(classroomResource);
+  }
+  
+  /* old code
   UR.Publish('ADM_DATA_UPDATED');
+  */
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

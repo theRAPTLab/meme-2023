@@ -107,7 +107,7 @@ class StickyNoteButton extends React.Component {
 
     this.setState({ isOpen: true });
     
-    UR.Publish('STICKY:OPEN', {
+    UR.Publish('STICKY_OPEN', {
       refId: this.props.refId,
       x: e.clientX,
       y: e.clientY

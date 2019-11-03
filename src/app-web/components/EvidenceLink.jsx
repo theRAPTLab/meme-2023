@@ -358,7 +358,7 @@ class EvidenceLink extends React.Component {
   OnRatingButtonClick() {
     if (ADM.IsViewOnly()) return;
     const data = { evId: this.props.evlink.id, rating: this.props.evlink.rating };
-    UR.Publish('RATING:OPEN', data);
+    UR.Publish('RATING_OPEN', data);
   }
   
   OnDrop(href) {

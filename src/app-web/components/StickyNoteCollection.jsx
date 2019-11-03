@@ -155,14 +155,16 @@ class StickyNoteCollection extends React.Component {
       refId: ''
     };
 
-    UR.Subscribe('STICKY:OPEN', this.DoOpenSticky);
+    UR.Subscribe('STICKY_OPEN', this.DoOpenSticky);
+    UR.Subscribe('STICKY_CLOSE', this.DoCloseSticky);
     UR.Subscribe('DATA_UPDATED', this.DoStickyUpdate);
   }
 
   componentDidMount() {}
 
   componentWillUnmount() {
-    UR.Unsubscribe('STICKY:OPEN', this.DoOpenSticky);
+    UR.Unsubscribe('STICKY_OPEN', this.DoOpenSticky);
+    UR.Unsubscribe('STICKY_CLOSE', this.DoCloseSticky);
     UR.Unsubscribe('DATA_UPDATED', this.DoStickyUpdate);
   }
 

@@ -98,6 +98,8 @@ class ViewMain extends React.Component {
     this.OnPropDialogClose = this.OnPropDialogClose.bind(this);
     this.handleEvLinkSourceSelectRequest = this.handleEvLinkSourceSelectRequest.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
+    this.OnCloseModel = this.OnCloseModel.bind(this);
+    this.OnLogout = this.OnLogout.bind(this);
     this.OnHelp = this.OnHelp.bind(this);
     UR.Subscribe('WINDOW_SIZE', this.UpdateDimensions);
     UR.Subscribe('DATA_UPDATED', this.DoDataUpdate);
@@ -286,7 +288,7 @@ class ViewMain extends React.Component {
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (selectedPropIds.length > 0) {
       let propId = selectedPropIds[0];
-      UR.Publish('STICKY:OPEN', {
+      UR.Publish('STICKY_OPEN', {
         refId: propId,
         // FIXME: Set position according to parent prop?
         x: 600, // stickynote hack moves it by -325
@@ -299,7 +301,7 @@ class ViewMain extends React.Component {
     let selectedMechIds = DATA.VM_SelectedMechIds();
     if (selectedMechIds.length > 0) {
       let mechId = selectedMechIds[0];
-      UR.Publish('STICKY:OPEN', {
+      UR.Publish('STICKY_OPEN', {
         refId: mechId,
         // FIXME: Set position according to parent prop?
         x: 600, // stickynote hack moves it by -325
@@ -451,6 +453,18 @@ class ViewMain extends React.Component {
     });
   }
 
+  OnCloseModel() {
+    UR.Publish('STICKY_CLOSE');
+    UR.Publish('RATING_CLOSE');
+    ADM.CloseModel();
+  }
+
+  OnLogout() {
+    UR.Publish('STICKY_CLOSE');
+    UR.Publish('RATING_CLOSE');
+    ADM.Logout();
+  }
+  
   OnHelp() {
     UR.Publish('HELP_OPEN');
   }
@@ -495,7 +509,7 @@ class ViewMain extends React.Component {
             <Switch>
               <Route path="/:mode" />
             </Switch>
-            <Button onClick={ADM.CloseModel} color="inherit">
+            <Button onClick={this.OnCloseModel} color="inherit">
               Model:&nbsp;&nbsp;
             </Button>
             <InputBase
@@ -516,13 +530,13 @@ class ViewMain extends React.Component {
             >
               <StickyNoteButton refId={modelId} />
               &nbsp;&nbsp; &nbsp;&nbsp;
-              <Button onClick={ADM.CloseModel} color="inherit">
+              <Button onClick={this.OnCloseModel} color="inherit">
                 <div>{studentName}</div>
                 &nbsp;:&nbsp;
                 <div>{studentGroup}</div>
               </Button>
               &nbsp;&nbsp; &nbsp;&nbsp;
-              <Button onClick={ADM.Logout} color="inherit">
+              <Button onClick={this.OnLogout} color="inherit">
                 Logout
               </Button>
               <Button onClick={this.OnHelp} color="inherit">

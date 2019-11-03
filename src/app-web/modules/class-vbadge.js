@@ -344,7 +344,7 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
     e.preventDefault();
     e.stopPropagation();
     if (DBG) console.log(`${e.target} clicked e=${e}`);
-    UR.Publish('STICKY:OPEN', {
+    UR.Publish('STICKY_OPEN', {
       refId: vparent.id,
       x: e.clientX,
       y: e.clientY

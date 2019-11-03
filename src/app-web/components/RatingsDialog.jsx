@@ -61,13 +61,15 @@ class RatingsDialog extends React.Component {
       ratingsDef: []
     };
 
-    UR.Subscribe('RATING:OPEN', this.DoOpen);
+    UR.Subscribe('RATING_OPEN', this.DoOpen);
+    UR.Subscribe('RATING_CLOSE', this.DoClose);
   }
 
   componentDidMount() { }
 
   componentWillUnmount() {
-    UR.Unsubscribe('RESOURCEVIEW:OPEN', this.OnOpen);
+    UR.Unsubscribe('RATING_OPEN', this.OnOpen);
+    UR.Unsubscribe('RATING_CLOSE', this.DoClose);
   }
 
   DoOpen(data) {

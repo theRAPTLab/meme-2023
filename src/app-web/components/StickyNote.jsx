@@ -293,9 +293,10 @@ class StickyNote extends React.Component {
       MuiInputBase: {
         input: {
           backgroundColor: 'rgba(255,255,255,0.8)',
-          '&:hover': {
-            backgroundColor: 'rgba(255,255,255,1)'
-          },
+          // No need to override hover.  This affects ModelTitle.
+          // '&:hover': {
+          //   backgroundColor: 'rgba(255,255,255,1)'
+          // },
           '&:disabled': {
             backgroundColor: 'rgba(255,255,255,0.1)'
           }

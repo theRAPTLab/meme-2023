@@ -105,7 +105,7 @@ class ViewMain extends React.Component {
     UR.Subscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
-    UR.Subscribe('MODEL_TITLE:UPDATED', this.DoModelTitleUpdate);
+    UR.Subscribe('MODEL_TITLE_UPDATED', this.DoModelTitleUpdate);
     UR.Subscribe('PROP_ADD', this.OnComponentAdd);
     UR.Subscribe('PROPDIALOG_CLOSE', this.OnPropDialogClose);
     UR.Subscribe('MECH_ADD', this.OnMechAdd);
@@ -146,7 +146,7 @@ class ViewMain extends React.Component {
     UR.Unsubscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
-    UR.Unsubscribe('MODEL_TITLE:UPDATED', this.DoModelTitleUpdate);
+    UR.Unsubscribe('MODEL_TITLE_UPDATED', this.DoModelTitleUpdate);
     UR.Unsubscribe('PROP_ADD', this.OnComponentAdd);
     UR.Unsubscribe('PROPDIALOG_CLOSE', this.OnPropDialogClose);
     UR.Unsubscribe('MECH_ADD', this.OnMechAdd);
@@ -205,7 +205,7 @@ class ViewMain extends React.Component {
   }
 
   DoModelTitleUpdate(data) {
-    this.setState({ title: data.title });
+    if (this.state.modelId === data.id) this.setState({ title: data.title });
   }
 
   OnChangeModelTitle(e) {

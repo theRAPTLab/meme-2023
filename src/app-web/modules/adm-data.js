@@ -181,7 +181,7 @@ ADMData.SyncUpdatedData = data => {
         model.dateModified = value.dateModified;
         if (model.title !== value.title) {
           model.title = value.title;
-          UR.Publish('MODEL_TITLE:UPDATED', { title: value.title });
+          UR.Publish('MODEL_TITLE_UPDATED', { id: value.id, title: value.title });
         }
         break;
       case 'criteria':
@@ -819,7 +819,7 @@ ADMData.DB_ModelTitleUpdate = (modelId, title) => {
   const model = ADMData.GetModelById(modelId);
   UTILS.RLog('ModelRename', `from "${model.title}" to "${title}"`);
   model.title = title;
-  UR.Publish('MODEL_TITLE:UPDATED', { title });
+  UR.Publish('MODEL_TITLE_UPDATED', { title });
    */
 };
 

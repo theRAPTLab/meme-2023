@@ -43,7 +43,7 @@ class ModelsList extends React.Component {
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate); // Broadcast when a group is added.
-    UR.Subscribe('MODEL_TITLE:UPDATED', this.DoADMDataUpdate);
+    UR.Subscribe('MODEL_TITLE_UPDATED', this.DoADMDataUpdate);
   }
 
   componentDidMount() { }
@@ -51,7 +51,7 @@ class ModelsList extends React.Component {
   componentWillUnmount() {
     UR.Unsubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
     UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
-    UR.Unsubscribe('MODEL_TITLE:UPDATED', this.DoADMDataUpdate);
+    UR.Unsubscribe('MODEL_TITLE_UPDATED', this.DoADMDataUpdate);
   }
 
   DoClassroomSelect(data) {

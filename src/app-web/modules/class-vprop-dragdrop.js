@@ -162,7 +162,7 @@ const AddDragDropHandlers = vprop => {
 
       // check children
       // and pass click to children
-      const gStickyButton = vprop.vBadge.gStickyButtons;
+      const gBadges = vprop.vBadge.gBadges;
       const mouseEvent = event.detail.event; // mouseEvent has clientX and clientY
 
       // Convert click's screen coordinates to svg coordinates (zoomed and panned)
@@ -173,14 +173,14 @@ const AddDragDropHandlers = vprop => {
       pt.y = mouseEvent.clientY;
       let svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
       if (DBG) console.log('Clicked at screen', pt, ' / SVG coordinate', svgPt);
-
+      
       // gStickyNoteButton is actually just a group object
       // but it does have a bbox with the right coordinates.
       // NOTE testing for 'inside' with the chat/chatBubble/chatOutline svg icons doesn't work
       // because their bbox is at 0,0 if they're not visible.
-      if (gStickyButton.inside(svgPt.x, svgPt.y)) {
+      if (gBadges.inside(svgPt.x, svgPt.y)) {
         // Handle as click and pass to VBadge
-        gStickyButton.fire('click', { event: mouseEvent });
+        gBadges.fire('click', { event: mouseEvent });
       } else {
         // Handle as selection
         DATA.VM_ToggleProp(vprop);

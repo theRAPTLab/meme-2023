@@ -69,17 +69,25 @@ class VBadge {
     mouseEvent.preventDefault();
     mouseEvent.stopPropagation();
 
-    // Which component got the click?
+    // Convert click screen coordinates to svg coordinates
     const { offsetX, offsetY } = mouseEvent;
-    if (this.gStickyButtons && this.gStickyButtons.inside(offsetX, offsetY)) {
+    let svg = document.getElementById('modelSVG');
+    let pt = svg.createSVGPoint();
+    pt.x = mouseEvent.clientX;
+    pt.y = mouseEvent.clientY;
+    let svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
+    
+    // Which component got the click?
+    if (this.gStickyButtons && this.gStickyButtons.inside(svgPt.x, svgPt.y)) {
       // StickyButton got the click
       // Handle as click and pass to VBadge
       this.gStickyButtons.fire('click', { event: mouseEvent });
     } else if (this.evlinks) {
-      // An Evidence Link Badge go tthe click
+      // An Evidence Link Badge got the click
       // Figure out which badge
       this.gEvLinkBadges.children().forEach(gBadge => {
-        if (gBadge.inside(offsetX, offsetY)) {
+        console.log('checking',offsetX,svgPt.x,offsetY,svgPt.y,gBadge)
+        if (gBadge.inside(svgPt.x, svgPt.y)) {
           gBadge.fire('click', { event: mouseEvent });
         }
       });
@@ -271,7 +279,7 @@ VBadge.SVGEvLink = (evlink, vparent) => {
     e.preventDefault();
     e.stopPropagation();
     if (DBG) console.log(`${e.target} clicked`);
-    UR.Publish('SHOW_EVIDENCE_LINK', { evId: evlink.evId, rsrcId: evlink.rsrcId });
+    UR.Publish('SHOW_EVIDENCE_LINK', { evId: evlink.id, rsrcId: evlink.rsrcId });
   };
 
   // create vbadge sub elements

@@ -333,6 +333,7 @@ ADMData.DB_AddClassroom = name => {
   });
   return UR.DBQuery('add', { classrooms: classroom }).then(rdata => {
     if (rdata.error) throw Error(rdata.error);
+    UR.Publish('CRITERIA_SET_DEFAULTS', rdata.classrooms[0].id); // Add default criteria to db
     ADMData.SelectClassroom(rdata.classrooms[0].id);
   });
 

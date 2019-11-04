@@ -85,6 +85,7 @@ class ViewMain extends React.Component {
     this.DoModelTitleUpdate = this.DoModelTitleUpdate.bind(this);
     this.OnChangeModelTitle = this.OnChangeModelTitle.bind(this);
     this.DoSaveModelTitle = this.DoSaveModelTitle.bind(this);
+    this.DoSubmitModelTitleForm = this.DoSubmitModelTitleForm.bind(this);
     this.OnPropAdd = this.OnPropAdd.bind(this);
     this.OnPropDelete = this.OnPropDelete.bind(this);
     this.OnAddPropComment = this.OnAddPropComment.bind(this);
@@ -214,6 +215,12 @@ class ViewMain extends React.Component {
 
   DoSaveModelTitle() {
     ADM.DB_ModelTitleUpdate(this.state.modelId, this.state.title);
+  }
+  
+  DoSubmitModelTitleForm(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.activeElement.blur(); // will trigger save
   }
 
   // User clicked on "(+) Add Component" drawer button
@@ -512,18 +519,20 @@ class ViewMain extends React.Component {
             <Button onClick={this.OnCloseModel} color="inherit">
               Model:&nbsp;&nbsp;
             </Button>
-            <InputBase
-              id="projectTitle"
-              style={{ flexGrow: 1 }}
-              placeholder="Untitled Model"
-              value={title}
-              disabled={isViewOnly}
-              onChange={this.OnChangeModelTitle}
-              onBlur={this.DoSaveModelTitle}
-              classes={{
-                input: isModelAuthor ? classes.primaryProjectTitle : classes.projectTitle
-              }}
-            />
+            <form onSubmit={this.DoSubmitModelTitleForm}>
+              <InputBase
+                id="projectTitle"
+                style={{ flexGrow: 1 }}
+                placeholder="Untitled Model"
+                value={title}
+                disabled={isViewOnly}
+                onChange={this.OnChangeModelTitle}
+                onBlur={this.DoSaveModelTitle}
+                classes={{
+                  input: isModelAuthor ? classes.primaryProjectTitle : classes.projectTitle
+                }}
+              />
+            </form>
             <Typography variant="caption">&nbsp;&nbsp;by {modelAuthorGroupName} Group</Typography>
             <div
               className={resourceLibraryIsOpen ? classes.appBarRight : classes.appBarRightExpanded}

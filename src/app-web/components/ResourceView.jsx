@@ -178,82 +178,74 @@ class ResourceView extends React.Component {
     const { classes } = this.props;
 
     return (
-      <Modal
-        className={classes.resourceView}
-        disableBackdropClick={false}
-        hideBackdrop={false}
-        open={isOpen}
-        onClose={this.OnClose}
-      >
-        <Paper className={classes.resourceViewPaper}>
-          <div className={classes.resourceViewTitle}>
-            <div className={classes.resourceViewWindowLabel}>RESOURCE VIEW</div>
-            <Avatar className={classes.resourceViewAvatar}>{resource.referenceLabel}</Avatar>
-            &nbsp;
-            <div style={{ flexGrow: 1 }}>{resource.label}</div>
-            <Card className={classes.resourceViewCard}>
-              <CardContent className={classes.resourceViewCardContent}>
-                <Typography variant="overline">Notes:&nbsp;</Typography>
-                <Typography variant="body2">{resource.notes}</Typography>
-              </CardContent>
-            </Card>
-            <Card className={classes.resourceViewCard}>
-              <CardContent className={classes.resourceViewCardContent}>
-                <Typography variant="overline">Type:&nbsp;</Typography>
-                <Typography variant="body2">
-                  {resource.type}{' '}
-                  {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
-                </Typography>
-              </CardContent>
-            </Card>
-            <Card className={classes.resourceViewCard}>
-              <CardContent className={classes.resourceViewCardContent}>
-                <Typography variant="overline">Links:&nbsp;</Typography>
-                <Chip
-                  className={classes.resourceViewLinksBadge}
-                  label={resource.links}
-                  color="primary"
-                />
-              </CardContent>
-            </Card>
-            <Button className={classes.evidenceCloseBtn} onClick={this.OnClose} color="primary">
-              Close
+      <Paper className={classes.resourceViewPaper} hidden={!isOpen}>
+        <div className={classes.resourceViewTitle}>
+          <div className={classes.resourceViewWindowLabel}>RESOURCE VIEW</div>
+          <Avatar className={classes.resourceViewAvatar}>{resource.referenceLabel}</Avatar>
+          &nbsp;
+          <div style={{ flexGrow: 1 }}>{resource.label}</div>
+          <Card className={classes.resourceViewCard}>
+            <CardContent className={classes.resourceViewCardContent}>
+              <Typography variant="overline">Notes:&nbsp;</Typography>
+              <Typography variant="body2">{resource.notes}</Typography>
+            </CardContent>
+          </Card>
+          <Card className={classes.resourceViewCard}>
+            <CardContent className={classes.resourceViewCardContent}>
+              <Typography variant="overline">Type:&nbsp;</Typography>
+              <Typography variant="body2">
+                {resource.type}{' '}
+                {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
+              </Typography>
+            </CardContent>
+          </Card>
+          <Card className={classes.resourceViewCard}>
+            <CardContent className={classes.resourceViewCardContent}>
+              <Typography variant="overline">Links:&nbsp;</Typography>
+              <Chip
+                className={classes.resourceViewLinksBadge}
+                label={resource.links}
+                color="primary"
+              />
+            </CardContent>
+          </Card>
+          <Button className={classes.evidenceCloseBtn} onClick={this.OnClose} color="primary">
+            Close
+          </Button>
+        </div>
+        <div style={{ display: 'flex', height: 'inherit' }}>
+          <iframe src={resource.url} style={{ height: '90%', flexGrow: '1' }} title="resource" />
+          <div className={classes.resourceViewSidebar}>
+            <TextField
+              id="informationNote"
+              label="Our Notes"
+              placeholder="We noticed..."
+              multiline
+              rows="5"
+              className={classes.resourceViewNote}
+              margin="normal"
+              variant="outlined"
+              value={note}
+              disabled={noteIsDisabled}
+              onChange={this.OnNoteChange}
+              onBlur={this.OnNoteSave}
+            />
+            <Typography variant="caption">OUR EVIDENCE LIST</Typography>
+            <div className={classes.resourceViewSidebarEvidenceList}>
+              <EvidenceList rsrcId={resource.id} />
+            </div>
+            <Button
+              className={classes.resourceViewCreatebutton}
+              variant="contained"
+              onClick={() => this.OnCreateEvidence(resource.id)}
+              color="primary"
+              hidden={ADM.IsViewOnly()}
+            >
+              Create Evidence
             </Button>
           </div>
-          <div style={{ display: 'flex', height: 'inherit' }}>
-            <iframe src={resource.url} style={{ height: '90%', flexGrow: '1' }} title="resource" />
-            <div className={classes.resourceViewSidebar}>
-              <TextField
-                id="informationNote"
-                label="Our Notes"
-                placeholder="We noticed..."
-                multiline
-                rows="5"
-                className={classes.resourceViewNote}
-                margin="normal"
-                variant="outlined"
-                value={note}
-                disabled={noteIsDisabled}
-                onChange={this.OnNoteChange}
-                onBlur={this.OnNoteSave}
-              />
-              <Typography variant="caption">OUR EVIDENCE LIST</Typography>
-              <div className={classes.resourceViewSidebarEvidenceList}>
-                <EvidenceList rsrcId={resource.id} />
-              </div>
-              <Button
-                className={classes.resourceViewCreatebutton}
-                variant="contained"
-                onClick={() => this.OnCreateEvidence(resource.id)}
-                color="primary"
-                hidden={ADM.IsViewOnly()}
-              >
-                Create Evidence
-              </Button>
-            </div>
-          </div>
-        </Paper>
-      </Modal>
+        </div>
+      </Paper>
     );
   }
 }

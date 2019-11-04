@@ -158,8 +158,12 @@ const styles = theme => {
       height: '100%'
     },
     resourceViewPaper: {
+      position: 'absolute',
       width: '99%',
       height: '95%',
+      zIndex: '1300',
+      top: '5px',
+      left: '5px',
       margin: '0 auto',
       padding: '1em',
       backgroundColor: teal[50]

@@ -671,7 +671,7 @@ EvidenceLink.defaultProps = {
     id: '',
     propId: '',
     mechId: '',
-    rsrcId: '',
+    rsrcId: -1,
     numberLabel: '',
     note: '',
     rating: 0

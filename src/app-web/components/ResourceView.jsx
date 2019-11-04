@@ -176,7 +176,10 @@ class ResourceView extends React.Component {
   render() {
     const { isOpen, resource, note, noteIsDisabled } = this.state;
     const { classes } = this.props;
-
+    
+    // don't render if resource hasn't been defined yet
+    if (resource === undefined || resource.id === undefined) return '';
+    
     return (
       <Paper className={classes.resourceViewPaper} hidden={!isOpen}>
         <div className={classes.resourceViewTitle}>

@@ -9,7 +9,7 @@ import ASET from './adm-settings';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 const PKG = 'ADMDATA'; // prefix for console.log
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////

@@ -31,6 +31,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from '../../../components/MEMEStyles';
 import UR from '../../../../system/ursys';
 import ADM from '../../../modules/data';
+import ADMObj from '../../../modules/adm-objects';
 import RatingsList from '../../../components/RatingsList';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
@@ -39,13 +40,13 @@ const DBG = false;
 const PKG = 'AdminRatingsView';
 
 const defaults = [
-  { label: 'Really disagrees!', rating: -3 },
-  { label: 'Kinda disagrees!', rating: -2 },
-  { label: 'Disagrees a little', rating: -1 },
-  { label: 'Not rated / Irrelevant', rating: 0 },
-  { label: 'Weak support', rating: 1 },
+  { label: 'Rocks!!', rating: 3 },
   { label: 'Medium support', rating: 2 },
-  { label: 'Rocks!!', rating: 3 }
+  { label: 'Weak support', rating: 1 },
+  { label: 'Not rated / Irrelevant', rating: 0 },
+  { label: 'Disagrees a little', rating: -1 },
+  { label: 'Kinda disagrees!', rating: -2 },
+  { label: 'Really disagrees!', rating: -3 }
 ];
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -55,6 +56,7 @@ class RatingsView extends React.Component {
   constructor(props) {
     super(props);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
+    this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.DoLoadRatings = this.DoLoadRatings.bind(this);
     this.OnEditClick = this.OnEditClick.bind(this);
     this.OnSave = this.OnSave.bind(this);
@@ -66,29 +68,50 @@ class RatingsView extends React.Component {
       ratingsDef: [],
       origRatingsDef: [],
       isInEditMode: false,
-      classroomId: ''
+      classroomId: -1
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
+    UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
   }
 
   componentDidMount() { }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {
+    UR.Unsubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
+    UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+  }
 
   DoClassroomSelect(data) {
-    this.setState({
-      classroomId: data.classroomId
-    }, () => {
-      this.DoLoadRatings();
-    });
+    this.setState(
+      {
+        classroomId: Number(data.classroomId)
+      },
+      () => {
+        this.DoLoadRatings();
+      }
+    );
   }
-  
+
+  DoADMDataUpdate() {
+    this.DoLoadRatings();
+  }
+
   DoLoadRatings() {
-    let ratingsDef = ADM.GetRatingsDefinition(this.state.classroomId);
-    if (ratingsDef.length === 0) {
-      // Load defaults
+    if (this.state.classroomId === -1) return;
+    
+    let ratingsDefObj = ADM.GetRatingsDefinitionObject(this.state.classroomId);
+    let ratingsDef;
+    if (ratingsDefObj === undefined) {
       ratingsDef = defaults;
+      // Create defaults
+      ratingsDefObj = ADMObj.RatingsDefinition({
+        classroomId: this.state.classroomId,
+        definitions: defaults
+      });
+      ADM.DB_RatingsAdd(this.state.classroomId, ratingsDefObj);
+    } else {
+      ratingsDef = ratingsDefObj.definitions;
     }
     const origRatingsDef = JSON.parse(JSON.stringify(ratingsDef)); // deep clone
     this.setState({
@@ -103,7 +126,7 @@ class RatingsView extends React.Component {
   }
 
   OnSave(e) {
-    ADM.UpdateRatingsDefinitions(this.state.classroomId, this.state.ratingsDef);
+    ADM.DB_RatingsUpdate(this.state.classroomId, this.state.ratingsDef);
     this.DoClose();
   }
 

@@ -15,20 +15,38 @@ import CENTRAL from './ur-central';
 import EXEC from './ur-exec';
 import ReloadOnViewChange from './util/reload';
 import NetMessage from './common-netmessage';
-import URLink from './common-urlink';
+import URLink from './ur-link';
 import REFLECT from './util/reflect';
+import SESSION from './common-session';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true; // module-wide debug flag
+const DBG = false; // module-wide debug flag
+const OPEN_ADMIN = false; // set to false to disable open admin
 const PR = 'URSYS';
 const ULINK = NewConnection(PR);
 
-/// RUNTIME FLAGS /////////////////////////////////////////////////////////////
+/// RUNTIME SETUP /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // ur_legacy_publish is used to make DATALINK.Publish() work like Broadcast, so
 // messages will mirror back to itself
 CENTRAL.Define('ur_legacy_publish', true);
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// do session overrides  React does first render in phase after CONFIGURE
+EXEC.Hook(__dirname, 'CONFIGURE', () => {
+  const qs = SESSION.AdminPlaintextPassphrase();
+  if (document.location.hash.includes(qs)) {
+    console.warn(`INFO: ADMIN ACTIVATED VIA '${qs.toUpperCase()}' OVERRIDE`);
+    SESSION.SetAdminKey(qs);
+    return;
+  }
+  if (IsLocalhost()) {
+    console.warn(`INFO: LOCALHOST ADMIN MODE`);
+    SESSION.SetAdminKey('localhost');
+    return;
+  }
+});
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -65,8 +83,60 @@ const { Call, Signal } = ULINK;
 const { NetPublish, NetSubscribe, NetUnsubscribe } = ULINK;
 const { NetCall, NetSignal } = ULINK;
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function DBQuery(cmd, data) {
+  if (!data.key) {
+    const accessKey = SESSION.AccessKey() || SESSION.AdminKey();
+    if (DBG) console.log(`DBQuery using access key '${accessKey}'`);
+    data.key = accessKey;
+  }
+  // returns a promise that resolves to data
+  return ULINK._DBQuery(cmd, data);
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function DBTryLock(dbkey, dbids) {
+  const data = {
+    key: SESSION.AccessKey() || SESSION.AdminKey(),
+    dbkey,
+    dbids,
+    uaddr: SocketUADDR()
+  };
+  // returns a promise that resolves to data
+  return ULINK._DBLock(data);
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function DBTryRelease(dbkey, dbids) {
+  const data = {
+    key: SESSION.AccessKey() || SESSION.AdminKey(),
+    dbkey,
+    dbids,
+    uaddr: SocketUADDR()
+  };
+  // returns a promise that resolves to data
+  return ULINK._DBRelease(data);
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const { Define, GetVal, SetVal } = CENTRAL;
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function IsLocalhost() {
+  return NetMessage.IsLocalhost();
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function IsAdminLoggedIn() {
+  return SESSION.AdminKey() || IsLocalhost();
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function IsTeacherLoggedIn() {
+  return SESSION.IsTeacher();
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function DisableAdminPowers() {
+  const hbits = window.location.href.split('?');
+  if (hbits.length > 1) {
+    window.location.href = hbits[0];
+  }
+}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // TEMP: return the number of peers on the network
 function PeerCount() {
@@ -83,17 +153,13 @@ function RoutePreflight(routes) {
   const err = EXEC.SetScopeFromRoutes(routes);
   if (err) console.error(err);
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function SocketUADDR() {
+  return NetMessage.SocketUADDR();
+}
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/
-upcoming changes: introduce CHANNELS formally with reserved name NET
-because uppercase names are reserved by the system. user channel names
-will be lowercase.
-SetState('channel:STATE',value); // defaults to local without channel
-SynchState('channel:STATE',func); // defaults to local without channel
-NetCall('message') will become Call('NET:MESSAGE');
-/*/
 const UR = {
   Hook, // EXEC
   NewConnection, // ULINK
@@ -107,13 +173,60 @@ const UR = {
   NetUnsubscribe, // ULINK
   NetCall, // ULINK
   NetSignal, // ULINK
+  DBQuery, // ULINK
+  DBTryLock, // ULINK
+  DBTryRelease, // ULINK
   Define, // CENTRAL
   GetVal, // CENTRAL
   SetVal, // CENTRAL
   ReloadOnViewChange, // UTIL
+  IsLocalhost,
+  IsAdminLoggedIn,
+  SocketUADDR,
+  DisableAdminPowers,
   PeerCount,
   ReactPreflight,
   RoutePreflight,
   ReactHook
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if (!window.ur) window.ur = {};
+window.ur.SESSION = SESSION;
+window.ur.LINK = ULINK;
+window.ur.DBQuery = DBQuery;
+window.ur.DBLock = (dbkey, dbids) => {
+  DBTryLock(dbkey, dbids).then(data => {
+    console.log(data);
+  });
+  return 'testing DBLock...';
+};
+window.ur.DBRelease = (dbkey, dbids) => {
+  DBTryRelease(dbkey, dbids).then(data => {
+    console.log(data);
+  });
+  return 'testing DBRelease...';
+};
+window.ur.GetLockTable = () => {
+  NetCall('NET:SRV_DBLOCKS').then(data => {
+    Object.keys(data).forEach((key, index) => {
+      const item = data[key];
+      console.log(`${index})\t"${item.semaphore}" locked by ${item.uaddr}`);
+    });
+  });
+  return 'retrieving lock table';
+};
+window.ur.tnc = (msg, data) => {
+  NetCall(msg, data).then(rdata => {
+    console.log(`netcall '${msg}' returned`, rdata);
+  });
+  return `testing netcall '${msg}'`;
+};
+window.ur.serverinfo = () => {
+  return window.ur.tnc('NET:SRV_SERVICE_LIST');
+};
+window.ur.clientinfo = () => {
+  console.log(window.URSESSION);
+  return `testing clientinfo`;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default UR;

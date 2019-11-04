@@ -1,31 +1,54 @@
 /*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  server-express creates an express instance and
+  server-express creates an express instance serving a webapp on port 3000
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 
 /// LIBRARIES ///////////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const wpack = require('webpack');
-const wpack_mid = require('webpack-dev-middleware'); //webpack hot reloading middleware
-const wpack_hot = require('webpack-hot-middleware');
 const express = require('express'); //your original BE server
 const path = require('path');
+const fs = require('fs-extra');
 const IP = require('ip');
 const cookiep = require('cookie-parser');
+const multer = require('multer'); // handle multipart form data (images)
 //
-const configWebApp = require('../config/webpack.webapp.config');
 const PROMPTS = require('../system/util/prompts');
+const SESSION = require('../system/common-session');
+
+/// DEBUG /////////////////////////////////////////////////////////////////////
+///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const DBG = false;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const { TERM_EXP: CLR, TERM_WPACK, TR } = PROMPTS;
 const PORT = 3000;
 const PR = `${CLR}${PROMPTS.Pad('UR_EXPRESS')}${TR}`;
+const SCREENSHOT_POST_URL = SESSION.ScreenshotPostURL();
+const SCREENSHOT_URL = SESSION.ScreenshotURL();
+const RUNTIMEPATH = path.join(__dirname, '../../runtime');
+const UPLOADPATH = path.join(RUNTIMEPATH, SCREENSHOT_URL);
 
 /// SERVER DECLARATIONS ///////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const app = express();
+
+/*** STORAGE ***/
+const storage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    if (DBG) console.log(PR, 'destination', UPLOADPATH);
+    callback(null, UPLOADPATH);
+  },
+  filename: (req, file, callback) => {
+    const ext = path.extname(file.originalname);
+    const fname = Date.now().toString(36);
+    callback(null, fname + ext);
+  }
+});
+/*** STORAGE ***/
+
+const upload = multer({ storage }); // form data saver to disk
 let server; // server object returned by app.listen()
 let DOCROOT; // docroot (changes based on dev or standalone mode)
 
@@ -49,6 +72,10 @@ function Start() {
     });
     promise = Promise.resolve();
   } else {
+    const configWebApp = require('../config/webpack.webapp.config');
+    const wpack = require('webpack');
+    const wpack_mid = require('webpack-dev-middleware'); //webpack hot reloading middleware
+    const wpack_hot = require('webpack-hot-middleware');
     // otherwise, we are running as straight node out of npm scripts, or
     // a generic Electron binary was used to load us (Electron works just
     // as a node interpreter ya know!
@@ -106,7 +133,7 @@ function Start() {
         if (!COMPILE_RESOLVED) {
           console.log(PR, `... webpack done`);
           clearInterval(INTERVAL);
-            resolve();
+          resolve();
           COMPILE_RESOLVED = true;
         } else {
           console.log(PR, `RECOMPILED SOURCE CODE and RELOADING`);
@@ -117,6 +144,8 @@ function Start() {
 
   // RESUME WITH COMMON SERVER SETUP //
 
+  // make sure upload path exists
+  fs.ensureDirSync(UPLOADPATH);
   // configure cookies middleware (appears in req.cookies)
   app.use(cookiep());
   // configure headers to allow cross-domain requests of media elements
@@ -135,6 +164,15 @@ function Start() {
   });
   // for everything else...
   app.use('/', express.static(DOCROOT));
+  // handle image uploads
+  app.post(SCREENSHOT_POST_URL, upload.single('screenshot'), function(req, res, next) {
+    const { originalname, mimetype, destination, filename } = req.file;
+    const data = { originalname, filename };
+    res.header('Content-Type', mimetype);
+    res.type('json').send(data);
+  });
+  // handle image serving
+  app.use(SCREENSHOT_URL, express.static(UPLOADPATH));
 
   // return promise for async users
   return promise;
@@ -143,10 +181,8 @@ function Start() {
 function GetTemplateValues(req) {
   let { ip, hostname } = req;
   if (ip === '::1') ip = '127.0.0.1'; // rewrite short form IP
-  const clientKey = `UHT_${String((UKEY_IDX += 1))}`.padStart(5, '0');
   const params = {
     CLIENT_IP: ip,
-    CLIENT_Key: clientKey,
     USRV_Host: hostname,
     USRV_IP: IP.address(),
     USRV_MsgPort: 2929,

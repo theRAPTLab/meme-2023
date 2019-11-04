@@ -61,13 +61,15 @@ class RatingsDialog extends React.Component {
       ratingsDef: []
     };
 
-    UR.Subscribe('RATING:OPEN', this.DoOpen);
+    UR.Subscribe('RATING_OPEN', this.DoOpen);
+    UR.Subscribe('RATING_CLOSE', this.DoClose);
   }
 
   componentDidMount() { }
 
   componentWillUnmount() {
-    UR.Unsubscribe('RESOURCEVIEW:OPEN', this.OnOpen);
+    UR.Unsubscribe('RATING_OPEN', this.OnOpen);
+    UR.Unsubscribe('RATING_CLOSE', this.DoClose);
   }
 
   DoOpen(data) {
@@ -98,24 +100,6 @@ class RatingsDialog extends React.Component {
   render() {
     const { isOpen, ratingsDef, selectedRating } = this.state;
     const { classes } = this.props;
-
-    // Predefine ratings icons
-    const icons = {};
-    ratingsDef.forEach(def => {
-      const n = def.rating;
-      const count = Math.abs(n);
-      const result = [];
-      for (let i = 0; i < count; i++) {
-        if (n < 0) {
-          result.push(<NegativeIcon className={classes.ratingIconNegative} key={i} />);
-        } else if (n > 0) {
-          result.push(<PositiveIcon className={classes.ratingIconPositive} key={i} />);
-        } else {
-          // leave blank
-        }
-      }
-      icons[n] = result;
-    });
 
     return (
       <Dialog open={isOpen} onClose={this.OnClose} maxWidth='xs'>

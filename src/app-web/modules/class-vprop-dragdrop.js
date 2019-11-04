@@ -17,6 +17,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import DATA from './data';
 import UR from '../../system/ursys';
+import UTILS from './utils';
 // import { cssinfo } from './console-styles';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
@@ -38,10 +39,18 @@ const SaveEventCoordsToBox = (ev, box) => {
   if (box.x === undefined || box.y === undefined) {
     throw Error(`arg2 box has undefined x or y prop`);
   }
+
+  // hack for transform
+  let svg = document.getElementById('modelSVG');
+  let inverse = svg.getScreenCTM().inverse();
+  let pt = svg.createSVGPoint();
+  pt.x = ev.detail.event.clientX;
+  pt.y = ev.detail.event.clientY;
+  const { x, y } = pt.matrixTransform(inverse);
   // eslint-disable-next-line no-param-reassign
-  box.x = ev.detail.event.clientX;
+  box.x = x;
   // eslint-disable-next-line no-param-reassign
-  box.y = ev.detail.event.clientY;
+  box.y = y;
 };
 /**
  * Utility to find the distance of the drag operation
@@ -53,6 +62,7 @@ const DragMetrics = vprop => {
   if (!boxes) throw Error(`VProp ${vprop.Id()} doesn't implement VEX.DragDrop`);
   let { x: x1, y: y1 } = boxes.startPt;
   let { x: x2, y: y2 } = boxes.endPt;
+
   const dx = x2 - x1;
   const dy = y2 - y1;
   const d = Math.sqrt(dx * dx + dy * dy);
@@ -141,9 +151,11 @@ const AddDragDropHandlers = vprop => {
     if (vprop.DragEnd) vprop.DragEnd(event);
 
     const { d, dx, dy } = DragMetrics(vprop);
+    // NOTE: vpropid always mirrors propid, though a prop is
+    // not the same as a vprop
     const vpropId = vprop.Id();
 
-    // see if the prop moved by a minimum amount (5 pixels)
+    // see if the prop moved by a minimum amount (10 pixels)
     // if it didn't move much, then it's a click
     if (d < 10) {
       if (DBG) console.log(`[${vpropId}] didn't move enough, so snapping back`);
@@ -152,8 +164,21 @@ const AddDragDropHandlers = vprop => {
       // and pass click to children
       const gBadges = vprop.vBadge.gBadges;
       const mouseEvent = event.detail.event; // mouseEvent has clientX and clientY
-      const { offsetX, offsetY } = mouseEvent;
-      if (gBadges.inside(offsetX, offsetY)) {
+
+      // Convert click's screen coordinates to svg coordinates (zoomed and panned)
+      // https://www.sitepoint.com/how-to-translate-from-dom-to-svg-coordinates-and-back-again/
+      let svg = document.getElementById('modelSVG');
+      let pt = svg.createSVGPoint();
+      pt.x = mouseEvent.clientX;
+      pt.y = mouseEvent.clientY;
+      let svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
+      if (DBG) console.log('Clicked at screen', pt, ' / SVG coordinate', svgPt);
+      
+      // gStickyNoteButton is actually just a group object
+      // but it does have a bbox with the right coordinates.
+      // NOTE testing for 'inside' with the chat/chatBubble/chatOutline svg icons doesn't work
+      // because their bbox is at 0,0 if they're not visible.
+      if (gBadges.inside(svgPt.x, svgPt.y)) {
         // Handle as click and pass to VBadge
         gBadges.fire('click', { event: mouseEvent });
       } else {
@@ -165,12 +190,12 @@ const AddDragDropHandlers = vprop => {
       return;
     }
 
-    // for every move, move vprop back to root to 'reset' it
-    // before subsequent reparenting
-    vprop.ToRoot();
-
+    // If view only, skip the drop
+    if (DATA.IsViewOnly()) return;
+    
     // it did move, so do drop target magic
     const dropId = DATA.VM_PropsMouseOver().pop();
+    const dropXY = `(${DragState(vprop).gRootXY.x},${DragState(vprop).gRootXY.y})`;
 
     if (dropId) {
       // there is a drop target
@@ -178,24 +203,37 @@ const AddDragDropHandlers = vprop => {
       vparent.LayoutDisabled(true);
       vprop.LayoutDisabled(true);
       // this has to come last because this automatically fires layout
-      DATA.PMC_SetPropParent(vpropId, dropId);
+      if (!DATA.PMC_SetPropParent(vpropId, dropId)) {
+        if (DBG) console.log(`parent didn't change! moving back`);
+        const { x, y } = DragState(vprop).gRootXY;
+        vprop.Move(x, y);
+        return;
+      }
+      // move vprop back to root to 'reset' it before subsequent reparenting
+      vprop.ToRoot();
+      DATA.VM_ClearVPropPosition(vprop);
       if (DBG) console.log(`[${vpropId}] moved to [${dropId}]`);
+      UTILS.RLog('PropertyDrag', `Drag property id=${vprop.id} onto id=${dropId} at ${dropXY}`);
     } else {
       // dropped on the desktop, no parent
+      vprop.ToRoot();
       const parent = DATA.PropParent(vpropId);
       if (parent) {
         if (DBG) console.log(`[${vpropId}] moved from [${parent}]`);
         vprop.LayoutDisabled(true);
         const { x, y } = DragState(vprop).gRootXY;
         vprop.Move(x + dx, y + dy);
+        UTILS.RLog('PropertyDrag', `Drag property id=${vprop.id} from id=${parent} to ${dropXY}`);
       } else {
         if (DBG) console.log(`[${vpropId}] moved on desktop`);
         vprop.LayoutDisabled(true);
         const { x, y } = DragState(vprop).gRootXY;
         vprop.Move(x + dx, y + dy);
+        UTILS.RLog('PropertyDrag', `Drag property id=${vprop.id} to ${dropXY}`);
       }
       // this has to come last because this automatically fires layout
       DATA.PMC_SetPropParent(vpropId, undefined);
+      DATA.VM_SaveVPropPosition(vprop);
     }
   });
   //

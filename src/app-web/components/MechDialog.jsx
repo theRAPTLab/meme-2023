@@ -26,6 +26,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/data';
+import ASET from '../modules/adm-settings';
 import UTILS from '../modules/utils';
 import LinkButton from './LinkButton';
 
@@ -46,9 +47,11 @@ class MechDialog extends React.Component {
     this.OnClose = this.OnClose.bind(this);
     this.DoSelectSourceAndTarget = this.DoSelectSourceAndTarget.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
+    this.DoPropDelete = this.DoPropDelete.bind(this);
     this.OnSourceLinkButtonClick = this.OnSourceLinkButtonClick.bind(this);
     this.OnTargetLinkButtonClick = this.OnTargetLinkButtonClick.bind(this);
     this.OnTextChange = this.OnTextChange.bind(this);
+    this.OnDescriptionChange = this.OnDescriptionChange.bind(this);
     this.OnReverse = this.OnReverse.bind(this);
     this.DoSaveData = this.DoSaveData.bind(this);
     this.OnCreateClick = this.OnCreateClick.bind(this);
@@ -61,6 +64,7 @@ class MechDialog extends React.Component {
       targetId: '',
       targetLabel: undefined,
       label: '',
+      description: '',
       listenForSourceSelection: false,
       listenForTargetSelection: false,
       origSourceId: '',
@@ -73,6 +77,7 @@ class MechDialog extends React.Component {
     UR.Subscribe('MECHDIALOG:ADD', this.DoAdd);
     UR.Subscribe('MECHDIALOG:EDIT', this.DoEdit);
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
+    UR.Subscribe('PROP_DELETE', this.DoPropDelete);
   }
 
   componentDidMount() {}
@@ -81,6 +86,7 @@ class MechDialog extends React.Component {
     UR.Unsubscribe('MECHDIALOG:ADD', this.DoAdd);
     UR.Unsubscribe('MECHDIALOG:EDIT', this.DoEdit);
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
+    UR.Unsubscribe('PROP_DELETE', this.DoPropDelete);
   }
 
   DoAdd() {
@@ -90,11 +96,15 @@ class MechDialog extends React.Component {
       {
         isOpen: true,
         editExisting: false,
+        id: '',
         sourceId: '',
         sourceLabel: undefined,
         targetId: '',
         targetLabel: undefined,
         label: '',
+        description: '',
+        origSourceId: '',
+        origTargetId: '',
         listenForSourceSelection: true,
         listenForTargetSelection: true,
         saveButtonLabel: 'Add'
@@ -107,32 +117,53 @@ class MechDialog extends React.Component {
 
   DoEdit(data) {
     if (DBG) console.log(PKG, 'Edit Mech!', data);
-    const { label, sourceId, targetId } = data;
-    this.setState(
-      {
-        isOpen: true,
-        editExisting: true,
-        sourceId,
-        sourceLabel: DATA.Prop(sourceId).name,
-        targetId,
-        targetLabel: DATA.Prop(targetId).name,
-        label,
-        origSourceId: sourceId,
-        origTargetId: targetId,
-        listenForSourceSelection: false,
-        listenForTargetSelection: false,
-        saveButtonLabel: 'Update'
-      },
-      () => this.DoSelectSourceAndTarget(sourceId, targetId) // show the selected props
-    );
+    const { id, label, description, sourceId, targetId } = data;
+    const pmcDataId = ASET.selectedPMCDataId;
+    const intMechId = Number(data.id);
+    if (intMechId) {
+      UR.DBTryLock('pmcData.entities', [pmcDataId, intMechId])
+        .then(rdata => {
+          const { success, semaphore, uaddr, lockedBy } = rdata;
+          status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
+          if (rdata.success) {
+            console.log('do something here because u-locked!');
+            this.setState(
+              {
+                isOpen: true,
+                editExisting: true,
+                id,
+                sourceId,
+                sourceLabel: DATA.Prop(sourceId).name,
+                targetId,
+                targetLabel: DATA.Prop(targetId).name,
+                label,
+                description: description || '',  // Simple validation
+                origSourceId: sourceId,
+                origTargetId: targetId,
+                listenForSourceSelection: false,
+                listenForTargetSelection: false,
+                saveButtonLabel: 'Update'
+              },
+              () => this.DoSelectSourceAndTarget(sourceId, targetId) // show the selected props
+            );
+          } else {
+            console.log('aw, locked by', rdata.lockedBy);
+            alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Mechanism right now.  Please try again later.`)
+            UR.Publish('MECHDIALOG_CLOSED'); // tell ViewMain to re-enable ToolsPanel
+          }
+        });
+    }
   }
 
   DoClose() {
     this.setState({
       isOpen: false
     });
+    const pmcDataId = ASET.selectedPMCDataId;
+    const intMechId = Number(this.state.id);
+    UR.DBTryRelease('pmcData.entities', [pmcDataId, intMechId])
     DATA.VM_SetSelectionLimit(1); // Go back to allowing only one.
-    UR.Publish('MECHDIALOG:CLOSED');
+    UR.Publish('MECHDIALOG_CLOSED');
   }
 
   OnClose() {
@@ -146,7 +177,6 @@ class MechDialog extends React.Component {
    * @param {*} targetId
    */
   DoSelectSourceAndTarget(sourceId, targetId) {
-    console.error(PKG, 'DoSelectSourceAndTarget', sourceId, targetId);
     const currentVPropSource = DATA.VM_VProp(sourceId);
     DATA.VM_SelectProp(currentVPropSource);
     currentVPropSource.visualState.Select('first'); // hack, this shold probably be implemented as a PMCData call?
@@ -155,12 +185,16 @@ class MechDialog extends React.Component {
   }
 
   DoSelectionChange() {
+    if (!this.state.isOpen) return; // ignore selection change if we're not active
+    
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (DBG) console.log('selection changed', selectedPropIds);
-
-    if (this.state.editExisting) {
+    if (this.state.sourceId !== '' || this.state.targetId !== '') {
       /**
        * Edit Existing Mech
+       *
+       * If either source or target are already set, then consider it
+       * an existing mech
        *
        * If we're editting an existing mech, we want to allow the user
        * to individually toggle the source / target components on and off
@@ -182,7 +216,8 @@ class MechDialog extends React.Component {
       }
       if (this.state.listenForTargetSelection) {
         if (selectedPropIds.length > 0) {
-          const targetId = selectedPropIds[0];
+          // if two are selected, grab the second one, since source would grabed the first?
+          const targetId = selectedPropIds.length > 1 ? selectedPropIds[1] : selectedPropIds[0];
           if (targetId === this.state.sourceId) {
             alert(`${DATA.Prop(targetId).name} is already selected!  Please select a different component / property!`);
             DATA.VM_DeselectAll();
@@ -212,21 +247,19 @@ class MechDialog extends React.Component {
 
       if (selectedPropIds.length > 0) {
         sourceId = selectedPropIds[0];
-        listenForSourceSelection = false;
+        if (!DATA.HasProp(sourceId)) {
+          sourceId = '';
+        } else {
+          listenForSourceSelection = false;
+        }
       }
       if (selectedPropIds.length > 1) {
         targetId = selectedPropIds[1];
-        listenForTargetSelection = false;
-      }
-
-// FIXME: This conflates two uses of `editExisting` -- it means this is sent
-// to pmc as an update rather than a new mech add AND using it to determine
-// whether Link buttons are enabled
-      // If both source and target have been defined, we change the
-      // dialog to edit existing mode so that you can individually
-      // set each link
-      if (sourceId !== '' && targetId !== '') {
-        editExisting = true;
+        if (!DATA.HasProp(targetId)) {
+          targetId = '';
+        } else {
+          listenForTargetSelection = false;
+        }
       }
 
       this.setState({
@@ -241,11 +274,35 @@ class MechDialog extends React.Component {
     }
   }
 
+  DoPropDelete(data) {
+    const { isOpen, sourceId, targetId } = this.state;
+    const deletedPropId = String(data.id); // coerce to String because sourceID and targetId are strings
+    if (isOpen) {
+      if (sourceId === deletedPropId) {
+        // deselect it
+        this.setState({
+          sourceId: '',
+          sourceLabel: undefined,
+          listenForSourceSelection: true
+        });
+      }
+      if (targetId === deletedPropId) {
+        // deselect it
+        this.setState({
+          targetId: '',
+          targetLabel: undefined,
+          listenForTargetSelection: true
+        });
+      }
+      alert('The component or property you were linking was deleted by someone else.  Please select a different component or property.');
+    }
+  }
+
   OnSourceLinkButtonClick() {
     // Deselect so that the first selection becomes the next source
     DATA.VM_DeselectAll();
     this.setState({
-      sourceId: undefined,
+      sourceId: '',
       sourceLabel: undefined,
       listenForSourceSelection: true
     });
@@ -255,7 +312,7 @@ class MechDialog extends React.Component {
     // Deselect so that the first selection becomes the next target
     DATA.VM_DeselectAll();
     this.setState({
-      targetId: undefined,
+      targetId: '',
       targetLabel: undefined,
       listenForTargetSelection: true
     });
@@ -263,6 +320,10 @@ class MechDialog extends React.Component {
 
   OnTextChange(e) {
     this.setState({ label: e.target.value });
+  }
+
+  OnDescriptionChange(e) {
+    this.setState({ description: e.target.value });
   }
 
   OnReverse() {
@@ -294,13 +355,22 @@ class MechDialog extends React.Component {
   }
 
   DoSaveData() {
-    const { sourceId, targetId, origSourceId, origTargetId, label, editExisting } = this.state;
+    const {
+      id,
+      sourceId,
+      targetId,
+      origSourceId,
+      origTargetId,
+      label,
+      description,
+      editExisting
+    } = this.state;
     if (editExisting) {
-      const origMech = { sourceId: origSourceId, targetId: origTargetId };
-      const newMech = { sourceId, targetId, label };
+      const origMech = { sourceId: origSourceId, targetId: origTargetId, id };
+      const newMech = { sourceId, targetId, label, description };
       DATA.PMC_MechUpdate(origMech, newMech);
     } else {
-      DATA.PMC_MechAdd(sourceId, targetId, label);
+      DATA.PMC_MechAdd(sourceId, targetId, label, description);
     }
   }
 
@@ -317,6 +387,7 @@ class MechDialog extends React.Component {
     const {
       isOpen,
       label,
+      description,
       sourceId,
       sourceLabel,
       targetId,
@@ -328,7 +399,6 @@ class MechDialog extends React.Component {
       slideIn
     } = this.state;
     const { classes } = this.props;
-
     return (
       <Card className={classes.edgeDialog} hidden={!isOpen}>
         <Paper className={classes.edgeDialogPaper}>
@@ -384,6 +454,17 @@ class MechDialog extends React.Component {
               >
                 {saveButtonLabel}
               </Button>
+            </div>
+            <div className={classes.edgeDialogInput}>
+              <TextField
+                placeholder="Describe how the the two are linked together..."
+                margin="dense"
+                id="edgeDescription"
+                label="Description"
+                value={description}
+                onChange={this.OnDescriptionChange}
+                className={classes.edgeDialogDescriptionField}
+              />
             </div>
           </form>
         </Paper>

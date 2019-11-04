@@ -1,8 +1,13 @@
 import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
 import { cssinfo, cssreset, cssdata } from './console-styles';
 import DEFAULTS from './defaults';
+import DATAMAP from '../../system/common-datamap';
 import UR from '../../system/ursys';
+import VM from './vm-data';
 import UTILS from './utils';
+import ASET from './adm-settings';
+import ADMObj from './adm-objects';
+import PMCObj from './pmc-objects';
 
 const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
 
@@ -60,87 +65,29 @@ const PMCData = {};
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
-const PKG = 'pmc-data:';
+const DBG = false;
+const PR = 'PMCDATA';
 
 /// MODEL /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 let m_graph; // dagresjs/graphlib instance
 let a_props = []; // all properties (strings)
 let a_mechs = []; // all mechanisms (pathId strings)
-let a_commentThreads = []; // all prop and mech comments
+let a_comments = []; // all comments
+let a_markedread = []; // ids of comments that have been read by students
 //
 let a_components = []; // top-level props with no parents, derived
-let h_children = new Map(); // children hash of each prop by id
+let h_children = new Map(); // children hash of each prop by id (string)
 let h_outedges = new Map(); // outedges hash of each prop by id
 //
-let a_resources = []; /*/ all resource objects to be displayed in InformationList
-                         a_resource = [
-                            {
-                              rsrcId: '1',
-                              label: 'Food Rot Simulation',
-                              notes: ['water quality', 'food rotting'],
-                              type: 'simulation',
-                              url: '../static/dlc/FishSpawn_Sim_5_SEEDS_v7.html',
-                              links: 0
-                            }
-                          ]
-                      /*/
-let a_evidence = []; /*/ An array of prop-related evidence links.
-                          This is the master list of evidence links.
-
-                          [ evidenceLink,... ]
-                          [ {eid, propId, rsrcId, note},... ]
-
-                          a_evidence.push({ eid: '1', propId: 'a', rsrcId: '1', note: 'fish need food' });
-
-                      /*/
-let h_evidenceByEvId = new Map(); /*/
-                          Hash table of an array of evidence links for
-                          look up by evId.
-
-                          Used by class-vprop when displaying
-                          the list of evidenceLink badges for each prop.
-
-                          {evId1: {evId1, propId, rsrcId, note},
-                           evId2: {evId, propId, rsrcId, note},
-                          ...}
-                      /*/
-let h_evidenceByProp = new Map(); /*/
-                          Hash table of an array of evidence links related
-                          to a property id, and grouped by property id.
-
-                          Used by class-vprop when displaying
-                          the list of evidenceLink badges for each prop.
-
-                          {propId: [{evId, propId, rsrcId, note},
-                                    {evId, propId, rsrcId, note},
-                                ...],
-                          ...}
-                      /*/
-let h_evlinkByResource = new Map(); /*/
-                          Used by EvidenceList to look up all evidence related to a resource
-                      /*/
+let a_resources = []; // resource objects { id, label, notes, type, url, links }
+let a_evidence = []; // evidence objects { id, propId, rsrcId, note }
+let h_evidenceById = new Map(); // evidence object for each id (lookup table)
+let h_evidenceByProp = new Map(); // evidence object array associated with each prop
+let h_evidenceByResource = new Map(); // evidence id array associated with each resource
 let h_evidenceByMech = new Map(); // links to evidence by mechanism id
-let h_propByResource = new Map(); /*/
-                          Hash table to look up an array of property IDs related to
-                          a specific resource.
-
-                          Used by InformationList to show props related to each resource.
-
-                          {rsrcId: [propId1, propId2,...],... }
-                      /*/
-let h_mechByResource = new Map(); // calculated links to mechanisms by evidence id
-
-/// VIEWMODEL /////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const map_vprops = new Map(); // our property viewmodel data stored by id
-const map_vmechs = new Map(); // our mechanism viewmodel data stored by pathid
-const selected_vprops = new Set();
-const selected_vmechs = new Set();
-const map_rollover = new Map();
-
-let max_selections = 1; // Limit the number of objects that can be selected simultaneously
+let h_propByResource = new Map(); // hash of props to a given resource
+let h_mechByResource = new Map(); // hash of mechs to a given resource
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -155,86 +102,354 @@ let max_selections = 1; // Limit the number of objects that can be selected simu
 PMCData.Graph = () => {
   return m_graph;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Clears all model data in preparation for loading a new model
  */
 PMCData.ClearModel = () => {
   a_props = [];
   a_mechs = [];
-  a_commentThreads = [];
+  a_comments = [];
+  a_markedread = [];
   a_resources = [];
   a_evidence = [];
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  Loads a graph from model data and saves a local copy.  Replaces PMCData.LoadGraph.
- *  This will self repair bad data, but model.id and model.groupID MUST be defined.
- *  This should be only be called by ADMData.InitializeModel. Never call this direcly.
+ * Loads a graph from model data and saves a local copy.  Replaces PMCData.LoadGraph.
+ * This will self repair bad data, but model.id and model.groupID MUST be defined.
+ * This should be only be called by ADMData.InitializeModel().
+ * NEVER CALL THIS FUNCTION DIRECTLY
  */
-PMCData.InitializeModel = (model, resources) => {
+PMCData.InitializeModel = (model, admdb) => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
+  if (!admdb) console.error(`PMCData.InitializeModel() arg2 must be an instance of adm_db`);
 
-  // Self repair bad data
-  let m = model;
-  if (m.id === undefined || m.groupId === undefined) {
+  const { id, groupId, pmcDataId } = model;
+  if (id === undefined || groupId === undefined || pmcDataId === undefined) {
     console.error(
-      `PMCData.InitializeModel called with either bad id (${m.id})or bad groupId (${m.groupId})`
+      `PMCData.InitializeModel called with either bad id (${id}) or bad groupId (${groupId}) or bad pmcDataId (${pmcDataId})`
     );
   }
-  m.data = model.data || {};
 
-  // Load Components/Properties
-  m.data.properties = m.data.properties || [];
-  m.data.properties.forEach(obj => {
-    g.setNode(obj.id, { name: obj.name });
-  });
+  // get essentials
+  const { resources, pmcData } = admdb;
 
-  // Set Parents
-  m.data.properties.forEach(obj => {
-    if (obj.parent !== undefined) {
-      g.setParent(obj.id, obj.parent);
-    }
-  });
-
-  // Load Mechanisms
-  m.data.mechanisms = m.data.mechanisms || [];
-  m.data.mechanisms.forEach(mech => {
-    g.setEdge(mech.source, mech.target, { name: mech.name });
-  });
-
-  // Load Evidence Links
-  m.data.evidence = m.data.evidence || [];
-  m.data.evidence.forEach(ev => {
-    let { evId, propId, mechId, rsrcId, number, rating, note, comments } = ev;
-    comments = comments || []; // allow empty comments
-    a_evidence.push({
-      evId,
-      propId,
-      mechId,
-      rsrcId,
-      number,
-      rating,
-      note,
-      comments
-    });
-  });
-
-  // Comments
-  m.data.commentThreads = m.data.commentThreads || [];
-  m.data.commentThreads.forEach(cm => {
-    a_commentThreads.push(cm);
-  });
-
+  // Resources
   a_resources = resources || [];
 
-  /***************************************************************************/
+  /*/
+  The model data format changed in october 2019 to better separate pmcdata from model
+  adm_db.models contain model objects that formerly contained a .data prop which has
+  been replaced with a .pmcDataId prop that refers to the actual data stored in
+  the 'pmcData' collection.
+
+  To avoid a rewrite, this code has been modified to produce the original structure,
+  by model.data = pmcData[pmcDataId]
+  /*/
+
+  const data = pmcData.find(data => data.id === pmcDataId) || {}; // empty object if new pmcData
+  if (DBG) console.log('loaded data', data);
+  if (DBG) console.log('data.entities start processing');
+  if (data.entities)
+    data.entities.forEach(obj => {
+      if (DBG) console.log(obj.type, obj.id, obj);
+      switch (obj.type) {
+        case 'prop':
+          g.setNode(obj.id, {
+            name: obj.name,
+            description: obj.description
+          });
+          if (obj.parent) {
+            g.setParent(obj.id, obj.parent);
+          }
+          break;
+        case 'mech':
+          if (obj.source && obj.target)
+            g.setEdge(obj.source, obj.target, {
+              id: obj.id,
+              name: obj.name,
+              description: obj.description
+            });
+          break;
+        case 'evidence':
+          obj.comments = obj.comments || [];
+          a_evidence.push(obj);
+          break;
+        default:
+          console.error('PMCData.InitializeModel could not map unknown type', obj);
+      }
+    });
+  if (DBG) console.log('data.entities processed');
+
+  // Comments
+  // Clean up data: Make sure refIds are strings.
+  if (data.comments) {
+    a_comments = data.comments.map(c => {
+      return Object.assign({ refId: String(c.refId) }, c);
+    });
+  } else {
+    a_comments = [];
+  }
+  if (data.markedread) {
+    a_markedread = data.markedread.slice(0);
+  } else {
+    a_markedread = [];
+  }
+
   // test serial write out, then serial read back in
+  // this doesn't do anything other than ensure data
+  // format is OK (and to remind me that we can do this)
   const cleanGraphObj = GraphJSON.write(g);
   const json = JSON.stringify(cleanGraphObj);
   m_graph = GraphJSON.read(JSON.parse(json));
+  // MONKEY PATCH graphlib so it doesn't use ancient lodash _.keys()
+  // command, which converts numbers to string.
+  m_graph.nodes = () => Object.keys(m_graph._nodes);
+
+  // update the essential data structures
+  // this also fires DATA_UPDATED
   PMCData.BuildModel();
 
-  return m;
+  // data and view are now stable
+  // on first load, move visuals to saved places
+  if (data.visuals) {
+    data.visuals.forEach(vstate => {
+      const id = String(vstate.id);
+      const pos = vstate.pos;
+      const vprop = VM.VM_VProp(id);
+      // only position components, not props
+      // because visuals array doesn't remove stuff
+      if (PMCData.PropParent()) {
+        if (DBG) console.warn(`vprop ${id} has a parent: skipping`);
+        return;
+      }
+      if (!vprop) {
+        if (DBG) console.warn(`InitializeModel data.visuals: skipping missing prop ${id}`);
+        return;
+      }
+      if (DBG) console.log(`init vprop ${id} to ${pos.x}, ${pos.y}`);
+      vprop.Move(pos);
+      vprop.LayoutDisabled(true);
+    });
+    UR.Publish('PROP_MOVED', { visuals: data.visuals });
+  }
 };
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** URSYS: DATABASE SYNC
+ * Receive a list of ONLY changed objects to the specified collections so
+ * adm_db can be updated in a single place. Afterwards, fire any necessary
+ * UPDATE or BUILD or SELECT.
+ * See common-datamap.js for the collection keys itemized in DBKEYS. Called from
+ * data.js.
+ * @param {Object} data - a collection object
+ */
+PMCData.SyncAddedData = data => {
+  if (DBG) console.log('PMCData.SyncAddedData data', data);
+  // skip update if no model is loaded
+  if (ASET.selectedModelId === '' || m_graph === undefined) return;
+  // skip update if data is for a different model
+  if (data.pmcDataId !== ASET.selectedPMCDataId) return;
+
+  const syncitems = DATAMAP.ExtractSyncData(data);
+  syncitems.forEach(item => {
+    const { colkey, subkey, value } = item;
+    if (DBG) console.log('added', colkey, subkey || '', value);
+    if (subkey === 'entities') {
+      switch (value.type) {
+        case 'prop':
+          m_graph.setNode(value.id, {
+            name: value.name,
+            description: value.description
+          });
+          f_NodeSetParent(value.id, value.parent); // enforces type
+          break;
+        case 'mech':
+          m_graph.setEdge(value.source, value.target, {
+            id: value.id,
+            name: value.name,
+            description: value.description
+          });
+          break;
+        case 'evidence':
+          const { id, propId, mechId, rsrcId, numberLabel, rating, note, imageURL } = value;
+          a_evidence.push({
+            id,
+            propId,
+            mechId,
+            rsrcId,
+            numberLabel,
+            rating,
+            note,
+            imageURL
+          });
+          break;
+        default:
+          throw Error('unexpected proptype');
+      }
+      PMCData.BuildModel();
+    }
+
+    if (subkey === 'comments') {
+      const comment = PMCObj.Comment(value);
+      console.log('....adding comment', comment);
+      a_comments.push(comment);
+      UR.Publish('DATA_UPDATED');
+    }
+
+    if (subkey === 'markedread') {
+      a_markedread.push(value);
+      UR.Publish('DATA_UPDATED');
+    }
+  });
+
+  // old way
+  // if (data['pmcData']) console.log('PMCData add');
+  // if (data['pmcData.entities']) console.log('PMCData.entities add');
+  // if (data['pmcData.commentThreads']) console.log('PMCData.commentThreads add');
+  // do stuff here
+
+  // can add better logic to avoid updating too much
+  // PMCData.BuildModel();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.SyncUpdatedData = data => {
+  // skip update if no model is loaded
+  if (ASET.selectedModelId === '' || m_graph === undefined) return;
+  // skip update if data is for a different model
+  if (data.pmcDataId !== ASET.selectedPMCDataId) return;
+
+  const syncitems = DATAMAP.ExtractSyncData(data);
+  syncitems.forEach(item => {
+    const { colkey, subkey, value } = item;
+    if (DBG) console.log('updated', colkey, subkey || '', value);
+
+    if (subkey === 'entities') {
+      // has id, type, name
+      switch (value.type) {
+        case 'prop':
+          m_graph.setNode(value.id, {
+            name: value.name,
+            description: value.description
+          });
+          f_NodeSetParent(value.id, value.parent);
+          break;
+        case 'mech':
+          // 1. Remove the old edge first.
+          const oldMechPathObj = PMCData.MechById(value.id);
+          m_graph.removeEdge(oldMechPathObj);
+
+          // 2. Then create the updated edge as a new edge
+          m_graph.setEdge(value.source, value.target, {
+            id: value.id,
+            name: value.name,
+            description: value.description
+          });
+          break;
+        case 'evidence':
+          const { id, propId, mechId, rsrcId, numberLabel, rating, note, imageURL } = value;
+          const evlink = {
+            id,
+            propId,
+            mechId,
+            rsrcId,
+            numberLabel,
+            rating,
+            note,
+            imageURL
+          };
+          const i = a_evidence.findIndex(e => e.id === id);
+          a_evidence.splice(i, 1, evlink);
+          break;
+        default:
+          throw Error('unexpected proptype');
+      }
+      PMCData.BuildModel();
+    }
+
+    if (subkey === 'comments') {
+      const newComment = PMCObj.Comment(value);
+      const i = a_comments.findIndex(c => c.id === value.id);
+      if (i < 0) throw Error('Trying to update non-existent comments');
+      const comment = Object.assign(a_comments[i], newComment);
+      a_comments.splice(i, 1, comment); 
+      UR.Publish('DATA_UPDATED');
+    }
+
+    if (subkey === 'markedread') {
+      // marked read really doesn't get updates
+    }
+  }); // syncitems
+  if (DBG && data['pmcData.comments']) console.log('PMCData.comments update');
+  // do stuff here
+
+  // can add better logic to avoid updating too much
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.SyncRemovedData = data => {
+  // skip update if no model is loaded
+  if (ASET.selectedModelId === '' || m_graph === undefined) return;
+  // skip update if data is for a different model
+  if (data.pmcDataId !== ASET.selectedPMCDataId) return;
+
+  const syncitems = DATAMAP.ExtractSyncData(data);
+  syncitems.forEach(item => {
+    const { colkey, subkey, value } = item;
+    if (DBG) console.log('removed', colkey, subkey || '', value);
+
+    if (subkey === 'entities') {
+      // has id, type, name
+      switch (value.type) {
+        case 'prop':
+          // 1. deselect the prop before deleting it
+          //    otherwise, it remains on selectedProps list causing all kinds of havoc
+          VM.VM_DeselectAllProps();
+          // 2. now remove it
+          m_graph.removeNode(value.id);
+          // 3. force build before publishing PROP_DELETE
+          //    otherwise ToolsPanel rebuilds with missing component
+          PMCData.BuildModel();
+          // 4. Fire PROP_DELETE so that any open dialogs can remove it
+          UR.Publish('PROP_DELETE', { id: value.id });
+          return; // so we don't fire BuildModel again
+          break;
+        case 'mech':
+          m_graph.removeEdge(value.source, value.target);
+          break;
+        case 'evidence':
+          let i = a_evidence.findIndex(e => e.id === value.id);
+          a_evidence.splice(i, 1);
+          break;
+        default:
+          throw Error('unexpected proptype');
+      }
+      PMCData.BuildModel();
+    }
+
+    if (subkey === 'comments') {
+      let i = a_comments.findIndex(c => c.id === value.id);
+      a_comments.splice(i, 1);
+      // no need to build model, just send a data update
+      UR.Publish('DATA_UPDATED');
+    }
+
+    if (subkey === 'markedread') {
+      // marked read really doesn't get removed
+    }
+  });
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** SyncData Utility Function.
+ *  Handles the case where parent may be undefined, and we still want to set it
+ */
+function f_NodeSetParent(nodeId, parent) {
+  let value = parent;
+  if (value === null) value = undefined;
+  if (typeof value === 'string') value = Number(value);
+  m_graph.setParent(nodeId, value);
+}
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -243,7 +458,7 @@ PMCData.InitializeModel = (model, resources) => {
  */
 PMCData.BuildModel = () => {
   // test graphlib
-  a_props = m_graph.nodes(); // returns node ids
+  a_props = m_graph.nodes(); // returns numeric node ids
   a_mechs = m_graph.edges(); // returns edgeObjects {v,w}
   a_components = [];
   h_children = new Map(); // property children
@@ -274,11 +489,11 @@ PMCData.BuildModel = () => {
   });
 
   /*/
-   *  Update h_evidenceByEvId table
+   *  Update h_evidenceById table
   /*/
-  h_evidenceByEvId = new Map();
+  h_evidenceById = new Map();
   a_evidence.forEach(ev => {
-    h_evidenceByEvId.set(ev.evId, ev);
+    h_evidenceById.set(ev.id, ev);
   });
 
   /*/
@@ -341,11 +556,11 @@ PMCData.BuildModel = () => {
   /*/
    *  Used by EvidenceList to look up all evidence related to a resource
   /*/
-  h_evlinkByResource = new Map();
+  h_evidenceByResource = new Map();
   a_resources.forEach(resource => {
     let evlinkArray = a_evidence.filter(evlink => evlink.rsrcId === resource.id);
     if (evlinkArray === undefined) evlinkArray = [];
-    h_evlinkByResource.set(resource.id, evlinkArray);
+    h_evidenceByResource.set(resource.id, evlinkArray);
   });
 
   /*/
@@ -363,7 +578,6 @@ PMCData.BuildModel = () => {
       resource.links += mechs.length;
     }
   });
-
   UR.Publish('DATA_UPDATED');
 
   if (!DBG) return;
@@ -404,16 +618,17 @@ PMCData.Components = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Return array of all the children.
- *  @param {string} nodeId - the nodeId that might have children
- *  @returns {array} - an array of nodeId strings, or empty array
+ *  @param {String} nodeId - the nodeId that might have children
+ *  @returns {Array} - an array of nodeId strings, or empty array
  */
 PMCData.Children = nodeId => {
+  if (typeof nodeId !== 'string') throw Error('PMCData.Children expected a string id');
   return h_children.get(nodeId) || [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Returns TRUE if the passed nodeId exists in the graph data store
- *  @param {string} nodeId - the nodeId to test
+ *  @param {String} nodeId - the nodeId to test
  *  @returns {boolean} - true if the nodeId exists
  */
 PMCData.HasProp = nodeId => {
@@ -443,7 +658,7 @@ PMCData.HasMech = (evo, ew) => {
 PMCData.Prop = nodeId => {
   const prop = m_graph.node(nodeId);
   if (prop) return prop;
-  throw Error(`no prop with id '${nodeId}' exists`);
+  console.error(`no prop with id '${nodeId}' typeof ${typeof nodeId} exists`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -467,7 +682,7 @@ PMCData.PropParent = nodeId => {
  *
  *  This function can accept one of three formats: an edgeObject, a pathId,
  *  or a source/target pair of nodeId strings.
- *  @param {object|string} evo - edgeObj {w,v}, pathId, or nodeId string of source
+ *  @param {object|string} evo - edgeObj {v,w}, pathId, or nodeId string of source
  *  @param {string|undefined} ew - if defined, nodeId string of the target prop
  */
 PMCData.Mech = (evo, ew) => {
@@ -475,412 +690,189 @@ PMCData.Mech = (evo, ew) => {
   return m_graph.edge(eobj);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- *  returns an object containing added, updated, removed arrays
- *  containing nodeId strings
- *  @return {object} - object { added, updated, removed }
- */
-PMCData.VM_GetVPropChanges = () => {
-  // remember that a_props is an array of string ids, not objects
-  // therefore the returned arrays have values, not references! yay!
-  const added = [];
-  const updated = [];
-  const removed = [];
-  // find what matches and what is new
-  a_props.forEach(id => {
-    if (map_vprops.has(id)) updated.push(id);
-    else added.push(id);
-  });
-  // removed ids exist in viewmodelPropMap but not in updated props
-  map_vprops.forEach((val, id) => {
-    if (!updated.includes(id)) removed.push(id);
-  });
-  return { added, removed, updated };
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- *  returns TRUE if a VProp corresponding to nodeId exists
- *  @param {string} nodeId - the property with nodeId to test
- *  @return {boolean} - true if the nodeId exists
- */
-PMCData.VM_VPropExists = nodeId => {
-  return map_vprops.has(nodeId);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- *  returns the VProp corresponding to nodeId if it exists
- *  @param {string} nodeId - the property with nodeId to retrieve
- *  @return {VProp} - VProp instance, if it exists
- */
-PMCData.VM_VProp = nodeId => {
-  return map_vprops.get(nodeId);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- *  deletes the VProp corresponding to nodeId if it exists
- *  @param {string} nodeId - the property with nodeId to delete
- */
-PMCData.VM_VPropDelete = nodeId => {
-  map_vprops.delete(nodeId);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- *  sets the VProp corresponding to nodeId
- *  @param {string} nodeId - the property with nodeId to add to viewmodel
- *  @param {VProp} vprop - the property with nodeId to add to viewmodel
- */
-PMCData.VM_VPropSet = (nodeId, vprop) => {
-  map_vprops.set(nodeId, vprop);
-};
-
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- *  returns an object containing added, updated, removed string arrays
- *  containing pathIds.
- */
-PMCData.VM_GetVMechChanges = () => {
-  // remember that a_mechs is an array of { v, w } edgeObjects.
-  const added = [];
-  const updated = [];
-  const removed = [];
-  // find what matches and what is new by pathid
-  a_mechs.forEach(edgeObj => {
-    const pathId = CoerceToPathId(edgeObj);
-    if (map_vmechs.has(pathId)) {
-      updated.push(pathId);
-      if (DBG) console.log('updated', pathId);
-    } else {
-      added.push(pathId);
-      if (DBG) console.log('added', pathId);
-    }
-  });
-  // removed
-  map_vmechs.forEach((val_vmech, key_pathId) => {
-    if (!updated.includes(key_pathId)) {
-      removed.push(key_pathId);
-      if (DBG) console.log('removed', key_pathId);
-    }
-  });
-  return { added, removed, updated };
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- *  returns TRUE if the designated edge exists.
- *
- *  This function can accept one of three formats: an edgeObject, a pathId,
- *  or a source/target pair of nodeId strings.
- *  @param {object|string} evo - edgeObj {w,v}, pathId, or nodeId string of source
- *  @param {string|undefined} ew - if defined, nodeId string of the target prop */
-PMCData.VM_VMechExists = (evo, ew) => {
-  const pathId = CoerceToPathId(evo, ew);
-  return map_vmechs.has(pathId);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- *  returns the VMech corresponding to the designated edge if it exists
- *
- *  This function can accept one of three formats: an edgeObject, a pathId,
- *  or a source/target pair of nodeId strings.
- *  @param {object|string} evo - edgeObj {w,v}, pathId, or nodeId string of source
- *  @param {string|undefined} ew - if defined, nodeId string of the target prop
- */
-PMCData.VM_VMech = (evo, ew) => {
-  const pathId = CoerceToPathId(evo, ew);
-  return map_vmechs.get(pathId);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- *  deletes the VMech corresponding to designated edge if it exists
- *
- *  This function can accept one of three formats: an edgeObject, a pathId,
- *  or a source/target pair of nodeId strings.
- *  @param {object|string} evo - edgeObj {w,v}, pathId, or nodeId string of source
- *  @param {string|undefined} ew - if defined, nodeId string of the target prop
- */
-PMCData.VM_VMechDelete = (evo, ew) => {
-  const pathId = CoerceToPathId(evo, ew);
-  map_vmechs.delete(pathId);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- *  sets the VMech corresponding to the designated edge
- *
- *  This function can accept one of three formats: an edgeObject, a pathId,
- *  or a source/target pair of nodeId strings.
- *  @param {VMech} vmech - the VMech instance
- *  @param {object|string} evo - edgeObj {w,v}, pathId, or nodeId string of source
- *  @param {string|undefined} ew - if defined, nodeId string of the target prop
- */
-PMCData.VM_VMechSet = (vmech, evo, ew) => {
-  const pathId = CoerceToPathId(evo, ew);
-  map_vmechs.set(pathId, vmech);
-};
-
-/// SELECTION MANAGER TEMPORARY HOME //////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function u_DumpSelection(prompt) {
-  if (prompt) console.log(prompt);
-  console.table(PMCData.VM_SelectedPropsIds());
-}
-/** API.VIEWMODEL:
- * add the vprop to the selection set. The vprop will be
- * updated in its appearance to reflect its new state.
- * @param {object} vprop - VProp instance with id property.
- */
-PMCData.VM_SelectAddProp = vprop => {
-  // set appropriate vprop flags
-  vprop.visualState.Select();
-  vprop.Draw();
-  // update viewmodel
-  selected_vprops.add(vprop.id);
-  UR.Publish('SELECTION_CHANGED');
-  if (DBG) u_DumpSelection('SelectAddProp');
-};
-
-/** API.VIEWMODEL:
- * set the vprop to the selection set. The vprop will be
- * updated in its appearance to reflect its new state.
- * @param {object} vprop - VProp instance with id property.
- */
-PMCData.VM_SelectProp = vprop => {
-  // set appropriate vprop flags
-  vprop.visualState.Select();
-  vprop.Draw();
-  // update viewmodel
-  selected_vprops.forEach(id => {
-    const vp = PMCData.VM_VProp(id);
-    vp.visualState.Deselect();
-  });
-  selected_vprops.clear();
-  selected_vprops.add(vprop.id);
-  UR.Publish('SELECTION_CHANGED');
-  if (DBG) u_DumpSelection('SelectProp');
-};
-
-/* API.VIEWMODEL: Tracking Rollovers */
-PMCData.VM_PropMouseEnter = vprop => {
-  map_rollover.set(vprop.Id());
-  const topPropId = PMCData.VM_PropsMouseOver().pop();
-  if (vprop.Id() === topPropId) vprop.HoverState(true);
-};
-PMCData.VM_PropMouseExit = vprop => {
-  if (vprop.posMode.isDragging) return;
-  map_rollover.delete(vprop.Id());
-  vprop.HoverState(false);
-};
 /**
- * Return the array of targets that are "hovered" over
- * @returns {array} propId array
+ *  Return the mech pathObj matching the db id.
+ *  This is necessary during SyncUpdateData to remove an old edge that has
+ *  changed its source/target (since the old source/target path is not known
+ *  to SyncUpdateData).
+ *
+ *  An alternative approach would be to trigger a deletion in MechUpdate, but
+ *  that would cause another server roundtrip.
+ *
+ *  @param {Integer} id - The mech id of the db record (not a pathId)
+ *  @return {Object} A pathObj {v,w}}
  */
-PMCData.VM_PropsMouseOver = () => {
-  return [...map_rollover.keys()];
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- * Set the maximum number of objects the user can select.
- * After the limit is reached, users can not select any additional objects
- * though they can still toggle existing objects.
- * @oaram {integer} max - Maximum number of selected objects allowed.
- */
-PMCData.VM_SetSelectionLimit = max => {
-  max_selections = max;
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- * Remove the passed vprop from the selection set, if set. The vprop will be
- * updated in its appearance to reflect its new state.
- * @param {object} vprop - VProp instance with id property
- */
-PMCData.VM_DeselectProp = vprop => {
-  // set appropriate vprop flags
-  vprop.visualState.Deselect();
-  vprop.Draw();
-  // update viewmodel
-  selected_vprops.delete(vprop.id);
-  UR.Publish('SELECTION_CHANGED');
-  if (DBG) u_DumpSelection('DeselectProp');
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- * Select or deselect the passed vprop.  The vprop will be
- * updated in its appearance to reflect its new state.
- * @param {object} vprop - VProp instance with id property
- */
-PMCData.VM_ToggleProp = vprop => {
-  // limit the number of selections, but allow toggle
-  if (selected_vprops.size >= max_selections) {
-    // If we hit the limit...
-    if (max_selections === 1) {
-      // ...and the limit is 1, deselect all and select this one
-      DeselectAllProps();
-    } else {
-      // ...and the limit is more than one, don't alow any more selections
-      return;
-    }
-  }
-
-  // set appropriate vprop flags
-  vprop.visualState.ToggleSelect();
-  // update viewmodel
-  if (vprop.visualState.IsSelected()) {
-    selected_vprops.add(vprop.id);
-    if (selected_vprops.size === 1) {
-      vprop.visualState.Select('first');
-    }
-    vprop.Draw();
-  } else {
-    selected_vprops.delete(vprop.id);
-    vprop.Draw();
-  }
-  UR.Publish('SELECTION_CHANGED');
-  if (DBG) u_DumpSelection('ToggleProp');
+PMCData.MechById = id => {
+  const all_mechs = PMCData.AllMechs();
+  return all_mechs.find(pathObj => {
+    const edgeAttr = PMCData.Mech(pathObj);
+    if (edgeAttr.id === id) return pathObj;
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- * Utility function
- * This is so we can deselect without triggering a UR event.
+ *  @param {Object} newPropObj - {name, description, parent} for the property
  */
-function DeselectAllProps() {
-  // tell all vprops to clear themselves
-  selected_vprops.forEach(vpid => {
-    const vprop = PMCData.VM_VProp(vpid);
-    vprop.visualState.Deselect();
-    vprop.Draw();
+PMCData.PMC_PropAdd = newPropObj => {
+  const pmcDataId = ASET.selectedPMCDataId;
+  const propObj = Object.assign(newPropObj, { type: 'prop' });
+  UTILS.RLog(
+    'PropertyAdd',
+    newPropObj.name,
+    newPropObj.description,
+    newPropObj.parent ? `with parent ${newPropObj.parent}` : ''
+  );
+  return UR.DBQuery('add', {
+    'pmcData.entities': {
+      id: pmcDataId,
+      entities: propObj
+    }
   });
-  // clear selection viewmodel
-  selected_vprops.clear();
-}
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- * erase the selected properties set. Also calls affected vprops to
- * handle deselection update
- */
-PMCData.VM_DeselectAllProps = () => {
-  DeselectAllProps();
-  UR.Publish('SELECTION_CHANGED');
-  if (DBG) u_DumpSelection('DeselectAllProps');
+  // round-trip will call BuildModel() for us
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- * Deselect all vmechs. The vmechs will be updated in its
- * appearance to reflect its new state
+/** update through database
+ *  @param {Integer} propId - id of the prop being updated
+ *  @param {Object} newData - propObject, could be partial, e.g. just {name}
  */
-PMCData.VM_DeselectAllMechs = () => {
-  // tell all vprops to clear themselves
-  selected_vmechs.forEach(vmid => {
-    const vmech = PMCData.VM_VMech(vmid);
-    vmech.visualState.Deselect();
-    vmech.Draw();
-  });
-  // clear selection viewmodel
-  selected_vmechs.clear();
-  if (DBG) console.log(`global selection`, selected_vmechs);
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL
- * Delect all props and mechs. WARNING this is a method that is overly
- * broad.
- */
-PMCData.VM_DeselectAll = () => {
-  console.warn(`VM_DeselectAll() is deprecated. Use more specific selection manager calls.`);
-  PMCData.VM_DeselectAllProps();
-  PMCData.VM_DeselectAllMechs();
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- * Select a single mechanism, clearing the existing selection.
- */
-PMCData.VM_SelectOneMech = vmech => {
-  // set appropriate vprop flags
-  PMCData.VM_DeselectAllMechs();
-  vmech.visualState.Select();
-  vmech.Draw();
-  // update viewmodel
-  selected_vmechs.add(vmech.id);
-  UR.Publish('SELECTION_CHANGED');
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- * Select/deselect the passed vmech. The vmech will be updated in its
- * appearance to reflect its new state
- */
-PMCData.VM_ToggleMech = vmech => {
-  // set appropriate vprop flags
-  vmech.visualState.ToggleSelect();
-  // update viewmodel
-  if (vmech.visualState.IsSelected()) {
-    selected_vmechs.add(vmech.id);
-    vmech.Draw();
-  } else {
-    selected_vmechs.delete(vmech.id);
-    vmech.Draw();
+PMCData.PMC_PropUpdate = (propId, newData) => {
+  let numericId = propId;
+  if (typeof propId !== 'number') {
+    if (DBG)
+      console.log(
+        'PMCData.PMC_PropUpdate expected Number but got',
+        typeof propId,
+        propId,
+        '!  Coercing to Number!  Review the calling function to see why non-Number was passed.'
+      );
+    numericId = Number(propId);
   }
-  if (DBG) console.log(`vmech selection`, selected_vmechs);
-  UR.Publish('SELECTION_CHANGED');
+  if (!DATAMAP.IsValidId(numericId)) throw Error('invalid id');
+  const prop = m_graph.node(numericId);
+  // make a copy of the prop with overwritten new data
+  // local data will be updated on DBSYNC event, so don't write it here
+  const propData = Object.assign(prop, newData, { id: numericId }); // id last to make sure we're using a cleaned one
+  const pmcDataId = ASET.selectedPMCDataId;
+  // we need to update pmcdata which looks like
+  // { id, entities:[ { id, name } ] }
+  return UR.DBQuery('update', {
+    'pmcData.entities': {
+      id: pmcDataId,
+      entities: propData
+    }
+  });
+  // round-trip will call BuildModel() for us
+
+  /** THIS METHOD DID NOT EXIST BEFORE **/
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- return array of all string ids that are currently selected PROPERTIES
- in order of insertion.
- Use VProp.visualState.IsSelected('first') to determine what the first
- selection is
- @returns {string[]} propIds - array of string ids of properties
+/**
+ *  @param {Integer} propId - id of the prop being updated
+ * */
+PMCData.PMC_PropDelete = propId => {
+  let numericId = propId;
+  if (typeof propId !== 'number') {
+    if (DBG)
+      console.log(
+        'PMCData.PMC_PropDelete expected Number but got',
+        typeof propId,
+        propId,
+        '!  Coercing to Number!  Review the calling function to see why non-Number was passed.'
+      );
+    numericId = Number(propId);
+  }
+  if (!DATAMAP.IsValidId(numericId)) throw Error('invalid id');
+
+  // 1. Deselect the prop first, otherwise the deleted prop will remain selected
+  VM.VM_DeselectAll();
+
+  // 2. Unlink any evidence (don't delete them)
+  PMCData.PMC_GetEvLinksByPropId(numericId).forEach(evlink => {
+    PMCData.SetEvidenceLinkPropId(evlink.id, undefined);
+  });
+
+  // 3. Unlink any related mechs
+  PMCData.AllMechs().forEach(mid => {
+    if (mid.v === String(numericId) || mid.w === String(numericId)) {
+      PMCData.PMC_MechDelete(mid);
+    }
+  });
+
+  // 4. Delete any comments?
+  // We don't need to update commentThreads since they are
+  // retrieved by their parent objects?
+
+  // 5. Delete any children
+  // h_children uses string ids
+  PMCData.Children(String(numericId)).forEach(cid => PMCData.PMC_PropDelete(Number(cid)));
+
+  // 6. Log it
+  UTILS.RLog('PropertyDelete', propId);
+
+  // 7. Remove the actual prop
+  const pmcDataId = ASET.selectedPMCDataId;
+  return UR.DBQuery('remove', {
+    'pmcData.entities': {
+      id: pmcDataId,
+      entities: { id: propId }
+    }
+  });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** Return true if the prop designated by propId has a parent that is
+ *  different than newParentId
  */
-PMCData.VM_SelectedPropsIds = () => {
-  return Array.from(selected_vprops.values());
+PMCData.PMC_IsDifferentPropParent = (propId, newParentId) => {
+  return PMCData.PropParent(propId) !== newParentId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- return array of all string ids that are currently selected MECHANISMS
- in order of insertion. Unlike the Props version of this call, the selection
- is not tagged with any other meta data (e.g. 'first')
- @returns {string[]} mechIds - array of string ids of properties
- */
-PMCData.VM_SelectedMechIds = () => {
-  return Array.from(selected_vmechs.values());
+PMCData.PMC_SetPropParent = (nodeId, parentId) => {
+  // NOTE: a parentId of value of 'undefined' because that's how
+  // graphlib removes a parent from a node
+  if (!PMCData.PMC_IsDifferentPropParent(nodeId, parentId)) {
+    // only write to the database (and roundtrip) if the propparent
+    // is different from last time
+    return false;
+  }
+  // REVIEW/FIXME: Is this coercion necessary once we convert to ints?
+  const id = Number(nodeId);
+  const pid = Number(parentId);
+  UTILS.RLog('PropertySetParent', id, pid);
+  return PMCData.PMC_PropUpdate(id, { parent: pid }).then(rdata => {
+    if (DBG) console.log('PropUpdate', JSON.stringify(rdata['pmcData.entities']));
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddProp = node => {
-  m_graph.setNode(node, { name: `${node}` });
-  PMCData.BuildModel();
-  UTILS.RLog('PropertyAdd', node);
-  return `added node ${node}`;
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_SetPropParent = (node, parent) => {
-  m_graph.setParent(node, parent);
-  PMCData.BuildModel();
-  UTILS.RLog('PropertySetParent', node, parent);
-  return `set parent ${parent} to node ${node}`;
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_PropDelete = (propid = 'a') => {
-  // Deselect the prop first, otherwise the deleted prop will remain selected
-  PMCData.VM_DeselectAll();
-  // Unlink any evidence
-  const evlinks = PMCData.PMC_GetEvLinksByPropId(propid);
-  if (evlinks)
-    evlinks.forEach(evlink => {
-      PMCData.SetEvidenceLinkPropId(evlink.evId, undefined);
-    });
-  // Delete any children nodes
-  const children = PMCData.Children(propid);
-  if (children)
-    children.forEach(cid => {
-      PMCData.PMC_SetPropParent(cid, undefined);
-    });
-  // Then remove propid
-  m_graph.removeNode(propid);
-  PMCData.BuildModel();
-  UTILS.RLog('PropertyDelete', propid);
-  return `deleted propid ${propid}`;
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_MechAdd = (sourceId, targetId, label) => {
-  m_graph.setEdge(sourceId, targetId, { name: label });
-  PMCData.BuildModel();
-  UTILS.RLog('MechanismAdd', sourceId, targetId, label);
-  return `added edge ${sourceId} ${targetId} ${label}`;
+PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
+  if (DBG) {
+    if (typeof sourceId !== 'number')
+      console.log('coercing sourceId to Number from', typeof sourceId);
+    if (typeof targetId !== 'number')
+      console.log('coercing targetId to Number from', typeof targetId);
+  }
+  // Validate: Make sure source and target still exist before saving
+  if (!PMCData.HasProp(sourceId)) {
+    console.error('PMCData.PMC_MechAdd trying to add non existent source prop', sourceId);
+    return;
+  }
+  if (!PMCData.HasProp(targetId)) {
+    console.error('PMCData.PMC_MechAdd trying to add non existent target prop', targetId);
+    return;
+  }
+  const pmcDataId = ASET.selectedPMCDataId;
+  const mechObj = {
+    type: 'mech',
+    name: label,
+    source: Number(sourceId),
+    target: Number(targetId),
+    description
+  };
+  return UR.DBQuery('add', {
+    'pmcData.entities': {
+      id: pmcDataId,
+      entities: mechObj
+    }
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -890,94 +882,177 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label) => {
  *  assets over from the old mech to the new mech.
  */
 PMCData.PMC_MechUpdate = (origMech, newMech) => {
-  // If we're only changing the label, then don't do the fancy swap, just update the label.
-  if (origMech.sourceId === newMech.sourceId && origMech.targetId === newMech.targetId) {
-    // Just change label
-    const { sourceId, targetId, label } = newMech;
-    m_graph.setEdge(sourceId, targetId, { name: label });
-    PMCData.BuildModel();
-    UTILS.RLog('MechanismEditLabel', label);
-  } else {
-    // 1. Add the new mech
-    m_graph.setEdge(newMech.sourceId, newMech.targetId, { name: newMech.label });
-
-    // 2. Update the old mech
-    const origMechId = `${origMech.sourceId}:${origMech.targetId}`;
-    const newMechId = `${newMech.sourceId}:${newMech.targetId}`;
-
-    // 2a. Move assets over
-    const evlinks = PMCData.PMC_GetEvLinksByMechId(origMechId);
-    // 2a. Move evidence over. Modify in place.
-    if (evlinks) {
-      evlinks.forEach(evlink => {
-        PMCData.SetEvidenceLinkMechId(evlink.evId, newMechId);
-      });
-    }
-    // 2b. Move comments over
-    const comments = PMCData.GetComments(origMechId);
-    PMCData.UpdateComments(newMechId, comments);
-
-    // 2c. Remove the old mech
-    PMCData.PMC_MechDelete(origMechId);
-
-    PMCData.BuildModel();
-    UTILS.RLog(
-      'MechanismEdit',
-      `from "${origMechId}" to "${newMechId}" with label "${newMech.label}"`
-    );
-
-    // 3. Show review dialog alert.
-    // HACK: Delay the alert so the system has a chance to redraw first.
-    if (evlinks || comments.length > 0) {
-      setTimeout(() => {
-        alert(
-          'Please review the updated mechanism to make sure the Evidence Links and comments are still relevant.'
-        );
-      }, 500);
-    }
+  // Update the data
+  const { sourceId, targetId, label, description } = newMech;
+  if (DBG) {
+    console.log('MechUpdate: Updating', origMech.sourceId, '=>', sourceId, 'and', origMech.targetId, '=>', targetId)
+    if (typeof sourceId !== 'number')
+      console.log('coercing sourceId to Number from', typeof sourceId);
+    if (typeof targetId !== 'number')
+      console.log('coercing targetId to Number from', typeof targetId);
   }
-  return `updated edge`;
+  // Validate: Make sure source and target still exist before saving
+  if (!PMCData.HasProp(sourceId)) {
+    console.error('PMCData.PMC_MechAdd trying to add non existent source prop', sourceId);
+    return;
+  }
+  if (!PMCData.HasProp(targetId)) {
+    console.error('PMCData.PMC_MechAdd trying to add non existent target prop', targetId);
+    return;
+  }
+  const pmcDataId = ASET.selectedPMCDataId;
+  const mechObj = {
+    type: 'mech',
+    id: origMech.id,
+    name: label,
+    source: Number(sourceId),
+    target: Number(targetId),
+    description
+  };
+  return UR.DBQuery('update', {
+    'pmcData.entities': {
+      id: pmcDataId,
+      entities: mechObj
+    }
+  }).then(() => {
+    // If source or target changed,  move evidence and comments
+    if (origMech.sourceId !== newMech.sourceId || origMech.targetId !== newMech.targetId) {
+      const origMechId = CoerceToPathId(origMech.sourceId, origMech.targetId);
+      const newMechId = CoerceToPathId(newMech.sourceId, newMech.targetId);
+
+      // 2a. Move evidence over.
+      const evlinks = PMCData.PMC_GetEvLinksByMechId(origMechId);
+      if (evlinks) {
+        evlinks.forEach(evlink => {
+          PMCData.SetEvidenceLinkMechId(evlink.id, newMechId);
+        });
+      }
+      // 2b. Move comments over
+      const comments = PMCData.GetComments(origMechId);
+      if (comments.length > 0) PMCData.DB_CommentsUpdate(newMechId, comments);
+
+      UTILS.RLog(
+        'MechanismEdit',
+        `from "${origMechId}" to "${newMechId}" with label "${newMech.label}"`
+      );
+
+      // 3. Show review dialog alert.
+      // HACK: Delay the alert so the system has a chance to redraw first.
+      if (evlinks || comments.length > 0) {
+        setTimeout(() => {
+          alert(
+            'Please review the updated mechanism to make sure the Evidence Links and comments are still relevant.'
+          );
+        }, 500);
+      }
+    }
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_MechDelete = mechId => {
   // mechId is of form "v:w"
   // Deselect the mech first, otherwise the deleted mech will remain selected
-  PMCData.VM_DeselectAll();
+  VM.VM_DeselectAll();
+
   // Unlink any evidence
   const evlinks = PMCData.PMC_GetEvLinksByMechId(mechId);
   if (evlinks)
     evlinks.forEach(evlink => {
-      PMCData.SetEvidenceLinkMechId(evlink.evId, undefined);
+      PMCData.SetEvidenceLinkMechId(evlink.id, undefined);
     });
+
   // Then remove mech
   // FIXME / REVIEW : Do we need to use `name` to distinguish between
   // multiple edges between the same source target?
-  // FIXME / REVIEW: Do we need add a definition for splitting a
-  // pathId to v / w ?
-  let vw = mechId.split(':');
-  m_graph.removeEdge(vw[0], vw[1]);
-  PMCData.BuildModel();
-  return `deleted edge ${mechId}`;
+  const mech = PMCData.Mech(mechId);
+
+  if (DBG) {
+    if (typeof mechId !== 'number') console.log('coercing mechId to Number from', typeof mechId);
+  }
+
+  const pmcDataId = ASET.selectedPMCDataId;
+  return UR.DBQuery('remove', {
+    'pmcData.entities': {
+      id: pmcDataId,
+      entities: { id: Number(mech.id) }
+    }
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
-  // HACK!  FIXME!  Need to properly generate a unique ID.
-  let evId = `ev${Math.trunc(Math.random() * 10000)}`;
-
-  // Construct number, e.g. "2c"
+/**
+ *  Checks to make sure the numberLabel already exists
+ *  Called by GenerateNumberLabel, below
+ */
+function NumberLabelExists(numberLabel, evlinks) {
+  return evlinks.find(ev => ev.numberLabel === numberLabel);
+}
+/**
+ *  Construct numberLabel, e.g. "2c".
+ *  Called by PMCData.PMC_AddEvidenceLink, below.
+ *  @param {string} rsrcId
+ *  @return {string} - A new numberLabel, e.g. "2c"
+ */
+function GenerateNumberLabel(rsrcId) {
   // 1. Ordinal value of resource in resource library, e.g. "2"
   const prefix = PMCData.PMC_GetResourceIndex(rsrcId);
   // 2. Ordinal value of evlink in evlink list, e.g. "c"
   const evlinks = PMCData.GetEvLinksByResourceId(rsrcId);
-  const numberOfEvLinks = evlinks.length;
-  const count = String.fromCharCode(97 + numberOfEvLinks); // lower case for smaller footprint
+  let numberOfEvLinks = evlinks.length;
+  let letter;
+  let numberLabel;
+  do {
+    letter = String.fromCharCode(97 + numberOfEvLinks); // lower case for smaller footprint
+    numberLabel = String(prefix) + letter;
+    numberOfEvLinks++;
+  } while (NumberLabelExists(numberLabel, evlinks));
 
-  const number = String(prefix) + count;
-  a_evidence.push({ evId, propId: undefined, rsrcId, number, note });
-  PMCData.BuildModel();
-
-  UTILS.RLog('EvidenceCreate', rsrcId); // note is empty at this point
-  return evId;
+  return numberLabel;
+}
+/**
+ *  Adds a new evidence link object to the database and generates a new id for it.
+ *  This also calculates the numberLabel automatically based on the assets already
+ *  in the system.
+ *
+ *  @param {Object} evObjData - Any subset of PMBObj.Evidence keys
+ *  @param {Function} cb - callback function will be called with the new id as a parameter
+ *                         e.g. cb(id);
+ */
+PMCData.PMC_AddEvidenceLink = (evObjData, cb) => {
+  const numberLabel = GenerateNumberLabel(evObjData.rsrcId);
+  const evObj = PMCObj.Evidence({
+    // no id - id should be undefined since we're defining a new db object
+    // propId and mechId remain undefined until the user sets it later
+    rsrcId: evObjData.rsrcId,
+    numberLabel,
+    note: evObjData.note,
+    imageURL: evObjData.imageURL
+  });
+  
+  UTILS.RLog('EvidenceCreate', evObj.rsrcId); // note is empty at this point
+  const pmcDataId = ASET.selectedPMCDataId;
+  return UR.DBQuery('add', {
+    'pmcData.entities': {
+      id: pmcDataId,
+      entities: evObj
+    }
+  }).then(rdata => {
+    const syncitems = DATAMAP.ExtractSyncData(rdata);
+    syncitems.forEach(item => {
+      const { colkey, subkey, value } = item;
+      if (subkey === 'entities') {
+        switch (value.type) {
+          case 'evidence':
+            const id = value.id;
+            if (typeof cb === 'function') {
+              cb(id);
+            } else {
+              throw Error('PMC_AddEvidenceLink callback cb is not a function!  Skipping...');
+            }
+            break;
+        }
+      }
+    });
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -986,171 +1061,335 @@ PMCData.PMC_AddEvidenceLink = (rsrcId, note = '') => {
  */
 PMCData.PMC_GetResourceIndex = rsrcId => {
   const index = a_resources.findIndex(r => r.id === rsrcId);
-  if (index === -1) console.error(PKG, 'PMC_GetResourceIndex could not find', rsrcId);
+  if (index === -1) console.error(PR, 'PMC_GetResourceIndex could not find', rsrcId);
   return index + 1;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- * @returns {string} EvId of the duplicated EvidenceLink object
+ *  @param {Integer} evId - id of the source evidence link to duplicate
+ *  @param {function} cb - callback function will be called with the new id as a parameter
+ *                         e.g. cb(id);
  */
-PMCData.PMC_DuplicateEvidenceLink = evId => {
+PMCData.PMC_DuplicateEvidenceLink = (evId, cb) => {
   // First get the old link
-  const oldlink = PMCData.PMC_GetEvLinkByEvId(evId);
+  const oldev = PMCData.PMC_GetEvLinkByEvId(evId);
+  const newev = Object.assign(
+    {},
+    oldev,
+    { id: undefined, propId: undefined, mechId: undefined }
+  );
+  UTILS.RLog('EvidenceDuplicate', oldev.note);
   // Create new evlink
-  let newEvId = PMCData.PMC_AddEvidenceLink(oldlink.rsrcId, oldlink.note);
-  UTILS.RLog('EvidenceDuplicate', oldlink.note);
-  return newEvId;
+  PMCData.PMC_AddEvidenceLink(
+    newev,
+    id => { if (typeof cb === 'function') cb(id) },
+  );
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_DeleteEvidenceLink = evId => {
-  // Then delete the link(s)
-  let i = a_evidence.findIndex(e => {
-    return e.evId === evId;
+  const pmcDataId = ASET.selectedPMCDataId;
+  return UR.DBQuery('remove', {
+    'pmcData.entities': {
+      id: pmcDataId,
+      entities: { id: evId }
+    }
   });
-  a_evidence.splice(i, 1);
-  PMCData.BuildModel();
-  return evId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Given the passed evidence ID, returns the EvidenceLink object.
+ *  NEVER access h_evidenceById directly!
+ *
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  *  @return {evlink} An evidenceLink object.
  */
 PMCData.PMC_GetEvLinkByEvId = evId => {
-  return h_evidenceByEvId.get(evId);
+  if (typeof evId !== 'number')
+    throw Error(`PMCData.PMC_GetEvLinkByEvId requested evId with non-Number ${evId} typeof ${typeof evId}`);
+  return h_evidenceById.get(evId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
- *  Given the passed propid (prop data object), returns evidence linked to the prop object.
+ *  Given the passed propid, returns evidence linked to the prop object.
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
- *  @param {string|undefined} nodeId - if defined, nodeId string of the prop (aka `propId`)
- *  @return [evlinks] An array of evidenceLink objects
+ *  @param {Integer} propId - if defined, id of the prop (aka `propId`)
+ *  @return {Array} - An array of evidenceLink objects, [] if not found
  */
-PMCData.PMC_GetEvLinksByPropId = propid => {
-  return h_evidenceByProp.get(propid);
+PMCData.PMC_GetEvLinksByPropId = propId => {
+  let numericId = propId;
+  if (typeof propId !== 'number') {
+    // coercing to Number because h_evidenceByProp is indexed by Number
+    /* This is mostly to deal with calls from class-vbadge.Update()
+       The issue is that VBadges get propIds from the parent vprop's id,
+       but the VProp constructor requires a string id (mostly to match m_graphs'
+       use of a string id).  Changing this would require cascading changes across
+       many different code areas.
+    */
+    if (DBG)
+      console.log(
+        'PMCData.PMC_GetEvLinksByPropId expected Number but got',
+        typeof propId,
+        propId,
+        '!  Coercing to Number!  Review the calling function to see why non-Number was passed.'
+      );
+    numericId = Number(propId);
+  }
+  if (!DATAMAP.IsValidId(numericId)) throw Error('invalid id');
+  return h_evidenceByProp.get(numericId) || [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Given the passed mechId (mech object), returns evidence linked to the mech object.
  *  e.g. { evidenceId: '1', note: 'fish food fish food' }
- *  @param {string|undefined} mechId - if defined, mechId string of the prop (aka `propId`)
+ *  @param {String|undefined} mechId - if defined, mechId string of the prop (aka `propId`)
  *  @return [evlinks] An array of evidenceLink objects
  */
 PMCData.PMC_GetEvLinksByMechId = mechId => {
   return h_evidenceByMech.get(mechId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Set propId to `undefined` to unlink
-PMCData.SetEvidenceLinkPropId = (evId, propId) => {
-  let evlink = a_evidence.find(item => {
-    return item.evId === evId;
+/**
+ *  General Evidence Update call
+ *  Called by all the setters
+ */
+PMCData.PMC_EvidenceUpdate = (evId, newData) => {
+  if (typeof evId === 'string') {
+    console.warn('got string evId');
+  }
+  const ev = PMCData.PMC_GetEvLinkByEvId(evId);
+
+  // data validation to make sure Object assign doesn't die.
+  if (typeof ev !== 'object') throw Error('ev is not an object', typeof ev);
+  if (typeof newData !== 'object') throw Error('newData is not an object', typeof newData);
+
+  // Clean Data
+  /* This data is being sent to the database, so all ids referring to
+     the evidence, properties and resources should be integers.
+     Not every key will be set, so only coerce if present
+
+     propId is coming from EvidenceLink's target, which in turn is
+     set from vm-data's selected_vprops array. That array is set from
+     vprop ids, which means the ids are strings.  So we always want to
+     coerce propIds to numbers here.
+  */
+  const cleanedData = Object.assign(newData); // copy everything first
+  cleanedData.id = Number(evId); // Always coerce
+  if (newData.propId) cleanedData.propId = Number(newData.propId);
+  if (newData.rsrcId) cleanedData.rsrcId = Number(newData.rsrcId);
+  const evData = Object.assign(ev, cleanedData);
+  const pmcDataId = ASET.selectedPMCDataId;
+  // we need to update pmcdata which looks like
+  // { id, entities:[ { id, name } ] }
+  return UR.DBQuery('update', {
+    'pmcData.entities': {
+      id: pmcDataId,
+      entities: evData
+    }
   });
-  evlink.propId = propId;
-  evlink.mechId = undefined; // clear this in case it was set
-  // Call BuildModel to rebuild hash tables since we've added a new propId
-  PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
+  // round-trip will call BuildModel() for us
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  @param {String} evId
+ *  @param {String||undefined} propId - Set propId to `undefined` to unlink
+ */
+PMCData.SetEvidenceLinkPropId = (evId, propId) => {
+  const newData = {
+    propId,
+    mechId: null // clear this in case it was set
+  };
+  PMCData.PMC_EvidenceUpdate(evId, newData);
   if (propId !== undefined)
     // Only log when setting, not when programmatically clearing
-    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evlink.note}" to Property "${propId}"`);
+    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Property "${propId}"`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
-  let evlink = a_evidence.find(item => {
-    return item.evId === evId;
-  });
-  evlink.mechId = mechId;
-  evlink.propId = undefined; // clear this in case it was set
-  // Call BuildModel to rebuild hash tables since we've added a new mechId
-  PMCData.BuildModel(); // DATA_UPDATED called by BuildModel()
+  const newData = {
+    propId: null, // clear this in case it was set
+    mechId
+  };
+  PMCData.PMC_EvidenceUpdate(evId, newData);
   if (mechId !== undefined)
     // Only log when setting, not when programmatically clearing
-    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evlink.note}" to Mechanism "${mechId}"`);
+    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Mechanism "${mechId}"`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkNote = (evId, note) => {
-  let evlink = a_evidence.find(item => {
-    return item.evId === evId;
-  });
-  evlink.note = note;
-  UR.Publish('DATA_UPDATED');
-  UTILS.RLog('EvidenceSetNote', `Set evidence note to "${evlink.note}"`);
+  const newData = {
+    note
+  };
+  PMCData.PMC_EvidenceUpdate(evId, newData);
+  UTILS.RLog('EvidenceSetNote', `Set evidence note to "${note}"`);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkRating = (evId, rating) => {
-  let evlink = a_evidence.find(item => {
-    return item.evId === evId;
-  });
-  if (evlink) {
-    evlink.rating = rating;
-    UR.Publish('DATA_UPDATED');
-    UTILS.RLog('EvidenceSetRating', `Set evidence "${evlink.note}" to "${rating}"`);
-    return;
-  }
-  throw Error(`no evidence link with evId '${evId}' exists`);
+  console.error('setting ev rating to', evId, rating);
+  const newData = {
+    rating
+  };
+  PMCData.PMC_EvidenceUpdate(evId, newData);
+  UTILS.RLog('EvidenceSetRating', `Set evidence "${evId}" to "${rating}"`);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// STICKIES //////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- * @param {string} id - id of Property or Mechanism
- * @return [array] Array of comment objects, or [] if none defined.
+/**
+ *  Adds a new comment item to the database
+ *  @param {String} refId - id of the parent object the comment is pointing to
+ *  @param {Object} commentData - a PMCObj.Comment-like object with NO id
+ *                                three optional parameters: text, criteriaId
  */
-PMCData.GetComments = id => {
-  const result = a_commentThreads.find(c => {
-    return c.id === id;
+PMCData.DB_CommentAdd = (refId, commentData, cb) => {
+  if (refId === undefined || refId === "") throw Error(`refId is required for a new comment object! refId="${refId}`);
+  if (commentData.id) throw Error('comment id should not be passed to a new comment object!');
+  const newComment = PMCObj.Comment({
+    refId: commentData.refId,
+    author: commentData.author,
+    text: commentData.text,
+    criteriaId: commentData.criteriaId,
+    placeholder: commentData.placeholder
   });
-  return result ? result.comments : [];
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.MODEL:
- *  Returns an empty sticky with the current student info
- *  @param {string} author - author's studentId
- *  @param {string} sentenceStarter - placeholder text for a new comment
- * */
-PMCData.NewComment = (author, sentenceStarter) => {
-  const id = `co${new Date().getTime()}`;
-  return {
-    id,
-    author,
-    date: new Date(),
-    text: '',
-    placeholder: sentenceStarter,
-    criteriaId: '',
-    readBy: []
-  };
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.MODEL:
- *  Updates the respective data structure (a_commentThreads or a_evidence) with the
- *  updated comment text.
- *  @param {string} parentId - if defined, id string of the resource object
- *                  propId, mechId, or evId
- *  @param [object] comments - Array of comment objects
- *
- *  This is primarily used by the Sticky Notes system to save chagnes to
- *  comment text.
- */
-PMCData.UpdateComments = (parentId, comments) => {
-  let index;
-  let commentThread;
-  index = a_commentThreads.findIndex(c => {
-    return c.id === parentId;
+  UTILS.RLog(
+    'CommentAdd',
+    `"${commentData.text}" with criteria "${commentData.criteriaId}" on "${refId}"`
+  );
+  const pmcDataId = ASET.selectedPMCDataId;
+  return UR.DBQuery('add', {
+    'pmcData.comments': {
+      id: pmcDataId,
+      comments: newComment
+    }
+  }).then(rdata => {
+    if (cb && typeof cb === 'function') cb(rdata);
   });
-  if (index > -1) {
-    // existing comment
-    commentThread = a_commentThreads[index];
-    commentThread.comments = comments;
-    a_commentThreads.splice(index, 1, commentThread);
-  } else {
+};
+/**
+ *  Updates a single comment items
+ *  @param {String} refId - id of the parent object the comment is pointing to
+ *  @param {Object} comment - a PMCObj.Comment-like object with
+ *                                three optional parameters: text, criteriaId
+ *  @param {Function} cb - a callback function
+ *  */
+PMCData.DB_CommentUpdate = (refId, comment, cb) => {
+  if (DBG) console.log('PMCData.CommentUpdateReadBy', refId, comment);
+  // merge into old comments
+  const origComment = PMCData.GetComment(comment.id);
+  if (origComment === undefined) {
     // new comment
-    commentThread = { id: parentId, comments };
-    console.error('adding new commentThread', commentThread);
-    a_commentThreads.push(commentThread);
-    console.table(a_commentThreads);
+    return PMCData.DB_CommentAdd(refId, comment, cb);
   }
-  UR.Publish('DATA_UPDATED');
+
+  // update existing comment
+  const updatedComment = Object.assign(origComment, comment);
+  
+  UTILS.RLog(
+    'CommentUpdate',
+    `"${comment.text}" with criteria "${comment.criteriaId}" on "${refId}"`
+  );
+
+  const pmcDataId = ASET.selectedPMCDataId;
+  return UR.DBQuery('update', {
+    'pmcData.comments': {
+      id: pmcDataId,
+      comments: updatedComment
+    }
+  }).then(rdata => {
+    if (cb && typeof cb === 'function') cb(rdata);
+  });
+};
+/**
+ *  Updates an array of comment items
+ *  @param {String} refId - id of the parent object the comment is pointing to
+ *  @param {Object} comments - an array of PMCObj.Comment-like object with
+ *                                three optional parameters: text, criteriaId
+ *  @param {Function} cb - a callback function
+ *  */
+PMCData.DB_CommentsUpdate = (refId, comments, cb) => {
+  if (!Array.isArray(comments)) throw Error(`comments is not an array: ${comments} ${typeof comments}`);
+  const count = comments.length;
+  let callback = undefined;
+  for (let i = 0; i++; i < count) {
+    if (i === count - 1) {
+      // last one so add the callback
+      callback = cb;
+    }
+    PMCData.DB_CommentUpdate(refId, comment[i], callback);
+  }
+}
+
+/**
+ *  Remove comment from the db
+ *  @param {String} id - id of the comment object (not refId)
+ */
+PMCData.DB_CommentDelete = commentId => {
+  const pmcDataId = ASET.selectedPMCDataId;
+  UTILS.RLog('CommentDelete', `"${commentId}" from model "${pmcDataId}"`);
+  return UR.DBQuery('remove', {
+    'pmcData.comments': {
+      id: pmcDataId,
+      comments: { id: commentId }
+    }
+  });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Retrieves the comment object in the database matching the comment id
+ *  @param {String} id - database id of the comment object (not refId)
+ *  @return {Array} Array of comment objects, or undefined if not found
+ */
+PMCData.GetComment = id => {
+  return a_comments.find(c => c.id === id);
+};
+/**
+ *  Retrieves all of the comment objects in the database related to refId
+ *  @param {String} refId - id of Property(Number) or Mechanism(String)
+ *  @return {Array} Array of comment objects, or [] if none defined.
+ */
+PMCData.GetComments = refId => {
+  return a_comments.filter(c => c.refId === refId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Adds a new markedread item to the database
+ *  @param {String} commentId - id of the coment object that is being marked read
+ *  @param {Object} author - id of the author who read the comment
+ */
+PMCData.DB_MarkRead = (commentId, author) => {
+  if (DBG) console.log('PMCData.DB_MarkRead', commentId, authors);
+  const newMarkedRead = PMCObj.MarkedRead({
+    commentId,
+    author: author
+  });
+  UTILS.RLog('CommentMarkedRead', `"${commentId}" read by "${author}"`);
+  const pmcDataId = ASET.selectedPMCDataId;
+  return UR.DBQuery('add', {
+    'pmcData.markedread': {
+      id: pmcDataId,
+      markedread: newMarkedRead
+    }
+  });
+};
+/**
+ *  Checks if the comment referenced by commentId has been read by the author
+ *  @param {Integer} commentId - db id of the comment object
+ *  @param {String} author - token 
+ */
+PMCData.HasBeenRead = (commentId, author) => {
+  return a_markedread.find(m => {
+    return m.commentId === commentId && m.author === author;
+  })
+};
+/**
+ *  Checks if the comment referenced by commentId has been read by the author
+ *  Used to set StickyNoteButton status.
+ *  @param {Array} comments - an array of Comment objects
+ *  @param {String} author - token 
+ */
+PMCData.HasUnreadComments = (comments, author) => {
+  if (!Array.isArray(comments)) throw Error('comments is not an array')
+  return comments.find(c => !PMCData.HasBeenRead(c.id, author));
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -1158,6 +1397,7 @@ PMCData.UpdateComments = (parentId, comments) => {
  *  @param {string|undefined} rsrcId - if defined, id string of the resource object
  */
 PMCData.GetPropIdsByResourceId = rsrcId => {
+  // console.log('props by rsrcId', ...Object.keys(h_propByResource));
   return h_propByResource.get(rsrcId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1167,54 +1407,17 @@ PMCData.GetPropIdsByResourceId = rsrcId => {
  *  @return {array} Array of propery ids
  */
 PMCData.GetEvLinksByResourceId = rsrcId => {
-  return h_evlinkByResource.get(rsrcId);
+  // console.log('evlinks by rsrcId', ...Object.keys(h_evidenceByResource));
+  return h_evidenceByResource.get(rsrcId);
 };
 
 /// DEBUG UTILS //////////////////////////////////////////////////////////////
-if (window.may1 === undefined) window.may1 = {};
-window.may1.PCM_Mech = PMCData.Mech;
-window.may1.PMC_AddProp = PMCData.PMC_AddProp;
-window.may1.PMC_MechAdd = PMCData.PMC_MechAdd;
-window.may1.PMC_AddEvidenceLink = PMCData.PMC_AddEvidenceLink;
-window.may1.VM_GetVEvLinkChanges = PMCData.VM_GetVEvLinkChanges;
-window.may1.BuildModel = PMCData.BuildModel;
-window.may1.OpenSticky = () => {
-  UR.Publish('STICKY:OPEN', {
-    targetType: 'component',
-    targetId: 'tank',
-    comments: [
-      {
-        id: 0,
-        time: 0,
-        author: 'Bob',
-        date: new Date(),
-        text: 'I like this',
-        criteriaId: 'cr01',
-        readBy: ['Bob', 'Bill']
-      },
-      {
-        id: 1,
-        time: 10,
-        author: 'Bill',
-        date: new Date(),
-        text: 'I DONT like this',
-        criteriaId: 'cr02',
-        readBy: []
-      },
-      {
-        id: 2,
-        time: 11,
-        author: 'Mary',
-        date: new Date(),
-        text: 'This is not mine!',
-        criteriaId: 'cr02',
-        readBy: []
-      }
-    ]
-  });
-};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if (!window.ur) window.ur = {};
+window.ur.PMC = PMCData;
+window.ur.props = () => a_props;
+window.ur.mechs = () => a_mechs;
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.VM = { map_vprops, map_vmechs };
 export default PMCData;

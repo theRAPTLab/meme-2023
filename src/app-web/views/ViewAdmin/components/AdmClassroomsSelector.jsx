@@ -35,7 +35,7 @@ import ADM from '../../../modules/data';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -44,6 +44,7 @@ class ClassroomsSelector extends React.Component {
   constructor(props) {
     super(props);
 
+    this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.DoClassroomListUpdate = this.DoClassroomListUpdate.bind(this);
     this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
@@ -52,6 +53,7 @@ class ClassroomsSelector extends React.Component {
     this.OnClassesModelsVisibilityChange = this.OnClassesModelsVisibilityChange.bind(this);
     this.OnAddClassroomDialogClose = this.OnAddClassroomDialogClose.bind(this);
 
+    UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('TEACHER_SELECT', this.DoTeacherSelect);
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
 
@@ -60,13 +62,24 @@ class ClassroomsSelector extends React.Component {
       selectedClassroomId: '',
       addClassroomDialogOpen: false,
       addClassroomDialogName: '',
-      showClassesModels: false
+      canViewOthers: false
     };
   }
 
   componentDidMount() { }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {
+    UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+    UR.Unsubscribe('TEACHER_SELECT', this.DoTeacherSelect);
+    UR.Unsubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
+  }
+
+  DoADMDataUpdate() {
+    this.DoClassroomListUpdate();
+    this.setState({
+      canViewOthers: ADM.CanViewOthers()
+    });
+  }
 
   DoClassroomListUpdate() {
     this.setState({
@@ -82,13 +95,15 @@ class ClassroomsSelector extends React.Component {
 
   // Update the state and inform subscribers (groupList, models, criteria, resources
   DoClassroomSelect(data) {
-    if (DBG) console.log('AdmClassroomsSelector: Setting classroom to', data);
-    if (data.classroomListNeedsUpdating) {
-      // REVIEW: Instead of doing two set staes in a row (selectedCLassroomId below)
-      // we might want to use the setState callback to set one then the other?
-      this.DoClassroomListUpdate();
+    if (DBG) console.error('AdmClassroomsSelector: Setting classroom to', data);
+    const classroom = ADM.GetClassroom(data.classroomId);
+    if (classroom) {
+      classroom.canViewOthers = classroom.canViewOthers || false; // clean data to prevent props error
+      this.setState({
+        selectedClassroomId: classroom.id,
+        canViewOthers: classroom.canViewOthers
+      });
     }
-    this.setState({ selectedClassroomId: data.classroomId });
   }
 
   // User has selected a classroom from the dropdown menu
@@ -105,13 +120,12 @@ class ClassroomsSelector extends React.Component {
     e.preventDefault();
     e.stopPropagation();
     let name = this.state.addClassroomDialogName;
-    ADM.AddClassroom(name);
+    ADM.DB_AddClassroom(name);
     this.OnAddClassroomDialogClose();
   }
-  
+
   OnClassesModelsVisibilityChange(e) {
-    console.error('toggling visiblity')
-    this.setState({ showClassesModels: ADM.SetClassesModelVisibility( e.target.checked )});
+    ADM.DB_UpdateClassroom(this.state.selectedClassroomId, { canViewOthers: e.target.checked })
   }
 
   OnAddClassroomDialogClose() {
@@ -120,7 +134,7 @@ class ClassroomsSelector extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { classrooms, selectedClassroomId, addClassroomDialogOpen, showClassesModels } = this.state;
+    const { classrooms, selectedClassroomId, addClassroomDialogOpen, canViewOthers } = this.state;
     return (
       <Paper className={classes.admPaper}>
         <Grid container direction="row" spacing={2}>
@@ -151,7 +165,7 @@ class ClassroomsSelector extends React.Component {
                 <Grid item>
                   <Switch
                     disabled={selectedClassroomId === ''}
-                    checked={showClassesModels}
+                    checked={canViewOthers}
                     onChange={this.OnClassesModelsVisibilityChange}
                     color="primary"
                   />

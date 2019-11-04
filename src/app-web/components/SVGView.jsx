@@ -9,7 +9,8 @@ should be a child of RoutedView
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import '@svgdotjs/svg.draggable.js';
+import '../modules/svgjs-plugin-draggable.js';
+import '../modules/svgjs-plugin-panzoom.js';
 import PMCView from '../modules/pmc-view';
 
 import UR from '../../system/ursys';
@@ -28,13 +29,15 @@ class SVGView extends React.Component {
     this.refContainer = React.createRef();
     // bindings
     this.DoAppLoop = this.DoAppLoop.bind(this);
+    this.DoPanZoomReset = this.DoPanZoomReset.bind(this);
     // LIFECYCLE: Initialize DataGraph
 
     // Graph is now loaded by ADM.LoadModel.
     // DATA.LoadGraph();
 
     // Look for Data Updates
-    UR.Subscribe('DATA_UPDATED', this.DoAppLoop)
+    UR.Subscribe('DATA_UPDATED', this.DoAppLoop);
+    UR.Subscribe('SVG_PANZOOM_RESET', this.DoPanZoomReset);
   }
 
   componentDidMount() {
@@ -64,8 +67,13 @@ class SVGView extends React.Component {
 
   componentWillUnmount() {
     UR.Unsubscribe('DATA_UPDATED', this.DoAppLoop);
+    UR.Unsubscribe('SVG_PANZOOM_RESET', this.DoPanZoomReset);
   }
 
+  DoPanZoomReset() { 
+    PMCView.PanZoomReset();
+  }
+  
   DoAppLoop() {
     // TEST DRAWING
     // PMCView.TestGroups();
@@ -97,7 +105,7 @@ class SVGView extends React.Component {
     }
     // returns a root svg that is the PARENT of the SVGJS-created draw surface
     return (
-      <svg ref={this.refContainer} width={this.props.viewWidth} height={this.props.viewHeight} />
+      <svg id="modelSVG" ref={this.refContainer} width={this.props.viewWidth} height={this.props.viewHeight} />
     );
   }
 }

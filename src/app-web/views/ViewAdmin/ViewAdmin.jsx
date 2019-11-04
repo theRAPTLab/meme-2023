@@ -50,13 +50,14 @@ class ViewAdmin extends React.Component {
   // constructor
   constructor(props) {
     super(props);
-    UR.ReloadOnViewChange();
+    UR.ReactPreflight(ViewAdmin, module);
     this.cstrName = this.constructor.name;
 
     // FIXME: This will go away when UR.DB_Susbscribe('ADMIN:UPDATED') is implemented
     //        in adm-data.js.
     // Initialize Admin Data, but for now still need this
-    ADM.Load();
+    // NOTE: this is now handled by adm-data automatically
+    // ADM.Load();
   }
 
   componentDidMount() {
@@ -66,10 +67,20 @@ class ViewAdmin extends React.Component {
   render() {
     const { classes } = this.props;
 
+    if (!UR.IsAdminLoggedIn()) return (
+      <div className={classes.root}>
+        <Paper className={classes.paper}>
+          <p>The admin panel is accessible on the server machine at</p>
+          <pre>http://localhost:3000/#/admin</pre>
+          <p>If you are unable to use localhost, use ADMIN_QSTRING override</p>
+        </Paper>
+      </div>
+    );
+
     return (
       <div className={classes.root}>
         <Grid container spacing={2}>
-          <Grid item xs={2}>
+          <Grid item xs={4}>
             <TeacherSelector />
           </Grid>
           <Grid item xs={6}>
@@ -115,7 +126,7 @@ ViewAdmin.defaultProps = {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
-/// disallowed by eslint, so use shape({ prop:ProtType })
+/// disallowed by eslint, so use shape({prop:ProtType })
 /// to describe them in more detail
 ViewAdmin.propTypes = {
   classes: PropTypes.shape({})

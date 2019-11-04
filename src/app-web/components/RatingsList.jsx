@@ -20,7 +20,7 @@ It is opened via an URSYS call, e.g.
       evId: this.props.evlink.evId,
       rating: this.props.evlink.rating
     };
-    UR.Publish('RATING:OPEN', data);
+    UR.Publish('RATING_OPEN', data);
     
 It relies on the parent object passing props for the ratingsDef (ratings definition)
 and setting the mode.

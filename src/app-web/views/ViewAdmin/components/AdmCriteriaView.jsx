@@ -4,11 +4,8 @@ Criteria View
 
 Unlike the other components, which send all data updates directly to ADM,
 Criteria are editted locally first, and the whole set of changes is sent
-to ADM after the user clicks "Save".  This is necessary to let users "Cancel"
-out of a criteria edit to revert to the previous state.
-
-We also do things this way so that you can edit all of the items at the same
-time rather than having to individually select and save each edit.
+to ADM after the user clicks "Save".  This removes the need to have to click
+Save on every single edit.
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -67,41 +64,46 @@ class CriteriaView extends React.Component {
 
     this.state = {
       criteria: [],
-      origCriteria: [],
       isInEditMode: false,
-      classroomId: ''
+      classroomId: -1
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
+    UR.Subscribe('ADM_DATA_UPDATED', this.DoLoadCriteria);
+    UR.Subscribe('CRITERIA_SET_DEFAULTS', this.DoCreateDefaultCriteria);
   }
 
   componentDidMount() { }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {
+    UR.Unsubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
+    UR.Unsubscribe('ADM_DATA_UPDATED', this.DoLoadCriteria);
+    UR.Unsubscribe('CRITERIA_SET_DEFAULTS', this.DoCreateDefaultCriteria);
+  }
 
   DoClassroomSelect(data) {
     this.setState({
-      classroomId: data.classroomId
+      classroomId: Number( data.classroomId )
     }, () => {
       this.DoLoadCriteria();
     });
   }
 
+  DoCreateDefaultCriteria(classroomId) {
+    defaults.map(def => {
+      ADM.DB_NewCriteria({
+        classroomId: classroomId,
+        label: def.label,
+        description: def.description
+      })
+    });
+  }
+  
   DoLoadCriteria() {
+    if (this.state.classroomId === -1) return;
     let criteria = ADM.GetCriteriaByClassroom(this.state.classroomId);
-    if (criteria.length === 0) {
-      // Create defaults
-      criteria = defaults.map(def => {
-        const crit = ADM.NewCriteria(this.state.classroomId);
-        crit.label = def.label;
-        crit.description = def.description;
-        return crit;
-      });
-    }
-    const origCriteria = JSON.parse(JSON.stringify(criteria)); // deep clone
     this.setState({
-      criteria,
-      origCriteria
+      criteria
     });
   }
   
@@ -111,17 +113,21 @@ class CriteriaView extends React.Component {
   }
 
   OnEditSave(e) {
-    ADM.UpdateCriteriaList(this.state.criteria);
+    ADM.DB_UpdateCriteriaList(this.state.criteria);
     this.DoClose();
   }
 
   OnEditCancel() {
+    this.DoClose();
+    
+    /* Old Code
     // Restore original values.
     this.setState(state => {
       return { criteria: state.origCriteria }
     }, () => {
-        this.DoClose();
+        
     });
+    */
   }
 
   DoClose() {
@@ -131,27 +137,35 @@ class CriteriaView extends React.Component {
   }
 
   OnAddClick() {
+    ADM.DB_NewCriteria({}, () =>
+      this.setState({ isInEditMode: true })
+    );
+    
+    /* old code
     this.setState(state => {
       let criteria = state.criteria;
-      criteria.push(ADM.NewCriteria());
+      criteria.push(ADM.Criterion());
       return {
         criteria,
         isInEditMode: true
       };
     });
+    */
   }
 
   OnDeleteClick(critId) {
-    this.setState(state => {
-      const criteria = state.criteria;
-      const result = criteria.filter(crit => crit.id !== critId);
-      return {
-        criteria: result
-      };
-    });
+    ADM.DB_CriteriaDelete(critId);
+
+    // Old Code
+    // this.setState(state => {
+    //  const result = state.criteria.filter(crit => crit.id !== critId);
+    //   return {
+    //     criteria: result
+    //   };
+    // });
   }
 
-  UpdateField(critId, fieldName, value) {
+  UpdateField(critId, fieldName, value, e) {
     // Save the changes locally first
     // Store the whole object when "Save" is presssed.
     this.setState(state => {
@@ -201,9 +215,9 @@ class CriteriaView extends React.Component {
               variant="contained"
               className={classes.button}
               onClick={this.OnEditCancel}
-              hidden={!isInEditMode}
+              hidden={true}
             >
-              Cancel
+              Close
             </Button>
             <Button
               variant="contained"

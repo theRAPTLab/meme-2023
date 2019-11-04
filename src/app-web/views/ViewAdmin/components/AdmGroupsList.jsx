@@ -39,7 +39,7 @@ import ADM from '../../../modules/data';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const DBG = true;
+const DBG = false;
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -75,7 +75,10 @@ class GroupsList extends React.Component {
 
   componentDidMount() { }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {
+    UR.Unsubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
+    UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+  }
 
   DoClassroomSelect(data) {
     if (DBG) console.log('AdmGroupsList: DoClassroomSelect', data);
@@ -106,8 +109,10 @@ class GroupsList extends React.Component {
     this.setState({ addGroupDialogOpen: true });
   }
 
-  OnAddGroupName() {
-    ADM.AddGroup(this.state.addGroupDialogName);
+  OnAddGroupName(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    ADM.DB_AddGroup(this.state.addGroupDialogName);
     this.OnAddGroupDialogClose();
   }
 
@@ -238,7 +243,7 @@ class GroupsList extends React.Component {
               <Button onClick={this.OnAddGroupDialogClose} color="primary">
                 Cancel
               </Button>
-              <Button color="primary" typ="submit">
+              <Button color="primary" type="submit">
                 Add
               </Button>
             </DialogActions>

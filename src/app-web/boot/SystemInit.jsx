@@ -67,6 +67,11 @@ function Init() {
       if (DBG) console.groupEnd();
     })();
   });
+  document.addEventListener('URSYSDisconnect', () => {
+    UR.Publish('URSYS_DISCONNECTED');
+    alert('MEME SERVER HAS DISCONNECTED');
+    document.location.reload();
+  });
 }
 /// STARTUP HELPER FUNCTIONS
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -75,21 +80,16 @@ function Init() {
 function m_PromiseRenderApp() {
   if (DBG) console.log('%cINIT %cReactDOM.render() begin', 'color:blue', 'color:auto');
   return new Promise((resolve, reject) => {
-    try {
-      ReactDOM.render(
-        <HashRouter hashType="slash">
-          <SystemShell />
-        </HashRouter>,
-        document.getElementById('app-container'),
-        () => {
-          console.log('%cURSYS: START', cssur);
-          resolve();
-        }
-      );
-    } catch (e) {
-      const err = `System Initialization Error in React URSYS`;
-      console.error(err);
-    }
+    ReactDOM.render(
+      <HashRouter hashType="slash">
+        <SystemShell />
+      </HashRouter>,
+      document.getElementById('app-container'),
+      () => {
+        console.log('%cURSYS: START', cssur);
+        resolve();
+      }
+    );
   }); // promise
 }
 

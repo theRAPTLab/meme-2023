@@ -6,7 +6,7 @@ Sticky Note Icon Button
 
 props
 
-    parentId    This is used to load the parent object.
+    refId       This is used to load the parent object.
                 e.g. if the parent object is an evidence link, this
                 points to the evId.
 
@@ -50,14 +50,17 @@ class StickyNoteButton extends React.Component {
   constructor(props) {
     super(props);
     this.DoDataUpdate = this.DoDataUpdate.bind(this);
+    this.DoSetClosed = this.DoSetClosed.bind(this);
     this.OnCommentClick = this.OnCommentClick.bind(this);
 
     this.state = {
       hasNoComments: true,
-      hasUnreadComments: false
+      hasUnreadComments: false,
+      isOpen: false
     };
 
     UR.Subscribe('DATA_UPDATED', this.DoDataUpdate); // Update sticky button when model is first loaded
+    UR.Subscribe('STICKY_CLOSED', this.DoSetClosed); // StickyNoteCollection has been closed
   }
 
   componentDidMount() {
@@ -66,6 +69,7 @@ class StickyNoteButton extends React.Component {
 
   componentWillUnmount() {
     UR.Unsubscribe('DATA_UPDATED', this.DoDataUpdate);
+    UR.Unsubscribe('STICKY_CLOSED', this.DoSetClosed);
   }
 
   DoDataUpdate() {
@@ -73,20 +77,27 @@ class StickyNoteButton extends React.Component {
   }
 
   /**
+   * When the StickyNoteCollection closes, we update our color to show that we're no longer
+   * the selected comment.
+   */
+  DoSetClosed() {
+    this.setState({ isOpen: false });
+  }
+  
+  /**
    * When Stickynote data is updated, we take a look at comments and figure out
    * if there are unread comments, new comments, or whatever, and set state of
-   * the button based on that information. Invoked from DATA_UPDATED or
-   * STICKY:UPDATED messages.
+   * the button based on that information. Invoked from DATA_UPDATED.
    */
   OnUpdateReadStatus() {
     let comments;
-    comments = PMC.GetComments(this.props.parentId);
-    const author = ADM.GetSelectedStudentId();
+    comments = PMC.GetComments(this.props.refId);
+    const author = ADM.GetAuthorId();
+    const hasNoComments = comments ? comments.length < 1 : true;
+    const hasUnreadComments = PMC.HasUnreadComments(comments, author);
     this.setState({
-      hasNoComments: comments ? comments.length < 1 : true,
-      hasUnreadComments: comments ? comments.find(comment => {
-        return comment.readBy ? !comment.readBy.includes(author) : false;
-      }) : false
+      hasNoComments,
+      hasUnreadComments
     });
   }
 
@@ -94,8 +105,10 @@ class StickyNoteButton extends React.Component {
     e.preventDefault();
     e.stopPropagation();
 
-    UR.Publish('STICKY:OPEN', {
-      parentId: this.props.parentId,
+    this.setState({ isOpen: true });
+    
+    UR.Publish('STICKY_OPEN', {
+      refId: this.props.refId,
       x: e.clientX,
       y: e.clientY
       // windowWidth: e.view.window.innerWidth, // not used
@@ -104,21 +117,21 @@ class StickyNoteButton extends React.Component {
   }
 
   render() {
-    const { hasNoComments, hasUnreadComments } = this.state;
+    const { hasNoComments, hasUnreadComments, isOpen } = this.state;
     const { classes } = this.props;
-
+    const iconCSS = isOpen ? classes.stickynoteIconOpen : classes.stickynoteIcon;
+    
     // Figure out which icon to show
-    // Has comments, all read
-    let icon = <ChatBubbleIcon className={classes.stickynoteIcon} />;
+    let icon;
     if (hasNoComments) {
       if (DBG) console.log(PKG, 'setting icon to chat empty');
-      icon = <ChatBubbleOutlineIcon className={classes.stickynoteIcon} />;
+      icon = <ChatBubbleOutlineIcon className={iconCSS} />; // No comments
     } else if (hasUnreadComments) {
       if (DBG) console.log(PKG, 'setting icon to chat + text');
-      icon = <ChatIcon className={classes.stickynoteIcon} />;
+      icon = <ChatIcon className={iconCSS} />; // Has comments, unread
     } else {
-      // eslint-disable-next-line no-lonely-if
       if (DBG) console.log(PKG, 'setting icon to chat cleared');
+      icon = <ChatBubbleIcon className={iconCSS} />; // Has comments, all read
     }
 
     return <Button onClick={this.OnCommentClick}>{icon}</Button>;
@@ -132,7 +145,7 @@ StickyNoteButton.propTypes = {
 
 StickyNoteButton.defaultProps = {
   classes: {},
-  parentId: undefined
+  refId: undefined
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

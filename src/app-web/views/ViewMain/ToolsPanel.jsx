@@ -30,8 +30,11 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // MEME Modules and Utils
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
+import DEFAULTS from '../../modules/defaults';
 import DATA from '../../modules/data';
 import ADM from '../../modules/data';
+
+const { CoerceToEdgeObj } = DEFAULTS;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -55,6 +58,10 @@ class ToolsPanel extends React.Component {
   constructor(props) {
     super(props);
 
+    this.DoPropHoverStart = this.DoPropHoverStart.bind(this);
+    this.DoPropHoverEnd = this.DoPropHoverEnd.bind(this);
+    this.DoMechHoverStart = this.DoMechHoverStart.bind(this);
+    this.DoMechHoverEnd = this.DoMechHoverEnd.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
     this.OnComponentAdd = this.OnComponentAdd.bind(this);
     this.OnMechAdd = this.OnMechAdd.bind(this);
@@ -64,16 +71,47 @@ class ToolsPanel extends React.Component {
 
     this.state = {
       selectedPropId: '',
-      selectedMechId: ''
+      selectedMechId: '', // edgeObj e.g. {w,v}
+      hoveredPropId: '',
+      hoveredMechId: '' // edgeObj e.g. {w,v}
     };
 
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
+    UR.Subscribe('PROP_HOVER_START', this.DoPropHoverStart);
+    UR.Subscribe('PROP_HOVER_END', this.DoPropHoverEnd);
+    UR.Subscribe('MECH_HOVER_START', this.DoMechHoverStart);
+    UR.Subscribe('MECH_HOVER_END', this.DoMechHoverEnd);
   }
 
   componentDidMount() {}
 
   componentWillUnmount() {
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
+    UR.Unsubscribe('PROP_HOVER_START', this.DoPropHoverStart);
+    UR.Unsubscribe('PROP_HOVER_END', this.DoPropHoverEnd);
+    UR.Unsubscribe('MECH_HOVER_START', this.DoMechHoverStart);
+    UR.Unsubscribe('MECH_HOVER_END', this.DoMechHoverEnd);
+  }
+
+  DoPropHoverStart(data) {
+    this.setState({ hoveredPropId: data.propId });
+  }
+
+  DoPropHoverEnd(data) {
+    this.setState({ hoveredPropId: '' });
+  }
+
+  /**
+   *
+   * @param {*} data - Contains a `mechId` EdgeObject, e.g. {mechId: {w, v}}
+   */
+  DoMechHoverStart(data) {
+    let hoveredMechId = data.mechId;
+    this.setState({ hoveredMechId });
+  }
+
+  DoMechHoverEnd(data) {
+    this.setState({ hoveredMechId: '' });
   }
 
   DoSelectionChange() {
@@ -85,11 +123,10 @@ class ToolsPanel extends React.Component {
       selectedPropId = selectedPropIds[0];
     }
 
+    // Only select the first one
     let selectedMechIds = DATA.VM_SelectedMechIds();
     if (selectedMechIds.length > 0) {
-      const mechIdArray = selectedMechIds[0].split(':');
-      selectedMechId.v = mechIdArray[0];
-      selectedMechId.w = mechIdArray[1];
+      selectedMechId = CoerceToEdgeObj(selectedMechIds[0]);
     }
     this.setState({
       selectedPropId,
@@ -139,9 +176,15 @@ class ToolsPanel extends React.Component {
 
   // This supports recursive calls to handle nested components.
   RenderComponentsListItem(propId, isSub = false) {
-    const { selectedPropId } = this.state;
+    const { selectedPropId, hoveredPropId } = this.state;
     const { classes } = this.props;
     const prop = DATA.Prop(propId);
+    if (prop === undefined) {
+      // Catch error if a component has not been correctly deleted, so a mech
+      // is left with a stray propId.
+      console.error('ToolsPanel.RenderComponentsListItem skipping missing propId', propId);
+      return '';
+    }
     const children = DATA.Children(propId);
     return (
       <div
@@ -149,9 +192,18 @@ class ToolsPanel extends React.Component {
         className={ClassNames(
           classes.treeItem,
           isSub ? classes.treeSubPropItem : classes.treePropItem,
-          selectedPropId === propId ? classes.treeItemSelected : ''
+          selectedPropId === propId ? classes.treeItemSelected : '',
+          hoveredPropId === propId ? classes.treeItemHovered : ''
         )}
         onClick={e => this.OnPropClick(e, propId)}
+        onMouseEnter={e => {
+          e.stopPropagation();
+          UR.Publish('PROP_HOVER_START', { propId: propId });
+        }}
+        onMouseLeave={e => {
+          e.stopPropagation();
+          UR.Publish('PROP_HOVER_END', { propId: propId });
+        }}
       >
         {prop.name}
         {children.length > 0
@@ -162,13 +214,16 @@ class ToolsPanel extends React.Component {
   }
 
   RenderMechanismsList(mechIds) {
-    const { selectedMechId } = this.state;
+    const { selectedMechId, hoveredMechId } = this.state;
     const { classes } = this.props;
     let i = 0;
     return mechIds.map(mechId => {
       const mech = DATA.Mech(mechId);
-      const source = DATA.Prop(mechId.v).name;
-      const target = DATA.Prop(mechId.w).name;
+      const sourceObj = DATA.Prop(mechId.v);
+      const targetObj = DATA.Prop(mechId.w);
+      // protect against corrupt data
+      const source = sourceObj ? sourceObj.name : 'missing prop';
+      const target = targetObj ? targetObj.name : 'missing prop';
       i++;
       return (
         <div
@@ -176,9 +231,19 @@ class ToolsPanel extends React.Component {
           className={ClassNames(
             classes.treeItem,
             classes.treeMechItem,
-            selectedMechId.v === mechId.v && selectedMechId.w === mechId.w ? classes.treeItemSelected : ''
+            selectedMechId.v === mechId.v && selectedMechId.w === mechId.w ? classes.treeItemSelected : '',
+            hoveredMechId.v === mechId.v && hoveredMechId.w === mechId.w ? classes.treeItemHovered : ''
           )}
           onClick={e => this.OnMechClick(e, mechId)}
+          onMouseEnter={e => {
+            e.stopPropagation();
+            UR.Publish('MECH_HOVER_START', { mechId: mechId });
+            this.setState({ hoveredMechId: mechId });
+          }}
+          onMouseLeave={e => {
+            e.stopPropagation();
+            UR.Publish('MECH_HOVER_END', { mechId: mechId });
+          }}
         >
           <span className={classes.treePropItemColor}>{source} </span>
           {mech.name}
@@ -193,6 +258,9 @@ class ToolsPanel extends React.Component {
 
     const componentsList = this.RenderComponentsList(DATA.Components());
     const mechanismsList = this.RenderMechanismsList(DATA.AllMechs());
+
+    const isViewOnly = ADM.IsViewOnly();
+
     return (
       <Drawer
         className={classes.drawer}
@@ -219,11 +287,12 @@ class ToolsPanel extends React.Component {
             className={classes.fab}
             onClick={this.OnComponentAdd}
             disabled={isDisabled}
+            hidden={isViewOnly}
           >
             <AddIcon />
           </Fab>
         </Tooltip>
-        <Typography align="center" variant="caption" style={{ fontSize: '10px' }}>
+        <Typography align="center" variant="caption" style={{ fontSize: '10px' }} hidden={isViewOnly}>
           ADD COMPONENT
         </Typography>
         <Divider style={{ marginBottom: '20px' }} />
@@ -245,11 +314,12 @@ class ToolsPanel extends React.Component {
             className={ClassNames(classes.fab, classes.edgeButton)}
             onClick={this.OnMechAdd}
             disabled={isDisabled}
+            hidden={isViewOnly}
           >
             <AddIcon />
           </Fab>
         </Tooltip>
-        <Typography align="center" variant="caption" style={{ fontSize: '10px' }}>
+        <Typography align="center" variant="caption" style={{ fontSize: '10px' }} hidden={isViewOnly}>
           ADD MECHANISM
         </Typography>
       </Drawer>

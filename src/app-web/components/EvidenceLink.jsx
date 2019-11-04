@@ -16,6 +16,7 @@ import ClassNames from 'classnames';
 // Material UI Elements
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Collapse from '@material-ui/core/Collapse';
 import Divider from '@material-ui/core/Divider';
 import FilledInput from '@material-ui/core/FilledInput';
@@ -24,9 +25,7 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 // Material UI Icons
-import CreateIcon from '@material-ui/icons/Create';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 // Material UI Theming
 import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
@@ -35,10 +34,13 @@ import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/
 import MEMEStyles from './MEMEStyles';
 import ADM from '../modules/data';
 import DATA from '../modules/data';
+import ASET from '../modules/adm-settings';
 import UR from '../../system/ursys';
 import StickyNoteButton from './StickyNoteButton';
 import RatingButton from './RatingButton';
 import LinkButton from './LinkButton';
+import { Dropzone } from './Dropzone';
+import PMCData from '../modules/pmc-data';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -59,6 +61,7 @@ class EvidenceLink extends React.Component {
       ratingDefs: [],
       isBeingEdited: false,
       isExpanded: false,
+      isHovered: false,
       listenForSourceSelection: false
     };
 
@@ -68,11 +71,15 @@ class EvidenceLink extends React.Component {
 
     this.DoDataUpdate = this.DoDataUpdate.bind(this);
     this.DoRatingUpdate = this.DoRatingUpdate.bind(this);
+    this.DoEditStart = this.DoEditStart.bind(this);
+    this.DoEditStop = this.DoEditStop.bind(this);
+    this.DoSave = this.DoSave.bind(this);
     this.OnCancelButtonClick = this.OnCancelButtonClick.bind(this);
     this.OnDeleteButtonClick = this.OnDeleteButtonClick.bind(this);
     this.OnDuplicateButtonClick = this.OnDuplicateButtonClick.bind(this);
     this.OnEditButtonClick = this.OnEditButtonClick.bind(this);
     this.OnSaveButtonClick = this.OnSaveButtonClick.bind(this);
+    this.OnClickAway = this.OnClickAway.bind(this);
     this.DoEvidenceLinkOpen = this.DoEvidenceLinkOpen.bind(this);
     this.OnScreenShotClick = this.OnScreenShotClick.bind(this)
     this.OnNoteChange = this.OnNoteChange.bind(this);
@@ -81,6 +88,7 @@ class EvidenceLink extends React.Component {
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
     this.DoToggleExpanded = this.DoToggleExpanded.bind(this);
     this.OnRatingButtonClick = this.OnRatingButtonClick.bind(this);
+    this.OnDrop = this.OnDrop.bind(this);
 
     UR.Subscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Subscribe('SHOW_EVIDENCE_LINK_SECONDARY', this.DoEvidenceLinkOpen);
@@ -88,7 +96,9 @@ class EvidenceLink extends React.Component {
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
   }
 
-  componentDidMount() { }
+  componentDidMount() {
+    this.DoDataUpdate(); // Force load ratingDefs
+  }
 
   componentWillUnmount() {
     UR.Unsubscribe('DATA_UPDATED', this.DoDataUpdate);
@@ -103,15 +113,21 @@ class EvidenceLink extends React.Component {
     // via the DATA_UPDATED call because `note` is only set by props
     // during construction.
 
-    let evlink = DATA.PMC_GetEvLinkByEvId(this.props.evlink.evId);
+    let evlink = DATA.PMC_GetEvLinkByEvId(this.props.evlink.id);
     if (evlink) {
       // Get current model's rating definitions
       const model = ADM.GetModelById();
       const classroomId = ADM.GetClassroomIdByGroup(model.groupId);
       const ratingDefs = ADM.GetRatingsDefinition(classroomId);
+      let { note, rating } = evlink;
+
+      // if we're currently editing, don't let data update reset the note
+      if (this.state.isBeingEdited) {
+        note = this.state.note;
+      }
       this.setState({
-        note: evlink.note,
-        rating: evlink.rating,
+        note,
+        rating,
         ratingDefs
       });
     }
@@ -129,36 +145,95 @@ class EvidenceLink extends React.Component {
    * @param {integer} rating - number of stars selected
    */
   DoRatingUpdate(rating) {
-    DATA.SetEvidenceLinkRating(this.props.evlink.evId, rating);
+    DATA.SetEvidenceLinkRating(this.props.evlink.id, rating);
+  }
+  
+  DoEditStart() {
+    const pmcDataId = ASET.selectedPMCDataId;
+    const intEvId = Number(this.props.evlink.id);
+    UR.DBTryLock('pmcData.entities', [pmcDataId, intEvId])
+      .then(rdata => {
+        const { success, semaphore, uaddr, lockedBy } = rdata;
+        status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
+        if (rdata.success) {
+          console.log('do something here because u-locked!');
+          this.setState(
+            {
+              isBeingEdited: true,
+              isExpanded: true
+            },
+            () => this.FocusTextInput()
+          );
+        } else {
+          console.log('aw, locked by', rdata.lockedBy);
+          alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`)
+        }
+      });
+  }
+  
+  DoEditStop() {
+    this.setState({
+      isBeingEdited: false
+    });
+    const pmcDataId = ASET.selectedPMCDataId;
+    const intEvId = Number(this.props.evlink.id);
+    UR.DBTryRelease('pmcData.entities', [pmcDataId, intEvId])    
+  }
+
+  DoSave() {
+    DATA.SetEvidenceLinkNote(this.props.evlink.id, this.state.note);
   }
 
   OnScreenShotClick(e) {
     e.stopPropagation();
-    alert('Screenshot opening is not implemented yet!');
+    // show screenshot large
+    // give option of reseting imageURL
+    UR.Publish('SCREENSHOT_OPEN', {
+      evId: this.props.evlink.id,
+      imageURL: this.props.evlink.imageURL
+    });
   }
 
+  // Not being used
   OnCancelButtonClick(e) {
     e.stopPropagation();
+    this.DoEditStop();
+    // restore previous note
     this.setState({
-      isBeingEdited: false
+      note: this.props.evlink.note
     });
   }
 
   OnDeleteButtonClick() {
-    DATA.PMC_DeleteEvidenceLink(this.props.evlink.evId);
+    const pmcDataId = ASET.selectedPMCDataId;
+    const intEvId = Number(this.props.evlink.id);
+    UR.DBTryLock('pmcData.entities', [pmcDataId, intEvId])
+      .then(rdata => {
+        const { success, semaphore, uaddr, lockedBy } = rdata;
+        status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
+        if (rdata.success) {
+          console.log('do something here because u-locked!');
+          DATA.PMC_DeleteEvidenceLink(this.props.evlink.id);
+        } else {
+          console.log('aw, locked by', rdata.lockedBy);
+          alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`)
+        }
+      });
+
   }
 
   OnDuplicateButtonClick() {
-    const newEvId = DATA.PMC_DuplicateEvidenceLink(this.props.evlink.evId);
-    const newEvLink = DATA.PMC_GetEvLinkByEvId(newEvId);
-    UR.Publish('SHOW_EVIDENCE_LINK', { evId: newEvLink.evId, rsrcId: newEvLink.rsrcId });
+    DATA.PMC_DuplicateEvidenceLink(this.props.evlink.id,
+      id => {
+        const newEvLink = DATA.PMC_GetEvLinkByEvId(id);
+        UR.Publish('SHOW_EVIDENCE_LINK', { evId: newEvLink.id, rsrcId: newEvLink.rsrcId });
+      }
+    );
   }
 
   OnEditButtonClick(e) {
     e.stopPropagation();
-    this.setState({ isBeingEdited: true }, () => {
-      this.FocusTextInput();
-    });
+    this.DoEditStart();
   }
 
   FocusTextInput() {
@@ -174,32 +249,34 @@ class EvidenceLink extends React.Component {
 
   OnSaveButtonClick(e) {
     e.stopPropagation();
-    DATA.SetEvidenceLinkNote(this.props.evlink.evId, this.state.note);
-    // FIXME May 1 Hack
-    // How do we handle draftValue vs committedValue?
-    this.setState({
-      isBeingEdited: false
-    });
+    this.DoSave();
+    this.DoEditStop();
+  }
+  
+  OnClickAway(e) {
+    if (this.state.isBeingEdited) {
+      this.DoSave();
+      this.DoEditStop();
+    }
   }
 
   DoEvidenceLinkOpen(data) {
-    if (this.props.evlink.evId === data.evId) {
+    if (this.props.evlink.id === data.evId) {
       if (DBG) console.log(PKG, 'Expanding', data.evId);
 
       // If we're being opened for the first time, notes is empty
       // and no links have been set, so automatically go into edit mode
-      let activateEditState = false;
       if (
         this.props.evlink.note === '' ||
         (this.props.evlink.propId === undefined && this.props.evlink.mechId === undefined)
       ) {
-        activateEditState = true;
+        this.DoEditStart();
+      } else {
+        // just expand
+        this.setState({
+          isExpanded: true
+        });
       }
-
-      this.setState({
-        isExpanded: true,
-        isBeingEdited: activateEditState
-      });
     } else {
       // Always contract if someone else is expanding
       // This is only called when an evidence link is opened
@@ -223,25 +300,25 @@ class EvidenceLink extends React.Component {
   */
   OnLinkButtonClick(e) {
     let evlink = this.props.evlink;
+    this.DoEditStop(); // need to release db lock
     // Deselect the prop first, otherwise the deleted prop will remain selected
     DATA.VM_DeselectAll();
     UR.Publish('SELECTION_CHANGED');
     // Remove any existing evidence links
-    DATA.SetEvidenceLinkPropId(evlink.evId, undefined);
-    DATA.SetEvidenceLinkMechId(evlink.evId, undefined);
+    DATA.PMC_EvidenceUpdate(evlink.id, { propId: null, mechId: null });
     // Then trigger editing
     if (this.state.isBeingEdited) {
-      UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId: evlink.evId, rsrcId: evlink.rsrcId });
+      UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId: evlink.id, rsrcId: evlink.rsrcId });
     }
   }
 
   DoEnableSourceSelect(data) {
-    if (data.evId === this.props.evlink.evId) {
+    if (data.evId === this.props.evlink.id) {
       this.setState({ listenForSourceSelection: true });
     }
   }
 
-  // User has clicked on a different component/property/mechanism
+  // User has selected a different component/property/mechanism as the source
   DoSelectionChange() {
     if (this.state.listenForSourceSelection) {
       let sourceId;
@@ -252,7 +329,7 @@ class EvidenceLink extends React.Component {
       if (selectedMechIds.length > 0) {
         // Get the last selection
         sourceId = selectedMechIds[selectedMechIds.length - 1];
-        DATA.SetEvidenceLinkMechId(this.props.evlink.evId, sourceId);
+        DATA.SetEvidenceLinkMechId(this.props.evlink.id, sourceId);
         // leave it in a waiting state?  This allows you to change your mind?
         // REVIEW may want another way to exit / confirm the selection?
         // For May 1, exit as soon as something is selected to prevent
@@ -267,7 +344,7 @@ class EvidenceLink extends React.Component {
       if (selectedPropIds.length > 0) {
         // Get the last selection
         sourceId = selectedPropIds[selectedPropIds.length - 1];
-        DATA.SetEvidenceLinkPropId(this.props.evlink.evId, sourceId);
+        DATA.SetEvidenceLinkPropId(this.props.evlink.id, sourceId);
         // leave it in a waiting state?  This allows you to change your mind?
         // REVIEW may want another way to exit / confirm the selection?
         // For May 1, exit as soon as something is selected to prevent
@@ -282,10 +359,10 @@ class EvidenceLink extends React.Component {
     if (this.state.isBeingEdited) return; // Don't toggle if being edited
     if (DBG) console.log(PKG, 'evidence link clicked');
     if (this.state.isExpanded) {
-      this.setState({
-        isExpanded: false,
-        isBeingEdited: false
-      });
+      this.setState(
+        { isExpanded: false },
+        () => this.DoEditStop()
+      );
     } else {
       this.setState({
         isExpanded: true
@@ -294,8 +371,13 @@ class EvidenceLink extends React.Component {
   }
 
   OnRatingButtonClick() {
-    const data = { evId: this.props.evlink.evId, rating: this.props.evlink.rating };
-    UR.Publish('RATING:OPEN', data);
+    if (ADM.IsViewOnly()) return;
+    const data = { evId: this.props.evlink.id, rating: this.props.evlink.rating };
+    UR.Publish('RATING_OPEN', data);
+  }
+  
+  OnDrop(href) {
+    DATA.PMC_EvidenceUpdate(this.props.evlink.id, { imageURL: href });
   }
 
   render() {
@@ -322,122 +404,163 @@ class EvidenceLink extends React.Component {
 
     // evidenceLinks is an array of arrays because there might be more than one?!?
     const { classes, evlink } = this.props;
-    const { evId, rsrcId, propId, mechId } = evlink;
+    const { id, rsrcId, propId, mechId, imageURL } = evlink;
     const {
       note,
       rating,
       ratingDefs,
       isBeingEdited,
       isExpanded,
+      isHovered,
       listenForSourceSelection
     } = this.state;
-    if (evId === '') return '';
+    if (id === '') return '';
 
     let sourceType;
     let sourceLabel;
-    if (propId !== undefined && DATA.Prop(propId)) {
+    if (propId !== undefined && propId !== null && DATA.HasProp(propId) && DATA.Prop(propId)) {
       sourceType = 'prop';
       sourceLabel = DATA.Prop(propId).name;
-    } else if (mechId !== undefined && DATA.Mech(mechId)) {
+    } else if (mechId !== undefined && mechId !== null && DATA.Mech(mechId)) {
       sourceType = 'mech';
       sourceLabel = DATA.Mech(mechId).name;
     } else {
       sourceType = undefined;
       sourceLabel = undefined;
     }
+    
+    const isViewOnly = ADM.IsViewOnly();
 
     return (
-      <Collapse in={isExpanded} collapsedHeight="70px">
-        <Paper
-          className={ClassNames(
-            classes.evidenceLinkPaper,
-            isExpanded ? classes.evidenceLinkPaperExpanded : '',
-            isBeingEdited ? classes.evidenceLinkPaperEditting : ''
-          )}
-          onClick={this.DoToggleExpanded}
-          key={`${rsrcId}`}
-          elevation={isExpanded ? 5 : 1}
-        >
-          {/* Title Bar */}
-          <Button
-            className={classes.evidenceExpandButton}
+      <ClickAwayListener onClickAway={this.OnClickAway}>
+        <Collapse in={isExpanded} collapsedHeight="70px">
+          <Paper
+            className={ClassNames(
+              classes.evidenceLinkPaper,
+              isExpanded ? classes.evidenceLinkPaperExpanded : '',
+              isBeingEdited ? classes.evidenceLinkPaperEditting : '',
+              isHovered ? classes.evidenceLinkPaperHover : ''
+            )}
             onClick={this.DoToggleExpanded}
-            hidden={!isExpanded}
+            key={`${rsrcId}`}
+            elevation={isExpanded ? 5 : 1}
+            onMouseEnter={() => this.setState({ isHovered: true })}
+            onMouseLeave={() => this.setState({ isHovered: false })}
           >
-            <ExpandMoreIcon className={isExpanded ? classes.lessIconCollapsed : ''} />
-          </Button>
-          <Typography className={classes.evidenceWindowLabel} hidden={!isExpanded}>
-            EVIDENCE LINK
-          </Typography>
-          {/* Body */}
-          <Grid container className={classes.evidenceBody} spacing={0}>
-
-            {/* Number / Comment */}
-            <Grid item xs={isExpanded ? 12 : 2}>
-              <div style={{ position: 'absolute', right: '0px' }}>
-                <StickyNoteButton parentId={evId} />
-              </div>
-              <Avatar className={classes.evidenceBodyNumber}>{evlink.number}</Avatar>
-            </Grid>
-            <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
-              How does this resource support this component / property / mechanism?
+            {/* Title Bar */}
+            <Button
+              className={classes.evidenceExpandButton}
+              onClick={this.DoToggleExpanded}
+              hidden={!isExpanded || isBeingEdited}
+            >
+              <ExpandLessIcon className={isExpanded ? classes.lessIconCollapsed : ''} />
+            </Button>
+            <Typography className={classes.evidenceWindowLabel} hidden={!isExpanded}>
+              EVIDENCE LINK
             </Typography>
+            {/* Body */}
+            <Grid container className={classes.evidenceBody} spacing={0}>
 
-            {/* Source */}
-            <Grid item xs={isExpanded ? 12 : 10}>
-              <Grid
-                container
-                spacing={1}
-                className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
-              >
-                <Grid item xs={4} hidden={!isExpanded}>
-                  <Typography
-                    className={classes.evidenceWindowLabel}
-                    variant="caption"
-                    align="right"
-                  >
-                    DESCRIPTION:
-                  </Typography>
+              {/* Number / Comment */}
+              <Grid item xs={isExpanded ? 12 : 2}>
+                <div style={{ position: 'absolute', right: '0px' }}>
+                  <StickyNoteButton refId={id} />
+                </div>
+                <Avatar className={classes.evidenceBodyNumber}>{evlink.numberLabel}</Avatar>
+              </Grid>
+              <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
+                How does this resource support this component / property / mechanism?
+              </Typography>
+
+              {/* Source */}
+              <Grid item xs={isExpanded ? 12 : 10}>
+                <Grid
+                  container
+                  spacing={1}
+                  className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
+                >
+                  <Grid item xs={4} hidden={!isExpanded}>
+                    <Typography
+                      className={classes.evidenceWindowLabel}
+                      variant="caption"
+                      align="right"
+                    >
+                      DESCRIPTION:
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs>
+                    {isExpanded ? (
+                      <MuiThemeProvider theme={theme}>
+                        <FilledInput
+                          className={ClassNames(
+                            classes.evidenceLabelField,
+                            classes.evidenceLabelFieldExpanded
+                          )}
+                          value={note}
+                          placeholder="Untitled..."
+                          autoFocus
+                          multiline
+                          variant="filled"
+                          disabled={!isBeingEdited}
+                          disableUnderline
+                          onChange={this.OnNoteChange}
+                          onBlur={this.DoSave}
+                          onClick={e => {
+                            e.stopPropagation();
+                          }}
+                          inputProps={{
+                            readOnly: !isBeingEdited
+                          }}
+                          inputRef={this.textInput}
+                        />
+                      </MuiThemeProvider>
+                    ) : (
+                      <div className={classes.evidenceLabelField}>{note}</div>
+                    )}
+                  </Grid>
                 </Grid>
 
-                <Grid item xs>
-                  {isExpanded ? (
-                    <MuiThemeProvider theme={theme}>
-                      <FilledInput
-                        className={ClassNames(
-                          classes.evidenceLabelField,
-                          classes.evidenceLabelFieldExpanded
-                        )}
-                        value={note}
-                        placeholder="Untitled..."
-                        autoFocus
-                        multiline
-                        variant="filled"
-                        disabled={!isBeingEdited}
-                        disableUnderline
-                        onChange={this.OnNoteChange}
-                        onClick={e => {
-                          e.stopPropagation();
-                        }}
-                        inputProps={{
-                          readOnly: !isBeingEdited
-                        }}
-                        inputRef={this.textInput}
-                      />
-                    </MuiThemeProvider>
-                  ) : (
-                    <div className={classes.evidenceLabelField}>{note}</div>
-                  )}
+                {/* Source */}
+                <Grid item xs={12}>
+                  <Grid
+                    container
+                    spacing={1}
+                    className={
+                      isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed
+                    }
+                  >
+                    <Grid item xs={4} hidden={!isExpanded}>
+                      <Typography
+                        className={classes.evidenceWindowLabel}
+                        variant="caption"
+                        align="right"
+                      >
+                        TARGET:
+                      </Typography>
+                    </Grid>
+                    <Grid item xs>
+                      <div className={classes.evidenceLinkAvatar}>
+                        <LinkButton
+                          sourceType={sourceType}
+                          sourceLabel={sourceLabel}
+                          listenForSourceSelection={listenForSourceSelection}
+                          isBeingEdited={isBeingEdited}
+                          isExpanded={isExpanded}
+                          OnLinkButtonClick={this.OnLinkButtonClick}
+                        />
+                      </div>
+                    </Grid>
+                  </Grid>
                 </Grid>
               </Grid>
 
-              {/* Source */}
-              <Grid item xs={12}>
+              <Grid item xs={isExpanded ? 12 : 3}>
                 <Grid
                   container
                   spacing={1}
                   className={
-                    isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed
+                    isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed
                   }
                 >
                   <Grid item xs={4} hidden={!isExpanded}>
@@ -446,117 +569,91 @@ class EvidenceLink extends React.Component {
                       variant="caption"
                       align="right"
                     >
-                      TARGET:
+                      RATING:
                     </Typography>
                   </Grid>
                   <Grid item xs>
-                    <div className={classes.evidenceLinkAvatar}>
-                      <LinkButton
-                        sourceType={sourceType}
-                        sourceLabel={sourceLabel}
-                        listenForSourceSelection={listenForSourceSelection}
-                        isBeingEdited={isBeingEdited}
-                        isExpanded={isExpanded}
-                        OnLinkButtonClick={this.OnLinkButtonClick}
-                      />
-                    </div>
+                    <RatingButton
+                      rating={rating}
+                      isExpanded={isExpanded}
+                      disabled={isViewOnly}
+                      ratingLabel=""
+                      ratingDefs={ratingDefs}
+                      OnRatingButtonClick={this.OnRatingButtonClick}
+                    />
                   </Grid>
                 </Grid>
               </Grid>
-            </Grid>
-
-            <Grid item xs={isExpanded ? 12 : 3}>
-              <Grid
-                container
-                spacing={1}
-                className={
-                  isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed
-                }
-              >
-                <Grid item xs={4} hidden={!isExpanded}>
-                  <Typography
-                    className={classes.evidenceWindowLabel}
-                    variant="caption"
-                    align="right"
-                  >
-                    RATING:
+              <Grid container spacing={8} hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
+                <Grid item xs={4}>
+                  <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
+                    SCREENSHOT:
                   </Typography>
                 </Grid>
                 <Grid item xs>
-                  <RatingButton
-                    rating={rating}
-                    isExpanded={isExpanded}
-                    ratingLabel=""
-                    ratingDefs={ratingDefs}
-                    OnRatingButtonClick={this.OnRatingButtonClick}
-                  />
+                  {imageURL === undefined 
+                    ? isBeingEdited
+                      ? <Dropzone onDrop={this.OnDrop} />
+                      : <Typography variant="caption">no screenshot</Typography>
+                    : <Button
+                        className={classes.evidenceScreenshotButton}
+                        onClick={this.OnScreenShotClick}
+                      >
+                        <img
+                          src={imageURL}
+                          alt="screenshot"
+                          className={classes.evidenceScreenshot}
+                        />
+                      </Button>
+                  }
                 </Grid>
               </Grid>
             </Grid>
-            <Grid container spacing={8} hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
-              <Grid item xs={4}>
-                <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-                  SCREENSHOT:
-                </Typography>
-              </Grid>
-              <Grid item xs>
-                <Button
-                  className={classes.evidenceScreenshotButton}
-                  onClick={this.OnScreenShotClick}
-                >
-                  <img
-                    src="../static/screenshot_sim.png"
-                    alt="screenshot"
-                    className={classes.evidenceScreenshot}
-                  />
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Divider style={{ margin: '10px' }} hidden={!isExpanded} />
-          <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
-            <Button
-              hidden={!isExpanded || !isBeingEdited}
-              size="small"
-              onClick={this.OnCancelButtonClick}
-            >
-              cancel
-            </Button>
-            <Button
-              hidden={!isExpanded || isBeingEdited}
-              size="small"
-              onClick={this.OnDeleteButtonClick}
-            >
-              delete
-            </Button>
-            <div style={{ flexGrow: '1' }} />
-            <Button
-              hidden={!isExpanded || isBeingEdited}
-              size="small"
-              onClick={this.OnDuplicateButtonClick}
-            >
-              duplicate
-            </Button>
-            <div style={{ flexGrow: '1' }} />
-            <Button
-              variant="contained"
-              onClick={this.OnEditButtonClick}
-              hidden={!isExpanded || isBeingEdited}
-              size="small"
-            >
-              Edit
-            </Button>
-            <Button
-              variant="contained"
-              onClick={this.OnSaveButtonClick}
-              hidden={!isExpanded || !isBeingEdited}
-              size="small"
-            >
-              Save
-            </Button>
-          </div>
-        </Paper>
-      </Collapse>
+            <Divider style={{ margin: '10px' }} hidden={!isExpanded} />
+            <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
+              <Button
+                hidden={true || !isExpanded || !isBeingEdited}
+                size="small"
+                onClick={this.OnCancelButtonClick}
+              >
+                cancel
+              </Button>
+              <Button
+                hidden={!isExpanded || isBeingEdited || isViewOnly}
+                size="small"
+                onClick={this.OnDeleteButtonClick}
+              >
+                delete
+              </Button>
+              <div style={{ flexGrow: '1' }} />
+              <Button
+                hidden={!isExpanded || isBeingEdited || isViewOnly}
+                size="small"
+                onClick={this.OnDuplicateButtonClick}
+              >
+                duplicate
+              </Button>
+              <div style={{ flexGrow: '1' }} />
+              <Button
+                variant="contained"
+                onClick={this.OnEditButtonClick}
+                hidden={!isExpanded || isBeingEdited || isViewOnly}
+                size="small"
+              >
+                Edit
+              </Button>
+              <Button
+                variant="contained"
+                onClick={this.OnSaveButtonClick}
+                hidden={!isExpanded || !isBeingEdited}
+                size="small"
+              >
+                Close
+              </Button>
+            </div>
+          </Paper>
+        </Collapse>
+      </ClickAwayListener>
     );
   }
 }
@@ -571,11 +668,11 @@ EvidenceLink.propTypes = {
 EvidenceLink.defaultProps = {
   classes: {},
   evlink: {
-    evId: '',
+    id: '',
     propId: '',
     mechId: '',
-    rsrcId: '',
-    number: '',
+    rsrcId: -1,
+    numberLabel: '',
     note: '',
     rating: 0
   }

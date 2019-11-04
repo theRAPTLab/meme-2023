@@ -17,7 +17,7 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import DescriptionIcon from '@material-ui/icons/Description';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ImageIcon from '@material-ui/icons/Image';
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
@@ -100,8 +100,7 @@ class ResourceItem extends React.Component {
 
   OnCreateEvidence(rsrcId) {
     if (DBG) console.log(PKG, 'create new evidence:', rsrcId);
-    let evId = DATA.PMC_AddEvidenceLink(rsrcId);
-    UR.Publish('SHOW_EVIDENCE_LINK', { evId, rsrcId });
+    DATA.PMC_AddEvidenceLink({ rsrcId }, id => UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }));
   }
 
   DoCollapseAll() {
@@ -142,7 +141,7 @@ class ResourceItem extends React.Component {
             {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
             {evBadge}
             <Button className={classes.resourceExpandButton} onClick={this.DoToggleExpanded}>
-              <ExpandLessIcon
+              <ExpandMoreIcon
                 className={isExpanded ? classes.lessIconExpanded : classes.lessIconCollapsed}
               />
             </Button>
@@ -151,7 +150,9 @@ class ResourceItem extends React.Component {
         <Collapse in={isExpanded}>
           <div className={classes.resourceViewEvList}>
             <EvidenceList rsrcId={resource.id} key={`${resource.id}ev`} />
-            <Button size="small" color="primary" onClick={() => this.OnCreateEvidence(resource.id)}>
+            <Button size="small" color="primary" onClick={() => this.OnCreateEvidence(resource.id)}
+              hidden={DATA.IsViewOnly()}
+            >
               Create Evidence
             </Button>
           </div>
@@ -171,7 +172,7 @@ ResourceItem.propTypes = {
 ResourceItem.defaultProps = {
   classes: {},
   resource: {
-    rsrcId: -1,
+    rsrcId: '',
     referenceLabel: '',
     label: '',
     notes: '',

@@ -12,7 +12,7 @@ import CENTRAL from './ur-central';
 import NetMessage from './common-netmessage';
 import PROMPTS from './util/prompts';
 
-const DBG = { connect: false, handle: true };
+const DBG = { connect: false, handle: false };
 
 /// DECLARATIONS /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -153,7 +153,7 @@ NETWORK.Connect = (datalink, opt) => {
 /*/
 function m_HandleRegistrationMessage(msgEvent) {
   let regData = JSON.parse(msgEvent.data);
-  let { HELLO, UADDR, SERVER_UADDR, PEERS } = regData;
+  let { HELLO, UADDR, SERVER_UADDR, PEERS, ULOCAL } = regData;
   // (1) after receiving the initial message, switch over to regular
   // message handler
   NETWORK.RemoveListener('message', m_HandleRegistrationMessage);
@@ -165,13 +165,20 @@ function m_HandleRegistrationMessage(msgEvent) {
     uaddr: UADDR,
     netsocket: NETSOCK.ws,
     server_uaddr: SERVER_UADDR,
-    peers: PEERS
+    peers: PEERS,
+    is_local: ULOCAL
   });
   // (3) connect regular message handler
   NETWORK.AddListener('message', m_HandleMessage);
   m_status = M4_READY;
   // (4) network is initialized
   if (typeof m_options.success === 'function') m_options.success();
+  // (5) also update window.URSESSION with UADDR
+  if (window.URSESSION) {
+    console.log('updating URSESSION with registration data');
+    window.URSESSION.CLIENT_UADDR = UADDR;
+    window.URSESSION.USRV_UADDR = SERVER_UADDR;
+  }
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -210,7 +217,7 @@ function m_HandleMessage(msgEvent) {
     case 'msend':
       // network message received
       if (dbgout) cout_ReceivedStatus(pkt);
-      ULINK.LocalSend(msg, data, { fromNet: true });
+      ULINK.LocalPublish(msg, data, { fromNet: true });
       pkt.ReturnTransaction();
       break;
     case 'mcall':
@@ -259,6 +266,8 @@ NETWORK.SocketUADDR = () => {
 NETWORK.IsStandaloneMode = () => {
   return m_status === M_STANDALONE;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NETWORK.IsLocalhost = () => NetMessage.IsLocalhost();
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

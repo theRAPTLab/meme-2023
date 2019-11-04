@@ -13,7 +13,7 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import URNET from './ur-network';
-import URLink from './common-urlink';
+import URLink from './ur-link';
 import { cssuri, cssalert, cssinfo, cssblue, cssreset } from '../app-web/modules/console-styles';
 
 /// PRIVATE DECLARATIONS //////////////////////////////////////////////////////
@@ -161,8 +161,7 @@ const IsReactPhase = phase => {
 */
 const Execute = async phase => {
   // require scope to be set
-  if (EXEC_SCOPE === undefined)
-    throw Error(`UR EXEC scope is not set. Did you attach MOD_ID to your main React view?`);
+  if (EXEC_SCOPE === undefined) console.error(`UR EXEC scope is not set. Route may not exist`);
 
   // note: contents of PHASE_HOOKs are promise-generating functions
   if (!PHASES.includes(phase)) throw Error(`${phase} is not a recognized EXEC phase`);
@@ -224,8 +223,9 @@ const Execute = async phase => {
 const SetScopeFromRoutes = routes => {
   // get current hash, without trailing parameters and # char
   const hashbits = window.location.hash.substring(1).split('/');
-  const loc = `/${hashbits[1] || ''}`;
-  console.log(`%cHASH_XLATE%c '${window.location.hash}' --> '${loc}'`, cssinfo, cssreset);
+  const hash = `/${hashbits[1] || ''}`;
+  const loc = hash.split('?')[0];
+  if (DBG) console.log(`%cHASH_XLATE%c '${window.location.hash}' --> '${loc}'`, cssinfo, cssreset);
   const matches = routes.filter(route => {
     return route.path === loc;
   });
@@ -270,20 +270,12 @@ const MatchScope = check => {
  */
 const EnterApp = () => {
   return new Promise(async (resolve, reject) => {
-    try {
-      m_SetValidReactPhases('DOM_READY');
-      await Execute('TEST_CONF'); // TESTCONFIG hook
-      await Execute('INITIALIZE'); // INITIALIZE hook
-      await Execute('LOAD_ASSETS'); // LOAD_ASSETS hook
-      await Execute('CONFIGURE'); // CONFIGURE support modules
-      resolve();
-    } catch (e) {
-      console.error(
-        'EnterApp() Execution Error. Check phase execution order effect on data validity.\n',
-        e
-      );
-      debugger;
-    }
+    m_SetValidReactPhases('DOM_READY');
+    await Execute('TEST_CONF'); // TESTCONFIG hook
+    await Execute('INITIALIZE'); // INITIALIZE hook
+    await Execute('LOAD_ASSETS'); // LOAD_ASSETS hook
+    await Execute('CONFIGURE'); // CONFIGURE support modules
+    resolve();
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -292,17 +284,9 @@ const EnterApp = () => {
 */
 const SetupDOM = () => {
   return new Promise(async (resolve, reject) => {
-    try {
-      m_SetValidReactPhases(); // remove leftmost phase
-      await Execute('DOM_READY'); // GUI layout has finished composing
-      resolve();
-    } catch (e) {
-      console.error(
-        'SetupDOM() Execution Error. Check phase execution order effect on data validity.\n',
-        e
-      );
-      debugger;
-    }
+    m_SetValidReactPhases(); // remove leftmost phase
+    await Execute('DOM_READY'); // GUI layout has finished composing
+    resolve();
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -310,15 +294,7 @@ const SetupDOM = () => {
  */
 const JoinNet = () => {
   return new Promise((resolve, reject) => {
-    try {
-      URNET.Connect(ULINK, { success: resolve, failure: reject });
-    } catch (e) {
-      console.error(
-        'JoinNet() Execution Error. Check phase execution order effect on data validity.\n',
-        e
-      );
-      debugger;
-    }
+    URNET.Connect(ULINK, { success: resolve, failure: reject });
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -326,26 +302,18 @@ const JoinNet = () => {
  */
 const SetupRun = () => {
   return new Promise(async (resolve, reject) => {
-    try {
-      m_SetValidReactPhases(); // remove leftmost phase
-      await Execute('RESET'); // RESET runtime datastructures
-      m_SetValidReactPhases(); // remove leftmost phase
-      await Execute('START'); // START running
-      m_SetValidReactPhases(); // remove leftmost phase
-      await Execute('REG_MESSAGE'); // register messages
-      await ULINK.PromiseRegisterSubscribers(); // send messages
-      m_SetValidReactPhases(); // remove leftmost phase
-      await Execute('APP_READY'); // app is connected
-      m_SetValidReactPhases(); // remove leftmost phase
-      await Execute('RUN'); // tell network APP_READY
-      resolve();
-    } catch (e) {
-      console.error(
-        'SetupRun() Execution Error. Check phase execution order effect on data validity.\n',
-        e
-      );
-      debugger;
-    }
+    m_SetValidReactPhases(); // remove leftmost phase
+    await Execute('RESET'); // RESET runtime datastructures
+    m_SetValidReactPhases(); // remove leftmost phase
+    await Execute('START'); // START running
+    m_SetValidReactPhases(); // remove leftmost phase
+    await Execute('REG_MESSAGE'); // register messages
+    ULINK.RegisterSubscribers(); // send messages (this awaits internally)
+    m_SetValidReactPhases(); // remove leftmost phase
+    await Execute('APP_READY'); // app is connected
+    m_SetValidReactPhases(); // remove leftmost phase
+    await Execute('RUN'); // tell network APP_READY
+    resolve();
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -353,12 +321,8 @@ const SetupRun = () => {
  */
 const Run = () => {
   return new Promise(async (resolve, reject) => {
-    try {
-      await Execute('UPDATE');
-      resolve();
-    } catch (e) {
-      console.error(e);
-    }
+    await Execute('UPDATE');
+    resolve();
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -99,6 +99,7 @@ class NetMessage {
       }
       // merge properties into this new class instance and return it
       Object.assign(this, msg);
+      this.seqlog = this.seqlog.slice(); // copy array
       m_SeqIncrement(this);
       return this;
     }
@@ -223,25 +224,6 @@ class NetMessage {
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /**
-   * return array of collection arrays [ key, value ] that match passed
-   * key array [ key, key, ...]
-   * @param {Array<string>} keys - array of property names to match
-   * @returns {Array<Array>} - array of [key, [values]] that match
-   */
-  DataMatchingKeys(keys) {
-    let collections = [];
-    let error;
-    // always push an array
-    keys.forEach(key => {
-      const values = data[key];
-      if (Array.isArray(values)) collections.push([key, values]);
-      else collections.push([key, [values]]);
-    });
-    // returned undefined if no collections
-    return collections.length ? collections : undefined;
-  }
-  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** NetMessage.Memo() returns the 'memo' field of the packet */
   Memo() {
     return this.memo;
@@ -290,11 +272,17 @@ class NetMessage {
         log .seqlog
     /*/
     // is this packet originating from server to a remote?
-    if (this.s_uaddr === NetMessage.DefaultServerUADDR() && !this.msg.startsWith('SVR_')) {
+    if (this.s_uaddr === NetMessage.DefaultServerUADDR() && !this.msg.startsWith('NET:SVR_')) {
       return this.s_uaddr;
     }
     // this is a regular message forward to remote handlers
     return this.IsTransaction() ? this.seqlog[0] : this.s_uaddr;
+  }
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /** Return true if this pkt is from the server targeting remote handlers
+   */
+  IsServerOrigin() {
+    return this.SourceAddress() === NetMessage.DefaultServerUADDR();
   }
 
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -487,7 +475,7 @@ class NetMessage {
  * @param {Object} [config.uaddr] - URSYS browser address
  */
 NetMessage.GlobalSetup = (config = {}) => {
-  let { uaddr, netsocket, peers } = config;
+  let { uaddr, netsocket, peers, is_local } = config;
   if (uaddr) NetMessage.UADDR = uaddr;
   if (peers) NetMessage.PEERS = peers;
   if (netsocket) {
@@ -498,8 +486,11 @@ NetMessage.GlobalSetup = (config = {}) => {
     m_netsocket = netsocket;
     m_mode = M_ONLINE;
   }
+  if (is_local) NetMessage.ULOCAL = is_local;
 };
 NetMessage.UADDR = 'UNASSIGNED';
+NetMessage.ULOCAL = false; // set if connection is a local connection
+NetMessage.PEERS = undefined;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** NetMessage.GlobalCleanup() is a static method called only by the client,
@@ -513,6 +504,7 @@ NetMessage.GlobalCleanup = () => {
     if (DBG.setup) console.log(PR, 'GlobalCleanup: deallocating netsocket, mode closed');
     m_netsocket = null;
     m_mode = M_CLOSED;
+    NetMessage.ULOCAL = false;
   }
 };
 
@@ -528,7 +520,7 @@ NetMessage.GlobalOfflineMode = () => {
   if (m_netsocket) {
     console.warn(PR, 'STANDALONE MODE: NetMessage disabling network');
     m_netsocket = null;
-    let event = new CustomEvent('UNISYSDisconnect', {});
+    let event = new CustomEvent('URSYSDisconnect', {});
     console.log('dispatching event to', document, event);
     document.dispatchEvent(event);
   }
@@ -587,6 +579,9 @@ NetMessage.SocketUADDR = () => {
 };
 NetMessage.Peers = () => {
   return NetMessage.PEERS;
+};
+NetMessage.IsLocalhost = () => {
+  return NetMessage.ULOCAL;
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -667,6 +662,16 @@ function m_CheckRMode(mode) {
 }
 
 /// EXPORT CLASS DEFINITION ///////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NetMessage.CODE_OK = 0;
+NetMessage.CODE_NO_MESSAGE = 1; // requested message doesn't exist
+NetMessage.CODE_SOC_NOSOCK = -100;
+NetMessage.CODE_SES_REQUIRE_KEY = -200; // access key not set
+NetMessage.CODE_SES_REQUIRE_LOGIN = -201; // socket was not logged-in
+NetMessage.CODE_SES_INVALID_KEY = -202; // provided key didn't match socket key
+NetMessage.CODE_SES_RE_REGISTER = -203; // session attempted to login again
+NetMessage.CODE_SES_INVALID_TOKEN = -204; // session attempted to login again
+NetMessage.CODE_REG_DENIED = -300; // registration of handler denied
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// using CommonJS format on purpose for node compatibility
 module.exports = NetMessage;

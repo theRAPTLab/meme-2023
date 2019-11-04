@@ -15,8 +15,10 @@ import PropTypes from 'prop-types';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import ViewMain from '../views/ViewMain/ViewMain';
-import ViewMainDev from '../views/ViewMain/ViewMainDev';
-import DevTest from '../views/DevTest/TestRoot';
+import TestUr from '../views/DevTest/TestUr';
+import TestScreencap from '../views/DevTest/TestScreencap';
+import TestLockSync from '../views/DevTest/TestLockSync';
+import TestDBLock from '../views/DevTest/TestDBLock';
 import ViewAdmin from '../views/ViewAdmin/ViewAdmin';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
@@ -35,24 +37,29 @@ const DBG = true;
 
 const SystemRoutes = [
   {
-    path: '/test',
+    path: '/test-ur',
     exact: true,
-    component: DevTest
+    component: TestUr
   },
   {
-    path: '/test/:feature',
+    path: '/test-screencap',
     exact: true,
-    component: DevTest
+    component: TestScreencap
+  },
+  {
+    path: '/test-dblock',
+    exact: true,
+    component: TestDBLock
+  },
+  {
+    path: '/test-locksync',
+    exact: true,
+    component: TestLockSync
   },
   {
     path: '/admin',
     exact: true,
     component: ViewAdmin
-  },
-  {
-    path: '/:mode',
-    exact: true,
-    component: ViewMainDev
   },
   {
     path: '/',

@@ -26,6 +26,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
+import SESSION from '../../system/common-session';
 import ADM from '../modules/data';
 import ModelsListTable from './ModelsListTable';
 import UTILS from '../modules/utils';
@@ -37,6 +38,7 @@ class ModelSelect extends React.Component {
   constructor(props) {
     super(props);
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
+    this.DoModelDialogOpen = this.DoModelDialogOpen.bind(this);
     this.OnModelDialogClose = this.OnModelDialogClose.bind(this);
     this.OnNewModel = this.OnNewModel.bind(this);
     this.OnModelEdit = this.OnModelEdit.bind(this);
@@ -44,11 +46,12 @@ class ModelSelect extends React.Component {
     this.OnLogout = this.OnLogout.bind(this);
 
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+    UR.Subscribe('MODEL_SELECT_OPEN', this.DoModelDialogOpen);
 
     this.state = {
       modelId: '',
       modelSelectDialogOpen: false,
-      showClassesModels: false,
+      canViewOthers: false,
       studentId: '',
       groupName: '',
       classroomName: '',
@@ -60,32 +63,32 @@ class ModelSelect extends React.Component {
     this.DoADMDataUpdate();
   }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {
+    UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+    UR.Unsubscribe('MODEL_SELECT_OPEN', this.DoModelDialogOpen);
+  }
 
   DoADMDataUpdate() {
-    if (ADM.IsLoggedOut()) {
-      this.setState({
-        modelId: '',
-        modelSelectDialogOpen: false
-      });
-    } else if (ADM.GetSelectedModelId() !== undefined) {
-      const studentId = ADM.GetSelectedStudentId();
+    this.setState({
+      canViewOthers: ADM.CanViewOthers()
+    });
+  }
+
+  DoModelDialogOpen() {
+    if (ADM.GetSelectedModelId() !== undefined) {
+      console.log('@@@@@@ ModelSelect opening b/c of ADMDAataUpdate, selecteModelId is"', ADM.GetSelectedModelId(), '"')
+      const studentId = ADM.GetAuthorId();
       const groupName = ADM.GetGroupNameByStudent(studentId);
       const classroomName = ADM.GetClassroomNameByStudent(studentId);
       const teacherName = ADM.GetTeacherNameByStudent(studentId);
       this.setState({
         modelId: ADM.GetSelectedModelId(),
         modelSelectDialogOpen: true,
-        showClassesModels: true, //ADM.ClassesModelsAreVisible(),
+        canViewOthers: ADM.CanViewOthers(),
         studentId,
         groupName,
         classroomName,
         teacherName
-      });
-    } else {
-      // model already selected, so hide
-      this.setState({
-        modelSelectDialogOpen: false
       });
     }
   }
@@ -95,20 +98,19 @@ class ModelSelect extends React.Component {
   }
 
   OnNewModel() {
-    ADM.NewModel();
-    this.OnModelDialogClose();
+    ADM.NewModel(() => this.OnModelDialogClose());
   }
 
   OnModelEdit(modelId) {
     ADM.LoadModel(modelId);
     UR.Publish('MODEL:ALLOW_EDIT');
-    UTILS.RLog('ModelOpenEdit', modelId);
+    UTILS.RLog('ModelOpenEdit');
     this.OnModelDialogClose();
   }
 
   OnModelView(modelId) {
     ADM.LoadModel(modelId);
-    UTILS.RLog('ModelOpenView', modelId);
+    UTILS.RLog('ModelOpenView');
     this.OnModelDialogClose();
   }
 
@@ -120,13 +122,14 @@ class ModelSelect extends React.Component {
     const { classes } = this.props;
     const {
       modelSelectDialogOpen,
-      showClassesModels,
+      canViewOthers,
       studentId,
       groupName,
       classroomName,
       teacherName
     } = this.state;
-    const myModels = ADM.GetModelsByStudent();
+    const isTeacher = SESSION.IsTeacher();
+    const myModels = isTeacher ? ADM.GetModelsByTeacher() : ADM.GetModelsByStudent();
     const ourModels = ADM.GetMyClassmatesModels(ADM.GetSelectedClassroomId(), studentId);
     return (
       <Dialog
@@ -154,14 +157,14 @@ class ModelSelect extends React.Component {
               </Button>
             </Grid>
           </Grid>
-          <Divider style={{ margin: '2em' }}/>
+          <Divider style={{ margin: '2em' }} />
           <Grid container spacing={2}>
             <Grid item>
-              <Typography variant="h4">{ADM.GetStudentGroupName()} Group&lsquo;s Models</Typography>
+              <Typography variant="h4">{ADM.GetStudentGroupName()} Group&rsquo;s Models</Typography>
               <ModelsListTable models={myModels} OnModelSelect={this.OnModelEdit} />
             </Grid>
-            <Grid item hidden={!showClassesModels}>
-              <Typography variant="h4">My Class&lsquo; Models</Typography>
+            <Grid item hidden={!canViewOthers}>
+              <Typography variant="h4">My Class&rsquo; Models</Typography>
               <ModelsListTable models={ourModels} OnModelSelect={this.OnModelView} />
             </Grid>
           </Grid>

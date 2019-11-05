@@ -237,8 +237,8 @@ const styles = theme => {
       overflowX: 'hidden'
     },
     resourceExpandButton: {
-      width: '40px',
-      minWidth: '40px',
+      width: '25px',
+      minWidth: '25px',
       height: '50px',
       padding: '0'
     },

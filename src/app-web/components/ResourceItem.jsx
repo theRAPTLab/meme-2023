@@ -137,7 +137,7 @@ class ResourceItem extends React.Component {
             primary={`${resource.label}`}
             secondary={`${resource.notes}`}
           />
-          <ListItemSecondaryAction>
+          <ListItemSecondaryAction style={{ right: '0px' }}>
             {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
             {evBadge}
             <Button className={classes.resourceExpandButton} onClick={this.DoToggleExpanded}>

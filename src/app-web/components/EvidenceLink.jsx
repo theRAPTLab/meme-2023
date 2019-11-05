@@ -463,10 +463,10 @@ class EvidenceLink extends React.Component {
 
               {/* Number / Comment */}
               <Grid item xs={isExpanded ? 12 : 2}>
-                <div style={{ position: 'absolute', right: '0px' }}>
+                <div style={{ position: 'relative', left: '230px' }}>
                   <StickyNoteButton refId={id} />
                 </div>
-                <Avatar className={classes.evidenceBodyNumber}>{evlink.numberLabel}</Avatar>
+                <Avatar className={classes.evidenceBodyNumber} style={{top: '-37px'}}>{evlink.numberLabel}</Avatar>
               </Grid>
               <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
                 How does this resource support this component / property / mechanism?

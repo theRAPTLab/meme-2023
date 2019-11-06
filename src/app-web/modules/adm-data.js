@@ -207,7 +207,7 @@ ADMData.SyncUpdatedData = data => {
         const updatedData = ADMObj.Resource(value);
         const origres = ADMData.Resource(updatedData.id);
         const newres = Object.assign({}, origres, updatedData);
-        const resourcei = adm_db.classroomResources.findIndex(c => c.id === updatedData.id);
+        const resourcei = adm_db.resources.findIndex(c => c.id === updatedData.id);
         adm_db.resources.splice(resourcei, 1, newres);
         UR.Publish('ADM_DATA_UPDATED', data);
         break;

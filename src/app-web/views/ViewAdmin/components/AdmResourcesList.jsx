@@ -269,7 +269,7 @@ class ResourcesList extends React.Component {
                 Cancel
               </Button>
               <Button color="primary" type="submit">
-                Add
+                Save
               </Button>
             </DialogActions>
           </form>

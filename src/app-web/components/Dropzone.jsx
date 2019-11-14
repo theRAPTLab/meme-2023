@@ -32,6 +32,7 @@ import React, { useMemo, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import request from 'superagent';
 import SESSION from '../../system/common-session';
+import UR from '../../system/ursys';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -65,51 +66,83 @@ const rejectStyle = { borderColor: '#ff1744' };
 
 /// FUNCTION HELPERS //////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*/ upload a file as picked by dropzone OR a data URL sent from the extension
+/*/
 function PromiseUploadFile(fileOrBlob) {
-  if (DBG) console.log(`uploading fileOrBlob '${file.name}'`);
   const req = request.post(UPLOAD_URL);
+  const nameOverride = (fileOrBlob instanceof Blob) ? 'screenshot.jpg' : undefined;
   let href;
-  return req.attach('screenshot', fileOrBlob)
+  return req.attach('screenshot', fileOrBlob, nameOverride)
     .then(res => {
       const data = JSON.parse(res.text);
       if (!data) return { error: 'no data' };
       href = `${SSHOT_URL}/${data.filename}`;
       if (DBG) {
         console.log('file saved at...opening window', href);
-        window.open(href);
+        // window.open(href);
       }
       return { href };
     }); // req.attach().then()
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*/ helper asynchronous function returning the uploaded HREF on server
+/*/
+async function m_UploadFile(file) {
+  const { href, error } = await PromiseUploadFile(file);
+  return { href, error };
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*/ EXAMPLE subscribe to response to capture extension. This implementation
+    receives the canvas dataURL from the screencapture plugin.
+    To invoke programmatically, use UR.TriggerExtension('REQ_CAPTURE',{});
+/*/
+UR.Subscribe('MEME_EXT_RES_CAPTURE', data => {
+  const { dataURI } = data;
+  // clever trick to convert base64-encoded data from extension
+  fetch(dataURI)
+    .then(res => res.blob())
+    .then(blob => {
+      blob.name = 'screencapture.jpg';
+      blob.lastModifiedDate = new Date();
+      m_UploadFile(blob)
+        .then(m => {
+          if (m.error) { console.warn(m.error); return; }
+          if (DBG) console.log('blob uploaded', m.href);
+          UR.Publish('SCREEN_CAPTURED', { href: m.href });
+        });
+    });
+});
+
 
 /// FUNCTION COMPONENTS  //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function StyledDropzone(props) {
+
   /*/
     define onDrop handler
     fires only if dropzone is successful
   /*/
   const onDrop = useCallback(files => {
+    let href, error;
     if (files.length !== 1) return;
-    const req = request.post(UPLOAD_URL);
     const file = files[0];
-    (async () => {
-      const { href, error } = await PromiseUploadFile(file);
-      if (error) {
-        console.error(error);
-        return;
-      }
-      if (typeof props.onDrop === 'function') props.onDrop(href);
-    })();
+
+    m_UploadFile(file)
+      .then(m => {
+        if (DBG) console.log('drop upload results', m);
+        if (m.error) {
+          console.error(error);
+          return;
+        }
+        if (typeof props.onDrop === 'function') props.onDrop(m.href);
+      });
     // req.attach.then
   }, []);
 
   // define drop failure handler
   const onDropRejected = useCallback(files => {
     if (DBG) console.log('drop only one file, not', files.length);
-  }, []);
-
-  // get dropzone props and state via dropzone hook
+  }, []);  // get dropzone props and state via dropzone hook
   // note: event handlers like 'onDrop' must be defined before this is called
   const {
     getRootProps,

@@ -31,9 +31,10 @@ const ULINK = NewConnection(PR);
 // ur_legacy_publish is used to make DATALINK.Publish() work like Broadcast, so
 // messages will mirror back to itself
 CENTRAL.Define('ur_legacy_publish', true);
+let MEMEXT_INSTALLED = false;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// do session overrides  React does first render in phase after CONFIGURE
+/// do session overrides  React does first render in phase after CONFIGURE
 EXEC.Hook(__dirname, 'CONFIGURE', () => {
   const qs = SESSION.AdminPlaintextPassphrase();
   if (document.location.hash.includes(qs)) {
@@ -47,6 +48,28 @@ EXEC.Hook(__dirname, 'CONFIGURE', () => {
     return;
   }
 });
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// subscribe to MEME_EXT events and forward to system
+document.addEventListener('MEME_EXT', (event) => {
+  MEMEXT_INSTALLED = true;
+  const data = event.detail;
+  if (typeof data.action !== 'string') return;
+  let action = data.action.toUpperCase();
+  const message = `MEME_EXT_${action}`;
+  if (DBG) console.log('got action', action, 'with data', data);
+  ULINK.Publish(message, data);
+});
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function TriggerExtension(action, data) {
+  if (typeof action !== 'string') throw Error('arg1 must be string');
+  if (!MEMEXT_INSTALLED)
+    throw Error(`MEME extension is not installed ${action} ${JSON.stringify(data)}`);
+  const detail = { action, ...data };
+  const e = new CustomEvent('MEME_EXT', { detail });
+  e.source = 'URSYS';
+  document.dispatchEvent(e);
+}
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -195,19 +218,19 @@ window.ur.SESSION = SESSION;
 window.ur.LINK = ULINK;
 window.ur.DBQuery = DBQuery;
 window.ur.DBLock = (dbkey, dbids) => {
-  DBTryLock(dbkey, dbids).then(data => {
+  DBTryLock(dbkey, dbids).then((data) => {
     console.log(data);
   });
   return 'testing DBLock...';
 };
 window.ur.DBRelease = (dbkey, dbids) => {
-  DBTryRelease(dbkey, dbids).then(data => {
+  DBTryRelease(dbkey, dbids).then((data) => {
     console.log(data);
   });
   return 'testing DBRelease...';
 };
 window.ur.GetLockTable = () => {
-  NetCall('NET:SRV_DBLOCKS').then(data => {
+  NetCall('NET:SRV_DBLOCKS').then((data) => {
     Object.keys(data).forEach((key, index) => {
       const item = data[key];
       console.log(`${index})\t"${item.semaphore}" locked by ${item.uaddr}`);
@@ -216,7 +239,7 @@ window.ur.GetLockTable = () => {
   return 'retrieving lock table';
 };
 window.ur.tnc = (msg, data) => {
-  NetCall(msg, data).then(rdata => {
+  NetCall(msg, data).then((rdata) => {
     console.log(`netcall '${msg}' returned`, rdata);
   });
   return `testing netcall '${msg}'`;
@@ -227,6 +250,10 @@ window.ur.serverinfo = () => {
 window.ur.clientinfo = () => {
   console.log(window.URSESSION);
   return `testing clientinfo`;
+};
+window.ur.extension = (action, data) => {
+  TriggerExtension(action.toUpperCase(), data);
+  return `async test extension`;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default UR;

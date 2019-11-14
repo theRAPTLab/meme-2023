@@ -63,6 +63,25 @@ const activeStyle = { borderColor: '#2196f3' };
 const acceptStyle = { borderColor: '#00e676' };
 const rejectStyle = { borderColor: '#ff1744' };
 
+/// FUNCTION HELPERS //////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function PromiseUploadFile(fileOrBlob) {
+  if (DBG) console.log(`uploading fileOrBlob '${file.name}'`);
+  const req = request.post(UPLOAD_URL);
+  let href;
+  return req.attach('screenshot', fileOrBlob)
+    .then(res => {
+      const data = JSON.parse(res.text);
+      if (!data) return { error: 'no data' };
+      href = `${SSHOT_URL}/${data.filename}`;
+      if (DBG) {
+        console.log('file saved at...opening window', href);
+        window.open(href);
+      }
+      return { href };
+    }); // req.attach().then()
+}
+
 /// FUNCTION COMPONENTS  //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function StyledDropzone(props) {
@@ -74,22 +93,15 @@ function StyledDropzone(props) {
     if (files.length !== 1) return;
     const req = request.post(UPLOAD_URL);
     const file = files[0];
-    if (DBG) console.log(`uploading file '${file.name}'`);
-    //
-    req.attach('screenshot', file)
-      .then(res => {
-        const data = JSON.parse(res.text);
-        if (!data) {
-          if (DBG) console.error('no data');
-          return;
-        }
-        const href = `${SSHOT_URL}/${data.filename}`;
-        if (DBG) {
-          console.log('file saved at...opening window', href);
-          window.open(href);
-        }
-        if (typeof props.onDrop === 'function') props.onDrop(href);
-      }); // req.attach.then
+    (async () => {
+      const { href, error } = await PromiseUploadFile(file);
+      if (error) {
+        console.error(error);
+        return;
+      }
+      if (typeof props.onDrop === 'function') props.onDrop(href);
+    })();
+    // req.attach.then
   }, []);
 
   // define drop failure handler
@@ -142,6 +154,10 @@ function StyledDropzone(props) {
     </div>
   );
 }
+
+/// DEBUG /////////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

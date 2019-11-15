@@ -26,6 +26,8 @@ import SESSION from './common-session';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const SSHOT_URL = SESSION.ScreenshotURL();
 const UPLOAD_URL = SESSION.ScreenshotPostURL();
+const CSU = 'color:pink;background-color:#909;padding:0 4px';
+const CSR = 'color:auto;background-color:auto';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -41,7 +43,6 @@ let m_subscriber_count = 0;
  */
 document.addEventListener('MEME_EXT', (event) => {
   if (event.source === 'URSYS') return;
-  MEMEXT_INSTALLED = true;
   const message = event.detail;
   if (typeof message.action !== 'string') return;
   m_HandleExtMessage(message);
@@ -50,7 +51,11 @@ document.addEventListener('MEME_EXT', (event) => {
 function m_HandleExtMessage(message) {
   const epkt = new ExtPacket(message);
   const action = epkt.Action();
-  if (action === 'HELLO') MEMEXT_INSTALLED = true;
+  if (action === 'HELLO') {
+    MEMEXT_INSTALLED = true;
+    const { uaddr } = epkt.Data();
+    console.log(`%cMEME_EXT`, CSU, `'${uaddr}' bridge connected`);
+  }
   epkt.DeliverReturn();
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -124,6 +129,15 @@ function DataURI2File(b64, filename = 'decoded_file') {
       return blob;
     });
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** call to initialize the bridge to extension
+ */
+function ConnectToExtension(uaddr) {
+  const detail = { uaddr };
+  const event = new CustomEvent('MEME_EXT_CONNECT', { detail });
+  event.source = 'URSYS';
+  document.dispatchEvent(event);
+}
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -136,5 +150,6 @@ export default {
   ExtCallAsync,
   UploadFile,
   PromiseUploadFile,
-  DataURI2File
+  DataURI2File,
+  ConnectToExtension
 };

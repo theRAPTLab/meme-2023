@@ -32,6 +32,7 @@ const ULINK = NewConnection(PR);
 // ur_legacy_publish is used to make DATALINK.Publish() work like Broadcast, so
 // messages will mirror back to itself
 CENTRAL.Define('ur_legacy_publish', true);
+// trigger bridge connection to meme extension (screenshot capture)
 let MEMEXT_INSTALLED = false;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -48,6 +49,11 @@ EXEC.Hook(__dirname, 'CONFIGURE', () => {
     SESSION.SetAdminKey('localhost');
     return;
   }
+});
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// connect to extension before app formally runs
+EXEC.Hook(__dirname, 'START', () => {
+  EXT.ConnectToExtension(SocketUADDR());
 });
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
@@ -160,6 +166,18 @@ function RoutePreflight(routes) {
 function SocketUADDR() {
   return NetMessage.SocketUADDR();
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function PromiseCaptureScreen(options) {
+  let res = EXT.ExtCallAsync('CAPTURE_SCREEN', options)
+    .then(async (data) => {
+      let { dataURI } = data;
+      return await EXT.DataURI2File(dataURI);
+    })
+    .then(async (file) => {
+      return await EXT.PromiseUploadFile(file);
+    });
+  return res;
+}
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -191,9 +209,7 @@ const UR = {
   ReactPreflight,
   RoutePreflight,
   ReactHook,
-  ExtCallAsync,
-  ExtPublish,
-  ExtSubscribe
+  PromiseCaptureScreen
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};
@@ -234,19 +250,17 @@ window.ur.clientinfo = () => {
   console.log(window.URSESSION);
   return `testing clientinfo`;
 };
-window.ur.capture = async () => {
-  let res = await EXT.ExtCallAsync('CAPTURE_SCREEN', {
-    /* sx: 45, sy: 195, sw: 1950, sh: 1200 */
-  })
-    .then(async (data) => {
-      let { dataURI } = data;
-      let blob = await EXT.DataURI2File(dataURI);
-      return blob;
-    })
-    .then(async (file) => {
-      const retval = await EXT.PromiseUploadFile(file);
-      return retval;
-    });
+window.ur.scap = (opt = { sx: 45, sy: 195, sw: 1950, sh: 1200 }) => {
+  PromiseCaptureScreen(opt).then((data) => {
+    const { href, error } = data;
+    if (error) {
+      console.log('error', error);
+      return;
+    }
+    console.log('got href', href);
+    window.open(href);
+  });
+  return 'capturing screen...';
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default UR;

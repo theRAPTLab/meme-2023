@@ -65,6 +65,11 @@ class ExtPacket {
   Action() {
     return this.event.detail.action.toUpperCase();
   }
+
+  Data() {
+    if (!this.event.detail.data) console.warn(`${this.id} has no event.detail.data`);
+    return this.event.detail.data || {};
+  }
 }
 
 export default ExtPacket;

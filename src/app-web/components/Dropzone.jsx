@@ -33,11 +33,8 @@ import { useDropzone } from 'react-dropzone';
 import request from 'superagent';
 import SESSION from '../../system/common-session';
 import UR from '../../system/ursys';
+import EXT from '../../system/ur-extension';
 
-/// CONSTANTS /////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const SSHOT_URL = SESSION.ScreenshotURL();
-const UPLOAD_URL = SESSION.ScreenshotPostURL()
 
 /// DEBUG FLAGS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -64,60 +61,9 @@ const activeStyle = { borderColor: '#2196f3' };
 const acceptStyle = { borderColor: '#00e676' };
 const rejectStyle = { borderColor: '#ff1744' };
 
-/// FUNCTION HELPERS //////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ upload a file as picked by dropzone OR a data URL sent from the extension
-/*/
-function PromiseUploadFile(fileOrBlob) {
-  const req = request.post(UPLOAD_URL);
-  const nameOverride = (fileOrBlob instanceof Blob) ? 'screenshot.jpg' : undefined;
-  let href;
-  return req.attach('screenshot', fileOrBlob, nameOverride)
-    .then(res => {
-      const data = JSON.parse(res.text);
-      if (!data) return { error: 'no data' };
-      href = `${SSHOT_URL}/${data.filename}`;
-      if (DBG) {
-        console.log('file saved at...opening window', href);
-        // window.open(href);
-      }
-      return { href };
-    }); // req.attach().then()
-}
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ helper asynchronous function returning the uploaded HREF on server
-/*/
-async function m_UploadFile(file) {
-  const { href, error } = await PromiseUploadFile(file);
-  return { href, error };
-}
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/*/ EXAMPLE subscribe to response to capture extension. This implementation
-    receives the canvas dataURL from the screencapture plugin.
-    To invoke programmatically, use UR.TriggerExtension('REQ_CAPTURE',{});
-/*/
-UR.Subscribe('MEME_EXT_RES_CAPTURE', data => {
-  const { dataURI } = data;
-  // clever trick to convert base64-encoded data from extension
-  fetch(dataURI)
-    .then(res => res.blob())
-    .then(blob => {
-      blob.name = 'screencapture.jpg';
-      blob.lastModifiedDate = new Date();
-      m_UploadFile(blob)
-        .then(m => {
-          if (m.error) { console.warn(m.error); return; }
-          if (DBG) console.log('blob uploaded', m.href);
-          UR.Publish('SCREEN_CAPTURED', { href: m.href });
-        });
-    });
-});
-
-
 /// FUNCTION COMPONENTS  //////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function StyledDropzone(props) {
-
   /*/
     define onDrop handler
     fires only if dropzone is successful
@@ -127,7 +73,7 @@ function StyledDropzone(props) {
     if (files.length !== 1) return;
     const file = files[0];
 
-    m_UploadFile(file)
+    EXT.UploadFile(file)
       .then(m => {
         if (DBG) console.log('drop upload results', m);
         if (m.error) {

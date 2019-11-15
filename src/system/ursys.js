@@ -16,6 +16,7 @@ import EXEC from './ur-exec';
 import ReloadOnViewChange from './util/reload';
 import NetMessage from './common-netmessage';
 import URLink from './ur-link';
+import EXT from './ur-extension';
 import REFLECT from './util/reflect';
 import SESSION from './common-session';
 
@@ -48,28 +49,6 @@ EXEC.Hook(__dirname, 'CONFIGURE', () => {
     return;
   }
 });
-
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// subscribe to MEME_EXT events and forward to system
-document.addEventListener('MEME_EXT', (event) => {
-  MEMEXT_INSTALLED = true;
-  const data = event.detail;
-  if (typeof data.action !== 'string') return;
-  let action = data.action.toUpperCase();
-  const message = `MEME_EXT_${action}`;
-  if (DBG) console.log('got action', action, 'with data', data);
-  ULINK.Publish(message, data);
-});
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function TriggerExtension(action, data) {
-  if (typeof action !== 'string') throw Error('arg1 must be string');
-  if (!MEMEXT_INSTALLED)
-    throw Error(`MEME extension is not installed ${action} ${JSON.stringify(data)}`);
-  const detail = { action, ...data };
-  const e = new CustomEvent('MEME_EXT', { detail });
-  e.source = 'URSYS';
-  document.dispatchEvent(e);
-}
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -140,6 +119,7 @@ function DBTryRelease(dbkey, dbids) {
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const { Define, GetVal, SetVal } = CENTRAL;
+const { ExtPublish, ExtSubscribe, ExtCallAsync } = EXT;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function IsLocalhost() {
@@ -210,7 +190,10 @@ const UR = {
   PeerCount,
   ReactPreflight,
   RoutePreflight,
-  ReactHook
+  ReactHook,
+  ExtCallAsync,
+  ExtPublish,
+  ExtSubscribe
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};
@@ -251,9 +234,19 @@ window.ur.clientinfo = () => {
   console.log(window.URSESSION);
   return `testing clientinfo`;
 };
-window.ur.extension = (action, data) => {
-  TriggerExtension(action.toUpperCase(), data);
-  return `async test extension`;
+window.ur.capture = async () => {
+  let res = await EXT.ExtCallAsync('CAPTURE_SCREEN', {
+    /* sx: 45, sy: 195, sw: 1950, sh: 1200 */
+  })
+    .then(async (data) => {
+      let { dataURI } = data;
+      let blob = await EXT.DataURI2File(dataURI);
+      return blob;
+    })
+    .then(async (file) => {
+      const retval = await EXT.PromiseUploadFile(file);
+      return retval;
+    });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default UR;

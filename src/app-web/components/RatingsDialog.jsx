@@ -103,7 +103,7 @@ class RatingsDialog extends React.Component {
 
     return (
       <Dialog open={isOpen} onClose={this.OnClose} maxWidth='xs'>
-        <DialogTitle>How well does this resource support your model?</DialogTitle>
+        <DialogTitle>How well does this evidence support your model?</DialogTitle>
         <DialogContent>
           <RatingsList
             RatingsDef={ratingsDef}

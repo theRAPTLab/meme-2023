@@ -262,5 +262,8 @@ window.ur.scap = (opt = { sx: 45, sy: 195, sw: 1950, sh: 1200 }) => {
   });
   return 'capturing screen...';
 };
+window.ur.extconn = () => {
+  EXT.ConnectToExtension(SocketUADDR());
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default UR;

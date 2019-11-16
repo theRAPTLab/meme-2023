@@ -102,9 +102,9 @@ class RatingsDialog extends React.Component {
     const { classes } = this.props;
 
     return (
-      <Dialog open={isOpen} onClose={this.OnClose} maxWidth='xs'>
+      <Dialog open={isOpen} onClose={this.OnClose} maxWidth="xs">
         <DialogTitle>How well does this evidence support your model?</DialogTitle>
-        <DialogContent>
+        <DialogContent style={{ paddingBottom: '2em' }}>
           <RatingsList
             RatingsDef={ratingsDef}
             Mode="active"

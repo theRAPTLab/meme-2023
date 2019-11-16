@@ -144,10 +144,11 @@ class ResourceView extends React.Component {
     if (DBG) console.log(PKG, 'create new evidence:', rsrcId);
     const resourceFrame = document.getElementById('resourceFrame');
     if (resourceFrame !== null) {
-      const sx = resourceFrame.offsetLeft;
-      const sy = resourceFrame.offsetTop;
-      const sw = resourceFrame.clientWidth;
-      const sh = resourceFrame.clientHeight;
+      const px = window.devicePixelRatio;
+      const sx = resourceFrame.offsetLeft * px;
+      const sy = resourceFrame.offsetTop * px;
+      const sw = resourceFrame.clientWidth * px;
+      const sh = resourceFrame.clientHeight * px;
       let opt = { sx, sy, sw, sh };
       UR.PromiseCaptureScreen(opt).then(rdata => {
         const { href } = rdata;

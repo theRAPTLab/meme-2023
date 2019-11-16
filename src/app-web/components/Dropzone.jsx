@@ -122,7 +122,7 @@ function StyledDropzone(props) {
 
   // render
   return (
-    <div className="container">
+    <div className="container" style={{ paddingLeft: '0' }}>
       <div {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <p>Drag 'n' drop screenshot here, or click to select file</p>

@@ -82,6 +82,7 @@ class EvidenceLink extends React.Component {
     this.OnClickAway = this.OnClickAway.bind(this);
     this.DoEvidenceLinkOpen = this.DoEvidenceLinkOpen.bind(this);
     this.OnScreenShotClick = this.OnScreenShotClick.bind(this)
+    this.OnCaptureScreenShotClick = this.OnCaptureScreenShotClick.bind(this);
     this.OnNoteChange = this.OnNoteChange.bind(this);
     this.OnLinkButtonClick = this.OnLinkButtonClick.bind(this);
     this.DoEnableSourceSelect = this.DoEnableSourceSelect.bind(this);
@@ -192,6 +193,22 @@ class EvidenceLink extends React.Component {
       evId: this.props.evlink.id,
       imageURL: this.props.evlink.imageURL
     });
+  }
+  
+  OnCaptureScreenShotClick(e) {
+    e.stopPropagation();
+    const resourceFrame = document.getElementById('resourceFrame');
+    if (resourceFrame !== null) {
+      const sx = resourceFrame.offsetLeft;
+      const sy = resourceFrame.offsetTop;
+      const sw = resourceFrame.clientWidth;
+      const sh = resourceFrame.clientHeight;
+      let opt = { sx, sy, sw, sh };
+      UR.PromiseCaptureScreen(opt).then(rdata => {
+        const { href } = rdata;
+        DATA.PMC_EvidenceUpdate(this.props.evlink.id, { imageURL: href });
+      });      
+    }
   }
 
   // Not being used
@@ -430,6 +447,11 @@ class EvidenceLink extends React.Component {
     }
     
     const isViewOnly = ADM.IsViewOnly();
+    
+    // Display Capture Screen button?
+    // resourceFrame's clientWidth is 0 if it's not whoing
+    const resourceFrame = document.getElementById('resourceFrame');
+    const resourceFrameIsVisible = resourceFrame !== null && resourceFrame.clientWidth > 0;
 
     return (
       <ClickAwayListener onClickAway={this.OnClickAway}>
@@ -584,14 +606,14 @@ class EvidenceLink extends React.Component {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid container spacing={8} hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
+              <Grid container hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
                 <Grid item xs={4}>
                   <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
                     SCREENSHOT:
                   </Typography>
                 </Grid>
                 <Grid item xs>
-                  {imageURL === undefined 
+                  {imageURL === undefined || imageURL === null
                     ? isBeingEdited
                       ? <Dropzone onDrop={this.OnDrop} />
                       : <Typography variant="caption">no screenshot</Typography>
@@ -605,6 +627,13 @@ class EvidenceLink extends React.Component {
                           className={classes.evidenceScreenshot}
                         />
                       </Button>
+                  }
+                  {resourceFrameIsVisible
+                    ? <Button
+                      onClick={this.OnCaptureScreenShotClick}
+                      size='small'
+                    >Capture Screenshot</Button>
+                    : ''
                   }
                 </Grid>
               </Grid>

@@ -632,6 +632,7 @@ class EvidenceLink extends React.Component {
                     ? <Button
                       onClick={this.OnCaptureScreenShotClick}
                       size='small'
+                      className={classes.btnSuperSmall}
                     >Capture Screenshot</Button>
                     : ''
                   }
@@ -650,6 +651,7 @@ class EvidenceLink extends React.Component {
               <Button
                 hidden={!isExpanded || isBeingEdited || isViewOnly}
                 size="small"
+                className={classes.btnSuperSmall}
                 onClick={this.OnDeleteButtonClick}
               >
                 delete
@@ -658,6 +660,7 @@ class EvidenceLink extends React.Component {
               <Button
                 hidden={!isExpanded || isBeingEdited || isViewOnly}
                 size="small"
+                className={classes.btnSuperSmall}
                 onClick={this.OnDuplicateButtonClick}
               >
                 duplicate

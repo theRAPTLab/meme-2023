@@ -21,6 +21,10 @@ const m_zHelp = 1600;
 
 const styles = theme => {
   return {
+    btnSuperSmall: {
+      fontSize: '0.6rem',
+      color: 'rgba(0,0,255,0.5)'
+    },
     oneEmBefore: {
       marginTop: '1em'
     },

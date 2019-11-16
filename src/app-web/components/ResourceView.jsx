@@ -142,7 +142,19 @@ class ResourceView extends React.Component {
 
   OnCreateEvidence(rsrcId) {
     if (DBG) console.log(PKG, 'create new evidence:', rsrcId);
-    DATA.PMC_AddEvidenceLink({ rsrcId }, id => UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }));
+    const resourceFrame = document.getElementById('resourceFrame');
+    if (resourceFrame !== null) {
+      const sx = resourceFrame.offsetLeft;
+      const sy = resourceFrame.offsetTop;
+      const sw = resourceFrame.clientWidth;
+      const sh = resourceFrame.clientHeight;
+      let opt = { sx, sy, sw, sh };
+      UR.PromiseCaptureScreen(opt).then(rdata => {
+        const { href } = rdata;
+        DATA.PMC_AddEvidenceLink({ rsrcId, imageURL: href }, id => UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }));
+      });
+    }
+
   }
   
   // User has edited the note by typing
@@ -217,7 +229,7 @@ class ResourceView extends React.Component {
           </Button>
         </div>
         <div style={{ display: 'flex', height: 'inherit' }}>
-          <iframe src={resource.url} style={{ height: '90%', flexGrow: '1' }} title="resource" />
+          <iframe id='resourceFrame' src={resource.url} style={{ height: '90%', flexGrow: '1' }} title="resource" />
           <div className={classes.resourceViewSidebar}>
             <TextField
               id="informationNote"

@@ -322,8 +322,8 @@ const styles = theme => {
       fontSize: '0.8em',
       lineHeight: '1.1em',
       fontStyle: 'italic',
-      margin: '15px 0',
-      color: 'rgba(0,0,0,0.35)'
+      margin: '15px 0 5px 0',
+      color: m_systemTextColor
     },
     evidenceScreenshotButton: {
       padding: 0,
@@ -332,6 +332,12 @@ const styles = theme => {
     evidenceScreenshot: {
       width: '90%',
       margin: '0'
+    },
+    evidenceScreenshotStatus: {
+      fontSize: '0.8em',
+      lineHeight: '1.1em',
+      fontStyle: 'italic',
+      color: m_systemTextColor
     },
     evidenceBadge: {
       height: '16px',

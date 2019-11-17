@@ -485,13 +485,14 @@ class EvidenceLink extends React.Component {
             </Typography>
             {/* Body */}
             <Grid container className={classes.evidenceBody} spacing={0}>
-
               {/* Number / Comment */}
-              <Grid item xs={isExpanded ? 12 : 2}>
+              <Grid item xs={isExpanded ? 12 : 2} style={{ height: '30px' }}>
                 <div style={{ position: 'relative', left: '230px' }}>
                   <StickyNoteButton refId={id} />
                 </div>
-                <Avatar className={classes.evidenceBodyNumber} style={{top: '-37px'}}>{evlink.numberLabel}</Avatar>
+                <Avatar className={classes.evidenceBodyNumber} style={{ top: '-37px' }}>
+                  {evlink.numberLabel}
+                </Avatar>
               </Grid>
               <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
                 How does this resource support this component / property / mechanism?
@@ -502,7 +503,9 @@ class EvidenceLink extends React.Component {
                 <Grid
                   container
                   spacing={1}
-                  className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
+                  className={
+                    isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed
+                  }
                 >
                   <Grid item xs={4} hidden={!isExpanded}>
                     <Typography
@@ -597,7 +600,7 @@ class EvidenceLink extends React.Component {
                       RATING:
                     </Typography>
                   </Grid>
-                  <Grid item xs>
+                  <Grid item xs style={{ paddingTop: isExpanded ? '4px' : '10px' }}>
                     <RatingButton
                       rating={rating}
                       isExpanded={isExpanded}
@@ -611,30 +614,35 @@ class EvidenceLink extends React.Component {
               </Grid>
               <Grid container hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
                 <Grid item xs={4}>
-                  <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
+                  <Typography
+                    className={classes.evidenceWindowLabel}
+                    variant="caption"
+                    align="right"
+                  >
                     SCREENSHOT:
                   </Typography>
                 </Grid>
                 <Grid item xs>
-                  {imageURL === undefined || imageURL === null
-                    ? isBeingEdited
-                      ? <Dropzone onDrop={this.OnDrop} />
-                      : <Typography variant="caption">no screenshot</Typography>
-                    : <Button
-                        className={classes.evidenceScreenshotButton}
-                        onClick={this.OnScreenShotClick}
-                      >
-                        <img
-                          src={imageURL}
-                          alt="screenshot"
-                          className={classes.evidenceScreenshot}
-                        />
-                      </Button>
-                  }
+                  {imageURL === undefined || imageURL === null ? (
+                    isBeingEdited ? (
+                      <Dropzone onDrop={this.OnDrop} />
+                    ) : (
+                      <Typography className={classes.evidenceScreenshotStatus}>
+                        No Screenshot
+                      </Typography>
+                    )
+                  ) : (
+                    <Button
+                      className={classes.evidenceScreenshotButton}
+                      onClick={this.OnScreenShotClick}
+                    >
+                      <img src={imageURL} alt="screenshot" className={classes.evidenceScreenshot} />
+                    </Button>
+                  )}
                   {resourceFrameIsVisible && extensionIsConnected ? (
                     <Button
                       onClick={this.OnCaptureScreenShotClick}
-                      size='small'
+                      size="small"
                       className={classes.btnSuperSmall}
                     >
                       Capture Screenshot

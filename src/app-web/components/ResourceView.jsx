@@ -153,7 +153,8 @@ class ResourceView extends React.Component {
       UR.PromiseCaptureScreen(opt).then(rdata => {
         const { href, error } = rdata;
         if (error) console.log('PromiseCaptureScreen:', error);
-        if (href) DATA.PMC_AddEvidenceLink({ rsrcId, imageURL: href }, id => UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }));
+        // Always create evidence link even if href is undefined
+        DATA.PMC_AddEvidenceLink({ rsrcId, imageURL: href }, id => UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }));
       });
     }
 

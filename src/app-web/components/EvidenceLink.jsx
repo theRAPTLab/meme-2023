@@ -636,9 +636,16 @@ class EvidenceLink extends React.Component {
                       onClick={this.OnCaptureScreenShotClick}
                       size='small'
                       className={classes.btnSuperSmall}
-                    >Capture Screenshot</Button>
-                    : ''
-                  }
+                    >
+                      Capture Screenshot
+                    </Button>
+                  ) : extensionIsConnected ? (
+                    <Typography className={classes.evidenceScreenshotStatus}>
+                      (Open the Resource to Capture Screen)
+                    </Typography>
+                  ) : (
+                    ''
+                  )}
                 </Grid>
               </Grid>
             </Grid>

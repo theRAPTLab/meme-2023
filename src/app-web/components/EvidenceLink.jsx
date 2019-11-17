@@ -36,6 +36,7 @@ import ADM from '../modules/data';
 import DATA from '../modules/data';
 import ASET from '../modules/adm-settings';
 import UR from '../../system/ursys';
+import EXT from '../../system/ur-extension';
 import StickyNoteButton from './StickyNoteButton';
 import RatingButton from './RatingButton';
 import LinkButton from './LinkButton';
@@ -453,7 +454,8 @@ class EvidenceLink extends React.Component {
     // resourceFrame's clientWidth is 0 if it's not whoing
     const resourceFrame = document.getElementById('resourceFrame');
     const resourceFrameIsVisible = resourceFrame !== null && resourceFrame.clientWidth > 0;
-
+    const extensionIsConnected = EXT.IsConnected();
+    
     return (
       <ClickAwayListener onClickAway={this.OnClickAway}>
         <Collapse in={isExpanded} collapsedHeight="70px">
@@ -629,8 +631,8 @@ class EvidenceLink extends React.Component {
                         />
                       </Button>
                   }
-                  {resourceFrameIsVisible
-                    ? <Button
+                  {resourceFrameIsVisible && extensionIsConnected ? (
+                    <Button
                       onClick={this.OnCaptureScreenShotClick}
                       size='small'
                       className={classes.btnSuperSmall}

@@ -38,22 +38,22 @@ let MEMEXT_INSTALLED = false;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// do session overrides  React does first render in phase after CONFIGURE
 EXEC.Hook(__dirname, 'CONFIGURE', () => {
+  // attempt to connect to extension
+  EXT.ConnectToExtension(SocketUADDR());
+  // check for admin override thenreturn
   const qs = SESSION.AdminPlaintextPassphrase();
   if (document.location.hash.includes(qs)) {
     console.warn(`INFO: ADMIN ACTIVATED VIA '${qs.toUpperCase()}' OVERRIDE`);
     SESSION.SetAdminKey(qs);
     return;
   }
+  // check for localhost admin powers
   if (IsLocalhost()) {
     console.warn(`INFO: LOCALHOST ADMIN MODE`);
     SESSION.SetAdminKey('localhost');
     return;
   }
-});
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// connect to extension before app formally runs
-EXEC.Hook(__dirname, 'START', () => {
-  EXT.ConnectToExtension(SocketUADDR());
+  // code here runs only if non-localhost regular user
 });
 
 /// PUBLIC METHODS ////////////////////////////////////////////////////////////
@@ -168,6 +168,7 @@ function SocketUADDR() {
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function PromiseCaptureScreen(options) {
+  if (!EXT.IsConnected()) return Promise.resolve({ error: 'Extension not connected' });
   let res = EXT.ExtCallAsync('CAPTURE_SCREEN', options)
     .then(async (data) => {
       let { dataURI } = data;

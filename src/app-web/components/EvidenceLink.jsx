@@ -157,7 +157,6 @@ class EvidenceLink extends React.Component {
         const { success, semaphore, uaddr, lockedBy } = rdata;
         status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
         if (rdata.success) {
-          console.log('do something here because u-locked!');
           this.setState(
             {
               isBeingEdited: true,
@@ -206,9 +205,10 @@ class EvidenceLink extends React.Component {
       const sh = resourceFrame.clientHeight * px;
       let opt = { sx, sy, sw, sh };
       UR.PromiseCaptureScreen(opt).then(rdata => {
-        const { href } = rdata;
-        DATA.PMC_EvidenceUpdate(this.props.evlink.id, { imageURL: href });
-      });      
+        const { href, error } = rdata;
+        if (error) console.log('PromiseCaptureScreen:', error);
+        if (href) DATA.PMC_EvidenceUpdate(this.props.evlink.id, { imageURL: href });
+      });
     }
   }
 

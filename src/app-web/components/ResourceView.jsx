@@ -151,8 +151,9 @@ class ResourceView extends React.Component {
       const sh = resourceFrame.clientHeight * px;
       let opt = { sx, sy, sw, sh };
       UR.PromiseCaptureScreen(opt).then(rdata => {
-        const { href } = rdata;
-        DATA.PMC_AddEvidenceLink({ rsrcId, imageURL: href }, id => UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }));
+        const { href, error } = rdata;
+        if (error) console.log('PromiseCaptureScreen:', error);
+        if (href) DATA.PMC_AddEvidenceLink({ rsrcId, imageURL: href }, id => UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }));
       });
     }
 

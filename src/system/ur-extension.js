@@ -32,11 +32,20 @@ const CSR = 'color:auto;background-color:auto';
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false; // module-wide debug flag
-let MEMEXT_INSTALLED = false;
+let MEMEXT_CONNECTED = false;
+let CONNECT_TIMEOUT;
+let CONNECT_RETRY;
+let CONNECT_UADDR;
 const m_subscribers = new Map();
 let m_subscriber_count = 0;
 
 /// EXTENSION EVENT HANDLER / DISPATCHER //////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** Fired when the content script has completely finished initializing
+ */
+document.addEventListener('MEME_EXT_ALIVE', (event) => {
+  console.log(`%cMEME_EXT`, CSU, `content script 'polo'`);
+});
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Main extension-to-URSYS dispatcher. Receives incoming messages from the
  *  event listener for 'MEME_EXT' defined below, and
@@ -52,7 +61,7 @@ function m_HandleExtMessage(message) {
   const epkt = new ExtPacket(message);
   const action = epkt.Action();
   if (action === 'HELLO') {
-    MEMEXT_INSTALLED = true;
+    MEMEXT_CONNECTED = true;
     const { uaddr } = epkt.Data();
     console.log(`%cMEME_EXT`, CSU, `'${uaddr}' bridge connected`);
   }
@@ -62,7 +71,7 @@ function m_HandleExtMessage(message) {
 /** Trigger e MEMEXT action directly. URSYS-to-extension dispatcher
  */
 function ExtPublish(action, data) {
-  if (!MEMEXT_INSTALLED) throw Error(`MEME extension is not installed`);
+  if (!MEMEXT_CONNECTED) return Promise.reject({ error: 'MEMEXT_NO_CONNECT' });
   const epkt = new ExtPacket(action, data);
   epkt.Dispatch();
 }
@@ -70,7 +79,7 @@ function ExtPublish(action, data) {
 /** call the extension, return a promise with the desired data
  */
 async function ExtCallAsync(action, data) {
-  if (!MEMEXT_INSTALLED) throw Error(`MEME extension is not installed`);
+  if (!MEMEXT_CONNECTED) return Promise.reject({ error: 'MEMEXT_NO_CONNECT' });
   const epkt = new ExtPacket(action, data);
   return epkt.PromiseDispatch();
 }
@@ -131,12 +140,38 @@ function DataURI2File(b64, filename = 'decoded_file') {
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** call to initialize the bridge to extension
+ *  retries until successful
+ *  Also see m_HandleExtMessage() use of MEMEXT_CONNECTED
  */
 function ConnectToExtension(uaddr) {
-  const detail = { uaddr };
-  const event = new CustomEvent('MEME_EXT_CONNECT', { detail });
-  event.source = 'URSYS';
-  document.dispatchEvent(event);
+  console.log(`%cMEME_EXT`, CSU, `HANDSHAKE INITIATED`);
+  CONNECT_UADDR = uaddr;
+  CONNECT_RETRY = 0;
+  CONNECT_TIMEOUT = setInterval(() => {
+    if (CONNECT_RETRY > 10) {
+      console.log(`%cMEME_EXT`, CSU, `Can't connect. Is extension installed?`);
+      clearTimeout(CONNECT_TIMEOUT);
+      return;
+    }
+    if (!MEMEXT_CONNECTED) {
+      const detail = { uaddr };
+      const event = new CustomEvent('MEME_EXT_CONNECT', { detail });
+      event.source = 'URSYS';
+      document.dispatchEvent(event);
+      if (CONNECT_RETRY > 0) console.log(`%cMEME_EXT`, CSU, `connect retry ${CONNECT_RETRY}`);
+      CONNECT_RETRY++;
+    } else {
+      console.log(`%cMEME_EXT`, CSU, `HANDSHAKE COMPLETE!`);
+      clearTimeout(CONNECT_TIMEOUT);
+      CONNECT_TIMEOUT = 0;
+    }
+  }, 1500);
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** return status of connection
+ */
+function IsConnected() {
+  return MEMEXT_CONNECTED;
 }
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////
@@ -151,5 +186,6 @@ export default {
   UploadFile,
   PromiseUploadFile,
   DataURI2File,
-  ConnectToExtension
+  ConnectToExtension,
+  IsConnected
 };

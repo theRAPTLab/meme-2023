@@ -181,6 +181,7 @@ ADMData.SyncUpdatedData = data => {
         break;
       case 'groups':
         const group = ADMData.GetGroup(value.id);
+        group.name = value.name;
         group.students = value.students;
         UR.Publish('ADM_DATA_UPDATED', data);
         break;

@@ -275,18 +275,6 @@ ADMData.DB_AddTeacher = name => {
     if (rdata.error) throw Error(rdata.error);
     ADMData.SelectTeacher(rdata.teachers[0].id);
   });
-  // let round-trip handle update logic
-  // e.g.  ASET.selectedTeacherId = teacherId; UR.Publish('TEACHER_SELECT', { teacherId: teacherId });
-
-  /* OLD STUFF TO DELETE
-  const teacher = {};
-  teacher.id = GenerateUID('tc');
-  teacher.name = name;
-  adm_db.teachers.push(teacher);
-  // Select the new teacher
-  ASET.selectedTeacherId = teacher.id;
-  UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
-  */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -363,23 +351,6 @@ ADMData.DB_AddClassroom = name => {
     UR.Publish('CRITERIA_SET_DEFAULTS', rdata.classrooms[0].id); // Add default criteria to db
     ADMData.SelectClassroom(rdata.classrooms[0].id);
   });
-
-  /** old/
-  const classroom = {};
-  classroom.id = GenerateUID('tc');
-  classroom.name = name;
-  classroom.teacherId = ASET.selectedTeacherId;
-  adm_db.classrooms.push(classroom);
-  // Select the new classroom
-  ASET.selectedClassroomId = classroom.id;
-  // Special case of CLASSROOM_SELECT: We need to update the list of classrooms
-  // when a new classroom is added, so we pass the flag and let the component
-  // do the updating.
-  UR.Publish('CLASSROOM_SELECT', {
-    classroomId: classroom.id,
-    classroomListNeedsUpdating: true
-  });
-  */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -481,17 +452,6 @@ ADMData.DB_AddGroup = groupName => {
   });
   return UR.DBQuery('add', { groups: group });
 
-  /** old code
-  let group = {};
-  group.id = GenerateUID('gr');
-  group.name = groupName;
-  group.students = [];
-  group.classroomId = ASET.selectedClassroomId;
-
-  adm_db.groups.push(group);
-
-  UR.Publish('ADM_DATA_UPDATED');
-  */
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -501,15 +461,6 @@ ADMData.DB_AddGroup = groupName => {
 ADMData.DB_UpdateGroup = (groupId, group) => {
   const groupData = Object.assign(ADMData.GetGroup(groupId), group, { id: groupId });
   return UR.DBQuery('update', { groups: groupData });
-
-  /* old code
-  let i = adm_db.groups.findIndex(grp => grp.id === groupId);
-  if (i < 0) {
-    console.error(PKG, 'UpdateGroup could not find group with id', groupId);
-    return;
-  }
-  adm_db.groups.splice(i, 1, group);
-  */
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -169,7 +169,9 @@ ADMData.SyncUpdatedData = data => {
     if (DBG) console.log('updated', colkey, subkey || '', value);
     switch (colkey) {
       case 'teachers':
-        throw Error('This should not ever get called');
+        const teacher = ADMData.GetTeacher(value.id);
+        teacher.name = value.name;
+        UR.Publish('ADM_DATA_UPDATED', data);
         break;
       case 'classrooms':
         const classroom = ADMData.GetClassroom(value.id);
@@ -283,6 +285,16 @@ ADMData.DB_AddTeacher = name => {
   ASET.selectedTeacherId = teacher.id;
   UR.Publish('TEACHER_SELECT', { teacherId: teacher.id });
   */
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Creates a new teacher and then selects the teacher
+ *  @param {String} name - New teacher name
+ */
+ADMData.DB_UpdateTeacher = teacher => {
+  return UR.DBQuery('update', { teachers: teacher }).then(rdata => {
+    if (rdata.error) throw Error(rdata.error);
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetAllTeachers = () => {

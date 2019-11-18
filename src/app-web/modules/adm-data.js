@@ -175,6 +175,7 @@ ADMData.SyncUpdatedData = data => {
         break;
       case 'classrooms':
         const classroom = ADMData.GetClassroom(value.id);
+        classroom.name = value.name;
         classroom.canViewOthers = value.canViewOthers;
         UR.Publish('ADM_DATA_UPDATED', data);
         break;

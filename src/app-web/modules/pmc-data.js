@@ -718,9 +718,7 @@ PMCData.PMC_PropAdd = newPropObj => {
   const propObj = Object.assign(newPropObj, { type: 'prop' });
   UTILS.RLog(
     'PropertyAdd',
-    newPropObj.name,
-    newPropObj.description,
-    newPropObj.parent ? `with parent ${newPropObj.parent}` : ''
+    `name: "${newPropObj.name}" description: "${newPropObj.description}" with parent "${newPropObj.parent}"`
   );
   return UR.DBQuery('add', {
     'pmcData.entities': {
@@ -753,6 +751,10 @@ PMCData.PMC_PropUpdate = (propId, newData) => {
   // local data will be updated on DBSYNC event, so don't write it here
   const propData = Object.assign(prop, newData, { id: numericId }); // id last to make sure we're using a cleaned one
   const pmcDataId = ASET.selectedPMCDataId;
+  UTILS.RLog(
+    'PropertyEdit',
+    `name: "${propData.name}" description: "${propData.description}" with parent "${propData.parent}"`
+  );
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
   return UR.DBQuery('update', {
@@ -837,7 +839,7 @@ PMCData.PMC_SetPropParent = (nodeId, parentId) => {
   // REVIEW/FIXME: Is this coercion necessary once we convert to ints?
   const id = Number(nodeId);
   const pid = Number(parentId);
-  UTILS.RLog('PropertySetParent', id, pid);
+  UTILS.RLog('PropertySetParent', `id: ${id} parentId: ${pid}`);
   return PMCData.PMC_PropUpdate(id, { parent: pid }).then(rdata => {
     if (DBG) console.log('PropUpdate', JSON.stringify(rdata['pmcData.entities']));
   });
@@ -867,6 +869,7 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
     target: Number(targetId),
     description
   };
+  UTILS.RLog('MechanismAdd', `from: "${sourceId}" to: "${targetId}" label: "${label}" description: "${description}"`);
   return UR.DBQuery('add', {
     'pmcData.entities': {
       id: pmcDataId,
@@ -933,7 +936,7 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
 
       UTILS.RLog(
         'MechanismEdit',
-        `from "${origMechId}" to "${newMechId}" with label "${newMech.label}"`
+        `from: "${origMechId}" to: "${newMechId}" label: "${newMech.label}" description: "${newMech.description}"`
       );
 
       // 3. Show review dialog alert.
@@ -969,6 +972,8 @@ PMCData.PMC_MechDelete = mechId => {
   if (DBG) {
     if (typeof mechId !== 'number') console.log('coercing mechId to Number from', typeof mechId);
   }
+
+  UTILS.RLog('MechanismDelete', mechId);
 
   const pmcDataId = ASET.selectedPMCDataId;
   return UR.DBQuery('remove', {
@@ -1178,6 +1183,10 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
   if (newData.rsrcId) cleanedData.rsrcId = Number(newData.rsrcId);
   const evData = Object.assign(ev, cleanedData);
   const pmcDataId = ASET.selectedPMCDataId;
+  UTILS.RLog('EvidenceUpdate',
+    `rsrcId: ${evData.rsrcId} propId: ${evData.propId} mechId: ${evData.mechId} numberLabel: ${evData.numberLabel} rating: ${evData.rating} note: ${evData.note}  imageURL: ${evData.imageURL}`
+  );
+
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
   return UR.DBQuery('update', {
@@ -1187,7 +1196,7 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
     }
   });
   // round-trip will call BuildModel() for us
-};
+};;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  @param {String} evId
@@ -1285,7 +1294,7 @@ PMCData.DB_CommentUpdate = (refId, comment, cb) => {
   
   UTILS.RLog(
     'CommentUpdate',
-    `"${comment.text}" with criteria "${comment.criteriaId}" on "${refId}"`
+    `"${updatedComment.text}" with criteria "${updatedComment.criteriaId}" on "${refId}"`
   );
 
   const pmcDataId = ASET.selectedPMCDataId;

@@ -250,7 +250,7 @@ class StickyNote extends React.Component {
     let criteriaId = parseInt(e.target.value);
     this.setState(state => {
       let comment = state.comment;
-      comment.id = criteriaId;
+      comment.criteriaId = criteriaId;
       return { comment };
     });
   }
@@ -333,12 +333,12 @@ class StickyNote extends React.Component {
     });
 
     const showCriteria = isBeingEdited || comment.id !== '';
-    const selectedCriteria = criteria.find(crit => crit.id === comment.id);
+    const selectedCriteria = criteria.find(crit => crit.id === comment.criteriaId);
     const criteriaDescription = selectedCriteria !== undefined ? selectedCriteria.description : '';
     let criteriaDisplay;
     if (isBeingEdited) {
       criteriaDisplay = (
-        <select value={comment.id} onChange={this.OnCriteriaSelect}>
+        <select value={comment.criteriaId} onChange={this.OnCriteriaSelect}>
           <option value="" key="empty">
             Select one...
           </option>
@@ -350,7 +350,7 @@ class StickyNote extends React.Component {
         </select>
       );
     } else {
-      criteriaDisplay = ADM.GetCriteriaLabel(comment.id);
+      criteriaDisplay = ADM.GetCriteriaLabel(comment.criteriaId);
     }
     return (
       <ClickAwayListener onClickAway={this.OnClickAway}>

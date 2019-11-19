@@ -1,5 +1,15 @@
 # MEME Boilerplate
 
+---
+
+## User Manual
+
+See the [Wiki Home](https://gitlab.com/inq-seeds/boilerplate/wikis/home) for End User Instructions.
+
+---
+
+## Read Me
+
 Boilerplate for Electron-hosted LAN-based Web Learning System!
 
 At this time, Electron userland "easy to get started" tools are not production-ready. We're building our own starting point rather than use _electron-forge_ and similar tools. This will allow us to develop understanding of best practices of the underlying tools (e.g. webpack) for using the Electron library.

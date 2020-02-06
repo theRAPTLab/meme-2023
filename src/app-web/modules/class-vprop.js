@@ -200,10 +200,16 @@ class VProp {
       this.width = wObj;
       this.height = h;
     }
+    
+    // Add badge width
+    this.width += this.vBadge.GetBadgeWidth();
+    
     // set the background size
     this.visBG.size(this.width, this.height);
 
     // update vBadge size
+    // Need to set the vBadge width to match parent because vBadge
+    // is positioned via right justification
     this.vBadge.SetDimensionsFromParent(this);
 
     return { id: this.id, w: this.width, h: this.height };

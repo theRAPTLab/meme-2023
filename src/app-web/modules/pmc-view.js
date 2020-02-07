@@ -48,6 +48,26 @@ PMCView.InitializeViewgraph = container => {
     .panZoom({ zoomMin: 0.25, zoomMax: 2 })
     .zoom(1)
     .viewbox(resourceListWidth, 0, 1000, 1000);
+  // add artboard to show standard model area
+  let rect = 2000;
+  let rectmid = rect / 2;
+  let rectoffset = 20;
+  m_svgroot
+    .rect(rect, rect)
+    .fill({ color: '#fff' })
+    .opacity(0.35)
+    .move(rectoffset,rectoffset);
+  // add center cross on artboard
+  let cross = 10; // length
+  m_svgroot
+    .line(-cross, 0, cross, 0)
+    .stroke({ width: 2, color: '#999' })
+    .move(rectmid - cross, rectmid);
+  m_svgroot
+    .line(0, -cross, 0, cross)
+    .stroke({ width: 2, color: '#999' })
+    .move(rectmid, rectmid - cross);
+  // handle clicks
   m_svgroot.mousedown(() => {
     DATA.VM_DeselectAllProps();
     DATA.VM_DeselectAllMechs();

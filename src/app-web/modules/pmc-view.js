@@ -57,16 +57,16 @@ PMCView.InitializeViewgraph = container => {
     .fill({ color: '#fff' })
     .opacity(0.35)
     .move(rectoffset,rectoffset);
-  // add center cross on artboard
-  let cross = 10; // length
-  m_svgroot
-    .line(-cross, 0, cross, 0)
-    .stroke({ width: 2, color: '#999' })
-    .move(rectmid - cross, rectmid);
-  m_svgroot
-    .line(0, -cross, 0, cross)
-    .stroke({ width: 2, color: '#999' })
-    .move(rectmid, rectmid - cross);
+  // // add center cross on artboard
+  // let cross = 10; // length
+  // m_svgroot
+  //   .line(-cross, 0, cross, 0)
+  //   .stroke({ width: 2, color: '#999' })
+  //   .move(rectmid - cross, rectmid);
+  // m_svgroot
+  //   .line(0, -cross, 0, cross)
+  //   .stroke({ width: 2, color: '#999' })
+  //   .move(rectmid, rectmid - cross);
   // handle clicks
   m_svgroot.mousedown(() => {
     DATA.VM_DeselectAllProps();

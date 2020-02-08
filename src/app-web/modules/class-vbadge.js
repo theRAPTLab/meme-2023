@@ -2,6 +2,7 @@ import DEFAULTS from './defaults';
 import ADM from './data';
 import PMC from './data';
 import UR from '../../system/ursys';
+import VMech from './class-vmech';
 
 const { VPROP, COLOR, SVGSYMBOLS } = DEFAULTS;
 
@@ -391,9 +392,7 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
 /// MODULE HELPERS /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function m_IsVMech(parent) {
-  // FIXME: A hacky way to check if the parent is a VMech
-  // A VMech by definition has to have a sourceId and targetId defined
-  return parent.sourceId !== undefined;
+  return parent instanceof VMech;
 }
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

@@ -624,15 +624,13 @@ class EvidenceLink extends React.Component {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={isExpanded ? 12 : 3}>
+              <Grid item xs={12} hidden={!isExpanded}>
                 <Grid
                   container
                   spacing={1}
-                  className={
-                    isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed
-                  }
+                  className={classes.evidenceBodyRow}
                 >
-                  <Grid item xs={4} hidden={!isExpanded}>
+                  <Grid item xs={4}>
                     <Typography
                       className={classes.evidenceWindowLabel}
                       variant="caption"
@@ -641,35 +639,31 @@ class EvidenceLink extends React.Component {
                       WHY?
                     </Typography>
                   </Grid>
-                  <Grid item xs style={{ paddingTop: isExpanded ? '4px' : '10px' }}>
-                    {isExpanded ? (
-                      <MuiThemeProvider theme={theme}>
-                        <FilledInput
-                          className={ClassNames(
-                            classes.evidenceLabelField,
-                            classes.evidenceLabelFieldExpanded
-                          )}
-                          value={why}
-                          placeholder="Why did you choose this rating?"
-                          autoFocus
-                          multiline
-                          variant="filled"
-                          disabled={!isBeingEdited}
-                          disableUnderline
-                          onChange={this.OnWhyChange}
-                          onBlur={this.DoSave}
-                          onClick={e => {
-                            e.stopPropagation();
-                          }}
-                          inputProps={{
-                            readOnly: !isBeingEdited
-                          }}
-                          inputRef={this.textInput}
-                        />
-                      </MuiThemeProvider>
-                    ) : (
-                        <div className={classes.evidenceLabelField}>{why}</div>
-                      )}
+                  <Grid item xs style={{ paddingTop: '4px' }}>
+                    <MuiThemeProvider theme={theme}>
+                      <FilledInput
+                        className={ClassNames(
+                          classes.evidenceLabelField,
+                          classes.evidenceLabelFieldExpanded
+                        )}
+                        value={why}
+                        placeholder="Why did you choose this rating?"
+                        autoFocus
+                        multiline
+                        variant="filled"
+                        disabled={!isBeingEdited}
+                        disableUnderline
+                        onChange={this.OnWhyChange}
+                        onBlur={this.DoSave}
+                        onClick={e => {
+                          e.stopPropagation();
+                        }}
+                        inputProps={{
+                          readOnly: !isBeingEdited
+                        }}
+                        inputRef={this.textInput}
+                      />
+                    </MuiThemeProvider>
                   </Grid>
                 </Grid>
               </Grid>

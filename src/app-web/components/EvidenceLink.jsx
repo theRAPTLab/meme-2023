@@ -64,6 +64,7 @@ class EvidenceLink extends React.Component {
       isBeingEdited: false,
       isExpanded: false,
       isHovered: false,
+      ignoreClickAway: false,
       listenForSourceSelection: false
     };
 
@@ -281,7 +282,12 @@ class EvidenceLink extends React.Component {
   OnClickAway(e) {
     if (this.state.isBeingEdited) {
       this.DoSave();
-      this.DoEditStop();
+
+      // If the user is only changing the rating, don't exit Edit Mode
+      if (!this.state.ignoreClickAway) {
+        this.DoEditStop();
+      }
+      this.setState({ ignoreClickAway: false });
     }
   }
 
@@ -403,7 +409,15 @@ class EvidenceLink extends React.Component {
   OnRatingButtonClick() {
     if (ADM.IsViewOnly()) return;
     const data = { evId: this.props.evlink.id, rating: this.props.evlink.rating };
-    UR.Publish('RATING_OPEN', data);
+    if (this.state.isBeingEdited) {
+      // If EvLink is being edited, ignore the clickaway handler
+      // so that after selecting the rating, we do not exit Edit Mode
+      this.setState({ ignoreClickAway: true },
+        UR.Publish('RATING_OPEN', data)
+      );
+    } else {
+      UR.Publish('RATING_OPEN', data);
+    }
   }
 
   OnDrop(href) {

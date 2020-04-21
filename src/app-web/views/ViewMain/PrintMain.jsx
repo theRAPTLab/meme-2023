@@ -182,6 +182,8 @@ class PrintMain extends React.Component {
     ADM.Logout();
   }
 
+
+
   /// PRINTING  /////////////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   RenderComponentsList(propIds) {
@@ -247,27 +249,52 @@ class PrintMain extends React.Component {
     });
   }
 
-  RenderEvidence(resourceId) {
+  RenderEvidence(evlink, index) {
+    const { id, rsrcId, propId, mechId, imageURL, note, rating, why, numberLabel } = evlink;
+    let sourceType;
+    let sourceLabel;
+    if (propId !== undefined && propId !== null && DATA.HasProp(propId) && DATA.Prop(propId)) {
+      sourceType = 'prop';
+      sourceLabel = DATA.Prop(propId).name;
+    } else if (mechId !== undefined && mechId !== null && DATA.Mech(mechId)) {
+      sourceType = 'mech';
+      sourceLabel = DATA.Mech(mechId).name;
+    } else {
+      sourceType = 'missing source Type';
+      sourceLabel = 'missing source Label';
+    }
+
+    return (
+      <div key={index}>
+        <div style={{fontWeight:'bold'}}>Evidence {numberLabel}</div>
+        <div>Description: {note}</div>
+        <div>Target: {sourceType}/{sourceLabel}</div>
+        <div>Rating: {rating}</div>
+        <div>Why: {why}</div>
+        <div>Screenshot: {imageURL}</div>
+        <br/>
+      </div>
+    );
+  }
+
+  RenderEvidenceLinks(resourceId) {
     const evLinks = DATA.GetEvLinksByResourceId(resourceId);
-    if (evLinks === undefined) return '';
-    // evLinks [ { id: <pmcid> propId: mechId: rsrcId: note: }, ... ]
+    if (evLinks === undefined || evLinks.length < 1) return (<div>No evidence<br /><br /></div>);
     return (
       <div key={this.props.rsrcId}>
-        {evLinks.map((evlink, index) => (
-          evlink.id, evlink.propId, evlink.mechId, evlink.note
-        ))}
+        {evLinks.map((evlink, index) => this.RenderEvidence(evlink, index))}
       </div>
     );
   }
 
   RenderResourceList(resources) {
     return resources.map(resource => {
-      const evidence = this.RenderEvidence(resource.id);
+      const evidence = this.RenderEvidenceLinks(resource.id);
       return (
         <div key={resource.id}>
-          <h4>
+          <h5>
             ({resource.id}) {resource.label}
-          </h4>
+          </h5>
           <div>NOTES: {resource.notes} (broken...needs to pull from comment)</div>
           {evidence}
         </div>
@@ -409,8 +436,6 @@ class PrintMain extends React.Component {
 
             <h3>Resource Library</h3>
             {resourcesList}
-
-
 
           </div>
         </main>

@@ -202,15 +202,10 @@ class PrintMain extends React.Component {
     }
     const children = DATA.Children(propId);
     return (
-      <div
-        key={propId}
-        className={`
-          ${classes.treeItem}
-          ${isSub ? classes.treeSubPropItem : classes.treePropItem}
-        `}
-        style={{ marginLeft: '10px' }}
-      >
-        {prop.name}
+      <div key={propId} style={{ marginLeft: isSub ? '25px' : '10px' }}>
+        <div>LABEL: {prop.name}</div>
+        <div>DESCRIPTION: {prop.description}</div>
+        <br />
         {children.length > 0
           ? children.map(childId => this.RenderComponentsListItem(childId, true))
           : ''}
@@ -233,15 +228,12 @@ class PrintMain extends React.Component {
       return (
         <div
           key={`mech${i}`}
-          className={`
-            ${classes.treeItem}
-            ${classes.treeMechItem}
-          `}
           style={{ marginLeft: '10px' }}
         >
-          <span className={classes.treePropItemColor}>{source} </span>
-          {mech.name}
-          <span className={classes.treePropItemColor}> {target}</span>
+          <div>SOURCE: {source}</div>
+          <div>TARGET: {target}</div>
+          <div>LABEL: {mech.name}</div>
+          <br />
         </div>
       );
     });

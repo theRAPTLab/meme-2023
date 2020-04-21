@@ -320,10 +320,6 @@ class PrintMain extends React.Component {
     );
   }
 
-  RenderResource(resource) {
-
-  }
-
   RenderResourceList(resources) {
     return resources.map(resource => {
       const evidence = this.RenderEvidenceLinks(resource.id);
@@ -473,6 +469,10 @@ class PrintMain extends React.Component {
               margin: '10px'
             }}
           >
+            <h3>Model: {title}</h3>
+            {this.RenderComments(modelId)}
+            <br />
+
             <h3>Components</h3>
             {componentsList}
 

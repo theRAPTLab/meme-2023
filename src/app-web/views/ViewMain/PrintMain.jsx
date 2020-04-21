@@ -182,8 +182,6 @@ class PrintMain extends React.Component {
     ADM.Logout();
   }
 
-
-
   /// PRINTING  /////////////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   RenderComponentsList(propIds) {
@@ -239,7 +237,7 @@ class PrintMain extends React.Component {
             ${classes.treeItem}
             ${classes.treeMechItem}
           `}
-          style={{marginLeft: '10px'}}
+          style={{ marginLeft: '10px' }}
         >
           <span className={classes.treePropItemColor}>{source} </span>
           {mech.name}
@@ -247,6 +245,32 @@ class PrintMain extends React.Component {
         </div>
       );
     });
+  }
+
+  RenderComment(comment, index) {
+    const date = new Date(comment.date);
+    const timestring = date.toLocaleTimeString('en-Us', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    const datestring = date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+    return (
+      <div key={index}>
+        <br />
+        <div>AUTHOR: {comment.author}</div>
+        <div>DATE: {timestring} {datestring}</div>
+        <div>COMMENT: {comment.text}</div>
+        <div>CRITERIA: {comment.criteriaId}</div>
+      </div>
+    );
+  }
+
+  RenderComments(refId) {
+    const comments = DATA.GetComments(refId);
+    return <div>COMMENTS: {comments.map((comment, i) => this.RenderComment(comment, i))}</div>;
   }
 
   RenderEvidence(evlink, index) {
@@ -266,20 +290,29 @@ class PrintMain extends React.Component {
 
     return (
       <div key={index}>
-        <div style={{fontWeight:'bold'}}>Evidence {numberLabel}</div>
-        <div>Description: {note}</div>
-        <div>Target: {sourceType}/{sourceLabel}</div>
-        <div>Rating: {rating}</div>
-        <div>Why: {why}</div>
-        <div>Screenshot: {imageURL}</div>
-        <br/>
+        <div style={{ fontWeight: 'bold' }}>Evidence {numberLabel}</div>
+        <div>DESCRIPTION: {note}</div>
+        <div>TARGET: {sourceType}/{sourceLabel}</div>
+        <div>RATING: {rating}</div>
+        <div>WHY: {why}</div>
+        <div>SCREENSHOT: {imageURL}</div>
+        <br />
+        {this.RenderComments(id)}
+        <br />
       </div>
     );
   }
 
   RenderEvidenceLinks(resourceId) {
     const evLinks = DATA.GetEvLinksByResourceId(resourceId);
-    if (evLinks === undefined || evLinks.length < 1) return (<div>No evidence<br /><br /></div>);
+    if (evLinks === undefined || evLinks.length < 1)
+      return (
+        <div>
+          No evidence
+          <br />
+          <br />
+        </div>
+      );
     return (
       <div key={this.props.rsrcId}>
         {evLinks.map((evlink, index) => this.RenderEvidence(evlink, index))}
@@ -287,15 +320,27 @@ class PrintMain extends React.Component {
     );
   }
 
+  RenderResource(resource) {
+
+  }
+
   RenderResourceList(resources) {
     return resources.map(resource => {
       const evidence = this.RenderEvidenceLinks(resource.id);
+      // Notes for evidence are saved as comments
+      const noteRefId = `res${resource.id}`;
+      const notes = DATA.GetComments(noteRefId);
+      let noteText = '';
+      if (notes.length > 0) {
+        noteText = notes[0].text;
+      }
       return (
         <div key={resource.id}>
           <h5>
             ({resource.id}) {resource.label}
           </h5>
-          <div>NOTES: {resource.notes} (broken...needs to pull from comment)</div>
+          <div>NOTES: {noteText}</div>
+          <br />
           {evidence}
         </div>
       );
@@ -436,7 +481,6 @@ class PrintMain extends React.Component {
 
             <h3>Resource Library</h3>
             {resourcesList}
-
           </div>
         </main>
       </div>

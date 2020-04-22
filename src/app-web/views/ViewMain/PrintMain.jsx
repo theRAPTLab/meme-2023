@@ -92,6 +92,7 @@ class PrintMain extends React.Component {
     UR.Subscribe('WINDOW_SIZE', this.UpdateDimensions);
     UR.Subscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+    UR.Subscribe('MODEL_VIEW_UPDATED', this.DoZoomOut);
     this.state = {
       title: '',
       modelId: '',
@@ -105,7 +106,7 @@ class PrintMain extends React.Component {
   }
 
   componentDidMount() {
-    // console.log(`%ccomponentDidMount()`, cssreact);
+    // if (DBG) console.log(`%ccomponentDidMount()`, cssreact);
     //
     // child components need to know the dimensions
     // of this component, but they are invalid until
@@ -118,6 +119,11 @@ class PrintMain extends React.Component {
     UR.Unsubscribe('WINDOW:SIZE', this.UpdateDimensions);
     UR.Unsubscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+    UR.Unsubscribe('MODEL_VIEW_UPDATED', this.DoZoomOut);
+  }
+
+  DoZoomOut() {
+    UR.Publish('SVG_PANZOOM_OUT');
   }
 
   // PMCData calls DATA_UPDATED after loading model.

@@ -15,6 +15,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Material UI Elements
+import { indigo, orange, purple } from '@material-ui/core/colors';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Fab from '@material-ui/core/Fab';
@@ -24,7 +25,6 @@ import TreeItem from '@material-ui/lab/TreeItem';
 import Typography from '@material-ui/core/Typography';
 
 // Material UI Icons
-import AddIcon from '@material-ui/icons/Add';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // MEME Modules and Utils
@@ -41,6 +41,16 @@ const { CoerceToEdgeObj } = DEFAULTS;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PKG = 'ToolsPanel:';
+
+const SmallFab = withStyles(theme => ({
+  root: {
+    margin: '0 0 5px 5px'
+  },
+  label: {
+    fontSize: '10px',
+    textTransform: 'capitalize'
+  }
+}))(props => <Fab {...props} />);
 
 // Customized TreeItem Component with smaller font
 const SmallTreeItem = withStyles(theme => ({
@@ -208,7 +218,11 @@ class ToolsPanel extends React.Component {
         key={propId}
         className={ClassNames(
           classes.treeItem,
-          isSub ? classes.treeSubPropItem : classes.treePropItem,
+          isSub
+            ? classes.treeSubPropItem
+            : prop.propType === DATAMAP.PMC_PROPTYPES.OUTCOME
+              ? classes.treeOutcomeItem
+              : classes.treePropItem,
           selectedPropId === propId ? classes.treeItemSelected : '',
           hoveredPropId === propId ? classes.treeItemHovered : ''
         )}
@@ -288,110 +302,84 @@ class ToolsPanel extends React.Component {
         }}
         anchor="left"
       >
-        <TreeView
-          defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultExpandIcon={<ChevronRightIcon />}
-          className={classes.treeView}
-        >
-          <SmallTreeItem nodeId={'outcomes'} label={DATAMAP.PMC_PROPTYPES.OUTCOME.toUpperCase()}>
-            {outcomesList}
-          </SmallTreeItem>
-        </TreeView>
-        <Tooltip title={`Add ${DATAMAP.PMC_PROPTYPES.OUTCOME} or property`}>
-          <Fab
+        <div className={classes.toolsPanelGroup} style={{ backgroundColor: purple[50] }}>
+          <TreeView
+            defaultCollapseIcon={<ExpandMoreIcon />}
+            defaultExpandIcon={<ChevronRightIcon />}
+            className={classes.treeView}
+          >
+            <SmallTreeItem nodeId={'outcomes'} label={DATAMAP.PMC_PROPTYPES.OUTCOME.toUpperCase()}>
+              {outcomesList}
+            </SmallTreeItem>
+          </TreeView>
+          <SmallFab
             color="inherit"
             size="small"
+            variant="extended"
             aria-label="Add"
-            className={classes.fab}
             onClick={this.OnOutcomeAdd}
             disabled={isDisabled}
             hidden={isViewOnly}
-            style={{ backgroundColor: '#bd419c', color: '#fff' }}
+            style={{ backgroundColor: '#bd419c', color: '#fff', margin: '5 0' }}
           >
-            <AddIcon />
-          </Fab>
-        </Tooltip>
-        <Typography
-          align="center"
-          variant="caption"
-          style={{ fontSize: '10px' }}
-          hidden={isViewOnly}
-        >
-          ADD {DATAMAP.PMC_PROPTYPES.OUTCOME.toUpperCase()}
-        </Typography>
+            Add {DATAMAP.PMC_PROPTYPES.OUTCOME}
+          </SmallFab>
+        </div>
 
-        <Divider style={{ marginBottom: '20px' }} />
-
-        <TreeView
-          defaultExpanded={['mechanisms']}
-          defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultExpandIcon={<ChevronRightIcon />}
-          className={classes.treeView}
-        >
-          <SmallTreeItem
-            nodeId={'mechanisms'}
-            label={DATAMAP.PMC_PROPTYPES.MECHANISM.toUpperCase()}
+        <div className={classes.toolsPanelGroup} style={{ backgroundColor: orange[50] }}>
+          <TreeView
+            defaultExpanded={['mechanisms']}
+            defaultCollapseIcon={<ExpandMoreIcon />}
+            defaultExpandIcon={<ChevronRightIcon />}
+            className={classes.treeView}
           >
-            {mechanismsList}
-          </SmallTreeItem>
-        </TreeView>
-        <Tooltip title={`Add ${DATAMAP.PMC_PROPTYPES.MECHANISM}`}>
-          <Fab
+            <SmallTreeItem
+              nodeId={'mechanisms'}
+              label={DATAMAP.PMC_PROPTYPES.MECHANISM.toUpperCase()}
+            >
+              {mechanismsList}
+            </SmallTreeItem>
+          </TreeView>
+          <SmallFab
             color="primary"
             size="small"
+            variant="extended"
             aria-label="Add"
             className={ClassNames(classes.fab, classes.edgeButton)}
             onClick={this.OnMechAdd}
             disabled={isDisabled}
             hidden={isViewOnly}
           >
-            <AddIcon />
-          </Fab>
-        </Tooltip>
-        <Typography
-          align="center"
-          variant="caption"
-          style={{ fontSize: '10px' }}
-          hidden={isViewOnly}
-        >
-          ADD {DATAMAP.PMC_PROPTYPES.MECHANISM.toUpperCase()}
-        </Typography>
+            Add {DATAMAP.PMC_PROPTYPES.MECHANISM}
+          </SmallFab>
+        </div>
 
-        <Divider style={{ marginBottom: '20px' }} />
-
-        <TreeView
-          defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultExpandIcon={<ChevronRightIcon />}
-          className={classes.treeView}
-        >
-          <SmallTreeItem
-            nodeId={'components'}
-            label={DATAMAP.PMC_PROPTYPES.COMPONENT.toUpperCase()}
+        <div className={classes.toolsPanelGroup} style={{ backgroundColor: indigo[50] }}>
+          <TreeView
+            defaultCollapseIcon={<ExpandMoreIcon />}
+            defaultExpandIcon={<ChevronRightIcon />}
+            className={classes.treeView}
           >
-            {componentsList}
-          </SmallTreeItem>
-        </TreeView>
-        <Tooltip title={`Add ${DATAMAP.PMC_PROPTYPES.COMPONENT} or property`}>
-          <Fab
+            <SmallTreeItem
+              nodeId={'components'}
+              label={DATAMAP.PMC_PROPTYPES.COMPONENT.toUpperCase()}
+            >
+              {componentsList}
+            </SmallTreeItem>
+          </TreeView>
+          <SmallFab
             color="primary"
             size="small"
+            variant="extended"
             aria-label="Add"
             className={classes.fab}
             onClick={this.OnComponentAdd}
             disabled={isDisabled}
             hidden={isViewOnly}
           >
-            <AddIcon />
-          </Fab>
-        </Tooltip>
-        <Typography
-          align="center"
-          variant="caption"
-          style={{ fontSize: '10px' }}
-          hidden={isViewOnly}
-        >
-          ADD {DATAMAP.PMC_PROPTYPES.COMPONENT.toUpperCase()}
-        </Typography>
+            Add {DATAMAP.PMC_PROPTYPES.COMPONENT}
+          </SmallFab>
+        </div>
       </Drawer>
     );
   }

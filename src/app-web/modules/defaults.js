@@ -48,6 +48,9 @@ const DEFAULTS = {
     PROP: '#44F',
     PROP_SEL: '#44F',
     PROP_HOV: '#FFA244',
+    COMP: '#F3E',
+    COMP_SEL: '#F3E',
+    COMP_HOV: '#FFA2FF',
     STICKY_BUTTON: '#ffdd11'
   }
 };

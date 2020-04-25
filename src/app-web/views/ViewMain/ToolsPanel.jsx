@@ -33,6 +33,7 @@ import UR from '../../../system/ursys';
 import DEFAULTS from '../../modules/defaults';
 import DATA from '../../modules/data';
 import ADM from '../../modules/data';
+import DATAMAP from '../../../system/common-datamap';
 
 const { CoerceToEdgeObj } = DEFAULTS;
 
@@ -63,6 +64,7 @@ class ToolsPanel extends React.Component {
     this.DoMechHoverStart = this.DoMechHoverStart.bind(this);
     this.DoMechHoverEnd = this.DoMechHoverEnd.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
+    this.OnOutcomeAdd = this.OnOutcomeAdd.bind(this);
     this.OnComponentAdd = this.OnComponentAdd.bind(this);
     this.OnMechAdd = this.OnMechAdd.bind(this);
     this.RenderComponentsList = this.RenderComponentsList.bind(this);
@@ -134,6 +136,11 @@ class ToolsPanel extends React.Component {
     });
   }
 
+  // User clicked on "(+) Add Outcome" drawer button
+  OnOutcomeAdd() {
+    UR.Publish('OUTCOME_ADD');
+  }
+
   // User clicked on "(+) Add Component" drawer button
   OnComponentAdd() {
     UR.Publish('PROP_ADD');
@@ -168,8 +175,18 @@ class ToolsPanel extends React.Component {
     DATA.VM_SelectOneMech(vmech);
   }
 
-  RenderComponentsList(propIds) {
-    return propIds.map(propId => {
+  RenderComponentsList(propIds, filterByPropType) {
+    let relevantProps = propIds.filter(id => {
+      const prop = DATA.Prop(id);
+      if (filterByPropType === DATAMAP.PMC_PROPTYPES.COMPONENT) {
+        return (prop.propType === DATAMAP.PMC_PROPTYPES.COMPONENT)
+          || (prop.propType === undefined); // for backward compatibility
+        // project data that predated propTypes assumed all props were components
+      } else {
+        return prop.propType === filterByPropType;
+      }
+    });
+    return relevantProps.map(propId => {
       return this.RenderComponentsListItem(propId);
     });
   }
@@ -256,6 +273,7 @@ class ToolsPanel extends React.Component {
   render() {
     const { classes, isDisabled } = this.props;
 
+    const outcomesList = this.RenderComponentsList(DATA.Components(), DATAMAP.PMC_PROPTYPES.OUTCOME);
     const componentsList = this.RenderComponentsList(DATA.Components());
     const mechanismsList = this.RenderMechanismsList(DATA.AllMechs());
 
@@ -275,27 +293,35 @@ class ToolsPanel extends React.Component {
           defaultExpandIcon={<ChevronRightIcon />}
           className={classes.treeView}
         >
-          <SmallTreeItem nodeId={'components'} label="COMPONENTS">
-            {componentsList}
+          <SmallTreeItem nodeId={'outcomes'} label="OUTCOMES">
+            {outcomesList}
           </SmallTreeItem>
         </TreeView>
         <Tooltip title="Add Component or Property">
           <Fab
-            color="primary"
+            color="inherit"
             size="small"
             aria-label="Add"
             className={classes.fab}
-            onClick={this.OnComponentAdd}
+            onClick={this.OnOutcomeAdd}
             disabled={isDisabled}
             hidden={isViewOnly}
+            style={{ backgroundColor: '#bd419c', color: '#fff' }}
           >
             <AddIcon />
           </Fab>
         </Tooltip>
-        <Typography align="center" variant="caption" style={{ fontSize: '10px' }} hidden={isViewOnly}>
-          ADD COMPONENT
+        <Typography
+          align="center"
+          variant="caption"
+          style={{ fontSize: '10px' }}
+          hidden={isViewOnly}
+        >
+          ADD OUTCOME
         </Typography>
+
         <Divider style={{ marginBottom: '20px' }} />
+
         <TreeView
           defaultExpanded={['mechanisms']}
           defaultCollapseIcon={<ExpandMoreIcon />}
@@ -319,8 +345,46 @@ class ToolsPanel extends React.Component {
             <AddIcon />
           </Fab>
         </Tooltip>
-        <Typography align="center" variant="caption" style={{ fontSize: '10px' }} hidden={isViewOnly}>
+        <Typography
+          align="center"
+          variant="caption"
+          style={{ fontSize: '10px' }}
+          hidden={isViewOnly}
+        >
           ADD MECHANISM
+        </Typography>
+
+        <Divider style={{ marginBottom: '20px' }} />
+
+        <TreeView
+          defaultCollapseIcon={<ExpandMoreIcon />}
+          defaultExpandIcon={<ChevronRightIcon />}
+          className={classes.treeView}
+        >
+          <SmallTreeItem nodeId={'components'} label="COMPONENTS">
+            {componentsList}
+          </SmallTreeItem>
+        </TreeView>
+        <Tooltip title="Add Component or Property">
+          <Fab
+            color="primary"
+            size="small"
+            aria-label="Add"
+            className={classes.fab}
+            onClick={this.OnComponentAdd}
+            disabled={isDisabled}
+            hidden={isViewOnly}
+          >
+            <AddIcon />
+          </Fab>
+        </Tooltip>
+        <Typography
+          align="center"
+          variant="caption"
+          style={{ fontSize: '10px' }}
+          hidden={isViewOnly}
+        >
+          ADD COMPONENT
         </Typography>
       </Drawer>
     );

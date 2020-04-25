@@ -58,6 +58,7 @@ import RoutedView from './RoutedView';
 import DATA from '../../modules/data';
 import ADM from '../../modules/data';
 import ASET from '../../modules/adm-settings';
+import DATAMAP from '../../../system/common-datamap';
 import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -87,6 +88,7 @@ class ViewMain extends React.Component {
     this.OnChangeModelTitle = this.OnChangeModelTitle.bind(this);
     this.DoSaveModelTitle = this.DoSaveModelTitle.bind(this);
     this.DoSubmitModelTitleForm = this.DoSubmitModelTitleForm.bind(this);
+    this.OnOutcomeAdd = this.OnOutcomeAdd.bind(this);
     this.OnPropAdd = this.OnPropAdd.bind(this);
     this.OnPropDelete = this.OnPropDelete.bind(this);
     this.OnAddPropComment = this.OnAddPropComment.bind(this);
@@ -108,6 +110,7 @@ class ViewMain extends React.Component {
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Subscribe('MODEL_TITLE_UPDATED', this.DoModelTitleUpdate);
+    UR.Subscribe('OUTCOME_ADD', this.OnOutcomeAdd);
     UR.Subscribe('PROP_ADD', this.OnComponentAdd);
     UR.Subscribe('PROPDIALOG_CLOSE', this.OnPropDialogClose);
     UR.Subscribe('MECH_ADD', this.OnMechAdd);
@@ -149,6 +152,7 @@ class ViewMain extends React.Component {
     UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Unsubscribe('MODEL_TITLE_UPDATED', this.DoModelTitleUpdate);
+    UR.Unsubscribe('OUTCOME_ADD', this.OnOutcomeAdd);
     UR.Unsubscribe('PROP_ADD', this.OnComponentAdd);
     UR.Unsubscribe('PROPDIALOG_CLOSE', this.OnPropDialogClose);
     UR.Unsubscribe('MECH_ADD', this.OnMechAdd);
@@ -217,16 +221,24 @@ class ViewMain extends React.Component {
   DoSaveModelTitle() {
     ADM.DB_ModelTitleUpdate(this.state.modelId, this.state.title);
   }
-  
+
   DoSubmitModelTitleForm(e) {
     e.preventDefault();
     e.stopPropagation();
     document.activeElement.blur(); // will trigger save
   }
 
+  // User clicked on "(+) Add Outcome" drawer button
+  OnOutcomeAdd() {
+    UR.Publish('PROPDIALOG_OPEN', { isProperty: false, propType: DATAMAP.PMC_PROPTYPES.OUTCOME });
+    this.setState({
+      addPropOpen: true
+    });
+  }
+
   // User clicked on "(+) Add Component" drawer button
   OnComponentAdd() {
-    UR.Publish('PROPDIALOG_OPEN', { isProperty: false });
+    UR.Publish('PROPDIALOG_OPEN', { isProperty: false, propType: 'component' });
     this.setState({
       addPropOpen: true
     });
@@ -472,7 +484,7 @@ class ViewMain extends React.Component {
     UR.Publish('RATING_CLOSE');
     ADM.Logout();
   }
-  
+
   OnHelp() {
     UR.Publish('HELP_OPEN');
   }
@@ -500,9 +512,9 @@ class ViewMain extends React.Component {
     const model = ADM.GetModelById(modelId);
     const classroomId = model ? ADM.GetClassroomIdByGroup(model.groupId) : '';
     const resources = classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
-    
+
     const isViewOnly = ADM.IsViewOnly();
-    
+
     return (
       <div className={classes.root}>
         <CssBaseline />

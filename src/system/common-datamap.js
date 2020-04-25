@@ -41,6 +41,15 @@ const DBCMDS = new Map([
   ['remove', 'NET:SRV_DBREMOVE']
 ]);
 
+/// list of valid PropTypes for Props in PMC DATA
+/// the value is a human-friendly label used in dialogs
+const PMC_PROPTYPES = {
+  'COMPONENT': 'entity',
+  'OUTCOME': 'outcome',
+  'MECHANISM': 'process'
+};
+
+
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
@@ -111,6 +120,8 @@ class DataMap {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DataMap.DBKEYS = DBKEYS;
 DataMap.DBCMDS = DBCMDS;
+DataMap.PMC_PROPTYPES = PMC_PROPTYPES;
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** returns an array of valid TOP LEVEL collections
  */

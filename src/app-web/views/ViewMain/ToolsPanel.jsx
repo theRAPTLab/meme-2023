@@ -293,11 +293,11 @@ class ToolsPanel extends React.Component {
           defaultExpandIcon={<ChevronRightIcon />}
           className={classes.treeView}
         >
-          <SmallTreeItem nodeId={'outcomes'} label="OUTCOMES">
+          <SmallTreeItem nodeId={'outcomes'} label={DATAMAP.PMC_PROPTYPES.OUTCOME.toUpperCase()}>
             {outcomesList}
           </SmallTreeItem>
         </TreeView>
-        <Tooltip title="Add Component or Property">
+        <Tooltip title={`Add ${DATAMAP.PMC_PROPTYPES.OUTCOME} or property`}>
           <Fab
             color="inherit"
             size="small"
@@ -317,7 +317,7 @@ class ToolsPanel extends React.Component {
           style={{ fontSize: '10px' }}
           hidden={isViewOnly}
         >
-          ADD OUTCOME
+          ADD {DATAMAP.PMC_PROPTYPES.OUTCOME.toUpperCase()}
         </Typography>
 
         <Divider style={{ marginBottom: '20px' }} />
@@ -328,11 +328,14 @@ class ToolsPanel extends React.Component {
           defaultExpandIcon={<ChevronRightIcon />}
           className={classes.treeView}
         >
-          <SmallTreeItem nodeId={'mechanisms'} label="MECHANISMS">
+          <SmallTreeItem
+            nodeId={'mechanisms'}
+            label={DATAMAP.PMC_PROPTYPES.MECHANISM.toUpperCase()}
+          >
             {mechanismsList}
           </SmallTreeItem>
         </TreeView>
-        <Tooltip title="Add Mechanism">
+        <Tooltip title={`Add ${DATAMAP.PMC_PROPTYPES.MECHANISM}`}>
           <Fab
             color="primary"
             size="small"
@@ -351,7 +354,7 @@ class ToolsPanel extends React.Component {
           style={{ fontSize: '10px' }}
           hidden={isViewOnly}
         >
-          ADD MECHANISM
+          ADD {DATAMAP.PMC_PROPTYPES.MECHANISM.toUpperCase()}
         </Typography>
 
         <Divider style={{ marginBottom: '20px' }} />
@@ -361,11 +364,14 @@ class ToolsPanel extends React.Component {
           defaultExpandIcon={<ChevronRightIcon />}
           className={classes.treeView}
         >
-          <SmallTreeItem nodeId={'components'} label="COMPONENTS">
+          <SmallTreeItem
+            nodeId={'components'}
+            label={DATAMAP.PMC_PROPTYPES.COMPONENT.toUpperCase()}
+          >
             {componentsList}
           </SmallTreeItem>
         </TreeView>
-        <Tooltip title="Add Component or Property">
+        <Tooltip title={`Add ${DATAMAP.PMC_PROPTYPES.COMPONENT} or property`}>
           <Fab
             color="primary"
             size="small"
@@ -384,7 +390,7 @@ class ToolsPanel extends React.Component {
           style={{ fontSize: '10px' }}
           hidden={isViewOnly}
         >
-          ADD COMPONENT
+          ADD {DATAMAP.PMC_PROPTYPES.COMPONENT.toUpperCase()}
         </Typography>
       </Drawer>
     );

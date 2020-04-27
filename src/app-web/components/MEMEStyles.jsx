@@ -534,7 +534,8 @@ const styles = theme => {
     },
     helpViewText: {
       display: 'block', // override default MDReactComponent <span>
-      padding: '10px 0 5px 0'
+      padding: '10px 0 5px 0',
+      fontSize: '12px'
     },
     screenshotViewPaper: {
       position: 'absolute',

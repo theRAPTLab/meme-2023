@@ -25,8 +25,8 @@ const COL_HOVER_OPACITY = 0.3;
 const COL_BG = COLOR.PROP;
 const COL_BG_OUTCOME = COLOR.COMP;
 const COL_BG_OPACITY = 0.1;
-const DIM_RADIUS = 3; // component (default) radius
-const DIM_RADIUS_OUTCOME = 25; // outcome radius
+const DIM_RADIUS = 25; // component (default) radius
+const DIM_RADIUS_OUTCOME = 3; // outcome radius
 //
 const DBG = {
   edges: false,

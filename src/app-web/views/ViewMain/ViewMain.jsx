@@ -239,7 +239,7 @@ class ViewMain extends React.Component {
 
   // User clicked on "(+) Add Component" drawer button
   OnComponentAdd() {
-    UR.Publish('PROPDIALOG_OPEN', { isProperty: false, propType: 'component' });
+    UR.Publish('PROPDIALOG_OPEN', { isProperty: false, propType: DATAMAP.PMC_PROPTYPES.COMPONENT });
     this.setState({
       addPropOpen: true
     });
@@ -247,7 +247,8 @@ class ViewMain extends React.Component {
 
   // User selected component/prop and clicked on "(+) Add Property Button"
   OnPropAdd() {
-    UR.Publish('PROPDIALOG_OPEN', { isProperty: true });
+    let propType = this.state.componentIsSelected ? DATAMAP.PMC_PROPTYPES.COMPONENT : DATAMAP.PMC_PROPTYPES.OUTCOME;
+    UR.Publish('PROPDIALOG_OPEN', { isProperty: true, propType });
     this.setState({
       addPropOpen: true
     });
@@ -262,6 +263,7 @@ class ViewMain extends React.Component {
       UR.Publish('PROPDIALOG_OPEN', {
         label: prop.name,
         propId,
+        propType: prop.propType,
         description: prop.description,
         isProperty: false
       });

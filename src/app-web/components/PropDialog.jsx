@@ -88,7 +88,7 @@ class PropDialog extends React.Component {
           this.setState({
             isOpen: true,
             propId: data.propId || '', // new prop, so clear propId
-            propType: data.propType || 'component',
+            propType: data.propType || DATAMAP.PMC_PROPTYPES.COMPONENT, // default to component
             label: data.label || '', // clear the old property name
             description: data.description || '',
             isProperty: data.isProperty

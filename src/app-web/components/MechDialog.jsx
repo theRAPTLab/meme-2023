@@ -29,6 +29,7 @@ import DATA from '../modules/data';
 import ASET from '../modules/adm-settings';
 import UTILS from '../modules/utils';
 import LinkButton from './LinkButton';
+import DATAMAP from '../../system/common-datamap';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -148,7 +149,7 @@ class MechDialog extends React.Component {
             );
           } else {
             console.log('aw, locked by', rdata.lockedBy);
-            alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Mechanism right now.  Please try again later.`)
+            alert(`Sorry, someone else (${rdata.lockedBy}) is editing this ${DATAMAP.PMC_PROPTYPES.MECHANISM} right now.  Please try again later.`)
             UR.Publish('MECHDIALOG_CLOSED'); // tell ViewMain to re-enable ToolsPanel
           }
         });
@@ -203,7 +204,7 @@ class MechDialog extends React.Component {
         if (selectedPropIds.length > 0) {
           const sourceId = selectedPropIds[0];
           if (sourceId === this.state.targetId) {
-            alert(`${DATA.Prop(sourceId).name} is already selected!  Please select a different component / property!`);
+            alert(`${DATA.Prop(sourceId).name} is already selected!  Please select a different ${DATAMAP.PMC_PROPTYPES.COMPONENT} or ${DATAMAP.PMC_PROPTYPES.OUTCOME}!`);
             DATA.VM_DeselectAll();
           } else {
             this.setState({
@@ -219,7 +220,7 @@ class MechDialog extends React.Component {
           // if two are selected, grab the second one, since source would grabed the first?
           const targetId = selectedPropIds.length > 1 ? selectedPropIds[1] : selectedPropIds[0];
           if (targetId === this.state.sourceId) {
-            alert(`${DATA.Prop(targetId).name} is already selected!  Please select a different component / property!`);
+            alert(`${DATA.Prop(targetId).name} is already selected!  Please select a different ${DATAMAP.PMC_PROPTYPES.COMPONENT} or ${DATAMAP.PMC_PROPTYPES.OUTCOME}!`);
             DATA.VM_DeselectAll();
           } else {
             this.setState({
@@ -294,7 +295,7 @@ class MechDialog extends React.Component {
           listenForTargetSelection: true
         });
       }
-      alert('The component or property you were linking was deleted by someone else.  Please select a different component or property.');
+      alert(`The ${DATAMAP.PMC_PROPTYPES.COMPONENT} or ${DATAMAP.PMC_PROPTYPES.OUTCOME} you were linking was deleted by someone else.  Please select a different component or property.`);
     }
   }
 
@@ -403,7 +404,7 @@ class MechDialog extends React.Component {
       <Card className={classes.edgeDialog} hidden={!isOpen}>
         <Paper className={classes.edgeDialogPaper}>
           <form onSubmit={this.OnCreateClick}>
-            <div className={classes.edgeDialogWindowLabel}>ADD MECHANISM</div>
+            <div className={classes.edgeDialogWindowLabel}>ADD {DATAMAP.PMC_PROPTYPES.MECHANISM.toUpperCase()}</div>
             <div className={classes.edgeDialogInput}>
               <Slide direction={reversing ? 'left' : 'up'} in={slideIn}>
                 <LinkButton

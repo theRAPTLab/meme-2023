@@ -30,6 +30,7 @@ import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import ADM from '../modules/data';
 import CriteriaList from '../views/ViewAdmin/components/AdmCriteriaList';
+import DATAMAP from '../../system/common-datamap';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -48,22 +49,22 @@ class HelpView extends React.Component {
     this.state = {
       isOpen: false,
       helptext: `
-###### Create a Component
-1. Click on 'Add Component'
+###### Create a ${DATAMAP.PMC_PROPTYPES.COMPONENT}
+1. Click on 'Add ${DATAMAP.PMC_PROPTYPES.COMPONENT}'
 
-###### Create a Mechanism
-1. Click on 'Add Mechanism'
-2. Click on the source component/property
-3. Click on the target component/property
+###### Create a ${DATAMAP.PMC_PROPTYPES.MECHANISM}
+1. Click on 'Add ${DATAMAP.PMC_PROPTYPES.MECHANISM}'
+2. Click on the source ${DATAMAP.PMC_PROPTYPES.COMPONENT}/${DATAMAP.PMC_PROPTYPES.OUTCOME}/property
+3. Click on the target ${DATAMAP.PMC_PROPTYPES.COMPONENT}/${DATAMAP.PMC_PROPTYPES.OUTCOME}/property
 4. Type in a label
 5. Click 'Add'
 
 ###### Create an Evidence Link
-Evidence Links should describe how a resource supports or contradicts your model's component, property, or mechanism.
+Evidence Links should describe how a resource supports or contradicts your model's ${DATAMAP.PMC_PROPTYPES.COMPONENT}, ${DATAMAP.PMC_PROPTYPES.OUTCOME}, or ${DATAMAP.PMC_PROPTYPES.MECHANISM},
 1. View the Resource by clicking on it in the Resource Library.
 2. Click 'Create Evidence' button
 3. Type in a description.
-4. Click on 'Set Target' to close the resource view and select a component, property, or mechansim in your model.
+4. Click on 'Set Target' to close the resource view and select a ${DATAMAP.PMC_PROPTYPES.COMPONENT}, ${DATAMAP.PMC_PROPTYPES.OUTCOME}, or ${DATAMAP.PMC_PROPTYPES.MECHANISM}in your model.
 5. Give it a rating.
 6. Click 'Save'
 

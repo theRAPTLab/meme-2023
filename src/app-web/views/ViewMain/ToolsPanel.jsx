@@ -322,7 +322,7 @@ class ToolsPanel extends React.Component {
             hidden={isViewOnly}
             style={{ backgroundColor: '#bd419c', color: '#fff', margin: '5 0' }}
           >
-            Add {DATAMAP.PMC_MODELTYPES.OUTCOME.plural}
+            Add {DATAMAP.PMC_MODELTYPES.OUTCOME.label}
           </SmallFab>
         </div>
 
@@ -350,7 +350,7 @@ class ToolsPanel extends React.Component {
             disabled={isDisabled}
             hidden={isViewOnly}
           >
-            Add {DATAMAP.PMC_MODELTYPES.MECHANISM.plural}
+            Add {DATAMAP.PMC_MODELTYPES.MECHANISM.label}
           </SmallFab>
         </div>
 
@@ -377,7 +377,7 @@ class ToolsPanel extends React.Component {
             disabled={isDisabled}
             hidden={isViewOnly}
           >
-            Add {DATAMAP.PMC_MODELTYPES.COMPONENT.plural}
+            Add {DATAMAP.PMC_MODELTYPES.COMPONENT.label}
           </SmallFab>
         </div>
       </Drawer>

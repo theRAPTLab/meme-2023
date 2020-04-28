@@ -727,7 +727,7 @@ PMCData.PMC_PropAdd = newPropObj => {
   const propObj = Object.assign(newPropObj, { type: 'prop' });
   // Set propType for backward compatibility
   // Automaticlaly set proptype to COMPONENT if none was defined
-  propObj.propType = newPropObj.propType || DATAMAP.PMC_PROPTYPES.COMPONENT; // default to component
+  propObj.propType = newPropObj.propType || DATAMAP.PMC_MODELTYPES.COMPONENT.id; // default to component
   UTILS.RLog(
     'PropertyAdd',
     `name: "${newPropObj.name}" propType: "${newPropObj.propType}" description: "${newPropObj.description}" with parent "${newPropObj.parent}"`
@@ -762,7 +762,7 @@ PMCData.PMC_PropUpdate = (propId, newData) => {
   // make a copy of the prop with overwritten new data
   // local data will be updated on DBSYNC event, so don't write it here
   const propData = Object.assign(prop, newData, { id: numericId }); // id last to make sure we're using a cleaned one
-  propData.propType = propData.propType || DATAMAP.PMC_PROPTYPES.COMPONENT; // default to component
+  propData.propType = propData.propType || DATAMAP.PMC_MODELTYPES.COMPONENT.id; // default to component
   const pmcDataId = ASET.selectedPMCDataId;
   UTILS.RLog(
     'PropertyEdit',

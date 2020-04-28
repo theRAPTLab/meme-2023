@@ -49,22 +49,22 @@ class HelpView extends React.Component {
     this.state = {
       isOpen: false,
       helptext: `
-###### Create a ${DATAMAP.PMC_PROPTYPES.COMPONENT}
-1. Click on 'Add ${DATAMAP.PMC_PROPTYPES.COMPONENT}'
+###### Create a ${DATAMAP.PMC_MODELTYPES.COMPONENT.label}
+1. Click on 'Add ${DATAMAP.PMC_MODELTYPES.COMPONENT.label}'
 
-###### Create a ${DATAMAP.PMC_PROPTYPES.MECHANISM}
-1. Click on 'Add ${DATAMAP.PMC_PROPTYPES.MECHANISM}'
-2. Click on the source ${DATAMAP.PMC_PROPTYPES.COMPONENT}/${DATAMAP.PMC_PROPTYPES.OUTCOME}/property
-3. Click on the target ${DATAMAP.PMC_PROPTYPES.COMPONENT}/${DATAMAP.PMC_PROPTYPES.OUTCOME}/property
+###### Create a ${DATAMAP.PMC_MODELTYPES.MECHANISM.label}
+1. Click on 'Add ${DATAMAP.PMC_MODELTYPES.MECHANISM.label}'
+2. Click on the source ${DATAMAP.PMC_MODELTYPES.COMPONENT.label}/${DATAMAP.PMC_MODELTYPES.OUTCOME.label}/property
+3. Click on the target ${DATAMAP.PMC_MODELTYPES.COMPONENT.label}/${DATAMAP.PMC_MODELTYPES.OUTCOME.label}/property
 4. Type in a label
 5. Click 'Add'
 
 ###### Create an Evidence Link
-Evidence Links should describe how a resource supports or contradicts your model's ${DATAMAP.PMC_PROPTYPES.COMPONENT}, ${DATAMAP.PMC_PROPTYPES.OUTCOME}, or ${DATAMAP.PMC_PROPTYPES.MECHANISM},
+Evidence Links should describe how a resource supports or contradicts your model's ${DATAMAP.PMC_MODELTYPES.COMPONENT.label}, ${DATAMAP.PMC_MODELTYPES.OUTCOME.label}, or ${DATAMAP.PMC_MODELTYPES.MECHANISM.label},
 1. View the Resource by clicking on it in the Resource Library.
 2. Click 'Create Evidence' button
 3. Type in a description.
-4. Click on 'Set Target' to close the resource view and select a ${DATAMAP.PMC_PROPTYPES.COMPONENT}, ${DATAMAP.PMC_PROPTYPES.OUTCOME}, or ${DATAMAP.PMC_PROPTYPES.MECHANISM}in your model.
+4. Click on 'Set Target' to close the resource view and select a ${DATAMAP.PMC_MODELTYPES.COMPONENT.label}, ${DATAMAP.PMC_MODELTYPES.OUTCOME.label}, or ${DATAMAP.PMC_MODELTYPES.MECHANISM.label}in your model.
 5. Give it a rating.
 6. Click 'Save'
 

@@ -41,14 +41,29 @@ const DBCMDS = new Map([
   ['remove', 'NET:SRV_DBREMOVE']
 ]);
 
-/// list of valid PropTypes for Props in PMC DATA
-/// the value is a human-friendly label used in dialogs
-const PMC_PROPTYPES = {
-  'COMPONENT': 'entity',
-  'OUTCOME': 'outcome',
-  'MECHANISM': 'process'
+/// list of valid model data types for Props and Mechs in PMC DATA
+/// `id` is unique identifier used in database.
+///      This should NOT ever be changed or it will result in
+///      data loss.
+/// 'label' is a human friendly display name used in dialogs
+/// 'plural' is a human friendly plural version of the 'label'
+const PMC_MODELTYPES = {
+  COMPONENT: {
+    id: 'cmp',
+    label: 'entity',
+    plural: 'entities'
+  },
+  OUTCOME: {
+    id: 'out',
+    label: 'outcome',
+    plural: 'outcomes'
+  },
+  MECHANISM: {
+    id: 'mch',
+    label: 'process',
+    plural: 'processes'
+  }
 };
-
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -120,7 +135,7 @@ class DataMap {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DataMap.DBKEYS = DBKEYS;
 DataMap.DBCMDS = DBCMDS;
-DataMap.PMC_PROPTYPES = PMC_PROPTYPES;
+DataMap.PMC_MODELTYPES = PMC_MODELTYPES;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** returns an array of valid TOP LEVEL collections

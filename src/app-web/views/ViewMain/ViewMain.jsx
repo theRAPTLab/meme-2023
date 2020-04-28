@@ -231,7 +231,7 @@ class ViewMain extends React.Component {
 
   // User clicked on "(+) Add Outcome" drawer button
   OnOutcomeAdd() {
-    UR.Publish('PROPDIALOG_OPEN', { isProperty: false, propType: DATAMAP.PMC_PROPTYPES.OUTCOME });
+    UR.Publish('PROPDIALOG_OPEN', { isProperty: false, propType: DATAMAP.PMC_MODELTYPES.OUTCOME.id });
     this.setState({
       addPropOpen: true
     });
@@ -239,7 +239,7 @@ class ViewMain extends React.Component {
 
   // User clicked on "(+) Add Component" drawer button
   OnComponentAdd() {
-    UR.Publish('PROPDIALOG_OPEN', { isProperty: false, propType: DATAMAP.PMC_PROPTYPES.COMPONENT });
+    UR.Publish('PROPDIALOG_OPEN', { isProperty: false, propType: DATAMAP.PMC_MODELTYPES.COMPONENT.id });
     this.setState({
       addPropOpen: true
     });
@@ -247,7 +247,7 @@ class ViewMain extends React.Component {
 
   // User selected component/prop and clicked on "(+) Add Property Button"
   OnPropAdd() {
-    let propType = this.state.componentIsSelected ? DATAMAP.PMC_PROPTYPES.COMPONENT : DATAMAP.PMC_PROPTYPES.OUTCOME;
+    let propType = this.state.componentIsSelected ? DATAMAP.PMC_MODELTYPES.COMPONENT.id : DATAMAP.PMC_MODELTYPES.OUTCOME.id;
     UR.Publish('PROPDIALOG_OPEN', { isProperty: true, propType });
     this.setState({
       addPropOpen: true
@@ -463,11 +463,11 @@ class ViewMain extends React.Component {
     if (selectedPropIds.length === 1 && !this.state.addEdgeOpen) {
       let selectedProp = DATA.Prop(selectedPropIds[0]);
       switch (selectedProp.propType) {
-        case DATAMAP.PMC_PROPTYPES.OUTCOME:
+        case DATAMAP.PMC_MODELTYPES.OUTCOME.id:
           outcomeIsSelected = true;
           break;
         default:
-        case DATAMAP.PMC_PROPTYPES.COMPONENT:
+        case DATAMAP.PMC_MODELTYPES.COMPONENT.id:
           componentIsSelected = true;
           break;
       }
@@ -703,10 +703,10 @@ class ViewMain extends React.Component {
           >
             <EditIcon />
             &nbsp;&nbsp;Edit {componentIsSelected
-              ? DATAMAP.PMC_PROPTYPES.COMPONENT
+              ? DATAMAP.PMC_MODELTYPES.COMPONENT.label
               : outcomeIsSelected
-                ? DATAMAP.PMC_PROPTYPES.OUTCOME
-                : DATAMAP.PMC_PROPTYPES.MECHANISM}
+                ? DATAMAP.PMC_MODELTYPES.OUTCOME.label
+                : DATAMAP.PMC_MODELTYPES.MECHANISM.label}
           </Fab>
           <Fab
             hidden={!(componentIsSelected || outcomeIsSelected) || isViewOnly}

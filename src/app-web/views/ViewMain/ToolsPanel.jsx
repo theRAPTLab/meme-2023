@@ -44,7 +44,7 @@ const PKG = 'ToolsPanel:';
 
 const SmallFab = withStyles(theme => ({
   root: {
-    margin: '0 0 5px 5px'
+    margin: '0'
   },
   label: {
     fontSize: '10px',
@@ -188,8 +188,8 @@ class ToolsPanel extends React.Component {
   RenderComponentsList(propIds, filterByPropType) {
     let relevantProps = propIds.filter(id => {
       const prop = DATA.Prop(id);
-      if (filterByPropType === DATAMAP.PMC_PROPTYPES.COMPONENT) {
-        return (prop.propType === DATAMAP.PMC_PROPTYPES.COMPONENT)
+      if (filterByPropType === DATAMAP.PMC_MODELTYPES.COMPONENT.id) {
+        return (prop.propType === DATAMAP.PMC_MODELTYPES.COMPONENT.id)
           || (prop.propType === undefined); // for backward compatibility
         // project data that predated propTypes assumed all props were components
       } else {
@@ -220,7 +220,7 @@ class ToolsPanel extends React.Component {
           classes.treeItem,
           isSub
             ? classes.treeSubPropItem
-            : prop.propType === DATAMAP.PMC_PROPTYPES.OUTCOME
+            : prop.propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
               ? classes.treeOutcomeItem
               : classes.treePropItem,
           selectedPropId === propId ? classes.treeItemSelected : '',
@@ -287,8 +287,8 @@ class ToolsPanel extends React.Component {
   render() {
     const { classes, isDisabled } = this.props;
 
-    const outcomesList = this.RenderComponentsList(DATA.Components(), DATAMAP.PMC_PROPTYPES.OUTCOME);
-    const componentsList = this.RenderComponentsList(DATA.Components(), DATAMAP.PMC_PROPTYPES.COMPONENT);
+    const outcomesList = this.RenderComponentsList(DATA.Components(), DATAMAP.PMC_MODELTYPES.OUTCOME.id);
+    const componentsList = this.RenderComponentsList(DATA.Components(), DATAMAP.PMC_MODELTYPES.COMPONENT.id);
     const mechanismsList = this.RenderMechanismsList(DATA.AllMechs());
 
     const isViewOnly = ADM.IsViewOnly();
@@ -308,7 +308,7 @@ class ToolsPanel extends React.Component {
             defaultExpandIcon={<ChevronRightIcon />}
             className={classes.treeView}
           >
-            <SmallTreeItem nodeId={'outcomes'} label={DATAMAP.PMC_PROPTYPES.OUTCOME.toUpperCase()}>
+            <SmallTreeItem nodeId={'outcomes'} label={DATAMAP.PMC_MODELTYPES.OUTCOME.label.toUpperCase()}>
               {outcomesList}
             </SmallTreeItem>
           </TreeView>
@@ -322,7 +322,7 @@ class ToolsPanel extends React.Component {
             hidden={isViewOnly}
             style={{ backgroundColor: '#bd419c', color: '#fff', margin: '5 0' }}
           >
-            Add {DATAMAP.PMC_PROPTYPES.OUTCOME}
+            Add {DATAMAP.PMC_MODELTYPES.OUTCOME.plural}
           </SmallFab>
         </div>
 
@@ -335,7 +335,7 @@ class ToolsPanel extends React.Component {
           >
             <SmallTreeItem
               nodeId={'mechanisms'}
-              label={DATAMAP.PMC_PROPTYPES.MECHANISM.toUpperCase()}
+              label={DATAMAP.PMC_MODELTYPES.MECHANISM.label.toUpperCase()}
             >
               {mechanismsList}
             </SmallTreeItem>
@@ -350,7 +350,7 @@ class ToolsPanel extends React.Component {
             disabled={isDisabled}
             hidden={isViewOnly}
           >
-            Add {DATAMAP.PMC_PROPTYPES.MECHANISM}
+            Add {DATAMAP.PMC_MODELTYPES.MECHANISM.plural}
           </SmallFab>
         </div>
 
@@ -362,7 +362,7 @@ class ToolsPanel extends React.Component {
           >
             <SmallTreeItem
               nodeId={'components'}
-              label={DATAMAP.PMC_PROPTYPES.COMPONENT.toUpperCase()}
+              label={DATAMAP.PMC_MODELTYPES.COMPONENT.label.toUpperCase()}
             >
               {componentsList}
             </SmallTreeItem>
@@ -377,7 +377,7 @@ class ToolsPanel extends React.Component {
             disabled={isDisabled}
             hidden={isViewOnly}
           >
-            Add {DATAMAP.PMC_PROPTYPES.COMPONENT}
+            Add {DATAMAP.PMC_MODELTYPES.COMPONENT.plural}
           </SmallFab>
         </div>
       </Drawer>

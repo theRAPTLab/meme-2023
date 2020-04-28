@@ -53,7 +53,7 @@ class VProp {
     // basic display props
     this.id = propId;
     this.data = Object.assign({}, DATA.Prop(propId)); // copy, not reference
-    this.isOutcome = this.data.propType === DATAMAP.PMC_PROPTYPES.OUTCOME;
+    this.isOutcome = this.data.propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id;
     this.gRoot = svgRoot.group(); // main reference group
     // this order is important
     this.visBG = this.gRoot.rect(this.width, this.height); // background

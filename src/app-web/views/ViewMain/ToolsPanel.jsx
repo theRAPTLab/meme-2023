@@ -288,7 +288,7 @@ class ToolsPanel extends React.Component {
     const { classes, isDisabled } = this.props;
 
     const outcomesList = this.RenderComponentsList(DATA.Components(), DATAMAP.PMC_PROPTYPES.OUTCOME);
-    const componentsList = this.RenderComponentsList(DATA.Components());
+    const componentsList = this.RenderComponentsList(DATA.Components(), DATAMAP.PMC_PROPTYPES.COMPONENT);
     const mechanismsList = this.RenderMechanismsList(DATA.AllMechs());
 
     const isViewOnly = ADM.IsViewOnly();

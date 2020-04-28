@@ -308,7 +308,7 @@ class ToolsPanel extends React.Component {
             defaultExpandIcon={<ChevronRightIcon />}
             className={classes.treeView}
           >
-            <SmallTreeItem nodeId={'outcomes'} label={DATAMAP.PMC_MODELTYPES.OUTCOME.label.toUpperCase()}>
+            <SmallTreeItem nodeId={'outcomes'} label={DATAMAP.PMC_MODELTYPES.OUTCOME.plural.toUpperCase()}>
               {outcomesList}
             </SmallTreeItem>
           </TreeView>
@@ -335,7 +335,7 @@ class ToolsPanel extends React.Component {
           >
             <SmallTreeItem
               nodeId={'mechanisms'}
-              label={DATAMAP.PMC_MODELTYPES.MECHANISM.label.toUpperCase()}
+              label={DATAMAP.PMC_MODELTYPES.MECHANISM.plural.toUpperCase()}
             >
               {mechanismsList}
             </SmallTreeItem>
@@ -362,7 +362,7 @@ class ToolsPanel extends React.Component {
           >
             <SmallTreeItem
               nodeId={'components'}
-              label={DATAMAP.PMC_MODELTYPES.COMPONENT.label.toUpperCase()}
+              label={DATAMAP.PMC_MODELTYPES.COMPONENT.plural.toUpperCase()}
             >
               {componentsList}
             </SmallTreeItem>

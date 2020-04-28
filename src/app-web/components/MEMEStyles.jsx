@@ -574,7 +574,7 @@ const styles = theme => {
       backgroundColor: COLOR.PROP
     },
     descriptionViewPaperOutcomeColor: {
-      backgroundColor: COLOR.COMP
+      backgroundColor: COLOR.OUTCOME
     },
     descriptionViewPaperMechColor: {
       backgroundColor: COLOR.MECH

@@ -45,12 +45,12 @@ const DEFAULTS = {
     MECH_HOV: '#FFC78F',
     MECH_LABEL: '#FF6600',
     MECH_LABEL_BG: 'rgba(240,240,255,0.9)', // match background of svg
-    PROP: '#44F',
+    PROP: '#08F',
     PROP_SEL: '#44F',
-    PROP_HOV: '#FFA244',
-    COMP: '#633',
-    COMP_SEL: '#F3E',
-    COMP_HOV: '#FFA2FF',
+    PROP_HOV: '#26F',
+    OUTCOME: '#62F',
+    OUTCOME_SEL: '#F3E',
+    OUTCOME_HOV: '#84F',
     STICKY_BUTTON: '#ffdd11'
   }
 };

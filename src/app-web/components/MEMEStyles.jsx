@@ -535,7 +535,7 @@ const styles = theme => {
     helpViewText: {
       display: 'block', // override default MDReactComponent <span>
       padding: '10px 0 5px 0',
-      fontSize: '12px'
+      fontSize: '11px'
     },
     screenshotViewPaper: {
       position: 'absolute',
@@ -571,10 +571,13 @@ const styles = theme => {
       color: 'white'
     },
     descriptionViewPaperPropColor: {
-      backgroundColor: indigo[400]
+      backgroundColor: COLOR.PROP
+    },
+    descriptionViewPaperOutcomeColor: {
+      backgroundColor: COLOR.COMP
     },
     descriptionViewPaperMechColor: {
-      backgroundColor: orange[800]
+      backgroundColor: COLOR.MECH
     },
     descriptionViewText: {
       display: 'block', // override default MDReactComponent <span>

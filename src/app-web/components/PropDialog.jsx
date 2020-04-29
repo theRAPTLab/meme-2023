@@ -85,6 +85,7 @@ class PropDialog extends React.Component {
         status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
         if (rdata.success) {
           console.log('do something here because u-locked!');
+          console.log('propsdialog editing', data);
           this.setState({
             isOpen: true,
             propId: data.propId || '', // new prop, so clear propId
@@ -149,13 +150,14 @@ class PropDialog extends React.Component {
   render() {
     const { isOpen, propId, propType, label, description, isProperty } = this.state;
     const { classes } = this.props;
+    const propTypeLabel = DATAMAP.ModelTypeLabel(propType) + (isProperty ? ' property' : '');
 
     return (
       <Dialog open={isOpen} onClose={this.DoClose} aria-labelledby="form-dialog-title">
         <form onSubmit={this.OnSubmit}>
-          <DialogTitle id="form-dialog-title">Add {propType}</DialogTitle>
+          <DialogTitle id="form-dialog-title">Add {propTypeLabel}</DialogTitle>
           <DialogContent>
-            <DialogContentText>Type a name for your {propType}.</DialogContentText>
+            <DialogContentText>Type a name for your {propTypeLabel}.</DialogContentText>
             <TextField
               autoFocus
               margin="dense"

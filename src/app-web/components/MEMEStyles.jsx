@@ -93,10 +93,6 @@ const styles = theme => {
       cursor: 'pointer'
     },
     treeItemSelected: {},
-    treePropItem: {
-      color: COLOR.PROP,
-      backgroundColor: blue[50]
-    },
     treePropItemColor: {
       color: COLOR.PROP
     },
@@ -108,10 +104,6 @@ const styles = theme => {
       fontSize: '10px',
       fontStyle: 'italic',
       backgroundColor: 'inherit' // necessary to trigger hover brightness filter
-    },
-    treeOutcomeItem: {
-      color: COLOR.OUTCOME,
-      backgroundColor: purple[50]
     },
     treeMechItem: {
       color: COLOR.MECH,

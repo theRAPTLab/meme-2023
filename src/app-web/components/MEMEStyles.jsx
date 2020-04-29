@@ -412,14 +412,25 @@ const styles = theme => {
       overflow: 'hidden'
     },
     evidenceLinkSourcePropAvatarSelected: {
-      color: indigo[900],
-      backgroundColor: indigo[100],
-      padding: '0 7px'
+      color: '#fff',
+      backgroundColor: COLOR.PROP
+    },
+    evidenceLinkSourcePropAvatarDisabled: {
+      backgroundColor: COLOR.PROP_LINK
+    },
+    evidenceLinkSourceOutcomeAvatarSelected: {
+      color: '#fff',
+      backgroundColor: COLOR.OUTCOME
+    },
+    evidenceLinkSourceOutcomeAvatarDisabled: {
+      backgroundColor: COLOR.OUTCOME_LINK
     },
     evidenceLinkSourceMechAvatarSelected: {
-      color: orange[900],
-      backgroundColor: orange[100],
-      padding: '0 7px'
+      color: '#fff',
+      backgroundColor: COLOR.MECH
+    },
+    evidenceLinkSourceMechAvatarDisabled: {
+      backgroundColor: COLOR.MECH_LINK
     },
     ratingIconSelected: {
       color: yellow[800]

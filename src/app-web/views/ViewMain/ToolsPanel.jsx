@@ -15,7 +15,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Material UI Elements
-import { indigo, orange, purple } from '@material-ui/core/colors';
+import { blue, orange, purple } from '@material-ui/core/colors';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Fab from '@material-ui/core/Fab';
@@ -44,11 +44,12 @@ const PKG = 'ToolsPanel:';
 
 const SmallFab = withStyles(theme => ({
   root: {
-    margin: '0'
+    margin: '5px 0'
   },
   label: {
     fontSize: '10px',
-    textTransform: 'capitalize'
+    textTransform: 'capitalize',
+    color: '#fff'
   }
 }))(props => <Fab {...props} />);
 
@@ -221,8 +222,8 @@ class ToolsPanel extends React.Component {
           isSub
             ? classes.treeSubPropItem
             : prop.propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
-              ? classes.treeOutcomeItem
-              : classes.treePropItem,
+              ? classes.treeOutcomeItemColor
+              : classes.treePropItemColor,
           selectedPropId === propId ? classes.treeItemSelected : '',
           hoveredPropId === propId ? classes.treeItemHovered : ''
         )}
@@ -254,7 +255,9 @@ class ToolsPanel extends React.Component {
       const targetObj = DATA.Prop(mechId.w);
       // protect against corrupt data
       const source = sourceObj ? sourceObj.name : 'missing prop';
+      const sourceType = sourceObj ? sourceObj.propType : 'missing prop';
       const target = targetObj ? targetObj.name : 'missing prop';
+      const targetType = sourceObj ? targetObj.propType : 'missing prop';
       i++;
       return (
         <div
@@ -276,9 +279,13 @@ class ToolsPanel extends React.Component {
             UR.Publish('MECH_HOVER_END', { mechId: mechId });
           }}
         >
-          <span className={classes.treePropItemColor}>{source} </span>
+          <span className={sourceType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
+            ? classes.treeOutcomeItemColor
+            : classes.treePropItemColor}>{source} </span>
           {mech.name}
-          <span className={classes.treePropItemColor}> {target}</span>
+          <span className={targetType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
+            ? classes.treeOutcomeItemColor
+            : classes.treePropItemColor}> {target}</span>
         </div>
       );
     });
@@ -320,7 +327,7 @@ class ToolsPanel extends React.Component {
             onClick={this.OnOutcomeAdd}
             disabled={isDisabled}
             hidden={isViewOnly}
-            style={{ backgroundColor: '#bd419c', color: '#fff', margin: '5 0' }}
+            style={{ backgroundColor: DEFAULTS.COLOR.OUTCOME }}
           >
             Add {DATAMAP.PMC_MODELTYPES.OUTCOME.label}
           </SmallFab>
@@ -341,20 +348,20 @@ class ToolsPanel extends React.Component {
             </SmallTreeItem>
           </TreeView>
           <SmallFab
-            color="primary"
+            color="inherit"
             size="small"
             variant="extended"
             aria-label="Add"
-            className={ClassNames(classes.fab, classes.edgeButton)}
             onClick={this.OnMechAdd}
             disabled={isDisabled}
             hidden={isViewOnly}
+            style={{ backgroundColor: DEFAULTS.COLOR.MECH }}
           >
             Add {DATAMAP.PMC_MODELTYPES.MECHANISM.label}
           </SmallFab>
         </div>
 
-        <div className={classes.toolsPanelGroup} style={{ backgroundColor: indigo[50] }}>
+        <div className={classes.toolsPanelGroup} style={{ backgroundColor: blue[50] }}>
           <TreeView
             defaultCollapseIcon={<ExpandMoreIcon />}
             defaultExpandIcon={<ChevronRightIcon />}
@@ -368,7 +375,7 @@ class ToolsPanel extends React.Component {
             </SmallTreeItem>
           </TreeView>
           <SmallFab
-            color="primary"
+            color="inherit"
             size="small"
             variant="extended"
             aria-label="Add"
@@ -376,6 +383,7 @@ class ToolsPanel extends React.Component {
             onClick={this.OnComponentAdd}
             disabled={isDisabled}
             hidden={isViewOnly}
+            style={{ backgroundColor: DEFAULTS.COLOR.PROP }}
           >
             Add {DATAMAP.PMC_MODELTYPES.COMPONENT.label}
           </SmallFab>

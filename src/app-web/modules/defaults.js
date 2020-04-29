@@ -40,7 +40,7 @@ const DEFAULTS = {
     DumpObj
   },
   COLOR: {
-    MECH: 'orange',
+    MECH: '#F70',
     MECH_SEL: '#44F',
     MECH_HOV: '#FFC78F',
     MECH_LINK: '#FF990066',

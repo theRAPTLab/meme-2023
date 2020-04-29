@@ -92,14 +92,16 @@ const styles = theme => {
       wordBreak: 'break-all',
       cursor: 'pointer'
     },
-    treeItemSelected: {
-    },
+    treeItemSelected: {},
     treePropItem: {
-      color: indigo[600],
-      backgroundColor: indigo[50]
+      color: COLOR.PROP,
+      backgroundColor: blue[50]
     },
     treePropItemColor: {
-      color: indigo[600]
+      color: COLOR.PROP
+    },
+    treeOutcomeItemColor: {
+      color: COLOR.OUTCOME
     },
     treeSubPropItem: {
       margin: '0 0 0 0.5em',
@@ -108,19 +110,15 @@ const styles = theme => {
       backgroundColor: 'inherit' // necessary to trigger hover brightness filter
     },
     treeOutcomeItem: {
-      color: purple[600],
+      color: COLOR.OUTCOME,
       backgroundColor: purple[50]
     },
     treeMechItem: {
-      color: orange[800],
+      color: COLOR.MECH,
       backgroundColor: orange[50]
     },
     treeItemHovered: {
       filter: 'brightness(90%) saturate(200%)'
-    },
-    edgeButton: {
-      backgroundColor: orange[500],
-      '&:hover': { backgroundColor: orange[700] }
     },
     edgeDialogWindowLabel: {
       fontSize: m_systemLabelFontSize,

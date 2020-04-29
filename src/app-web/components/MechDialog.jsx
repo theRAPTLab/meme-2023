@@ -400,6 +400,25 @@ class MechDialog extends React.Component {
       slideIn
     } = this.state;
     const { classes } = this.props;
+
+    let sourceSourceType;
+    if (sourceId !== '') {
+      if (DATA.Prop(sourceId).propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id) {
+        sourceSourceType = DATAMAP.PMC_MODELTYPES.OUTCOME.id;
+      } else {
+        sourceSourceType = DATAMAP.PMC_MODELTYPES.COMPONENT.id;
+      }
+    }
+
+    let targetSourceType;
+    if (targetId !== '') {
+      if (DATA.Prop(targetId).propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id) {
+        targetSourceType = DATAMAP.PMC_MODELTYPES.OUTCOME.id;
+      } else {
+        targetSourceType = DATAMAP.PMC_MODELTYPES.COMPONENT.id;
+      }
+    }
+
     return (
       <Card className={classes.edgeDialog} hidden={!isOpen}>
         <Paper className={classes.edgeDialogPaper}>
@@ -408,7 +427,7 @@ class MechDialog extends React.Component {
             <div className={classes.edgeDialogInput}>
               <Slide direction={reversing ? 'left' : 'up'} in={slideIn}>
                 <LinkButton
-                  sourceType="prop"
+                  sourceType={sourceSourceType}
                   sourceLabel={sourceLabel}
                   listenForSourceSelection={listenForSourceSelection}
                   isBeingEdited
@@ -430,7 +449,7 @@ class MechDialog extends React.Component {
               &nbsp;&nbsp;
               <Slide direction={reversing ? 'right' : 'up'} in={slideIn}>
                 <LinkButton
-                  sourceType="prop"
+                  sourceType={targetSourceType}
                   sourceLabel={targetLabel}
                   listenForSourceSelection={listenForTargetSelection}
                   isBeingEdited

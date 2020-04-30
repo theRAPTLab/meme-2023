@@ -497,9 +497,11 @@ VProp.SizeComponents = () => {
       // terminal nodes have no children
       // so the calculation of size is easy
       databbox.w += PAD.MIN2; // add horizontal padding
-      vprop.PropSize(databbox); // store calculated overall size
+      // PropSize will adjust the vprop's bbox to account for badges
+      // so we need to return the NEW bbox, not the passed databbox.
+      let newbbox = vprop.PropSize(databbox); // store calculated overall size
       vprop.KidsSize({ w: 0, h: 0 }); // no children, so no dimension
-      return databbox; // end recursion by returning known value
+      return newbbox; // end recursion by returning known value
     }
     /*** CASE 2: THERE ARE CHILDREN */
     let childSizes = []; // collect sizes of each child

@@ -70,6 +70,7 @@ const { COLOR } = DEFAULTS;
 const LButton = withStyles(theme => ({
   root: {
     padding: '0 7px',
+    lineHeight: '1.2em',
     '&$disabled': {
       color: 'rgba(0,0,0,0.3)'
     }

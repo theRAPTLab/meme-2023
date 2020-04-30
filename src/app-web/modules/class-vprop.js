@@ -499,7 +499,7 @@ VProp.SizeComponents = () => {
       databbox.w += PAD.MIN2; // add horizontal padding
       // PropSize will adjust the vprop's bbox to account for badges
       // so we need to return the NEW bbox, not the passed databbox.
-      let newbbox = vprop.PropSize(databbox); // store calculated overall size
+      const newbbox = vprop.PropSize(databbox); // store calculated overall size
       vprop.KidsSize({ w: 0, h: 0 }); // no children, so no dimension
       return newbbox; // end recursion by returning known value
     }
@@ -528,8 +528,10 @@ VProp.SizeComponents = () => {
     };
     // add additional vertical padding
     bbox.h += childIds.length > 1 ? childIds.length * PAD.MIN : PAD.MIN;
-    vprop.PropSize(bbox);
-    return bbox;
+    // PropSize will adjust the vprop's bbox to account for badges
+    // so we need to return the NEW bbox, not the passed databbox.
+    const finalbbox = vprop.PropSize(bbox);
+    return finalbbox;
   }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

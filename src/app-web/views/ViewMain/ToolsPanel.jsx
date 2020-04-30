@@ -35,7 +35,7 @@ import DATA from '../../modules/data';
 import ADM from '../../modules/data';
 import DATAMAP from '../../../system/common-datamap';
 
-const { CoerceToEdgeObj } = DEFAULTS;
+const { COLOR, CoerceToEdgeObj } = DEFAULTS;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -222,8 +222,8 @@ class ToolsPanel extends React.Component {
           isSub
             ? classes.treeSubPropItem
             : prop.propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
-              ? classes.treeOutcomeItemColor
-              : classes.treePropItemColor,
+            ? classes.treeOutcomeItemColor
+            : classes.treePropItemColor,
           selectedPropId === propId ? classes.treeItemSelected : '',
           hoveredPropId === propId ? classes.treeItemHovered : ''
         )}
@@ -309,7 +309,7 @@ class ToolsPanel extends React.Component {
         }}
         anchor="left"
       >
-        <div className={classes.toolsPanelGroup} style={{ backgroundColor: purple[50] }}>
+        <div className={classes.toolsPanelGroup} style={{ backgroundColor: COLOR.OUTCOME_TOOLSPANEL_BG }}>
           <TreeView
             defaultCollapseIcon={<ExpandMoreIcon />}
             defaultExpandIcon={<ChevronRightIcon />}
@@ -327,13 +327,13 @@ class ToolsPanel extends React.Component {
             onClick={this.OnOutcomeAdd}
             disabled={isDisabled}
             hidden={isViewOnly}
-            style={{ backgroundColor: DEFAULTS.COLOR.OUTCOME }}
+            style={{ backgroundColor: COLOR.OUTCOME }}
           >
             Add {DATAMAP.PMC_MODELTYPES.OUTCOME.label}
           </SmallFab>
         </div>
 
-        <div className={classes.toolsPanelGroup} style={{ backgroundColor: orange[50] }}>
+        <div className={classes.toolsPanelGroup} style={{ backgroundColor: COLOR.MECH_TOOLSPANEL_BG }}>
           <TreeView
             defaultExpanded={['mechanisms']}
             defaultCollapseIcon={<ExpandMoreIcon />}
@@ -355,13 +355,13 @@ class ToolsPanel extends React.Component {
             onClick={this.OnMechAdd}
             disabled={isDisabled}
             hidden={isViewOnly}
-            style={{ backgroundColor: DEFAULTS.COLOR.MECH }}
+            style={{ backgroundColor: COLOR.MECH }}
           >
             Add {DATAMAP.PMC_MODELTYPES.MECHANISM.label}
           </SmallFab>
         </div>
 
-        <div className={classes.toolsPanelGroup} style={{ backgroundColor: blue[50] }}>
+        <div className={classes.toolsPanelGroup} style={{ backgroundColor: COLOR.PROP_TOOLSPANEL_BG }}>
           <TreeView
             defaultCollapseIcon={<ExpandMoreIcon />}
             defaultExpandIcon={<ChevronRightIcon />}
@@ -383,7 +383,7 @@ class ToolsPanel extends React.Component {
             onClick={this.OnComponentAdd}
             disabled={isDisabled}
             hidden={isViewOnly}
-            style={{ backgroundColor: DEFAULTS.COLOR.PROP }}
+            style={{ backgroundColor: COLOR.PROP }}
           >
             Add {DATAMAP.PMC_MODELTYPES.COMPONENT.label}
           </SmallFab>

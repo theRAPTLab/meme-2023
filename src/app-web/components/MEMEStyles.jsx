@@ -94,10 +94,12 @@ const styles = theme => {
     },
     treeItemSelected: {},
     treePropItemColor: {
-      color: COLOR.PROP
+      color: COLOR.PROP,
+      backgroundColor: COLOR.PROP_TOOLSPANEL_BG // necessary to trigger hover brightness filter
     },
     treeOutcomeItemColor: {
-      color: COLOR.OUTCOME
+      color: COLOR.OUTCOME,
+      backgroundColor: COLOR.OUTCOME_TOOLSPANEL_BG // necessary to trigger hover brightness filter
     },
     treeSubPropItem: {
       margin: '0 0 0 0.5em',
@@ -107,7 +109,7 @@ const styles = theme => {
     },
     treeMechItem: {
       color: COLOR.MECH,
-      backgroundColor: orange[50]
+      backgroundColor: COLOR.MECH_TOOLSPANEL_BG
     },
     treeItemHovered: {
       filter: 'brightness(90%) saturate(200%)'

@@ -392,11 +392,6 @@ DataMap.MutateObject = (obj, idObj) => {
 /** Returns the PMC_MODELTYPE label for the PMC_MODELTYPE id
  */
 DataMap.ModelTypeLabel = (id) => {
-  let type;
-  console.log('looking up', id, 'from', PMC_MODELTYPES);
-  // Object.keys(PMC_MODELTYPES).forEach(key => {
-  //   if (PMC_MODELTYPES[key].id === id) type = PMC_MODELTYPES[key];
-  // });
   let key = Object.keys(PMC_MODELTYPES).find(key => PMC_MODELTYPES[key].id === id);
   return key ? PMC_MODELTYPES[key].label : undefined;
 }

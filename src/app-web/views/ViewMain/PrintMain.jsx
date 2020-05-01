@@ -211,6 +211,7 @@ class PrintMain extends React.Component {
       <div key={propId} style={{ marginLeft: isSub ? '25px' : '10px' }}>
         <div>LABEL: {prop.name}</div>
         <div>DESCRIPTION: {prop.description}</div>
+        {this.RenderComments(propId)}
         <br />
         {children.length > 0
           ? children.map(childId => this.RenderComponentsListItem(childId, true))
@@ -232,13 +233,11 @@ class PrintMain extends React.Component {
       const target = targetObj ? targetObj.name : 'missing prop';
       i++;
       return (
-        <div
-          key={`mech${i}`}
-          style={{ marginLeft: '10px' }}
-        >
+        <div key={`mech${i}`} style={{ marginLeft: '10px' }}>
           <div>SOURCE: {source}</div>
           <div>TARGET: {target}</div>
           <div>LABEL: {mech.name}</div>
+          {this.RenderComments(mech.id)}
           <br />
         </div>
       );
@@ -268,7 +267,7 @@ class PrintMain extends React.Component {
 
   RenderComments(refId) {
     const comments = DATA.GetComments(refId);
-    return <div>COMMENTS: {comments.map((comment, i) => this.RenderComment(comment, i))}</div>;
+    return <div style={{ marginLeft: '25px' }}>COMMENTS: {comments.map((comment, i) => this.RenderComment(comment, i))}</div>;
   }
 
   RenderEvidence(evlink, index) {

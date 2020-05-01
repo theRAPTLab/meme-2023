@@ -125,7 +125,7 @@ class ResourceItem extends React.Component {
     }
     return (
       <div className={classes.resourceItem}>
-        <ListItem button key={resource.id} onClick={() => this.OnResourceClick(resource.id)}>
+        <ListItem button key={resource.id} onClick={() => this.OnResourceClick(resource.id)} style={{ paddingLeft: '8px' }}>
           <ListItemAvatar>
             <Avatar className={classes.resourceViewAvatar}>{resource.referenceLabel}</Avatar>
           </ListItemAvatar>

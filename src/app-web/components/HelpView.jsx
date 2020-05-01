@@ -29,6 +29,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import ADM from '../modules/data';
+import DEFAULTS from '../modules/defaults';
 import UTILS from '../modules/utils';
 import CriteriaList from '../views/ViewAdmin/components/AdmCriteriaList';
 import DATAMAP from '../../system/common-datamap';
@@ -78,7 +79,7 @@ class HelpView extends React.Component {
 ###### Create an Evidence Link
 Evidence Links should describe how a resource supports or contradicts your model's ${component}, ${outcome}, or ${mechanism},
 1. View the Resource by clicking on it in the Resource Library.
-2. Click 'Create Evidence' button
+2. Click '${DEFAULTS.TEXT.ADD_EVIDENCE}' button
 3. Type in a description.
 4. Click on 'Set Target' to close the resource view and select a ${component}, ${outcome}, or ${mechanism}in your model.
 5. Give it a rating.

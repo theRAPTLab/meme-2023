@@ -27,6 +27,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/data';
+import DEFAULTS from '../modules/defaults';
 import EvidenceList from './EvidenceList';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -153,7 +154,7 @@ class ResourceItem extends React.Component {
             <Button size="small" color="primary" onClick={() => this.OnCreateEvidence(resource.id)}
               hidden={DATA.IsViewOnly()}
             >
-              Create Evidence
+              {DEFAULTS.TEXT.ADD_EVIDENCE}
             </Button>
           </div>
         </Collapse>

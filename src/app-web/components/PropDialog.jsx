@@ -28,6 +28,7 @@ import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/data';
 import ASET from '../modules/adm-settings';
+import UTILS from '../modules/utils';
 import DATAMAP from '../../system/common-datamap';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -150,13 +151,15 @@ class PropDialog extends React.Component {
   render() {
     const { isOpen, propId, propType, label, description, isProperty } = this.state;
     const { classes } = this.props;
-    const propTypeLabel = DATAMAP.ModelTypeLabel(propType) + (isProperty ? ' property' : '');
+    const propTypeLabel = UTILS.InitialCaps(DATAMAP.ModelTypeLabel(propType)) + (isProperty ? ' property' : '');
+    const propTypeDescription = DATAMAP.ModelTypeDescription(propType);
 
     return (
       <Dialog open={isOpen} onClose={this.DoClose} aria-labelledby="form-dialog-title">
         <form onSubmit={this.OnSubmit}>
           <DialogTitle id="form-dialog-title">Add {propTypeLabel}</DialogTitle>
           <DialogContent>
+            <DialogContentText>{propTypeDescription}</DialogContentText>
             <DialogContentText>Type a name for your {propTypeLabel}.</DialogContentText>
             <TextField
               autoFocus

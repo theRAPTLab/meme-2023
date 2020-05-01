@@ -532,11 +532,11 @@ PMCData.BuildModel = () => {
 
   /*/
    *  Update h_propByResource lookup table to
-   *  look up props that are linked to a particular piece of evidence
+   *  look up props that are linked to a particular resource
   /*/
   h_propByResource = new Map();
   h_evidenceByProp.forEach((evArr, propId) => {
-    if (evArr) {
+    if (evArr && (propId !== null)) {
       evArr.forEach(ev => {
         let propIds = h_propByResource.get(ev.rsrcId);
         if (propIds === undefined) propIds = [];
@@ -547,13 +547,14 @@ PMCData.BuildModel = () => {
   });
 
   /*/
-   *  Update h_propByResource lookup table to
-   *  look up props that are linked to a particular piece of evidence
+   *  Update h_mechByResource lookup table to
+   *  look up mechs that are linked to a particular resource
   /*/
   h_mechByResource = new Map();
   h_evidenceByMech.forEach((evArr, mechId) => {
-    if (evArr) {
+    if (evArr && (mechId !== null)) {
       evArr.forEach(ev => {
+        console.log('pmc-data checking mechId', mechId);
         let mechIds = h_mechByResource.get(ev.rsrcId);
         if (mechIds === undefined) mechIds = [];
         if (!mechIds.includes(mechId)) mechIds.push(mechId);
@@ -574,6 +575,14 @@ PMCData.BuildModel = () => {
 
   /*/
    *  Now update all evidence link counts
+   *
+   *  ISSUE: This approach is problematic because h_propByResource and
+   *  h_mechByResource are intended to convey a one to one relationship
+   *  between a resource and a prop or mech via a Map.  But if a prop or mech
+   *  has more than one piece of evidence linking it to a resource,
+   *  any subsequent links are not counted.
+   *
+   *  The proper way to do this is probably to do a brute force count.
   /*/
   a_resources.forEach(resource => {
     let props = h_propByResource.get(resource.id);

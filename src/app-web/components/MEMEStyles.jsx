@@ -141,7 +141,7 @@ const styles = theme => {
     edgeDialogInput: {
       display: 'flex',
       height: '3em',
-      marginTop: '0.5em',
+      marginTop: '1em',
       alignItems: 'center'
     },
     resourceList: {
@@ -289,7 +289,7 @@ const styles = theme => {
       backgroundColor: teal[300],
       width: '25px',
       height: '25px',
-      fontSize: '1em',
+      fontSize: '12px',
       marginTop: '10px'
     },
     evidenceWindowLabel: {

@@ -389,12 +389,10 @@ const styles = theme => {
       boxSizing: 'content-box'
     },
     evidenceLinkSourceAvatarWaiting: {
-      padding: '0 7px',
       color: red.A700,
       backgroundColor: red[100]
     },
     evidenceLinkSelectButton: {
-      padding: '0 7px',
       color: '#fff',
       backgroundColor: red[700]
     },

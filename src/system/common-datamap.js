@@ -47,21 +47,29 @@ const DBCMDS = new Map([
 ///      data loss.
 /// 'label' is a human friendly display name used in dialogs
 /// 'plural' is a human friendly plural version of the 'label'
+///
+/// Use `UTILS.InitialCaps()` to capitalize.
 const PMC_MODELTYPES = {
   COMPONENT: {
     id: 'cmp',
     label: 'entity',
-    plural: 'entities'
+    plural: 'entities',
+    description:
+      'Entities are the "things" in your model like fish or algae. These can be big or small, and you can add features to them by clicking "add property" or dragging one entity onto another. They interact through processes.'
   },
   OUTCOME: {
     id: 'out',
     label: 'outcome',
-    plural: 'outcomes'
+    plural: 'outcomes',
+    description:
+      'Outcomes are the results that you observe in the model, and that you might want to understand. For example, seeing lots of healtyh fish, or seeing lots of dead fish would be two different outcomes. They are produced by processes.'
   },
   MECHANISM: {
     id: 'mch',
     label: 'process',
-    plural: 'processes'
+    plural: 'processes',
+    description:
+      'Processes describe how entities act and how they effect each other. A process can connect an entity an entity it is changing, or to an outcome it is producing.'
   }
 };
 
@@ -393,7 +401,14 @@ DataMap.MutateObject = (obj, idObj) => {
  */
 DataMap.ModelTypeLabel = (id) => {
   let key = Object.keys(PMC_MODELTYPES).find(key => PMC_MODELTYPES[key].id === id);
-  return key ? PMC_MODELTYPES[key].label : undefined;
+  return key ? PMC_MODELTYPES[key].label : '';
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** Returns the PMC_MODELTYPE description for the PMC_MODELTYPE id
+ */
+DataMap.ModelTypeDescription = (id) => {
+  let key = Object.keys(PMC_MODELTYPES).find(key => PMC_MODELTYPES[key].id === id);
+  return key ? PMC_MODELTYPES[key].description : '';
 }
 
 /// INITIALIZATION ////////////////////////////////////////////////////////////

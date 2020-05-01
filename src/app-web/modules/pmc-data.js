@@ -88,6 +88,7 @@ let h_evidenceByResource = new Map(); // evidence id array associated with each 
 let h_evidenceByMech = new Map(); // links to evidence by mechanism id
 let h_propByResource = new Map(); // hash of props to a given resource
 let h_mechByResource = new Map(); // hash of mechs to a given resource
+let h_evlinkCountByResource = new Map(); // look up number of evidence links added to a resource
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -530,6 +531,16 @@ PMCData.BuildModel = () => {
     h_evidenceByMech.set(mechId, evidenceLinkArray);
   });
 
+
+  /*/
+   *  Update h_evlinkCountByResource with next two loops as well.
+   *  otherwise, we're walking down these arrays twice
+   *
+   *  Used by Resource Library to display number of links each
+   *  resource has.
+  /*/
+  h_evlinkCountByResource = new Map();
+
   /*/
    *  Update h_propByResource lookup table to
    *  look up props that are linked to a particular resource
@@ -542,6 +553,11 @@ PMCData.BuildModel = () => {
         if (propIds === undefined) propIds = [];
         if (!propIds.includes(propId)) propIds.push(propId);
         h_propByResource.set(ev.rsrcId, propIds);
+
+        // update count
+        let count = h_evlinkCountByResource.get(ev.rsrcId) || 0;
+        count++;
+        h_evlinkCountByResource.set(ev.rsrcId, count);
       });
     }
   });
@@ -559,6 +575,11 @@ PMCData.BuildModel = () => {
         if (mechIds === undefined) mechIds = [];
         if (!mechIds.includes(mechId)) mechIds.push(mechId);
         h_mechByResource.set(ev.rsrcId, mechIds);
+
+        // update count
+        let count = h_evlinkCountByResource.get(ev.rsrcId) || 0;
+        count++;
+        h_evlinkCountByResource.set(ev.rsrcId, count);
       });
     }
   });
@@ -575,26 +596,9 @@ PMCData.BuildModel = () => {
 
   /*/
    *  Now update all evidence link counts
-   *
-   *  ISSUE: This approach is problematic because h_propByResource and
-   *  h_mechByResource are intended to convey a one to one relationship
-   *  between a resource and a prop or mech via a Map.  But if a prop or mech
-   *  has more than one piece of evidence linking it to a resource,
-   *  any subsequent links are not counted.
-   *
-   *  The proper way to do this is probably to do a brute force count.
   /*/
   a_resources.forEach(resource => {
-    let props = h_propByResource.get(resource.id);
-    if (props) {
-      resource.links = props.length;
-    } else {
-      resource.links = 0;
-    }
-    let mechs = h_mechByResource.get(resource.id);
-    if (mechs) {
-      resource.links += mechs.length;
-    }
+    resource.links = h_evlinkCountByResource.get(resource.id);
   });
   UR.Publish('DATA_UPDATED');
 

@@ -148,7 +148,7 @@ class EvidenceLink extends React.Component {
   }
 
   DoScrollIntoView() {
-    this.ref.current.scrollIntoView();
+    this.ref.current.scrollIntoView({block: 'end'}); // alignToTop=true
   }
 
   /**

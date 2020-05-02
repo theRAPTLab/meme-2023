@@ -69,10 +69,12 @@ class EvidenceLink extends React.Component {
     };
 
     // Handle Focus
-    // create a ref to store the textInput DOM element
-    this.textInput = React.createRef();
+    // create a ref to store the evlink and textInput DOM elements
+    this.ref = React.createRef(); // used for scrollIntoView
+    this.textInputRef = React.createRef(); // used for focusTextInput
 
     this.DoDataUpdate = this.DoDataUpdate.bind(this);
+    this.DoScrollIntoView = this.DoScrollIntoView.bind(this);
     this.DoRatingUpdate = this.DoRatingUpdate.bind(this);
     this.DoEditStart = this.DoEditStart.bind(this);
     this.DoEditStop = this.DoEditStop.bind(this);
@@ -143,6 +145,10 @@ class EvidenceLink extends React.Component {
     // DATA_UPDATED, so this EvidenceLink may receive the event before
     // it's been unmounted.  Just ignore missing EvidenceLink.
     // throw Error(`no evidence link with evId '${this.props.evId}' exists`);
+  }
+
+  DoScrollIntoView() {
+    this.ref.current.scrollIntoView();
   }
 
   /**
@@ -269,10 +275,10 @@ class EvidenceLink extends React.Component {
     // Note: we're accessing "current" to get the DOM node
     // https://reactjs.org/docs/refs-and-the-dom.html#adding-a-ref-to-a-dom-element
     // https://stackoverflow.com/questions/52222988/how-to-focus-a-material-ui-textfield-on-button-click/52223078
-    this.textInput.current.focus();
+    this.textInputRef.current.focus();
     // Set cursor to end of text.
-    const pos = this.textInput.current.value.length;
-    this.textInput.current.setSelectionRange(pos, pos);
+    const pos = this.textInputRef.current.value.length;
+    this.textInputRef.current.setSelectionRange(pos, pos);
   }
 
   OnSaveButtonClick(e) {
@@ -309,6 +315,7 @@ class EvidenceLink extends React.Component {
         this.setState({
           isExpanded: true
         });
+        this.DoScrollIntoView();
       }
     } else {
       // Always contract if someone else is expanding
@@ -499,6 +506,7 @@ class EvidenceLink extends React.Component {
               isHovered ? classes.evidenceLinkPaperHover : ''
             )}
             onClick={this.DoToggleExpanded}
+            ref={this.ref}
             key={`${rsrcId}`}
             elevation={isExpanded ? 5 : 1}
             onMouseEnter={() => this.setState({ isHovered: true })}
@@ -572,7 +580,7 @@ class EvidenceLink extends React.Component {
                           inputProps={{
                             readOnly: !isBeingEdited
                           }}
-                          inputRef={this.textInput}
+                          inputRef={this.textInputRef}
                         />
                       </MuiThemeProvider>
                     ) : (

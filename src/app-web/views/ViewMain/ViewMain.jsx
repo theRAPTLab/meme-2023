@@ -541,7 +541,7 @@ class ViewMain extends React.Component {
           className={classes.appBar}
           color={isModelAuthor ? 'primary' : 'default'}
         >
-          <Toolbar>
+          <Toolbar className={classes.appBarToolbar}>
             <Switch>
               <Route path="/:mode" />
             </Switch>
@@ -652,10 +652,10 @@ class ViewMain extends React.Component {
                 style={{ width: '100%' }}
               >
                 <div style={{ width: '100%', textAlign: 'left' }}>RESOURCE LIBRARY</div>
-                <ChevronRightIcon style={{ float: 'right' }} />
+                <ChevronRightIcon />
               </Button>
             </div>
-            <List dense>
+            <List dense style={{ paddingTop: '0' }}>
               {resources.map(resource => (
                 <ResourceItem key={resource.id} resource={resource} />
               ))}
@@ -687,7 +687,9 @@ class ViewMain extends React.Component {
         >
           <Fab
             hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected) || isViewOnly}
-            onClick={ (componentIsSelected || outcomeIsSelected) ? this.OnPropDelete : this.OnMechDelete}
+            onClick={
+              componentIsSelected || outcomeIsSelected ? this.OnPropDelete : this.OnMechDelete
+            }
             color="secondary"
             variant="extended"
             size="small"
@@ -697,16 +699,17 @@ class ViewMain extends React.Component {
           </Fab>
           <Fab
             hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected) || isViewOnly}
-            onClick={(componentIsSelected || outcomeIsSelected) ? this.DoPropEdit : this.OnMechEdit}
+            onClick={componentIsSelected || outcomeIsSelected ? this.DoPropEdit : this.OnMechEdit}
             color="primary"
             variant="extended"
           >
             <EditIcon />
-            &nbsp;&nbsp;Edit {componentIsSelected
+            &nbsp;&nbsp;Edit{' '}
+            {componentIsSelected
               ? DATAMAP.PMC_MODELTYPES.COMPONENT.label
               : outcomeIsSelected
-                ? DATAMAP.PMC_MODELTYPES.OUTCOME.label
-                : DATAMAP.PMC_MODELTYPES.MECHANISM.label}
+              ? DATAMAP.PMC_MODELTYPES.OUTCOME.label
+              : DATAMAP.PMC_MODELTYPES.MECHANISM.label}
           </Fab>
           <Fab
             hidden={!(componentIsSelected || outcomeIsSelected) || isViewOnly}
@@ -718,7 +721,11 @@ class ViewMain extends React.Component {
           </Fab>
           <Fab
             hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected)}
-            onClick={(componentIsSelected || outcomeIsSelected) ? this.OnAddPropComment : this.OnAddMechComment}
+            onClick={
+              componentIsSelected || outcomeIsSelected
+                ? this.OnAddPropComment
+                : this.OnAddMechComment
+            }
             variant="extended"
           >
             <ChatBubbleOutlineIcon htmlColor={yellow[800]} />

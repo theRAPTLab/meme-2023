@@ -6,6 +6,7 @@ import DEFAULTS from '../modules/defaults';
 const { COLOR } = DEFAULTS;
 
 const m_drawerWidth = 110;
+const m_navbarHeight = 40;
 const m_primary = indigo[500];
 const m_selectedColor = indigo[800];
 const m_evidenceColor = teal[100];
@@ -35,15 +36,24 @@ const styles = theme => {
       backgroundColor: m_primary
     },
     appBar: {
+      height: `${m_navbarHeight}px`,
       width: `calc(100% - ${m_drawerWidth}px)`,
       marginLeft: m_drawerWidth
     },
+    appBarToolbar: {
+      minHeight: `${m_navbarHeight}px`,
+      paddingRight: '0'
+    },
     appBarRight: {
       display: 'inline-flex',
+      flexGrow: 1,
+      justifyContent: 'flex-end',
       marginRight: m_resourceListWidth
     },
     appBarRightExpanded: {
       display: 'inline-flex',
+      flexGrow: 1,
+      justifyContent: 'flex-end',
       marginRight: 0
     },
     drawer: {
@@ -150,10 +160,10 @@ const styles = theme => {
       zIndex: m_zResourceList // above drawer, below modal
     },
     resourceListLabel: {
+      height: `${m_navbarHeight}px`,
+      paddingTop: '3px',
       fontSize: '0.8em',
-      color: m_systemTextColor,
-      marginBottom: '5px',
-      padding: '3px 5px'
+      color: m_systemTextColor
     },
     resourceView: {
       marginTop: '1em',

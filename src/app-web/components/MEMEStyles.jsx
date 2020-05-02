@@ -40,6 +40,9 @@ const styles = theme => {
       width: `calc(100% - ${m_drawerWidth}px)`,
       left: m_drawerWidth
     },
+    appBarToolsPanelClosedShift: {
+      width: '100%'
+    },
     appBarToolbar: {
       minHeight: `${m_navbarHeight}px`,
       paddingLeft: '0',

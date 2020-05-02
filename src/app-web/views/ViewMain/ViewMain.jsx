@@ -547,7 +547,11 @@ class ViewMain extends React.Component {
         <ModelSelect />
         <AppBar
           position="fixed"
-          className={clsx(classes.appBar, { [classes.toolsPanelClosedShift]: !toolsPanelIsOpen })}
+          className={clsx(
+            classes.appBar,
+            { [classes.toolsPanelClosedShift]: !toolsPanelIsOpen },
+            { [classes.appBarToolsPanelClosedShift]: !toolsPanelIsOpen }
+          )}
           color={isModelAuthor ? 'primary' : 'default'}
         >
           <Toolbar className={classes.appBarToolbar}>

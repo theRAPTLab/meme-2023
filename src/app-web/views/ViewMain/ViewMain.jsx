@@ -90,6 +90,7 @@ class ViewMain extends React.Component {
     this.DoSaveModelTitle = this.DoSaveModelTitle.bind(this);
     this.DoSubmitModelTitleForm = this.DoSubmitModelTitleForm.bind(this);
     this.OnToolsPanelToggle = this.OnToolsPanelToggle.bind(this);
+    this.OnShowEvidenceLink = this.OnShowEvidenceLink.bind(this);
     this.OnOutcomeAdd = this.OnOutcomeAdd.bind(this);
     this.OnPropAdd = this.OnPropAdd.bind(this);
     this.OnPropDelete = this.OnPropDelete.bind(this);
@@ -112,6 +113,7 @@ class ViewMain extends React.Component {
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Subscribe('MODEL_TITLE_UPDATED', this.DoModelTitleUpdate);
+    UR.Subscribe('SHOW_EVIDENCE_LINK', this.OnShowEvidenceLink);
     UR.Subscribe('OUTCOME_ADD', this.OnOutcomeAdd);
     UR.Subscribe('PROP_ADD', this.OnComponentAdd);
     UR.Subscribe('PROPDIALOG_CLOSE', this.OnPropDialogClose);
@@ -156,6 +158,7 @@ class ViewMain extends React.Component {
     UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Unsubscribe('MODEL_TITLE_UPDATED', this.DoModelTitleUpdate);
+    UR.Unsubscribe('SHOW_EVIDENCE_LINK', this.OnShowEvidenceLink);
     UR.Unsubscribe('OUTCOME_ADD', this.OnOutcomeAdd);
     UR.Unsubscribe('PROP_ADD', this.OnComponentAdd);
     UR.Unsubscribe('PROPDIALOG_CLOSE', this.OnPropDialogClose);
@@ -235,6 +238,10 @@ class ViewMain extends React.Component {
   OnToolsPanelToggle() {
     console.log('toggle open')
     this.setState({ toolsPanelIsOpen: !this.state.toolsPanelIsOpen });
+  }
+
+  OnShowEvidenceLink() {
+    this.setState({ resourceLibraryIsOpen: true });
   }
 
   // User clicked on "(+) Add Outcome" drawer button

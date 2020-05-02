@@ -70,6 +70,14 @@ const styles = theme => {
       overflowX: 'hidden',
       alignItems: 'center'
     },
+    drawerAppBar: {
+      position: 'fixed',
+      height: `${m_navbarHeight}px`,
+      paddingTop: '3px',
+      fontSize: '0.8em',
+      color: m_systemTextColor,
+      zIndex: m_zResourceList + 1
+    },
     toolsPanelClosedShift: {
       marginLeft: -m_drawerWidth
     },
@@ -89,6 +97,13 @@ const styles = theme => {
     primaryProjectTitle: {
       color: '#fff',
       backgroundColor: 'transparent'
+    },
+    toolsPanelAppBar: {
+      width: m_drawerWidth,
+      backgroundColor: 'white'
+    },
+    toolsPanelList: {
+      marginTop: `${m_navbarHeight}px`
     },
     toolsPanelGroup: {
       width: '100%',
@@ -166,11 +181,13 @@ const styles = theme => {
       backgroundColor: teal[50],
       zIndex: m_zResourceList // above drawer, below modal
     },
-    resourceListLabel: {
-      height: `${m_navbarHeight}px`,
-      paddingTop: '3px',
-      fontSize: '0.8em',
-      color: m_systemTextColor
+    resourceListAppBar: {
+      width: m_resourceListWidth,
+      backgroundColor: teal[100]
+    },
+    resourceListList: {
+      marginTop: `${m_navbarHeight}px`,
+      paddingTop: '0'
     },
     resourceView: {
       marginTop: '1em',

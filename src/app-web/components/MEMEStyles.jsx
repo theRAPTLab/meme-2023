@@ -67,7 +67,7 @@ const styles = theme => {
     },
     drawerPaper: {
       width: m_drawerWidth,
-      overflowX: 'hidden',
+      overflow: 'hidden',
       alignItems: 'center'
     },
     drawerAppBar: {
@@ -103,7 +103,9 @@ const styles = theme => {
       backgroundColor: 'white'
     },
     toolsPanelList: {
-      marginTop: `${m_navbarHeight}px`
+      width: m_drawerWidth,
+      marginTop: `${m_navbarHeight}px`,
+      overflowY: 'auto'
     },
     toolsPanelGroup: {
       width: '100%',

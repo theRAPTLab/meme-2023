@@ -177,7 +177,9 @@ const styles = theme => {
       alignItems: 'center'
     },
     resourceList: {
+      height: '100%',
       width: m_resourceListWidth,
+      overflow: 'hidden',
       backgroundColor: teal[50],
       zIndex: m_zResourceList // above drawer, below modal
     },
@@ -186,6 +188,9 @@ const styles = theme => {
       backgroundColor: teal[100]
     },
     resourceListList: {
+      height: '100%',
+      overflowY: 'auto',
+      backgroundColor: teal[50],
       marginTop: `${m_navbarHeight}px`,
       paddingTop: '0'
     },

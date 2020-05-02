@@ -676,8 +676,7 @@ class ViewMain extends React.Component {
 
         {/* Resource Library */}
         <Drawer variant="persistent" anchor="right" open={resourceLibraryIsOpen}>
-          {/*<div style={{ height: this.state.viewHeight + 64, overflowY: 'scroll', zIndex: 1250 }}>*/}
-          <Paper className={classes.resourceList}>
+          <div className={classes.resourceList}>
             <div className={clsx(classes.drawerAppBar, classes.resourceListAppBar)}>
               <Button
                 onClick={() => this.setState({ resourceLibraryIsOpen: false })}
@@ -689,13 +688,14 @@ class ViewMain extends React.Component {
                 <DoubleArrowIcon />
               </Button>
             </div>
-            <List dense className={classes.resourceListList} >
-              {resources.map(resource => (
-                <ResourceItem key={resource.id} resource={resource} />
-              ))}
-            </List>
-          </Paper>
-          {/* </div> */}
+            <Paper className={classes.resourceListList}>
+              <List dense>
+                {resources.map(resource => (
+                  <ResourceItem key={resource.id} resource={resource} />
+                ))}
+              </List>
+            </Paper>
+          </div>
         </Drawer>
 
         {/* Resource View */}

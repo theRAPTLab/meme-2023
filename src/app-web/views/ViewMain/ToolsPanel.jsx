@@ -15,7 +15,8 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Material UI Elements
-import { blue, orange, purple } from '@material-ui/core/colors';
+import { indigo } from '@material-ui/core/colors';
+import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Fab from '@material-ui/core/Fab';
@@ -23,8 +24,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import TreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
 import Typography from '@material-ui/core/Typography';
-
 // Material UI Icons
+import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // MEME Modules and Utils
@@ -292,7 +293,7 @@ class ToolsPanel extends React.Component {
   }
 
   render() {
-    const { classes, isDisabled } = this.props;
+    const { classes, isDisabled, isOpen, toggleOpen } = this.props;
 
     const outcomesList = this.RenderComponentsList(DATA.Components(), DATAMAP.PMC_MODELTYPES.OUTCOME.id);
     const componentsList = this.RenderComponentsList(DATA.Components(), DATAMAP.PMC_MODELTYPES.COMPONENT.id);
@@ -303,19 +304,37 @@ class ToolsPanel extends React.Component {
     return (
       <Drawer
         className={classes.drawer}
-        variant="permanent"
+        variant="persistent"
         classes={{
           paper: classes.drawerPaper
         }}
         anchor="left"
+        open={isOpen}
       >
-        <div className={classes.toolsPanelGroup} style={{ backgroundColor: COLOR.OUTCOME_TOOLSPANEL_BG }}>
+        <div className={classes.resourceListLabel} style={{ width: '100%' }}>
+          <Button
+            onClick={toggleOpen}
+            color="inherit"
+            size="small"
+            style={{ width: '100%' }}
+          >
+            <DoubleArrowIcon style={{ transform: 'rotate(180deg)' }}/>
+            <div style={{ width: '100%', textAlign: 'left' }}></div>
+          </Button>
+        </div>
+        <div
+          className={classes.toolsPanelGroup}
+          style={{ backgroundColor: COLOR.OUTCOME_TOOLSPANEL_BG }}
+        >
           <TreeView
             defaultCollapseIcon={<ExpandMoreIcon />}
             defaultExpandIcon={<ChevronRightIcon />}
             className={classes.treeView}
           >
-            <SmallTreeItem nodeId={'outcomes'} label={DATAMAP.PMC_MODELTYPES.OUTCOME.plural.toUpperCase()}>
+            <SmallTreeItem
+              nodeId={'outcomes'}
+              label={DATAMAP.PMC_MODELTYPES.OUTCOME.plural.toUpperCase()}
+            >
               {outcomesList}
             </SmallTreeItem>
           </TreeView>
@@ -333,7 +352,10 @@ class ToolsPanel extends React.Component {
           </SmallFab>
         </div>
 
-        <div className={classes.toolsPanelGroup} style={{ backgroundColor: COLOR.MECH_TOOLSPANEL_BG }}>
+        <div
+          className={classes.toolsPanelGroup}
+          style={{ backgroundColor: COLOR.MECH_TOOLSPANEL_BG }}
+        >
           <TreeView
             defaultExpanded={['mechanisms']}
             defaultCollapseIcon={<ExpandMoreIcon />}
@@ -361,7 +383,10 @@ class ToolsPanel extends React.Component {
           </SmallFab>
         </div>
 
-        <div className={classes.toolsPanelGroup} style={{ backgroundColor: COLOR.PROP_TOOLSPANEL_BG }}>
+        <div
+          className={classes.toolsPanelGroup}
+          style={{ backgroundColor: COLOR.PROP_TOOLSPANEL_BG }}
+        >
           <TreeView
             defaultCollapseIcon={<ExpandMoreIcon />}
             defaultExpandIcon={<ChevronRightIcon />}

@@ -9,6 +9,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
+import clsx from 'clsx';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Theming
 import { withStyles, createMuiTheme } from '@material-ui/core/styles';
@@ -30,7 +31,7 @@ import InputBase from '@material-ui/core/InputBase';
 // Material UI Icons
 import AddIcon from '@material-ui/icons/Add';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
 import EditIcon from '@material-ui/icons/Edit';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -88,6 +89,7 @@ class ViewMain extends React.Component {
     this.OnChangeModelTitle = this.OnChangeModelTitle.bind(this);
     this.DoSaveModelTitle = this.DoSaveModelTitle.bind(this);
     this.DoSubmitModelTitleForm = this.DoSubmitModelTitleForm.bind(this);
+    this.OnToolsPanelToggle = this.OnToolsPanelToggle.bind(this);
     this.OnOutcomeAdd = this.OnOutcomeAdd.bind(this);
     this.OnPropAdd = this.OnPropAdd.bind(this);
     this.OnPropDelete = this.OnPropDelete.bind(this);
@@ -125,6 +127,7 @@ class ViewMain extends React.Component {
       studentName: '',
       studentGroup: '',
       viewHeight: 0, // need to init this to prevent error with first render of resourceList
+      toolsPanelIsOpen: true,
       resourceLibraryIsOpen: true,
       addPropOpen: false,
       addEdgeOpen: false,
@@ -227,6 +230,11 @@ class ViewMain extends React.Component {
     e.preventDefault();
     e.stopPropagation();
     document.activeElement.blur(); // will trigger save
+  }
+
+  OnToolsPanelToggle() {
+    console.log('toggle open')
+    this.setState({ toolsPanelIsOpen: !this.state.toolsPanelIsOpen });
   }
 
   // User clicked on "(+) Add Outcome" drawer button
@@ -516,6 +524,7 @@ class ViewMain extends React.Component {
       studentName,
       studentGroup,
       resourceLibraryIsOpen,
+      toolsPanelIsOpen,
       addPropOpen,
       addEdgeOpen,
       componentIsSelected,
@@ -538,14 +547,21 @@ class ViewMain extends React.Component {
         <ModelSelect />
         <AppBar
           position="fixed"
-          className={classes.appBar}
+          className={clsx(classes.appBar, { [classes.toolsPanelClosedShift]: !toolsPanelIsOpen })}
           color={isModelAuthor ? 'primary' : 'default'}
         >
           <Toolbar className={classes.appBarToolbar}>
             <Switch>
               <Route path="/:mode" />
             </Switch>
-            <Button onClick={this.OnCloseModel} color="inherit">
+            <Button
+              onClick={() => this.setState({ toolsPanelIsOpen: true })}
+              hidden={toolsPanelIsOpen}
+              color="inherit"
+            >
+              <MenuIcon />
+            </Button>
+            <Button onClick={this.OnCloseModel} color="inherit" style={{ marginLeft: '20px' }}>
               Model:&nbsp;&nbsp;
             </Button>
             <form onSubmit={this.DoSubmitModelTitleForm}>
@@ -592,9 +608,16 @@ class ViewMain extends React.Component {
         </AppBar>
 
         {/* Left Tool Sidebar */}
-        <ToolsPanel isDisabled={addPropOpen || addEdgeOpen} />
+        <ToolsPanel
+          isDisabled={addPropOpen || addEdgeOpen}
+          isOpen={toolsPanelIsOpen}
+          toggleOpen={this.OnToolsPanelToggle}
+        />
 
-        <main className={classes.content} ref={this.refMain}>
+        <main
+          className={clsx(classes.content, { [classes.toolsPanelClosedShift]: !toolsPanelIsOpen })}
+          ref={this.refMain}
+        >
           <div className={classes.toolbar} ref={this.refToolbar} />
           <div
             className={classes.view}
@@ -652,7 +675,7 @@ class ViewMain extends React.Component {
                 style={{ width: '100%' }}
               >
                 <div style={{ width: '100%', textAlign: 'left' }}>RESOURCE LIBRARY</div>
-                <ChevronRightIcon />
+                <DoubleArrowIcon />
               </Button>
             </div>
             <List dense style={{ paddingTop: '0' }}>

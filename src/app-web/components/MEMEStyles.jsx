@@ -38,10 +38,11 @@ const styles = theme => {
     appBar: {
       height: `${m_navbarHeight}px`,
       width: `calc(100% - ${m_drawerWidth}px)`,
-      marginLeft: m_drawerWidth
+      left: m_drawerWidth
     },
     appBarToolbar: {
       minHeight: `${m_navbarHeight}px`,
+      paddingLeft: '0',
       paddingRight: '0'
     },
     appBarRight: {
@@ -65,6 +66,9 @@ const styles = theme => {
       width: m_drawerWidth,
       overflowX: 'hidden',
       alignItems: 'center'
+    },
+    toolsPanelClosedShift: {
+      marginLeft: -m_drawerWidth
     },
     toolbar: theme.mixins.toolbar,
     content: {

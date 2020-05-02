@@ -170,6 +170,7 @@ class EvidenceLink extends React.Component {
             },
             () => this.FocusTextInput()
           );
+          UR.Publish('EVIDENCE_EDIT_STATE', { isBeingEdited: true });
         } else {
           console.log('aw, locked by', rdata.lockedBy);
           alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`)
@@ -183,6 +184,7 @@ class EvidenceLink extends React.Component {
     });
     const pmcDataId = ASET.selectedPMCDataId;
     const intEvId = Number(this.props.evlink.id);
+    UR.Publish('EVIDENCE_EDIT_STATE', { isBeingEdited: false });
     UR.DBTryRelease('pmcData.entities', [pmcDataId, intEvId])
   }
 

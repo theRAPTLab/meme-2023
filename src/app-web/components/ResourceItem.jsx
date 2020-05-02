@@ -42,17 +42,20 @@ class ResourceItem extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isExpanded: true
+      isExpanded: true,
+      hideAddButton: false
     };
 
     this.DoToggleExpanded = this.DoToggleExpanded.bind(this);
     this.DoEvidenceLinkOpen = this.DoEvidenceLinkOpen.bind(this);
+    this.DoEvidenceEditStateUpdate = this.DoEvidenceEditStateUpdate.bind(this);
     this.DoDataUpdate = this.DoDataUpdate.bind(this);
     this.OnResourceClick = this.OnResourceClick.bind(this);
     this.OnCreateEvidence = this.OnCreateEvidence.bind(this);
     this.DoCollapseAll = this.DoCollapseAll.bind(this);
 
     UR.Subscribe('SHOW_EVIDENCE_LINK', this.DoEvidenceLinkOpen);
+    UR.Subscribe('EVIDENCE_EDIT_STATE', this.DoEvidenceEditStateUpdate);
     UR.Subscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Subscribe('RESOURCES:COLLAPSE_ALL', this.DoCollapseAll);
     // FIXME: Resource is getting closed before selection, force it open again
@@ -63,6 +66,7 @@ class ResourceItem extends React.Component {
 
   componentWillUnmount() {
     UR.Unsubscribe('SHOW_EVIDENCE_LINK', this.DoEvidenceLinkOpen);
+    UR.Unsubscribe('EVIDENCE_EDIT_STATE', this.DoEvidenceEditStateUpdate);
     UR.Unsubscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Unsubscribe('RESOURCES:COLLAPSE_ALL', this.DoCollapseAll);
     UR.Unsubscribe('SET_EVIDENCE_LINK_WAIT_FOR_SOURCE_SELECT', this.DoEvidenceLinkOpen);
@@ -94,6 +98,10 @@ class ResourceItem extends React.Component {
     }
   }
 
+  DoEvidenceEditStateUpdate(data) {
+    this.setState({hideAddButton: data.isBeingEdited});
+  }
+
   OnResourceClick(rsrcId) {
     if (DBG) console.log(PKG, 'Resource clicked', rsrcId);
     UR.Publish('RESOURCEVIEW:OPEN', { rsrcId });
@@ -101,7 +109,9 @@ class ResourceItem extends React.Component {
 
   OnCreateEvidence(rsrcId) {
     if (DBG) console.log(PKG, 'create new evidence:', rsrcId);
-    DATA.PMC_AddEvidenceLink({ rsrcId }, id => UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }));
+    DATA.PMC_AddEvidenceLink({ rsrcId }, id =>
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId })
+    );
   }
 
   DoCollapseAll() {
@@ -113,7 +123,7 @@ class ResourceItem extends React.Component {
 
   render() {
     const { resource, classes } = this.props;
-    const { isExpanded } = this.state;
+    const { isExpanded, hideAddButton } = this.state;
     let evBadge = {};
     if (!isExpanded) {
       if (resource.links > 0) {
@@ -126,7 +136,12 @@ class ResourceItem extends React.Component {
     }
     return (
       <div className={classes.resourceItem}>
-        <ListItem button key={resource.id} onClick={() => this.OnResourceClick(resource.id)} style={{ paddingLeft: '8px' }}>
+        <ListItem
+          button
+          key={resource.id}
+          onClick={() => this.OnResourceClick(resource.id)}
+          style={{ paddingLeft: '8px' }}
+        >
           <ListItemAvatar>
             <Avatar className={classes.resourceViewAvatar}>{resource.referenceLabel}</Avatar>
           </ListItemAvatar>
@@ -151,8 +166,11 @@ class ResourceItem extends React.Component {
         <Collapse in={isExpanded}>
           <div className={classes.resourceViewEvList}>
             <EvidenceList rsrcId={resource.id} key={`${resource.id}ev`} />
-            <Button size="small" color="primary" onClick={() => this.OnCreateEvidence(resource.id)}
-              hidden={DATA.IsViewOnly()}
+            <Button
+              size="small"
+              color="primary"
+              onClick={() => this.OnCreateEvidence(resource.id)}
+              hidden={DATA.IsViewOnly() || hideAddButton}
             >
               {DEFAULTS.TEXT.ADD_EVIDENCE}
             </Button>

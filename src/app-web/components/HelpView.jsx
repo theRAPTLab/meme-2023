@@ -66,24 +66,29 @@ class HelpView extends React.Component {
 
 ---
 
-###### Create a ${component}
-1. Click on 'Add ${component}'
+###### Create an ${component} or ${outcome}
+1. Click on 'Add ${component}' or 'Add ${outcome}'
+2. Type in a label
+3. Type in a description, or you can add it later
+4. Click 'Create'
 
 ###### Create a ${mechanism}
 1. Click on 'Add ${mechanism}'
 2. Click on the source ${component}/${outcome}/property
 3. Click on the target ${component}/${outcome}/property
 4. Type in a label
-5. Click 'Add'
+5. Type in a description, or you can add it later
+6. Click 'Add'
 
 ###### Create an Evidence Link
-Evidence Links should describe how a resource supports or contradicts your model's ${component}, ${outcome}, or ${mechanism},
-1. View the Resource by clicking on it in the Resource Library.
+Evidence Links should describe how a resource supports or contradicts your model's ${component}, ${outcome}, or ${mechanism}
+1. View the Resource by clicking on it in the Resource Library
 2. Click '${DEFAULTS.TEXT.ADD_EVIDENCE}' button
-3. Type in a description.
+3. Type in a description
 4. Click on 'Set Target' to close the resource view and select a ${component}, ${outcome}, or ${mechanism}in your model.
-5. Give it a rating.
-6. Click 'Save'
+5. Give it a rating for how well it supports the element of the model
+6. Explain 'why' you think that raiting fits
+7. Click 'Save'
 
 ###### Add a Comment
 1. Click on the comment icon
@@ -123,7 +128,7 @@ Evidence Links should describe how a resource supports or contradicts your model
             <CloseIcon />
           </IconButton>
           <Typography variant="h6">HELP</Typography>
-          <Divider style={{ marginBottom: '0.5em' }}/>
+          <Divider style={{ marginBottom: '0.5em' }} />
           <div style={{ overflowY: 'scroll', paddingRight: '5px' }}>
             <h6>Criteria</h6>
             <CriteriaList Criteria={criteria} IsInEditMode={false} />

@@ -233,6 +233,7 @@ class PrintMain extends React.Component {
           <div>SOURCE: {sourceType}/{source}</div>
           <div>TARGET: {targetType}/{target}</div>
           <div>LABEL: {mech.name}</div>
+          <div>DESCRIPTION: {mech.description}</div>
           {this.RenderComments(mech.id)}
           <br />
         </div>

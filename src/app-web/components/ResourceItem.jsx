@@ -126,11 +126,8 @@ class ResourceItem extends React.Component {
     const { isExpanded, hideAddButton } = this.state;
     let evBadge = {};
     if (!isExpanded) {
-      if (resource.links > 0) {
-        evBadge = <Chip className={classes.evidenceBadge} label={resource.links} color="primary" />;
-      } else {
-        evBadge = <Chip className={classes.evidenceBadge} label="" />;
-      }
+      let links = resource.links || 0;
+      evBadge = <Chip className={classes.evidenceBadge} label={links} color="primary" />;
     } else {
       evBadge = '';
     }

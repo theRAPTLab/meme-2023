@@ -78,6 +78,7 @@ class PrintMain extends React.Component {
       studentId: '',
       studentName: '',
       studentGroup: '',
+      criteria: [],
       viewHeight: 0 // need to init this to prevent error with first render of resourceList
     };
   }
@@ -124,7 +125,8 @@ class PrintMain extends React.Component {
       isModelAuthor,
       studentId: userStudentId,
       studentName: ADM.GetLggedInUserName(),
-      studentGroup: ADM.GetLoggedInGroupName()
+      studentGroup: ADM.GetLoggedInGroupName(),
+      criteria: ADM.GetCriteriaByClassroom()
     });
   }
 
@@ -251,13 +253,16 @@ class PrintMain extends React.Component {
       month: 'short',
       day: 'numeric'
     });
+    const selectedCriteria = this.state.criteria.find(crit => crit.id === comment.criteriaId);
+    const criteriaLabel = selectedCriteria !== undefined ? selectedCriteria.label + ': ' : '';
+    const criteriaDescription = selectedCriteria !== undefined ? selectedCriteria.description: '';
     return (
       <div key={index}>
         <br />
         <div>AUTHOR: {comment.author}</div>
         <div>DATE: {timestring} {datestring}</div>
         <div>COMMENT: {comment.text}</div>
-        <div>CRITERIA: {comment.criteriaId}</div>
+        <div>CRITERIA: {criteriaLabel}{criteriaDescription}</div>
       </div>
     );
   }

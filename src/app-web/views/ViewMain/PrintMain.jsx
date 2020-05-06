@@ -126,7 +126,7 @@ class PrintMain extends React.Component {
       studentId: userStudentId,
       studentName: ADM.GetLggedInUserName(),
       studentGroup: ADM.GetLoggedInGroupName(),
-      criteria: ADM.GetCriteriaByClassroom()
+      criteria: ADM.GetCriteriaByModel()
     });
   }
 

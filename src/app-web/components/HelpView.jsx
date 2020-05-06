@@ -115,7 +115,7 @@ Evidence Links should describe how a resource supports or contradicts your model
   render() {
     const { isOpen, helptext } = this.state;
     const { classes } = this.props;
-    const criteria = ADM.GetCriteriaByClassroom();
+    const criteria = ADM.GetCriteriaByModel(); // always use the current model's criteria
 
     return (
       <Draggable>

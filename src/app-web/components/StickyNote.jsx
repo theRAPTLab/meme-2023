@@ -3,40 +3,40 @@
 Sticky Note
 
     For documentation, see boilerplate/src/app-web/components/StickyNoteCollection.jsx
-    
+
     NOTE: The text input needs a mouseDown handler to stopProgation of
-    the click to the react-draggable component in the parent 
+    the click to the react-draggable component in the parent
     StickyNoteCollection component.  Otherwise, the user won't be able
     to click on the field to enter text.
-    
+
 props
 
     comment           Comment data passed from the parent StickyNote
-    
+
     OnStartEdit       prop func called by StickyNote when user clicks "Edit"
                       This sets isBeingEdited mode on the StickyNoteCollection
                       paren, which hides the "Comment" button.
-    
+
     OnUpdateComment   prop func called by StickyNote when user is
                       finished editing and ready to save.
-    
+
 state
 
     isBeingEdited     User is editing card, show input field, hide Edit button
-    
+
     allowedToEdit     User is the comment author or in the same group so allowed
                       to edit the comment.
-    
+
     allowedToDelete   User is the comment author, so allowed to delete the
                       comment.  NOTE: We might want to restrict this to
                       teachers only.
-    
+
     showEditButtons   Boolean flag to show edit and delete buttons for the card.
-    
+
     criteria          The menu for selecting criteria
-    
+
     comment           A local state copy of the comment text.
-                      This is updated/read on the intial construction from 
+                      This is updated/read on the intial construction from
                       this.props.comment.
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
@@ -111,7 +111,7 @@ class StickyNote extends React.Component {
 
   DoOpenSticky() {
     const { comment } = this.props;
-    const criteria = ADM.GetCriteriaByClassroom();
+    const criteria = ADM.GetCriteriaByModel(); // always use the current model's criteria
     const currentGroup = ADM.GetGroupByStudent();
     const authorGroup = ADM.GetGroupByStudent(comment.author);
     const isAuthor = currentGroup === authorGroup;
@@ -157,12 +157,12 @@ class StickyNote extends React.Component {
         }
       });
   }
-  
+
   DoSave() {
     // Automatically mark read by author
     const comment = this.state.comment;
     const author = ADM.GetAuthorId();
-    
+
     if (this.state.isBeingEdited) {
       // save
       PMC.DB_CommentUpdate(

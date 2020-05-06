@@ -675,7 +675,7 @@ ADMData.IsViewOnly = () => {
   const authorGroup = ADMData.GetGroupByStudent(authorId); // selectedStudentId
   const authorGroupId = authorGroup ? authorGroup.id : '';
   const model = ADMData.GetModelById(); // Current model
-  const modelGroupId = model ? model.groupId : '';  
+  const modelGroupId = model ? model.groupId : '';
   return authorGroupId !== modelGroupId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -968,7 +968,7 @@ ADMData.CloseModel = () => {
 /**
  *  Creates a new empty criteria object with a unqiue ID.
  *  If data.classroomId is not defined, we use the current selected classroomId
- * 
+ *
  *  @param {Object} data - a ADMObj.Criterion-like data object
  *  @param {Function} cb - callback function will be called
  */
@@ -985,7 +985,7 @@ ADMData.DB_NewCriteria = (data, cb) => {
     }
   });
 
-  
+
   /* OLD CODE
   const id = GenerateUID('cr');
   if (classroomId === undefined) {
@@ -1005,6 +1005,17 @@ ADMData.DB_NewCriteria = (data, cb) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetCriteriaByClassroom = (classroomId = ASET.selectedClassroomId) => {
   return adm_db.criteria.filter(crit => crit.classroomId === classroomId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetCriteriaByGroup = groupId => {
+  const classroomId = ADMData.GetClassroomIdByGroup(groupId);
+  return ADMData.GetCriteriaByClassroom(classroomId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetCriteriaByModel = (modelId = ASET.selectedModelId) => {
+  const model = ADMData.GetModelById(modelId);
+  if (model === undefined) return []; // No model loaded
+  return ADMData.GetCriteriaByGroup(model.groupId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetCriteriaLabel = (criteriaId, classroomId = ADMData.GetSelectedClassroomId()) => {
@@ -1033,7 +1044,7 @@ ADMData.DB_UpdateCriteriaList = criteriaList => {
   criteriaList.forEach(crit => {
     ADMData.DB_UpdateCriterion(crit);
   });
-  
+
   /* OLD
   // Remove any deleted criteria
   const updatedCriteriaIds = criteriaList.map(criteria => criteria.id);
@@ -1056,7 +1067,7 @@ ADMData.DB_CriteriaDelete = critId => {
 /**
  *  Creates a new empty sentenceStarter with a unqiue ID.
  *  If data.classroomId is not defined, we use the current selected classroomId
- * 
+ *
  *  @param {Object} data - a ADMObj.SentenceStarter-like data object
  */
 ADMData.DB_SentenceStarterNew = data => {
@@ -1068,14 +1079,14 @@ ADMData.DB_SentenceStarterNew = data => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- * 
+ *
  *  @param {Object} sentenceStarter - a ADMObj.SentenceStarter-like data object
  */
 ADMData.DB_SentenceStarterUpdate = sentenceStarter => {
   return UR.DBQuery('update', {
     sentenceStarters: sentenceStarter
   });
-  
+
   /* old code
   const i = adm_db.sentenceStarters.findIndex(ss => ss.id === sentenceStarter.id);
   if (i < 0) {
@@ -1134,7 +1145,7 @@ ADMData.DB_RatingsAdd = (classroomId, ratingsDefObj) => {
  */
 ADMData.DB_RatingsUpdate = (classroomId, ratingsDef) => {
   const ratingsDefinition = Object.assign(
-    {}, 
+    {},
     adm_db.ratingsDefinitions.find(r => r.classroomId === classroomId),
     { definitions: ratingsDef }
   );
@@ -1155,7 +1166,7 @@ ADMData.DB_RatingsUpdate = (classroomId, ratingsDef) => {
 };
 
 /**
- * @param {Integer} classroomId 
+ * @param {Integer} classroomId
  * @return {Array} [ratingsDefition] -- Array of ratings defintion objects,
  *                                      Returns [] if not found
  */
@@ -1164,7 +1175,7 @@ ADMData.GetRatingsDefinitionObject = classroomId => {
 };
 
 /**
- * @param {Integer} classroomId 
+ * @param {Integer} classroomId
  * @return {Array} [ratingsDefition] -- Array of ratings defintion objects,
  * e.g.{ label: 'Really disagrees!', rating: -3 },
  * Returns [] if not found
@@ -1195,7 +1206,7 @@ ADMData.DB_ResourceAdd = data => {
   });
 };
 /**
- * 
+ *
  *  @param {Object} respource - ADMObj.Resource object
  */
 ADMData.DB_ResourceUpdate = resource => {
@@ -1244,13 +1255,13 @@ ADMData.DB_ClassroomResourceAdd = data => {
   return UR.DBQuery('add', { classroomResources: res });
 };
 /**
- * 
+ *
  *  @param {Object} classroomResource - ADMObj.ClassroomResource object
  */
 ADMData.DB_ClassroomResourceUpdate = classroomResource => {
   return UR.DBQuery('update', {
     classroomResources: classroomResource
-  });  
+  });
 };
 /**
  *  @param {Integer} rsrcId - id of the parent resources
@@ -1263,7 +1274,7 @@ ADMData.DB_ClassroomResourceSet = (rsrcId, checked, classroomId) => {
     // New Classrooms don't have a classroomResource defined by default.
     classroomResource = ADMObj.ClassroomResource({ classroomId });
   }
-    
+
   // Update the resource list
   if (checked) {
     // Add resource
@@ -1272,7 +1283,7 @@ ADMData.DB_ClassroomResourceSet = (rsrcId, checked, classroomId) => {
     // Remove resource
     classroomResource.resources = classroomResource.resources.filter(rsrc => rsrc !== rsrcId);
   }
-  
+
   // Update the DB
   if (classroomResource.id !== undefined) {
     ADMData.DB_ClassroomResourceUpdate(classroomResource);
@@ -1280,7 +1291,7 @@ ADMData.DB_ClassroomResourceSet = (rsrcId, checked, classroomId) => {
     // new classroomResource
     ADMData.DB_ClassroomResourceAdd(classroomResource);
   }
-  
+
   /* old code
   UR.Publish('ADM_DATA_UPDATED');
   */

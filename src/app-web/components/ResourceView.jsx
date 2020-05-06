@@ -202,6 +202,7 @@ class ResourceView extends React.Component {
 
     // don't render if resource hasn't been defined yet
     if (resource === undefined || resource.id === undefined) return '';
+    const links = resource.links || 0;
 
     return (
       <Paper className={classes.resourceViewPaper} hidden={!isOpen}>
@@ -230,7 +231,7 @@ class ResourceView extends React.Component {
               <Typography variant="overline">Links:&nbsp;</Typography>
               <Chip
                 className={classes.resourceViewLinksBadge}
-                label={resource.links}
+                label={links}
                 color="primary"
               />
             </CardContent>

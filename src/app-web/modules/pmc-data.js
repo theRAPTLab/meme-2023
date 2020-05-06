@@ -1015,6 +1015,7 @@ PMCData.PMC_MechDelete = mechId => {
  *  Called by GenerateNumberLabel, below
  */
 function NumberLabelExists(numberLabel, evlinks) {
+  if (evlinks === undefined) return false;
   return evlinks.find(ev => ev.numberLabel === numberLabel);
 }
 /**
@@ -1028,7 +1029,7 @@ function GenerateNumberLabel(rsrcId) {
   const prefix = PMCData.PMC_GetResourceIndex(rsrcId);
   // 2. Ordinal value of evlink in evlink list, e.g. "c"
   const evlinks = PMCData.GetEvLinksByResourceId(rsrcId);
-  let numberOfEvLinks = evlinks.length;
+  let numberOfEvLinks = evlinks ? evlinks.length : 0;
   let letter;
   let numberLabel;
   do {

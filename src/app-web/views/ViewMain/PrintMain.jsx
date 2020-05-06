@@ -261,8 +261,8 @@ class PrintMain extends React.Component {
         <br />
         <div>AUTHOR: {comment.author}</div>
         <div>DATE: {timestring} {datestring}</div>
+        <div>COMMENT CRITERIA: {criteriaLabel}{criteriaDescription}</div>
         <div>COMMENT: {comment.text}</div>
-        <div>CRITERIA: {criteriaLabel}{criteriaDescription}</div>
       </div>
     );
   }

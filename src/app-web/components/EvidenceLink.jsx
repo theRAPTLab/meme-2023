@@ -545,7 +545,7 @@ class EvidenceLink extends React.Component {
                     isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed
                   }
                 >
-                  <Grid item xs={4} hidden={!isExpanded}>
+                  <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
                     <Typography
                       className={classes.evidenceWindowLabel}
                       variant="caption"
@@ -596,7 +596,7 @@ class EvidenceLink extends React.Component {
                       isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed
                     }
                   >
-                    <Grid item xs={4} hidden={!isExpanded}>
+                    <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
                       <Typography
                         className={classes.evidenceWindowLabel}
                         variant="caption"
@@ -629,7 +629,7 @@ class EvidenceLink extends React.Component {
                     isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed
                   }
                 >
-                  <Grid item xs={4} hidden={!isExpanded}>
+                  <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
                     <Typography
                       className={classes.evidenceWindowLabel}
                       variant="caption"
@@ -638,7 +638,7 @@ class EvidenceLink extends React.Component {
                       RATING:
                     </Typography>
                   </Grid>
-                  <Grid item xs style={{ paddingTop: isExpanded ? '4px' : '10px' }}>
+                  <Grid item xs style={{ paddingTop: isExpanded ? '4px' : '19px' }}>
                     <RatingButton
                       rating={rating}
                       isExpanded={isExpanded}
@@ -652,7 +652,7 @@ class EvidenceLink extends React.Component {
               </Grid>
               <Grid item xs={12} hidden={!isExpanded}>
                 <Grid container spacing={1} className={classes.evidenceBodyRow}>
-                  <Grid item xs={4}>
+                  <Grid item xs={4} className={classes.evidenceWindowLabelGrid}>
                     <Typography
                       className={classes.evidenceWindowLabel}
                       variant="caption"
@@ -690,7 +690,7 @@ class EvidenceLink extends React.Component {
                 </Grid>
               </Grid>
               <Grid container hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
-                <Grid item xs={4}>
+                <Grid item xs={4} className={classes.evidenceWindowLabelGrid}>
                   <Typography
                     className={classes.evidenceWindowLabel}
                     variant="caption"
@@ -726,7 +726,7 @@ class EvidenceLink extends React.Component {
                     </Button>
                   ) : extensionIsConnected ? (
                     <Typography className={classes.evidenceScreenshotStatus}>
-                      (Open the Resource to Capture Screen)
+                      Open Resource to Capture Screen
                     </Typography>
                   ) : (
                     ''

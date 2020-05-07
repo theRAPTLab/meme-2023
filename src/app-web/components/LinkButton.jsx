@@ -50,6 +50,7 @@ See MechDialog and EvidenceLink for example implementations.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import DATAMAP from '../../system/common-datamap';
@@ -157,6 +158,7 @@ class LinkButton extends React.Component {
           root: evidenceLinkSelectButtonClass,
           disabled: classes.disabled
         }}
+        className={clsx({ [classes.evidenceLinkSelectButtonExpanded]: isExpanded })}
         disabled={isDisabled}
         size={'small'}
       >

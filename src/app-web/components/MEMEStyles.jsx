@@ -16,6 +16,7 @@ const m_systemTextColor = 'rgba(0,0,0,0.35)';
 const m_systemLabelFontSize = '0.6em';
 const m_systemLabelTextColor = 'rgba(0,0,0,0.25)';
 const m_resourceListWidth = 300;
+const m_evlinkButtonExpandedWidth = 170;
 const m_zResourceList = 1250;
 const m_zSticky = 1500;
 const m_zHelp = 1600;
@@ -333,6 +334,9 @@ const styles = theme => {
       fontSize: '12px',
       marginTop: '10px'
     },
+    evidenceWindowLabelGrid: {
+      alignSelf: 'flex-start'
+    },
     evidenceWindowLabel: {
       fontSize: m_systemLabelFontSize,
       color: m_systemTextColor,
@@ -342,12 +346,16 @@ const styles = theme => {
       flexGrow: '1',
       fontSize: '0.9em',
       lineHeight: '1em',
-      height: '30px',
-      marginTop: '9px',
-      overflowY: 'auto'
+      marginTop: '3px',
+      maxHeight: '2em',
+      maxWidth: '195px',
+      overflow: 'hidden'
     },
     evidenceLabelFieldExpanded: {
       height: 'auto',
+      maxHeight: 'max-content',
+      width: `${m_evlinkButtonExpandedWidth}px`,
+      overflowY: 'auto',
       margin: '0'
     },
     evidenceExpandButton: {
@@ -374,7 +382,8 @@ const styles = theme => {
       margin: '0'
     },
     evidenceScreenshotStatus: {
-      fontSize: '0.8em',
+      paddingTop: '3px',
+      fontSize: '0.7em',
       lineHeight: '1.1em',
       fontStyle: 'italic',
       color: m_systemTextColor
@@ -436,6 +445,9 @@ const styles = theme => {
     evidenceLinkSelectButton: {
       color: '#fff',
       backgroundColor: red[700]
+    },
+    evidenceLinkSelectButtonExpanded: {
+      width: `${m_evlinkButtonExpandedWidth}px`
     },
     evidenceLinkSelectButtonLabel: {
       maxWidth: '140px',

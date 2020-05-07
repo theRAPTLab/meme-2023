@@ -60,6 +60,10 @@ ADMData.InitializeData = data => {
   adm_db = data;
   // clear settings
   ASET.clear();
+
+  // Listener
+  UR.Subscribe('ADM_MODEL_MODIFIED', ADMData.OnModelModificationUpdate);
+
   // dbg info
   if (DBG) console.log('DBG:INITIALIZE: adm_db', adm_db);
 };
@@ -188,6 +192,7 @@ ADMData.SyncUpdatedData = data => {
       case 'models':
         const model = ADMData.GetModelById(value.id);
         model.dateModified = value.dateModified;
+        UR.Publish('ADM_DATA_UPDATED', data);
         if (model.title !== value.title) {
           model.title = value.title;
           UR.Publish('MODEL_TITLE_UPDATED', { id: value.id, title: value.title });
@@ -782,9 +787,17 @@ ADMData.DB_NewModel = (data, cb) => {
 }; /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Handles modification date updates for the model
- * This is called by pmc-data whenver it updates objects in the model, e.g. props, comments
+ * This is called by pmc-data via a UR 'ADM_MODEL_MODIFIED' message
+ * whenver it updates objects in the model, e.g. props, comments
+ *
+ * FIX ME: The new date should be generated and saved on the server side, not client.
+ *
  * @param {string} date
  */
+ADMData.OnModelModificationUpdate = data => {
+  if (data === undefined || data.modelId === undefined) throw Error('ADM_MODEL_MODIFIED called with no modelId');
+  ADMData.DB_ModelModificationUpdate(data.modelId);
+}
 ADMData.DB_ModelModificationUpdate = (modelId, date = new Date()) => {
   return UR.DBQuery('update', {
     models: {

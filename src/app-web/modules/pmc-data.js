@@ -8,7 +8,6 @@ import UTILS from './utils';
 import ASET from './adm-settings';
 import ADMObj from './adm-objects';
 import PMCObj from './pmc-objects';
-import ADMData from './adm-data';
 
 const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
 
@@ -456,7 +455,7 @@ PMCData.SyncRemovedData = data => {
  * Call UR.DBQuery directly if you don't want the model modification date to be updated.
  */
 PMCData.UR_DBQuery = (cmd, data) => {
-  ADMData.DB_ModelModificationUpdate(ASET.selectedModelId); // Update modification date.
+  UR.Publish('ADM_MODEL_MODIFIED', { modelId: ASET.selectedModelId }); // Update modification date.
   return UR.DBQuery(cmd, data);
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

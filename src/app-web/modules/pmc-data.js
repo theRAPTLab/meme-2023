@@ -8,6 +8,7 @@ import UTILS from './utils';
 import ASET from './adm-settings';
 import ADMObj from './adm-objects';
 import PMCObj from './pmc-objects';
+import ADMData from './adm-data';
 
 const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
 
@@ -449,7 +450,15 @@ PMCData.SyncRemovedData = data => {
     }
   });
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** URSYS: DATABASE Call
+ * Wrap the DBQuery call so that we can record model modification.
+ * Call UR.DBQuery directly if you don't want the model modification date to be updated.
+ */
+PMCData.UR_DBQuery = (cmd, data) => {
+  ADMData.DB_ModelModificationUpdate(ASET.selectedModelId); // Update modification date.
+  return UR.DBQuery(cmd, data);
+}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** SyncData Utility Function.
  *  Handles the case where parent may be undefined, and we still want to set it
@@ -745,7 +754,7 @@ PMCData.PMC_PropAdd = newPropObj => {
     'PropertyAdd',
     `name: "${newPropObj.name}" propType: "${newPropObj.propType}" description: "${newPropObj.description}" with parent "${newPropObj.parent}"`
   );
-  return UR.DBQuery('add', {
+  return PMCData.UR_DBQuery('add', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: propObj
@@ -783,7 +792,7 @@ PMCData.PMC_PropUpdate = (propId, newData) => {
   );
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
-  return UR.DBQuery('update', {
+  return PMCData.UR_DBQuery('update', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: propData
@@ -839,7 +848,7 @@ PMCData.PMC_PropDelete = propId => {
 
   // 7. Remove the actual prop
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('remove', {
+  return PMCData.UR_DBQuery('remove', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: { id: propId }
@@ -896,7 +905,7 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
     description
   };
   UTILS.RLog('MechanismAdd', `from: "${sourceId}" to: "${targetId}" label: "${label}" description: "${description}"`);
-  return UR.DBQuery('add', {
+  return PMCData.UR_DBQuery('add', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: mechObj
@@ -938,7 +947,7 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
     target: Number(targetId),
     description
   };
-  return UR.DBQuery('update', {
+  return PMCData.UR_DBQuery('update', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: mechObj
@@ -1002,7 +1011,7 @@ PMCData.PMC_MechDelete = mechId => {
   UTILS.RLog('MechanismDelete', mechId);
 
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('remove', {
+  return PMCData.UR_DBQuery('remove', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: { id: Number(mech.id) }
@@ -1063,7 +1072,7 @@ PMCData.PMC_AddEvidenceLink = (evObjData, cb) => {
 
   UTILS.RLog('EvidenceCreate', evObj.rsrcId); // note is empty at this point
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('add', {
+  return PMCData.UR_DBQuery('add', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: evObj
@@ -1121,7 +1130,7 @@ PMCData.PMC_DuplicateEvidenceLink = (evId, cb) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_DeleteEvidenceLink = evId => {
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('remove', {
+  return PMCData.UR_DBQuery('remove', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: { id: evId }
@@ -1217,7 +1226,7 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
 
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
-  return UR.DBQuery('update', {
+  return PMCData.UR_DBQuery('update', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: evData
@@ -1300,7 +1309,7 @@ PMCData.DB_CommentAdd = (refId, commentData, cb) => {
     `id:${newComment.id} "${commentData.text}" with criteria "${commentData.criteriaId}" on "${refId}"`
   );
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('add', {
+  return PMCData.UR_DBQuery('add', {
     'pmcData.comments': {
       id: pmcDataId,
       comments: newComment
@@ -1334,7 +1343,7 @@ PMCData.DB_CommentUpdate = (refId, comment, cb) => {
   );
 
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('update', {
+  return PMCData.UR_DBQuery('update', {
     'pmcData.comments': {
       id: pmcDataId,
       comments: updatedComment
@@ -1370,7 +1379,7 @@ PMCData.DB_CommentsUpdate = (refId, comments, cb) => {
 PMCData.DB_CommentDelete = commentId => {
   const pmcDataId = ASET.selectedPMCDataId;
   UTILS.RLog('CommentDelete', `id:${commentId} from model "${pmcDataId}"`);
-  return UR.DBQuery('remove', {
+  return PMCData.UR_DBQuery('remove', {
     'pmcData.comments': {
       id: pmcDataId,
       comments: { id: commentId }
@@ -1408,7 +1417,7 @@ PMCData.DB_MarkRead = (commentId, author) => {
   });
   UTILS.RLog('CommentMarkedRead', `id:${commentId} read by "${author}"`);
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('add', {
+  return PMCData.UR_DBQuery('add', {
     'pmcData.markedread': {
       id: pmcDataId,
       markedread: newMarkedRead

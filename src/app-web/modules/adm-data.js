@@ -113,7 +113,7 @@ ADMData.SyncAddedData = data => {
           adm_db.models.push(model);
           UR.Publish('ADM_DATA_UPDATED', data);
         } else {
-          // Usually tjos fires before DB_NewModel's then() so the model is already added
+          // Usually this fires before DB_NewModel's then() so the model is already added
           if (DBG) console.error(`SyncAddedData: Model ${value.id} already added, skipping`);
         }
         break;
@@ -779,7 +779,24 @@ ADMData.DB_NewModel = (data, cb) => {
     cb(rdata);
   });
   */
+}; /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Handles modification date updates for the model
+ * This is called by pmc-data whenver it updates objects in the model, e.g. props, comments
+ * @param {string} date
+ */
+ADMData.DB_ModelModificationUpdate = (modelId, date = new Date()) => {
+  return UR.DBQuery('update', {
+    models: {
+      id: modelId,
+      dateModified: date
+    }
+  }).then(() => {
+    // No RLog for model date update
+    // UTILS.RLog('ModelUpdate', `id "${modelId}" to "${title}"`);
+  });
 };
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Handles text input updates for the model title

@@ -589,7 +589,7 @@ class EvidenceLink extends React.Component {
                 </Avatar>
               </Grid>
               <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
-                How does this resource support this component / property / mechanism?
+                How is this resource evidence for this part of the model?
               </Typography>
 
               {/* Source */}

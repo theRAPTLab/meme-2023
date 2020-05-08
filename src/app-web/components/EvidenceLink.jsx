@@ -6,6 +6,32 @@ a component, property, or mechanism.
 
 They are controlled components.
 
+
+Life Cycle
+
+Saving Data
+Triggers to save data happens in multiple places:
+1. Non-text field modifications immediately save data:
+  * Setting the target link immediately saves data
+  * Setting the rating immediately saves data
+  * Adding a screenshot immediate saves data
+  * Adding a comment immediately saves data
+2. Text field modifications triggers saves when:
+  * OnBlur for the text field -- This is necessary to catch the user
+    navigating away, e.g. clicking on "Model" to select a new model
+  * When the "Close" button is clicked
+  * When the user clicks away from the evidence link (e.g. on model)
+  * When the user clicks on "Model" to select a new model
+  * NOT When the user drags a prop -- no handler for drag
+  * When the user clicks away from the browser
+  * When the user collapses the resource
+3. Clicking on Link Button to set a new target
+
+
+Testing
+* blur will trigger save
+* clickaway will trigger save
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////
@@ -64,9 +90,13 @@ class EvidenceLink extends React.Component {
       isBeingEdited: false,
       isExpanded: false,
       isHovered: false,
-      ignoreClickAway: false,
-      listenForSourceSelection: false
+      ignoreClickAway: false, // when editing rating
+      listenForSourceSelection: false,
+      saveInProgress: false
     };
+
+    // Handle Promise cancellation
+    this._isMounted = false;
 
     // Handle Focus
     // create a ref to store the evlink and textInput DOM elements
@@ -85,6 +115,7 @@ class EvidenceLink extends React.Component {
     this.OnEditButtonClick = this.OnEditButtonClick.bind(this);
     this.OnSaveButtonClick = this.OnSaveButtonClick.bind(this);
     this.OnClickAway = this.OnClickAway.bind(this);
+    this.OnBlur = this.OnBlur.bind(this);
     this.DoEvidenceLinkOpen = this.DoEvidenceLinkOpen.bind(this);
     this.OnScreenShotClick = this.OnScreenShotClick.bind(this);
     this.OnCaptureScreenShotClick = this.OnCaptureScreenShotClick.bind(this);
@@ -104,10 +135,12 @@ class EvidenceLink extends React.Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     this.DoDataUpdate(); // Force load ratingDefs
   }
 
   componentWillUnmount() {
+    this._isMounted = false;
     UR.Unsubscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Unsubscribe('SHOW_EVIDENCE_LINK_SECONDARY', this.DoEvidenceLinkOpen);
     UR.Unsubscribe('EVLINK:ENABLE_SOURCE_SELECT', this.DoEnableSourceSelect);
@@ -148,7 +181,7 @@ class EvidenceLink extends React.Component {
   }
 
   DoScrollIntoView() {
-    this.ref.current.scrollIntoView({block: 'end'}); // alignToTop=true
+    this.ref.current.scrollIntoView({ block: 'end' }); // alignToTop=true
   }
 
   /**
@@ -198,10 +231,23 @@ class EvidenceLink extends React.Component {
   }
 
   DoSave() {
+    // If a save has already been triggered, don't save again?
+    if (this.state.saveInProgress) {
+      return;
+    }
+
+    this.setState({ saveInProgress: true }, () =>
       DATA.SetEvidenceLinkTextFields(this.props.evlink.id, {
         note: this.state.note,
         why: this.state.why
+      }).then(() => {
+        // The promise can get returned after the component is unmounted
+        // which will generate a warning if the user clicks on "Model"
+        if (this._isMounted) {
+          this.setState({ saveInProgress: false });
+        }
       })
+    );
   }
 
   OnScreenShotClick(e) {
@@ -290,6 +336,11 @@ class EvidenceLink extends React.Component {
     e.stopPropagation();
     this.DoSave();
     this.DoEditStop();
+  }
+
+  OnBlur(e) {
+    console.log('evlink DESCRIPTION/WHY onblur triggering save');
+    this.DoSave();
   }
 
   OnClickAway(e) {
@@ -547,7 +598,12 @@ class EvidenceLink extends React.Component {
                     isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed
                   }
                 >
-                  <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
+                  <Grid
+                    item
+                    xs={4}
+                    hidden={!isExpanded}
+                    className={classes.evidenceWindowLabelGrid}
+                  >
                     <Typography
                       className={classes.evidenceWindowLabel}
                       variant="caption"
@@ -573,7 +629,7 @@ class EvidenceLink extends React.Component {
                           disabled={!isBeingEdited}
                           disableUnderline
                           onChange={this.OnNoteChange}
-                          onBlur={this.DoSave}
+                          onBlur={this.OnBlur}
                           onClick={e => {
                             e.stopPropagation();
                           }}
@@ -598,7 +654,12 @@ class EvidenceLink extends React.Component {
                       isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed
                     }
                   >
-                    <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
+                    <Grid
+                      item
+                      xs={4}
+                      hidden={!isExpanded}
+                      className={classes.evidenceWindowLabelGrid}
+                    >
                       <Typography
                         className={classes.evidenceWindowLabel}
                         variant="caption"
@@ -631,7 +692,12 @@ class EvidenceLink extends React.Component {
                     isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed
                   }
                 >
-                  <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
+                  <Grid
+                    item
+                    xs={4}
+                    hidden={!isExpanded}
+                    className={classes.evidenceWindowLabelGrid}
+                  >
                     <Typography
                       className={classes.evidenceWindowLabel}
                       variant="caption"
@@ -678,7 +744,7 @@ class EvidenceLink extends React.Component {
                         disabled={!isBeingEdited}
                         disableUnderline
                         onChange={this.OnWhyChange}
-                        onBlur={this.DoSave}
+                        onBlur={this.OnBlur}
                         onClick={e => {
                           e.stopPropagation();
                         }}

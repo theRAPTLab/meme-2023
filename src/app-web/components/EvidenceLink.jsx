@@ -221,7 +221,8 @@ class EvidenceLink extends React.Component {
 
   DoEditStop() {
     this.setState({
-      isBeingEdited: false
+      isBeingEdited: false,
+      listenForSourceSelection: false // cancel out and restore orig values
     });
     const pmcDataId = ASET.selectedPMCDataId;
     const intEvId = Number(this.props.evlink.id);
@@ -402,7 +403,6 @@ class EvidenceLink extends React.Component {
     let evlink = this.props.evlink;
     // Deselect the prop first, otherwise the deleted prop will remain selected
     DATA.VM_DeselectAllProps();
-    // Remove any existing evidence links
     // Then trigger editing
     if (this.state.isBeingEdited) {
       UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId: evlink.id, rsrcId: evlink.rsrcId });
@@ -411,7 +411,10 @@ class EvidenceLink extends React.Component {
 
   DoEnableSourceSelect(data) {
     if (data.evId === this.props.evlink.id) {
-      this.setState({ listenForSourceSelection: true });
+      this.setState({
+        listenForSourceSelection: true,
+        ignoreClickAway: true
+      });
     }
   }
 

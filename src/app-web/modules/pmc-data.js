@@ -327,6 +327,10 @@ PMCData.SyncUpdatedData = data => {
   if (ASET.selectedModelId === '' || m_graph === undefined) return;
   // skip update if data is for a different model
   if (data.pmcDataId !== ASET.selectedPMCDataId) return;
+  // skip update if no data is changed
+  // This is necessary so that we can skip an extra BuildModel due to
+  // admData changing the modification date of models.
+  let dataWasUpdated = false;
 
   const syncitems = DATAMAP.ExtractSyncData(data);
   syncitems.forEach(item => {
@@ -343,6 +347,7 @@ PMCData.SyncUpdatedData = data => {
             description: value.description
           });
           f_NodeSetParent(value.id, value.parent);
+          dataWasUpdated = true;
           break;
         case 'mech':
           // 1. Remove the old edge first.
@@ -355,6 +360,7 @@ PMCData.SyncUpdatedData = data => {
             name: value.name,
             description: value.description
           });
+          dataWasUpdated = true;
           break;
         case 'evidence':
           const { id, propId, mechId, rsrcId, numberLabel, rating, why, note, imageURL } = value;
@@ -371,11 +377,13 @@ PMCData.SyncUpdatedData = data => {
           };
           const i = a_evidence.findIndex(e => e.id === id);
           a_evidence.splice(i, 1, evlink);
+console.log('...SyncUpdateData: evidence was updated');
+          dataWasUpdated = true;
           break;
         default:
           throw Error('unexpected proptype');
       }
-      PMCData.BuildModel();
+      // PMCData.BuildModel();
     }
 
     if (subkey === 'comments') {
@@ -384,6 +392,7 @@ PMCData.SyncUpdatedData = data => {
       if (i < 0) throw Error('Trying to update non-existent comments');
       const comment = Object.assign(a_comments[i], newComment);
       a_comments.splice(i, 1, comment);
+      dataWasUpdated = true;
       UR.Publish('DATA_UPDATED');
     }
 
@@ -391,6 +400,12 @@ PMCData.SyncUpdatedData = data => {
       // marked read really doesn't get updates
     }
   }); // syncitems
+
+  if (dataWasUpdated) {
+    console.log('SyncUpdatedData=>BuildModel')
+    PMCData.BuildModel();
+  }
+
   if (DBG && data['pmcData.comments']) console.log('PMCData.comments update');
   // do stuff here
 

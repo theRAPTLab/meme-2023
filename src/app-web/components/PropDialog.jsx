@@ -56,7 +56,7 @@ class PropDialog extends React.Component {
     UR.Subscribe('PROPDIALOG_OPEN', this.DoOpen);
   }
 
-  componentDidMount() { }
+  componentDidMount() {}
 
   componentWillUnmount() {
     UR.Unsubscribe('PROPDIALOG_OPEN', this.DoOpen);
@@ -80,27 +80,30 @@ class PropDialog extends React.Component {
     if (intPropId === undefined || intPropId === NaN)
       throw Error(`DoOpen called with bad propId ${data.propId}`);
     // existing prop, so lock it
-    UR.DBTryLock('pmcData.entities', [pmcDataId, intPropId])
-      .then(rdata => {
-        const { success, semaphore, uaddr, lockedBy } = rdata;
-        status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
-        if (rdata.success) {
-          console.log('do something here because u-locked!');
-          console.log('propsdialog editing', data);
-          this.setState({
-            isOpen: true,
-            propId: data.propId || '', // new prop, so clear propId
-            propType: data.propType || DATAMAP.PMC_MODELTYPES.COMPONENT.id, // default to component for backward compatibility
-            label: data.label || '', // clear the old property name
-            description: data.description || '',
-            isProperty: data.isProperty
-          });
-        } else {
-          console.log('aw, locked by', rdata.lockedBy);
-          alert(`Sorry, someone else (${rdata.lockedBy}) is editing this ${data.propType} right now.  Please try again later.`)
-          UR.Publish('PROPDIALOG_CLOSE'); // tell ViewMain to re-enable ToolsPanel
-        }
-      });
+    UR.DBTryLock('pmcData.entities', [pmcDataId, intPropId]).then(rdata => {
+      const { success, semaphore, uaddr, lockedBy } = rdata;
+      status += success
+        ? `${semaphore} lock acquired by ${uaddr} `
+        : `failed to acquired ${semaphore} lock `;
+      if (rdata.success) {
+        console.log('do something here because u-locked!');
+        console.log('propsdialog editing', data);
+        this.setState({
+          isOpen: true,
+          propId: data.propId || '', // new prop, so clear propId
+          propType: data.propType || DATAMAP.PMC_MODELTYPES.COMPONENT.id, // default to component for backward compatibility
+          label: data.label || '', // clear the old property name
+          description: data.description || '',
+          isProperty: data.isProperty
+        });
+      } else {
+        console.log('aw, locked by', rdata.lockedBy);
+        alert(
+          `Sorry, someone else (${rdata.lockedBy}) is editing this ${data.propType} right now.  Please try again later.`
+        );
+        UR.Publish('PROPDIALOG_CLOSE'); // tell ViewMain to re-enable ToolsPanel
+      }
+    });
   }
 
   DoClose() {
@@ -151,7 +154,8 @@ class PropDialog extends React.Component {
   render() {
     const { isOpen, propId, propType, label, description, isProperty } = this.state;
     const { classes } = this.props;
-    const propTypeLabel = UTILS.InitialCaps(DATAMAP.ModelTypeLabel(propType)) + (isProperty ? ' property' : '');
+    const propTypeLabel =
+      UTILS.InitialCaps(DATAMAP.ModelTypeLabel(propType)) + (isProperty ? ' property' : '');
     const propTypeDescription = DATAMAP.ModelTypeDescription(propType);
 
     return (
@@ -160,7 +164,6 @@ class PropDialog extends React.Component {
           <DialogTitle id="form-dialog-title">Add {propTypeLabel}</DialogTitle>
           <DialogContent>
             <DialogContentText>{propTypeDescription}</DialogContentText>
-            <DialogContentText>Type a name for your {propTypeLabel}.</DialogContentText>
             <TextField
               autoFocus
               margin="dense"
@@ -170,15 +173,15 @@ class PropDialog extends React.Component {
               onChange={this.OnLabelChange}
               value={label}
             />
-            <br /><br />
-            <DialogContentText>Add a description.</DialogContentText>
+            <br />
+            <br />
             <TextField
               margin="dense"
               id="propDescription"
               label="Description"
               fullWidth
               multiline
-              rows={2}
+              rows={5}
               onChange={this.OnDescriptionChange}
               value={description}
             />

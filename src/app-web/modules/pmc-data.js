@@ -1283,6 +1283,17 @@ PMCData.SetEvidenceLinkWhy = (evId, why) => {
   PMCData.PMC_EvidenceUpdate(evId, newData);
   UTILS.RLog('EvidenceSetWhy', `Set evidence rating why to "${why}"`);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// This comebines the Description Note and Why cllas into a single call
+/// to reduce the number of DB updatess
+PMCData.SetEvidenceLinkTextFields = (evId, data) => {
+  const newData = {
+    note: data.note,
+    why: data.why
+  };
+  UTILS.RLog('EvidenceSetTextFields', `Saving note "${data.note}" and why "${data.why}"`);
+  return PMCData.PMC_EvidenceUpdate(evId, newData);
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// STICKIES //////////////////////////////////////////////////////////////////

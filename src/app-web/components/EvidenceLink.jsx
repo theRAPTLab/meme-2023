@@ -198,8 +198,10 @@ class EvidenceLink extends React.Component {
   }
 
   DoSave() {
-    DATA.SetEvidenceLinkNote(this.props.evlink.id, this.state.note);
-    DATA.SetEvidenceLinkWhy(this.props.evlink.id, this.state.why);
+      DATA.SetEvidenceLinkTextFields(this.props.evlink.id, {
+        note: this.state.note,
+        why: this.state.why
+      })
   }
 
   OnScreenShotClick(e) {

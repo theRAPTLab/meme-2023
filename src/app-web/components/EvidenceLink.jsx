@@ -152,7 +152,6 @@ class EvidenceLink extends React.Component {
     // and a Resource View.  If one is updated, the other needs to update itself
     // via the DATA_UPDATED call because `note` is only set by props
     // during construction.
-
     let evlink = DATA.PMC_GetEvLinkByEvId(this.props.evlink.id);
     if (evlink) {
       // Get current model's rating definitions
@@ -401,12 +400,9 @@ class EvidenceLink extends React.Component {
   */
   OnLinkButtonClick(e) {
     let evlink = this.props.evlink;
-    this.DoEditStop(); // need to release db lock
     // Deselect the prop first, otherwise the deleted prop will remain selected
-    DATA.VM_DeselectAll();
-    UR.Publish('SELECTION_CHANGED');
+    DATA.VM_DeselectAllProps();
     // Remove any existing evidence links
-    DATA.PMC_EvidenceUpdate(evlink.id, { propId: null, mechId: null });
     // Then trigger editing
     if (this.state.isBeingEdited) {
       UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId: evlink.id, rsrcId: evlink.rsrcId });
@@ -521,21 +517,23 @@ class EvidenceLink extends React.Component {
     } = this.state;
     if (id === '') return '';
 
-    let sourceType;
-    let sourceLabel;
-    if (propId !== undefined && propId !== null && DATA.HasProp(propId) && DATA.Prop(propId)) {
-      if (DATA.Prop(propId).propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id) {
-        sourceType = DATAMAP.PMC_MODELTYPES.OUTCOME.id;
-      } else {
-        sourceType = DATAMAP.PMC_MODELTYPES.COMPONENT.id;
+    let sourceType = undefined;
+    let sourceLabel = undefined;
+    // If we are listeningForSourceSelection, then leave sourceType and sourceLabel
+    // undefined so that the link button will show "Click on Target"
+    // otherwise show the prop or mech linked.
+    if (!listenForSourceSelection) {
+      if (propId !== undefined && propId !== null && DATA.HasProp(propId) && DATA.Prop(propId)) {
+        if (DATA.Prop(propId).propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id) {
+          sourceType = DATAMAP.PMC_MODELTYPES.OUTCOME.id;
+        } else {
+          sourceType = DATAMAP.PMC_MODELTYPES.COMPONENT.id;
+        }
+        sourceLabel = DATA.Prop(propId).name;
+      } else if (mechId !== undefined && mechId !== null && DATA.Mech(mechId)) {
+        sourceType = DATAMAP.PMC_MODELTYPES.MECHANISM.id;
+        sourceLabel = DATA.Mech(mechId).name;
       }
-      sourceLabel = DATA.Prop(propId).name;
-    } else if (mechId !== undefined && mechId !== null && DATA.Mech(mechId)) {
-      sourceType = DATAMAP.PMC_MODELTYPES.MECHANISM.id;
-      sourceLabel = DATA.Mech(mechId).name;
-    } else {
-      sourceType = undefined;
-      sourceLabel = undefined;
     }
 
     const isViewOnly = ADM.IsViewOnly();

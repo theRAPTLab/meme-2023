@@ -383,7 +383,6 @@ console.log('...SyncUpdateData: evidence was updated');
         default:
           throw Error('unexpected proptype');
       }
-      // PMCData.BuildModel();
     }
 
     if (subkey === 'comments') {

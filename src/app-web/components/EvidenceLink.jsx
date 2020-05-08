@@ -148,7 +148,7 @@ class EvidenceLink extends React.Component {
   }
 
   DoScrollIntoView() {
-    this.ref.current.scrollIntoView({block: 'end'}); // alignToTop=true
+    this.ref.current.scrollIntoView({ block: 'end' }); // alignToTop=true
   }
 
   /**
@@ -533,7 +533,7 @@ class EvidenceLink extends React.Component {
                 </Avatar>
               </Grid>
               <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
-                How does this resource support this component / property / mechanism?
+                How is this resource evidence for this part of the model?
               </Typography>
 
               {/* Source */}
@@ -545,7 +545,12 @@ class EvidenceLink extends React.Component {
                     isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed
                   }
                 >
-                  <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
+                  <Grid
+                    item
+                    xs={4}
+                    hidden={!isExpanded}
+                    className={classes.evidenceWindowLabelGrid}
+                  >
                     <Typography
                       className={classes.evidenceWindowLabel}
                       variant="caption"
@@ -596,7 +601,12 @@ class EvidenceLink extends React.Component {
                       isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed
                     }
                   >
-                    <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
+                    <Grid
+                      item
+                      xs={4}
+                      hidden={!isExpanded}
+                      className={classes.evidenceWindowLabelGrid}
+                    >
                       <Typography
                         className={classes.evidenceWindowLabel}
                         variant="caption"
@@ -629,7 +639,12 @@ class EvidenceLink extends React.Component {
                     isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed
                   }
                 >
-                  <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
+                  <Grid
+                    item
+                    xs={4}
+                    hidden={!isExpanded}
+                    className={classes.evidenceWindowLabelGrid}
+                  >
                     <Typography
                       className={classes.evidenceWindowLabel}
                       variant="caption"

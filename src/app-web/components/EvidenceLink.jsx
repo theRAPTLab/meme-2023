@@ -20,13 +20,12 @@ Triggers to save data happens in multiple places:
   * OnBlur for the text field -- This is necessary to catch the user
     navigating away, e.g. clicking on "Model" to select a new model
   * When the "Close" button is clicked
+  * When the user clicks on a prop or mech to select it
   * When the user clicks away from the evidence link (e.g. on model)
   * When the user clicks on "Model" to select a new model
-  * NOT When the user drags a prop -- no handler for drag
   * When the user clicks away from the browser
   * When the user collapses the resource
-3. Clicking on Link Button to set a new target
-
+  * NOT When the user drags a prop -- no handler for drag
 
 Testing
 * blur will trigger save
@@ -236,6 +235,9 @@ class EvidenceLink extends React.Component {
       return;
     }
 
+    // Comments, Targets, Ratings are all immediately saved
+    // when they are changed.  So the only thing we need to
+    // save are the two text fields: Description and Why
     this.setState({ saveInProgress: true }, () =>
       DATA.SetEvidenceLinkTextFields(this.props.evlink.id, {
         note: this.state.note,

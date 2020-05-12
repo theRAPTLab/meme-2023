@@ -36,48 +36,54 @@ Triggers to save data happens in multiple places:
 
 ## 1. Collapsed
 
-a. Click to expand/contract
-b. Comments can be added
-c. Ratings can be changed
+* [ ]  a. Click to expand/contract
+* [ ]  b. Comments can be added
+* [ ]  c. Ratings can be changed
 
 ## 2. Expanded, Non-Edit Mode
 
-a. Click disclosure triangle to collapse
-b. Comments can be added
-c. Ratings can be changed
-d. Delete works
-e. Duplicate works
-f. Edit mode can be turne don
+* [ ]  a. Click disclosure triangle to collapse
+* [ ]  b. Comments can be added
+* [ ]  c. Ratings can be changed
+* [ ]  d. Delete works
+* [ ]  e. Duplicate works
+* [ ]  f. Edit mode can be turned don
 
 ## 3. Edit Mode
 
-a. When edit mode is set, focus is in Description field
-b. Comments can be added
-xx  b1. When comment is completed, retain edit mode?
-c. Link Button click to set target
-   c1. After clicking on target, edit mode is maintained
-d. Ratings can be changed
-   d1. After setting rating, edit mode is maintained
-e. Description field change text
-   e1. Blur will trigger save
-   e2. ClickAway will trigger save, but not duplicate blur save
-f. Why field change text
-   f1. Blur will trigger save
-   f2. ClickAway will trigger save, but not duplicate blur save
-g. Can add a screesnhot
+* [ ]  a. When edit mode is set, focus is in Description field
+* [ ]  b. Comments can be added
+* [ ]  xx  b1. When comment is completed, retain edit mode? <= Not implemented
+* [ ]  c. Link Button click to set target
+* [ ]     c1. After clicking on target, edit mode is maintained
+* [ ]  d. Ratings can be changed
+* [ ]     d1. After setting rating, edit mode is maintained
+* [ ]  e. Description field change text
+* [ ]     e1. Blur will trigger save
+* [ ]     e2. ClickAway will trigger save, but not duplicate blur save
+* [ ]  f. Why field change text
+* [ ]     f1. Blur will trigger save
+* [ ]     f2. ClickAway will trigger save, but not duplicate blur save
+* [ ]  g. Can add a screesnhot
 
 ## 4. From Resource View
 
-a. Link Button click to set target
-   a0. Any changes to Description or Note is saved
-   a1. ResourceView will close
-   a2. ResourceItem will expand if collapsed
-   a3. EvLink item in ResourceItem will be expanded
-   a4. EvLink will go into Edit Mode
-   a5. EvLink LinkButton is ready to set target
-   a6. Clicking target will set target in LinkButton
+* [ ]  a. Link Button click to set target
+* [ ]     a0. Any changes to Description or Note is saved
+* [ ]     a1. ResourceView will close
+* [ ]     a2. ResourceItem will expand if collapsed
+* [ ]     a3. EvLink item in ResourceItem will be expanded
+* [ ]     a4. EvLink will go into Edit Mode
+* [ ]     a5. EvLink LinkButton is ready to set target
+* [ ]     a6. Clicking target will set target in LinkButton
 
+## 5. Networked
 
+* [ ]  a. When evidence is not being edited, any updates to the evidence from another
+          computer should be loaded and displayed, whether collapsed or expanded.
+* [ ]  b. If someone else is editing the Evidence Link and you try to edit the
+          Evidence Link you should get an error about someone else editing and you
+          should not be able to enter edit mode.
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 

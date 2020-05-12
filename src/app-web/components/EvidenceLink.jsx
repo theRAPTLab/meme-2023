@@ -7,29 +7,77 @@ a component, property, or mechanism.
 They are controlled components.
 
 
-Life Cycle
+# Life Cycle
 
-Saving Data
+## Saving Data
+
 Triggers to save data happens in multiple places:
+
 1. Non-text field modifications immediately save data:
   * Setting the target link immediately saves data
   * Setting the rating immediately saves data
   * Adding a screenshot immediate saves data
   * Adding a comment immediately saves data
+
 2. Text field modifications triggers saves when:
   * OnBlur for the text field -- This is necessary to catch the user
     navigating away, e.g. clicking on "Model" to select a new model
   * When the "Close" button is clicked
   * When the user clicks on a prop or mech to select it
   * When the user clicks away from the evidence link (e.g. on model)
-  * When the user clicks on "Model" to select a new model
+  * When the user clicks on "Model" to select a new model, or logs out
   * When the user clicks away from the browser
   * When the user collapses the resource
   * NOT When the user drags a prop -- no handler for drag
 
-Testing
-* blur will trigger save
-* clickaway will trigger save
+
+
+# QA Testing
+
+## 1. Collapsed
+
+a. Click to expand/contract
+b. Comments can be added
+c. Ratings can be changed
+
+## 2. Expanded, Non-Edit Mode
+
+a. Click disclosure triangle to collapse
+b. Comments can be added
+c. Ratings can be changed
+d. Delete works
+e. Duplicate works
+f. Edit mode can be turne don
+
+## 3. Edit Mode
+
+a. When edit mode is set, focus is in Description field
+b. Comments can be added
+xx  b1. When comment is completed, retain edit mode?
+c. Link Button click to set target
+   c1. After clicking on target, edit mode is maintained
+d. Ratings can be changed
+   d1. After setting rating, edit mode is maintained
+e. Description field change text
+   e1. Blur will trigger save
+   e2. ClickAway will trigger save, but not duplicate blur save
+f. Why field change text
+   f1. Blur will trigger save
+   f2. ClickAway will trigger save, but not duplicate blur save
+g. Can add a screesnhot
+
+## 4. From Resource View
+
+a. Link Button click to set target
+   a0. Any changes to Description or Note is saved
+   a1. ResourceView will close
+   a2. ResourceItem will expand if collapsed
+   a3. EvLink item in ResourceItem will be expanded
+   a4. EvLink will go into Edit Mode
+   a5. EvLink LinkButton is ready to set target
+   a6. Clicking target will set target in LinkButton
+
+
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -89,8 +137,9 @@ class EvidenceLink extends React.Component {
       isBeingEdited: false,
       isExpanded: false,
       isHovered: false,
-      ignoreClickAway: false, // when editing rating
-      listenForSourceSelection: false,
+      listenForSourceSelection: false, // Used to set LinkButton state
+      listenForRatingSelection: false, // Used to skip saves when editing rating
+      needsSaving: false,
       saveInProgress: false
     };
 
@@ -157,12 +206,6 @@ class EvidenceLink extends React.Component {
       const classroomId = ADM.GetClassroomIdByGroup(model.groupId);
       const ratingDefs = ADM.GetRatingsDefinition(classroomId);
       let { note, rating, why } = evlink;
-
-      // if we're currently editing, don't let data update reset the note
-      if (this.state.isBeingEdited) {
-        note = this.state.note;
-        why = this.state.why;
-      }
       this.setState({
         note,
         rating,
@@ -221,23 +264,36 @@ class EvidenceLink extends React.Component {
   DoSave() {
     // If a save has already been triggered, don't save again?
     if (this.state.saveInProgress) {
+      if (DBG) console.log('DoSave skipping -- saveInProgress');
+      return;
+    }
+    if (!this.state.needsSaving) {
+      if (DBG) console.log("DoSave skipping -- doesn't need saving");
       return;
     }
 
     // Comments, Targets, Ratings are all immediately saved
-    // when they are changed.  So the only thing we need to
+    // when they are changed.  So the only thing we need to explicitly
     // save are the two text fields: Description and Why
-    this.setState({ saveInProgress: true }, () =>
-      DATA.SetEvidenceLinkTextFields(this.props.evlink.id, {
-        note: this.state.note,
-        why: this.state.why
-      }).then(() => {
-        // The promise can get returned after the component is unmounted
-        // which will generate a warning if the user clicks on "Model"
-        if (this._isMounted) {
-          this.setState({ saveInProgress: false });
-        }
-      })
+    this.setState(
+      {
+        saveInProgress: true,
+        needsSaving: false
+      },
+      () =>
+        DATA.SetEvidenceLinkTextFields(this.props.evlink.id, {
+          note: this.state.note,
+          why: this.state.why
+        }).then(() => {
+          // The promise can get returned after the component is unmounted
+          // which will generate a warning if the user clicks on "Model"
+          // so only set the state if the componet is still mounted
+          if (this._isMounted) {
+            this.setState({
+              saveInProgress: false
+            });
+          }
+        })
     );
   }
 
@@ -330,19 +386,27 @@ class EvidenceLink extends React.Component {
   }
 
   OnBlur(e) {
-    console.log('evlink DESCRIPTION/WHY onblur triggering save');
+    // OnBlur will trigger before any state updates
+    if (DBG) console.log('onblur triggering save');
     this.DoSave();
   }
 
   OnClickAway(e) {
     if (this.state.isBeingEdited) {
-      this.DoSave();
+      if (DBG) console.log('clickaway (evlink)');
 
-      // If the user is only changing the rating, don't exit Edit Mode
-      if (!this.state.ignoreClickAway) {
+      // If the user is only changing the rating or setting a target link, don't exit Edit Mode
+      if (!this.state.listenForRatingSelection && !this.state.listenForSourceSelection) {
+        // only save if we're not setting a rating or listening for source
+        this.DoSave();
         this.DoEditStop();
       }
-      this.setState({ ignoreClickAway: false });
+
+      // Clear listens
+      // should rating be cleared by some other clearer mechanism?
+      this.setState({
+        listenForRatingSelection: false
+      });
     }
   }
 
@@ -376,12 +440,18 @@ class EvidenceLink extends React.Component {
 
   OnNoteChange(e) {
     if (DBG) console.log(PKG, 'Note Change:', e.target.value);
-    this.setState({ note: e.target.value });
+    this.setState({
+      note: e.target.value,
+      needsSaving: true
+    });
   }
 
   OnWhyChange(e) {
     if (DBG) console.log(PKG, 'Why Change:', e.target.value);
-    this.setState({ why: e.target.value });
+    this.setState({
+      why: e.target.value,
+      needsSaving: true
+    });
   }
 
   /* User has clicked on the 'link' button, so we want to
@@ -391,20 +461,22 @@ class EvidenceLink extends React.Component {
      the evLink
   */
   OnLinkButtonClick(e) {
-    let evlink = this.props.evlink;
-    // Deselect the prop first, otherwise the deleted prop will remain selected
-    DATA.VM_DeselectAllProps();
-    // Then trigger editing
     if (this.state.isBeingEdited) {
-      UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId: evlink.id, rsrcId: evlink.rsrcId });
+      this.setState({ listenForSourceSelection: true }, () => {
+        // Deselect the prop first, otherwise the deleted prop will remain selected
+        DATA.VM_DeselectAllProps();
+        let evlink = this.props.evlink;
+        UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId: evlink.id, rsrcId: evlink.rsrcId });
+      });
     }
   }
 
   DoEnableSourceSelect(data) {
+    // Other EvidenceLink has triggered a set target (usually from ResourceView)
+    // so we need to listen too
     if (data.evId === this.props.evlink.id) {
       this.setState({
-        listenForSourceSelection: true,
-        ignoreClickAway: true
+        listenForSourceSelection: true
       });
     }
   }
@@ -456,13 +528,7 @@ class EvidenceLink extends React.Component {
   OnRatingButtonClick() {
     if (ADM.IsViewOnly()) return;
     const data = { evId: this.props.evlink.id, rating: this.props.evlink.rating };
-    if (this.state.isBeingEdited) {
-      // If EvLink is being edited, ignore the clickaway handler
-      // so that after selecting the rating, we do not exit Edit Mode
-      this.setState({ ignoreClickAway: true }, UR.Publish('RATING_OPEN', data));
-    } else {
-      UR.Publish('RATING_OPEN', data);
-    }
+    this.setState({ listenForRatingSelection: true }, UR.Publish('RATING_OPEN', data));
   }
 
   OnDrop(href) {

@@ -1251,27 +1251,33 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
 /**
  *  @param {String} evId
  *  @param {String||undefined} propId - Set propId to `undefined` to unlink
+ *  @return promise
  */
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
   const newData = {
     propId,
     mechId: null // clear this in case it was set
   };
-  PMCData.PMC_EvidenceUpdate(evId, newData);
   if (propId !== undefined)
     // Only log when setting, not when programmatically clearing
     UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Property "${propId}"`);
+  return PMCData.PMC_EvidenceUpdate(evId, newData);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  @param {String} evId
+ *  @param {String||undefined} mechId - Set mechId to `undefined` to unlink
+ *  @return promise
+ */
 PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
   const newData = {
     propId: null, // clear this in case it was set
     mechId
   };
-  PMCData.PMC_EvidenceUpdate(evId, newData);
   if (mechId !== undefined)
     // Only log when setting, not when programmatically clearing
     UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Mechanism "${mechId}"`);
+  return PMCData.PMC_EvidenceUpdate(evId, newData);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkNote = (evId, note) => {

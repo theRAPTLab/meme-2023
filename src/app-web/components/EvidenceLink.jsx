@@ -425,19 +425,16 @@ class EvidenceLink extends React.Component {
     if (this.state.listenForSourceSelection) {
       let sourceId;
       // Assume mechs are harder to select so check for them first.
-      // REVIEW: Does this work well?
       let selectedMechIds = DATA.VM_SelectedMechIds();
       if (DBG) console.log(PKG, 'selection changed mechsIds:', selectedMechIds);
       if (selectedMechIds.length > 0) {
         // Get the last selection
         sourceId = selectedMechIds[selectedMechIds.length - 1];
-        DATA.SetEvidenceLinkMechId(this.props.evlink.id, sourceId);
-        // leave it in a waiting state?  This allows you to change your mind?
-        // REVIEW may want another way to exit / confirm the selection?
-        // For May 1, exit as soon as something is selected to prevent
-        // subsequent source selections from being applied to ALL open
-        // evlinks.
-        this.setState({ listenForSourceSelection: false });
+        DATA.SetEvidenceLinkMechId(this.props.evlink.id, sourceId).then(() => {
+          if (this._isMounted) {
+            this.setState({ listenForSourceSelection: false });
+          }
+        });
         return;
       }
 
@@ -446,13 +443,11 @@ class EvidenceLink extends React.Component {
       if (selectedPropIds.length > 0) {
         // Get the last selection
         sourceId = selectedPropIds[selectedPropIds.length - 1];
-        DATA.SetEvidenceLinkPropId(this.props.evlink.id, sourceId);
-        // leave it in a waiting state?  This allows you to change your mind?
-        // REVIEW may want another way to exit / confirm the selection?
-        // For May 1, exit as soon as something is selected to prevent
-        // subsequent source selections from being applied to ALL open
-        // evlinks.
-        this.setState({ listenForSourceSelection: false });
+        DATA.SetEvidenceLinkPropId(this.props.evlink.id, sourceId).then(() => {
+          if (this._isMounted) {
+            this.setState({ listenForSourceSelection: false });
+          }
+        });
       }
     }
   }

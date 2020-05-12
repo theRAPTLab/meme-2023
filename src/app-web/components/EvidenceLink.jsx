@@ -104,7 +104,6 @@ class EvidenceLink extends React.Component {
 
     this.DoDataUpdate = this.DoDataUpdate.bind(this);
     this.DoScrollIntoView = this.DoScrollIntoView.bind(this);
-    this.DoRatingUpdate = this.DoRatingUpdate.bind(this);
     this.DoEditStart = this.DoEditStart.bind(this);
     this.DoEditStop = this.DoEditStop.bind(this);
     this.DoSave = this.DoSave.bind(this);
@@ -180,16 +179,6 @@ class EvidenceLink extends React.Component {
 
   DoScrollIntoView() {
     this.ref.current.scrollIntoView({ block: 'end' }); // alignToTop=true
-  }
-
-  /**
-   * Called by the Rating widget when the user clicks on a star.
-   * Sets the rating on the evidence link data.
-   *
-   * @param {integer} rating - number of stars selected
-   */
-  DoRatingUpdate(rating) {
-    DATA.SetEvidenceLinkRating(this.props.evlink.id, rating);
   }
 
   DoEditStart() {

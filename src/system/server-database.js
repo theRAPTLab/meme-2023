@@ -104,6 +104,13 @@ DB.InitializeDatabase = (options = {}) => {
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // callback on load
   function f_LoadDataset() {
+    /** TODO (6): The DB is loaded, so this is where we'd call our new MIGRATION
+     *  method to increment version and update the database to the current
+     *  version supported by MEME. At this point, the m_db instance should be
+     *  up-to-date, and the .loki file is also autosaved within 3 seconds
+     *  (this is set by ropts above)
+     */
+
     // on the first load of (non-existent database), we will have no
     // collections so we can detect the absence of our collections and
     // add (and configure) them now.

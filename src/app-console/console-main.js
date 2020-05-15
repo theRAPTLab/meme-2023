@@ -109,6 +109,24 @@ function createWindow() {
   });
 }
 
+/** TODO (2): Write a message receiver from console.js to get the
+ *  drag/dropped "archive file" to pass to URSYS so it can
+ *  call URSYS and re-initalize the server to load the archive file
+ *  instead of the current database.
+ *  see github.com/electron/electron/blob/v3.1.13/docs/tutorial/native-file-drag-drop.md
+
+ *
+ *  This message receiver may handle the "Export" function too,
+ *  as defined by TODO (4).
+ *  filesystem-specific stuff in here (as URSYS should be clean of
+ *  It calls the appropriate URSYS API method AND handling the
+ *  Electron and OS specific stuff other than node).
+ *
+ *  This message receiver has to send back an acknowledge that
+ *  can be received by console.js so it can update any UI
+ *  progress stuff
+ */
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.

@@ -23,12 +23,14 @@ import ReactDOM from 'react-dom';
 import AppBar from '@material-ui/core/AppBar';
 import Menu from '@material-ui/core/Menu';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import Card from '@material-ui/core/Card';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import Paper from '@material-ui/core/Paper';
 import { withStyles } from '@material-ui/core/styles';
+import { ipcRenderer } from 'electron';
 
 const remote = require('electron').remote;
 
@@ -37,8 +39,41 @@ const styles = theme => ({
   menuButton: {
     marginLeft: -12,
     marginRight: 20
+  },
+  dragOut: {
+    minWidth: 200,
+    minHeight: 50,
+    backgroundColor: '#ddf'
+  },
+  dragIn: {
+    minWidth: 200,
+    minHeight: 50,
+    backgroundColor: '#dfd'
   }
 });
+
+const sendItem = event => {
+  event.preventDefault();
+  console.log('is this sending???');
+  console.log(event);
+  ipcRenderer.send('ondragstart', '/path/to.item');
+};
+
+const droppedItem = ev => {
+  console.log('is this dropping???');
+  ev.preventDefault();
+  // // this is for text only
+  // const data = event.dataTransfer.getData('text');
+  // event.target.textContent = data;
+
+  // Use DataTransfer interface to access the file(s)
+  for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+    var file = ev.dataTransfer.files[i];
+    console.log('... file[' + i + '].name = ' + file.name);
+    console.log(file);
+  }
+  // file props: name, path, size, type, lastModified, lastModifiedDate
+};
 
 const App = withStyles(styles)(props => {
   const { classes } = props;
@@ -53,7 +88,6 @@ const App = withStyles(styles)(props => {
    *  telling it to save a file, and also be informed when the operation
    *  completes.
    */
-
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -72,6 +106,22 @@ const App = withStyles(styles)(props => {
         <br />
         Students: open <b>{client}</b>
       </Typography>
+      <div className={classes.dragOut}>
+        <a href="#" onDragStart={sendItem}>
+          DRAG OUT
+        </a>
+      </div>
+      <div
+        className={classes.dragIn}
+        onDrop={droppedItem}
+        onDragOver={event => {
+          event.preventDefault();
+        }}
+        onDragLeave={() => false}
+        onDragEnd={() => false}
+      >
+        DRAG IN
+      </div>
     </div>
   );
 });

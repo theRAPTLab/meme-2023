@@ -150,11 +150,12 @@ DB.InitializeDatabase = (options = {}) => {
     collection.on('insert', u_CopyLokiId);
     // get datapath
     const dpath = PATH.join(__dirname, `/datasets/${dataset}/${col}.db`);
-    const overridden = process.env.DATASET ? `(ENV.DATASET='${process.env.DATASET}')` : '';
     // if running devserver, always overwrite
     if (options.memehost === 'devserver') {
-      // otherwise...reset the dataset from template .db.js files
+      // output a message of dataset had been overridden at the begining of f_LoadDataset
+      const overridden = process.env.DATASET ? `(ENV.DATASET='${process.env.DATASET}')` : '';
       console.log(PR, `resetting dataset '${col}.db' ${overridden}`);
+      // clear the collection, then load dpath into it.
       collection.clear();
       collection.insert(require(dpath));
       return;

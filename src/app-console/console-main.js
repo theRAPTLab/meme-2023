@@ -8,7 +8,7 @@
 
 // import appserver
 // Import parts of electron to use
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const ip = require('ip');
 const path = require('path');
 const url = require('url');
@@ -92,6 +92,15 @@ function createWindow() {
     };
     const template = [application, edit];
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+
+    // ipcmain handlers
+    ipcMain.on('ondragstart', (event, filePath) => {
+      console.log('got', event, filePath);
+      event.sender.startDrag({
+        file: filePath,
+        icon: '/path/to.icon.png'
+      });
+    });
 
     // launch UR server
     URSERVER.Initialize({ memehost: 'electron' });

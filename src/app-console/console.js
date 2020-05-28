@@ -18,7 +18,7 @@ is client-side javascript code, with Electron/Node enhancements!
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ///////////////////////////////////////////*/
 
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import AppBar from '@material-ui/core/AppBar';
 import Menu from '@material-ui/core/Menu';
@@ -42,58 +42,48 @@ const styles = theme => ({
     marginLeft: -12,
     marginRight: 20
   },
-  dragOut: {
+  exportZone: {
     minWidth: 200,
     minHeight: 50,
-    backgroundColor: '#ddf',
-    border: '2px dashed #ddf',
+    backgroundColor: '#b9efb8',
+    border: '2px dashed #b9efb8',
     padding: '10px'
   },
-  dropZone: {
+  importZone: {
     minWidth: 200,
     minHeight: 50,
-    backgroundColor: '#dfd',
-    border: '2px dashed #dfd',
+    backgroundColor: '#d6bfe8',
+    border: '2px dashed #d6bfe8',
     padding: '10px'
   },
   dropHilight: {
-    border: '2px dashed red'
+    border: '2px dashed rgba(255,0,0,1)'
   }
 });
-
-const sendItem = event => {
-  event.preventDefault();
-  console.log('is this sending???');
-  ipcRenderer.send('ondragstart');
-};
-
-const sendExport = event => {
-  event.preventDefault();
-  console.log('is this exporting???');
-  console.log(event);
-  ipcRenderer.send('onexport');
-};
-
-const droppedItem = ev => {
-  console.log('is this dropping???');
-  ev.preventDefault();
-  // // this is for text only
-  // const data = event.dataTransfer.getData('text');
-  // event.target.textContent = data;
-
-  // Use DataTransfer interface to access the file(s)
-  for (var i = 0; i < ev.dataTransfer.files.length; i++) {
-    var file = ev.dataTransfer.files[i];
-    console.log('... file[' + i + '].name = ' + file.name);
-    console.log(file);
-  }
-  // file props: name, path, size, type, lastModified, lastModifiedDate
-};
 
 const App = withStyles(styles)(props => {
   const { classes } = props;
   const { main, client } = remote.getGlobal('serverinfo');
+  const [dragExport, setDragExport] = useState(false);
 
+  const doDragToDesktop = event => {
+    console.log('dragtodesktop');
+    event.preventDefault();
+    setDragExport(true);
+    ipcRenderer.send('ondragstart');
+  };
+  const doExportFile = event => {
+    event.preventDefault();
+    ipcRenderer.send('onexport');
+  };
+  const doDragFromDesktop = event => {
+    event.preventDefault();
+    ipcRenderer.send('onimport');
+  };
+  const doImportFile = event => {
+    event.preventDefault();
+    ipcRenderer.send('onimport');
+  };
   /** TODO (1): Write some kind of DRAG AND DROP handler that will
    *  grab the filename and pass it to console-main.js
    *  see github.com/electron/electron/blob/v3.1.13/docs/tutorial/native-file-drag-drop.md
@@ -124,39 +114,64 @@ const App = withStyles(styles)(props => {
         <br />
         Students: open <b>{client}</b>
       </Typography>
-      <div className={classes.dragOut}>
+      <div className={classes.exportZone}>
         <img
           src={AssetPath('mzip-export.png')}
           width="128px"
-          onClick={sendExport}
-          onDragStart={sendItem}
+          onClick={doExportFile}
+          onDragStart={doDragToDesktop}
+          onDragEnd={event => {
+            console.log('stopped export drag');
+            setDragExport(false);
+          }}
           draggable
         />
         <div>
           MAKE MZIP ARCHIVE
           <br />
-          drag to folder to archive
+          click or drag to desktop
         </div>
       </div>
-      <div
-        className={classes.dropZone}
-        onDrop={droppedItem}
-        onDragEnter={event => {
-          console.log('dragenter');
-          event.target.classList.add(classes.dropHilight);
-          event.preventDefault();
-        }}
-        onDragLeave={event => {
-          console.log('dragleave');
-          event.target.classList.remove(classes.dropHilight);
-          event.preventDefault();
-        }}
-        onDragEnd={event => {
-          console.log('dragend');
-          event.preventDefault();
-        }}
-      >
-        DROP MZIP ARCHIVE HERE
+      <div className={classes.importZone}>
+        <img
+          src={AssetPath('mzip-import.png')}
+          width="128px"
+          onClick={doImportFile}
+          onDragOver={event => {
+            console.log('dragover');
+            if (!dragExport) event.currentTarget.classList.add(classes.dropHilight);
+            event.preventDefault();
+          }}
+          onDragStart={event => {
+            event.preventDefault();
+          }}
+          onDrop={event => {
+            event.preventDefault();
+            if (dragExport) {
+              console.log('ignoring dragexport');
+              return;
+            }
+            console.log('dropped item');
+            // // this is for text only
+            // const data = event.dataTransfer.getData('text');
+            // event.target.textContent = data;
+            event.currentTarget.classList.remove(classes.dropHilight);
+            // Use DataTransfer interface to access the file(s)
+            for (var i = 0; i < event.dataTransfer.files.length; i++) {
+              var file = event.dataTransfer.files[i];
+              console.log('... file[' + i + '].name = ' + file.name);
+              console.log(file);
+            }
+          }}
+          onDragLeave={event => {
+            event.currentTarget.classList.remove(classes.dropHilight);
+            event.preventDefault();
+          }}
+        />
+        <br />
+        LOAD MZIP ARCHIVE
+        <br />
+        click or drag from desktop
       </div>
     </div>
   );

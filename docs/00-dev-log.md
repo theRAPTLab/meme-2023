@@ -45,5 +45,37 @@ To read the database:
 * set the loki file in the temp folder and initialize from that
 
 To set READONLY mode:
-* There is already an ADMData.IsViewOnly() check we can use
+* There is already an **ADMData.IsViewOnly()** check we can use
 * Just need to have this check URSESSION
+
+## May 28 - Finishing Database Export / Import
+
+The previous couple of days, did the App Versioning for Rutgers because it seemed relatively simple compared to the database work, which is a multi-step operation. 
+
+We're trying to get our head around the database stuff. 
+
+- [x] highlight drop zone
+- [x] show drag icon (and make one)
+- [x] try making dialogs
+- [x] copy file to desktop
+- [x] read file from desktop
+- [x] click to import
+- [x] click to export
+
+That UI/system stuff out of the way, can now just try to make the archive.
+
+* [ ] create temp directory
+* [ ] copy loki file into it
+* [ ] zip the temp directory
+* [ ] dump it to desktop
+
+Then we want to import the directory
+
+* [ ] copy to temp directory
+* [ ] unzip
+* [ ] set flags to load from temp directory in read only mode
+
+
+
+
+

@@ -95,23 +95,46 @@ function createWindow() {
     const template = [application, edit];
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
-    // ipcmain handlers
+    /// IPC HANDLERS //////////////////////////////////////////////////////////
+    /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /** drag file to desktop
+     */
     ipcMain.on('ondragstart', event => {
-      filePath = '';
+      filePath = AssetPath('data.json');
+      console.log('main:ondragstart');
       event.sender.startDrag({
         file: filePath,
         icon: AssetPath('mzip-export-64.png')
       });
     });
-
+    /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /** export file
+     */
     ipcMain.on('onexport', event => {
-      dialog.showSaveDialog({
-        filters: { extensions: '.mzip' },
-        properties: { createDirectory: true }
-      });
+      (async () => {
+        const results = await dialog.showSaveDialog({
+          filters: { extensions: '.mzip' },
+          properties: { createDirectory: true }
+        });
+        console.log('results', results);
+      })();
+    });
+    /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /** load file
+     */
+    ipcMain.on('onimport', event => {
+      (async () => {
+        const results = await dialog.showOpenDialog({
+          filters: { extensions: '.mzip' },
+          properties: ['dontAddToRecent']
+        });
+        console.log('results', results);
+      })();
     });
 
-    // launch UR server
+    /// LAUNCH URSERVER ///////////////////////////////////////////////////////
+    /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    return;
     URSERVER.Initialize({ memehost: 'electron' });
     URSERVER.StartNetwork();
     URSERVER.StartWebServer();

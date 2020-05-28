@@ -27,12 +27,14 @@ import Card from '@material-ui/core/Card';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
+import ArchiveIcon from '@material-ui/icons/Archive';
 import Paper from '@material-ui/core/Paper';
 import { withStyles } from '@material-ui/core/styles';
 import { ipcRenderer } from 'electron';
+import path from 'path';
 
 const remote = require('electron').remote;
+const AssetPath = asset => path.join(__static, asset);
 
 const styles = theme => ({
   // theme will have properties for dynamic style definition
@@ -43,20 +45,33 @@ const styles = theme => ({
   dragOut: {
     minWidth: 200,
     minHeight: 50,
-    backgroundColor: '#ddf'
+    backgroundColor: '#ddf',
+    border: '2px dashed #ddf',
+    padding: '10px'
   },
-  dragIn: {
+  dropZone: {
     minWidth: 200,
     minHeight: 50,
-    backgroundColor: '#dfd'
+    backgroundColor: '#dfd',
+    border: '2px dashed #dfd',
+    padding: '10px'
+  },
+  dropHilight: {
+    border: '2px dashed red'
   }
 });
 
 const sendItem = event => {
   event.preventDefault();
   console.log('is this sending???');
+  ipcRenderer.send('ondragstart');
+};
+
+const sendExport = event => {
+  event.preventDefault();
+  console.log('is this exporting???');
   console.log(event);
-  ipcRenderer.send('ondragstart', '/path/to.item');
+  ipcRenderer.send('onexport');
 };
 
 const droppedItem = ev => {
@@ -93,34 +108,55 @@ const App = withStyles(styles)(props => {
       <CssBaseline />
       <AppBar position="static">
         <Toolbar variant="dense">
-          <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" color="inherit">
-            MEME SERVER
+          <Typography variant="h4" color="inherit">
+            {PACKAGE_TITLE} {PACKAGE_VERSION}
           </Typography>
         </Toolbar>
       </AppBar>
-      <Typography style={{ padding: '1em' }}>
+      <Paper style={{ padding: '0.5em 24px', borderRadius: 0 }}>
+        <Typography>{PACKAGE_DESCRIPTION}</Typography>
+      </Paper>
+      <Typography variant="h6" style={{ padding: '1.5em 0 0 24px' }}>
+        Connection Instructions:
+      </Typography>
+      <Typography style={{ padding: '1em 0 2em 24px' }}>
         Admin: open <b>{main}/#/admin</b>
         <br />
         Students: open <b>{client}</b>
       </Typography>
       <div className={classes.dragOut}>
-        <a href="#" onDragStart={sendItem}>
-          DRAG OUT
-        </a>
+        <img
+          src={AssetPath('mzip-export.png')}
+          width="128px"
+          onClick={sendExport}
+          onDragStart={sendItem}
+          draggable
+        />
+        <div>
+          MAKE MZIP ARCHIVE
+          <br />
+          drag to folder to archive
+        </div>
       </div>
       <div
-        className={classes.dragIn}
+        className={classes.dropZone}
         onDrop={droppedItem}
-        onDragOver={event => {
+        onDragEnter={event => {
+          console.log('dragenter');
+          event.target.classList.add(classes.dropHilight);
           event.preventDefault();
         }}
-        onDragLeave={() => false}
-        onDragEnd={() => false}
+        onDragLeave={event => {
+          console.log('dragleave');
+          event.target.classList.remove(classes.dropHilight);
+          event.preventDefault();
+        }}
+        onDragEnd={event => {
+          console.log('dragend');
+          event.preventDefault();
+        }}
       >
-        DRAG IN
+        DROP MZIP ARCHIVE HERE
       </div>
     </div>
   );

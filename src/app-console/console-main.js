@@ -8,12 +8,14 @@
 
 // import appserver
 // Import parts of electron to use
-const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, dialog, Menu, ipcMain } = require('electron');
 const ip = require('ip');
 const path = require('path');
 const url = require('url');
 const URSERVER = require('../system/server.js');
 const PROMPTS = require('../system/util/prompts');
+
+const AssetPath = asset => path.join(__dirname, 'static', asset);
 
 const PR = PROMPTS.Pad('ElectronHost');
 // this is available through electron remote in console.js
@@ -94,11 +96,18 @@ function createWindow() {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
     // ipcmain handlers
-    ipcMain.on('ondragstart', (event, filePath) => {
-      console.log('got', event, filePath);
+    ipcMain.on('ondragstart', event => {
+      filePath = '';
       event.sender.startDrag({
         file: filePath,
-        icon: '/path/to.icon.png'
+        icon: AssetPath('mzip-export-64.png')
+      });
+    });
+
+    ipcMain.on('onexport', event => {
+      dialog.showSaveDialog({
+        filters: { extensions: '.mzip' },
+        properties: { createDirectory: true }
       });
     });
 

@@ -70,7 +70,7 @@ const App = withStyles(styles)(props => {
     console.log('dragtodesktop');
     event.preventDefault();
     setDragExport(true);
-    ipcRenderer.send('ondragstart');
+    ipcRenderer.send('dragtodesktop');
   };
   const doExportFile = event => {
     event.preventDefault();
@@ -78,21 +78,12 @@ const App = withStyles(styles)(props => {
   };
   const doDragFromDesktop = event => {
     event.preventDefault();
-    ipcRenderer.send('onimport');
+    ipcRenderer.send('dragfromdesktop');
   };
   const doImportFile = event => {
     event.preventDefault();
     ipcRenderer.send('onimport');
   };
-  /** TODO (1): Write some kind of DRAG AND DROP handler that will
-   *  grab the filename and pass it to console-main.js
-   *  see github.com/electron/electron/blob/v3.1.13/docs/tutorial/native-file-drag-drop.md
-   */
-
-  /** TODO (5): Add an EXPORT button that sends a message to console-main.js
-   *  telling it to save a file, and also be informed when the operation
-   *  completes.
-   */
   return (
     <div className={classes.root}>
       <CssBaseline />

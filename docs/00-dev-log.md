@@ -62,12 +62,15 @@ We're trying to get our head around the database stuff.
 - [x] click to import
 - [x] click to export
 
+## May 29 - Finishing Database Export / Import 
+
 That UI/system stuff out of the way, can now just try to make the archive.
 
-* [ ] create temp directory
-* [ ] copy loki file into it
-* [ ] zip the temp directory
-* [ ] dump it to desktop
+* [x] create temp directory
+* [x] copy loki file into it
+* [x] add starter manifest file
+* [x] create the zip file
+* [x] copy it to desktop
 
 Then we want to import the directory
 

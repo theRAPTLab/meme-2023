@@ -10,12 +10,15 @@
 // Import parts of electron to use
 const { app, BrowserWindow, dialog, Menu, ipcMain } = require('electron');
 const ip = require('ip');
+const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const url = require('url');
 const URSERVER = require('../system/server.js');
 const PROMPTS = require('../system/util/prompts');
 
 const AssetPath = asset => path.join(__dirname, 'static', asset);
+const RuntimePath = file => path.join(__dirname, '../../runtime');
 
 const PR = PROMPTS.Pad('ElectronHost');
 // this is available through electron remote in console.js
@@ -99,31 +102,54 @@ function createWindow() {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /** drag file to desktop
      */
-    ipcMain.on('ondragstart', event => {
-      filePath = AssetPath('data.json');
-      console.log('main:ondragstart');
-      event.sender.startDrag({
-        file: filePath,
-        icon: AssetPath('mzip-export-64.png')
-      });
+    ipcMain.on('dragtodesktop', event => {
+      let zipPath = URSERVER.ARCHIVE.MakeDBArchive('meme');
+      if (zipPath) {
+        console.log('main:dragtodesktop');
+        event.sender.startDrag({
+          file: zipPath,
+          icon: AssetPath('mzip-export-64.png')
+        });
+      } else {
+        console.log('could not create archive...runtime directory does not exist?');
+      }
     });
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /** export file
      */
     ipcMain.on('onexport', event => {
-      (async () => {
-        const results = await dialog.showSaveDialog({
-          filters: { extensions: '.mzip' },
-          properties: { createDirectory: true }
-        });
-        console.log('results', results);
-      })();
+      let zipPath = URSERVER.ARCHIVE.MakeDBArchive('meme');
+      if (zipPath) {
+        let zipFile = path.basename(zipPath);
+        /* IIFE START */
+        (async () => {
+          const destPath = await dialog.showSaveDialog({
+            defaultPath: app.getPath('desktop') + '/' + zipFile,
+            filters: { extensions: '.mzip' },
+            properties: { createDirectory: true }
+          });
+          console.log('writing destination', destPath);
+          fs.copyFileSync(zipPath, destPath);
+        })();
+        /* IIFE END */
+      } else {
+        console.log('could not create archive...runtime directory does not exist?');
+      }
     });
+
+    /***/
+    /***/
+    /***/
+    /***/
+    /***/
+    /***/
+
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /** load file
      */
-    ipcMain.on('onimport', event => {
+    ipcMain.on('dragfromdesktop', event => {
       (async () => {
+        console.log('main:dragfromdesktop');
         const results = await dialog.showOpenDialog({
           filters: { extensions: '.mzip' },
           properties: ['dontAddToRecent']
@@ -132,9 +158,14 @@ function createWindow() {
       })();
     });
 
+    /***/
+    /***/
+    /***/
+    /***/
+    /***/
+
     /// LAUNCH URSERVER ///////////////////////////////////////////////////////
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    return;
     URSERVER.Initialize({ memehost: 'electron' });
     URSERVER.StartNetwork();
     URSERVER.StartWebServer();

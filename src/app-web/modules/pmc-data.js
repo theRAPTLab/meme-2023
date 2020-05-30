@@ -1,12 +1,12 @@
-import { Graph, alg as GraphAlg, json as GraphJSON } from '@dagrejs/graphlib';
-import { cssinfo, cssreset, cssdata } from './console-styles';
+/* eslint-disable no-case-declarations */
+import { Graph, json as GraphJSON } from '@dagrejs/graphlib';
+import { cssinfo, cssreset } from './console-styles';
 import DEFAULTS from './defaults';
 import DATAMAP from '../../system/common-datamap';
 import UR from '../../system/ursys';
 import VM from './vm-data';
 import UTILS from './utils';
 import ASET from './adm-settings';
-import ADMObj from './adm-objects';
 import PMCObj from './pmc-objects';
 
 const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
@@ -148,7 +148,7 @@ PMCData.InitializeModel = (model, admdb) => {
   by model.data = pmcData[pmcDataId]
   /*/
 
-  const data = pmcData.find(data => data.id === pmcDataId) || {}; // empty object if new pmcData
+  const data = pmcData.find(d => d.id === pmcDataId) || {}; // empty object if new pmcData
   if (DBG) console.log('loaded data', data);
   if (DBG) console.log('data.entities start processing');
   if (data.entities)
@@ -217,20 +217,20 @@ PMCData.InitializeModel = (model, admdb) => {
   // This is one time view state restoration, which is not part of the SVGView.DoAppLoop.
   if (data.visuals) {
     data.visuals.forEach(vstate => {
-      const id = String(vstate.id);
+      const vid = String(vstate.id);
       const pos = vstate.pos;
-      const vprop = VM.VM_VProp(id);
+      const vprop = VM.VM_VProp(vid);
       // only position components, not props
       // because visuals array doesn't remove stuff
       if (PMCData.PropParent()) {
-        if (DBG) console.warn(`vprop ${id} has a parent: skipping`);
+        if (DBG) console.warn(`vprop ${vid} has a parent: skipping`);
         return;
       }
       if (!vprop) {
-        if (DBG) console.warn(`InitializeModel data.visuals: skipping missing prop ${id}`);
+        if (DBG) console.warn(`InitializeModel data.visuals: skipping missing prop ${vid}`);
         return;
       }
-      if (DBG) console.log(`init vprop ${id} to ${pos.x}, ${pos.y}`);
+      if (DBG) console.log(`init vprop ${vid} to ${pos.x}, ${pos.y}`);
       vprop.Move(pos);
       vprop.LayoutDisabled(true);
     });
@@ -422,7 +422,6 @@ PMCData.SyncRemovedData = data => {
           // 4. Fire PROP_DELETE so that any open dialogs can remove it
           UR.Publish('PROP_DELETE', { id: value.id });
           return; // so we don't fire BuildModel again
-          break;
         case 'mech':
           m_graph.removeEdge(value.source, value.target);
           break;
@@ -668,6 +667,7 @@ PMCData.Prop = nodeId => {
   const prop = m_graph.node(nodeId);
   if (prop) return prop;
   console.error(`no prop with id '${nodeId}' typeof ${typeof nodeId} exists`);
+  return undefined;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -779,7 +779,7 @@ PMCData.PMC_PropUpdate = (propId, newData) => {
   // round-trip will call BuildModel() for us
 
   /** THIS METHOD DID NOT EXIST BEFORE **/
-};;
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  @param {Integer} propId - id of the prop being updated
@@ -868,11 +868,11 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
   // Validate: Make sure source and target still exist before saving
   if (!PMCData.HasProp(sourceId)) {
     console.error('PMCData.PMC_MechAdd trying to add non existent source prop', sourceId);
-    return;
+    return Promise.reject();
   }
   if (!PMCData.HasProp(targetId)) {
     console.error('PMCData.PMC_MechAdd trying to add non existent target prop', targetId);
-    return;
+    return Promise.reject();
   }
   const pmcDataId = ASET.selectedPMCDataId;
   const mechObj = {
@@ -882,7 +882,10 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
     target: Number(targetId),
     description
   };
-  UTILS.RLog('MechanismAdd', `from: "${sourceId}" to: "${targetId}" label: "${label}" description: "${description}"`);
+  UTILS.RLog(
+    'MechanismAdd',
+    `from: "${sourceId}" to: "${targetId}" label: "${label}" description: "${description}"`
+  );
   return UR.DBQuery('add', {
     'pmcData.entities': {
       id: pmcDataId,
@@ -901,7 +904,16 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
   // Update the data
   const { sourceId, targetId, label, description } = newMech;
   if (DBG) {
-    console.log('MechUpdate: Updating', origMech.sourceId, '=>', sourceId, 'and', origMech.targetId, '=>', targetId)
+    console.log(
+      'MechUpdate: Updating',
+      origMech.sourceId,
+      '=>',
+      sourceId,
+      'and',
+      origMech.targetId,
+      '=>',
+      targetId
+    );
     if (typeof sourceId !== 'number')
       console.log('coercing sourceId to Number from', typeof sourceId);
     if (typeof targetId !== 'number')
@@ -910,11 +922,11 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
   // Validate: Make sure source and target still exist before saving
   if (!PMCData.HasProp(sourceId)) {
     console.error('PMCData.PMC_MechAdd trying to add non existent source prop', sourceId);
-    return;
+    return Promise.reject();
   }
   if (!PMCData.HasProp(targetId)) {
     console.error('PMCData.PMC_MechAdd trying to add non existent target prop', targetId);
-    return;
+    return Promise.reject();
   }
   const pmcDataId = ASET.selectedPMCDataId;
   const mechObj = {
@@ -1068,6 +1080,8 @@ PMCData.PMC_AddEvidenceLink = (evObjData, cb) => {
               throw Error('PMC_AddEvidenceLink callback cb is not a function!  Skipping...');
             }
             break;
+          default:
+            console.log('unexpected value type', value.type);
         }
       }
     });
@@ -1092,17 +1106,12 @@ PMCData.PMC_GetResourceIndex = rsrcId => {
 PMCData.PMC_DuplicateEvidenceLink = (evId, cb) => {
   // First get the old link
   const oldev = PMCData.PMC_GetEvLinkByEvId(evId);
-  const newev = Object.assign(
-    {},
-    oldev,
-    { id: undefined, propId: undefined, mechId: undefined }
-  );
+  const newev = Object.assign({}, oldev, { id: undefined, propId: undefined, mechId: undefined });
   UTILS.RLog('EvidenceDuplicate', oldev.note);
   // Create new evlink
-  PMCData.PMC_AddEvidenceLink(
-    newev,
-    id => { if (typeof cb === 'function') cb(id) },
-  );
+  PMCData.PMC_AddEvidenceLink(newev, id => {
+    if (typeof cb === 'function') cb(id);
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_DeleteEvidenceLink = evId => {
@@ -1124,7 +1133,9 @@ PMCData.PMC_DeleteEvidenceLink = evId => {
  */
 PMCData.PMC_GetEvLinkByEvId = evId => {
   if (typeof evId !== 'number')
-    throw Error(`PMCData.PMC_GetEvLinkByEvId requested evId with non-Number ${evId} typeof ${typeof evId}`);
+    throw Error(
+      `PMCData.PMC_GetEvLinkByEvId requested evId with non-Number ${evId} typeof ${typeof evId}`
+    );
   return h_evidenceById.get(evId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1197,7 +1208,8 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
   if (newData.rsrcId) cleanedData.rsrcId = Number(newData.rsrcId);
   const evData = Object.assign(ev, cleanedData);
   const pmcDataId = ASET.selectedPMCDataId;
-  UTILS.RLog('EvidenceUpdate',
+  UTILS.RLog(
+    'EvidenceUpdate',
     `rsrcId: ${evData.rsrcId} propId: ${evData.propId} mechId: ${evData.mechId} numberLabel: ${evData.numberLabel} rating: ${evData.rating} why: ${evData.why} note: ${evData.note}  imageURL: ${evData.imageURL}`
   );
 
@@ -1210,7 +1222,7 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
     }
   });
   // round-trip will call BuildModel() for us
-};;
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  @param {String} evId
@@ -1272,7 +1284,8 @@ PMCData.SetEvidenceLinkWhy = (evId, why) => {
  *                                three optional parameters: text, criteriaId
  */
 PMCData.DB_CommentAdd = (refId, commentData, cb) => {
-  if (refId === undefined || refId === "") throw Error(`refId is required for a new comment object! refId="${refId}`);
+  if (refId === undefined || refId === '')
+    throw Error(`refId is required for a new comment object! refId="${refId}`);
   if (commentData.id) throw Error('comment id should not be passed to a new comment object!');
   const newComment = PMCObj.Comment({
     refId: commentData.refId,
@@ -1337,7 +1350,8 @@ PMCData.DB_CommentUpdate = (refId, comment, cb) => {
  *  @param {Function} cb - a callback function
  *  */
 PMCData.DB_CommentsUpdate = (refId, comments, cb) => {
-  if (!Array.isArray(comments)) throw Error(`comments is not an array: ${comments} ${typeof comments}`);
+  if (!Array.isArray(comments))
+    throw Error(`comments is not an array: ${comments} ${typeof comments}`);
   const count = comments.length;
   let callback = undefined;
   for (let i = 0; i++; i < count) {
@@ -1347,7 +1361,7 @@ PMCData.DB_CommentsUpdate = (refId, comments, cb) => {
     }
     PMCData.DB_CommentUpdate(refId, comment[i], callback);
   }
-}
+};
 
 /**
  *  Remove comment from the db
@@ -1409,7 +1423,7 @@ PMCData.DB_MarkRead = (commentId, author) => {
 PMCData.HasBeenRead = (commentId, author) => {
   return a_markedread.find(m => {
     return m.commentId === commentId && m.author === author;
-  })
+  });
 };
 /**
  *  Checks if the comment referenced by commentId has been read by the author
@@ -1418,7 +1432,7 @@ PMCData.HasBeenRead = (commentId, author) => {
  *  @param {String} author - token
  */
 PMCData.HasUnreadComments = (comments, author) => {
-  if (!Array.isArray(comments)) throw Error('comments is not an array')
+  if (!Array.isArray(comments)) throw Error('comments is not an array');
   return comments.find(c => !PMCData.HasBeenRead(c.id, author));
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

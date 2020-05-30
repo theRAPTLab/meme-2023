@@ -27,6 +27,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/data';
+import ASET from '../modules/adm-settings';
 import EvidenceList from './EvidenceList';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -100,7 +101,9 @@ class ResourceItem extends React.Component {
 
   OnCreateEvidence(rsrcId) {
     if (DBG) console.log(PKG, 'create new evidence:', rsrcId);
-    DATA.PMC_AddEvidenceLink({ rsrcId }, id => UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }));
+    DATA.PMC_AddEvidenceLink({ rsrcId }, id =>
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId })
+    );
   }
 
   DoCollapseAll() {
@@ -150,8 +153,11 @@ class ResourceItem extends React.Component {
         <Collapse in={isExpanded}>
           <div className={classes.resourceViewEvList}>
             <EvidenceList rsrcId={resource.id} key={`${resource.id}ev`} />
-            <Button size="small" color="primary" onClick={() => this.OnCreateEvidence(resource.id)}
-              hidden={DATA.IsViewOnly()}
+            <Button
+              size="small"
+              color="primary"
+              onClick={() => this.OnCreateEvidence(resource.id)}
+              hidden={ASET.isViewOnly}
             >
               Create Evidence
             </Button>

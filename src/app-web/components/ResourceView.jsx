@@ -89,7 +89,7 @@ class ResourceView extends React.Component {
         // no comment defined yet, so create a new comment
         const comment = PMCObj.Comment({
           refId: noteRefId,
-          author: ADM.GetAuthorId(),
+          author: ADM.GetAuthorId()
         });
         DATA.DB_CommentAdd(noteRefId, comment, () => this.ContinueOpen(resource, noteRefId));
       } else {
@@ -113,22 +113,26 @@ class ResourceView extends React.Component {
 
   ContinueOpen(resource, noteRefId) {
     const comments = DATA.GetComments(noteRefId);
-    if (comments.length < 1) throw Error('There should be at least one comment saved as a Resource note!');
+    if (comments.length < 1)
+      throw Error('There should be at least one comment saved as a Resource note!');
     const note = comments[0].text;
     const commentId = comments[0].id;
 
     const pmcDataId = ASET.selectedPMCDataId;
     const intCommentId = Number(commentId);
-    UR.DBTryLock('pmcData.comments', [pmcDataId, intCommentId])
-      .then(rdata => {
-        const { success, semaphore, uaddr, lockedBy } = rdata;
-        status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
-        if (rdata.success) {
-          this.setState({ noteIsDisabled: false });
-        } else {
-          alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Resource Note right now.  Please try again later. (You can still Create Evidence.)`)
-        }
-      });
+    UR.DBTryLock('pmcData.comments', [pmcDataId, intCommentId]).then(rdata => {
+      const { success, semaphore, uaddr, lockedBy } = rdata;
+      status += success
+        ? `${semaphore} lock acquired by ${uaddr} `
+        : `failed to acquired ${semaphore} lock `;
+      if (rdata.success) {
+        this.setState({ noteIsDisabled: false });
+      } else {
+        alert(
+          `Sorry, someone else (${rdata.lockedBy}) is editing this Resource Note right now.  Please try again later. (You can still Create Evidence.)`
+        );
+      }
+    });
 
     this.setState({
       isOpen: true,
@@ -154,10 +158,11 @@ class ResourceView extends React.Component {
         const { href, error } = rdata;
         if (error) console.log('PromiseCaptureScreen:', error);
         // Always create evidence link even if href is undefined
-        DATA.PMC_AddEvidenceLink({ rsrcId, imageURL: href }, id => UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }));
+        DATA.PMC_AddEvidenceLink({ rsrcId, imageURL: href }, id =>
+          UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId })
+        );
       });
     }
-
   }
 
   // User has edited the note by typing
@@ -171,11 +176,8 @@ class ResourceView extends React.Component {
       text: this.state.note,
       refId: this.state.noteRefId,
       author: ADM.GetAuthorId()
-    })
-    DATA.DB_CommentUpdate(
-      this.state.noteRefId,
-      note
-    );
+    });
+    DATA.DB_CommentUpdate(this.state.noteRefId, note);
   }
 
   OnClose() {
@@ -237,7 +239,12 @@ class ResourceView extends React.Component {
           </Button>
         </div>
         <div style={{ display: 'flex', height: 'inherit' }}>
-          <iframe id='resourceFrame' src={resource.url} style={{ height: '90%', flexGrow: '1' }} title="resource" />
+          <iframe
+            id="resourceFrame"
+            src={resource.url}
+            style={{ height: '90%', flexGrow: '1' }}
+            title="resource"
+          />
           <div className={classes.resourceViewSidebar}>
             <TextField
               id="informationNote"
@@ -262,7 +269,7 @@ class ResourceView extends React.Component {
               variant="contained"
               onClick={() => this.OnCreateEvidence(resource.id)}
               color="primary"
-              hidden={ADM.IsViewOnly()}
+              hidden={ASET.isViewOnly}
             >
               Create Evidence
             </Button>

@@ -5,15 +5,21 @@
     "es6": true,
     "node": true
   },
+  "plugins": ["import", "prettier", "react"],
   "extends": ["airbnb", "prettier", "prettier/react"],
+  "globals": {
+    "PACKAGE_TITLE": "readonly", // injected by webpack
+    "PACKAGE_VERSION": "readonly", // injected by webpack
+    "PACKAGE_DESCRIPTION":"readonly", // injected by webpack
+    "__static":"readonly" // injected by webpack
+  },
   "parserOptions": {
-    "ecmaVersion": 8,
+    "ecmaVersion": 2018,
     "ecmaFeatures": {
       "jsx": true
     },
     "sourceType": "module"
   },
-  "plugins": ["import", "airbnb", "prettier", "react"],
   "rules": {
     "prettier/prettier": ["warn"],
     "no-console": "off",
@@ -26,7 +32,7 @@
         "extensions": [".js", ".jsx"]
       }
     ],
-    "no-unused-vars": "warn",
+    "no-unused-vars": "off",
     "arrow-body-style": "off",
     "react/destructuring-assignment": "off",
     "react/jsx-one-expression-per-line": "off",

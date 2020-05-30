@@ -1,4 +1,4 @@
-import DEFAULTS from './defaults';
+/* eslint-disable no-case-declarations */
 import UR from '../../system/ursys';
 import SESSION from '../../system/common-session';
 import UTILS from './utils';
@@ -36,7 +36,7 @@ UR.Hook(__dirname, 'LOAD_ASSETS', () => {
     console.log(PKG, 'LOAD_ASSETS');
     UR.NetCall('NET:SRV_DBGET', {}).then(data => {
       if (data.error) {
-        reject(`server says '${data.error}'`);
+        reject(Error(`server says '${data.error}'`));
         return;
       }
       ADMData.InitializeData(data);
@@ -112,10 +112,7 @@ ADMData.SyncAddedData = data => {
           const model = ADMObj.Model(value);
           adm_db.models.push(model);
           UR.Publish('ADM_DATA_UPDATED', data);
-        } else {
-          // Usually tjos fires before DB_NewModel's then() so the model is already added
-          if (DBG) console.error(`SyncAddedData: Model ${value.id} already added, skipping`);
-        }
+        } else if (DBG) console.error(`SyncAddedData: Model ${value.id} already added, skipping`);
         break;
       case 'criteria':
         const crit = ADMObj.Criterion(value);
@@ -143,8 +140,9 @@ ADMData.SyncAddedData = data => {
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       case 'pmcData':
-      // ignore pmcData updates
-      // console.log('SyncAddedData got pmcData', value);
+        // ignore pmcData updates
+        // console.log('SyncAddedData got pmcData', value);
+        break;
       default:
       // ignore any other updates
       // throw Error('unexpected colkey', colkey);
@@ -229,8 +227,9 @@ ADMData.SyncUpdatedData = data => {
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       case 'pmcData':
-      // ignore pmcData updates
-      // console.log('SyncUpdatedData got pmcData', value);
+        // ignore pmcData updates
+        // console.log('SyncUpdatedData got pmcData', value);
+        break;
       default:
       // ignore any other updates
       // throw Error('unexpected colkey', colkey);
@@ -254,6 +253,8 @@ ADMData.SyncRemovedData = data => {
         });
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
+      default:
+        console.error('unhandled colkey', colkey);
     }
   });
   // can add better logic to avoid updating too much
@@ -503,6 +504,7 @@ ADMData.GetGroupByStudent = (studentId = ASET.selectedStudentId) => {
   if (studentId === '' || adm_db.groups === undefined) return undefined;
   const { groupId } = SESSION.DecodeToken(studentId);
   if (groupId) return adm_db.groups.find(grp => grp.id === groupId);
+  return undefined;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetGroupIdByStudent = studentId => {
@@ -631,7 +633,10 @@ ADMData.Login = hashedToken => {
     if (lprops.teacherName) ASET.selectedTeacherId = rdata.token.toUpperCase(); // force upper
     // After logging in, we need to tell ADM what the default classroom is
     ADMData.SelectClassroom();
-    UR.Publish('ADM_DATA_UPDATED');
+    // Also write settings
+    ASET.viewOnlyMode = ADMData.DetermineReadOnly();
+    // tell everyone that ADM_DATA_UPDATED is updated
+    ASET.UR.Publish('ADM_DATA_UPDATED');
     UR.Publish('MODEL_SELECT_OPEN');
     return rdata;
   });
@@ -653,7 +658,8 @@ ADMData.Logout = () => {
       ADMData.SelectClassroom('');
       UR.Publish('ADM_DATA_UPDATED');
       return rdata;
-    } else throw Error('URSESSION key or token was not set');
+    }
+    throw Error('URSESSION key or token was not set');
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -666,10 +672,10 @@ ADMData.IsValidLogin = hashedToken => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  Returns true of user has write priviledges as the author of the model
- *  The user's group grants the priviledges
+ *  Returns true if user has write privilege as the author of the model
+ *  The user's group grants the privilege
  */
-ADMData.IsViewOnly = () => {
+ADMData.DetermineReadOnly = () => {
   const authorId = ADMData.GetAuthorId();
   const authorGroup = ADMData.GetGroupByStudent(authorId); // selectedStudentId
   const authorGroupId = authorGroup ? authorGroup.id : '';
@@ -684,6 +690,7 @@ ADMData.IsViewOnly = () => {
 ADMData.GetAuthorId = () => {
   if (SESSION.IsStudent()) return ASET.selectedStudentId;
   if (SESSION.IsTeacher()) return ASET.selectedTeacherId;
+  return undefined;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -922,7 +929,7 @@ ADMData.GetModelTitle = (modelId = ASET.selectedModelId) => {
 ADMData.DB_RefreshPMCData = cb => {
   UR.NetCall('NET:SRV_DBGET', {}).then(data => {
     if (data.error) {
-      reject(`server says '${data.error}'`);
+      Promise.reject(Error(`server says '${data.error}'`));
       return;
     }
     adm_db.pmcData = data.pmcData;

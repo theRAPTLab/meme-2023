@@ -13,7 +13,6 @@ They are controlled components.
 import React from 'react';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
-import DATAMAP from '../../system/common-datamap';
 // Material UI Elements
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -35,6 +34,7 @@ import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/
 import MEMEStyles from './MEMEStyles';
 import ADM from '../modules/data';
 import DATA from '../modules/data';
+import DATAMAP from '../../system/common-datamap';
 import ASET from '../modules/adm-settings';
 import UR from '../../system/ursys';
 import EXT from '../../system/ur-extension';
@@ -84,7 +84,7 @@ class EvidenceLink extends React.Component {
     this.OnSaveButtonClick = this.OnSaveButtonClick.bind(this);
     this.OnClickAway = this.OnClickAway.bind(this);
     this.DoEvidenceLinkOpen = this.DoEvidenceLinkOpen.bind(this);
-    this.OnScreenShotClick = this.OnScreenShotClick.bind(this)
+    this.OnScreenShotClick = this.OnScreenShotClick.bind(this);
     this.OnCaptureScreenShotClick = this.OnCaptureScreenShotClick.bind(this);
     this.OnNoteChange = this.OnNoteChange.bind(this);
     this.OnWhyChange = this.OnWhyChange.bind(this);
@@ -158,23 +158,26 @@ class EvidenceLink extends React.Component {
   DoEditStart() {
     const pmcDataId = ASET.selectedPMCDataId;
     const intEvId = Number(this.props.evlink.id);
-    UR.DBTryLock('pmcData.entities', [pmcDataId, intEvId])
-      .then(rdata => {
-        const { success, semaphore, uaddr, lockedBy } = rdata;
-        status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
-        if (rdata.success) {
-          this.setState(
-            {
-              isBeingEdited: true,
-              isExpanded: true
-            },
-            () => this.FocusTextInput()
-          );
-        } else {
-          console.log('aw, locked by', rdata.lockedBy);
-          alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`)
-        }
-      });
+    UR.DBTryLock('pmcData.entities', [pmcDataId, intEvId]).then(rdata => {
+      const { success, semaphore, uaddr, lockedBy } = rdata;
+      status += success
+        ? `${semaphore} lock acquired by ${uaddr} `
+        : `failed to acquired ${semaphore} lock `;
+      if (rdata.success) {
+        this.setState(
+          {
+            isBeingEdited: true,
+            isExpanded: true
+          },
+          () => this.FocusTextInput()
+        );
+      } else {
+        console.log('aw, locked by', rdata.lockedBy);
+        alert(
+          `Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`
+        );
+      }
+    });
   }
 
   DoEditStop() {
@@ -183,7 +186,7 @@ class EvidenceLink extends React.Component {
     });
     const pmcDataId = ASET.selectedPMCDataId;
     const intEvId = Number(this.props.evlink.id);
-    UR.DBTryRelease('pmcData.entities', [pmcDataId, intEvId])
+    UR.DBTryRelease('pmcData.entities', [pmcDataId, intEvId]);
   }
 
   DoSave() {
@@ -233,28 +236,28 @@ class EvidenceLink extends React.Component {
   OnDeleteButtonClick() {
     const pmcDataId = ASET.selectedPMCDataId;
     const intEvId = Number(this.props.evlink.id);
-    UR.DBTryLock('pmcData.entities', [pmcDataId, intEvId])
-      .then(rdata => {
-        const { success, semaphore, uaddr, lockedBy } = rdata;
-        status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
-        if (rdata.success) {
-          console.log('do something here because u-locked!');
-          DATA.PMC_DeleteEvidenceLink(this.props.evlink.id);
-        } else {
-          console.log('aw, locked by', rdata.lockedBy);
-          alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`)
-        }
-      });
-
+    UR.DBTryLock('pmcData.entities', [pmcDataId, intEvId]).then(rdata => {
+      const { success, semaphore, uaddr, lockedBy } = rdata;
+      status += success
+        ? `${semaphore} lock acquired by ${uaddr} `
+        : `failed to acquired ${semaphore} lock `;
+      if (rdata.success) {
+        console.log('do something here because u-locked!');
+        DATA.PMC_DeleteEvidenceLink(this.props.evlink.id);
+      } else {
+        console.log('aw, locked by', rdata.lockedBy);
+        alert(
+          `Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`
+        );
+      }
+    });
   }
 
   OnDuplicateButtonClick() {
-    DATA.PMC_DuplicateEvidenceLink(this.props.evlink.id,
-      id => {
-        const newEvLink = DATA.PMC_GetEvLinkByEvId(id);
-        UR.Publish('SHOW_EVIDENCE_LINK', { evId: newEvLink.id, rsrcId: newEvLink.rsrcId });
-      }
-    );
+    DATA.PMC_DuplicateEvidenceLink(this.props.evlink.id, id => {
+      const newEvLink = DATA.PMC_GetEvLinkByEvId(id);
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: newEvLink.id, rsrcId: newEvLink.rsrcId });
+    });
   }
 
   OnEditButtonClick(e) {
@@ -395,10 +398,7 @@ class EvidenceLink extends React.Component {
     if (this.state.isBeingEdited) return; // Don't toggle if being edited
     if (DBG) console.log(PKG, 'evidence link clicked');
     if (this.state.isExpanded) {
-      this.setState(
-        { isExpanded: false },
-        () => this.DoEditStop()
-      );
+      this.setState({ isExpanded: false }, () => this.DoEditStop());
     } else {
       this.setState({
         isExpanded: true
@@ -407,14 +407,12 @@ class EvidenceLink extends React.Component {
   }
 
   OnRatingButtonClick() {
-    if (ADM.IsViewOnly()) return;
+    if (ASET.isViewOnly) return;
     const data = { evId: this.props.evlink.id, rating: this.props.evlink.rating };
     if (this.state.isBeingEdited) {
       // If EvLink is being edited, ignore the clickaway handler
       // so that after selecting the rating, we do not exit Edit Mode
-      this.setState({ ignoreClickAway: true },
-        UR.Publish('RATING_OPEN', data)
-      );
+      this.setState({ ignoreClickAway: true }, UR.Publish('RATING_OPEN', data));
     } else {
       UR.Publish('RATING_OPEN', data);
     }
@@ -478,7 +476,7 @@ class EvidenceLink extends React.Component {
       sourceLabel = undefined;
     }
 
-    const isViewOnly = ADM.IsViewOnly();
+    const isViewOnly = ASET.isViewOnly;
 
     // Display Capture Screen button?
     // resourceFrame's clientWidth is 0 if it's not whoing
@@ -643,11 +641,7 @@ class EvidenceLink extends React.Component {
                 </Grid>
               </Grid>
               <Grid item xs={12} hidden={!isExpanded}>
-                <Grid
-                  container
-                  spacing={1}
-                  className={classes.evidenceBodyRow}
-                >
+                <Grid container spacing={1} className={classes.evidenceBodyRow}>
                   <Grid item xs={4}>
                     <Typography
                       className={classes.evidenceWindowLabel}

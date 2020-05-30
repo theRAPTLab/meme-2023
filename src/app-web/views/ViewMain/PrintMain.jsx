@@ -232,10 +232,7 @@ class PrintMain extends React.Component {
       const target = targetObj ? targetObj.name : 'missing prop';
       i++;
       return (
-        <div
-          key={`mech${i}`}
-          style={{ marginLeft: '10px' }}
-        >
+        <div key={`mech${i}`} style={{ marginLeft: '10px' }}>
           <div>SOURCE: {source}</div>
           <div>TARGET: {target}</div>
           <div>LABEL: {mech.name}</div>
@@ -259,7 +256,9 @@ class PrintMain extends React.Component {
       <div key={index}>
         <br />
         <div>AUTHOR: {comment.author}</div>
-        <div>DATE: {timestring} {datestring}</div>
+        <div>
+          DATE: {timestring} {datestring}
+        </div>
         <div>COMMENT: {comment.text}</div>
         <div>CRITERIA: {comment.criteriaId}</div>
       </div>
@@ -290,7 +289,9 @@ class PrintMain extends React.Component {
       <div key={index}>
         <div style={{ fontWeight: 'bold' }}>Evidence {numberLabel}</div>
         <div>DESCRIPTION: {note}</div>
-        <div>TARGET: {sourceType}/{sourceLabel}</div>
+        <div>
+          TARGET: {sourceType}/{sourceLabel}
+        </div>
         <div>RATING: {rating}</div>
         <div>WHY: {why}</div>
         <div>SCREENSHOT: {imageURL}</div>
@@ -368,7 +369,7 @@ class PrintMain extends React.Component {
     const classroomId = model ? ADM.GetClassroomIdByGroup(model.groupId) : '';
     const resources = classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
 
-    const isViewOnly = ADM.IsViewOnly();
+    const isViewOnly = ASET.isViewOnly;
 
     // print
     const componentsList = this.RenderComponentsList(DATA.Components());

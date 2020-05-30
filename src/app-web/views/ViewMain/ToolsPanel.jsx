@@ -190,8 +190,7 @@ class ToolsPanel extends React.Component {
     let relevantProps = propIds.filter(id => {
       const prop = DATA.Prop(id);
       if (filterByPropType === DATAMAP.PMC_MODELTYPES.COMPONENT.id) {
-        return (prop.propType === DATAMAP.PMC_MODELTYPES.COMPONENT.id)
-          || (prop.propType === undefined); // for backward compatibility
+        return prop.propType === DATAMAP.PMC_MODELTYPES.COMPONENT.id || prop.propType === undefined; // for backward compatibility
         // project data that predated propTypes assumed all props were components
       } else {
         return prop.propType === filterByPropType;
@@ -265,8 +264,12 @@ class ToolsPanel extends React.Component {
           className={ClassNames(
             classes.treeItem,
             classes.treeMechItem,
-            selectedMechId.v === mechId.v && selectedMechId.w === mechId.w ? classes.treeItemSelected : '',
-            hoveredMechId.v === mechId.v && hoveredMechId.w === mechId.w ? classes.treeItemHovered : ''
+            selectedMechId.v === mechId.v && selectedMechId.w === mechId.w
+              ? classes.treeItemSelected
+              : '',
+            hoveredMechId.v === mechId.v && hoveredMechId.w === mechId.w
+              ? classes.treeItemHovered
+              : ''
           )}
           onClick={e => this.OnMechClick(e, mechId)}
           onMouseEnter={e => {
@@ -279,13 +282,26 @@ class ToolsPanel extends React.Component {
             UR.Publish('MECH_HOVER_END', { mechId: mechId });
           }}
         >
-          <span className={sourceType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
-            ? classes.treeOutcomeItemColor
-            : classes.treePropItemColor}>{source} </span>
+          <span
+            className={
+              sourceType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
+                ? classes.treeOutcomeItemColor
+                : classes.treePropItemColor
+            }
+          >
+            {source}{' '}
+          </span>
           {mech.name}
-          <span className={targetType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
-            ? classes.treeOutcomeItemColor
-            : classes.treePropItemColor}> {target}</span>
+          <span
+            className={
+              targetType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
+                ? classes.treeOutcomeItemColor
+                : classes.treePropItemColor
+            }
+          >
+            {' '}
+            {target}
+          </span>
         </div>
       );
     });
@@ -294,11 +310,17 @@ class ToolsPanel extends React.Component {
   render() {
     const { classes, isDisabled } = this.props;
 
-    const outcomesList = this.RenderComponentsList(DATA.Components(), DATAMAP.PMC_MODELTYPES.OUTCOME.id);
-    const componentsList = this.RenderComponentsList(DATA.Components(), DATAMAP.PMC_MODELTYPES.COMPONENT.id);
+    const outcomesList = this.RenderComponentsList(
+      DATA.Components(),
+      DATAMAP.PMC_MODELTYPES.OUTCOME.id
+    );
+    const componentsList = this.RenderComponentsList(
+      DATA.Components(),
+      DATAMAP.PMC_MODELTYPES.COMPONENT.id
+    );
     const mechanismsList = this.RenderMechanismsList(DATA.AllMechs());
 
-    const isViewOnly = ADM.IsViewOnly();
+    const isViewOnly = ASET.isViewOnly();
 
     return (
       <Drawer
@@ -309,13 +331,19 @@ class ToolsPanel extends React.Component {
         }}
         anchor="left"
       >
-        <div className={classes.toolsPanelGroup} style={{ backgroundColor: COLOR.OUTCOME_TOOLSPANEL_BG }}>
+        <div
+          className={classes.toolsPanelGroup}
+          style={{ backgroundColor: COLOR.OUTCOME_TOOLSPANEL_BG }}
+        >
           <TreeView
             defaultCollapseIcon={<ExpandMoreIcon />}
             defaultExpandIcon={<ChevronRightIcon />}
             className={classes.treeView}
           >
-            <SmallTreeItem nodeId={'outcomes'} label={DATAMAP.PMC_MODELTYPES.OUTCOME.plural.toUpperCase()}>
+            <SmallTreeItem
+              nodeId={'outcomes'}
+              label={DATAMAP.PMC_MODELTYPES.OUTCOME.plural.toUpperCase()}
+            >
               {outcomesList}
             </SmallTreeItem>
           </TreeView>
@@ -333,7 +361,10 @@ class ToolsPanel extends React.Component {
           </SmallFab>
         </div>
 
-        <div className={classes.toolsPanelGroup} style={{ backgroundColor: COLOR.MECH_TOOLSPANEL_BG }}>
+        <div
+          className={classes.toolsPanelGroup}
+          style={{ backgroundColor: COLOR.MECH_TOOLSPANEL_BG }}
+        >
           <TreeView
             defaultExpanded={['mechanisms']}
             defaultCollapseIcon={<ExpandMoreIcon />}
@@ -361,7 +392,10 @@ class ToolsPanel extends React.Component {
           </SmallFab>
         </div>
 
-        <div className={classes.toolsPanelGroup} style={{ backgroundColor: COLOR.PROP_TOOLSPANEL_BG }}>
+        <div
+          className={classes.toolsPanelGroup}
+          style={{ backgroundColor: COLOR.PROP_TOOLSPANEL_BG }}
+        >
           <TreeView
             defaultCollapseIcon={<ExpandMoreIcon />}
             defaultExpandIcon={<ChevronRightIcon />}

@@ -13,7 +13,6 @@ import PMC from './pmc-data';
 import VM from './vm-data';
 import UR from '../../system/ursys';
 import DATAMAP from '../../system/common-datamap';
-import SESSION from '../../system/common-session';
 import ASET from './adm-settings';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -55,9 +54,8 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// clone ADMData, PMC, VM into $ object
 const $$$ = Object.assign({}, { ...ADM }, { ...PMC }, { ...VM });
-const NEW = {};
+/// clone ADMData, PMC, VM into $ object
 
 /// NEW METHOD PROTOTYPING AREA ///////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -73,12 +71,10 @@ $$$.PMC_IsDifferentPropParent = (propId, newParentId) => {
                                 O V E R R I D E
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
                                    O T H E R
                                O V E R R I D E S
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 
 /// DEBUG /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -156,14 +152,14 @@ window.ur.tpropa = name => {
 // test login
 window.ur.Login = token => {
   $$$.Login(token).then(rdata => {
-    ur.clientinfo();
+    window.ur.clientinfo();
   });
   return 'logging in...';
 };
 // test logout
 window.ur.Logout = () => {
   $$$.Logout().then(rdata => {
-    ur.clientinfo();
+    window.ur.clientinfo();
   });
   return 'logging out...';
 };

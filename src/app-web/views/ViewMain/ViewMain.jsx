@@ -144,7 +144,6 @@ class ViewMain extends React.Component {
     // the root component renders in SystemInit.
     // SystemInit fires `WINDOW_SIZE` to force the
     // relayout
-
   }
 
   componentWillUnmount() {
@@ -231,7 +230,10 @@ class ViewMain extends React.Component {
 
   // User clicked on "(+) Add Outcome" drawer button
   OnOutcomeAdd() {
-    UR.Publish('PROPDIALOG_OPEN', { isProperty: false, propType: DATAMAP.PMC_MODELTYPES.OUTCOME.id });
+    UR.Publish('PROPDIALOG_OPEN', {
+      isProperty: false,
+      propType: DATAMAP.PMC_MODELTYPES.OUTCOME.id
+    });
     this.setState({
       addPropOpen: true
     });
@@ -239,7 +241,10 @@ class ViewMain extends React.Component {
 
   // User clicked on "(+) Add Component" drawer button
   OnComponentAdd() {
-    UR.Publish('PROPDIALOG_OPEN', { isProperty: false, propType: DATAMAP.PMC_MODELTYPES.COMPONENT.id });
+    UR.Publish('PROPDIALOG_OPEN', {
+      isProperty: false,
+      propType: DATAMAP.PMC_MODELTYPES.COMPONENT.id
+    });
     this.setState({
       addPropOpen: true
     });
@@ -247,7 +252,9 @@ class ViewMain extends React.Component {
 
   // User selected component/prop and clicked on "(+) Add Property Button"
   OnPropAdd() {
-    let propType = this.state.componentIsSelected ? DATAMAP.PMC_MODELTYPES.COMPONENT.id : DATAMAP.PMC_MODELTYPES.OUTCOME.id;
+    let propType = this.state.componentIsSelected
+      ? DATAMAP.PMC_MODELTYPES.COMPONENT.id
+      : DATAMAP.PMC_MODELTYPES.OUTCOME.id;
     UR.Publish('PROPDIALOG_OPEN', { isProperty: true, propType });
     this.setState({
       addPropOpen: true
@@ -284,23 +291,26 @@ class ViewMain extends React.Component {
     if (selectedPropIds.length > 0) {
       const pmcDataId = ASET.selectedPMCDataId;
       const propId = Number(selectedPropIds[0]);
-      UR.DBTryLock('pmcData.entities', [pmcDataId, propId])
-        .then(rdata => {
-          const { success, semaphore, uaddr, lockedBy } = rdata;
-          status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
-          if (rdata.success) {
-            console.log('do something here because u-locked!');
-            DATA.PMC_PropDelete(propId);
-            if (this.state.addEdgeSource === propId) {
-              this.setState({
-                addEdgeSource: ''
-              });
-            }
-          } else {
-            console.log('aw, locked by', rdata.lockedBy);
-            alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Component / Property right now.  Please try again later.`)
+      UR.DBTryLock('pmcData.entities', [pmcDataId, propId]).then(rdata => {
+        const { success, semaphore, uaddr, lockedBy } = rdata;
+        status += success
+          ? `${semaphore} lock acquired by ${uaddr} `
+          : `failed to acquired ${semaphore} lock `;
+        if (rdata.success) {
+          console.log('do something here because u-locked!');
+          DATA.PMC_PropDelete(propId);
+          if (this.state.addEdgeSource === propId) {
+            this.setState({
+              addEdgeSource: ''
+            });
           }
-        });
+        } else {
+          console.log('aw, locked by', rdata.lockedBy);
+          alert(
+            `Sorry, someone else (${rdata.lockedBy}) is editing this Component / Property right now.  Please try again later.`
+          );
+        }
+      });
     }
     this.setState({
       componentIsSelected: false
@@ -382,19 +392,22 @@ class ViewMain extends React.Component {
       const pmcDataId = ASET.selectedPMCDataId;
       const mech = DATA.Mech(mechId);
       const intMechId = Number(mech.id);
-      UR.DBTryLock('pmcData.entities', [pmcDataId, intMechId])
-        .then(rdata => {
-          const { success, semaphore, uaddr, lockedBy } = rdata;
-          status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
-          if (rdata.success) {
-            console.log('do something here because u-locked!');
-            DATA.PMC_MechDelete(mechId);
-          } else {
-            console.log('aw, locked by', rdata.lockedBy);
-            alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Mechanism right now.  Please try again later.`)
-          }
-        });
-  }
+      UR.DBTryLock('pmcData.entities', [pmcDataId, intMechId]).then(rdata => {
+        const { success, semaphore, uaddr, lockedBy } = rdata;
+        status += success
+          ? `${semaphore} lock acquired by ${uaddr} `
+          : `failed to acquired ${semaphore} lock `;
+        if (rdata.success) {
+          console.log('do something here because u-locked!');
+          DATA.PMC_MechDelete(mechId);
+        } else {
+          console.log('aw, locked by', rdata.lockedBy);
+          alert(
+            `Sorry, someone else (${rdata.lockedBy}) is editing this Mechanism right now.  Please try again later.`
+          );
+        }
+      });
+    }
     this.setState({
       mechIsSelected: false
     });
@@ -417,7 +430,7 @@ class ViewMain extends React.Component {
     } else if (this.state.addPropPropId !== '') {
       // Update existing prop
       const id = parseInt(this.state.addPropPropId);
-      const name = this.state.addPropLabel
+      const name = this.state.addPropLabel;
       DATA.PMC_PropUpdate(id, { name });
     } else {
       // Create new prop
@@ -529,7 +542,7 @@ class ViewMain extends React.Component {
     const classroomId = model ? ADM.GetClassroomIdByGroup(model.groupId) : '';
     const resources = classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
 
-    const isViewOnly = ADM.IsViewOnly();
+    const isViewOnly = ASET.isViewOnly;
 
     return (
       <div className={classes.root}>
@@ -687,7 +700,9 @@ class ViewMain extends React.Component {
         >
           <Fab
             hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected) || isViewOnly}
-            onClick={ (componentIsSelected || outcomeIsSelected) ? this.OnPropDelete : this.OnMechDelete}
+            onClick={
+              componentIsSelected || outcomeIsSelected ? this.OnPropDelete : this.OnMechDelete
+            }
             color="secondary"
             variant="extended"
             size="small"
@@ -697,16 +712,17 @@ class ViewMain extends React.Component {
           </Fab>
           <Fab
             hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected) || isViewOnly}
-            onClick={(componentIsSelected || outcomeIsSelected) ? this.DoPropEdit : this.OnMechEdit}
+            onClick={componentIsSelected || outcomeIsSelected ? this.DoPropEdit : this.OnMechEdit}
             color="primary"
             variant="extended"
           >
             <EditIcon />
-            &nbsp;&nbsp;Edit {componentIsSelected
+            &nbsp;&nbsp;Edit{' '}
+            {componentIsSelected
               ? DATAMAP.PMC_MODELTYPES.COMPONENT.label
               : outcomeIsSelected
-                ? DATAMAP.PMC_MODELTYPES.OUTCOME.label
-                : DATAMAP.PMC_MODELTYPES.MECHANISM.label}
+              ? DATAMAP.PMC_MODELTYPES.OUTCOME.label
+              : DATAMAP.PMC_MODELTYPES.MECHANISM.label}
           </Fab>
           <Fab
             hidden={!(componentIsSelected || outcomeIsSelected) || isViewOnly}
@@ -718,7 +734,11 @@ class ViewMain extends React.Component {
           </Fab>
           <Fab
             hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected)}
-            onClick={(componentIsSelected || outcomeIsSelected) ? this.OnAddPropComment : this.OnAddMechComment}
+            onClick={
+              componentIsSelected || outcomeIsSelected
+                ? this.OnAddPropComment
+                : this.OnAddMechComment
+            }
             variant="extended"
           >
             <ChatBubbleOutlineIcon htmlColor={yellow[800]} />

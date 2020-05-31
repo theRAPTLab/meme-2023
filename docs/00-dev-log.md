@@ -71,11 +71,15 @@ That UI/system stuff out of the way, can now just try to make the archive.
 * [x] add starter manifest file
 * [x] create the zip file
 * [x] copy it to desktop
+* [x] fix issues with async communication and setting drag flags
 
-Then we want to import the directory
+## May 30 - Importing the Database
 
-* [ ] copy to temp directory
-* [ ] unzip
+We want to import the directory
+
+* [x] write drag-over, import handlers
+* [x] copy to temp directory
+* [x] unzip
 * [ ] set flags to load from temp directory in read only mode
 
 

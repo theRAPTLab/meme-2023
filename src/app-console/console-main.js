@@ -133,8 +133,8 @@ function createWindow() {
             properties: { createDirectory: true }
           });
           if (destPath !== undefined) {
-          console.log('writing destination', destPath);
-          fs.copyFileSync(zipPath, destPath);
+            console.log('writing destination', destPath);
+            fs.copyFileSync(zipPath, destPath);
           } else {
             console.log('export cancelled');
           }
@@ -145,32 +145,39 @@ function createWindow() {
       }
     });
 
-    /***/
-    /***/
-    /***/
-    /***/
-    /***/
-    /***/
-
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    /** load file
+    /** drag file from desktop to import
      */
-    ipcMain.on('dragfromdesktop', event => {
+    ipcMain.on('dragfromdesktop', (ipcEvent, files) => {
+      if (!files || files.length !== 1) {
+        ipcEvent.returnValue = { error: `unexpected multiple files: ${files.length}` };
+        return;
+      }
+      const file = files[0];
+      if (!(file.type === 'application/zip' || file.name.endsWith('MEME.ZIP'))) {
+        const error = `expected zip file ending in 'MEME.ZIP', not '${file.type}' named '${file.name}'`;
+        ipcEvent.returnValue = { error };
+        return;
+      }
+      // this is a valid zip file as far as we know
+      const archivePath = URSERVER.ARCHIVE.ExtractDBArchive(file.path);
+      ipcEvent.returnValue = { archivePath };
+    });
+    /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /** import file
+     */
+    ipcMain.on('onimport', () => {
+      /* IIFE START */
       (async () => {
         console.log('main:dragfromdesktop');
-        const results = await dialog.showOpenDialog({
+        const zipPath = await dialog.showOpenDialog({
           filters: { extensions: '.mzip' },
           properties: ['dontAddToRecent']
         });
-        console.log('results', results);
+        console.log('file to open', zipPath);
       })();
+      /* IIFE END */
     });
-
-    /***/
-    /***/
-    /***/
-    /***/
-    /***/
 
     /// LAUNCH URSERVER ///////////////////////////////////////////////////////
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

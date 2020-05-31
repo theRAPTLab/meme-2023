@@ -36,6 +36,8 @@ function MakeManifest(dbName) {
   };
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function GetManifest(zip) {}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function MakeJSONFile(obj) {
   if (obj === undefined) throw Error('<arg1> can not be undefined');
   const jstr = JSON.stringify(obj);
@@ -60,6 +62,7 @@ function MakeDBArchive(dbName = 'meme') {
   let err = zip.addLocalFile(rpath, 'runtime/');
   // write zip archive to os temp folder
   if (err) console.log('addLocalFile error', err);
+  //
   if (DBG) console.log('*** creating dirs');
   let tmpDir = TempDir();
   let zipName = DATESTR.DatedFilename(`${EXT}DB`);
@@ -75,10 +78,15 @@ function ExtractDBArchive(zipPath) {
   let zip = new AdmZip(zipPath);
   let zipEntries = zip.getEntries();
   if (DBG) {
-    zipEntries.forEach(entry => console.log('entry', entry));
+    //
+    zipEntries.forEach(entry => console.log('entry', entry.name));
   }
+  if (DBG) console.log('*** extracting', zipPath);
+  let tmpDir = TempDir();
+  zip.extractAllTo(tmpDir, true);
+  return tmpDir;
 }
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-module.exports = { MakeDBArchive };
+module.exports = { MakeDBArchive, ExtractDBArchive };

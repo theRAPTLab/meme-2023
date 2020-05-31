@@ -73,22 +73,42 @@ const App = withStyles(styles)(props => {
     console.log('dragtodesktop');
     event.preventDefault();
     setDragExport(true);
-    ipcRenderer.sendSync('dragtodesktop');
-    console.log('dragtodesktop end');
+    const retval = ipcRenderer.sendSync('dragtodesktop');
+    console.log('dragtodesktop end', retval);
     setDragExport(false);
   };
+  //
   const doExportFile = event => {
     event.preventDefault();
     ipcRenderer.send('onexport');
   };
+  //
   const doDragFromDesktop = event => {
+    console.log('dragfromdesktop');
     event.preventDefault();
-    ipcRenderer.send('dragfromdesktop');
+    // Use DataTransfer interface to access the file(s)
+    const files = [];
+    for (let i = 0; i < event.dataTransfer.files.length; i++) {
+      const file = event.dataTransfer.files[i];
+      files.push({
+        name: file.name,
+        path: file.path,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModified
+      });
+    }
+    const retval = ipcRenderer.sendSync('dragfromdesktop', files);
+    const { error, ...rest } = retval;
+    if (error) console.log('ERROR', error);
+    else console.log('dragfromdesktop end', { ...rest });
   };
+  //
   const doImportFile = event => {
     event.preventDefault();
     ipcRenderer.send('onimport');
   };
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -129,6 +149,16 @@ const App = withStyles(styles)(props => {
           src={AssetPath('mzip-import.png')}
           width="128px"
           onClick={doImportFile}
+          onDrop={event => {
+            if (dragExport) {
+              console.log('ignoring dragexport');
+              return;
+            }
+            console.log('dropped item');
+            event.currentTarget.classList.remove(classes.dropHilight);
+            doDragFromDesktop(event);
+            event.preventDefault();
+          }}
           onDragOver={event => {
             console.log('dragover');
             if (!dragExport) event.currentTarget.classList.add(classes.dropHilight);
@@ -136,24 +166,6 @@ const App = withStyles(styles)(props => {
           }}
           onDragStart={event => {
             event.preventDefault();
-          }}
-          onDrop={event => {
-            event.preventDefault();
-            if (dragExport) {
-              console.log('ignoring dragexport');
-              return;
-            }
-            console.log('dropped item');
-            // // this is for text only
-            // const data = event.dataTransfer.getData('text');
-            // event.target.textContent = data;
-            event.currentTarget.classList.remove(classes.dropHilight);
-            // Use DataTransfer interface to access the file(s)
-            for (var i = 0; i < event.dataTransfer.files.length; i++) {
-              var file = event.dataTransfer.files[i];
-              console.log('... file[' + i + '].name = ' + file.name);
-              console.log(file);
-            }
           }}
           onDragLeave={event => {
             event.currentTarget.classList.remove(classes.dropHilight);

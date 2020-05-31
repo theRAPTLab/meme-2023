@@ -1,8 +1,10 @@
+/* eslint-disable no-param-reassign */
 /*//////////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
   ELECTRON MAIN PROCESS
 
-  copied as-is from src/app-console
+  NOTE: This is written for Electron V3, so ipcMain is different
+  https://github.com/electron/electron/blob/v3.1.13/docs/api/ipc-main.md
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 
@@ -100,36 +102,42 @@ function createWindow() {
 
     /// IPC HANDLERS //////////////////////////////////////////////////////////
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    /** drag file to desktop
+    /** drag file to desktop to export
      */
-    ipcMain.on('dragtodesktop', event => {
+    ipcMain.on('dragtodesktop', ipcEvent => {
       let zipPath = URSERVER.ARCHIVE.MakeDBArchive('meme');
       if (zipPath) {
         console.log('main:dragtodesktop');
-        event.sender.startDrag({
+        ipcEvent.sender.startDrag({
           file: zipPath,
           icon: AssetPath('mzip-export-64.png')
         });
-      } else {
-        console.log('could not create archive...runtime directory does not exist?');
+        ipcEvent.returnValue = true;
+        return;
       }
+      console.log('could not create archive...runtime directory does not exist?');
+      ipcEvent.returnValue = false;
     });
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /** export file
      */
-    ipcMain.on('onexport', event => {
+    ipcMain.on('onexport', () => {
       let zipPath = URSERVER.ARCHIVE.MakeDBArchive('meme');
       if (zipPath) {
         let zipFile = path.basename(zipPath);
         /* IIFE START */
         (async () => {
           const destPath = await dialog.showSaveDialog({
-            defaultPath: app.getPath('desktop') + '/' + zipFile,
+            defaultPath: `${app.getPath('desktop')}/${zipFile}`,
             filters: { extensions: '.mzip' },
             properties: { createDirectory: true }
           });
+          if (destPath !== undefined) {
           console.log('writing destination', destPath);
           fs.copyFileSync(zipPath, destPath);
+          } else {
+            console.log('export cancelled');
+          }
         })();
         /* IIFE END */
       } else {

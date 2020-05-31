@@ -20,8 +20,8 @@ const DBG = true;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const EXT = 'mzip';
-const TMP_PREFIX = `${EXT}-`;
+const EXT = 'MEME';
+const TMP_PREFIX = `MZIP-`;
 
 /// API ///////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -59,10 +59,11 @@ function MakeDBArchive(dbName = 'meme') {
   }
   let err = zip.addLocalFile(rpath, 'runtime/');
   // write zip archive to os temp folder
+  if (err) console.log('addLocalFile error', err);
   if (DBG) console.log('*** creating dirs');
   let tmpDir = TempDir();
-  let zipName = DATESTR.DatedFilename('db-', EXT);
-  let zipPath = path.join(tmpDir, `${zipName}.${EXT}`);
+  let zipName = DATESTR.DatedFilename(`${EXT}DB`);
+  let zipPath = path.join(tmpDir, `${zipName}.${EXT}.ZIP`);
   if (DBG) console.log('*** creating zip archive', zipName);
   zip.writeZip(zipPath);
   if (DBG) console.log('*** wrote zip to path', zipPath);
@@ -80,6 +81,4 @@ function ExtractDBArchive(zipPath) {
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-module.exports = {
-  MakeDBArchive
-};
+module.exports = { MakeDBArchive };

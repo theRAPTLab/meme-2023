@@ -1,3 +1,6 @@
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /*///////////////////////////////////// NOTES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
 console.js - main webpack entrypoint for Electron-based console/server
@@ -16,24 +19,24 @@ and accessed through the 'window' object.
 NOTE: all code from this point on are using WEBPACK's require, not NodeJS. Remember this
 is client-side javascript code, with Electron/Node enhancements!
 
+NOTE: This is written for Electron V3, so ipcRenderer is different
+https://github.com/electron/electron/blob/v3.1.13/docs/api/ipc-renderer.md
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ///////////////////////////////////////////*/
 
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import AppBar from '@material-ui/core/AppBar';
-import Menu from '@material-ui/core/Menu';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Card from '@material-ui/core/Card';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import ArchiveIcon from '@material-ui/icons/Archive';
 import Paper from '@material-ui/core/Paper';
 import { withStyles } from '@material-ui/core/styles';
 import { ipcRenderer } from 'electron';
 import path from 'path';
 
 const remote = require('electron').remote;
+
 const AssetPath = asset => path.join(__static, asset);
 
 const styles = theme => ({
@@ -70,7 +73,9 @@ const App = withStyles(styles)(props => {
     console.log('dragtodesktop');
     event.preventDefault();
     setDragExport(true);
-    ipcRenderer.send('dragtodesktop');
+    ipcRenderer.sendSync('dragtodesktop');
+    console.log('dragtodesktop end');
+    setDragExport(false);
   };
   const doExportFile = event => {
     event.preventDefault();
@@ -111,10 +116,6 @@ const App = withStyles(styles)(props => {
           width="128px"
           onClick={doExportFile}
           onDragStart={doDragToDesktop}
-          onDragEnd={event => {
-            console.log('stopped export drag');
-            setDragExport(false);
-          }}
           draggable
         />
         <div>

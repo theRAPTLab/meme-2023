@@ -37,7 +37,16 @@ let URSYS = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API: Main Entry Point
  */
-URSYS.Initialize = (options = {}) => {
+URSYS.Initialize = async (options = {}) => {
+  if (options.tempdb) {
+    console.log(PR, `${CS}LOADING MEME ARCHIVE${CR}`);
+    await EXPRESS.CloseAppServer();
+    await UNET.CloseNetwork();
+    await UDB.ReInitializeDatabase(options);
+    await UNET.OpenNetwork();
+    await EXPRESS.OpenAppServer();
+    return;
+  }
   LOGGER.Write(LPR, `initializing network`);
   if (options.memehost) console.log(PR, `${CC}MEMEHOST${TR} ${options.memehost}`);
   if (process.env.DATASET) console.log(PR, `${CC}DATASET=${TR} ${process.env.DATASET}`);
@@ -52,7 +61,6 @@ URSYS.Initialize = (options = {}) => {
  *  database filepath (?)
  *  https://stackoverflow.com/questions/38067298/saving-files-locally-with-electron
  */
-URSYS.InitializeROArchive = (options = {}) => {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** TODO (4): Write a routine in URDB that exports a read only archive file
  *  that can be loaded by InitializeROArchive() with a dialog save-as box.

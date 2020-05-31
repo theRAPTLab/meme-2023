@@ -12,7 +12,7 @@
 // Import parts of electron to use
 const { app, BrowserWindow, dialog, Menu, ipcMain } = require('electron');
 const ip = require('ip');
-const fs = require('fs');
+const fs = require('fs-extra');
 const os = require('os');
 const path = require('path');
 const url = require('url');
@@ -155,24 +155,34 @@ function createWindow() {
       }
       const file = files[0];
       if (!(file.type === 'application/zip' || file.name.endsWith('MEME.ZIP'))) {
-        const error = `expected zip file ending in 'MEME.ZIP', not '${file.type}' named '${file.name}'`;
+        const error = `INVALID FILE. Must be zip with extension .MEME.ZIP`;
         ipcEvent.returnValue = { error };
         return;
       }
       // this is a valid zip file as far as we know
       const archivePath = URSERVER.ARCHIVE.ExtractDBArchive(file.path);
-      ipcEvent.returnValue = { archivePath };
+      const manifest = URSERVER.ARCHIVE.GetManifest(archivePath);
+      if (manifest.error) {
+        ipcEvent.returnValue = manifest.error;
+        return;
+      }
+      // reinitialize the server
+      console.log('loaded manifest', manifest);
+      const tempdb = { runtimepath: archivePath, dbfile: manifest.db, appmode: 'readonly' };
+      URSERVER.Initialize({ tempdb });
+      ipcEvent.returnValue = { ...tempdb, manifest };
     });
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /** import file
+     *  Electron V3: github.com/electron/electron/blob/v3.0.16/docs/api/dialog.md
      */
     ipcMain.on('onimport', () => {
       /* IIFE START */
       (async () => {
         console.log('main:dragfromdesktop');
         const zipPath = await dialog.showOpenDialog({
-          filters: { extensions: '.mzip' },
-          properties: ['dontAddToRecent']
+          filters: [{ name: 'All Files', extensions: ['zip'] }],
+          properties: ['dontAddToRecent', 'openFile']
         });
         console.log('file to open', zipPath);
       })();

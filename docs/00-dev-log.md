@@ -130,6 +130,14 @@ Reviewing the above strategy, we probably don't need to lock-out anything in the
 
 **Implementation**
 
-* [ ] disconnect all clients
-  call `URSERVER.Initialize()` with `import: { path, mode }` option added
+* [x] call `URSERVER.Initialize()` with `tempdb` option added
 
+* [x] populate `tempdb` with `runtimepath`, `dbfile`, and `appmode` properites
+
+* [x] detect `tempdb` option and create new `URDB.ReInitializeDatabase(options)` function
+
+* [x] disconnect all clients
+
+* [ ] reinitialize `m_db` instance
+
+  

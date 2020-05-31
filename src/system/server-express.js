@@ -22,13 +22,14 @@ const DBG = false;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const { TERM_EXP: CLR, TERM_WPACK, TR } = PROMPTS;
+const { TERM_EXP: CLR, CWARN, TR } = PROMPTS;
 const PORT = 3000;
 const PR = `${CLR}${PROMPTS.Pad('UR_EXPRESS')}${TR}`;
 const SCREENSHOT_POST_URL = SESSION.ScreenshotPostURL();
 const SCREENSHOT_URL = SESSION.ScreenshotURL();
 const RUNTIMEPATH = path.join(__dirname, '../../runtime');
 const UPLOADPATH = path.join(RUNTIMEPATH, SCREENSHOT_URL);
+let PAUSE_LISTENING = false;
 
 /// SERVER DECLARATIONS ///////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -159,13 +160,19 @@ function Start() {
   app.set('view engine', 'ejs');
   // handle special case for root url to serve our ejs template
   app.get('/', (req, res) => {
-    const URSessionParams = GetTemplateValues(req);
-    res.render(`${DOCROOT}/index`, URSessionParams);
+    if (!PAUSE_LISTENING) {
+      const URSessionParams = GetTemplateValues(req);
+      res.render(`${DOCROOT}/index`, URSessionParams);
+    } else {
+      console.log(PR, 'appserver is paused, ignoring request');
+      res.status(503);
+      res.send('SERVER IS RESTARTING. TRY AGAIN IN A FEW SECONDS.');
+    }
   });
   // for everything else...
   app.use('/', express.static(DOCROOT));
   // handle image uploads
-  app.post(SCREENSHOT_POST_URL, upload.single('screenshot'), function(req, res, next) {
+  app.post(SCREENSHOT_POST_URL, upload.single('screenshot'), (req, res, next) => {
     const { originalname, mimetype, destination, filename } = req.file;
     const data = { originalname, filename };
     res.header('Content-Type', mimetype);
@@ -177,6 +184,19 @@ function Start() {
   // return promise for async users
   return promise;
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** when re-initializing the database during an import, don't allow client
+ *  connections
+ */
+function CloseAppServer() {
+  console.log(PR, `${CWARN}suspending appserver${TR}`);
+  PAUSE_LISTENING = true;
+}
+function OpenAppServer() {
+  console.log(PR, `${CWARN}opening appserver${TR}`);
+  PAUSE_LISTENING = false;
+}
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function GetTemplateValues(req) {
   let { ip, hostname } = req;
@@ -191,4 +211,4 @@ function GetTemplateValues(req) {
   return params;
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-module.exports = { Start };
+module.exports = { Start, CloseAppServer, OpenAppServer };

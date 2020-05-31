@@ -47,6 +47,18 @@ const DB = {};
 
 /// INITIALIZE DATABASE ///////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+DB.ReInitializeDatabase = (options = {}) => {
+  const dbg = console.log; // ()={} to disable debugging
+  const assert = console.assert;
+  //
+  const { tempdb, memehost } = options;
+  assert(tempdb, PR, 'tempdb properties required in option');
+  assert(!memehost, PR, 'memehost is option with tempdb');
+  const { runtimepath, dbfile, appmode } = tempdb;
+  // reinitialize the m_db instance
+  dbg(`ReInitializeDatabase: ${runtimepath}/${dbfile} [${appmode}]`);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Initialize database, creating blank DB file if necessary.
  */
 DB.InitializeDatabase = (options = {}) => {

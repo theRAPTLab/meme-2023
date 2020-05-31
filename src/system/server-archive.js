@@ -27,16 +27,28 @@ const TMP_PREFIX = `MZIP-`;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function MakeManifest(dbName) {
   if (!dbName) throw Error('<arg1> dbName is required');
-  let today = new Date(Date.now());
+  let today = new Date();
   return {
     db: dbName,
-    date: today.toDateString(),
-    time: today.toTimeString(),
+    date: Date.now(),
+    localDate: today.toDateString(),
+    localTime: today.toTimeString(),
     iso8601: today.toISOString()
   };
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function GetManifest(zip) {}
+function GetManifest(archivePath) {
+  let buffer;
+  let manifest;
+  // read the file
+  try {
+    buffer = fs.readFileSync(`${archivePath}/00-manifest.json`);
+    manifest = JSON.parse(buffer);
+  } catch (error) {
+    return { error: error.toString };
+  }
+  return manifest;
+}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function MakeJSONFile(obj) {
   if (obj === undefined) throw Error('<arg1> can not be undefined');
@@ -89,4 +101,4 @@ function ExtractDBArchive(zipPath) {
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-module.exports = { MakeDBArchive, ExtractDBArchive };
+module.exports = { MakeDBArchive, ExtractDBArchive, GetManifest };

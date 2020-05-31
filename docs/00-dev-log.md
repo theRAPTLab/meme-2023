@@ -82,7 +82,54 @@ We want to import the directory
 * [x] unzip
 * [ ] set flags to load from temp directory in read only mode
 
+We have to re-iniitalize the database in readonly mode, but we **don't** have to restart the socket or web servers. 
 
+**Critical Path:**
 
+* **options.memehost** and **env.DATASET** control how the database starts up
+* server-database `InitializeDatabase( options )`
 
+`InitializeDatabase()` loads the **`dataset`** specificed by the following priorities:
+
+* process.env.DATASET has the name of the `.loki` file to load
+* `DB_DATASETS[memehost]`, where `memehost` can either be 'init', 'electron', or 'devserver' which loads the appropriate hardcoded `.loki` file.
+
+`InitializeDatabase()` uses the **dataset** value (e.g. 'meme') to:
+
+*  sets `db_file` to the returned value of `m_GetValidDBFilePath( dataset )` 
+* sets `db_bkup` to be the backup file stored as a snapshot with a dated filename
+* It then creates a new LokiDB instance **`m_db`** which is used in all the database routines.
+
+**Implementation Strategy**
+
+1. Check for  `InitializeDatabase({import:{ path, mode:'readonly'},})` options
+2. **Kick everyone off the server**
+3. create a new `m_db` instance loading the database from the provided `path`
+4. `UR.DBQuery` and `ULink._DBQuery( cmd, data )` is the only way to change data
+5. `UR.DBTryLock()` and `UR.DBTryRelease()` are used across the UI components to attempt a change.
+6. `ADM.IsViewOnly()` is used to set various flags to hide update buttons
+7. `IsViewOnly()` is determined by the login tokens currently according to values in `adm-settings`
+8. We can insert a new override into `ADM.IsViewOnly()` based on a connection flag. 
+9. in `ur-network` `m_HandleRegistrationMessage( msgEvent )`, we receive a number of parameters that are passed to `NetMessage.GlobalSetup()`. We can add a READONLY flag as well that is similar to the ULOCAL parameter
+10. In the boot up, `EXEC.JoinNet()` occurs before `EXEC.EnterApp()`, so the URSYS `Hook('CONFIGURE')` handler that has a number of **startup overrides** can check for readonly mode. Here `Session.SetReadOnlyMode()` can be set, and then this value can be used to override.
+
+Reviewing the above strategy, we probably don't need to lock-out anything in the DBQuery because the **primary interlock mechanism is hiding buttons**. So the simplified strategy is:
+
+1. Server: on import do the following
+   1. disconnect all clients
+   2. `URDB.InitializeDatabase()` again with special path and readonly mode
+      1. set `SESSION.SetReadOnly()`
+      2. add the new READONLY flag to `server-network` `m_SocketClientAck()` so READONLY mode is transmitted. Can read local `SESSION.IsReadOnly()`
+2. Client: On `m_HandleRegistrationMessage()`  in `ur-network`
+   1. grab the `READONLY` flag from `regData`
+   2. pass to `NetMessage.GlobalSetup()`
+3. Client: On `Hook('CONFIGURE')` in `ursys`
+   1. add check to `NetMessage.IsReadOnly()` to `SESSION.SetReadOnly()`
+4. Client: In `ADM.IsViewOnly()` 
+   1. add an override to check `SESSION.IsReadOnly()`
+
+**Implementation**
+
+* [ ] disconnect all clients
+  call `URSERVER.Initialize()` with `import: { path, mode }` option added
 

@@ -44,7 +44,7 @@ URSYS.Initialize = (options = {}) => {
   console.log(PR, `${CS}STARTING UR SOCKET SERVER${CR}`);
   URSYS.RegisterHandlers();
   UDB.InitializeDatabase(options);
-  return UNET.InitializeNetwork(options);
+  UNET.InitializeNetwork(options);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** TODO (3): Write a variant of Initialize that calls a variant of

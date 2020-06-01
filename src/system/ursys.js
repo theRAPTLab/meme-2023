@@ -41,7 +41,7 @@ EXEC.Hook(__dirname, 'CONFIGURE', () => {
   // attempt to connect to extension
   EXT.ConnectToExtension(SocketUADDR());
   // set SESSION.ReadOnly mode
-  if (NetMessage.IsReadOnly()) SESSION.SetReadOnly();
+  if (NetMessage.IsReadOnly()) SESSION.SetDBReadOnly();
   // check for admin override thenreturn
   const qs = SESSION.AdminPlaintextPassphrase();
   if (document.location.hash.includes(qs)) {

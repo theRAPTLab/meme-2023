@@ -475,7 +475,7 @@ class NetMessage {
  * @param {Object} [config.uaddr] - URSYS browser address
  */
 NetMessage.GlobalSetup = (config = {}) => {
-  let { uaddr, netsocket, peers, readonly, is_local } = config;
+  let { uaddr, netsocket, peers, is_dbreadonly, is_local } = config;
   if (uaddr) NetMessage.UADDR = uaddr;
   if (peers) NetMessage.PEERS = peers;
   if (netsocket) {
@@ -487,11 +487,11 @@ NetMessage.GlobalSetup = (config = {}) => {
     m_mode = M_ONLINE;
   }
   if (is_local) NetMessage.ULOCAL = is_local;
-  if (readonly) NetMessage.READONLY = readonly;
+  if (is_dbreadonly) NetMessage.DBREADONLY = is_dbreadonly;
 };
 NetMessage.UADDR = 'UNASSIGNED';
 NetMessage.ULOCAL = false; // set if connection is a local connection
-NetMessage.READONLY = false;
+NetMessage.DBREADONLY = false;
 NetMessage.PEERS = undefined;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -586,7 +586,7 @@ NetMessage.IsLocalhost = () => {
   return NetMessage.ULOCAL;
 };
 NetMessage.IsReadOnly = () => {
-  return NetMessage.READONLY;
+  return NetMessage.DBREADONLY;
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

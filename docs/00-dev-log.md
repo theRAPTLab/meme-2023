@@ -152,4 +152,11 @@ Reviewing the above strategy, we probably don't need to lock-out anything in the
 
 * [x] `adm-data:IsViewOnly()` 
 
+* [x] disable UI elements that are still visible in ViewOnly Mode.
+
   
+
+## May 31 - Adding DBReadOnly indicators to UI
+
+
+

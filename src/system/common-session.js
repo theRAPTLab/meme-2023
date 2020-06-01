@@ -268,10 +268,10 @@ SESSION.IsStudent = () => {
 SESSION.IsTeacher = () => {
   return SESSION.LoggedInProps().teacherName !== undefined;
 };
-SESSION.IsReadOnly = () => {
+SESSION.IsDBReadOnly = () => {
   return m_readonly;
 };
-SESSION.SetReadOnly = () => {
+SESSION.SetDBReadOnly = () => {
   m_readonly = true;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

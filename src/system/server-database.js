@@ -70,7 +70,7 @@ DB.ReInitializeDatabase = (options = {}) => {
       autosave: false,
       autoloadCallback: () => {
         dbg(PR, `db reset to '${dbfile}.loki' for readonly session`);
-        SESSION.SetReadOnly();
+        SESSION.SetDBReadOnly();
         resolve();
       }
     };

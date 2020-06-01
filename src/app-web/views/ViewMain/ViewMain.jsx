@@ -543,7 +543,7 @@ class ViewMain extends React.Component {
     const resources = classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
 
     const isViewOnly = ADM.IsViewOnly();
-    const isDBViewOnly = ADM.IsSessionReadOnly();
+    const isDBReadOnly = ADM.IsDBReadOnly();
 
     return (
       <div className={classes.root}>
@@ -734,7 +734,7 @@ class ViewMain extends React.Component {
             <AddIcon /> Add property
           </Fab>
           <Fab
-            hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected) || isDBViewOnly}
+            hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected) || isDBReadOnly}
             onClick={
               componentIsSelected || outcomeIsSelected
                 ? this.OnAddPropComment

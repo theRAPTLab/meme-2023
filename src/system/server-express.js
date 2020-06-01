@@ -166,7 +166,7 @@ function Start() {
     } else {
       console.log(PR, 'appserver is paused, ignoring request');
       res.status(503);
-      res.send('SERVER IS RESTARTING. TRY AGAIN IN A FEW SECONDS.');
+      res.send('MEME SERVER IS RESTARTING. Please try again in a few seconds.');
     }
   });
   // for everything else...

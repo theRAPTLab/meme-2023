@@ -56,19 +56,6 @@ URSYS.Initialize = async (options = {}) => {
   UNET.InitializeNetwork(options);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** TODO (3): Write a variant of Initialize that calls a variant of
- *  URDB.InitializeDatabase() that implements a "read only" mode from a passed
- *  database filepath (?)
- *  https://stackoverflow.com/questions/38067298/saving-files-locally-with-electron
- */
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** TODO (4): Write a routine in URDB that exports a read only archive file
- *  that can be loaded by InitializeROArchive() with a dialog save-as box.
- *  https://stackoverflow.com/questions/38067298/saving-files-locally-with-electron
- */
-URSYS.ExportROArchive = () => {};
-
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Server message handlers. All messages with the prefix 'NET:SRV_' are always
  * handled by the server.
  */

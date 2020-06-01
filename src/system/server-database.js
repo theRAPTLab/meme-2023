@@ -54,9 +54,23 @@ DB.ReInitializeDatabase = (options = {}) => {
   const { tempdb, memehost } = options;
   assert(tempdb, PR, 'tempdb properties required in option');
   assert(!memehost, PR, 'memehost is option with tempdb');
-  const { runtimepath, dbfile, appmode } = tempdb;
+  const { archivepath, dbfile, appmode } = tempdb;
   // reinitialize the m_db instance
-  dbg(`ReInitializeDatabase: ${runtimepath}/${dbfile} [${appmode}]`);
+  dbg(PR, `resetting db to '${dbfile}.loki' [appmode=${appmode}]`);
+  /*/
+  At this point, we want to mirror InitializeDatabase.
+  /*/
+  const db_file = `${archivepath}/runtime/${dbfile}.loki`;
+  FS.ensureDirSync(PATH.dirname(db_file));
+  return new Promise((resolve, reject) => {
+    if (!FS.existsSync(db_file)) reject(Error(`couldn't find ${db_file}`));
+    let ropt = {
+      autoload: true,
+      autosave: false,
+      autoloadCallback: () => resolve()
+    };
+    m_db = new Loki(db_file, ropt);
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Initialize database, creating blank DB file if necessary.

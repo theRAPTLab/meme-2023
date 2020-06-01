@@ -671,7 +671,7 @@ ADMData.IsValidLogin = hashedToken => {
  */
 ADMData.IsViewOnly = () => {
   // viewonly mode if SESSION is set
-  if (SESSION.IsReadOnly()) return true;
+  if (ADMData.IsSessionReadOnly()) return true;
   // otherwise, see if we're readonly based on credentials
   const authorId = ADMData.GetAuthorId();
   const authorGroup = ADMData.GetGroupByStudent(authorId); // selectedStudentId
@@ -680,6 +680,7 @@ ADMData.IsViewOnly = () => {
   const modelGroupId = model ? model.groupId : '';
   return authorGroupId !== modelGroupId;
 };
+ADMData.IsSessionReadOnly = () => SESSION.IsReadOnly();
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Returns studentId or teacheId depending on who's logged in.

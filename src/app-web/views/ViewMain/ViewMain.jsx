@@ -544,6 +544,9 @@ class ViewMain extends React.Component {
 
     const isViewOnly = ADM.IsViewOnly();
     const isDBReadOnly = ADM.IsDBReadOnly();
+    let viewStatus;
+    viewStatus = isViewOnly ? 'VIEW MODE' : '';
+    viewStatus = isDBReadOnly ? 'READ-ONLY REVIEW MODE' : '';
 
     return (
       <div className={classes.root}>
@@ -645,6 +648,14 @@ class ViewMain extends React.Component {
               onClick={() => UR.Publish('SVG_PANZOOM_OUT')}
               style={{ position: 'absolute', left: '110px', bottom: '10px' }}
             />
+            <Typography
+              variant="caption"
+              style={{ position: 'absolute', left: '160px', bottom: '12px' }}
+            >
+              {' '}
+              {/* STATUS LABEL */}
+              {viewStatus}
+            </Typography>
           </div>
 
           <StickyNoteCollection />

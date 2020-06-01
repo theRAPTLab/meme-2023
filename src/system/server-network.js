@@ -437,6 +437,7 @@ function m_SocketClientAck(socket) {
     UADDR: socket.UADDR,
     SERVER_UADDR,
     PEERS,
+    READONLY: SESSION.IsReadOnly(),
     ULOCAL: socket.ULOCAL
   };
   socket.send(JSON.stringify(data));

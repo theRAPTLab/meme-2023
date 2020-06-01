@@ -134,10 +134,22 @@ Reviewing the above strategy, we probably don't need to lock-out anything in the
 
 * [x] populate `tempdb` with `runtimepath`, `dbfile`, and `appmode` properites
 
-* [x] detect `tempdb` option and create new `URDB.ReInitializeDatabase(options)` function
+* [x] detect `tempdb` option and create new `server-database:ReInitializeDatabase(options)` function
 
 * [x] disconnect all clients
 
-* [ ] reinitialize `m_db` instance
+* [x] reinitialize `m_db` instance
+
+* [x] call `SESSION.SetReadOnly()` from `server-database:ReInitializeDatabase()`
+
+* [x] add `READONLY: SESSION.IsReadOnly()` flag to `server-network:m_SocketClientAck()` 
+
+* [x] `netmessage:GlobalSetup()` add`NetMessage.IsReadOnly()` 
+
+* [x] `ur-network:m_HandleRegistrationMessage()` get READONLY flag
+
+* [x] `ursys:Hook('CONFIGURE')` forward `NetMessage.IsReadOnly` to `Session.IsReadOnly`
+
+* [x] `adm-data:IsViewOnly()` 
 
   

@@ -670,6 +670,9 @@ ADMData.IsValidLogin = hashedToken => {
  *  The user's group grants the priviledges
  */
 ADMData.IsViewOnly = () => {
+  // viewonly mode if SESSION is set
+  if (SESSION.IsReadOnly()) return true;
+  // otherwise, see if we're readonly based on credentials
   const authorId = ADMData.GetAuthorId();
   const authorGroup = ADMData.GetGroupByStudent(authorId); // selectedStudentId
   const authorGroupId = authorGroup ? authorGroup.id : '';

@@ -23,6 +23,7 @@ const LOGGER = require('./server-logger');
 const PROMPTS = require('../system/util/prompts');
 const UNET = require('./server-network');
 const DATESTR = require('./util/datestring');
+const SESSION = require('../system/common-session');
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -67,7 +68,11 @@ DB.ReInitializeDatabase = (options = {}) => {
     let ropt = {
       autoload: true,
       autosave: false,
-      autoloadCallback: () => resolve()
+      autoloadCallback: () => {
+        dbg(PR, `db reset to '${dbfile}.loki' for readonly session`);
+        SESSION.SetReadOnly();
+        resolve();
+      }
     };
     m_db = new Loki(db_file, ropt);
   });

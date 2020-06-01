@@ -24,7 +24,7 @@ https://github.com/electron/electron/blob/v3.1.13/docs/api/ipc-renderer.md
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ///////////////////////////////////////////*/
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -46,21 +46,28 @@ const styles = theme => ({
     marginRight: 20
   },
   exportZone: {
-    minWidth: 200,
-    minHeight: 50,
+    float: 'left',
+    width: 200,
+    height: 200,
     backgroundColor: '#b9efb8',
     border: '2px dashed #b9efb8',
-    padding: '10px'
+    padding: '10px',
+    textAlign: 'center'
   },
   importZone: {
-    minWidth: 200,
-    minHeight: 50,
+    float: 'left',
+    width: 200,
+    height: 200,
     backgroundColor: '#d6bfe8',
     border: '2px dashed #d6bfe8',
-    padding: '10px'
+    padding: '10px',
+    textAlign: 'center'
   },
   dropHilight: {
     border: '2px dashed rgba(255,0,0,1)'
+  },
+  disableZone: {
+    display: 'none'
   }
 });
 
@@ -68,13 +75,25 @@ const App = withStyles(styles)(props => {
   const { classes } = props;
   const { main, client } = remote.getGlobal('serverinfo');
   const [dragExport, setDragExport] = useState(false);
+  const [imported, setImported] = useState(false);
+  const [loadStatus, setLoadStatus] = useState('initializing server');
+
+  /** avoid creating listeners on every render **/
+  useEffect(() => {
+    ipcRenderer.on('mainalert', (event, msg) => {
+      console.log('alert:', msg);
+      alert(msg);
+    });
+
+    ipcRenderer.on('mainstatus', (event, msg) => {
+      setLoadStatus(msg);
+    });
+  }, []);
 
   const doDragToDesktop = event => {
-    console.log('dragtodesktop');
     event.preventDefault();
     setDragExport(true);
-    const retval = ipcRenderer.sendSync('dragtodesktop');
-    console.log('dragtodesktop end', retval);
+    ipcRenderer.sendSync('dragtodesktop');
     setDragExport(false);
   };
   //
@@ -84,7 +103,6 @@ const App = withStyles(styles)(props => {
   };
   //
   const doDragFromDesktop = event => {
-    console.log('dragfromdesktop');
     event.preventDefault();
     // Use DataTransfer interface to access the file(s)
     const files = [];
@@ -99,14 +117,19 @@ const App = withStyles(styles)(props => {
       });
     }
     const retval = ipcRenderer.sendSync('dragfromdesktop', files);
-    const { error, ...rest } = retval;
+    const { error, zippath } = retval;
     if (error) console.log('ERROR', error);
-    else console.log('dragfromdesktop end', { ...rest });
+    if (zippath) setLoadStatus(`REVIEWING ARCHIVE: ${path.basename(zippath)}`);
+    setImported(true);
   };
   //
   const doImportFile = event => {
     event.preventDefault();
-    ipcRenderer.send('onimport');
+    const retval = ipcRenderer.sendSync('onimport');
+    const { error, zippath } = retval;
+    if (error) console.log('ERROR', error);
+    if (zippath) setLoadStatus(`REVIEWING ARCHIVE: ${path.basename(zippath)}`);
+    setImported(true);
   };
 
   return (
@@ -122,6 +145,9 @@ const App = withStyles(styles)(props => {
       <Paper style={{ padding: '0.5em 24px', borderRadius: 0 }}>
         <Typography>{PACKAGE_DESCRIPTION}</Typography>
       </Paper>
+      <Typography variant="caption" style={{ padding: '1.5em 0 1em 24px' }}>
+        {loadStatus}
+      </Typography>
       <Typography variant="h6" style={{ padding: '1.5em 0 0 24px' }}>
         Connection Instructions:
       </Typography>
@@ -130,52 +156,60 @@ const App = withStyles(styles)(props => {
         <br />
         Students: open <b>{client}</b>
       </Typography>
-      <div className={classes.exportZone}>
-        <img
-          src={AssetPath('mzip-export.png')}
-          width="128px"
-          onClick={doExportFile}
-          onDragStart={doDragToDesktop}
-          draggable
-        />
-        <div>
-          MAKE MZIP ARCHIVE
+      <div>
+        <div className={classes.importZone}>
+          <img
+            src={AssetPath('mzip-import.png')}
+            width="128px"
+            onClick={doImportFile}
+            onDrop={event => {
+              if (dragExport) return;
+              event.currentTarget.classList.remove(classes.dropHilight);
+              doDragFromDesktop(event);
+              event.preventDefault();
+            }}
+            onDragStart={event => {
+              event.preventDefault();
+            }}
+            onDragOver={event => {
+              if (!dragExport) event.currentTarget.classList.add(classes.dropHilight);
+              event.preventDefault();
+            }}
+            onDragLeave={event => {
+              event.currentTarget.classList.remove(classes.dropHilight);
+              event.preventDefault();
+            }}
+          />
           <br />
-          click or drag to desktop
+          LOAD MZIP ARCHIVE
+          <br />
+          click or drag file over
         </div>
-      </div>
-      <div className={classes.importZone}>
-        <img
-          src={AssetPath('mzip-import.png')}
-          width="128px"
-          onClick={doImportFile}
-          onDrop={event => {
-            if (dragExport) {
-              console.log('ignoring dragexport');
-              return;
-            }
-            console.log('dropped item');
-            event.currentTarget.classList.remove(classes.dropHilight);
-            doDragFromDesktop(event);
-            event.preventDefault();
-          }}
-          onDragOver={event => {
-            console.log('dragover');
-            if (!dragExport) event.currentTarget.classList.add(classes.dropHilight);
-            event.preventDefault();
-          }}
-          onDragStart={event => {
-            event.preventDefault();
-          }}
-          onDragLeave={event => {
-            event.currentTarget.classList.remove(classes.dropHilight);
-            event.preventDefault();
-          }}
-        />
-        <br />
-        LOAD MZIP ARCHIVE
-        <br />
-        click or drag from desktop
+        <div className={classes.exportZone} hidden={imported}>
+          <img
+            src={AssetPath('mzip-export.png')}
+            width="128px"
+            onClick={doExportFile}
+            onDragStart={doDragToDesktop}
+            draggable
+          />
+          <div>
+            MAKE MZIP ARCHIVE
+            <br />
+            click or drag to desktop
+          </div>
+        </div>
+        <div
+          className={classes.exportZone}
+          style={{ backgroundColor: '#f0f0f0', textAlign: 'left' }}
+          hidden={!imported}
+        >
+          <strong>DATABASE ARCHIVE REVIEW MODE</strong>
+          <br />
+          The original database has not been changed. You can import another archive.
+          <br />
+          Quit and restart app to restore active database.
+        </div>
       </div>
     </div>
   );

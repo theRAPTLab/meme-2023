@@ -115,13 +115,15 @@ function createWindow() {
         ipcEvent.returnValue = true;
         return;
       }
-      console.log('could not create archive...runtime directory does not exist?');
+      const msg = 'could not create archive...runtime directory does not exist?';
+      ipcEvent.sender.send('mainalert', msg);
+      console.log(MessagePort);
       ipcEvent.returnValue = false;
     });
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /** export file
      */
-    ipcMain.on('onexport', () => {
+    ipcMain.on('onexport', ipcEvent => {
       let zipPath = URSERVER.ARCHIVE.MakeDBArchive('meme');
       if (zipPath) {
         let zipFile = path.basename(zipPath);
@@ -129,7 +131,7 @@ function createWindow() {
         (async () => {
           const destPath = await dialog.showSaveDialog({
             defaultPath: `${app.getPath('desktop')}/${zipFile}`,
-            filters: { extensions: '.mzip' },
+            filters: [{ name: 'Archives', extensions: ['zip'] }],
             properties: { createDirectory: true }
           });
           if (destPath !== undefined) {
@@ -156,6 +158,7 @@ function createWindow() {
       const file = files[0];
       if (!(file.type === 'application/zip' || file.name.endsWith('MEME.ZIP'))) {
         const error = `INVALID FILE. Must be zip with extension .MEME.ZIP`;
+        ipcEvent.sender.send('mainalert', error);
         ipcEvent.returnValue = { error };
         return;
       }
@@ -164,36 +167,71 @@ function createWindow() {
       const manifest = URSERVER.ARCHIVE.GetManifest(archivePath);
       if (manifest.error) {
         ipcEvent.returnValue = manifest.error;
+        ipcEvent.sender.send('mainalert', manifest.error);
         return;
       }
       // reinitialize the server
       console.log('loaded manifest', manifest);
-      const tempdb = { archivepath: archivePath, dbfile: manifest.db, appmode: 'readonly' };
-      URSERVER.Initialize({ tempdb });
+      const tempdb = {
+        zippath: file.path,
+        archivepath: archivePath,
+        dbfile: manifest.db,
+        appmode: 'readonly'
+      };
       ipcEvent.returnValue = { ...tempdb, manifest };
+      URSERVER.Initialize({ tempdb });
     });
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /** import file
      *  Electron V3: github.com/electron/electron/blob/v3.0.16/docs/api/dialog.md
      */
-    ipcMain.on('onimport', () => {
+    ipcMain.on('onimport', ipcEvent => {
       /* IIFE START */
       (async () => {
-        console.log('main:dragfromdesktop');
-        const zipPath = await dialog.showOpenDialog({
-          filters: [{ name: 'All Files', extensions: ['zip'] }],
+        const files = await dialog.showOpenDialog({
+          filters: [{ name: 'Archives', extensions: ['zip'] }],
           properties: ['dontAddToRecent', 'openFile']
         });
-        console.log('file to open', zipPath);
+        // (1)
+        if (files.length === 1) {
+          const zipPath = files[0];
+          console.log('file to open', zipPath);
+          // this is a valid zip file as far as we know
+          const archivePath = URSERVER.ARCHIVE.ExtractDBArchive(zipPath);
+          const manifest = URSERVER.ARCHIVE.GetManifest(archivePath);
+          if (manifest.error) {
+            ipcEvent.sender.send('mainalert', manifest.error);
+            ipcEvent.returnValue = { error: manifest.error };
+            return;
+          }
+          // reinitialize the server
+          console.log('loaded manifest', manifest);
+          const tempdb = { archivepath: archivePath, dbfile: manifest.db, appmode: 'readonly' };
+          URSERVER.Initialize({ tempdb });
+          ipcEvent.returnValue = { zippath: zipPath, ...tempdb, manifest };
+          return;
+        }
+        // (2)
+        if (files.length === 0) {
+          console.log('import cancelled');
+        }
+        // (3)
+        console.log('multiple files selected');
+        ipcEvent.returnValue = { error: 'multiple files selected' };
       })();
       /* IIFE END */
     });
 
     /// LAUNCH URSERVER ///////////////////////////////////////////////////////
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    mainWindow.webContents.send('mainstatus', 'initializing...');
     URSERVER.Initialize({ memehost: 'electron' });
+    mainWindow.webContents.send('mainstatus', 'starting network...');
     URSERVER.StartNetwork();
-    URSERVER.StartWebServer();
+    mainWindow.webContents.send('mainstatus', 'starting appserver...');
+    URSERVER.StartWebServer(() => {
+      mainWindow.webContents.send('mainstatus', 'READY');
+    });
   });
 
   // Emitted when the window is closed.

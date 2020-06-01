@@ -79,34 +79,32 @@ URSYS.RegisterHandlers = () => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-URSYS.StartWebServer = callback => {
+URSYS.StartWebServer = async callback => {
   LOGGER.Write(LPR, `starting web server`);
   // returns an optional promise hook
   console.log(PR, `${CS}STARTING UR WEB SERVER${CR}`);
-  (async () => {
-    try {
-      await EXPRESS.Start();
-      let out = `\n---\n`;
-      out += `${CS}SYSTEM INITIALIZATION COMPLETE${CR}\n`;
-      out += `GO TO ONE OF THESE URLS in CHROME WEB BROWSER\n`;
-      out += `ADMIN    - ${SERVER_INFO.main}/#/admin\n`;
-      out += `STUDENTS - ${SERVER_INFO.client}\n`;
-      out += `---\n`;
-      if (typeof callback === 'function') callback(out);
-      console.log(out);
-    } catch (err) {
-      console.log(PR, `${CC}${err}${CR}`);
-      console.log(PR, `... exiting with errors\n`);
-      process.exit(0);
-    }
-  })();
+  try {
+    await EXPRESS.Start();
+    let out = `\n---\n`;
+    out += `${CS}SYSTEM INITIALIZATION COMPLETE${CR}\n`;
+    out += `GO TO ONE OF THESE URLS in CHROME WEB BROWSER\n`;
+    out += `ADMIN    - ${SERVER_INFO.main}/#/admin\n`;
+    out += `STUDENTS - ${SERVER_INFO.client}\n`;
+    out += `---\n`;
+    if (typeof callback === 'function') callback(out);
+    console.log(out);
+  } catch (err) {
+    console.log(PR, `${CC}${err}${CR}`);
+    console.log(PR, `... exiting with errors\n`);
+    process.exit(0);
+  }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  */
-URSYS.StartNetwork = () => {
+URSYS.StartNetwork = async () => {
   LOGGER.Write(LPR, `starting network`);
-  UNET.StartNetwork();
+  await UNET.StartNetwork();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** make a zip of the runtime directory

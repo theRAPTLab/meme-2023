@@ -158,5 +158,10 @@ Reviewing the above strategy, we probably don't need to lock-out anything in the
 
 ## May 31 - Adding DBReadOnly indicators to UI
 
+* [x] add READONLY to login panel
+* [x] add READONLY to select model, hide Create Model
+* [x] add READONLY REVIEW MODE to ViewMain, hide Comment and Inquiry buttons
 
+* [x] can make export disappear on drag?
+* [x] add electron status displays for load import w/ instructions
 

@@ -546,7 +546,7 @@ class ViewMain extends React.Component {
     const isDBReadOnly = ADM.IsDBReadOnly();
     let viewStatus;
     viewStatus = isViewOnly ? 'VIEW MODE' : '';
-    viewStatus = isDBReadOnly ? 'READ-ONLY REVIEW MODE' : '';
+    viewStatus = isDBReadOnly ? 'DATABASE ARCHIVE REVIEW MODE' : '';
 
     return (
       <div className={classes.root}>

@@ -233,7 +233,7 @@ class StickyNoteCollection extends React.Component {
     // Mark Comments Read
     const author = ADM.GetAuthorId();
     this.state.comments.forEach(comment => {
-      if (!PMC.HasBeenRead(comment.id, author)) {
+      if (!PMC.HasBeenRead(comment.id, author) && !this.state.isDBReadOnly) {
         PMC.DB_MarkRead(comment.id, author);
       }
     });

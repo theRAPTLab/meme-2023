@@ -162,6 +162,8 @@ class StickyNote extends React.Component {
   }
 
   DoSave() {
+    if (ADM.IsDBReadOnly()) return;
+
     // Automatically mark read by author
     const comment = this.state.comment;
     const author = ADM.GetAuthorId();

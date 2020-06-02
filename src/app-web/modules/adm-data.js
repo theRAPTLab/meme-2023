@@ -256,7 +256,7 @@ ADMData.SyncRemovedData = data => {
         value.forEach(val => {
           const i = adm_db.criteria.findIndex(c => c.id === val.id);
           adm_db.criteria.splice(i, 1);
-        })
+        });
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
     }
@@ -456,7 +456,6 @@ ADMData.DB_AddGroup = groupName => {
     name: groupName
   });
   return UR.DBQuery('add', { groups: group });
-
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -664,7 +663,7 @@ ADMData.Logout = () => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.IsLoggedOut = () => {
-  return (!SESSION.IsStudent() && !SESSION.IsTeacher());
+  return !SESSION.IsStudent() && !SESSION.IsTeacher();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.IsValidLogin = hashedToken => {
@@ -676,6 +675,9 @@ ADMData.IsValidLogin = hashedToken => {
  *  The user's group grants the priviledges
  */
 ADMData.IsViewOnly = () => {
+  // viewonly mode if SESSION is set
+  if (ADMData.IsDBReadOnly()) return true;
+  // otherwise, see if we're readonly based on credentials
   const authorId = ADMData.GetAuthorId();
   const authorGroup = ADMData.GetGroupByStudent(authorId); // selectedStudentId
   const authorGroupId = authorGroup ? authorGroup.id : '';
@@ -683,6 +685,7 @@ ADMData.IsViewOnly = () => {
   const modelGroupId = model ? model.groupId : '';
   return authorGroupId !== modelGroupId;
 };
+ADMData.IsDBReadOnly = () => SESSION.IsDBReadOnly();
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Returns studentId or teacheId depending on who's logged in.
@@ -690,7 +693,7 @@ ADMData.IsViewOnly = () => {
 ADMData.GetAuthorId = () => {
   if (SESSION.IsStudent()) return ASET.selectedStudentId;
   if (SESSION.IsTeacher()) return ASET.selectedTeacherId;
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Returns logged in user name, normalizing the case to initial caps.
@@ -1015,7 +1018,6 @@ ADMData.DB_NewCriteria = (data, cb) => {
     }
   });
 
-
   /* OLD CODE
   const id = GenerateUID('cr');
   if (classroomId === undefined) {
@@ -1087,8 +1089,8 @@ ADMData.DB_UpdateCriteriaList = criteriaList => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.DB_CriteriaDelete = critId => {
-  return UR.DBQuery('remove', { 'criteria': { id: critId } });
-}
+  return UR.DBQuery('remove', { criteria: { id: critId } });
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// SENTENCE STARTERS
@@ -1167,7 +1169,7 @@ ADMData.GetSentenceStarter = () => {
  */
 ADMData.DB_RatingsAdd = (classroomId, ratingsDefObj) => {
   return UR.DBQuery('add', { ratingsDefinitions: ratingsDefObj });
-}
+};
 
 /**
  *  @param {Integer} classroomId - The classroom this rating belongs to

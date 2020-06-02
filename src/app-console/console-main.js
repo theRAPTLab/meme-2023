@@ -156,7 +156,8 @@ function createWindow() {
         return;
       }
       const file = files[0];
-      if (!(file.type === 'application/zip' || file.name.endsWith('MEME.ZIP'))) {
+      console.log('check ft', file.type, 'file.name.ends', file.name.endsWith('MEME.ZIP'));
+      if (!(file.type === 'application/zip' && file.name.endsWith('MEME.ZIP'))) {
         const error = `INVALID FILE. Must be zip with extension .MEME.ZIP`;
         ipcEvent.sender.send('mainalert', error);
         ipcEvent.returnValue = { error };

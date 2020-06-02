@@ -211,7 +211,7 @@ SESSION.DecodeAndSet = token => {
 SESSION.Clear = () => {
   if (DBG) console.log('Clearing session');
   m_current_name = undefined;
-  m_current_idsobj = undefined;
+  m_current_idsobj = {};
   m_access_key = undefined;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

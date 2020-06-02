@@ -377,7 +377,6 @@ PMCData.SyncUpdatedData = data => {
           };
           const i = a_evidence.findIndex(e => e.id === id);
           a_evidence.splice(i, 1, evlink);
-console.log('...SyncUpdateData: evidence was updated');
           dataWasUpdated = true;
           break;
         default:
@@ -401,7 +400,6 @@ console.log('...SyncUpdateData: evidence was updated');
   }); // syncitems
 
   if (dataWasUpdated) {
-    console.log('SyncUpdatedData=>BuildModel')
     PMCData.BuildModel();
   }
 

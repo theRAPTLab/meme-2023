@@ -149,6 +149,7 @@ class StickyNoteCollection extends React.Component {
     this.state = {
       isHidden: true,
       isBeingEdited: false,
+      isDBReadOnly: false,
       comments: [],
       top: 0,
       left: 0,
@@ -185,9 +186,10 @@ class StickyNoteCollection extends React.Component {
   DoOpenSticky(data) {
     if (DBG) console.log(PKG, 'DoOpenSticky', data);
     const { refId, x, y } = data;
+    const isDBReadOnly = ADM.IsDBReadOnly();
     let isBeingEdited = false;
     const comments = PMC.GetComments(refId);
-    if (comments.length < 1) {
+    if (comments.length < 1 && !isDBReadOnly) {
       // if no comments yet, add an empty comment automatically
       const comment = this.NewComment(refId);
       PMC.DB_CommentAdd(refId, comment);
@@ -197,6 +199,7 @@ class StickyNoteCollection extends React.Component {
       comments,
       isHidden: false,
       isBeingEdited,
+      isDBReadOnly,
       top: y,
       left: x - 375, // width of stickyonotecard HACK!!!
       refId
@@ -287,7 +290,7 @@ class StickyNoteCollection extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { comments, isHidden, isBeingEdited, top, left, refId } = this.state;
+    const { comments, isHidden, isBeingEdited, isDBReadOnly, top, left, refId } = this.state;
     return (
       <Draggable>
         <Paper className={classes.stickynotePaper} hidden={isHidden} style={{ top, left }}>
@@ -313,7 +316,7 @@ class StickyNoteCollection extends React.Component {
             size="small"
             style={{ margin: '5px' }}
             variant="outlined"
-            hidden={isBeingEdited}
+            hidden={isBeingEdited || isDBReadOnly}
             onClick={this.OnReplyClick}
           >
             Comment

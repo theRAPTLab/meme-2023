@@ -116,8 +116,10 @@ class StickyNote extends React.Component {
     const authorGroup = ADM.GetGroupByStudent(comment.author);
     const isAuthor = currentGroup === authorGroup;
     const isTeacher = ADM.IsTeacher();
-    let allowedToEdit = isAuthor;
-    let allowedToDelete = isAuthor || isTeacher; // REVIEW: Only teachers are allowed to delete?
+    const isDBReadOnly = ADM.IsDBReadOnly();
+
+    let allowedToEdit = isAuthor && !isDBReadOnly;
+    let allowedToDelete = (isAuthor || isTeacher) && !isDBReadOnly; // REVIEW: Only teachers are allowed to delete?
     if (comment.text === '') {
       if (comment.author.toUpperCase() === ADM.GetAuthorId()) { // force UpperCase for backward compatibility
         // automatically turn on editing if this is a new empty comment

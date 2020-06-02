@@ -121,10 +121,6 @@ class StickyNoteButton extends React.Component {
     const { classes } = this.props;
     const iconCSS = isOpen ? classes.stickynoteIconOpen : classes.stickynoteIcon;
 
-    // If DBReadOnly mode, then kill the button
-    const isDBReadOnly = ADM.IsDBReadOnly();
-    if (isDBReadOnly) return <div />;
-
     // Figure out which icon to show
     let icon;
     if (hasNoComments) {

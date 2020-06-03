@@ -11,6 +11,7 @@
   "scripts": {
     "start": "node meme",
     "dev": "node meme dev",
+    "production": "node meme production",
     "doc": "node meme doc",
     "electron": "node meme electron",
     "package": "node meme package",

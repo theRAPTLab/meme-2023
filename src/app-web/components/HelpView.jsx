@@ -92,10 +92,8 @@ Evidence Links should describe how a resource supports or contradicts your model
 
 ###### Add a Comment
 1. Click on the comment icon
-      `,
-      credittext: `
-
-###### About MEME:
+---`,
+      credittext: `###### About MEME:
 
 **About** -- The Model and Evidence Mapping Environment (**MEME**) was developed as part of the Scaffolding Explanations and Epistemic Development for Systems (**SEEDS**) project, a collaborative project that was funded by the National Science Foundation under award [1761019](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1761019&HistoricalAwards=false) to Joshua Danish, Ravit Duncan, Cindy Hmelo-Silver and Clark Chinn.
 

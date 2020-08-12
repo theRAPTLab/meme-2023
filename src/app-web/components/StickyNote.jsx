@@ -65,6 +65,7 @@ import UR from '../../system/ursys';
 import ADM from '../modules/data';
 import PMC from '../modules/pmc-data';
 import ASET from '../modules/adm-settings';
+import MDReactComponent from 'markdown-react-js';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -119,7 +120,8 @@ class StickyNote extends React.Component {
     let allowedToEdit = isAuthor && !isDBReadOnly;
     let allowedToDelete = (isAuthor || isTeacher) && !isDBReadOnly; // REVIEW: Only teachers are allowed to delete?
     if (comment.text === '') {
-      if (comment.author.toUpperCase() === ADM.GetAuthorId()) { // force UpperCase for backward compatibility
+      if (comment.author.toUpperCase() === ADM.GetAuthorId()) {
+        // force UpperCase for backward compatibility
         // automatically turn on editing if this is a new empty comment
         // AND we are the author
         this.DoEditStart();
@@ -177,7 +179,8 @@ class StickyNote extends React.Component {
     } else {
       // just mark read
       // but first make sure the comment is valid (has been saved and already established an id)
-      if (comment.id === undefined) throw Error('StickyNote.DoSave trying to mark read a comment with no id', comment.text);
+      if (comment.id === undefined)
+        throw Error('StickyNote.DoSave trying to mark read a comment with no id', comment.text);
       PMC.DB_MarkRead(comment.id, author);
     }
   }
@@ -349,7 +352,9 @@ class StickyNote extends React.Component {
           <Grid container>
             <Grid item xs={3}>
               <Typography variant="subtitle2" className={classes.stickynoteCardAuthor}>
-                {`${ADM.GetStudentName(comment.author)} ${ADM.GetGroupNameByStudent(comment.author)}`}
+                {`${ADM.GetStudentName(comment.author)} ${ADM.GetGroupNameByStudent(
+                  comment.author
+                )}`}
               </Typography>
               <Typography variant="caption" className={classes.stickynoteCardLabel}>
                 {`${timestring}`}
@@ -363,8 +368,12 @@ class StickyNote extends React.Component {
                 <div className={classes.stickynoteCardCriteria} title={criteriaDescription}>
                   {criteriaDisplay}
                 </div>
-                <div hidden={!isBeingEdited} className={classes.stickynoteCardCriteriaDescription}>
-                  {criteriaDescription}
+                <div hidden={!isBeingEdited}>
+                  <MDReactComponent
+                    className={classes.stickynoteCardCriteriaDescription}
+                    text={criteriaDescription}
+                    markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
+                  />
                 </div>
               </div>
               <MuiThemeProvider theme={theme}>

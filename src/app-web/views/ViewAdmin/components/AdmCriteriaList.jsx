@@ -24,6 +24,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../../components/MEMEStyles';
 import UR from '../../../../system/ursys';
+import MDReactComponent from 'markdown-react-js';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -73,6 +74,8 @@ class CriteriaList extends React.Component {
                   <TextField
                     value={crit.description}
                     placeholder="Description"
+                    multiline
+                    rows={2}
                     style={{ width: '20em' }}
                     onChange={e => UpdateField(crit.id, 'description', e.target.value)}
                   />
@@ -86,7 +89,12 @@ class CriteriaList extends React.Component {
             ) : (
               <TableRow key={crit.id}>
                 <SmTableCell>{crit.label}</SmTableCell>
-                <SmTableCell>{crit.description}</SmTableCell>
+                <SmTableCell>
+                  <MDReactComponent
+                    text={crit.description}
+                    markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
+                  />
+                </SmTableCell>
               </TableRow>
             )
           )}

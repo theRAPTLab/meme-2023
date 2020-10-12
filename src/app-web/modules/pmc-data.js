@@ -88,6 +88,7 @@ let h_evidenceByResource = new Map(); // evidence id array associated with each 
 let h_evidenceByMech = new Map(); // links to evidence by mechanism id
 let h_propByResource = new Map(); // hash of props to a given resource
 let h_mechByResource = new Map(); // hash of mechs to a given resource
+let h_evlinkCountByResource = new Map(); // look up number of evidence links added to a resource
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -158,6 +159,7 @@ PMCData.InitializeModel = (model, admdb) => {
         case 'prop':
           g.setNode(obj.id, {
             name: obj.name,
+            propType: obj.propType,
             description: obj.description
           });
           if (obj.parent) {
@@ -213,6 +215,7 @@ PMCData.InitializeModel = (model, admdb) => {
 
   // data and view are now stable
   // on first load, move visuals to saved places
+  // This is one time view state restoration, which is not part of the SVGView.DoAppLoop.
   if (data.visuals) {
     data.visuals.forEach(vstate => {
       const id = String(vstate.id);
@@ -234,6 +237,9 @@ PMCData.InitializeModel = (model, admdb) => {
     });
     UR.Publish('PROP_MOVED', { visuals: data.visuals });
   }
+
+  // Used by PrintMain to zoom out
+  UR.Publish('MODEL_VIEW_UPDATED');
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -261,6 +267,7 @@ PMCData.SyncAddedData = data => {
         case 'prop':
           m_graph.setNode(value.id, {
             name: value.name,
+            propType: value.propType,
             description: value.description
           });
           f_NodeSetParent(value.id, value.parent); // enforces type
@@ -273,7 +280,7 @@ PMCData.SyncAddedData = data => {
           });
           break;
         case 'evidence':
-          const { id, propId, mechId, rsrcId, numberLabel, rating, note, imageURL } = value;
+          const { id, propId, mechId, rsrcId, numberLabel, rating, why, note, imageURL } = value;
           a_evidence.push({
             id,
             propId,
@@ -281,6 +288,7 @@ PMCData.SyncAddedData = data => {
             rsrcId,
             numberLabel,
             rating,
+            why,
             note,
             imageURL
           });
@@ -293,7 +301,6 @@ PMCData.SyncAddedData = data => {
 
     if (subkey === 'comments') {
       const comment = PMCObj.Comment(value);
-      console.log('....adding comment', comment);
       a_comments.push(comment);
       UR.Publish('DATA_UPDATED');
     }
@@ -319,6 +326,10 @@ PMCData.SyncUpdatedData = data => {
   if (ASET.selectedModelId === '' || m_graph === undefined) return;
   // skip update if data is for a different model
   if (data.pmcDataId !== ASET.selectedPMCDataId) return;
+  // skip update if no data is changed
+  // This is necessary so that we can skip an extra BuildModel due to
+  // admData changing the modification date of models.
+  let dataWasUpdated = false;
 
   const syncitems = DATAMAP.ExtractSyncData(data);
   syncitems.forEach(item => {
@@ -331,9 +342,11 @@ PMCData.SyncUpdatedData = data => {
         case 'prop':
           m_graph.setNode(value.id, {
             name: value.name,
+            propType: value.propType,
             description: value.description
           });
           f_NodeSetParent(value.id, value.parent);
+          dataWasUpdated = true;
           break;
         case 'mech':
           // 1. Remove the old edge first.
@@ -346,9 +359,10 @@ PMCData.SyncUpdatedData = data => {
             name: value.name,
             description: value.description
           });
+          dataWasUpdated = true;
           break;
         case 'evidence':
-          const { id, propId, mechId, rsrcId, numberLabel, rating, note, imageURL } = value;
+          const { id, propId, mechId, rsrcId, numberLabel, rating, why, note, imageURL } = value;
           const evlink = {
             id,
             propId,
@@ -356,16 +370,17 @@ PMCData.SyncUpdatedData = data => {
             rsrcId,
             numberLabel,
             rating,
+            why,
             note,
             imageURL
           };
           const i = a_evidence.findIndex(e => e.id === id);
           a_evidence.splice(i, 1, evlink);
+          dataWasUpdated = true;
           break;
         default:
           throw Error('unexpected proptype');
       }
-      PMCData.BuildModel();
     }
 
     if (subkey === 'comments') {
@@ -373,7 +388,8 @@ PMCData.SyncUpdatedData = data => {
       const i = a_comments.findIndex(c => c.id === value.id);
       if (i < 0) throw Error('Trying to update non-existent comments');
       const comment = Object.assign(a_comments[i], newComment);
-      a_comments.splice(i, 1, comment); 
+      a_comments.splice(i, 1, comment);
+      dataWasUpdated = true;
       UR.Publish('DATA_UPDATED');
     }
 
@@ -381,6 +397,11 @@ PMCData.SyncUpdatedData = data => {
       // marked read really doesn't get updates
     }
   }); // syncitems
+
+  if (dataWasUpdated) {
+    PMCData.BuildModel();
+  }
+
   if (DBG && data['pmcData.comments']) console.log('PMCData.comments update');
   // do stuff here
 
@@ -439,7 +460,15 @@ PMCData.SyncRemovedData = data => {
     }
   });
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** URSYS: DATABASE Call
+ * Wrap the DBQuery call so that we can record model modification.
+ * Call UR.DBQuery directly if you don't want the model modification date to be updated.
+ */
+PMCData.UR_DBQuery = (cmd, data) => {
+  UR.Publish('ADM_MODEL_MODIFIED', { modelId: ASET.selectedModelId }); // Update modification date.
+  return UR.DBQuery(cmd, data);
+}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** SyncData Utility Function.
  *  Handles the case where parent may be undefined, and we still want to set it
@@ -521,34 +550,55 @@ PMCData.BuildModel = () => {
     h_evidenceByMech.set(mechId, evidenceLinkArray);
   });
 
+
+  /*/
+   *  Update h_evlinkCountByResource with next two loops as well.
+   *  otherwise, we're walking down these arrays twice
+   *
+   *  Used by Resource Library to display number of links each
+   *  resource has.
+  /*/
+  h_evlinkCountByResource = new Map();
+
   /*/
    *  Update h_propByResource lookup table to
-   *  look up props that are linked to a particular piece of evidence
+   *  look up props that are linked to a particular resource
   /*/
   h_propByResource = new Map();
   h_evidenceByProp.forEach((evArr, propId) => {
-    if (evArr) {
+    if (evArr && (propId !== null)) {
       evArr.forEach(ev => {
         let propIds = h_propByResource.get(ev.rsrcId);
         if (propIds === undefined) propIds = [];
         if (!propIds.includes(propId)) propIds.push(propId);
         h_propByResource.set(ev.rsrcId, propIds);
+
+        // update count
+        let count = h_evlinkCountByResource.get(ev.rsrcId) || 0;
+        count++;
+        h_evlinkCountByResource.set(ev.rsrcId, count);
       });
     }
   });
 
   /*/
-   *  Update h_propByResource lookup table to
-   *  look up props that are linked to a particular piece of evidence
+   *  Update h_mechByResource lookup table to
+   *  look up mechs that are linked to a particular resource
   /*/
   h_mechByResource = new Map();
   h_evidenceByMech.forEach((evArr, mechId) => {
-    if (evArr) {
+    if (evArr && (mechId !== null)) {
       evArr.forEach(ev => {
+        console.log('pmc-data checking mechId', mechId);
         let mechIds = h_mechByResource.get(ev.rsrcId);
         if (mechIds === undefined) mechIds = [];
         if (!mechIds.includes(mechId)) mechIds.push(mechId);
         h_mechByResource.set(ev.rsrcId, mechIds);
+
+        // update count
+        let count = h_evlinkCountByResource.get(ev.rsrcId) || 0;
+        count++;
+        h_evlinkCountByResource.set(ev.rsrcId, count);
       });
     }
   });
@@ -567,16 +617,7 @@ PMCData.BuildModel = () => {
    *  Now update all evidence link counts
   /*/
   a_resources.forEach(resource => {
-    let props = h_propByResource.get(resource.id);
-    if (props) {
-      resource.links = props.length;
-    } else {
-      resource.links = 0;
-    }
-    let mechs = h_mechByResource.get(resource.id);
-    if (mechs) {
-      resource.links += mechs.length;
-    }
+    resource.links = h_evlinkCountByResource.get(resource.id);
   });
   UR.Publish('DATA_UPDATED');
 
@@ -716,11 +757,14 @@ PMCData.MechById = id => {
 PMCData.PMC_PropAdd = newPropObj => {
   const pmcDataId = ASET.selectedPMCDataId;
   const propObj = Object.assign(newPropObj, { type: 'prop' });
+  // Set propType for backward compatibility
+  // Automaticlaly set proptype to COMPONENT if none was defined
+  propObj.propType = newPropObj.propType || DATAMAP.PMC_MODELTYPES.COMPONENT.id; // default to component
   UTILS.RLog(
     'PropertyAdd',
-    `name: "${newPropObj.name}" description: "${newPropObj.description}" with parent "${newPropObj.parent}"`
+    `name: "${newPropObj.name}" propType: "${newPropObj.propType}" description: "${newPropObj.description}" with parent "${newPropObj.parent}"`
   );
-  return UR.DBQuery('add', {
+  return PMCData.UR_DBQuery('add', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: propObj
@@ -750,14 +794,15 @@ PMCData.PMC_PropUpdate = (propId, newData) => {
   // make a copy of the prop with overwritten new data
   // local data will be updated on DBSYNC event, so don't write it here
   const propData = Object.assign(prop, newData, { id: numericId }); // id last to make sure we're using a cleaned one
+  propData.propType = propData.propType || DATAMAP.PMC_MODELTYPES.COMPONENT.id; // default to component
   const pmcDataId = ASET.selectedPMCDataId;
   UTILS.RLog(
     'PropertyEdit',
-    `name: "${propData.name}" description: "${propData.description}" with parent "${propData.parent}"`
+    `name: "${propData.name}" propType: "${propData.propType}" description: "${propData.description}" with parent "${propData.parent}"`
   );
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
-  return UR.DBQuery('update', {
+  return PMCData.UR_DBQuery('update', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: propData
@@ -766,7 +811,7 @@ PMCData.PMC_PropUpdate = (propId, newData) => {
   // round-trip will call BuildModel() for us
 
   /** THIS METHOD DID NOT EXIST BEFORE **/
-};
+};;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  @param {Integer} propId - id of the prop being updated
@@ -813,7 +858,7 @@ PMCData.PMC_PropDelete = propId => {
 
   // 7. Remove the actual prop
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('remove', {
+  return PMCData.UR_DBQuery('remove', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: { id: propId }
@@ -870,7 +915,7 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
     description
   };
   UTILS.RLog('MechanismAdd', `from: "${sourceId}" to: "${targetId}" label: "${label}" description: "${description}"`);
-  return UR.DBQuery('add', {
+  return PMCData.UR_DBQuery('add', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: mechObj
@@ -912,7 +957,7 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
     target: Number(targetId),
     description
   };
-  return UR.DBQuery('update', {
+  return PMCData.UR_DBQuery('update', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: mechObj
@@ -976,7 +1021,7 @@ PMCData.PMC_MechDelete = mechId => {
   UTILS.RLog('MechanismDelete', mechId);
 
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('remove', {
+  return PMCData.UR_DBQuery('remove', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: { id: Number(mech.id) }
@@ -989,6 +1034,7 @@ PMCData.PMC_MechDelete = mechId => {
  *  Called by GenerateNumberLabel, below
  */
 function NumberLabelExists(numberLabel, evlinks) {
+  if (evlinks === undefined) return false;
   return evlinks.find(ev => ev.numberLabel === numberLabel);
 }
 /**
@@ -1002,7 +1048,7 @@ function GenerateNumberLabel(rsrcId) {
   const prefix = PMCData.PMC_GetResourceIndex(rsrcId);
   // 2. Ordinal value of evlink in evlink list, e.g. "c"
   const evlinks = PMCData.GetEvLinksByResourceId(rsrcId);
-  let numberOfEvLinks = evlinks.length;
+  let numberOfEvLinks = evlinks ? evlinks.length : 0;
   let letter;
   let numberLabel;
   do {
@@ -1030,12 +1076,13 @@ PMCData.PMC_AddEvidenceLink = (evObjData, cb) => {
     rsrcId: evObjData.rsrcId,
     numberLabel,
     note: evObjData.note,
+    why: evObjData.why,
     imageURL: evObjData.imageURL
   });
-  
+
   UTILS.RLog('EvidenceCreate', evObj.rsrcId); // note is empty at this point
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('add', {
+  return PMCData.UR_DBQuery('add', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: evObj
@@ -1093,7 +1140,7 @@ PMCData.PMC_DuplicateEvidenceLink = (evId, cb) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_DeleteEvidenceLink = evId => {
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('remove', {
+  return PMCData.UR_DBQuery('remove', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: { id: evId }
@@ -1184,12 +1231,12 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
   const evData = Object.assign(ev, cleanedData);
   const pmcDataId = ASET.selectedPMCDataId;
   UTILS.RLog('EvidenceUpdate',
-    `rsrcId: ${evData.rsrcId} propId: ${evData.propId} mechId: ${evData.mechId} numberLabel: ${evData.numberLabel} rating: ${evData.rating} note: ${evData.note}  imageURL: ${evData.imageURL}`
+    `rsrcId: ${evData.rsrcId} propId: ${evData.propId} mechId: ${evData.mechId} numberLabel: ${evData.numberLabel} rating: ${evData.rating} why: ${evData.why} note: ${evData.note}  imageURL: ${evData.imageURL}`
   );
 
   // we need to update pmcdata which looks like
   // { id, entities:[ { id, name } ] }
-  return UR.DBQuery('update', {
+  return PMCData.UR_DBQuery('update', {
     'pmcData.entities': {
       id: pmcDataId,
       entities: evData
@@ -1201,27 +1248,33 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
 /**
  *  @param {String} evId
  *  @param {String||undefined} propId - Set propId to `undefined` to unlink
+ *  @return promise
  */
 PMCData.SetEvidenceLinkPropId = (evId, propId) => {
   const newData = {
     propId,
     mechId: null // clear this in case it was set
   };
-  PMCData.PMC_EvidenceUpdate(evId, newData);
   if (propId !== undefined)
     // Only log when setting, not when programmatically clearing
     UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Property "${propId}"`);
+  return PMCData.PMC_EvidenceUpdate(evId, newData);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  @param {String} evId
+ *  @param {String||undefined} mechId - Set mechId to `undefined` to unlink
+ *  @return promise
+ */
 PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
   const newData = {
     propId: null, // clear this in case it was set
     mechId
   };
-  PMCData.PMC_EvidenceUpdate(evId, newData);
   if (mechId !== undefined)
     // Only log when setting, not when programmatically clearing
     UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Mechanism "${mechId}"`);
+  return PMCData.PMC_EvidenceUpdate(evId, newData);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkNote = (evId, note) => {
@@ -1238,6 +1291,25 @@ PMCData.SetEvidenceLinkRating = (evId, rating) => {
   };
   PMCData.PMC_EvidenceUpdate(evId, newData);
   UTILS.RLog('EvidenceSetRating', `Set evidence "${evId}" to "${rating}"`);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.SetEvidenceLinkWhy = (evId, why) => {
+  const newData = {
+    why
+  };
+  PMCData.PMC_EvidenceUpdate(evId, newData);
+  UTILS.RLog('EvidenceSetWhy', `Set evidence rating why to "${why}"`);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// This comebines the Description Note and Why cllas into a single call
+/// to reduce the number of DB updatess
+PMCData.SetEvidenceLinkTextFields = (evId, data) => {
+  const newData = {
+    note: data.note,
+    why: data.why
+  };
+  UTILS.RLog('EvidenceSetTextFields', `Saving note "${data.note}" and why "${data.why}"`);
+  return PMCData.PMC_EvidenceUpdate(evId, newData);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1264,7 +1336,7 @@ PMCData.DB_CommentAdd = (refId, commentData, cb) => {
     `id:${newComment.id} "${commentData.text}" with criteria "${commentData.criteriaId}" on "${refId}"`
   );
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('add', {
+  return PMCData.UR_DBQuery('add', {
     'pmcData.comments': {
       id: pmcDataId,
       comments: newComment
@@ -1291,14 +1363,14 @@ PMCData.DB_CommentUpdate = (refId, comment, cb) => {
 
   // update existing comment
   const updatedComment = Object.assign(origComment, comment);
-  
+
   UTILS.RLog(
     'CommentUpdate',
     `id:${updatedComment.id} "${updatedComment.text}" with criteria "${updatedComment.criteriaId}" on "${refId}"`
   );
 
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('update', {
+  return PMCData.UR_DBQuery('update', {
     'pmcData.comments': {
       id: pmcDataId,
       comments: updatedComment
@@ -1334,7 +1406,7 @@ PMCData.DB_CommentsUpdate = (refId, comments, cb) => {
 PMCData.DB_CommentDelete = commentId => {
   const pmcDataId = ASET.selectedPMCDataId;
   UTILS.RLog('CommentDelete', `id:${commentId} from model "${pmcDataId}"`);
-  return UR.DBQuery('remove', {
+  return PMCData.UR_DBQuery('remove', {
     'pmcData.comments': {
       id: pmcDataId,
       comments: { id: commentId }
@@ -1372,7 +1444,7 @@ PMCData.DB_MarkRead = (commentId, author) => {
   });
   UTILS.RLog('CommentMarkedRead', `id:${commentId} read by "${author}"`);
   const pmcDataId = ASET.selectedPMCDataId;
-  return UR.DBQuery('add', {
+  return PMCData.UR_DBQuery('add', {
     'pmcData.markedread': {
       id: pmcDataId,
       markedread: newMarkedRead
@@ -1382,7 +1454,7 @@ PMCData.DB_MarkRead = (commentId, author) => {
 /**
  *  Checks if the comment referenced by commentId has been read by the author
  *  @param {Integer} commentId - db id of the comment object
- *  @param {String} author - token 
+ *  @param {String} author - token
  */
 PMCData.HasBeenRead = (commentId, author) => {
   return a_markedread.find(m => {
@@ -1393,7 +1465,7 @@ PMCData.HasBeenRead = (commentId, author) => {
  *  Checks if the comment referenced by commentId has been read by the author
  *  Used to set StickyNoteButton status.
  *  @param {Array} comments - an array of Comment objects
- *  @param {String} author - token 
+ *  @param {String} author - token
  */
 PMCData.HasUnreadComments = (comments, author) => {
   if (!Array.isArray(comments)) throw Error('comments is not an array')

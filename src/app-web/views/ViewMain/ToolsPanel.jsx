@@ -7,6 +7,7 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 // Material UI Theming
@@ -15,6 +16,8 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Material UI Elements
+import { indigo } from '@material-ui/core/colors';
+import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Fab from '@material-ui/core/Fab';
@@ -22,9 +25,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import TreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
 import Typography from '@material-ui/core/Typography';
-
 // Material UI Icons
-import AddIcon from '@material-ui/icons/Add';
+import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // MEME Modules and Utils
@@ -33,13 +35,25 @@ import UR from '../../../system/ursys';
 import DEFAULTS from '../../modules/defaults';
 import DATA from '../../modules/data';
 import ADM from '../../modules/data';
+import DATAMAP from '../../../system/common-datamap';
 
-const { CoerceToEdgeObj } = DEFAULTS;
+const { COLOR, CoerceToEdgeObj } = DEFAULTS;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PKG = 'ToolsPanel:';
+
+const SmallFab = withStyles(theme => ({
+  root: {
+    margin: '5px 0'
+  },
+  label: {
+    fontSize: '10px',
+    textTransform: 'capitalize',
+    color: '#fff'
+  }
+}))(props => <Fab {...props} />);
 
 // Customized TreeItem Component with smaller font
 const SmallTreeItem = withStyles(theme => ({
@@ -63,6 +77,7 @@ class ToolsPanel extends React.Component {
     this.DoMechHoverStart = this.DoMechHoverStart.bind(this);
     this.DoMechHoverEnd = this.DoMechHoverEnd.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
+    this.OnOutcomeAdd = this.OnOutcomeAdd.bind(this);
     this.OnComponentAdd = this.OnComponentAdd.bind(this);
     this.OnMechAdd = this.OnMechAdd.bind(this);
     this.RenderComponentsList = this.RenderComponentsList.bind(this);
@@ -134,6 +149,11 @@ class ToolsPanel extends React.Component {
     });
   }
 
+  // User clicked on "(+) Add Outcome" drawer button
+  OnOutcomeAdd() {
+    UR.Publish('OUTCOME_ADD');
+  }
+
   // User clicked on "(+) Add Component" drawer button
   OnComponentAdd() {
     UR.Publish('PROP_ADD');
@@ -168,8 +188,18 @@ class ToolsPanel extends React.Component {
     DATA.VM_SelectOneMech(vmech);
   }
 
-  RenderComponentsList(propIds) {
-    return propIds.map(propId => {
+  RenderComponentsList(propIds, filterByPropType) {
+    let relevantProps = propIds.filter(id => {
+      const prop = DATA.Prop(id);
+      if (filterByPropType === DATAMAP.PMC_MODELTYPES.COMPONENT.id) {
+        return (prop.propType === DATAMAP.PMC_MODELTYPES.COMPONENT.id)
+          || (prop.propType === undefined); // for backward compatibility
+        // project data that predated propTypes assumed all props were components
+      } else {
+        return prop.propType === filterByPropType;
+      }
+    });
+    return relevantProps.map(propId => {
       return this.RenderComponentsListItem(propId);
     });
   }
@@ -191,7 +221,11 @@ class ToolsPanel extends React.Component {
         key={propId}
         className={ClassNames(
           classes.treeItem,
-          isSub ? classes.treeSubPropItem : classes.treePropItem,
+          isSub
+            ? classes.treeSubPropItem
+            : prop.propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
+            ? classes.treeOutcomeItemColor
+            : classes.treePropItemColor,
           selectedPropId === propId ? classes.treeItemSelected : '',
           hoveredPropId === propId ? classes.treeItemHovered : ''
         )}
@@ -223,7 +257,9 @@ class ToolsPanel extends React.Component {
       const targetObj = DATA.Prop(mechId.w);
       // protect against corrupt data
       const source = sourceObj ? sourceObj.name : 'missing prop';
+      const sourceType = sourceObj ? sourceObj.propType : 'missing prop';
       const target = targetObj ? targetObj.name : 'missing prop';
+      const targetType = sourceObj ? targetObj.propType : 'missing prop';
       i++;
       return (
         <div
@@ -245,18 +281,23 @@ class ToolsPanel extends React.Component {
             UR.Publish('MECH_HOVER_END', { mechId: mechId });
           }}
         >
-          <span className={classes.treePropItemColor}>{source} </span>
+          <span className={sourceType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
+            ? classes.treeOutcomeItemColor
+            : classes.treePropItemColor}>{source} </span>
           {mech.name}
-          <span className={classes.treePropItemColor}> {target}</span>
+          <span className={targetType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
+            ? classes.treeOutcomeItemColor
+            : classes.treePropItemColor}> {target}</span>
         </div>
       );
     });
   }
 
   render() {
-    const { classes, isDisabled } = this.props;
+    const { classes, isDisabled, isOpen, toggleOpen } = this.props;
 
-    const componentsList = this.RenderComponentsList(DATA.Components());
+    const outcomesList = this.RenderComponentsList(DATA.Components(), DATAMAP.PMC_MODELTYPES.OUTCOME.id);
+    const componentsList = this.RenderComponentsList(DATA.Components(), DATAMAP.PMC_MODELTYPES.COMPONENT.id);
     const mechanismsList = this.RenderMechanismsList(DATA.AllMechs());
 
     const isViewOnly = ADM.IsViewOnly();
@@ -264,64 +305,114 @@ class ToolsPanel extends React.Component {
     return (
       <Drawer
         className={classes.drawer}
-        variant="permanent"
+        variant="persistent"
         classes={{
           paper: classes.drawerPaper
         }}
         anchor="left"
+        open={isOpen}
       >
-        <TreeView
-          defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultExpandIcon={<ChevronRightIcon />}
-          className={classes.treeView}
-        >
-          <SmallTreeItem nodeId={'components'} label="COMPONENTS">
-            {componentsList}
-          </SmallTreeItem>
-        </TreeView>
-        <Tooltip title="Add Component or Property">
-          <Fab
-            color="primary"
-            size="small"
-            aria-label="Add"
-            className={classes.fab}
-            onClick={this.OnComponentAdd}
-            disabled={isDisabled}
-            hidden={isViewOnly}
+        <div className={clsx(classes.drawerAppBar, classes.toolsPanelAppBar)}>
+          <Button onClick={toggleOpen} color="inherit" size="small" style={{ width: '100%' }}>
+            <DoubleArrowIcon style={{ transform: 'rotate(180deg)' }} />
+            <div style={{ width: '100%', textAlign: 'left' }}></div>
+          </Button>
+        </div>
+        <div className={classes.toolsPanelList}>
+
+          <div
+            className={classes.toolsPanelGroup}
+            style={{ backgroundColor: COLOR.OUTCOME_TOOLSPANEL_BG }}
           >
-            <AddIcon />
-          </Fab>
-        </Tooltip>
-        <Typography align="center" variant="caption" style={{ fontSize: '10px' }} hidden={isViewOnly}>
-          ADD COMPONENT
-        </Typography>
-        <Divider style={{ marginBottom: '20px' }} />
-        <TreeView
-          defaultExpanded={['mechanisms']}
-          defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultExpandIcon={<ChevronRightIcon />}
-          className={classes.treeView}
-        >
-          <SmallTreeItem nodeId={'mechanisms'} label="MECHANISMS">
-            {mechanismsList}
-          </SmallTreeItem>
-        </TreeView>
-        <Tooltip title="Add Mechanism">
-          <Fab
-            color="primary"
-            size="small"
-            aria-label="Add"
-            className={ClassNames(classes.fab, classes.edgeButton)}
-            onClick={this.OnMechAdd}
-            disabled={isDisabled}
-            hidden={isViewOnly}
+            <TreeView
+              defaultCollapseIcon={<ExpandMoreIcon />}
+              defaultExpandIcon={<ChevronRightIcon />}
+              className={classes.treeView}
+            >
+              <SmallTreeItem
+                nodeId={'outcomes'}
+                label={DATAMAP.PMC_MODELTYPES.OUTCOME.plural.toUpperCase()}
+              >
+                {outcomesList}
+              </SmallTreeItem>
+            </TreeView>
+            <SmallFab
+              color="inherit"
+              size="small"
+              variant="extended"
+              aria-label="Add"
+              onClick={this.OnOutcomeAdd}
+              disabled={isDisabled}
+              hidden={isViewOnly}
+              style={{ backgroundColor: COLOR.OUTCOME }}
+            >
+              Add {DATAMAP.PMC_MODELTYPES.OUTCOME.label}
+            </SmallFab>
+          </div>
+
+          <div
+            className={classes.toolsPanelGroup}
+            style={{ backgroundColor: COLOR.MECH_TOOLSPANEL_BG }}
           >
-            <AddIcon />
-          </Fab>
-        </Tooltip>
-        <Typography align="center" variant="caption" style={{ fontSize: '10px' }} hidden={isViewOnly}>
-          ADD MECHANISM
-        </Typography>
+            <TreeView
+              defaultExpanded={['mechanisms']}
+              defaultCollapseIcon={<ExpandMoreIcon />}
+              defaultExpandIcon={<ChevronRightIcon />}
+              className={classes.treeView}
+            >
+              <SmallTreeItem
+                nodeId={'mechanisms'}
+                label={DATAMAP.PMC_MODELTYPES.MECHANISM.plural.toUpperCase()}
+              >
+                {mechanismsList}
+              </SmallTreeItem>
+            </TreeView>
+            <SmallFab
+              color="inherit"
+              size="small"
+              variant="extended"
+              aria-label="Add"
+              onClick={this.OnMechAdd}
+              disabled={isDisabled}
+              hidden={isViewOnly}
+              style={{ backgroundColor: COLOR.MECH }}
+            >
+              Add {DATAMAP.PMC_MODELTYPES.MECHANISM.label}
+            </SmallFab>
+          </div>
+
+          <div
+            className={classes.toolsPanelGroup}
+            style={{ backgroundColor: COLOR.PROP_TOOLSPANEL_BG }}
+          >
+            <TreeView
+              defaultCollapseIcon={<ExpandMoreIcon />}
+              defaultExpandIcon={<ChevronRightIcon />}
+              className={classes.treeView}
+            >
+              <SmallTreeItem
+                nodeId={'components'}
+                label={DATAMAP.PMC_MODELTYPES.COMPONENT.plural.toUpperCase()}
+              >
+                {componentsList}
+              </SmallTreeItem>
+            </TreeView>
+            <SmallFab
+              color="inherit"
+              size="small"
+              variant="extended"
+              aria-label="Add"
+              className={classes.fab}
+              onClick={this.OnComponentAdd}
+              disabled={isDisabled}
+              hidden={isViewOnly}
+              style={{ backgroundColor: COLOR.PROP }}
+            >
+              Add {DATAMAP.PMC_MODELTYPES.COMPONENT.label}
+            </SmallFab>
+          </div>
+
+        </div>
       </Drawer>
     );
   }

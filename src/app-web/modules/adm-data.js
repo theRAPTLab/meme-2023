@@ -60,6 +60,10 @@ ADMData.InitializeData = data => {
   adm_db = data;
   // clear settings
   ASET.clear();
+
+  // Listener
+  UR.Subscribe('ADM_MODEL_MODIFIED', ADMData.OnModelModificationUpdate);
+
   // dbg info
   if (DBG) console.log('DBG:INITIALIZE: adm_db', adm_db);
 };
@@ -113,7 +117,7 @@ ADMData.SyncAddedData = data => {
           adm_db.models.push(model);
           UR.Publish('ADM_DATA_UPDATED', data);
         } else {
-          // Usually tjos fires before DB_NewModel's then() so the model is already added
+          // Usually this fires before DB_NewModel's then() so the model is already added
           if (DBG) console.error(`SyncAddedData: Model ${value.id} already added, skipping`);
         }
         break;
@@ -188,6 +192,7 @@ ADMData.SyncUpdatedData = data => {
       case 'models':
         const model = ADMData.GetModelById(value.id);
         model.dateModified = value.dateModified;
+        UR.Publish('ADM_DATA_UPDATED', data);
         if (model.title !== value.title) {
           model.title = value.title;
           UR.Publish('MODEL_TITLE_UPDATED', { id: value.id, title: value.title });
@@ -251,7 +256,7 @@ ADMData.SyncRemovedData = data => {
         value.forEach(val => {
           const i = adm_db.criteria.findIndex(c => c.id === val.id);
           adm_db.criteria.splice(i, 1);
-        })
+        });
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
     }
@@ -451,7 +456,6 @@ ADMData.DB_AddGroup = groupName => {
     name: groupName
   });
   return UR.DBQuery('add', { groups: group });
-
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -659,7 +663,7 @@ ADMData.Logout = () => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.IsLoggedOut = () => {
-  return (!SESSION.IsStudent() && !SESSION.IsTeacher());
+  return !SESSION.IsStudent() && !SESSION.IsTeacher();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.IsValidLogin = hashedToken => {
@@ -671,13 +675,17 @@ ADMData.IsValidLogin = hashedToken => {
  *  The user's group grants the priviledges
  */
 ADMData.IsViewOnly = () => {
+  // viewonly mode if SESSION is set
+  if (ADMData.IsDBReadOnly()) return true;
+  // otherwise, see if we're readonly based on credentials
   const authorId = ADMData.GetAuthorId();
   const authorGroup = ADMData.GetGroupByStudent(authorId); // selectedStudentId
   const authorGroupId = authorGroup ? authorGroup.id : '';
   const model = ADMData.GetModelById(); // Current model
-  const modelGroupId = model ? model.groupId : '';  
+  const modelGroupId = model ? model.groupId : '';
   return authorGroupId !== modelGroupId;
 };
+ADMData.IsDBReadOnly = () => SESSION.IsDBReadOnly();
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Returns studentId or teacheId depending on who's logged in.
@@ -685,7 +693,7 @@ ADMData.IsViewOnly = () => {
 ADMData.GetAuthorId = () => {
   if (SESSION.IsStudent()) return ASET.selectedStudentId;
   if (SESSION.IsTeacher()) return ASET.selectedTeacherId;
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Returns logged in user name, normalizing the case to initial caps.
@@ -779,7 +787,32 @@ ADMData.DB_NewModel = (data, cb) => {
     cb(rdata);
   });
   */
+}; /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Handles modification date updates for the model
+ * This is called by pmc-data via a UR 'ADM_MODEL_MODIFIED' message
+ * whenver it updates objects in the model, e.g. props, comments
+ *
+ * FIX ME: The new date should be generated and saved on the server side, not client.
+ *
+ * @param {string} date
+ */
+ADMData.OnModelModificationUpdate = data => {
+  if (data === undefined || data.modelId === undefined) throw Error('ADM_MODEL_MODIFIED called with no modelId');
+  ADMData.DB_ModelModificationUpdate(data.modelId);
+}
+ADMData.DB_ModelModificationUpdate = (modelId, date = new Date()) => {
+  return UR.DBQuery('update', {
+    models: {
+      id: modelId,
+      dateModified: date
+    }
+  }).then(() => {
+    // No RLog for model date update
+    // UTILS.RLog('ModelUpdate', `id "${modelId}" to "${title}"`);
+  });
 };
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Handles text input updates for the model title
@@ -968,7 +1001,7 @@ ADMData.CloseModel = () => {
 /**
  *  Creates a new empty criteria object with a unqiue ID.
  *  If data.classroomId is not defined, we use the current selected classroomId
- * 
+ *
  *  @param {Object} data - a ADMObj.Criterion-like data object
  *  @param {Function} cb - callback function will be called
  */
@@ -985,7 +1018,6 @@ ADMData.DB_NewCriteria = (data, cb) => {
     }
   });
 
-  
   /* OLD CODE
   const id = GenerateUID('cr');
   if (classroomId === undefined) {
@@ -1005,6 +1037,17 @@ ADMData.DB_NewCriteria = (data, cb) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetCriteriaByClassroom = (classroomId = ASET.selectedClassroomId) => {
   return adm_db.criteria.filter(crit => crit.classroomId === classroomId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetCriteriaByGroup = groupId => {
+  const classroomId = ADMData.GetClassroomIdByGroup(groupId);
+  return ADMData.GetCriteriaByClassroom(classroomId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetCriteriaByModel = (modelId = ASET.selectedModelId) => {
+  const model = ADMData.GetModelById(modelId);
+  if (model === undefined) return []; // No model loaded
+  return ADMData.GetCriteriaByGroup(model.groupId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetCriteriaLabel = (criteriaId, classroomId = ADMData.GetSelectedClassroomId()) => {
@@ -1033,7 +1076,7 @@ ADMData.DB_UpdateCriteriaList = criteriaList => {
   criteriaList.forEach(crit => {
     ADMData.DB_UpdateCriterion(crit);
   });
-  
+
   /* OLD
   // Remove any deleted criteria
   const updatedCriteriaIds = criteriaList.map(criteria => criteria.id);
@@ -1046,8 +1089,8 @@ ADMData.DB_UpdateCriteriaList = criteriaList => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.DB_CriteriaDelete = critId => {
-  return UR.DBQuery('remove', { 'criteria': { id: critId } });
-}
+  return UR.DBQuery('remove', { criteria: { id: critId } });
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// SENTENCE STARTERS
@@ -1056,7 +1099,7 @@ ADMData.DB_CriteriaDelete = critId => {
 /**
  *  Creates a new empty sentenceStarter with a unqiue ID.
  *  If data.classroomId is not defined, we use the current selected classroomId
- * 
+ *
  *  @param {Object} data - a ADMObj.SentenceStarter-like data object
  */
 ADMData.DB_SentenceStarterNew = data => {
@@ -1068,14 +1111,14 @@ ADMData.DB_SentenceStarterNew = data => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- * 
+ *
  *  @param {Object} sentenceStarter - a ADMObj.SentenceStarter-like data object
  */
 ADMData.DB_SentenceStarterUpdate = sentenceStarter => {
   return UR.DBQuery('update', {
     sentenceStarters: sentenceStarter
   });
-  
+
   /* old code
   const i = adm_db.sentenceStarters.findIndex(ss => ss.id === sentenceStarter.id);
   if (i < 0) {
@@ -1126,7 +1169,7 @@ ADMData.GetSentenceStarter = () => {
  */
 ADMData.DB_RatingsAdd = (classroomId, ratingsDefObj) => {
   return UR.DBQuery('add', { ratingsDefinitions: ratingsDefObj });
-}
+};
 
 /**
  *  @param {Integer} classroomId - The classroom this rating belongs to
@@ -1134,7 +1177,7 @@ ADMData.DB_RatingsAdd = (classroomId, ratingsDefObj) => {
  */
 ADMData.DB_RatingsUpdate = (classroomId, ratingsDef) => {
   const ratingsDefinition = Object.assign(
-    {}, 
+    {},
     adm_db.ratingsDefinitions.find(r => r.classroomId === classroomId),
     { definitions: ratingsDef }
   );
@@ -1155,7 +1198,7 @@ ADMData.DB_RatingsUpdate = (classroomId, ratingsDef) => {
 };
 
 /**
- * @param {Integer} classroomId 
+ * @param {Integer} classroomId
  * @return {Array} [ratingsDefition] -- Array of ratings defintion objects,
  *                                      Returns [] if not found
  */
@@ -1164,7 +1207,7 @@ ADMData.GetRatingsDefinitionObject = classroomId => {
 };
 
 /**
- * @param {Integer} classroomId 
+ * @param {Integer} classroomId
  * @return {Array} [ratingsDefition] -- Array of ratings defintion objects,
  * e.g.{ label: 'Really disagrees!', rating: -3 },
  * Returns [] if not found
@@ -1195,7 +1238,7 @@ ADMData.DB_ResourceAdd = data => {
   });
 };
 /**
- * 
+ *
  *  @param {Object} respource - ADMObj.Resource object
  */
 ADMData.DB_ResourceUpdate = resource => {
@@ -1244,13 +1287,13 @@ ADMData.DB_ClassroomResourceAdd = data => {
   return UR.DBQuery('add', { classroomResources: res });
 };
 /**
- * 
+ *
  *  @param {Object} classroomResource - ADMObj.ClassroomResource object
  */
 ADMData.DB_ClassroomResourceUpdate = classroomResource => {
   return UR.DBQuery('update', {
     classroomResources: classroomResource
-  });  
+  });
 };
 /**
  *  @param {Integer} rsrcId - id of the parent resources
@@ -1263,7 +1306,7 @@ ADMData.DB_ClassroomResourceSet = (rsrcId, checked, classroomId) => {
     // New Classrooms don't have a classroomResource defined by default.
     classroomResource = ADMObj.ClassroomResource({ classroomId });
   }
-    
+
   // Update the resource list
   if (checked) {
     // Add resource
@@ -1272,7 +1315,7 @@ ADMData.DB_ClassroomResourceSet = (rsrcId, checked, classroomId) => {
     // Remove resource
     classroomResource.resources = classroomResource.resources.filter(rsrc => rsrc !== rsrcId);
   }
-  
+
   // Update the DB
   if (classroomResource.id !== undefined) {
     ADMData.DB_ClassroomResourceUpdate(classroomResource);
@@ -1280,7 +1323,7 @@ ADMData.DB_ClassroomResourceSet = (rsrcId, checked, classroomId) => {
     // new classroomResource
     ADMData.DB_ClassroomResourceAdd(classroomResource);
   }
-  
+
   /* old code
   UR.Publish('ADM_DATA_UPDATED');
   */

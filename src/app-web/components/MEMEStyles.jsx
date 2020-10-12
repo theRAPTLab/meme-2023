@@ -1,11 +1,12 @@
-import { blue, green, grey, indigo, orange, red, teal, yellow } from '@material-ui/core/colors';
+import { blue, green, grey, indigo, orange, purple, red, teal, yellow } from '@material-ui/core/colors';
 import { registerMorphableType } from '@svgdotjs/svg.js/src/main';
 import { Hidden } from '@material-ui/core';
 import DEFAULTS from '../modules/defaults';
 
 const { COLOR } = DEFAULTS;
 
-const m_drawerWidth = 100;
+const m_drawerWidth = 110;
+const m_navbarHeight = 40;
 const m_primary = indigo[500];
 const m_selectedColor = indigo[800];
 const m_evidenceColor = teal[100];
@@ -15,6 +16,7 @@ const m_systemTextColor = 'rgba(0,0,0,0.35)';
 const m_systemLabelFontSize = '0.6em';
 const m_systemLabelTextColor = 'rgba(0,0,0,0.25)';
 const m_resourceListWidth = 300;
+const m_evlinkButtonExpandedWidth = 170;
 const m_zResourceList = 1250;
 const m_zSticky = 1500;
 const m_zHelp = 1600;
@@ -35,15 +37,28 @@ const styles = theme => {
       backgroundColor: m_primary
     },
     appBar: {
+      height: `${m_navbarHeight}px`,
       width: `calc(100% - ${m_drawerWidth}px)`,
-      marginLeft: m_drawerWidth
+      left: m_drawerWidth
+    },
+    appBarToolsPanelClosedShift: {
+      width: '100%'
+    },
+    appBarToolbar: {
+      minHeight: `${m_navbarHeight}px`,
+      paddingLeft: '0',
+      paddingRight: '0'
     },
     appBarRight: {
       display: 'inline-flex',
+      flexGrow: 1,
+      justifyContent: 'flex-end',
       marginRight: m_resourceListWidth
     },
     appBarRightExpanded: {
       display: 'inline-flex',
+      flexGrow: 1,
+      justifyContent: 'flex-end',
       marginRight: 0
     },
     drawer: {
@@ -53,8 +68,19 @@ const styles = theme => {
     },
     drawerPaper: {
       width: m_drawerWidth,
-      overflowX: 'hidden',
+      overflow: 'hidden',
       alignItems: 'center'
+    },
+    drawerAppBar: {
+      position: 'fixed',
+      height: `${m_navbarHeight}px`,
+      paddingTop: '3px',
+      fontSize: '0.8em',
+      color: m_systemTextColor,
+      zIndex: m_zResourceList + 1
+    },
+    toolsPanelClosedShift: {
+      marginLeft: -m_drawerWidth
     },
     toolbar: theme.mixins.toolbar,
     content: {
@@ -66,10 +92,6 @@ const styles = theme => {
       flex: 1,
       backgroundColor: '#f0f0ff'
     },
-    fab: {
-      margin: theme.spacing(2),
-      marginBottom: '8px'
-    },
     projectTitle: {
       backgroundColor: 'transparent'
     },
@@ -77,46 +99,58 @@ const styles = theme => {
       color: '#fff',
       backgroundColor: 'transparent'
     },
+    toolsPanelAppBar: {
+      width: m_drawerWidth,
+      backgroundColor: 'white'
+    },
+    toolsPanelList: {
+      width: m_drawerWidth,
+      marginTop: `${m_navbarHeight}px`,
+      overflowY: 'auto'
+    },
+    toolsPanelGroup: {
+      width: '100%',
+      padding: '5px 0 10px 2px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
+    },
+    treeView: {
+      width: '100%'
+    },
     treeItem: {
-      margin: '0 2px 2px -24px',
-      padding: '2px',
+      margin: '0 0 2px -24px',
+      padding: '2px 0',
       fontSize: '10px',
       borderRadius: '2px',
       overflow: 'hidden',
       wordBreak: 'break-all',
       cursor: 'pointer'
     },
-    treeItemHovered: {
-      border: '2px solid',
-      borderColor: orange[800]
-    },
-    treeItemSelected: {
-      border: '2px solid',
-      borderColor: m_selectedColor
-    },
-    treePropItem: {
-      color: indigo[600],
-      backgroundColor: indigo[50]
-    },
+    treeItemSelected: {},
     treePropItemColor: {
-      color: indigo[600]
+      color: COLOR.PROP,
+      backgroundColor: COLOR.PROP_TOOLSPANEL_BG // necessary to trigger hover brightness filter
+    },
+    treeOutcomeItemColor: {
+      color: COLOR.OUTCOME,
+      backgroundColor: COLOR.OUTCOME_TOOLSPANEL_BG // necessary to trigger hover brightness filter
     },
     treeSubPropItem: {
-      marginLeft: '0.5em',
+      margin: '0 0 0 0.5em',
       fontSize: '10px',
       fontStyle: 'italic',
-      color: indigo[300]
+      backgroundColor: 'inherit' // necessary to trigger hover brightness filter
     },
     treeMechItem: {
-      color: orange[800],
-      backgroundColor: orange[50]
+      color: COLOR.MECH,
+      backgroundColor: COLOR.MECH_TOOLSPANEL_BG
     },
-    edgeButton: {
-      backgroundColor: orange[500],
-      '&:hover': { backgroundColor: orange[700] }
+    treeItemHovered: {
+      filter: 'brightness(90%) saturate(200%)'
     },
     edgeDialogWindowLabel: {
-      fontSize: m_systemLabelFontSize,
+      fontSize: '0.8em',
       color: m_systemTextColor,
       marginBottom: '-10px',
       marginTop: '-1em'
@@ -142,19 +176,26 @@ const styles = theme => {
     edgeDialogInput: {
       display: 'flex',
       height: '3em',
-      marginTop: '0.5em',
+      marginTop: '1em',
       alignItems: 'center'
     },
     resourceList: {
+      height: '100%',
       width: m_resourceListWidth,
+      overflow: 'hidden',
       backgroundColor: teal[50],
       zIndex: m_zResourceList // above drawer, below modal
     },
-    resourceListLabel: {
-      fontSize: '0.8em',
-      color: m_systemTextColor,
-      marginBottom: '5px',
-      padding: '3px 5px'
+    resourceListAppBar: {
+      width: m_resourceListWidth,
+      backgroundColor: teal[100]
+    },
+    resourceListList: {
+      height: '100%',
+      overflowY: 'auto',
+      backgroundColor: teal[50],
+      marginTop: `${m_navbarHeight}px`,
+      paddingTop: '0'
     },
     resourceView: {
       marginTop: '1em',
@@ -290,8 +331,11 @@ const styles = theme => {
       backgroundColor: teal[300],
       width: '25px',
       height: '25px',
-      fontSize: '1em',
+      fontSize: '12px',
       marginTop: '10px'
+    },
+    evidenceWindowLabelGrid: {
+      alignSelf: 'flex-start'
     },
     evidenceWindowLabel: {
       fontSize: m_systemLabelFontSize,
@@ -302,12 +346,16 @@ const styles = theme => {
       flexGrow: '1',
       fontSize: '0.9em',
       lineHeight: '1em',
-      height: '30px',
-      marginTop: '9px',
-      overflowY: 'auto'
+      marginTop: '3px',
+      maxHeight: '2em',
+      maxWidth: '195px',
+      overflow: 'hidden'
     },
     evidenceLabelFieldExpanded: {
       height: 'auto',
+      maxHeight: 'max-content',
+      width: `${m_evlinkButtonExpandedWidth}px`,
+      overflowY: 'auto',
       margin: '0'
     },
     evidenceExpandButton: {
@@ -334,7 +382,8 @@ const styles = theme => {
       margin: '0'
     },
     evidenceScreenshotStatus: {
-      fontSize: '0.8em',
+      paddingTop: '3px',
+      fontSize: '0.7em',
       lineHeight: '1.1em',
       fontStyle: 'italic',
       color: m_systemTextColor
@@ -390,24 +439,41 @@ const styles = theme => {
       boxSizing: 'content-box'
     },
     evidenceLinkSourceAvatarWaiting: {
-      padding: '0 7px',
       color: red.A700,
       backgroundColor: red[100]
     },
     evidenceLinkSelectButton: {
-      padding: '0 7px',
       color: '#fff',
       backgroundColor: red[700]
     },
+    evidenceLinkSelectButtonExpanded: {
+      width: `${m_evlinkButtonExpandedWidth}px`
+    },
+    evidenceLinkSelectButtonLabel: {
+      maxWidth: '140px',
+      textOverflow: 'ellipsis',
+      overflow: 'hidden'
+    },
     evidenceLinkSourcePropAvatarSelected: {
-      color: indigo[900],
-      backgroundColor: indigo[100],
-      padding: '0 7px'
+      color: '#fff',
+      backgroundColor: COLOR.PROP
+    },
+    evidenceLinkSourcePropAvatarDisabled: {
+      backgroundColor: COLOR.PROP_LINK
+    },
+    evidenceLinkSourceOutcomeAvatarSelected: {
+      color: '#fff',
+      backgroundColor: COLOR.OUTCOME
+    },
+    evidenceLinkSourceOutcomeAvatarDisabled: {
+      backgroundColor: COLOR.OUTCOME_LINK
     },
     evidenceLinkSourceMechAvatarSelected: {
-      color: orange[900],
-      backgroundColor: orange[100],
-      padding: '0 7px'
+      color: '#fff',
+      backgroundColor: COLOR.MECH
+    },
+    evidenceLinkSourceMechAvatarDisabled: {
+      backgroundColor: COLOR.MECH_LINK
     },
     ratingIconSelected: {
       color: yellow[800]
@@ -522,7 +588,8 @@ const styles = theme => {
     },
     helpViewText: {
       display: 'block', // override default MDReactComponent <span>
-      padding: '10px 0 5px 0'
+      padding: '10px 0 5px 0',
+      fontSize: '11px'
     },
     screenshotViewPaper: {
       position: 'absolute',
@@ -558,10 +625,13 @@ const styles = theme => {
       color: 'white'
     },
     descriptionViewPaperPropColor: {
-      backgroundColor: indigo[400]
+      backgroundColor: COLOR.PROP
+    },
+    descriptionViewPaperOutcomeColor: {
+      backgroundColor: COLOR.OUTCOME
     },
     descriptionViewPaperMechColor: {
-      backgroundColor: orange[800]
+      backgroundColor: COLOR.MECH
     },
     descriptionViewText: {
       display: 'block', // override default MDReactComponent <span>

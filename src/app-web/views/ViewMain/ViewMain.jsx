@@ -9,6 +9,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
+import clsx from 'clsx';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Theming
 import { withStyles, createMuiTheme } from '@material-ui/core/styles';
@@ -30,7 +31,7 @@ import InputBase from '@material-ui/core/InputBase';
 // Material UI Icons
 import AddIcon from '@material-ui/icons/Add';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
 import EditIcon from '@material-ui/icons/Edit';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -58,6 +59,7 @@ import RoutedView from './RoutedView';
 import DATA from '../../modules/data';
 import ADM from '../../modules/data';
 import ASET from '../../modules/adm-settings';
+import DATAMAP from '../../../system/common-datamap';
 import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -87,6 +89,9 @@ class ViewMain extends React.Component {
     this.OnChangeModelTitle = this.OnChangeModelTitle.bind(this);
     this.DoSaveModelTitle = this.DoSaveModelTitle.bind(this);
     this.DoSubmitModelTitleForm = this.DoSubmitModelTitleForm.bind(this);
+    this.OnToolsPanelToggle = this.OnToolsPanelToggle.bind(this);
+    this.OnShowEvidenceLink = this.OnShowEvidenceLink.bind(this);
+    this.OnOutcomeAdd = this.OnOutcomeAdd.bind(this);
     this.OnPropAdd = this.OnPropAdd.bind(this);
     this.OnPropDelete = this.OnPropDelete.bind(this);
     this.OnAddPropComment = this.OnAddPropComment.bind(this);
@@ -108,6 +113,8 @@ class ViewMain extends React.Component {
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Subscribe('MODEL_TITLE_UPDATED', this.DoModelTitleUpdate);
+    UR.Subscribe('SHOW_EVIDENCE_LINK', this.OnShowEvidenceLink);
+    UR.Subscribe('OUTCOME_ADD', this.OnOutcomeAdd);
     UR.Subscribe('PROP_ADD', this.OnComponentAdd);
     UR.Subscribe('PROPDIALOG_CLOSE', this.OnPropDialogClose);
     UR.Subscribe('MECH_ADD', this.OnMechAdd);
@@ -122,12 +129,14 @@ class ViewMain extends React.Component {
       studentName: '',
       studentGroup: '',
       viewHeight: 0, // need to init this to prevent error with first render of resourceList
+      toolsPanelIsOpen: true,
       resourceLibraryIsOpen: true,
       addPropOpen: false,
       addEdgeOpen: false,
       addEdgeSource: '', // Add Mech Dialog
       addEdgeTarget: '', // Add Mech Dialog
-      componentIsSelected: false, // A component or property has been selected by user.  Used for pro-centric actions.
+      componentIsSelected: false, // A component or component property has been selected by user.  Used for pro-centric actions.
+      outcomeIsSelected: false, // A outcome or outcome property has been selected by user.  Used for pro-centric actions.
       mechIsSelected: false // A mechanism is slected by user.  Used for mech-centric actions.
     };
   }
@@ -140,7 +149,6 @@ class ViewMain extends React.Component {
     // the root component renders in SystemInit.
     // SystemInit fires `WINDOW_SIZE` to force the
     // relayout
-
   }
 
   componentWillUnmount() {
@@ -149,6 +157,8 @@ class ViewMain extends React.Component {
     UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Unsubscribe('MODEL_TITLE_UPDATED', this.DoModelTitleUpdate);
+    UR.Unsubscribe('SHOW_EVIDENCE_LINK', this.OnShowEvidenceLink);
+    UR.Unsubscribe('OUTCOME_ADD', this.OnOutcomeAdd);
     UR.Unsubscribe('PROP_ADD', this.OnComponentAdd);
     UR.Unsubscribe('PROPDIALOG_CLOSE', this.OnPropDialogClose);
     UR.Unsubscribe('MECH_ADD', this.OnMechAdd);
@@ -217,16 +227,39 @@ class ViewMain extends React.Component {
   DoSaveModelTitle() {
     ADM.DB_ModelTitleUpdate(this.state.modelId, this.state.title);
   }
-  
+
   DoSubmitModelTitleForm(e) {
     e.preventDefault();
     e.stopPropagation();
     document.activeElement.blur(); // will trigger save
   }
 
+  OnToolsPanelToggle() {
+    console.log('toggle open')
+    this.setState({ toolsPanelIsOpen: !this.state.toolsPanelIsOpen });
+  }
+
+  OnShowEvidenceLink() {
+    this.setState({ resourceLibraryIsOpen: true });
+  }
+
+  // User clicked on "(+) Add Outcome" drawer button
+  OnOutcomeAdd() {
+    UR.Publish('PROPDIALOG_OPEN', {
+      isProperty: false,
+      propType: DATAMAP.PMC_MODELTYPES.OUTCOME.id
+    });
+    this.setState({
+      addPropOpen: true
+    });
+  }
+
   // User clicked on "(+) Add Component" drawer button
   OnComponentAdd() {
-    UR.Publish('PROPDIALOG_OPEN', { isProperty: false });
+    UR.Publish('PROPDIALOG_OPEN', {
+      isProperty: false,
+      propType: DATAMAP.PMC_MODELTYPES.COMPONENT.id
+    });
     this.setState({
       addPropOpen: true
     });
@@ -234,7 +267,10 @@ class ViewMain extends React.Component {
 
   // User selected component/prop and clicked on "(+) Add Property Button"
   OnPropAdd() {
-    UR.Publish('PROPDIALOG_OPEN', { isProperty: true });
+    let propType = this.state.componentIsSelected
+      ? DATAMAP.PMC_MODELTYPES.COMPONENT.id
+      : DATAMAP.PMC_MODELTYPES.OUTCOME.id;
+    UR.Publish('PROPDIALOG_OPEN', { isProperty: true, propType });
     this.setState({
       addPropOpen: true
     });
@@ -249,6 +285,7 @@ class ViewMain extends React.Component {
       UR.Publish('PROPDIALOG_OPEN', {
         label: prop.name,
         propId,
+        propType: prop.propType,
         description: prop.description,
         isProperty: false
       });
@@ -269,23 +306,24 @@ class ViewMain extends React.Component {
     if (selectedPropIds.length > 0) {
       const pmcDataId = ASET.selectedPMCDataId;
       const propId = Number(selectedPropIds[0]);
-      UR.DBTryLock('pmcData.entities', [pmcDataId, propId])
-        .then(rdata => {
-          const { success, semaphore, uaddr, lockedBy } = rdata;
-          status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
-          if (rdata.success) {
-            console.log('do something here because u-locked!');
-            DATA.PMC_PropDelete(propId);
-            if (this.state.addEdgeSource === propId) {
-              this.setState({
-                addEdgeSource: ''
-              });
-            }
-          } else {
-            console.log('aw, locked by', rdata.lockedBy);
-            alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Component / Property right now.  Please try again later.`)
+      UR.DBTryLock('pmcData.entities', [pmcDataId, propId]).then(rdata => {
+        const { success, semaphore, uaddr, lockedBy } = rdata;
+        status += success
+          ? `${semaphore} lock acquired by ${uaddr} `
+          : `failed to acquired ${semaphore} lock `;
+        if (rdata.success) {
+          DATA.PMC_PropDelete(propId);
+          if (this.state.addEdgeSource === propId) {
+            this.setState({
+              addEdgeSource: ''
+            });
           }
-        });
+        } else {
+          alert(
+            `Sorry, someone else (${rdata.lockedBy}) is editing this Component / Property right now.  Please try again later.`
+          );
+        }
+      });
     }
     this.setState({
       componentIsSelected: false
@@ -367,19 +405,20 @@ class ViewMain extends React.Component {
       const pmcDataId = ASET.selectedPMCDataId;
       const mech = DATA.Mech(mechId);
       const intMechId = Number(mech.id);
-      UR.DBTryLock('pmcData.entities', [pmcDataId, intMechId])
-        .then(rdata => {
-          const { success, semaphore, uaddr, lockedBy } = rdata;
-          status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
-          if (rdata.success) {
-            console.log('do something here because u-locked!');
-            DATA.PMC_MechDelete(mechId);
-          } else {
-            console.log('aw, locked by', rdata.lockedBy);
-            alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Mechanism right now.  Please try again later.`)
-          }
-        });
-  }
+      UR.DBTryLock('pmcData.entities', [pmcDataId, intMechId]).then(rdata => {
+        const { success, semaphore, uaddr, lockedBy } = rdata;
+        status += success
+          ? `${semaphore} lock acquired by ${uaddr} `
+          : `failed to acquired ${semaphore} lock `;
+        if (rdata.success) {
+          DATA.PMC_MechDelete(mechId);
+        } else {
+          alert(
+            `Sorry, someone else (${rdata.lockedBy}) is editing this Mechanism right now.  Please try again later.`
+          );
+        }
+      });
+    }
     this.setState({
       mechIsSelected: false
     });
@@ -402,7 +441,7 @@ class ViewMain extends React.Component {
     } else if (this.state.addPropPropId !== '') {
       // Update existing prop
       const id = parseInt(this.state.addPropPropId);
-      const name = this.state.addPropLabel
+      const name = this.state.addPropLabel;
       DATA.PMC_PropUpdate(id, { name });
     } else {
       // Create new prop
@@ -420,8 +459,6 @@ class ViewMain extends React.Component {
   handleEvLinkSourceSelectRequest(urdata) {
     this.setState({ resourceViewOpen: false }, () => {
       UR.Publish('RESOURCEVIEW:CLOSE');
-      UR.Publish('RESOURCES:COLLAPSE_ALL');
-      UR.Publish('SHOW_EVIDENCE_LINK', { evId: urdata.evId, rsrcId: urdata.rsrcId });
       UR.Publish('EVLINK:ENABLE_SOURCE_SELECT', { evId: urdata.evId });
     });
   }
@@ -444,8 +481,19 @@ class ViewMain extends React.Component {
     // If more than one component is selected, hide the component
     // editing buttons
     let componentIsSelected = false;
-    if (selectedPropIds.length === 1 && !this.state.addEdgeOpen) componentIsSelected = true;
-
+    let outcomeIsSelected = false;
+    if (selectedPropIds.length === 1 && !this.state.addEdgeOpen) {
+      let selectedProp = DATA.Prop(selectedPropIds[0]);
+      switch (selectedProp.propType) {
+        case DATAMAP.PMC_MODELTYPES.OUTCOME.id:
+          outcomeIsSelected = true;
+          break;
+        default:
+        case DATAMAP.PMC_MODELTYPES.COMPONENT.id:
+          componentIsSelected = true;
+          break;
+      }
+    }
     // Set mechIsSelected for Mech Editing
     // If more than one mech is selected, hide the mech
     // editing buttons
@@ -457,6 +505,7 @@ class ViewMain extends React.Component {
       addEdgeSource: sourceId,
       addEdgeTarget: targetId,
       componentIsSelected,
+      outcomeIsSelected,
       mechIsSelected
     });
   }
@@ -472,7 +521,7 @@ class ViewMain extends React.Component {
     UR.Publish('RATING_CLOSE');
     ADM.Logout();
   }
-  
+
   OnHelp() {
     UR.Publish('HELP_OPEN');
   }
@@ -489,9 +538,11 @@ class ViewMain extends React.Component {
       studentName,
       studentGroup,
       resourceLibraryIsOpen,
+      toolsPanelIsOpen,
       addPropOpen,
       addEdgeOpen,
       componentIsSelected,
+      outcomeIsSelected,
       mechIsSelected,
       suppressSelection
     } = this.state;
@@ -500,9 +551,13 @@ class ViewMain extends React.Component {
     const model = ADM.GetModelById(modelId);
     const classroomId = model ? ADM.GetClassroomIdByGroup(model.groupId) : '';
     const resources = classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
-    
+
     const isViewOnly = ADM.IsViewOnly();
-    
+    const isDBReadOnly = ADM.IsDBReadOnly();
+    let viewStatus;
+    viewStatus = isViewOnly ? 'VIEW MODE' : '';
+    viewStatus = isDBReadOnly ? 'DATABASE ARCHIVE REVIEW MODE' : '';
+
     return (
       <div className={classes.root}>
         <CssBaseline />
@@ -510,14 +565,25 @@ class ViewMain extends React.Component {
         <ModelSelect />
         <AppBar
           position="fixed"
-          className={classes.appBar}
+          className={clsx(
+            classes.appBar,
+            { [classes.toolsPanelClosedShift]: !toolsPanelIsOpen },
+            { [classes.appBarToolsPanelClosedShift]: !toolsPanelIsOpen }
+          )}
           color={isModelAuthor ? 'primary' : 'default'}
         >
-          <Toolbar>
+          <Toolbar className={classes.appBarToolbar}>
             <Switch>
               <Route path="/:mode" />
             </Switch>
-            <Button onClick={this.OnCloseModel} color="inherit">
+            <Button
+              onClick={() => this.setState({ toolsPanelIsOpen: true })}
+              hidden={toolsPanelIsOpen}
+              color="inherit"
+            >
+              <MenuIcon />
+            </Button>
+            <Button onClick={this.OnCloseModel} color="inherit" style={{ marginLeft: '20px' }}>
               Model:&nbsp;&nbsp;
             </Button>
             <form onSubmit={this.DoSubmitModelTitleForm}>
@@ -564,9 +630,16 @@ class ViewMain extends React.Component {
         </AppBar>
 
         {/* Left Tool Sidebar */}
-        <ToolsPanel isDisabled={addPropOpen || addEdgeOpen} />
+        <ToolsPanel
+          isDisabled={addPropOpen || addEdgeOpen}
+          isOpen={toolsPanelIsOpen}
+          toggleOpen={this.OnToolsPanelToggle}
+        />
 
-        <main className={classes.content} ref={this.refMain}>
+        <main
+          className={clsx(classes.content, { [classes.toolsPanelClosedShift]: !toolsPanelIsOpen })}
+          ref={this.refMain}
+        >
           <div className={classes.toolbar} ref={this.refToolbar} />
           <div
             className={classes.view}
@@ -603,6 +676,14 @@ class ViewMain extends React.Component {
               onClick={() => UR.Publish('SVG_PANZOOM_OUT')}
               style={{ position: 'absolute', left: '110px', bottom: '10px' }}
             />
+            <Typography
+              variant="caption"
+              style={{ position: 'absolute', left: '160px', bottom: '12px' }}
+            >
+              {' '}
+              {/* STATUS LABEL */}
+              {viewStatus}
+            </Typography>
           </div>
 
           <StickyNoteCollection />
@@ -614,26 +695,26 @@ class ViewMain extends React.Component {
 
         {/* Resource Library */}
         <Drawer variant="persistent" anchor="right" open={resourceLibraryIsOpen}>
-          {/*<div style={{ height: this.state.viewHeight + 64, overflowY: 'scroll', zIndex: 1250 }}>*/}
-          <Paper className={classes.resourceList}>
-            <div className={classes.resourceListLabel}>
+          <div className={classes.resourceList}>
+            <div className={clsx(classes.drawerAppBar, classes.resourceListAppBar)}>
               <Button
                 onClick={() => this.setState({ resourceLibraryIsOpen: false })}
                 color="inherit"
                 size="small"
                 style={{ width: '100%' }}
               >
-                <div style={{ width: '100%', textAlign: 'left' }}>RESOURCE LIBRARY</div>
-                <ChevronRightIcon style={{ float: 'right' }} />
+                <div style={{ textAlign: 'left', flexGrow: 1 }}>RESOURCE LIBRARY</div>
+                <DoubleArrowIcon />
               </Button>
             </div>
-            <List dense>
-              {resources.map(resource => (
-                <ResourceItem key={resource.id} resource={resource} />
-              ))}
-            </List>
-          </Paper>
-          {/* </div> */}
+            <Paper className={classes.resourceListList}>
+              <List dense>
+                {resources.map(resource => (
+                  <ResourceItem key={resource.id} resource={resource} />
+                ))}
+              </List>
+            </Paper>
+          </div>
         </Drawer>
 
         {/* Resource View */}
@@ -658,8 +739,10 @@ class ViewMain extends React.Component {
           hidden={suppressSelection}
         >
           <Fab
-            hidden={!(componentIsSelected || mechIsSelected) || isViewOnly}
-            onClick={componentIsSelected ? this.OnPropDelete : this.OnMechDelete}
+            hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected) || isViewOnly}
+            onClick={
+              componentIsSelected || outcomeIsSelected ? this.OnPropDelete : this.OnMechDelete
+            }
             color="secondary"
             variant="extended"
             size="small"
@@ -668,16 +751,21 @@ class ViewMain extends React.Component {
             &nbsp;&nbsp;Delete&nbsp;
           </Fab>
           <Fab
-            hidden={!(componentIsSelected || mechIsSelected) || isViewOnly}
-            onClick={componentIsSelected ? this.DoPropEdit : this.OnMechEdit}
+            hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected) || isViewOnly}
+            onClick={componentIsSelected || outcomeIsSelected ? this.DoPropEdit : this.OnMechEdit}
             color="primary"
             variant="extended"
           >
             <EditIcon />
-            &nbsp;&nbsp;Edit {componentIsSelected ? 'Component / Property' : 'Mechanism'}
+            &nbsp;&nbsp;Edit{' '}
+            {componentIsSelected
+              ? DATAMAP.PMC_MODELTYPES.COMPONENT.label
+              : outcomeIsSelected
+              ? DATAMAP.PMC_MODELTYPES.OUTCOME.label
+              : DATAMAP.PMC_MODELTYPES.MECHANISM.label}
           </Fab>
           <Fab
-            hidden={!componentIsSelected || isViewOnly}
+            hidden={!(componentIsSelected || outcomeIsSelected) || isViewOnly}
             onClick={this.OnPropAdd}
             color="primary"
             variant="extended"
@@ -685,8 +773,12 @@ class ViewMain extends React.Component {
             <AddIcon /> Add property
           </Fab>
           <Fab
-            hidden={!(componentIsSelected || mechIsSelected)}
-            onClick={componentIsSelected ? this.OnAddPropComment : this.OnAddMechComment}
+            hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected) || isDBReadOnly}
+            onClick={
+              componentIsSelected || outcomeIsSelected
+                ? this.OnAddPropComment
+                : this.OnAddMechComment
+            }
             variant="extended"
           >
             <ChatBubbleOutlineIcon htmlColor={yellow[800]} />

@@ -36,6 +36,7 @@ import ASET from '../modules/adm-settings';
 import PMCObj from '../modules/pmc-objects';
 import UTILS from '../modules/utils';
 import EvidenceList from './EvidenceList';
+import DEFAULTS from '../modules/defaults';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -94,13 +95,13 @@ class ResourceView extends React.Component {
         DATA.DB_CommentAdd(noteRefId, comment, () => this.ContinueOpen(resource, noteRefId));
       } else {
         // just open it
-        this.ContinueOpen(resource, noteRefId);        
+        this.ContinueOpen(resource, noteRefId);
       }
     } else {
       console.error('ViewMain: Could not find selected resource id', data.rsrcId);
     }
   }
-  
+
   OnDataUpdate() {
     const comments = DATA.GetComments(this.state.noteRefId);
     if (comments.length > 0) {
@@ -110,7 +111,7 @@ class ResourceView extends React.Component {
       }
     }
   }
-  
+
   ContinueOpen(resource, noteRefId) {
     const comments = DATA.GetComments(noteRefId);
     if (comments.length < 1) throw Error('There should be at least one comment saved as a Resource note!');
@@ -126,7 +127,9 @@ class ResourceView extends React.Component {
         if (rdata.success) {
           this.setState({ noteIsDisabled: false });
         } else {
-          alert(`Sorry, someone else (${rdata.lockedBy}) is editing this Resource Note right now.  Please try again later. (You can still Create Evidence.)`)
+          alert(
+            `Sorry, someone else (${rdata.lockedBy}) is editing this Resource Note right now.  Please try again later. (You can still ${DEFAULTS.TEXT.ADD_EVIDENCE}.)`
+          );
         }
       });
 
@@ -137,7 +140,7 @@ class ResourceView extends React.Component {
       note,
       commentId
     });
-    UTILS.RLog('ResourceOpen', resource.label);    
+    UTILS.RLog('ResourceOpen', resource.label);
   }
 
   OnCreateEvidence(rsrcId) {
@@ -159,12 +162,12 @@ class ResourceView extends React.Component {
     }
 
   }
-  
+
   // User has edited the note by typing
   OnNoteChange(e) {
     this.setState({ note: e.target.value });
   }
-  
+
   OnNoteSave() {
     const note = PMCObj.Comment({
       id: this.state.commentId,
@@ -181,7 +184,12 @@ class ResourceView extends React.Component {
   OnClose() {
     const pmcDataId = ASET.selectedPMCDataId;
     const intCommentId = Number(this.state.commentId);
-    UR.DBTryRelease('pmcData.comments', [pmcDataId, intCommentId]);
+    if (intCommentId >= 0) {
+      // If intCommentId is -1 then the ResourceView was never opened
+      // so don't bother to release.  Otherwise this will generate a ur-link error
+      // due to an invalid ID (-1 is invalid).
+      UR.DBTryRelease('pmcData.comments', [pmcDataId, intCommentId]);
+    }
     this.setState({
       isOpen: false,
       noteIsDisabled: true
@@ -191,10 +199,11 @@ class ResourceView extends React.Component {
   render() {
     const { isOpen, resource, note, noteIsDisabled } = this.state;
     const { classes } = this.props;
-    
+
     // don't render if resource hasn't been defined yet
     if (resource === undefined || resource.id === undefined) return '';
-    
+    const links = resource.links || 0;
+
     return (
       <Paper className={classes.resourceViewPaper} hidden={!isOpen}>
         <div className={classes.resourceViewTitle}>
@@ -222,7 +231,7 @@ class ResourceView extends React.Component {
               <Typography variant="overline">Links:&nbsp;</Typography>
               <Chip
                 className={classes.resourceViewLinksBadge}
-                label={resource.links}
+                label={links}
                 color="primary"
               />
             </CardContent>
@@ -232,7 +241,12 @@ class ResourceView extends React.Component {
           </Button>
         </div>
         <div style={{ display: 'flex', height: 'inherit' }}>
-          <iframe id='resourceFrame' src={resource.url} style={{ height: '90%', flexGrow: '1' }} title="resource" />
+          <iframe
+            id="resourceFrame"
+            src={resource.url}
+            style={{ height: '90%', flexGrow: '1' }}
+            title="resource"
+          />
           <div className={classes.resourceViewSidebar}>
             <TextField
               id="informationNote"
@@ -259,7 +273,7 @@ class ResourceView extends React.Component {
               color="primary"
               hidden={ADM.IsViewOnly()}
             >
-              Create Evidence
+              {DEFAULTS.TEXT.ADD_EVIDENCE}
             </Button>
           </div>
         </div>

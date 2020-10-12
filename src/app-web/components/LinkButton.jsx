@@ -2,7 +2,7 @@
 
 LinkButton
 
-A LinkButton is used to select and show the source or target 
+A LinkButton is used to select and show the source or target
 component/property/mechanism that an Evidence Link points to.
 
 Communication with its parent is via props since this really is not an
@@ -11,27 +11,27 @@ indpendent component and needs to be carefully managed by its parent.
 It has four states:
 
 1. "Target Not Set"
-    When an object is first created the target of the link is not set, so the 
+    When an object is first created the target of the link is not set, so the
     button displays "Target Not Set".  The button is disabled at this point.
-    
+
 2. "Set Target"
-    If the parent object is edtiable, the button is enabled, and the user can 
-    click the button to then select a target.  
+    If the parent object is edtiable, the button is enabled, and the user can
+    click the button to then select a target.
     this.props.OnLinkButtonClick needs to handle this transition and set the
     this.props.listenForSourceSelection to true to tell the button to
     display the "Click on Target" state.
 
 3. "Click on Target"
-    After the user has clicked on "Set Target" the button is waiting for 
+    After the user has clicked on "Set Target" the button is waiting for
     the user to select a component/prop/mech.  The parent object should
     handle the selection.
-    
+
 4.  "Label"
     Once a source / target component/property/mechanism has been set
     the button displays the name of the object in the right color
     according to the this.props.sourceType (e.g. 'mech' || 'prop')
 
-In addition, it has a smaller and larger views to correspond with 
+In addition, it has a smaller and larger views to correspond with
 the expanded state in Evidence Links.
 
 The parent component basically nees to handle three things:
@@ -41,7 +41,7 @@ The parent component basically nees to handle three things:
 2. ...Set `listenForSourceSelection` prop to true to make the button show
     "Click on Target", and when a selection is received...
 3. ...Set the `sourceLabel` (and `sourceType`) prop when the selection
-    is made by theuser. 
+    is made by theuser.
 
 See MechDialog and EvidenceLink for example implementations.
 
@@ -50,8 +50,10 @@ See MechDialog and EvidenceLink for example implementations.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
+import DATAMAP from '../../system/common-datamap';
 // Material UI Icons
 import CreateIcon from '@material-ui/icons/Create';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
@@ -61,6 +63,21 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
+import DEFAULTS from '../modules/defaults';
+const { COLOR } = DEFAULTS;
+
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const LButton = withStyles(theme => ({
+  root: {
+    padding: '2px 7px',
+    lineHeight: '1.2em',
+    '&$disabled': {
+      color: 'rgba(0,0,0,0.3)'
+    }
+  }
+}))(props => <Button {...props} />);
+
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -94,16 +111,33 @@ class LinkButton extends React.Component {
     let icon;
     let evidenceLinkSelectButtonClass = classes.evidenceLinkSelectButton;
 
+    let isDisabled = !isBeingEdited || listenForSourceSelection;
+
     if (sourceLabel !== undefined) {
       label = sourceLabel;
       switch (sourceType) {
-        case 'mech':
+        case DATAMAP.PMC_MODELTYPES.MECHANISM.id: // 'mech':
           if (label === '') label = 'unlabeled';
-          evidenceLinkSelectButtonClass = classes.evidenceLinkSourceMechAvatarSelected;
+          if (isDisabled) {
+            evidenceLinkSelectButtonClass = classes.evidenceLinkSourceMechAvatarDisabled;
+          } else {
+            evidenceLinkSelectButtonClass = classes.evidenceLinkSourceMechAvatarSelected;
+          }
+          break;
+        case DATAMAP.PMC_MODELTYPES.OUTCOME.id:
+          if (isDisabled) {
+            evidenceLinkSelectButtonClass = classes.evidenceLinkSourceOutcomeAvatarDisabled;
+          } else {
+            evidenceLinkSelectButtonClass = classes.evidenceLinkSourceOutcomeAvatarSelected;
+          }
           break;
         default:
-        case 'prop':
-          evidenceLinkSelectButtonClass = classes.evidenceLinkSourcePropAvatarSelected;
+        case DATAMAP.PMC_MODELTYPES.COMPONENT.id: // 'prop':
+          if (isDisabled) {
+            evidenceLinkSelectButtonClass = classes.evidenceLinkSourcePropAvatarDisabled;
+          } else {
+            evidenceLinkSelectButtonClass = classes.evidenceLinkSourcePropAvatarSelected;
+          }
           break;
       }
     } else if (listenForSourceSelection) {
@@ -118,15 +152,19 @@ class LinkButton extends React.Component {
     }
 
     return (
-      <Button
+      <LButton
         onClick={this.OnClick}
-        className={evidenceLinkSelectButtonClass}
-        disabled={!isBeingEdited || listenForSourceSelection}
-        size={isExpanded ? 'large' : 'small'}
+        classes={{
+          root: evidenceLinkSelectButtonClass,
+          disabled: classes.disabled
+        }}
+        className={clsx({ [classes.evidenceLinkSelectButtonExpanded]: isExpanded })}
+        disabled={isDisabled}
+        size={'small'}
       >
         {icon}
-        {label}
-      </Button>
+        <span className={classes.evidenceLinkSelectButtonLabel}>{label}</span>
+      </LButton>
     );
   }
 }

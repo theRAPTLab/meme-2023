@@ -28,8 +28,6 @@ class ADMSettings {
     //
     this.sClassroomId = ''; // set from login token
     this.sStudentGroupId = ''; // set from login token
-    //
-    this.isViewOnly = false; // set from admdata login
   }
 
   /// GETTERS /////////////////////////////////////////////////////////////////
@@ -64,11 +62,6 @@ class ADMSettings {
     return this.sStudentGroupId;
   }
 
-  get isViewOnly() {
-    if (DBG) console.log('get viewOnlyMode', this.isViewOnly, typeof this.isViewOnly);
-    return this.isViewOnly;
-  }
-
   /// SETTERS /////////////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   set selectedTeacherId(id) {
@@ -100,9 +93,6 @@ class ADMSettings {
     this.sPMCDataId = id;
   }
 
-  set isViewOnly(state) {
-    this.isViewOnly = state;
-  }
 } // class
 
 /// CREATE INSTANCE ///////////////////////////////////////////////////////////

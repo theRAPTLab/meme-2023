@@ -39,13 +39,13 @@ const PKG = 'AdminCriteriaView';
 const defaults = [
   {
     label: 'Clarity',
-    description: 'How clear is the explanation?',
+    description: 'How clear is the explanation?'
   },
   {
     label: 'Visuals',
-    description: 'Does the layout make sense?',
+    description: 'Does the layout make sense?'
   }
-]
+];
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -73,7 +73,7 @@ class CriteriaView extends React.Component {
     UR.Subscribe('CRITERIA_SET_DEFAULTS', this.DoCreateDefaultCriteria);
   }
 
-  componentDidMount() { }
+  componentDidMount() {}
 
   componentWillUnmount() {
     UR.Unsubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
@@ -82,11 +82,14 @@ class CriteriaView extends React.Component {
   }
 
   DoClassroomSelect(data) {
-    this.setState({
-      classroomId: Number( data.classroomId )
-    }, () => {
-      this.DoLoadCriteria();
-    });
+    this.setState(
+      {
+        classroomId: Number(data.classroomId)
+      },
+      () => {
+        this.DoLoadCriteria();
+      }
+    );
   }
 
   DoCreateDefaultCriteria(classroomId) {
@@ -95,10 +98,10 @@ class CriteriaView extends React.Component {
         classroomId: classroomId,
         label: def.label,
         description: def.description
-      })
+      });
     });
   }
-  
+
   DoLoadCriteria() {
     if (this.state.classroomId === -1) return;
     let criteria = ADM.GetCriteriaByClassroom(this.state.classroomId);
@@ -106,9 +109,9 @@ class CriteriaView extends React.Component {
       criteria
     });
   }
-  
+
   OnEditClick() {
-    this.DoLoadCriteria()
+    this.DoLoadCriteria();
     this.setState({ isInEditMode: true });
   }
 
@@ -119,13 +122,13 @@ class CriteriaView extends React.Component {
 
   OnEditCancel() {
     this.DoClose();
-    
+
     /* Old Code
     // Restore original values.
     this.setState(state => {
       return { criteria: state.origCriteria }
     }, () => {
-        
+
     });
     */
   }
@@ -137,10 +140,8 @@ class CriteriaView extends React.Component {
   }
 
   OnAddClick() {
-    ADM.DB_NewCriteria({}, () =>
-      this.setState({ isInEditMode: true })
-    );
-    
+    ADM.DB_NewCriteria({}, () => this.setState({ isInEditMode: true }));
+
     /* old code
     this.setState(state => {
       let criteria = state.criteria;

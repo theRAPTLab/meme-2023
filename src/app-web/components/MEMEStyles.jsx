@@ -1,4 +1,14 @@
-import { blue, green, grey, indigo, orange, purple, red, teal, yellow } from '@material-ui/core/colors';
+import {
+  blue,
+  green,
+  grey,
+  indigo,
+  orange,
+  purple,
+  red,
+  teal,
+  yellow
+} from '@material-ui/core/colors';
 import { registerMorphableType } from '@svgdotjs/svg.js/src/main';
 import { Hidden } from '@material-ui/core';
 import DEFAULTS from '../modules/defaults';
@@ -570,8 +580,7 @@ const styles = theme => {
       cursor: 'default'
     },
     stickynoteCardCriteriaDescription: {
-      color: m_systemTextColor,
-      fontStyle: 'italic',
+      color: '#000',
       marginBottom: '0.66em'
     },
     helpViewPaper: {

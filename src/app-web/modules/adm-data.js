@@ -748,7 +748,7 @@ ADMData.IsTeacher = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  Creates a new db model
+ *  Creates a new empty db model
  *  @param {Object} data - ADMObj.Model object.  groupID MUST be defined
  *  @param {Function} cb - A callback function
  */
@@ -843,7 +843,7 @@ ADMData.DB_ModelTitleUpdate = (modelId, title) => {
  *  Called by ModelSelect when user requests a new model
  *  This will add a new model to the db and then open the new model
  *  It uses the currently selected GroupID.
- *  See Whimsical diagram: https://whimsical.com/QrZ56UaiRq1nyxbJDawywy
+ *  See Whimsical diagram for call chain: https://whimsical.com/QrZ56UaiRq1nyxbJDawywy
  *  @param {Function} cb - Callback function
  */
 ADMData.NewModel = cb => {

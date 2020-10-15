@@ -47,12 +47,8 @@ class ModelsListTable extends React.Component {
 
   componentWillUnmount() { }
 
-  OnModelSelect(modelId) {
-    this.props.OnModelSelect(modelId);
-  }
-
   render() {
-    const { classes, models } = this.props;
+    const { classes, models, OnModelSelect, OnModelMove, OnModelClone } = this.props;
 
     return (
       <Paper className={classes.admPaper}>
@@ -63,19 +59,24 @@ class ModelsListTable extends React.Component {
               <TableCell>GROUP</TableCell>
               <TableCell>UPDATED</TableCell>
               <TableCell>CREATED</TableCell>
+              <TableCell> </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {models.map(model => (
               <TableRow key={model.id}>
                 <TableCell>
-                  <Button color="primary" onClick={e => this.OnModelSelect(model.id)}>
+                  <Button color="primary" onClick={e => OnModelSelect(model.id)}>
                     {model.title}
                   </Button>
                 </TableCell>
                 <TableCell>{ADM.GetGroupName(model.groupId)}</TableCell>
                 <TableCell>{HumanDate(model.dateModified)}</TableCell>
                 <TableCell>{HumanDate(model.dateCreated)}</TableCell>
+                <TableCell>
+                  <Button onClick={e => OnModelMove(model.id)}>MOVE</Button>
+                  <Button onClick={e => OnModelClone(model.id)}>CLONE</Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -90,7 +91,9 @@ ModelsListTable.propTypes = {
   classes: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
   models: PropTypes.array,
-  OnModelSelect: PropTypes.func
+  OnModelSelect: PropTypes.func,
+  OnModelMove: PropTypes.func,
+  OnModelClone: PropTypes.func
 };
 
 ModelsListTable.defaultProps = {
@@ -98,6 +101,12 @@ ModelsListTable.defaultProps = {
   models: [],
   OnModelSelect: () => {
     console.error('Missing OnModeSelect handler');
+  },
+  OnModelMove: () => {
+    console.error('Missing OnModelMove handler');
+  },
+  OnModelClone: () => {
+    console.error('Missing OnModelClone handler');
   }
 };
 

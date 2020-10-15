@@ -36,13 +36,15 @@ import UTILS from '../modules/utils';
 
 class ModelSelect extends React.Component {
   constructor(props) {
-    super(props);
+    super();
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.DoModelDialogOpen = this.DoModelDialogOpen.bind(this);
     this.OnModelDialogClose = this.OnModelDialogClose.bind(this);
     this.OnNewModel = this.OnNewModel.bind(this);
     this.OnModelEdit = this.OnModelEdit.bind(this);
     this.OnModelView = this.OnModelView.bind(this);
+    this.OnModelClone = this.OnModelClone.bind(this);
+    this.OnModelMove = this.OnModelMove.bind(this);
     this.OnLogout = this.OnLogout.bind(this);
 
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
@@ -113,6 +115,14 @@ class ModelSelect extends React.Component {
     this.OnModelDialogClose();
   }
 
+  OnModelClone(modelId) {
+    ADM.CloneModel(modelId);
+  }
+
+  OnModelMove(modelId) {
+    console.log('move');
+  }
+
   OnLogout() {
     ADM.Logout();
   }
@@ -169,11 +179,21 @@ class ModelSelect extends React.Component {
           <Grid container spacing={2}>
             <Grid item>
               <Typography variant="h4">{ADM.GetStudentGroupName()} Group&rsquo;s Models</Typography>
-              <ModelsListTable models={myModels} OnModelSelect={this.OnModelEdit} />
+              <ModelsListTable
+                models={myModels}
+                OnModelSelect={this.OnModelEdit}
+                OnModelClone={this.OnModelClone}
+                OnModelMove={this.OnModelMove}
+              />
             </Grid>
             <Grid item hidden={!canViewOthers}>
               <Typography variant="h4">My Class&rsquo; Models</Typography>
-              <ModelsListTable models={ourModels} OnModelSelect={this.OnModelView} />
+              <ModelsListTable
+                models={ourModels}
+                OnModelSelect={this.OnModelView}
+                OnModelClone={this.OnModelClone}
+                OnModelMove={this.OnModelMove}
+              />
             </Grid>
           </Grid>
         </DialogContent>

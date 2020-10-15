@@ -6,6 +6,7 @@ import DATAMAP from '../../system/common-datamap';
 import PMCData from './data'; // this is a bit problematicn (circular ref)
 import ADMObj from './adm-objects';
 import ASET from './adm-settings';
+const rfdc = require('rfdc')();
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -842,6 +843,7 @@ ADMData.DB_ModelTitleUpdate = (modelId, title) => {
  *  Called by ModelSelect when user requests a new model
  *  This will add a new model to the db and then open the new model
  *  It uses the currently selected GroupID.
+ *  See Whimsical diagram: https://whimsical.com/QrZ56UaiRq1nyxbJDawywy
  *  @param {Function} cb - Callback function
  */
 ADMData.NewModel = cb => {
@@ -863,6 +865,63 @@ ADMData.NewModel = cb => {
   // ADMData.LoadModel(model.id, groupId);
   // UTILS.RLog('ModelCreate');
 };
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *
+ * @param {String} modelId modelId of the source model to clone from
+ * @param {function} cb Callback function
+ */
+ADMData.CloneModel = (modelId, cb) => {
+  // 1. Create a new empty model
+  const data = {
+    groupId: ADMData.GetSelectedGroupId()
+  };
+  // 2. Set PMC Data
+  // -- Get the original
+  const origPMCData = adm_db.pmcData.find(d => d.id === modelId);
+  // -- Create the new pmcData
+  const clonedPMCData = ADMObj.ModelPMCData();
+  // -- Copy data over
+  clonedPMCData.entities = rfdc(origPMCData.entities);
+  clonedPMCData.visuals = rfdc(origPMCData.visuals);
+  // -- Ignore comments and markedread
+
+  // 3. Create a new model with the cloned pmcData
+  // -- This emulates ADMData.DB_NewModel
+  UR.DBQuery('add', {
+    // First update `pmcData`
+    pmcData: clonedPMCData // db will set id
+  }).then(rdata => {
+    if (rdata.error) throw Error(rdata.error);
+
+    // Then update `model` data
+    // -- Get the original model
+    const origModel = ADMData.GetModelById(modelId);
+    // -- Create a new model and copy over the values
+    const model = ADMObj.Model({
+      groupId: data.groupId,
+      pmcDataId: rdata.pmcData[0].id,
+      title: `${origModel.title} COPY`
+    }); // set creation date
+    UR.DBQuery('add', {
+      models: model // db will set id
+    }).then(rdata2 => {
+      if (rdata2.error) throw Error(rdata2.error);
+      const rdataModel = rdata2.models[0];
+      if (!ADMData.GetModelById(rdataModel.id)) {
+        adm_db.models.push(rdataModel);
+      } else {
+        // Usually SyncAddedData fires before this so the model is already added
+        if (DBG) console.error(`CloneModel model id ${rdataModel.id} already exits. Skipping add.`);
+      }
+      UTILS.RLog('ModelClone');
+      if (cb) cb(rdata2);
+    });
+  });
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * return the model meta data
  *  @param {Integer} modelId
@@ -960,7 +1019,7 @@ ADMData.DB_RefreshPMCData = cb => {
       return;
     }
     adm_db.pmcData = data.pmcData;
-    cb();
+    cb(data);
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -971,7 +1030,7 @@ ADMData.LoadModel = modelId => {
   PMCData.ClearModel();
   UR.Publish('SVG_PANZOOM_RESET');
   ADMData.SetSelectedModelId(modelId, model.pmcDataId); // Remember the selected modelId locally
-  ADMData.DB_RefreshPMCData(() => PMCData.InitializeModel(model, adm_db));
+  ADMData.DB_RefreshPMCData(data => PMCData.InitializeModel(model, data));
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

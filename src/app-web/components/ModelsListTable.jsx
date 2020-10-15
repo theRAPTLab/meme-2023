@@ -22,6 +22,7 @@ import { withStyles } from '@material-ui/core/styles';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
+import SESSION from '../../system/common-session';
 import ADM from '../modules/data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -49,6 +50,7 @@ class ModelsListTable extends React.Component {
 
   render() {
     const { classes, models, OnModelSelect, OnModelMove, OnModelClone } = this.props;
+    const isTeacher = SESSION.IsTeacher();
 
     return (
       <Paper className={classes.admPaper}>
@@ -74,7 +76,7 @@ class ModelsListTable extends React.Component {
                 <TableCell>{HumanDate(model.dateModified)}</TableCell>
                 <TableCell>{HumanDate(model.dateCreated)}</TableCell>
                 <TableCell>
-                  <Button onClick={e => OnModelMove(model.id)}>MOVE</Button>
+                  {isTeacher ? <Button onClick={e => OnModelMove(model.id)}>MOVE</Button> : ''}
                   <Button onClick={e => OnModelClone(model.id)}>CLONE</Button>
                 </TableCell>
               </TableRow>

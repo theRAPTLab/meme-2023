@@ -116,7 +116,8 @@ class ModelSelect extends React.Component {
   }
 
   OnModelClone(modelId) {
-    ADM.CloneModel(modelId);
+    const groupId = ADM.GetSelectedGroupId();
+    ADM.CloneModel(modelId, groupId);
   }
 
   OnModelMove(modelId) {

@@ -868,55 +868,59 @@ ADMData.NewModel = cb => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *
- * @param {String} modelId modelId of the source model to clone from
+ * This is a series of asynchronous calls:
+ * 1. DB_RefreshPMCData, then
+ * 2. DBQuery add pmcData, then
+ * 3. DBQuery add model, then
+ * 4. Update adm_db
+ * @param {String} sourceModelId modelId of the source model to clone from
+ * @param {String} clonedGroupId owner of the cloned model
  * @param {function} cb Callback function
  */
-ADMData.CloneModel = (modelId, cb) => {
-  // 1. Create a new empty model
-  const data = {
-    groupId: ADMData.GetSelectedGroupId()
-  };
-  // 2. Set PMC Data
+ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
+  // 1. Set PMC Data
   // -- Get the original
-  const origPMCData = adm_db.pmcData.find(d => d.id === modelId);
-  // -- Create the new pmcData
-  const clonedPMCData = ADMObj.ModelPMCData();
-  // -- Copy data over
-  clonedPMCData.entities = rfdc(origPMCData.entities);
-  clonedPMCData.visuals = rfdc(origPMCData.visuals);
-  // -- Ignore comments and markedread
+  //    adm_db's pmcData might be out of date, so we need to refresh it first.
+  ADMData.DB_RefreshPMCData(data => {
+    const sourcePMCData = data.pmcData.find(d => d.id === sourceModelId);
+    // -- Create the new pmcData
+    const clonedPMCData = ADMObj.ModelPMCData();
+    // -- Copy data over
+    clonedPMCData.entities = rfdc(sourcePMCData.entities);
+    clonedPMCData.visuals = rfdc(sourcePMCData.visuals);
+    // -- Ignore comments and markedread
 
-  // 3. Create a new model with the cloned pmcData
-  // -- This emulates ADMData.DB_NewModel
-  UR.DBQuery('add', {
-    // First update `pmcData`
-    pmcData: clonedPMCData // db will set id
-  }).then(rdata => {
-    if (rdata.error) throw Error(rdata.error);
-
-    // Then update `model` data
-    // -- Get the original model
-    const origModel = ADMData.GetModelById(modelId);
-    // -- Create a new model and copy over the values
-    const model = ADMObj.Model({
-      groupId: data.groupId,
-      pmcDataId: rdata.pmcData[0].id,
-      title: `${origModel.title} COPY`
-    }); // set creation date
+    // 2. Create a new model with the cloned pmcData
+    // -- This emulates ADMData.DB_NewModel
     UR.DBQuery('add', {
-      models: model // db will set id
-    }).then(rdata2 => {
-      if (rdata2.error) throw Error(rdata2.error);
-      const rdataModel = rdata2.models[0];
-      if (!ADMData.GetModelById(rdataModel.id)) {
-        adm_db.models.push(rdataModel);
-      } else {
-        // Usually SyncAddedData fires before this so the model is already added
-        if (DBG) console.error(`CloneModel model id ${rdataModel.id} already exits. Skipping add.`);
-      }
-      UTILS.RLog('ModelClone');
-      if (cb) cb(rdata2);
+      // First update `pmcData`
+      pmcData: clonedPMCData // db will set id
+    }).then(rdata => {
+      if (rdata.error) throw Error(rdata.error);
+
+      // Then update `model` data
+      // -- Get the original model
+      const origModel = ADMData.GetModelById(sourceModelId);
+      // -- Create a new model and copy over the values
+      const model = ADMObj.Model({
+        groupId: clonedGroupId,
+        pmcDataId: rdata.pmcData[0].id,
+        title: `${origModel.title} COPY`
+      }); // set creation date
+      UR.DBQuery('add', {
+        models: model // db will set id
+      }).then(rdata2 => {
+        if (rdata2.error) throw Error(rdata2.error);
+        const rdataModel = rdata2.models[0];
+        if (!ADMData.GetModelById(rdataModel.id)) {
+          adm_db.models.push(rdataModel);
+        } else if (DBG) {
+          // Usually SyncAddedData fires before this so the model is already added
+          console.error(`CloneModel model id ${rdataModel.id} already exits. Skipping add.`);
+        }
+        UTILS.RLog('ModelClone');
+        if (cb) cb(rdata2);
+      });
     });
   });
 };

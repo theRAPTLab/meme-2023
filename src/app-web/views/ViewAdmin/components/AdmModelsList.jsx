@@ -25,20 +25,27 @@ import MEMEStyles from '../../../components/MEMEStyles';
 import UR from '../../../../system/ursys';
 import ADM from '../../../modules/data';
 import ModelsListTable from '../../../components/ModelsListTable';
+import GroupSelector from './AdmGroupSelector';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class ModelsList extends React.Component {
   constructor(props) {
-    super(props);
+    super();
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
-    this.OnModelSelect = this.OnModelSelect.bind(this);
+    this.OnModelView = this.OnModelView.bind(this);
+    this.OnModelClone = this.OnModelClone.bind(this);
+    this.OnModelMove = this.OnModelMove.bind(this);
+    this.OnCloneTargetSelect = this.OnCloneTargetSelect.bind(this);
+    this.OnCloneTargetClose = this.OnCloneTargetClose.bind(this);
 
     this.state = {
       classroomId: '',
-      models: []
+      models: [],
+      modelId: undefined,
+      cloneTargetSelectDialogOpen: false
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
@@ -46,7 +53,7 @@ class ModelsList extends React.Component {
     UR.Subscribe('MODEL_TITLE_UPDATED', this.DoADMDataUpdate);
   }
 
-  componentDidMount() { }
+  componentDidMount() {}
 
   componentWillUnmount() {
     UR.Unsubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
@@ -62,24 +69,58 @@ class ModelsList extends React.Component {
   }
 
   DoADMDataUpdate() {
-    this.setState({
-      models: ADM.GetModelsByClassroom(this.state.classroomId)
+    this.setState(state => {
+      return { models: ADM.GetModelsByClassroom(state.classroomId) };
     });
   }
 
-  OnModelSelect(e) {
-    alert('Model Selection is not implmented yet!');
+  OnModelView(modelId) {
+    ADM.LoadModel(modelId);
+  }
+
+  OnModelClone(modelId) {
+    // set select a different groupID
+    this.setState({
+      modelId,
+      cloneTargetSelectDialogOpen: true
+    });
+  }
+
+  OnModelMove(e) {
+    alert('Model Move is not implmented yet!');
+  }
+
+  OnCloneTargetSelect(selections) {
+    console.log('OnCloneTargetSElect', selections);
+    ADM.CloneModelBulk(this.state.modelId, selections);
+    this.setState({ cloneTargetSelectDialogOpen: false });
+  }
+
+  OnCloneTargetClose() {
+    this.setState({ cloneTargetSelectDialogOpen: false });
   }
 
   render() {
     const { classes } = this.props;
-    const { models } = this.state;
+    const { models, cloneTargetSelectDialogOpen } = this.state;
 
     return (
-      <Paper className={classes.admPaper}>
-        <InputLabel>MODELS</InputLabel>
-        <ModelsListTable models={models} />
-      </Paper>
+      <>
+        <Paper className={classes.admPaper}>
+          <InputLabel>MODELS</InputLabel>
+          <ModelsListTable
+            models={models}
+            OnModelSelect={this.OnModelView}
+            OnModelClone={this.OnModelClone}
+            OnModelMove={this.OnModelMove}
+          />
+        </Paper>
+        <GroupSelector
+          open={cloneTargetSelectDialogOpen}
+          OnClose={this.OnCloneTargetClose}
+          OnSelect={this.OnCloneTargetSelect}
+        />
+      </>
     );
   }
 }

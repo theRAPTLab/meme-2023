@@ -883,6 +883,14 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
   //    adm_db's pmcData might be out of date, so we need to refresh it first.
   ADMData.DB_RefreshPMCData(data => {
     const sourcePMCData = data.pmcData.find(d => d.id === sourceModelId);
+    const sourceModel = data.models.find(m => m.id === sourceModelId);
+    if (sourceModel === undefined)
+      throw `ADMData.CloneModel could not find the source model ${sourceModelId}`;
+
+    const sourcePMCDataId = sourceModel.pmcDataId;
+    const sourcePMCData = data.pmcData.find(d => d.id === sourcePMCDataId);
+    if (sourcePMCData === undefined)
+      throw `ADMData.CloneModel could not find the sourcePMCData ${sourcePMCDataId}`;
     // -- Create the new pmcData
     const clonedPMCData = ADMObj.ModelPMCData();
     // -- Copy data over

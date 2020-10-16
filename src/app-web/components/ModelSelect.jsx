@@ -29,6 +29,7 @@ import UR from '../../system/ursys';
 import SESSION from '../../system/common-session';
 import ADM from '../modules/data';
 import ModelsListTable from './ModelsListTable';
+import GroupSelector from '../views/ViewAdmin/components/AdmGroupSelector';
 import UTILS from '../modules/utils';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -44,6 +45,8 @@ class ModelSelect extends React.Component {
     this.OnModelEdit = this.OnModelEdit.bind(this);
     this.OnModelView = this.OnModelView.bind(this);
     this.OnModelClone = this.OnModelClone.bind(this);
+    this.OnCloneTargetSelect = this.OnCloneTargetSelect.bind(this);
+    this.OnCloneTargetClose = this.OnCloneTargetClose.bind(this);
     this.OnModelMove = this.OnModelMove.bind(this);
     this.OnLogout = this.OnLogout.bind(this);
 
@@ -57,7 +60,8 @@ class ModelSelect extends React.Component {
       studentId: '',
       groupName: '',
       classroomName: '',
-      teacherName: ''
+      teacherName: '',
+      cloneTargetSelectDialogOpen: false
     };
   }
 
@@ -89,7 +93,8 @@ class ModelSelect extends React.Component {
         studentId,
         groupName,
         classroomName,
-        teacherName
+        teacherName,
+        cloneTargetSelectDialogOpen: false
       });
     }
   }
@@ -116,8 +121,27 @@ class ModelSelect extends React.Component {
   }
 
   OnModelClone(modelId) {
-    const groupId = ADM.GetSelectedGroupId();
-    ADM.CloneModel(modelId, groupId);
+    // If we're a teacher, we have to select a target group
+    const isTeacher = SESSION.IsTeacher();
+    if (isTeacher) {
+      // set select a different groupID
+      this.setState({
+        modelId,
+        cloneTargetSelectDialogOpen: true
+      });
+    } else {
+      const groupId = ADM.GetSelectedGroupId();
+      ADM.CloneModel(modelId, groupId);
+    }
+  }
+
+  OnCloneTargetSelect(selections) {
+    ADM.CloneModelBulk(this.state.modelId, selections);
+    this.setState({ cloneTargetSelectDialogOpen: false });
+  }
+
+  OnCloneTargetClose() {
+    this.setState({ cloneTargetSelectDialogOpen: false });
   }
 
   OnModelMove(modelId) {
@@ -132,6 +156,7 @@ class ModelSelect extends React.Component {
     const { classes } = this.props;
     const {
       modelSelectDialogOpen,
+      cloneTargetSelectDialogOpen,
       canViewOthers,
       studentId,
       groupName,
@@ -154,51 +179,60 @@ class ModelSelect extends React.Component {
       </Button>
     );
     return (
-      <Dialog
-        disableBackdropClick
-        disableEscapeKeyDown
-        open={modelSelectDialogOpen}
-        onClose={this.OnLoginDialogClose}
-        fullScreen
-      >
-        <DialogActions>
-          {readOnlyStatus}
-          <Typography variant="caption">MY GROUP: {groupName} | </Typography>
-          <Typography variant="caption">MY CLASS: {classroomName} | </Typography>
-          <Typography variant="caption">MY TEACHER: {teacherName}</Typography>
-          <div style={{ flexGrow: 1 }} />
-          <Button onClick={this.OnLogout} color="primary">
-            Logout
-          </Button>
-        </DialogActions>
-        <DialogTitle>Hi {ADM.GetStudentName()}!</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item>{createNewModelButton}</Grid>
-          </Grid>
-          <Divider style={{ margin: '2em' }} />
-          <Grid container spacing={2}>
-            <Grid item>
-              <Typography variant="h4">{ADM.GetStudentGroupName()} Group&rsquo;s Models</Typography>
-              <ModelsListTable
-                models={myModels}
-                OnModelSelect={this.OnModelEdit}
-                OnModelClone={this.OnModelClone}
-                OnModelMove={this.OnModelMove}
-              />
+      <>
+        <Dialog
+          disableBackdropClick
+          disableEscapeKeyDown
+          open={modelSelectDialogOpen}
+          onClose={this.OnLoginDialogClose}
+          fullScreen
+        >
+          <DialogActions>
+            {readOnlyStatus}
+            <Typography variant="caption">MY GROUP: {groupName} | </Typography>
+            <Typography variant="caption">MY CLASS: {classroomName} | </Typography>
+            <Typography variant="caption">MY TEACHER: {teacherName}</Typography>
+            <div style={{ flexGrow: 1 }} />
+            <Button onClick={this.OnLogout} color="primary">
+              Logout
+            </Button>
+          </DialogActions>
+          <DialogTitle>Hi {ADM.GetStudentName()}!</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2}>
+              <Grid item>{createNewModelButton}</Grid>
             </Grid>
-            <Grid item hidden={!canViewOthers}>
-              <Typography variant="h4">My Class&rsquo; Models</Typography>
-              <ModelsListTable
-                models={ourModels}
-                OnModelSelect={this.OnModelView}
-                OnModelClone={this.OnModelClone}
-                OnModelMove={this.OnModelMove}
-              />
+            <Divider style={{ margin: '2em' }} />
+            <Grid container spacing={2}>
+              <Grid item>
+                <Typography variant="h4">
+                  {ADM.GetStudentGroupName()} Group&rsquo;s Models
+                </Typography>
+                <ModelsListTable
+                  models={myModels}
+                  OnModelSelect={this.OnModelEdit}
+                  OnModelClone={this.OnModelClone}
+                  OnModelMove={this.OnModelMove}
+                />
+              </Grid>
+              <Grid item hidden={!canViewOthers}>
+                <Typography variant="h4">My Class&rsquo; Models</Typography>
+                <ModelsListTable
+                  models={ourModels}
+                  OnModelSelect={this.OnModelView}
+                  OnModelClone={this.OnModelClone}
+                  OnModelMove={this.OnModelMove}
+                />
+              </Grid>
             </Grid>
-          </Grid>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+        <GroupSelector
+          open={cloneTargetSelectDialogOpen}
+          OnClose={this.OnCloneTargetClose}
+          OnSelect={this.OnCloneTargetSelect}
+        />
+      </>
     );
   }
 }

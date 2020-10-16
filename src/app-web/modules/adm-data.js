@@ -924,6 +924,21 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
     });
   });
 };
+ADMData.PromiseCloneModel = (modelId, groupId) => {
+  return new Promise(resolve => ADMData.CloneModel(modelId, groupId, resolve));
+};
+ADMData.CloneModelBulk = async (modelId, selections) => {
+  if (selections.selectedGroupId !== '') {
+    // A group was selected, so just do a regular clone
+    ADMData.CloneModel(modelId, selections.selectedGroupId);
+  } else {
+    // Bulk clone!
+    const groups = ADMData.GetGroupIdsByClassroom(selections.selectedClassroomId);
+    groups.forEach(async gId => {
+      await ADMData.PromiseCloneModel(modelId, gId);
+    });
+  }
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**

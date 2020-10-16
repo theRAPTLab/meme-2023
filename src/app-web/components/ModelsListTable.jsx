@@ -44,13 +44,14 @@ function HumanDate(timestamp) {
 }
 
 class ModelsListTable extends React.Component {
-  componentDidMount() { }
+  componentDidMount() {}
 
-  componentWillUnmount() { }
+  componentWillUnmount() {}
 
   render() {
     const { classes, models, OnModelSelect, OnModelMove, OnModelClone } = this.props;
     const isTeacher = SESSION.IsTeacher();
+    const isLoggedIn = SESSION.LoggedInName() !== undefined;
 
     return (
       <Paper className={classes.admPaper}>
@@ -68,9 +69,13 @@ class ModelsListTable extends React.Component {
             {models.map(model => (
               <TableRow key={model.id}>
                 <TableCell>
-                  <Button color="primary" onClick={e => OnModelSelect(model.id)}>
-                    {model.title}
-                  </Button>
+                  {isLoggedIn ? (
+                    <Button color="primary" onClick={e => OnModelSelect(model.id)}>
+                      {model.title}
+                    </Button>
+                  ) : (
+                    model.title
+                  )}
                 </TableCell>
                 <TableCell>{ADM.GetGroupName(model.groupId)}</TableCell>
                 <TableCell>{HumanDate(model.dateModified)}</TableCell>

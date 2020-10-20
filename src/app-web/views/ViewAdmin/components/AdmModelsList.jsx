@@ -106,7 +106,7 @@ class ModelsList extends React.Component {
 
     return (
       <>
-        <Paper className={classes.admPaper}>
+        <Paper className={classes.admPaper} style={{ maxHeight: '75%', overflowY: 'scroll' }}>
           <InputLabel>MODELS</InputLabel>
           <ModelsListTable
             models={models}

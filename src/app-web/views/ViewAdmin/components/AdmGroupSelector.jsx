@@ -1,6 +1,22 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  GroupSelector - Used to select a target classroom or group for cloning
+  GroupSelector
+
+  Used to select a target classroom or group for cloning or moving
+
+
+  # Cloning
+
+  If cloning:
+  * Either a classroom and/or a group can be selected
+  * Submit button displays "CLONE"
+
+
+  # Moving
+
+  If moving:
+  * A groupId MUST be selected
+  * Submit button displays "MOVE"
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -87,7 +103,7 @@ class GroupSelector extends React.Component {
 
   render() {
     let { selectedTeacherId, selectedClassroomId, selectedGroupId } = this.state;
-    const { open, OnClose, classes } = this.props;
+    const { open, type, OnClose, classes } = this.props;
     const teachers = ADM.GetAllTeachers();
     if (selectedTeacherId === '') {
       // use the currently selected teacher if possible
@@ -150,14 +166,18 @@ class GroupSelector extends React.Component {
             </Select>
           </FormControl>
           <DialogContentText>
-            Leave "Group" unselected if you want to clone the model to every group in the class.
-            Click "CLONE" when done.
+            {type === 'clone'
+              ? 'Leave "Group" unselected if you want to clone the model to every group in the class. Click "CLONE" when done.'
+              : 'Please select both "Classroom" and "Group".  Click "MOVE" when done'}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={OnClose}>Cancel</Button>
-          <Button onClick={this.OnSelect} disabled={selectedClassroomId === ''}>
-            Clone
+          <Button
+            onClick={this.OnSelect}
+            disabled={type === 'clone' ? selectedClassroomId === '' : selectedGroupId === ''}
+          >
+            {type === 'clone' ? 'Clone' : 'Move'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -169,6 +189,7 @@ class GroupSelector extends React.Component {
 /// and are declared for validation
 GroupSelector.defaultProps = {
   open: false,
+  type: 'clone',
   OnClose: () => {
     console.log('OnClose function not defined!');
   },
@@ -183,6 +204,7 @@ GroupSelector.defaultProps = {
 /// to describe them in more detail
 GroupSelector.propTypes = {
   open: PropTypes.bool,
+  type: PropTypes.string, // 'clone' || 'move'
   OnClose: PropTypes.func,
   OnSelect: PropTypes.func,
   classes: PropTypes.shape({ formControl: PropTypes.string })

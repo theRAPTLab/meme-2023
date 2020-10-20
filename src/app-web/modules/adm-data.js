@@ -206,6 +206,7 @@ ADMData.SyncUpdatedData = data => {
       case 'models': {
         const model = ADMData.GetModelById(value.id);
         model.dateModified = value.dateModified;
+        model.groupId = value.groupId;
         UR.Publish('ADM_DATA_UPDATED', data);
         if (model.title !== value.title) {
           model.title = value.title;
@@ -990,6 +991,25 @@ ADMData.CloneModelBulk = async (modelId, selections) => {
       if (DBG) console.log(PKG, '...cloning to', gId, 'done');
     });
   }
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *
+ * @param {String} modelId The model to move
+ * @param {Object} selections The target { selectedTeacherId, selectedClassroomId, selectedGroupId }
+ */
+ADMData.MoveModel = (modelId, selections) => {
+  if (selections.selectedGroupId === undefined)
+    console.error('ADM.MoveModel: No target group selected.');
+  ADMData.DB_RefreshPMCData(data => {
+    UR.DBQuery('update', {
+      models: {
+        id: modelId,
+        groupId: selections.selectedGroupId
+      }
+    });
+  });
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

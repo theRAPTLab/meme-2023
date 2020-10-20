@@ -49,7 +49,7 @@ class ModelsListTable extends React.Component {
   componentWillUnmount() {}
 
   render() {
-    const { classes, models, OnModelSelect, OnModelMove, OnModelClone } = this.props;
+    const { classes, models, OnModelSelect, OnModelMove, OnModelClone, OnModelDelete } = this.props;
     const isTeacher = SESSION.IsTeacher();
     const isLoggedIn = SESSION.LoggedInName() !== undefined;
 
@@ -86,6 +86,7 @@ class ModelsListTable extends React.Component {
                 <TableCell>
                   {isTeacher ? <Button onClick={e => OnModelMove(model.id)}>MOVE</Button> : ''}
                   <Button onClick={e => OnModelClone(model.id)}>CLONE</Button>
+                  {isTeacher ? <Button onClick={e => OnModelDelete(model.id)}>X</Button> : ''}
                 </TableCell>
               </TableRow>
             ))}
@@ -103,7 +104,8 @@ ModelsListTable.propTypes = {
   models: PropTypes.array,
   OnModelSelect: PropTypes.func,
   OnModelMove: PropTypes.func,
-  OnModelClone: PropTypes.func
+  OnModelClone: PropTypes.func,
+  OnModelDelete: PropTypes.func
 };
 
 ModelsListTable.defaultProps = {
@@ -117,6 +119,9 @@ ModelsListTable.defaultProps = {
   },
   OnModelClone: () => {
     console.error('Missing OnModelClone handler');
+  },
+  OnModelDelete: () => {
+    console.error('Missing OnModelDelete handler');
   }
 };
 

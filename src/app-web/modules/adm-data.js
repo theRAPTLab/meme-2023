@@ -207,6 +207,7 @@ ADMData.SyncUpdatedData = data => {
         const model = ADMData.GetModelById(value.id);
         model.dateModified = value.dateModified;
         model.groupId = value.groupId;
+        model.deleted = value.deleted;
         UR.Publish('ADM_DATA_UPDATED', data);
         if (model.title !== value.title) {
           model.title = value.title;
@@ -1007,6 +1008,18 @@ ADMData.MoveModel = (modelId, selections) => {
       models: {
         id: modelId,
         groupId: selections.selectedGroupId
+      }
+    });
+  });
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.DeleteModel = modelId => {
+  ADMData.DB_RefreshPMCData(data => {
+    UR.DBQuery('update', {
+      models: {
+        id: modelId,
+        deleted: true
       }
     });
   });

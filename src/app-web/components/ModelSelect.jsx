@@ -49,6 +49,7 @@ class ModelSelect extends React.Component {
     this.OnTargetSelectClose = this.OnTargetSelectClose.bind(this);
     this.OnModelMove = this.OnModelMove.bind(this);
     this.OnMoveTargetSelect = this.OnMoveTargetSelect.bind(this);
+    this.OnModelDelete = this.OnModelDelete.bind(this);
     this.OnLogout = this.OnLogout.bind(this);
 
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
@@ -175,6 +176,10 @@ class ModelSelect extends React.Component {
     ADM.MoveModel(this.state.modelId, selections);
     this.setState({ targetSelectDialogOpen: false });
   }
+
+  OnModelDelete(modelId) {
+    console.log('delete');
+    ADM.DeleteModel(modelId);
   }
 
   OnLogout() {
@@ -195,8 +200,12 @@ class ModelSelect extends React.Component {
       teacherName
     } = this.state;
     const isTeacher = SESSION.IsTeacher();
-    const myModels = isTeacher ? ADM.GetModelsByTeacher() : ADM.GetModelsByStudent();
-    const ourModels = ADM.GetMyClassmatesModels(ADM.GetSelectedClassroomId(), studentId);
+    let myModels = isTeacher ? ADM.GetModelsByTeacher() : ADM.GetModelsByStudent();
+    myModels = myModels.filter(m => !m.deleted);
+    let ourModels = ADM.GetMyClassmatesModels(ADM.GetSelectedClassroomId(), studentId);
+    ourModels = ourModels.filter(m => !m.deleted);
+    let deletedModels = isTeacher ? ADM.GetModelsByTeacher() : ADM.GetModelsByStudent();
+    deletedModels = deletedModels.filter(m => m.deleted);
     const readOnlyStatus = ADM.IsDBReadOnly() ? (
       <Typography variant="caption">READ ONLY MODE</Typography>
     ) : (
@@ -244,6 +253,7 @@ class ModelSelect extends React.Component {
                   OnModelSelect={this.OnModelEdit}
                   OnModelClone={this.OnModelClone}
                   OnModelMove={this.OnModelMove}
+                  OnModelDelete={this.OnModelDelete}
                 />
               </Grid>
               <Grid item hidden={!canViewOthers}>
@@ -253,8 +263,21 @@ class ModelSelect extends React.Component {
                   OnModelSelect={this.OnModelView}
                   OnModelClone={this.OnModelClone}
                   OnModelMove={this.OnModelMove}
+                  OnModelDelete={this.OnModelDelete}
                 />
               </Grid>
+              {isTeacher && (
+                <Grid item>
+                  <Typography variant="h4">Deleted Models</Typography>
+                  <ModelsListTable
+                    models={deletedModels}
+                    OnModelSelect={this.OnModelView}
+                    OnModelClone={this.OnModelClone}
+                    OnModelMove={this.OnModelMove}
+                    OnModelDelete={this.OnModelDelete}
+                  />
+                </Grid>
+              )}
             </Grid>
           </DialogContent>
         </Dialog>

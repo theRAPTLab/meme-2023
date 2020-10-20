@@ -1059,7 +1059,7 @@ ADMData.GetModelsByTeacher = (token = ASET.selectedTeacherId) => {
     console.error(`${token} is not a teacher token`);
     return [];
   }
-  // the teacherId is a repurposed classroomId field
+  // the teacherId embedded in the token via the classroomId
   const teacherId = classroomId;
   return adm_db.models.filter(mdl => {
     const cid = ADMData.GetClassroomIdByGroup(mdl.groupId);

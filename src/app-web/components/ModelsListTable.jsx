@@ -59,7 +59,7 @@ class ModelsListTable extends React.Component {
           <TableHead>
             <TableRow>
               <TableCell>TITLE</TableCell>
-              <TableCell>GROUP</TableCell>
+              <TableCell>{isTeacher ? 'CLASSROOM: ' : ''}GROUP</TableCell>
               <TableCell>UPDATED</TableCell>
               <TableCell>CREATED</TableCell>
               <TableCell> </TableCell>
@@ -77,7 +77,10 @@ class ModelsListTable extends React.Component {
                     model.title
                   )}
                 </TableCell>
-                <TableCell>{ADM.GetGroupName(model.groupId)}</TableCell>
+                <TableCell>
+                  {isTeacher ? `${ADM.GetClassroomNameByGroup(model.groupId)}: ` : ''}
+                  {ADM.GetGroupName(model.groupId)}
+                </TableCell>
                 <TableCell>{HumanDate(model.dateModified)}</TableCell>
                 <TableCell>{HumanDate(model.dateCreated)}</TableCell>
                 <TableCell>

@@ -418,6 +418,16 @@ ADMData.GetClassroomIdByGroup = groupId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
+ * @param {string} groupId
+ * @return {string} classroom name, "" if not found
+ */
+ADMData.GetClassroomNameByGroup = groupId => {
+  const classroomId = ADMData.GetClassroomIdByGroup(groupId);
+  const classroom = ADMData.GetClassroom(classroomId);
+  return classroom ? classroom.name : '';
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
  * @param {string} [studentId = current selected studentId]
  * @return {string} classroomId, undefined if not found
  */

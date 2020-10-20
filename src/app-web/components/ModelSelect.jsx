@@ -197,7 +197,7 @@ class ModelSelect extends React.Component {
               Logout
             </Button>
           </DialogActions>
-          <DialogTitle>Hi {ADM.GetStudentName()}!</DialogTitle>
+          <DialogTitle>Hi {ADM.GetLggedInUserName()}!</DialogTitle>
           <DialogContent>
             <Grid container spacing={2}>
               <Grid item>{createNewModelButton}</Grid>

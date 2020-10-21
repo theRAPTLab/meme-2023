@@ -17,6 +17,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 // Material UI Theming
+import DeleteIcon from '@material-ui/icons/DeleteOutlined';
 import { withStyles } from '@material-ui/core/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
@@ -86,7 +87,13 @@ class ModelsListTable extends React.Component {
                 <TableCell>
                   {isTeacher ? <Button onClick={e => OnModelMove(model.id)}>MOVE</Button> : ''}
                   <Button onClick={e => OnModelClone(model.id)}>CLONE</Button>
-                  {isTeacher ? <Button onClick={e => OnModelDelete(model.id)}>X</Button> : ''}
+                  {isTeacher ? (
+                    <Button onClick={e => OnModelDelete(model.id)}>
+                      <DeleteIcon />
+                    </Button>
+                  ) : (
+                    ''
+                  )}
                 </TableCell>
               </TableRow>
             ))}

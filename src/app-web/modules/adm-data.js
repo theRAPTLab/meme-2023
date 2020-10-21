@@ -935,7 +935,8 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
     // -- Copy data over
     clonedPMCData.entities = rfdc(sourcePMCData.entities);
     clonedPMCData.visuals = rfdc(sourcePMCData.visuals);
-    // -- Ignore comments and markedread
+    clonedPMCData.comments = rfdc(sourcePMCData.comments);
+    clonedPMCData.markedread = rfdc(sourcePMCData.markedread);
 
     if (DBG) console.log(PKG, '...cloned pmcData is', clonedPMCData);
     // 2. Create a new model with the cloned pmcData

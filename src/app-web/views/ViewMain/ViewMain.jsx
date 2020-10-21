@@ -235,7 +235,6 @@ class ViewMain extends React.Component {
   }
 
   OnToolsPanelToggle() {
-    console.log('toggle open')
     this.setState({ toolsPanelIsOpen: !this.state.toolsPanelIsOpen });
   }
 

@@ -954,7 +954,7 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
       const model = ADMObj.Model({
         groupId: clonedGroupId,
         pmcDataId: rdata.pmcData[0].id,
-        title: `${origModel.title} COPY`
+        title: ADMData.GenerateModelTitle(origModel.title, clonedGroupId)
       }); // set creation date
       if (DBG) console.log(PKG, '...cloned pmcDataId is', rdata.pmcData[0].id);
       UR.DBQuery('add', {
@@ -1079,9 +1079,34 @@ ADMData.GetModelsByTeacher = (token = ASET.selectedTeacherId) => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Gets the gropuId of the currently selected Student ID
+// Gets the groupId of the currently selected Student ID
 ADMData.GetModelsByGroup = (group = ADMData.GetGroupByStudent()) => {
   return adm_db.models.filter(mdl => mdl.groupId === group.id);
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Used by ADMData.CloneModel to determine if there are duplicate model names
+ * @param {String} groupId
+ */
+ADMData.GetModelTitlesByGroup = groupId => {
+  const groupModels = adm_db.models.filter(m => m.groupId === groupId);
+  return groupModels.map(m => m.title);
+};
+
+/**
+ * Returns `title` if there isn't already a model by with the same name
+ * else, returns `title COPY`
+ * @param {String} title
+ * @param {String} groupId
+ */
+ADMData.GenerateModelTitle = (title, groupId) => {
+  const existingTitles = ADMData.GetModelTitlesByGroup(groupId);
+  console.error('existingTitles', existingTitles);
+  // make sure 'COPY' doesn't already exist as well.  recurse if necessary.
+  let newtitle = existingTitles.includes(title) ? `${title} COPY` : title;
+  if (existingTitles.includes(newtitle)) newtitle = ADMData.GenerateModelTitle(newtitle, groupId);
+  return newtitle;
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

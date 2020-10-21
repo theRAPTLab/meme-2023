@@ -511,12 +511,14 @@ class ViewMain extends React.Component {
   }
 
   OnCloseModel() {
+    UR.Publish('MECHDIALOG:CLOSE');
     UR.Publish('STICKY_CLOSE');
     UR.Publish('RATING_CLOSE');
     ADM.CloseModel();
   }
 
   OnLogout() {
+    UR.Publish('MECHDIALOG:CLOSE');
     UR.Publish('STICKY_CLOSE');
     UR.Publish('RATING_CLOSE');
     ADM.Logout();

@@ -78,6 +78,7 @@ class MechDialog extends React.Component {
 
     UR.Subscribe('MECHDIALOG:ADD', this.DoAdd);
     UR.Subscribe('MECHDIALOG:EDIT', this.DoEdit);
+    UR.Subscribe('MECHDIALOG:CLOSE', this.DoClose);
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Subscribe('PROP_DELETE', this.DoPropDelete);
   }
@@ -87,6 +88,7 @@ class MechDialog extends React.Component {
   componentWillUnmount() {
     UR.Unsubscribe('MECHDIALOG:ADD', this.DoAdd);
     UR.Unsubscribe('MECHDIALOG:EDIT', this.DoEdit);
+    UR.Unsubscribe('MECHDIALOG:CLOSE', this.DoClose);
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Unsubscribe('PROP_DELETE', this.DoPropDelete);
   }
@@ -157,7 +159,9 @@ class MechDialog extends React.Component {
 
   DoClose() {
     this.setState({
-      isOpen: false
+      isOpen: false,
+      sourceId: '', // clear so mech dialog doesn't try to re-render them
+      targetId: '' // clear so mech dialog doesn't try to re-render them
     });
     const pmcDataId = ASET.selectedPMCDataId;
     const intMechId = Number(this.state.id);

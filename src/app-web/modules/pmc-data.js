@@ -468,7 +468,7 @@ PMCData.SyncRemovedData = data => {
 PMCData.UR_DBQuery = (cmd, data) => {
   UR.Publish('ADM_MODEL_MODIFIED', { modelId: ASET.selectedModelId }); // Update modification date.
   return UR.DBQuery(cmd, data);
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** SyncData Utility Function.
  *  Handles the case where parent may be undefined, and we still want to set it
@@ -550,7 +550,6 @@ PMCData.BuildModel = () => {
     h_evidenceByMech.set(mechId, evidenceLinkArray);
   });
 
-
   /*/
    *  Update h_evlinkCountByResource with next two loops as well.
    *  otherwise, we're walking down these arrays twice
@@ -566,7 +565,7 @@ PMCData.BuildModel = () => {
   /*/
   h_propByResource = new Map();
   h_evidenceByProp.forEach((evArr, propId) => {
-    if (evArr && (propId !== null)) {
+    if (evArr && propId !== null) {
       evArr.forEach(ev => {
         let propIds = h_propByResource.get(ev.rsrcId);
         if (propIds === undefined) propIds = [];
@@ -587,7 +586,7 @@ PMCData.BuildModel = () => {
   /*/
   h_mechByResource = new Map();
   h_evidenceByMech.forEach((evArr, mechId) => {
-    if (evArr && (mechId !== null)) {
+    if (evArr && mechId !== null) {
       evArr.forEach(ev => {
         console.log('pmc-data checking mechId', mechId);
         let mechIds = h_mechByResource.get(ev.rsrcId);
@@ -811,7 +810,7 @@ PMCData.PMC_PropUpdate = (propId, newData) => {
   // round-trip will call BuildModel() for us
 
   /** THIS METHOD DID NOT EXIST BEFORE **/
-};;
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  @param {Integer} propId - id of the prop being updated
@@ -914,7 +913,10 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
     target: Number(targetId),
     description
   };
-  UTILS.RLog('MechanismAdd', `from: "${sourceId}" to: "${targetId}" label: "${label}" description: "${description}"`);
+  UTILS.RLog(
+    'MechanismAdd',
+    `from: "${sourceId}" to: "${targetId}" label: "${label}" description: "${description}"`
+  );
   return PMCData.UR_DBQuery('add', {
     'pmcData.entities': {
       id: pmcDataId,
@@ -933,7 +935,16 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
   // Update the data
   const { sourceId, targetId, label, description } = newMech;
   if (DBG) {
-    console.log('MechUpdate: Updating', origMech.sourceId, '=>', sourceId, 'and', origMech.targetId, '=>', targetId)
+    console.log(
+      'MechUpdate: Updating',
+      origMech.sourceId,
+      '=>',
+      sourceId,
+      'and',
+      origMech.targetId,
+      '=>',
+      targetId
+    );
     if (typeof sourceId !== 'number')
       console.log('coercing sourceId to Number from', typeof sourceId);
     if (typeof targetId !== 'number')
@@ -1125,17 +1136,12 @@ PMCData.PMC_GetResourceIndex = rsrcId => {
 PMCData.PMC_DuplicateEvidenceLink = (evId, cb) => {
   // First get the old link
   const oldev = PMCData.PMC_GetEvLinkByEvId(evId);
-  const newev = Object.assign(
-    {},
-    oldev,
-    { id: undefined, propId: undefined, mechId: undefined }
-  );
+  const newev = Object.assign({}, oldev, { id: undefined, propId: undefined, mechId: undefined });
   UTILS.RLog('EvidenceDuplicate', oldev.note);
   // Create new evlink
-  PMCData.PMC_AddEvidenceLink(
-    newev,
-    id => { if (typeof cb === 'function') cb(id) },
-  );
+  PMCData.PMC_AddEvidenceLink(newev, id => {
+    if (typeof cb === 'function') cb(id);
+  });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_DeleteEvidenceLink = evId => {
@@ -1157,7 +1163,9 @@ PMCData.PMC_DeleteEvidenceLink = evId => {
  */
 PMCData.PMC_GetEvLinkByEvId = evId => {
   if (typeof evId !== 'number')
-    throw Error(`PMCData.PMC_GetEvLinkByEvId requested evId with non-Number ${evId} typeof ${typeof evId}`);
+    throw Error(
+      `PMCData.PMC_GetEvLinkByEvId requested evId with non-Number ${evId} typeof ${typeof evId}`
+    );
   return h_evidenceById.get(evId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1230,7 +1238,8 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
   if (newData.rsrcId) cleanedData.rsrcId = Number(newData.rsrcId);
   const evData = Object.assign(ev, cleanedData);
   const pmcDataId = ASET.selectedPMCDataId;
-  UTILS.RLog('EvidenceUpdate',
+  UTILS.RLog(
+    'EvidenceUpdate',
     `rsrcId: ${evData.rsrcId} propId: ${evData.propId} mechId: ${evData.mechId} numberLabel: ${evData.numberLabel} rating: ${evData.rating} why: ${evData.why} note: ${evData.note}  imageURL: ${evData.imageURL}`
   );
 
@@ -1243,7 +1252,7 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
     }
   });
   // round-trip will call BuildModel() for us
-};;
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  @param {String} evId
@@ -1322,7 +1331,8 @@ PMCData.SetEvidenceLinkTextFields = (evId, data) => {
  *                                three optional parameters: text, criteriaId
  */
 PMCData.DB_CommentAdd = (refId, commentData, cb) => {
-  if (refId === undefined || refId === "") throw Error(`refId is required for a new comment object! refId="${refId}`);
+  if (refId === undefined || refId === '')
+    throw Error(`refId is required for a new comment object! refId="${refId}`);
   if (commentData.id) throw Error('comment id should not be passed to a new comment object!');
   const newComment = PMCObj.Comment({
     refId: commentData.refId,
@@ -1387,7 +1397,8 @@ PMCData.DB_CommentUpdate = (refId, comment, cb) => {
  *  @param {Function} cb - a callback function
  *  */
 PMCData.DB_CommentsUpdate = (refId, comments, cb) => {
-  if (!Array.isArray(comments)) throw Error(`comments is not an array: ${comments} ${typeof comments}`);
+  if (!Array.isArray(comments))
+    throw Error(`comments is not an array: ${comments} ${typeof comments}`);
   const count = comments.length;
   let callback = undefined;
   for (let i = 0; i++; i < count) {
@@ -1397,7 +1408,7 @@ PMCData.DB_CommentsUpdate = (refId, comments, cb) => {
     }
     PMCData.DB_CommentUpdate(refId, comment[i], callback);
   }
-}
+};
 
 /**
  *  Remove comment from the db
@@ -1459,7 +1470,7 @@ PMCData.DB_MarkRead = (commentId, author) => {
 PMCData.HasBeenRead = (commentId, author) => {
   return a_markedread.find(m => {
     return m.commentId === commentId && m.author === author;
-  })
+  });
 };
 /**
  *  Checks if the comment referenced by commentId has been read by the author
@@ -1468,7 +1479,7 @@ PMCData.HasBeenRead = (commentId, author) => {
  *  @param {String} author - token
  */
 PMCData.HasUnreadComments = (comments, author) => {
-  if (!Array.isArray(comments)) throw Error('comments is not an array')
+  if (!Array.isArray(comments)) throw Error('comments is not an array');
   return comments.find(c => !PMCData.HasBeenRead(c.id, author));
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

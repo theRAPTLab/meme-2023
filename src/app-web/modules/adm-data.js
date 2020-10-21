@@ -937,6 +937,18 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
     clonedPMCData.visuals = rfdc(sourcePMCData.visuals);
     clonedPMCData.comments = rfdc(sourcePMCData.comments);
     clonedPMCData.markedread = rfdc(sourcePMCData.markedread);
+    // -- Check for missing resources
+    const missingResources = ADMData.GetMissingResources(sourceModel.groupId, clonedGroupId);
+    if (missingResources.length > 0) {
+      const clonedClassroomName = ADMData.GetClassroomNameByGroup(clonedGroupId);
+      let missingResourceTitles = '';
+      missingResources.forEach(r => {
+        missingResourceTitles += `* id: "${r.id}" label: "${r.label}"\n`;
+      });
+      UR.Publish('DIALOG_OPEN', {
+        text: `Model is cloned/moved, but note that the following resources need to be activated for classroom "${clonedClassroomName}":\n\n ${missingResourceTitles}`
+      });
+    }
 
     if (DBG) console.log(PKG, '...cloned pmcData is', clonedPMCData);
     // 2. Create a new model with the cloned pmcData
@@ -1102,7 +1114,6 @@ ADMData.GetModelTitlesByGroup = groupId => {
  */
 ADMData.GenerateModelTitle = (title, groupId) => {
   const existingTitles = ADMData.GetModelTitlesByGroup(groupId);
-  console.error('existingTitles', existingTitles);
   // make sure 'COPY' doesn't already exist as well.  recurse if necessary.
   let newtitle = existingTitles.includes(title) ? `${title} COPY` : title;
   if (existingTitles.includes(newtitle)) newtitle = ADMData.GenerateModelTitle(newtitle, groupId);
@@ -1448,9 +1459,9 @@ ADMData.Resource = rsrcId => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// returns `resources` not `classroomResources`
 /**
  * Returns an array of the subset of all resources that have been made available to the classroom
+ * returns `resources` not `classroomResources`
  * @param {string} classroomId
  * @return {Array} Array of classroom resource ids, e.g. `['rs1', 'rs2']`, [] if not found
  */
@@ -1463,6 +1474,26 @@ ADMData.GetResourcesForClassroom = classroomId => {
     return ADMData.Resource(rsrcId);
   });
   return classroomResources || [];
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Returns an array of resource titles present in origGroupId's classroom that are
+ * missing from the newGroupId's classroom.
+ * This is generally used by ADMData.CloneModel to note when a model is
+ * being moved to a classroom that does not have the same set of resources
+ * activated.
+ * @param {String} origGroupId if of the clone source model's group
+ * @param {String} newGroupId group id of the cloned model destination
+ * @return {Array} Array of classroom resource objects
+ */
+ADMData.GetMissingResources = (origGroupId, newGroupId) => {
+  const origClassroomId = ADMData.GetClassroomIdByGroup(origGroupId);
+  const newClassroomId = ADMData.GetClassroomIdByGroup(newGroupId);
+  const originalResources = ADMData.GetResourcesForClassroom(origClassroomId);
+  const clonedResources = ADMData.GetResourcesForClassroom(newClassroomId);
+  const clonedResourceIds = clonedResources.map(r => r.id);
+  let missingResources = originalResources.filter(r => !clonedResourceIds.includes(r.id));
+  return missingResources;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**

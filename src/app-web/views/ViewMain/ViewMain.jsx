@@ -39,6 +39,7 @@ import ZoomInMapIcon from '@material-ui/icons/CenterFocusWeak';
 import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
 // MEME App Components
 import DescriptionView from '../../components/DescriptionView';
+import InfoDialog from '../../components/InfoDialog';
 import HelpView from '../../components/HelpView';
 import Login from '../../components/Login';
 import MechDialog from '../../components/MechDialog';
@@ -724,6 +725,9 @@ class ViewMain extends React.Component {
 
         {/* Prop Dialog -- Property label editing dialog */}
         <PropDialog />
+
+        {/* General Information Dialog */}
+        <InfoDialog />
 
         {/* Component/Mech add/edit/delete buttons that respond to selection events */}
         <div

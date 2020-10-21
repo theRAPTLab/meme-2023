@@ -99,7 +99,7 @@ class ModelsListTable extends React.Component {
                     ''
                   )}
                   <Button onClick={e => OnModelClone(model.id)}>CLONE</Button>
-                  {showAdminOnlyView ? (
+                  {showAdminOnlyView && !model.deleted ? (
                     <Button onClick={e => OnModelDelete(model.id)}>
                       <DeleteIcon />
                     </Button>

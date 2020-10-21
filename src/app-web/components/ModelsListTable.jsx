@@ -50,8 +50,16 @@ class ModelsListTable extends React.Component {
   componentWillUnmount() {}
 
   render() {
-    const { classes, models, OnModelSelect, OnModelMove, OnModelClone, OnModelDelete } = this.props;
-    const isTeacher = SESSION.IsTeacher();
+    const {
+      classes,
+      models,
+      isAdmin,
+      OnModelSelect,
+      OnModelMove,
+      OnModelClone,
+      OnModelDelete
+    } = this.props;
+    const showAdminOnlyView = SESSION.IsTeacher() || isAdmin;
     const isLoggedIn = SESSION.LoggedInName() !== undefined;
 
     return (
@@ -60,7 +68,7 @@ class ModelsListTable extends React.Component {
           <TableHead>
             <TableRow>
               <TableCell>TITLE</TableCell>
-              <TableCell>{isTeacher ? 'CLASSROOM: ' : ''}GROUP</TableCell>
+              <TableCell>{showAdminOnlyView ? 'CLASSROOM: ' : ''}GROUP</TableCell>
               <TableCell>UPDATED</TableCell>
               <TableCell>CREATED</TableCell>
               <TableCell> </TableCell>
@@ -79,15 +87,19 @@ class ModelsListTable extends React.Component {
                   )}
                 </TableCell>
                 <TableCell>
-                  {isTeacher ? `${ADM.GetClassroomNameByGroup(model.groupId)}: ` : ''}
+                  {showAdminOnlyView ? `${ADM.GetClassroomNameByGroup(model.groupId)}: ` : ''}
                   {ADM.GetGroupName(model.groupId)}
                 </TableCell>
                 <TableCell>{HumanDate(model.dateModified)}</TableCell>
                 <TableCell>{HumanDate(model.dateCreated)}</TableCell>
                 <TableCell>
-                  {isTeacher ? <Button onClick={e => OnModelMove(model.id)}>MOVE</Button> : ''}
+                  {showAdminOnlyView ? (
+                    <Button onClick={e => OnModelMove(model.id)}>MOVE</Button>
+                  ) : (
+                    ''
+                  )}
                   <Button onClick={e => OnModelClone(model.id)}>CLONE</Button>
-                  {isTeacher ? (
+                  {showAdminOnlyView ? (
                     <Button onClick={e => OnModelDelete(model.id)}>
                       <DeleteIcon />
                     </Button>
@@ -109,6 +121,7 @@ ModelsListTable.propTypes = {
   classes: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
   models: PropTypes.array,
+  isAdmin: PropTypes.bool,
   OnModelSelect: PropTypes.func,
   OnModelMove: PropTypes.func,
   OnModelClone: PropTypes.func,
@@ -118,6 +131,7 @@ ModelsListTable.propTypes = {
 ModelsListTable.defaultProps = {
   classes: {},
   models: [],
+  isAdmin: false,
   OnModelSelect: () => {
     console.error('Missing OnModeSelect handler');
   },

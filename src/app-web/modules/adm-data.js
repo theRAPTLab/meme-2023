@@ -1007,7 +1007,8 @@ ADMData.MoveModel = (modelId, selections) => {
     UR.DBQuery('update', {
       models: {
         id: modelId,
-        groupId: selections.selectedGroupId
+        groupId: selections.selectedGroupId,
+        deleted: false
       }
     });
   });

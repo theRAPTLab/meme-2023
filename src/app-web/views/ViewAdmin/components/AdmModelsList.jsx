@@ -135,16 +135,30 @@ class ModelsList extends React.Component {
       targetSelectCallback
     } = this.state;
 
+    const activeModels = models.filter(m => !m.deleted);
+    const deletedModels = models.filter(m => m.deleted);
+
     return (
       <>
         <Paper className={classes.admPaper} style={{ maxHeight: '75%', overflowY: 'scroll' }}>
           <InputLabel>MODELS</InputLabel>
           <ModelsListTable
-            models={models}
+            models={activeModels}
             isAdmin
             OnModelSelect={this.OnModelView}
             OnModelClone={this.OnModelClone}
             OnModelMove={this.OnModelMove}
+            OnModelDelete={this.OnModelDelete}
+          />
+          <br />
+          <InputLabel>DELETED MODELS</InputLabel>
+          <ModelsListTable
+            models={deletedModels}
+            isAdmin
+            OnModelSelect={this.OnModelView}
+            OnModelClone={this.OnModelClone}
+            OnModelMove={this.OnModelMove}
+            OnModelDelete={this.OnModelDelete}
           />
         </Paper>
         <GroupSelector

@@ -17,11 +17,13 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 // Material UI Theming
+import DeleteIcon from '@material-ui/icons/DeleteOutlined';
 import { withStyles } from '@material-ui/core/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
+import SESSION from '../../system/common-session';
 import ADM from '../modules/data';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -43,16 +45,22 @@ function HumanDate(timestamp) {
 }
 
 class ModelsListTable extends React.Component {
-  componentDidMount() { }
+  componentDidMount() {}
 
-  componentWillUnmount() { }
-
-  OnModelSelect(modelId) {
-    this.props.OnModelSelect(modelId);
-  }
+  componentWillUnmount() {}
 
   render() {
-    const { classes, models } = this.props;
+    const {
+      classes,
+      models,
+      isAdmin,
+      OnModelSelect,
+      OnModelMove,
+      OnModelClone,
+      OnModelDelete
+    } = this.props;
+    const showAdminOnlyView = SESSION.IsTeacher() || isAdmin;
+    const isLoggedIn = SESSION.LoggedInName() !== undefined;
 
     return (
       <Paper className={classes.admPaper}>
@@ -60,22 +68,45 @@ class ModelsListTable extends React.Component {
           <TableHead>
             <TableRow>
               <TableCell>TITLE</TableCell>
-              <TableCell>GROUP</TableCell>
+              <TableCell>{showAdminOnlyView ? 'CLASSROOM: ' : ''}GROUP</TableCell>
               <TableCell>UPDATED</TableCell>
               <TableCell>CREATED</TableCell>
+              <TableCell> </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {models.map(model => (
               <TableRow key={model.id}>
                 <TableCell>
-                  <Button color="primary" onClick={e => this.OnModelSelect(model.id)}>
-                    {model.title}
-                  </Button>
+                  {isLoggedIn ? (
+                    <Button color="primary" onClick={e => OnModelSelect(model.id)}>
+                      {model.title}
+                    </Button>
+                  ) : (
+                    model.title
+                  )}
                 </TableCell>
-                <TableCell>{ADM.GetGroupName(model.groupId)}</TableCell>
+                <TableCell>
+                  {showAdminOnlyView ? `${ADM.GetClassroomNameByGroup(model.groupId)}: ` : ''}
+                  {ADM.GetGroupName(model.groupId)}
+                </TableCell>
                 <TableCell>{HumanDate(model.dateModified)}</TableCell>
                 <TableCell>{HumanDate(model.dateCreated)}</TableCell>
+                <TableCell>
+                  {showAdminOnlyView ? (
+                    <Button onClick={e => OnModelMove(model.id)}>MOVE</Button>
+                  ) : (
+                    ''
+                  )}
+                  <Button onClick={e => OnModelClone(model.id)}>CLONE</Button>
+                  {showAdminOnlyView && !model.deleted ? (
+                    <Button onClick={e => OnModelDelete(model.id)}>
+                      <DeleteIcon />
+                    </Button>
+                  ) : (
+                    ''
+                  )}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -90,14 +121,28 @@ ModelsListTable.propTypes = {
   classes: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
   models: PropTypes.array,
-  OnModelSelect: PropTypes.func
+  isAdmin: PropTypes.bool,
+  OnModelSelect: PropTypes.func,
+  OnModelMove: PropTypes.func,
+  OnModelClone: PropTypes.func,
+  OnModelDelete: PropTypes.func
 };
 
 ModelsListTable.defaultProps = {
   classes: {},
   models: [],
+  isAdmin: false,
   OnModelSelect: () => {
     console.error('Missing OnModeSelect handler');
+  },
+  OnModelMove: () => {
+    console.error('Missing OnModelMove handler');
+  },
+  OnModelClone: () => {
+    console.error('Missing OnModelClone handler');
+  },
+  OnModelDelete: () => {
+    console.error('Missing OnModelDelete handler');
   }
 };
 

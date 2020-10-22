@@ -938,17 +938,7 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
     clonedPMCData.comments = rfdc(sourcePMCData.comments);
     clonedPMCData.markedread = rfdc(sourcePMCData.markedread);
     // -- Check for missing resources
-    const missingResources = ADMData.GetMissingResources(sourceModel.groupId, clonedGroupId);
-    if (missingResources.length > 0) {
-      const clonedClassroomName = ADMData.GetClassroomNameByGroup(clonedGroupId);
-      let missingResourceTitles = '';
-      missingResources.forEach(r => {
-        missingResourceTitles += `* id: "${r.id}" label: "${r.label}"\n`;
-      });
-      UR.Publish('DIALOG_OPEN', {
-        text: `Model is cloned/moved, but note that the following resources need to be activated for classroom "${clonedClassroomName}":\n\n ${missingResourceTitles}`
-      });
-    }
+    ADMData.AnnounceMissingResources(sourceModelId, clonedGroupId);
 
     if (DBG) console.log(PKG, '...cloned pmcData is', clonedPMCData);
     // 2. Create a new model with the cloned pmcData
@@ -1006,6 +996,26 @@ ADMData.CloneModelBulk = async (modelId, selections) => {
     });
   }
 };
+/**
+ * This will display a dialog listing any resources used in the sourceModel's classroom
+ * that are missing from the targetGroup's classroom.
+ * @param {String} sourceModelId
+ * @param {String} targetGroupId
+ */
+ADMData.AnnounceMissingResources = (sourceModelId, targetGroupId) => {
+  const sourceModel = ADMData.GetModelById(sourceModelId);
+  const missingResources = ADMData.GetMissingResources(sourceModel.groupId, targetGroupId);
+  if (missingResources.length > 0) {
+    const targetClassroomName = ADMData.GetClassroomNameByGroup(targetGroupId);
+    let missingResourceTitles = '';
+    missingResources.forEach(r => {
+      missingResourceTitles += `* id: "${r.id}" label: "${r.label}"\n`;
+    });
+    UR.Publish('DIALOG_OPEN', {
+      text: `Model is cloned/moved, but note that the following resources need to be activated for classroom "${targetClassroomName}":\n\n ${missingResourceTitles}`
+    });
+  }
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -1016,6 +1026,8 @@ ADMData.CloneModelBulk = async (modelId, selections) => {
 ADMData.MoveModel = (modelId, selections) => {
   if (selections.selectedGroupId === undefined)
     console.error('ADM.MoveModel: No target group selected.');
+  ADMData.AnnounceMissingResources(modelId, selections.selectedGroupId);
+  // -- Update the DB
   ADMData.DB_RefreshPMCData(data => {
     UR.DBQuery('update', {
       models: {

@@ -37,15 +37,18 @@ class ModelsList extends React.Component {
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.OnModelView = this.OnModelView.bind(this);
     this.OnModelClone = this.OnModelClone.bind(this);
-    this.OnModelMove = this.OnModelMove.bind(this);
     this.OnCloneTargetSelect = this.OnCloneTargetSelect.bind(this);
-    this.OnCloneTargetClose = this.OnCloneTargetClose.bind(this);
+    this.OnTargetSelectClose = this.OnTargetSelectClose.bind(this);
+    this.OnModelMove = this.OnModelMove.bind(this);
+    this.OnMoveTargetSelect = this.OnMoveTargetSelect.bind(this);
+    this.OnModelDelete = this.OnModelDelete.bind(this);
 
     this.state = {
       classroomId: '',
       models: [],
       modelId: undefined,
-      cloneTargetSelectDialogOpen: false
+      targetSelectDialogOpen: false,
+      targetSelectionType: ''
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
@@ -82,43 +85,87 @@ class ModelsList extends React.Component {
     // set select a different groupID
     this.setState({
       modelId,
-      cloneTargetSelectDialogOpen: true
+      targetSelectDialogOpen: true,
+      targetSelectionType: 'clone',
+      targetSelectCallback: this.OnCloneTargetSelect
     });
   }
 
-  OnModelMove(e) {
-    alert('Model Move is not implmented yet!');
-  }
-
   OnCloneTargetSelect(selections) {
-    console.log('OnCloneTargetSElect', selections);
     ADM.CloneModelBulk(this.state.modelId, selections);
-    this.setState({ cloneTargetSelectDialogOpen: false });
+    this.setState({ targetSelectDialogOpen: false });
   }
 
-  OnCloneTargetClose() {
-    this.setState({ cloneTargetSelectDialogOpen: false });
+  OnTargetSelectClose() {
+    this.setState({ targetSelectDialogOpen: false });
+  }
+
+  OnModelMove(modelId) {
+    console.log('move');
+    // set select a different groupID
+    this.setState({
+      modelId,
+      targetSelectDialogOpen: true,
+      targetSelectionType: 'move',
+      targetSelectCallback: this.OnMoveTargetSelect
+    });
+  }
+
+  /**
+   *
+   * @param {Object} selections { selectedTeacherId, selectedClassroomId, selectedGroupId }
+   */
+  OnMoveTargetSelect(selections) {
+    // only move one selection
+    ADM.MoveModel(this.state.modelId, selections);
+    this.setState({ targetSelectDialogOpen: false });
+  }
+
+  OnModelDelete(modelId) {
+    console.log('delete');
+    ADM.DeleteModel(modelId);
   }
 
   render() {
     const { classes } = this.props;
-    const { models, cloneTargetSelectDialogOpen } = this.state;
+    const {
+      models,
+      targetSelectDialogOpen,
+      targetSelectionType,
+      targetSelectCallback
+    } = this.state;
+
+    const activeModels = models.filter(m => !m.deleted);
+    const deletedModels = models.filter(m => m.deleted);
 
     return (
       <>
         <Paper className={classes.admPaper} style={{ maxHeight: '75%', overflowY: 'scroll' }}>
           <InputLabel>MODELS</InputLabel>
           <ModelsListTable
-            models={models}
+            models={activeModels}
+            isAdmin
             OnModelSelect={this.OnModelView}
             OnModelClone={this.OnModelClone}
             OnModelMove={this.OnModelMove}
+            OnModelDelete={this.OnModelDelete}
+          />
+          <br />
+          <InputLabel>DELETED MODELS</InputLabel>
+          <ModelsListTable
+            models={deletedModels}
+            isAdmin
+            OnModelSelect={this.OnModelView}
+            OnModelClone={this.OnModelClone}
+            OnModelMove={this.OnModelMove}
+            OnModelDelete={this.OnModelDelete}
           />
         </Paper>
         <GroupSelector
-          open={cloneTargetSelectDialogOpen}
-          OnClose={this.OnCloneTargetClose}
-          OnSelect={this.OnCloneTargetSelect}
+          open={targetSelectDialogOpen}
+          type={targetSelectionType}
+          OnClose={this.OnTargetSelectClose}
+          OnSelect={targetSelectCallback}
         />
       </>
     );

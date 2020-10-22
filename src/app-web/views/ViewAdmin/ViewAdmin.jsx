@@ -22,6 +22,7 @@ import GroupsList from './components/AdmGroupsList';
 import ModelsList from './components/AdmModelsList';
 import ResourcesList from './components/AdmResourcesList';
 import RatingsView from './components/AdmRatingsView';
+import InfoDialog from '../../components/InfoDialog';
 /// MODULES ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import ADM from '../../modules/data';
@@ -113,6 +114,9 @@ class ViewAdmin extends React.Component {
           </Grid>
           <Grid item xs={3} />
         </Grid>
+
+        {/* General Information Dialog */}
+        <InfoDialog />
       </div>
     );
   }

@@ -78,6 +78,7 @@ class MechDialog extends React.Component {
 
     UR.Subscribe('MECHDIALOG:ADD', this.DoAdd);
     UR.Subscribe('MECHDIALOG:EDIT', this.DoEdit);
+    UR.Subscribe('MECHDIALOG:CLOSE', this.DoClose);
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Subscribe('PROP_DELETE', this.DoPropDelete);
   }
@@ -87,6 +88,7 @@ class MechDialog extends React.Component {
   componentWillUnmount() {
     UR.Unsubscribe('MECHDIALOG:ADD', this.DoAdd);
     UR.Unsubscribe('MECHDIALOG:EDIT', this.DoEdit);
+    UR.Unsubscribe('MECHDIALOG:CLOSE', this.DoClose);
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Unsubscribe('PROP_DELETE', this.DoPropDelete);
   }
@@ -123,45 +125,50 @@ class MechDialog extends React.Component {
     const pmcDataId = ASET.selectedPMCDataId;
     const intMechId = Number(data.id);
     if (intMechId) {
-      UR.DBTryLock('pmcData.entities', [pmcDataId, intMechId])
-        .then(rdata => {
-          const { success, semaphore, uaddr, lockedBy } = rdata;
-          status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
-          if (rdata.success) {
-            this.setState(
-              {
-                isOpen: true,
-                editExisting: true,
-                id,
-                sourceId,
-                sourceLabel: DATA.Prop(sourceId).name,
-                targetId,
-                targetLabel: DATA.Prop(targetId).name,
-                label,
-                description: description || '',  // Simple validation
-                origSourceId: sourceId,
-                origTargetId: targetId,
-                listenForSourceSelection: false,
-                listenForTargetSelection: false,
-                saveButtonLabel: 'Update'
-              },
-              () => this.DoSelectSourceAndTarget(sourceId, targetId) // show the selected props
-            );
-          } else {
-            alert(`Sorry, someone else (${rdata.lockedBy}) is editing this ${DATAMAP.PMC_MODELTYPES.MECHANISM.label} right now.  Please try again later.`)
-            UR.Publish('MECHDIALOG_CLOSED'); // tell ViewMain to re-enable ToolsPanel
-          }
-        });
+      UR.DBTryLock('pmcData.entities', [pmcDataId, intMechId]).then(rdata => {
+        const { success, semaphore, uaddr, lockedBy } = rdata;
+        status += success
+          ? `${semaphore} lock acquired by ${uaddr} `
+          : `failed to acquired ${semaphore} lock `;
+        if (rdata.success) {
+          this.setState(
+            {
+              isOpen: true,
+              editExisting: true,
+              id,
+              sourceId,
+              sourceLabel: DATA.Prop(sourceId).name,
+              targetId,
+              targetLabel: DATA.Prop(targetId).name,
+              label,
+              description: description || '', // Simple validation
+              origSourceId: sourceId,
+              origTargetId: targetId,
+              listenForSourceSelection: false,
+              listenForTargetSelection: false,
+              saveButtonLabel: 'Update'
+            },
+            () => this.DoSelectSourceAndTarget(sourceId, targetId) // show the selected props
+          );
+        } else {
+          alert(
+            `Sorry, someone else (${rdata.lockedBy}) is editing this ${DATAMAP.PMC_MODELTYPES.MECHANISM.label} right now.  Please try again later.`
+          );
+          UR.Publish('MECHDIALOG_CLOSED'); // tell ViewMain to re-enable ToolsPanel
+        }
+      });
     }
   }
 
   DoClose() {
     this.setState({
-      isOpen: false
+      isOpen: false,
+      sourceId: '', // clear so mech dialog doesn't try to re-render them
+      targetId: '' // clear so mech dialog doesn't try to re-render them
     });
     const pmcDataId = ASET.selectedPMCDataId;
     const intMechId = Number(this.state.id);
-    UR.DBTryRelease('pmcData.entities', [pmcDataId, intMechId])
+    UR.DBTryRelease('pmcData.entities', [pmcDataId, intMechId]);
     DATA.VM_SetSelectionLimit(1); // Go back to allowing only one.
     UR.Publish('MECHDIALOG_CLOSED');
   }
@@ -203,7 +210,11 @@ class MechDialog extends React.Component {
         if (selectedPropIds.length > 0) {
           const sourceId = selectedPropIds[0];
           if (sourceId === this.state.targetId) {
-            alert(`${DATA.Prop(sourceId).name} is already selected!  Please select a different ${DATAMAP.PMC_MODELTYPES.COMPONENT.label} or ${DATAMAP.PMC_MODELTYPES.OUTCOME.label}!`);
+            alert(
+              `${DATA.Prop(sourceId).name} is already selected!  Please select a different ${
+                DATAMAP.PMC_MODELTYPES.COMPONENT.label
+              } or ${DATAMAP.PMC_MODELTYPES.OUTCOME.label}!`
+            );
             DATA.VM_DeselectAll();
           } else {
             this.setState({
@@ -219,7 +230,11 @@ class MechDialog extends React.Component {
           // if two are selected, grab the second one, since source would grabed the first?
           const targetId = selectedPropIds.length > 1 ? selectedPropIds[1] : selectedPropIds[0];
           if (targetId === this.state.sourceId) {
-            alert(`${DATA.Prop(targetId).name} is already selected!  Please select a different ${DATAMAP.PMC_MODELTYPES.COMPONENT.label} or ${DATAMAP.PMC_MODELTYPES.OUTCOME.label}!`);
+            alert(
+              `${DATA.Prop(targetId).name} is already selected!  Please select a different ${
+                DATAMAP.PMC_MODELTYPES.COMPONENT.label
+              } or ${DATAMAP.PMC_MODELTYPES.OUTCOME.label}!`
+            );
             DATA.VM_DeselectAll();
           } else {
             this.setState({
@@ -294,7 +309,9 @@ class MechDialog extends React.Component {
           listenForTargetSelection: true
         });
       }
-      alert(`The ${DATAMAP.PMC_MODELTYPES.COMPONENT.label} or ${DATAMAP.PMC_MODELTYPES.OUTCOME.label} you were linking was deleted by someone else.  Please select a different component or property.`);
+      alert(
+        `The ${DATAMAP.PMC_MODELTYPES.COMPONENT.label} or ${DATAMAP.PMC_MODELTYPES.OUTCOME.label} you were linking was deleted by someone else.  Please select a different component or property.`
+      );
     }
   }
 
@@ -348,7 +365,7 @@ class MechDialog extends React.Component {
             // hack to prevent scrollbars from appearing during slide
             document.getElementsByTagName('body')[0].style.overflow = origOverflowSetting;
           }, 250);
-        }, 250)
+        }, 250);
       }
     );
     UTILS.RLog('MechanismReverse', `new source "${targetId}" to new target "${sourceId}"`);
@@ -423,7 +440,8 @@ class MechDialog extends React.Component {
         <Paper className={classes.edgeDialogPaper}>
           <form onSubmit={this.OnCreateClick}>
             <div className={classes.edgeDialogWindowLabel}>
-              ADD {DATAMAP.PMC_MODELTYPES.MECHANISM.label.toUpperCase()}<br />
+              ADD {DATAMAP.PMC_MODELTYPES.MECHANISM.label.toUpperCase()}
+              <br />
               <div>{DATAMAP.PMC_MODELTYPES.MECHANISM.description}</div>
             </div>
             <div className={classes.edgeDialogInput}>

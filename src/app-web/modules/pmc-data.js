@@ -171,7 +171,8 @@ PMCData.InitializeModel = (model, admdb) => {
             g.setEdge(obj.source, obj.target, {
               id: obj.id,
               name: obj.name,
-              description: obj.description
+              description: obj.description,
+              bidirectional: obj.bidirectional
             });
           break;
         case 'evidence':
@@ -276,7 +277,8 @@ PMCData.SyncAddedData = data => {
           m_graph.setEdge(value.source, value.target, {
             id: value.id,
             name: value.name,
-            description: value.description
+            description: value.description,
+            bidirectional: value.bidirectional
           });
           break;
         case 'evidence':
@@ -357,7 +359,8 @@ PMCData.SyncUpdatedData = data => {
           m_graph.setEdge(value.source, value.target, {
             id: value.id,
             name: value.name,
-            description: value.description
+            description: value.description,
+            bidirectional: value.bidirectional
           });
           dataWasUpdated = true;
           break;
@@ -889,7 +892,7 @@ PMCData.PMC_SetPropParent = (nodeId, parentId) => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
+PMCData.PMC_MechAdd = (sourceId, targetId, label, description, bidirectional) => {
   if (DBG) {
     if (typeof sourceId !== 'number')
       console.log('coercing sourceId to Number from', typeof sourceId);
@@ -911,11 +914,12 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
     name: label,
     source: Number(sourceId),
     target: Number(targetId),
-    description
+    description,
+    bidirectional
   };
   UTILS.RLog(
     'MechanismAdd',
-    `from: "${sourceId}" to: "${targetId}" label: "${label}" description: "${description}"`
+    `from: "${sourceId}" to: "${targetId}" label: "${label}" description: "${description}" bidirectional: "${bidirectional}"`
   );
   return PMCData.UR_DBQuery('add', {
     'pmcData.entities': {
@@ -933,7 +937,7 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description) => {
  */
 PMCData.PMC_MechUpdate = (origMech, newMech) => {
   // Update the data
-  const { sourceId, targetId, label, description } = newMech;
+  const { sourceId, targetId, label, description, bidirectional } = newMech;
   if (DBG) {
     console.log(
       'MechUpdate: Updating',
@@ -966,7 +970,8 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
     name: label,
     source: Number(sourceId),
     target: Number(targetId),
-    description
+    description,
+    bidirectional
   };
   return PMCData.UR_DBQuery('update', {
     'pmcData.entities': {
@@ -992,7 +997,7 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
 
       UTILS.RLog(
         'MechanismEdit',
-        `from: "${origMechId}" to: "${newMechId}" label: "${newMech.label}" description: "${newMech.description}"`
+        `from: "${origMechId}" to: "${newMechId}" label: "${newMech.label}" description: "${newMech.description}" bidirectional: "${newMech.bidirectional}"`
       );
 
       // 3. Show review dialog alert.

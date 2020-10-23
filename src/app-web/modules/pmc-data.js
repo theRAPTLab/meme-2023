@@ -1411,7 +1411,7 @@ PMCData.DB_CommentsUpdate = (refId, comments, cb) => {
       // last one so add the callback
       callback = cb;
     }
-    PMCData.DB_CommentUpdate(refId, comment[i], callback);
+    PMCData.DB_CommentUpdate(refId, comments[i], callback);
   }
 };
 

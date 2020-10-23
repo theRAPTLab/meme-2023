@@ -83,7 +83,7 @@ class VMech {
       .attr({ cursor: 'pointer' });
 
     // The pathLabel is used purely for positioning the pathLabelGroup.
-    // We rely on SVGjs's ability to position a text label on a path to 
+    // We rely on SVGjs's ability to position a text label on a path to
     // get the position we will use for our own label.
     this.pathLabel = svgRoot.text(add => {
       // add.tspan(this.data.name); // Original text that flowed along the path
@@ -113,7 +113,7 @@ class VMech {
     this.pathLabel
       // For pathGroupLabel, don't offset, keep it centered on the line
       .attr('dx', 0);
-      // .attr('dy', -6) // Original offset to move text off the pathline
+    // .attr('dy', -6) // Original offset to move text off the pathline
     // These initial 'pathLabel' and 'textpath' settings are overriden by Update, below.
     this.pathLabel.attr('text-anchor', 'end');
     this.textpath = this.pathLabel.path(this.path).attr('startOffset', this.path.length() - m_blen);
@@ -163,7 +163,7 @@ class VMech {
   }
 
   /**
-   * @returns {SVG.Container} - The SVG Container object that the badge should attach to 
+   * @returns {SVG.Container} - The SVG Container object that the badge should attach to
    */
   GetVBadgeParent() {
     return this.pathLabelGroup;
@@ -303,7 +303,6 @@ class VMech {
    * Handle any post-Update() drawing, such as selection state
    */
   Draw() {
-
     if (this.visualState.IsSelected('hover')) {
       // Hover
       this.path.stroke({ width: PATHWIDTH, color: COL_HOV, dasharray: '6 3' });

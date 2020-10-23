@@ -250,8 +250,14 @@ class VMech {
         // so text label doesn't draw upside down
         if (srcPt.x < tgtPt.x) {
           // left to right
+          // Arrows
+          if (data.bidirectional) {
+            this.path.marker('start', SVGDEFS.get('arrowStartHead'));
+            this.path.marker('end', SVGDEFS.get('arrowEndHead'));
+          } else {
+            this.path.marker('end', SVGDEFS.get('arrowEndHead')).attr('marker-start', '');
+          }
           this.path.plot(m_MakeQuadraticDrawingString(srcPt, tgtPt));
-          this.path.marker('end', SVGDEFS.get('arrowEndHead')).attr('marker-start', '');
           // text-anchor is like justification setting the alignment
           this.pathLabel.attr('text-anchor', 'middle'); // originally was 'end'
           this.textpath.attr('startOffset', '50%');
@@ -259,8 +265,14 @@ class VMech {
           // this.textpath.attr('startOffset', this.path.length() - m_blen);
         } else {
           // right to left
+          // Arrows
+          if (data.bidirectional) {
+            this.path.marker('start', SVGDEFS.get('arrowStartHead'));
+            this.path.marker('end', SVGDEFS.get('arrowEndHead'));
+          } else {
+            this.path.marker('start', SVGDEFS.get('arrowStartHead')).attr('marker-end', '');
+          }
           this.path.plot(m_MakeQuadraticDrawingString(tgtPt, srcPt));
-          this.path.marker('start', SVGDEFS.get('arrowStartHead')).attr('marker-end', '');
           this.pathLabel.attr('text-anchor', 'middle'); // originally was 'start'
           this.textpath.attr('startOffset', '50%');
           // original setting placing label near start arrow

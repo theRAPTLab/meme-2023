@@ -384,7 +384,8 @@ class ViewMain extends React.Component {
         label: mech.name,
         description: mech.description,
         sourceId: vw[0],
-        targetId: vw[1]
+        targetId: vw[1],
+        bidirectional: mech.bidirectional
       };
       UR.Publish('MECHDIALOG:EDIT', data);
     }

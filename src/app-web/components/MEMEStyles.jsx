@@ -168,7 +168,7 @@ const styles = theme => {
     edgeDialogTextField: {
       color: orange[500],
       width: '150px',
-      margin: '0 25px'
+      margin: '0'
     },
     edgeDialogDescriptionField: {
       color: orange[500],

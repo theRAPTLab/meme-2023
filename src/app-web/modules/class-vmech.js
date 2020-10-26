@@ -303,17 +303,17 @@ class VMech {
    * Handle any post-Update() drawing, such as selection state
    */
   Draw() {
-    if (this.visualState.IsSelected('hover')) {
-      // Hover
-      this.path.stroke({ width: PATHWIDTH, color: COL_HOV, dasharray: '6 3' });
-      this.pathLabel.fill(COL_HOV);
-      this.horizText.fill(COL_HOV);
-    } else if (this.visualState.IsSelected()) {
+    if (this.visualState.IsSelected()) {
       // Selected
       this.path.stroke({ width: PATHWIDTH, color: COL_MECH_SEL, dasharray: '6 3' });
       // markers.forEach(marker => marker.fill(COL_MECH_SEL));
       this.pathLabel.fill(COL_MECH_SEL);
       this.horizText.fill(COL_MECH_SEL);
+    } else if (this.visualState.IsSelected('hover')) {
+      // Hover
+      this.path.stroke({ width: PATHWIDTH, color: COL_HOV, dasharray: '6 3' });
+      this.pathLabel.fill(COL_HOV);
+      this.horizText.fill(COL_HOV);
     } else {
       // Normal
       this.path.stroke({ width: PATHWIDTH, color: COL_MECH, dasharray: '6 3' });

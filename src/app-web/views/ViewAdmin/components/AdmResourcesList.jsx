@@ -26,6 +26,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
 // Material UI Theming
+import DeleteIcon from '@material-ui/icons/DeleteOutlined';
 import { withStyles } from '@material-ui/core/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
@@ -44,6 +45,7 @@ class ResourcesList extends React.Component {
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.DoEditResource = this.DoEditResource.bind(this);
+    this.DoDeleteResource = this.DoDeleteResource.bind(this);
     this.OnResourceCheck = this.OnResourceCheck.bind(this);
     this.OnAddClick = this.OnAddClick.bind(this);
     this.OnLabelChange = this.OnLabelChange.bind(this);
@@ -94,7 +96,7 @@ class ResourcesList extends React.Component {
       this.forceUpdate();
     }
   }
-  
+
   DoEditResource(id) {
     const res = ADM.Resource(id);
     this.setState({
@@ -104,13 +106,17 @@ class ResourcesList extends React.Component {
       dialogNotes: res.notes,
       dialogType: res.type,
       dialogURL: res.url
-    })
+    });
+  }
+
+  DoDeleteResource(rsrcId) {
+    ADM.DB_ResourceDelete(rsrcId);
   }
 
   OnResourceCheck(rsrcId, checked) {
     ADM.DB_ClassroomResourceSet(rsrcId, checked, this.state.classroomId);
   }
-  
+
   OnAddClick() {
     const resource = ADMObj.Resource();
     this.setState({
@@ -178,12 +184,13 @@ class ResourcesList extends React.Component {
           <TableHead>
             <TableRow>
               <TableCell>INCLUDE FOR CLASSROOM</TableCell>
-              <TableCell></TableCell>
+              <TableCell />
               <TableCell>ID</TableCell>
               <TableCell>LABEL</TableCell>
               <TableCell>NOTES</TableCell>
               <TableCell>TYPE</TableCell>
               <TableCell>URL</TableCell>
+              <TableCell />
             </TableRow>
           </TableHead>
           <TableBody>
@@ -198,35 +205,45 @@ class ResourcesList extends React.Component {
                   />
                 </TableCell>
                 <TableCell>
-                  <Button
-                    size='small'
-                    onClick={() => this.DoEditResource(resource.id)}
-                  >Edit</Button>
+                  <Button size="small" onClick={() => this.DoEditResource(resource.id)}>
+                    Edit
+                  </Button>
                 </TableCell>
                 <TableCell>{resource.id}</TableCell>
                 <TableCell>{resource.label}</TableCell>
                 <TableCell>{resource.notes}</TableCell>
                 <TableCell>{resource.type}</TableCell>
                 <TableCell>{resource.url}</TableCell>
+                <TableCell>
+                  <Button size="small" onClick={() => this.DoDeleteResource(resource.id)}>
+                    <DeleteIcon />
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-        <Button
-          onClick={this.OnAddClick}
-        >
-          Add Resource
-        </Button>
+        <Button onClick={this.OnAddClick}>Add Resource</Button>
         <Dialog open={showDialog} onClose={this.OnDialogCloseClick}>
           <form onSubmit={this.OnUpdateResource}>
             <DialogTitle>Edit Resource</DialogTitle>
             <DialogContent>
               <p>Instructions</p>
               <ol>
-                <li>Copy the resource file into `meme.app/Contents/Resources/app/web/static/dlc/` folder</li>
+                <li>
+                  Copy the resource file into `meme.app/Contents/Resources/app/web/static/dlc/`
+                  folder
+                </li>
                 <li>Add a label and notes</li>
-                <li>Enter either "simulation" or "report" for the type.  Or you can enter a custom value.</li>
-                <li>Enter the URL.  e.g. if your resource file name is `myReport.pdf', enter '../static/dlc/myReport.pdf'.  The ".." and path "../static/dlc" are important, as is using the right slashes and right upper/lowercase!</li>
+                <li>
+                  Enter either "simulation" or "report" for the type. Or you can enter a custom
+                  value.
+                </li>
+                <li>
+                  Enter the URL. e.g. if your resource file name is `myReport.pdf', enter
+                  '../static/dlc/myReport.pdf'. The ".." and path "../static/dlc" are important, as
+                  is using the right slashes and right upper/lowercase!
+                </li>
                 <li>Don't forget to enable the resource for a classroom!</li>
               </ol>
               <p>IMPORTANT: Make sure you test your resource!</p>

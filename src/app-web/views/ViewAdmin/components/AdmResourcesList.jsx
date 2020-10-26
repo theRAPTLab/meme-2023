@@ -128,7 +128,7 @@ class ResourcesList extends React.Component {
       dialogURL: resource.url
     });
   }
-  
+
   OnLabelChange(e) {
     this.setState({ dialogLabel: e.target.value });
   }
@@ -144,7 +144,7 @@ class ResourcesList extends React.Component {
   OnURLChange(e) {
     this.setState({ dialogURL: e.target.value });
   }
-  
+
   OnUpdateResource(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -157,26 +157,32 @@ class ResourcesList extends React.Component {
     });
     if (resource.id === undefined) {
       // Add new resource
-      ADM.DB_ResourceAdd(resource);      
+      ADM.DB_ResourceAdd(resource);
     } else {
       // Update existing resource
       ADM.DB_ResourceUpdate(resource);
     }
     this.OnDialogCloseClick();
   }
-  
+
   OnDialogCloseClick() {
     this.setState({
       showDialog: false
-    })    
+    });
   }
 
   render() {
     const { classes } = this.props;
-    const { classroomResources, classroomId, showDialog,
-            dialogLabel, dialogNotes, dialogType, dialogURL } = this.state;
+    const {
+      classroomResources,
+      classroomId,
+      showDialog,
+      dialogLabel,
+      dialogNotes,
+      dialogType,
+      dialogURL
+    } = this.state;
     const resources = ADM.AllResources();
-
     return (
       <Paper className={classes.admResourceListPaper}>
         <InputLabel>RESOURCES</InputLabel>

@@ -17,6 +17,7 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import DescriptionIcon from '@material-ui/icons/Description';
+import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ImageIcon from '@material-ui/icons/Image';
 // Material UI Theming
@@ -99,7 +100,7 @@ class ResourceItem extends React.Component {
   }
 
   DoEvidenceEditStateUpdate(data) {
-    this.setState({hideAddButton: data.isBeingEdited});
+    this.setState({ hideAddButton: data.isBeingEdited });
   }
 
   OnResourceClick(rsrcId) {
@@ -151,7 +152,13 @@ class ResourceItem extends React.Component {
             secondary={`${resource.notes}`}
           />
           <ListItemSecondaryAction style={{ right: '0px' }}>
-            {resource.type === 'simulation' ? <ImageIcon /> : <DescriptionIcon />}
+            {resource.type === 'simulation' ? (
+              <ImageIcon />
+            ) : resource.type === 'assumption' || resource.type === 'idea' ? (
+              <EmojiObjectsIcon />
+            ) : (
+              <DescriptionIcon />
+            )}
             {evBadge}
             <Button className={classes.resourceExpandButton} onClick={this.DoToggleExpanded}>
               <ExpandMoreIcon

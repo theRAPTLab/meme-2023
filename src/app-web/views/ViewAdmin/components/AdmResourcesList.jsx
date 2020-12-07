@@ -273,7 +273,7 @@ class ResourcesList extends React.Component {
               <TextField
                 id="type"
                 label="Type"
-                placeholder="'simulation' or 'report'"
+                placeholder="'simulation', 'report', 'assumption' or 'idea'"
                 onChange={this.OnTypeChange}
                 value={dialogType}
                 fullWidth

@@ -267,7 +267,7 @@ class ResourceView extends React.Component {
               label="Our Notes"
               placeholder="We noticed..."
               multiline
-              rows="5"
+              rows="15"
               className={classes.resourceViewNote}
               margin="normal"
               variant="outlined"

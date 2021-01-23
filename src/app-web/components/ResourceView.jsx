@@ -20,10 +20,7 @@ import Modal from '@material-ui/core/Modal';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-// Material UI Icons
-import ImageIcon from '@material-ui/icons/Image';
-import DescriptionIcon from '@material-ui/icons/Description';
-import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
+
 // Material UI Theming
 import { withStyles } from '@material-ui/core/styles';
 
@@ -38,6 +35,24 @@ import PMCObj from '../modules/pmc-objects';
 import UTILS from '../modules/utils';
 import EvidenceList from './EvidenceList';
 import DEFAULTS from '../modules/defaults';
+
+/// RESOURCE TYPES /////////////////////////////////////////////////////////////////
+// Material UI Icons
+// I want to move this somewhere centralized but wasn't sure the best way, so this is a teemporary shifting
+// in how it is referenced to make it easier later
+import ImageIcon from '@material-ui/icons/Image';
+import DescriptionIcon from '@material-ui/icons/Description';
+import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
+import ContactSupportIcon from '@material-ui/icons/ContactSupport';
+
+const RESOURCE_TYPES = {
+  simulation: <ImageIcon />,
+  assumption: <EmojiObjectsIcon />,
+  idea: <EmojiObjectsIcon />,
+  report: <DescriptionIcon />,
+  question: <ContactSupportIcon />,
+  other: <DescriptionIcon />
+};
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -223,13 +238,9 @@ class ResourceView extends React.Component {
               <Typography variant="overline">Type:&nbsp;</Typography>
               <Typography variant="body2">
                 {resource.type}{' '}
-                {resource.type === 'simulation' ? (
-                  <ImageIcon />
-                ) : resource.type === 'assumption' || resource.type === 'idea' ? (
-                  <EmojiObjectsIcon />
-                ) : (
-                  <DescriptionIcon />
-                )}
+                {RESOURCE_TYPES[resource.type]
+                  ? RESOURCE_TYPES[resource.type]
+                  : RESOURCE_TYPES.other}
               </Typography>
             </CardContent>
           </Card>

@@ -29,6 +29,9 @@ import TextField from '@material-ui/core/TextField';
 import DeleteIcon from '@material-ui/icons/DeleteOutlined';
 import { withStyles } from '@material-ui/core/styles';
 
+/// Change eto pull from the same array as being used elsewhere (resourceView and resourceItem)
+const resourceTypeList = 'report, simulation, idea, assuption, question, or other';
+
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../../components/MEMEStyles';
@@ -241,10 +244,7 @@ class ResourcesList extends React.Component {
                   folder
                 </li>
                 <li>Add a label and notes</li>
-                <li>
-                  Enter either "simulation" or "report" for the type. Or you can enter a custom
-                  value.
-                </li>
+                <li>Enter {resourceTypeList} for the type. Or you can enter a custom value.</li>
                 <li>
                   Enter the URL. e.g. if your resource file name is `myReport.pdf', enter
                   '../static/dlc/myReport.pdf'. The ".." and path "../static/dlc" are important, as
@@ -273,7 +273,7 @@ class ResourcesList extends React.Component {
               <TextField
                 id="type"
                 label="Type"
-                placeholder="'simulation', 'report', 'assumption' or 'idea'"
+                placeholder={resourceTypeList}
                 onChange={this.OnTypeChange}
                 value={dialogType}
                 fullWidth

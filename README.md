@@ -1,46 +1,13 @@
-# MEME Boilerplate
+# Model and Evidence Mapping Environment (MEME)
 
----
+The MEME software tool is designed to help students articulate and model their understanding of scientific concepts using concept maps and evidence maps.  Concept maps have previously been used to allow students to express how the elements within a system are interrelated (Hmelo-Silver et al, 2017). Evidence maps have been successfully used to explicitly indicate how different aspects of a scientific model are grounded in disparate forms of evidence (Toth, Suthers, &amp; Lesgold, 2002). Within MEME, students will both model their understanding and indicate the sources of evidence (e.g., simulation and empirical) for specific aspects of the model. Students will also have the opportunity to rank their different sources of evidence based on their confidence level in how each source supports an aspect of their model, helping them to reflect on the relationship between evidence and models.
 
-## User Manual
+The software is designed to work in a classroom setting.  The core software runs as a node.js application on a server (a reasonably powered laptop will suffice).  Students log into the server via web browsers on their laptops and chromebooks.  The node.js application can be compiled and deployed as a standalone Electron application.
+
+See the [1.2.0 Release Notes](https://gitlab.com/inq-seeds/boilerplate/-/tags/v1.2.0-final) for information on how to set up and run the application.
 
 See the [Wiki Home](https://gitlab.com/inq-seeds/boilerplate/wikis/home) for End User Instructions.
 
----
+Please visit [www.joshuadanish.com](http://www.joshuadanish.com) for more information about the MEME project.
 
-## Read Me
-
-Boilerplate for Electron-hosted LAN-based Web Learning System!
-
-At this time, Electron userland "easy to get started" tools are not production-ready. We're building our own starting point rather than use _electron-forge_ and similar tools. This will allow us to develop understanding of best practices of the underlying tools (e.g. webpack) for using the Electron library.
-
-## Directory Configuration
-
-- [x] .babelrc auto include react presets
-- [x] .editorconfig to enforce spacing/tab rules
-- [x] .gitignore
-- [x] .eslintrc.json to enforce AirBNB linting rules
-- [x] .nvmrc to enforce required Node version
-- [x] .prettierrc to configure wrapping options
-
-## Development Tasks
-
-#### BUILD STAGE
-
-- [x] build ElectronApp bundle
-- [x] build WebApp bundle, served from ElectronApp
-
-#### DEVELOPMENT STAGE
-
-- [x] [build]
-- [ ] run ElectronApp w/ livereload of main.js (mainprocess under nodemon)
-- [x] mainprocess: load renderer processes w/ livereload of electron bundle
-- [x] mainprocess: launch WebApp Server (Express)
-- [x] mainprocess: launch WebApp Sockets (UNISYS)
-- [x] WebApp Server: watch for livereload of webapp bundle
-
-#### PACKAGE STAGE [WIP]
-
-- [x] [build]
-- [x] create electron package installer
-- [x] build standalone mac app
+MEME is sponsored by the National Science Foundation.

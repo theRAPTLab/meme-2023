@@ -642,9 +642,6 @@ class EvidenceLink extends React.Component {
                   {evlink.numberLabel}
                 </Avatar>
               </Grid>
-              <Typography className={classes.evidencePrompt} hidden={!isExpanded}>
-                How is this resource evidence for this part of the model?
-              </Typography>
 
               {/* Source */}
               <Grid item xs={isExpanded ? 12 : 10}>
@@ -666,7 +663,7 @@ class EvidenceLink extends React.Component {
                       variant="caption"
                       align="right"
                     >
-                      DESCRIPTION:
+                      IDEA:
                     </Typography>
                   </Grid>
 
@@ -679,7 +676,7 @@ class EvidenceLink extends React.Component {
                             classes.evidenceLabelFieldExpanded
                           )}
                           value={note}
-                          placeholder="Untitled..."
+                          placeholder="One idea from this resource..."
                           autoFocus
                           multiline
                           variant="filled"

@@ -532,14 +532,14 @@ const styles = theme => {
       backgroundColor: 'rgba(255,255,0,0.5)',
       margin: '5px',
       padding: '5px 10px',
-      width: '325px'
+      width: '425px'
     },
     stickynoteCardRead: {
       color: m_systemTextColor,
       backgroundColor: m_stickynoteColor,
       margin: '5px',
       padding: '5px 10px',
-      width: '325px'
+      width: '425px'
     },
     stickynoteIcon: {
       color: m_stickynoteIconColor

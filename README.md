@@ -4,7 +4,7 @@ The MEME software tool is designed to help students articulate and model their u
 
 The software is designed to work in a classroom setting.  The core software runs as a node.js application on a server (a reasonably powered laptop will suffice).  Students log into the server via web browsers on their laptops and chromebooks.  The node.js application can be compiled and deployed as a standalone Electron application.
 
-**Note**: this software is a work in progress, and is provided as-is. While we have tested it succesfully in our own context, we make no warranty about how it will run in your context nor about its security (we recomend using de-identified data only). Please evaluate it on your own before implementing.
+**Note**: this software is a work in progress, and is provided as-is. While we have tested it succesfully in our own context, we make no warranty about how it will run in your context nor about its security (we recomend using de-identified data only if you are not using it in a secure environment). Please evaluate it on your own before implementing.
 
 See the [1.3.1](https://gitlab.com/inq-seeds/boilerplate/-/tags/v1.3.1-final) and [1.3.0 Release Notes](https://gitlab.com/inq-seeds/boilerplate/-/tags/v1.3.0-final) for information on the latest features.  You can also view all [Release Notes](https://gitlab.com/inq-seeds/boilerplate/-/tags) by browsing Tags.
 

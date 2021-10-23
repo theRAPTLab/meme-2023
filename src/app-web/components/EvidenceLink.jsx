@@ -780,7 +780,7 @@ class EvidenceLink extends React.Component {
                       variant="caption"
                       align="right"
                     >
-                      WHY?
+                      REASON
                     </Typography>
                   </Grid>
                   <Grid item xs style={{ paddingTop: '4px' }}>

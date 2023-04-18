@@ -17,7 +17,7 @@ There are four ways to build and deploy MEME:
 
 This a detailed guide for code signing and notarizing the built Electron applications (#4) for distribution to other computers.  Without code signing, the Electron application will not run on other computers without bypassing security alerts.  
 
-See [Deploy Electron](../../wikis/Developer/Deploy-Electron) for general instructions on building the Electron application.  Once you have successfully built the application, use these instructions to Code Sign and Notarize the application.
+See [Deploy Electron](/../../wikis/Developer/Deploy-Electron) for general instructions on building the Electron application.  Once you have successfully built the application, use these instructions to Code Sign and Notarize the application.
 
 ---
 

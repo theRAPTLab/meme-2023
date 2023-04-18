@@ -8,7 +8,7 @@ The software is designed to work in a classroom setting.  The core software runs
 
 See the [1.3.1](https://gitlab.com/inq-seeds/boilerplate/-/tags/v1.3.1-final) and [1.3.0 Release Notes](https://gitlab.com/inq-seeds/boilerplate/-/tags/v1.3.0-final) for information on the latest features.  You can also view all [Release Notes](https://gitlab.com/inq-seeds/boilerplate/-/tags) by browsing Tags.
 
-See the [Wiki Home](wikis/home) for End User Instructions.
+See the [Wiki Home](../../wikis/home) for End User Instructions.
 
 Please visit [modelingandevidence.org](http://modelingandevidence.org) for more information about the MEME project.
 
@@ -89,8 +89,8 @@ NOTE: Because the `meme.app` Electron app is not signed and notarized, you may h
 
 
 For more technical information about creating and managing the dataset, see:
-* [Dataset Editing for Curriculum Development](wikis/User/Dataset-Editing-for-Curriculum-Development).
-* [Dataset Mangement](wikis/Developer/Dataset-Management)
+* [Dataset Editing for Curriculum Development](../../wikis/User/Dataset-Editing-for-Curriculum-Development).
+* [Dataset Mangement](../../wikis/Developer/Dataset-Management)
 
 
 
@@ -242,8 +242,8 @@ The snapshot time corresponds to the snapshot log, e.g. `2020-0209-log-124525.lo
 ## Getting Ready
 
 * Managing Datasets
-  * [Dataset Editing for Curriculum Development](wikis/User/Dataset-Editing-for-Curriculum-Development)
-  * [Dataset Management](wikis/Developer/Dataset-Management)
+  * [Dataset Editing for Curriculum Development](../../wikis/User/Dataset-Editing-for-Curriculum-Development)
+  * [Dataset Management](../../wikis/Developer/Dataset-Management)
 * Deploying
-  * [Deploy Electron](wikis/Developer/Deploy-Electron)
-  * Digital Ocean Deployment [deploying on digital ocean](wikis/Developer/Digital-Ocean-Deployment) *(Placeholder only)*
+  * [Deploy Electron](../../wikis/Developer/Deploy-Electron)
+  * Digital Ocean Deployment [deploying on digital ocean](../../wikis/Developer/Digital-Ocean-Deployment) *(Placeholder only)*

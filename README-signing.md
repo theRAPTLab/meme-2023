@@ -17,7 +17,7 @@ There are four ways to build and deploy MEME:
 
 This a detailed guide for code signing and notarizing the built Electron applications (#4) for distribution to other computers.  Without code signing, the Electron application will not run on other computers without bypassing security alerts.  
 
-See [Deploy Electron](/../../wikis/Developer/Deploy-Electron) for general instructions on building the Electron application.  Once you have successfully built the application, use these instructions to Code Sign and Notarize the application.
+See [Deploy Electron](https://gitlab.com/inq-seeds/boilerplate/-/wikis/Developer/Deploy-Electron) for general instructions on building the Electron application.  Once you have successfully built the application, use these instructions to Code Sign and Notarize the application.
 
 ---
 
@@ -133,8 +133,8 @@ To verify that things are working, in a terminal, `security find-identity` shoul
 
 As with any Electron build, you want to prepare the database and resources you want to seed the application with.
 
-* See [Dataset Editing for Curriculum Development](../../wikis/User/Dataset-Editing-for-Curriculum-Development) for more information about preparing the data.
-* See [Dataset Management](../../wikis/Developer/Dataset-Management) for more information about how datasets are loaded.
+* See [Dataset Editing for Curriculum Development](https://gitlab.com/inq-seeds/boilerplate/-/wikis/User/Dataset-Editing-for-Curriculum-Development) for more information about preparing the data.
+* See [Dataset Management](https://gitlab.com/inq-seeds/boilerplate/-/wikis/Developer/Dataset-Management) for more information about how datasets are loaded.
 
 
 
@@ -207,7 +207,7 @@ In the code signed and notarized Electron app, the files are in `~/Documents/MEM
 
 # Technical Notes
 
-See also [Electron Code Signing](../../wikis/Developer/Electron-Code-Signing) for more background on the `npm` scripts used in signing.
+See also [Electron Code Signing](https://gitlab.com/inq-seeds/boilerplate/-/wikis/Developer/Electron-Code-Signing) for more background on the `npm` scripts used in signing.
 
 ## Notes on Signing
 

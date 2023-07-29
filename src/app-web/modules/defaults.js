@@ -60,7 +60,7 @@ const DEFAULTS = {
     STICKY_BUTTON: '#ffdd11'
   },
   TEXT: {
-    ADD_EVIDENCE: 'Link Evidence'
+    ADD_EVIDENCE: 'New Evidence Link'
   }
 };
 

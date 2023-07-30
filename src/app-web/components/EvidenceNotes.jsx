@@ -38,7 +38,7 @@ class EvidenceNotes extends React.Component {
     if (evidenceMatches && evidenceMatches.length > 0) {
       return (
         <div>
-          Check out the evidence in this comment:{' '}
+          Evidence:{' '}
           {evidenceMatches.map((match, index) => {
             const evNumber = match[1];
             const evLetter = match[2] || null; // Use null if the letter doesn't exist
@@ -63,12 +63,7 @@ class EvidenceNotes extends React.Component {
         </div>
       );
     } else {
-      return (
-        <div>
-          Consider adding key evidence by writing 'Evidence #' where # is the evidence ID you want
-          people to look at.
-        </div>
-      );
+      return <div>Consider pointing out relevant evidence by typing 'evidence #'.</div>;
     }
   }
 }

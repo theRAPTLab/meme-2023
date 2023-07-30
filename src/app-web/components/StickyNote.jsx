@@ -83,6 +83,7 @@ class StickyNote extends React.Component {
 
     this.DoOpenSticky = this.DoOpenSticky.bind(this);
     this.OnEditClick = this.OnEditClick.bind(this);
+    this.OnSaveClick = this.OnSaveClick.bind(this);
     this.DoEditStart = this.DoEditStart.bind(this);
     this.DoSave = this.DoSave.bind(this);
     this.DoDelete = this.DoDelete.bind(this);
@@ -210,6 +211,10 @@ class StickyNote extends React.Component {
   OnEditClick(e) {
     e.preventDefault();
     this.DoEditStart();
+  }
+
+  OnSaveClick(e) {
+    this.OnEditFinished();
   }
 
   FocusTextInput() {
@@ -396,8 +401,10 @@ class StickyNote extends React.Component {
                   }}
                   inputRef={this.textInput}
                 />
-                <EvidenceNotes comment={comment} />
               </MuiThemeProvider>
+              <div className={classes.stickynoteCardLabel}>
+                <EvidenceNotes comment={comment} />
+              </div>
             </Grid>
           </Grid>
           <Grid container style={{ alignItems: 'flex-end', marginTop: '3px', height: '20px' }}>
@@ -415,8 +422,8 @@ class StickyNote extends React.Component {
               {isBeingEdited ? ( // Render the Save button when in edit mode
                 <IconButton
                   size="small"
-                  hidden={!isBeingEdited}
-                  onClick={this.OnClickAway}
+                  hidden={!(allowedToEdit && isBeingEdited) || selectedCriteria === undefined}
+                  onClick={this.OnSaveClick}
                   className={classes.stickynoteCardEditBtn}
                 >
                   <SaveIcon fontSize="small" className={classes.stickynoteCardAuthor} />

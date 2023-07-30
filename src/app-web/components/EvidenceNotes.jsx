@@ -1,3 +1,15 @@
+/*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
+
+EvidenceNotes
+
+Joshua whipped this up, so it might need some tightening.
+
+The basic idea is to look for markdown style "Evidence links" in the comment text and a) note it and b) make a link to it.
+
+NOTE: The styling is off / we should be using VBadges but it was too much of a hassle for me to figure out how.
+
+\*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
+
 import React from 'react';
 import UR from '../../system/ursys';
 import './EvidenceNotes.css'; // Import the CSS file for styling
@@ -15,10 +27,10 @@ class EvidenceNotes extends React.Component {
 
   render() {
     const { comment } = this.props || '';
-    const evidencePattern = /\[Evidence (\d+)([a-z])?\]/gi;
+    const evidencePattern = /Evidence (\d+)([a-z])?/gi;
 
     if (!comment || !comment.text) {
-      return null;
+      return '';
     }
 
     const evidenceMatches = [...comment.text.matchAll(evidencePattern)];
@@ -53,7 +65,7 @@ class EvidenceNotes extends React.Component {
     } else {
       return (
         <div>
-          Consider adding key evidence by writing [Evidence #] where # is the evidence ID you want
+          Consider adding key evidence by writing 'Evidence #' where # is the evidence ID you want
           people to look at.
         </div>
       );

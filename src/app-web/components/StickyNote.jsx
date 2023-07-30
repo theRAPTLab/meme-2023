@@ -55,6 +55,8 @@ import Typography from '@material-ui/core/Typography';
 // Material UI Icons
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import SaveIcon from '@material-ui/icons/Save';
+
 // Material UI Theming
 import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
@@ -394,9 +396,7 @@ class StickyNote extends React.Component {
                   }}
                   inputRef={this.textInput}
                 />
-                <div>
-                  <EvidenceNotes comment={comment} />
-                </div>
+                <EvidenceNotes comment={comment} />
               </MuiThemeProvider>
             </Grid>
           </Grid>
@@ -412,14 +412,26 @@ class StickyNote extends React.Component {
               </IconButton>
             </Grid>
             <Grid item xs={1}>
-              <IconButton
-                size="small"
-                hidden={!showEditButtons || (!allowedToEdit || isBeingEdited)}
-                onClick={this.OnEditClick}
-                className={classes.stickynoteCardEditBtn}
-              >
-                <EditIcon fontSize="small" className={classes.stickynoteCardAuthor} />
-              </IconButton>
+              {isBeingEdited ? ( // Render the Save button when in edit mode
+                <IconButton
+                  size="small"
+                  hidden={!isBeingEdited}
+                  onClick={this.OnClickAway}
+                  className={classes.stickynoteCardEditBtn}
+                >
+                  <SaveIcon fontSize="small" className={classes.stickynoteCardAuthor} />
+                </IconButton>
+              ) : (
+                // Render the Edit button when not in edit mode
+                <IconButton
+                  size="small"
+                  hidden={!showEditButtons || (!allowedToEdit || isBeingEdited)}
+                  onClick={this.OnEditClick}
+                  className={classes.stickynoteCardEditBtn}
+                >
+                  <EditIcon fontSize="small" className={classes.stickynoteCardAuthor} />
+                </IconButton>
+              )}
             </Grid>
           </Grid>
         </Paper>

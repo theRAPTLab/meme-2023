@@ -1516,6 +1516,11 @@ PMCData.GetEvLinksByResourceId = rsrcId => {
   return h_evidenceByResource.get(rsrcId);
 };
 
+PMCData.GetEvLinksCountByResourceId = rsrcId => {
+  // console.log('evlinks by rsrcId', ...Object.keys(h_evidenceByResource));
+  return h_evidenceByResource.get(rsrcId).length;
+};
+
 /// DEBUG UTILS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};

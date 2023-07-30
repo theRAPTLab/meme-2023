@@ -66,6 +66,7 @@ import ADM from '../modules/data';
 import PMC from '../modules/pmc-data';
 import ASET from '../modules/adm-settings';
 import MDReactComponent from 'markdown-react-js';
+import EvidenceNotes from './EvidenceNotes';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -393,6 +394,9 @@ class StickyNote extends React.Component {
                   }}
                   inputRef={this.textInput}
                 />
+                <div>
+                  <EvidenceNotes comment={comment} />
+                </div>
               </MuiThemeProvider>
             </Grid>
           </Grid>

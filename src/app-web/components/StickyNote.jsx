@@ -403,7 +403,7 @@ class StickyNote extends React.Component {
                 />
               </MuiThemeProvider>
               <div className={classes.stickynoteCardLabel}>
-                <EvidenceNotes comment={comment} />
+                <EvidenceNotes comment={comment} isBeingEdited={isBeingEdited} />
               </div>
             </Grid>
           </Grid>

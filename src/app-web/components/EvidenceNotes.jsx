@@ -26,7 +26,7 @@ class EvidenceNotes extends React.Component {
   };
 
   render() {
-    const { comment } = this.props || '';
+    const { comment, isBeingEdited } = this.props || '';
     const evidencePattern = /Evidence (\d+)([a-z])?/gi;
 
     if (!comment || !comment.text) {
@@ -63,7 +63,11 @@ class EvidenceNotes extends React.Component {
         </div>
       );
     } else {
-      return <div>Consider pointing out relevant evidence by typing 'evidence #'.</div>;
+      return (
+        <div hidden={!isBeingEdited}>
+          Consider pointing out relevant evidence by typing 'evidence #'.
+        </div>
+      );
     }
   }
 }

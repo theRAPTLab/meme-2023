@@ -240,8 +240,7 @@ class ResourcesList extends React.Component {
               <p>Instructions</p>
               <ol>
                 <li>
-                  Copy the resource file into `meme.app/Contents/Resources/app/web/static/dlc/`
-                  folder
+                  Copy the resource file into the `/resources` folder
                 </li>
                 <li>Add a label and notes</li>
                 <li>Enter {resourceTypeList} for the type. Or you can enter a custom value.</li>

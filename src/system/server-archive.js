@@ -7,15 +7,11 @@ const os = require('os');
 const path = require('path');
 const AdmZip = require('adm-zip');
 const DATESTR = require('./util/datestring');
+const PATHS = require('./common-paths').PATHS;
 
 /// HELPERS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const AssetPath = asset => path.join(__dirname, 'static', asset);
-// Orig runtime path
-// const RuntimePath = file => path.join(__dirname, '../../runtime', file);
-// TEMP FIX: The `/Documents/MEME/db/` should be parameterized as a setting.
-//           This fix at least allows the Electron app to export and import data
-const RuntimePath = file => path.join(os.homedir(), '/Documents/MEME/db/', file);
 const TempDir = prefix => fs.mkdtempSync(path.join(os.tmpdir(), prefix || TMP_PREFIX));
 
 /// DEBUG /////////////////////////////////////////////////////////////////////
@@ -69,13 +65,15 @@ function MakeDBArchive(dbName = 'meme') {
   const fileBlob = MakeJSONFile(MakeManifest(dbName));
   zip.addFile('00-manifest.json', fileBlob);
   // add loki file
-  const rpath = RuntimePath(`${dbName}.loki`);
+  const rpath = PATHS.Database(dbName);
   if (DBG) console.log('*** RPATH', rpath);
   if (!fs.existsSync(rpath)) {
-    console.log(`server-archive: runtime path does not exist yet`);
+    console.log(`server-archive: dataset does not exist yet`);
     return undefined;
   }
-  let err = zip.addLocalFile(rpath, 'runtime/');
+
+  let err = zip.addLocalFile(rpath, '/');
+  
   // write zip archive to os temp folder
   if (err) console.log('addLocalFile error', err);
   //

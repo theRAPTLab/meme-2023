@@ -191,16 +191,15 @@ Test it on other computers to make sure
 
 ### File Locations
 
-`npm run electron` will load the *.js databases in `src/system/datasets/meme/`.
+`npm run electron` will load the *.js databases in `templates/meme/`.
 
-`npm run dev` will load the *.js databases in `src/system/datasets/test/`.
+`npm run dev` will load the *.js databases in `templates/test/`.
 
-When you run the Electron app itself, it'll initialize the database using the data in `src/system/datasets/meme/`.
-The live / changed data is saved in the respective *.loki files in `/runtime`, e.g. `/runtime/meme.loki` and `/runtime/test.loki`.  As are the logs.  These are the files you'll want to grab.
+When you run the Electron app itself, it'll initialize the database using the data in `templates/meme/`.
+The live / changed data is saved in the respective *.loki files in `data/db`, e.g. `data/db/meme.loki` and `data/db/test.loki`.  As are the logs.  These are the files you'll want to grab.
 
-In the code signed and notarized Electron app, the files are in `~/Documents/MEME/db/*.loki`
+(Prior to 2023-08, in the code signed and notarized Electron app, the files are in `~/Documents/MEME/db/*.loki`)
 (Prior to 2023-04, they were stored in `/Contents/Resources/runtime`.)
-
 
 ---
 ---

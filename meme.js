@@ -4,7 +4,7 @@ to pass a parameter via npm run script, you have to use -- as in
 npm run myscript -- --myoptions=something
 alternatively you'll just write your own script that does it
 /*/
-const fs = require('fs');
+const fs = require('fs-extra');
 
 if (!fs.existsSync('./node_modules/ip')) {
   console.log(`\x1b[30;41m\x1b[37m MEME STARTUP ERROR \x1b[0m\n`);
@@ -151,6 +151,11 @@ function f_PackageApp() {
     { silent: false }
   );
   // u_checkError(res); // electron-packager stupidly emits status to stderr
+
+  // Copy the template folder to the distribution directory
+  const templatesPath = path.join(__dirname, 'templates');
+  fs.copySync(templatesPath, path.join(__dirname, 'dist', 'templates'));
+
   console.log(PR, `electron app written to ${CY}dist/meme-darwin-x64$/meme.app${TR}`);
   console.log(PR, `NOTE: default macos security requires ${CR}code signing${TR} to run app.`);
   console.log(PR, `use ${CY}npm run appsign${TR} to use default developer id (if installed)\n`);
@@ -179,6 +184,7 @@ async function f_SignApp() {
   }
 
   try {
+    // FUTURE: Update the path to the meme app folder if signing is made cross-platform
     await signAsync({
       app: './dist/meme-darwin-x64/meme.app',
       preAutoEntitlements: false,
@@ -254,8 +260,8 @@ function f_DocServe() {
 }
 
 function f_Clean(opt) {
-  console.log(PR, `removing dist/, runtime/ and built/ directories...`);
-  shell.rm('-rf', 'dist', 'built', 'runtime');
+  console.log(PR, `removing dist/, data/, and built/ directories...`);
+  shell.rm('-rf', 'dist', 'data', 'built');
   console.log(PR, `directories removed!`);
   if (opt.all) {
     console.log(PR, `also removing node_modules/`);

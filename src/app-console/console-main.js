@@ -20,7 +20,6 @@ const URSERVER = require('../system/server.js');
 const PROMPTS = require('../system/util/prompts');
 
 const AssetPath = asset => path.join(__dirname, 'static', asset);
-const RuntimePath = file => path.join(__dirname, '../../runtime');
 
 const PR = PROMPTS.Pad('ElectronHost');
 // this is available through electron remote in console.js

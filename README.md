@@ -41,7 +41,7 @@ This assumes you've already installed NodeJS.  If you haven't, we recommend usin
 
 ### I.B. Download Resources
 
-The pdf and netlogo simulation resources are not currently in the repo.  You will need to download them from the source (ask Joshua for them) and place them in the `boilerplate/src/app-web/static/dlc` folder.
+The pdf and netlogo simulation resources are not currently in the repo.  You will need to download them from the source (ask Joshua for them) and place them in the `resources` folder.
 
 
 ### I.C. Build and Run the Local Server
@@ -63,7 +63,7 @@ This will start the local server and load the existing `meme` database.
 
 You can also create and use arbitrary databases.  E.g. to create a new database, you would:
 
-1. Duplicate `datasets/_blank`, e.g. name it `fall2020`
+1. Duplicate `templates/_blank`, e.g. name it `fall2020`
 1. Start it up using the `DATASET` environment parameter, e.g. `DATASET="fall2020" npm start`
 1. You can quit/reboot/update the server, and start it up again with `DATASET="fall2020" npm start` and the data will be retained.
 
@@ -74,10 +74,10 @@ Once you verify the local server is running, you can build and deploy a standalo
 
 If you want to seed (no pun intended) a MEME Electron application with sample data, e.g. configure teachers, classrooms, and groups, example models, etc, you can just run the MEME application, make the changes, and then duplicate and run the MEME.app.  
 
-The one thing that can't be easily changed via the admin interface are the resources, so generally it's best to download them first.  (Technical note: By running the Electron app, you're automatically loading the `db.js` files in `system/datasets/meme`.  If you want to edit the `db.js` files by hand for the Electron app, edit those.
+The one thing that can't be easily changed via the admin interface are the resources, so generally it's best to download them first.  (Technical note: By running the Electron app, you're automatically seeding the application with the `*.db.js` files from one of the templates stored in `templates`.  If you want to edit the `*.db.js` files by hand for the Electron app, edit those.
 
 To build and run the Electron app:
-1. Make sure all the resources you want to use are in the `boilerplate/src/app-web/static/dlc` folder.
+1. Make sure all the resources you want to use are in one of the MEME templates or in the current resource folder (`/resources`).
 2. `npm run package`
 3. Find the app in `boilerplate/dist/meme-darwin-x64/meme.app`
 4. Double click the `meme.app` file to start it.
@@ -96,16 +96,14 @@ For more technical information about creating and managing the dataset, see:
 
 **Updating Resources in the MEME.app**
 
+TODO: Scott->Ben: Review instructions if there is a better way to describe how to do this in MacOS
+
 If you've already built and distributed the MEME app and find that you need to add or change resources, you can still update resources in the MEME.app manually:
 1. Quit the MEME app.
-2. Find the "meme.app" file in your Finder.
-3. Ctrl-Click on the "meme.app" and select "Show Package Contents"
-4. Navigate to `meme.app/Contents/Resources/app/web/static/dlc`
-5. Copy your new resources into the `dlc` folder.
-6. Run the MEME app and use the admin interface to add the resources and assign them to classrooms.
-7. You can now duplicate the MEME app file and distribute it.  The new resources should be included with the app.
-
-
+2. Find the MEME application folder in your Finder.
+3. Copy your new resources into the `resources` folder.
+4. Run the MEME app and use the admin interface to add the resources and assign them to classrooms.
+5. You can now duplicate the MEME app file and distribute it.  The new resources should be included with the app.
 
 ## III. Admin Interface
 
@@ -208,8 +206,8 @@ To import a database file:
 
 ### Research Logs
 
-* Researcher logs can be found in `meme.app/Contents/Resources/runtime/logs`.  Look for dated log files like `meme.app/Contents/Resources/runtime/logs/2019-09102019-0910-log-102440.txt`
-* Screenshots can be found in `meme.app/Contents/Resources/runtime/screenshots`.
+* Researcher logs can be found in `data/logs`.  Look for dated log files like `data/logs/2019-09102019-0910-log-102440.txt`
+* Screenshots can be found in `data/logs/screenshots`.
 
 NOTE: Over time research logs and screenshots can grow quite large.  You'll want to keep an eye on disk space, especially if you use the same app over months.
 
@@ -225,12 +223,13 @@ NOTE: Over time research logs and screenshots can grow quite large.  You'll want
 We recommend daily backups.  Better yet, back up after each classroom period.
 
 * The easiest way to backup is to just duplicate the whole MEME app.
-* If you want to save space, you can just grab the database file in `meme.app/Contents/Resources/system/datasets/meme.loki` (assuming you didn't rename the database or are running a different database file).
+
+* If you want to save space, you can just grab the database file in `data/db/meme.loki` (assuming you didn't rename the database or are running a different database file).
 
 *Database Snapshots*
 When the server starts up, MEME will now:
 
-* automatically copy the current LOKI database file (usually `meme.loki` in the classroom) to a backup file using the same date format as the log files. The database file is of the form `YYYY-MMDD-meme-HHMMSS.loki.snapshot` and is in the `runtime` directory.
+* automatically copy the current LOKI database file (usually `meme.loki` in the classroom) to a backup file using the same date format as the log files. The database file is of the form `YYYY-MMDD-meme-HHMMSS.loki.snapshot` and is in the `data/db/backups` directory.
 * log the file name of the database snapshot in the log
 
 The snapshot time corresponds to the snapshot log, e.g. `2020-0209-log-124525.loki.snapshot` = state of db at the *start* of the `2020-0209-log-124525.txt` log.

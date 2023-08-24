@@ -1,8 +1,20 @@
 const path = require('path');
 const fs = require('fs-extra');
 
-const codebase = path.resolve(__dirname, `..${path.sep}`);
-console.log('CODEBASE: ', codebase);
+/// LOAD LIBRARIES ////////////////////////////////////////////////////////////
+/// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+const PROMPTS = require('./util/prompts');
+
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+/// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+const { TERM_DB: CLR, TR, CCRIT: CC } = PROMPTS;
+const LPR = PROMPTS.Pad('PATH');
+const PR = `${CLR}${PROMPTS.Pad(LPR)}${TR}`;
+
+/// MODULE-WIDE VARS //////////////////////////////////////////////////////////
+/// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+const codebase = path.resolve(__dirname, `..`);
+console.log(PR, `codebase located at: ${codebase}`);
 
 // Check whether the application is running within the context of an electron shell; if it is
 //  navigate out of folder
@@ -25,9 +37,7 @@ if (path.basename(codebase) === 'app') {
 }
 
 const rootFolder = relativeRootPath;
-
-console.log('Root folder: ', rootFolder);
-
+console.log(PR, `meme root folder located at: ${rootFolder}`);
 const dataFolder = path.join(rootFolder, 'data');
 
 const MEME_TEMPLATES = {
@@ -53,11 +63,9 @@ const PATHS = {
   Screenshot: path.join(dataFolder, 'screenshots')
 };
 
-console.log('Path config: ', PATHS);
-console.log('Template (init): ', PATHS.Template(MEME_TEMPLATES.init));
-console.log('Template (blank): ', PATHS.Template(MEME_TEMPLATES.blank));
-
 // Ensure certain directories exist (others are created dynamically/by other routines)
 fs.ensureDirSync(PATHS.Resources);
 
+/// EXPORT MODULE DEFINITION //////////////////////////////////////////////////
+/// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 module.exports = { PATHS, MEME_TEMPLATES };

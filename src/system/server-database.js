@@ -148,7 +148,7 @@ DB.InitializeDatabase = (options = {}) => {
     const templateOrder = [ dataset, MEME_TEMPLATES.init, MEME_TEMPLATES.blank ];
     const template = templateOrder.find(x => f_CheckTemplate(x));
 
-    console.log('using template:', template);
+    console.log(PR, `data template if needed: ${template}`);
 
     // on the first load of (non-existent database), we will have no
     // collections so we can detect the absence of our collections and
@@ -158,7 +158,6 @@ DB.InitializeDatabase = (options = {}) => {
       .map(name => f_LoadCollection(name, template));
 
     const init = loadedCollections.every(x => x);
-    console.log('init new?', init);
 
     if (init) {
       // Initialize resources
@@ -180,7 +179,6 @@ DB.InitializeDatabase = (options = {}) => {
 
     function f_CheckTemplate(template) {
       const templatePath = PATHS.Template(template);
-      console.log('checking template path: ', templatePath);
 
       // Check the path and see if there are database files there
       if (FS.existsSync(templatePath)) {
@@ -264,9 +262,10 @@ DB.InitializeDatabase = (options = {}) => {
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function f_InitResources(template) {
     const templateResources = PATH.join(PATHS.Template(template), 'resources');
-    console.log('copying initial resources');
-    const files = FS.readdirSync(templateResources);
 
+    console.log(PR, `copying template resources from ${templateResources}`);
+
+    const files = FS.readdirSync(templateResources);
     files.forEach(file => 
       FS.copyFileSync(PATH.join(templateResources, file), 
         PATH.join(PATHS.Resources, PATH.basename(file))));

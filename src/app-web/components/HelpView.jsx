@@ -146,6 +146,14 @@ Moreland, Vickery, Murphy & Stiso.
           <Divider style={{ marginBottom: '0.5em' }} />
           <div style={{ overflowY: 'scroll', paddingRight: '5px' }}>
             <h6>Criteria for a Good Model</h6>
+            <div>
+              <p>
+                <em>
+                  Don't forget that it's good to point out both the strengths of a model, and the
+                  areas we think can be improved.
+                </em>
+              </p>
+            </div>
             <CriteriaList Criteria={criteria} IsInEditMode={false} />
             <MDReactComponent className={classes.helpViewText} text={helptext} />
             <MDReactComponent className={classes.helpViewText} text={credittext} />

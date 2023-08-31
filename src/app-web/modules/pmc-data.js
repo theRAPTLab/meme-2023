@@ -1516,6 +1516,11 @@ PMCData.GetEvLinksByResourceId = rsrcId => {
   return h_evidenceByResource.get(rsrcId);
 };
 
+// Additional helper method to return the link count, as needed in the resource list (and maybe other places?)
+PMCData.GetEvLinksCountByResourceId = rsrcId => {
+  return h_evidenceByResource.get(rsrcId).length;
+};
+
 /// DEBUG UTILS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};

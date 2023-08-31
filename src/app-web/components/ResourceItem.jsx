@@ -142,7 +142,7 @@ class ResourceItem extends React.Component {
     const { isExpanded, hideAddButton } = this.state;
     let evBadge = {};
     if (!isExpanded) {
-      let links = resource.links || 0;
+      let links = DATA.GetEvLinksCountByResourceId(resource.id);
       evBadge = <Chip className={classes.evidenceBadge} label={links} color="primary" />;
     } else {
       evBadge = '';

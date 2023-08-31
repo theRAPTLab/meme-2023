@@ -263,12 +263,14 @@ DB.InitializeDatabase = (options = {}) => {
   function f_InitResources(template) {
     const templateResources = PATH.join(PATHS.Template(template), 'resources');
 
-    console.log(PR, `copying template resources from ${templateResources}`);
+    if (FS.existsSync(templateResources)) {
+      console.log(PR, `copying template resources from ${templateResources}`);
 
-    const files = FS.readdirSync(templateResources);
-    files.forEach(file => 
-      FS.copyFileSync(PATH.join(templateResources, file), 
-        PATH.join(PATHS.Resources, PATH.basename(file))));
+      const files = FS.readdirSync(templateResources);
+      files.forEach(file => 
+        FS.copyFileSync(PATH.join(templateResources, file), 
+          PATH.join(PATHS.Resources, PATH.basename(file))));
+    }
   }
 }; // Initialize Database
 

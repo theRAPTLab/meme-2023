@@ -29,7 +29,7 @@ if (PATH.basename(m_codebase) === 'app') {
 
   // On MacOS in particular, Electron will distribute the application in a folder called
   //  'Contents', if this is the case, bypass the folder
-  // Note: platform is known at compile time when packaged; could consume a webpack variable rather 
+  // Note: platform is known at compile time when packaged; could consume a webpack variable rather
   //  than resolve this at runtime
   if (PATH.basename(relativeRootPath).toLowerCase() === 'contents') {
     relativeRootPath = PATH.join(relativeRootPath, '..');
@@ -49,12 +49,11 @@ const PATHS = {
   Resources: PATH.join(m_rootFolder, 'resources'),
   Database: (dataset = 'meme') => PATH.join(m_dataFolder, 'db', `${dataset}.loki`),
   DatabaseBackups: PATH.join(m_dataFolder, 'db', 'backups'),
-  Template: (template) => {
+  Template: template => {
     if (template === MEME_TEMPLATES.blank) {
       template = '_blank';
-    }
-    else if (template === MEME_TEMPLATES.init) {
-      template = 'meme'; 
+    } else if (template === MEME_TEMPLATES.init) {
+      template = 'meme';
     }
 
     return PATH.join(m_rootFolder, 'templates', template);

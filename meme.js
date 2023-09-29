@@ -129,9 +129,43 @@ function f_RunElectron() {
   shell.exec(`npx electron ./built/console/console-main`);
 }
 
+function f_GetPlatformConfig(targetPlatform = null, targetArch = null) {
+  // Platform selection; defaults to host platform
+  const electronPlatform = targetPlatform != null ? targetPlatform : process.platform;
+  const electronArch = targetArch != null ? targetArch : process.arch;
+
+  // Note: the Electron Packager does not allow specifying the platform specific folder name
+  //  using the out parameter, only the folder; this variable matches the current package folder
+  //  name
+  const packageFolder = `meme-${electronPlatform}-${electronArch}`;
+  const packageOutput = path.join(__dirname, 'dist', packageFolder);
+
+  let friendlyName;
+  switch (electronPlatform) {
+    case 'darwin':
+      friendlyName = 'MEME MacOS';
+      break;
+    case 'linux':
+      friendlyName = 'MEME Linux';
+      break;
+    case 'win32':
+      friendlyName = 'MEME Windows';
+      break;
+    default:
+      friendlyName = null;
+  }
+
+  return {
+    platform: electronPlatform,
+    arch: electronArch,
+    packageOutput,
+    friendlyName
+  };
+}
+
 function f_PackageApp() {
   console.log(`\n`);
-  console.log(PR, `packaging ${CY}mac electron app${TR} 'meme.app'`);
+  console.log(PR, `packaging ${CY}electron app${TR} 'meme.app'`);
   console.log(PR, `erasing ./built and ./dist directories`);
   shell.rm('-rf', './dist', './built');
   console.log(PR, `compiling console, web, system files into ./built`);
@@ -145,23 +179,65 @@ function f_PackageApp() {
   console.log(PR, `installing node dependencies into ./built`);
   shell.cd('built');
   shell.exec('npm install', { silent: true });
-  console.log(PR, `using electron-packager to write 'meme.app' to ./dist`);
+
+  // FUTURE: Pass the platform and architecture from the script parameters to allow for
+  //  cross-platform builds
+  const platformConfig = f_GetPlatformConfig();
+
+  console.log(PR, `using electron-packager to write 'meme.app' to ${platformConfig.packageOutput}`);
   res = shell.exec(
-    `npx electron-packager . meme --out ../dist --overwrite --app-bundle-id ${APP_BUNDLE_ID}`,
+    `npx electron-packager . meme --platform ${platformConfig.platform} ` +
+      `--arch ${platformConfig.arch} --out ../dist --overwrite ` +
+      `--app-bundle-id ${APP_BUNDLE_ID}`,
     { silent: false }
   );
   // u_checkError(res); // electron-packager stupidly emits status to stderr
 
-  // Copy the template folder to the distribution directory
-  const templatesPath = path.join(__dirname, 'templates');
-  fs.copySync(templatesPath, path.join(__dirname, 'dist', 'templates'));
+  // For non-Mac platforms, the application is not stored within a dedicated folder and contains
+  //  a 'resources' folder for the Electron resources. Since this conflicts with the 'resources'
+  //  folder for MEME, it should be placed in a dedicated folder
+  if (platformConfig.platform !== 'darwin') {
+    // Move the Electron app and resources into the provided subfolder
+    const appFullPath = path.join(__dirname, 'dist', 'meme.app');
+    fs.renameSync(platformConfig.packageOutput, appFullPath);
+    fs.ensureDirSync(platformConfig.packageOutput);
+    fs.moveSync(appFullPath, path.join(platformConfig.packageOutput, 'meme.app'));
+  }
 
-  console.log(PR, `electron app written to ${CY}dist/meme-darwin-x64$/meme.app${TR}`);
-  console.log(PR, `NOTE: default macos security requires ${CR}code signing${TR} to run app.`);
-  console.log(PR, `use ${CY}npm run appsign${TR} to use default developer id (if installed)\n`);
+  console.log(PR, `copying templates to output folder: ${platformConfig.packageOutput}`);
+
+  const templatesPath = path.join(__dirname, 'templates');
+  fs.copySync(templatesPath, path.join(platformConfig.packageOutput, 'templates'));
+  fs.ensureDirSync(path.join(platformConfig.packageOutput, 'data'));
+  fs.ensureDirSync(path.join(platformConfig.packageOutput, 'resources'));
+
+  // Rename the output folder to something friendlier
+  let finalOutput;
+  if (platformConfig.friendlyName != null) {
+    fs.renameSync(
+      platformConfig.packageOutput,
+      path.join(__dirname, 'dist', platformConfig.friendlyName)
+    );
+    finalOutput = `dist/${platformConfig.friendlyName}`;
+  } else {
+    finalOutput = path.basename(platformConfig.packageOutput);
+  }
+
+  console.log(PR, `electron app written to ${CY}${finalOutput}${TR}`);
+  if (platformConfig.platform === 'darwin') {
+    console.log(PR, `NOTE: default macos security requires ${CR}code signing${TR} to run app.`);
+    console.log(PR, `use ${CY}npm run appsign${TR} to use default developer id (if installed)\n`);
+  }
 }
 
 async function f_SignApp() {
+  const platformConfig = f_GetPlatformConfig();
+
+  if (platformConfig.platform !== 'darwin') {
+    console.log(PR, 'Non-MacOS distributions do not require signing (yet).');
+    return;
+  }
+
   console.log(`\n`);
   console.log(PR, `using electron/osx-sign to ${CY}securely sign${TR} 'meme.app'`);
   console.log(PR, `please be patient, this may take a moment...`);
@@ -183,10 +259,20 @@ async function f_SignApp() {
     return;
   }
 
+  const appPath = path.join(
+    __dirname,
+    'dist',
+    platformConfig.friendlyName != null
+      ? platformConfig.friendlyName
+      : path.basename(platformConfig.packageOutput),
+    'meme.app'
+  );
+
   try {
     // FUTURE: Update the path to the meme app folder if signing is made cross-platform
     await signAsync({
-      app: './dist/meme-darwin-x64/meme.app',
+      //app: './dist/meme-darwin-x64/meme.app',
+      app: appPath,
       preAutoEntitlements: false,
       platform: 'darwin',
       optionsForFile: file => {
@@ -207,7 +293,7 @@ async function f_SignApp() {
   try {
     await electronNotarize.notarize({
       appBundleId: APP_BUNDLE_ID,
-      appPath: './dist/meme-darwin-x64/meme.app',
+      appPath,
       appleId,
       appleIdPassword,
       teamId,

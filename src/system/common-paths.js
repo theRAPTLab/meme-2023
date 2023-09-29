@@ -31,7 +31,7 @@ if (PATH.basename(m_codebase) === 'app') {
   //  'Contents', if this is the case, bypass the folder
   // Note: platform is known at compile time when packaged; could consume a webpack variable rather
   //  than resolve this at runtime
-  if (PATH.basename(relativeRootPath).toLowerCase() === 'contents') {
+  if (PATH.basename(relativeRootPath).toLowerCase() === 'meme.app') {
     relativeRootPath = PATH.join(relativeRootPath, '..');
   }
 }

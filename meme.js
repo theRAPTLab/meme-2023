@@ -143,7 +143,7 @@ function f_GetPlatformConfig(targetPlatform = null, targetArch = null) {
   let friendlyName;
   switch (electronPlatform) {
     case 'darwin':
-      friendlyName = 'MEME MacOS';
+      friendlyName = 'MEME macOS';
       break;
     case 'linux':
       friendlyName = 'MEME Linux';
@@ -210,6 +210,20 @@ function f_PackageApp() {
   fs.copySync(templatesPath, path.join(platformConfig.packageOutput, 'templates'));
   fs.ensureDirSync(path.join(platformConfig.packageOutput, 'data'));
   fs.ensureDirSync(path.join(platformConfig.packageOutput, 'resources'));
+
+  // For macOS - include a shell script to remove the quarantine flag
+  // Note: this is a workaround because the application will run with "translocation" - which will
+  //  application bundle in a read-only folder that is in a randomized path. Runtime file write
+  //  operations therefore fail when they are targetted relative to the application bundle
+  if (platformConfig.platform === 'darwin') {
+    fs.writeFileSync(
+      path.join(platformConfig.packageOutput, 'install.sh'),
+      '#/bin/sh\nxattr -d com.apple.quarantine ./meme.app',
+      {
+        mode: 0o744
+      }
+    );
+  }
 
   // Rename the output folder to something friendlier
   let finalOutput;

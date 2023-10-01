@@ -220,7 +220,7 @@ function f_PackageApp() {
       path.join(platformConfig.packageOutput, 'install.sh'),
       '#/bin/sh\nxattr -d com.apple.quarantine ./meme.app',
       {
-        mode: 0o744
+        mode: 0o755
       }
     );
   }

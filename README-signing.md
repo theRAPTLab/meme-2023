@@ -177,7 +177,7 @@ APPLE_TEAM_ID=<Your Apple Team ID>
 
 To Code Sign and Notarize the Electron application:
 1.  `nvm use` -- If you see errors like `node:56749) Warning: Accessing non-existent property 'cat' of module exports...` you're probably using the wrong version of node.
-2.  `npm build package`
+2.  `npm run package`
 3.	`npm run appsign`
 
 This should build and sign an Electron app in `boilerplate/dist/meme-darwin-x64`.  You can distribute the `meme.app` to your teachers

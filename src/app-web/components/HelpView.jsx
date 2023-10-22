@@ -95,7 +95,7 @@ Evidence Links should describe how a resource supports or contradicts your model
 ---`,
       credittext: `###### About MEME:
 
-**About** -- The Model and Evidence Mapping Environment (**MEME**) was developed as part of the Scaffolding Explanations and Epistemic Development for Systems (**SEEDS**) project, a collaborative project that was funded by the National Science Foundation under award [1761019](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1761019&HistoricalAwards=false) to Joshua Danish, Ravit Duncan, Cindy Hmelo-Silver and Clark Chinn.
+**About** -- The Model and Evidence Mapping Environment (**MEME**) was developed as part of the Scaffolding Explanations and Epistemic Development for Systems (**SEEDS**) project, a collaborative project that was funded by the National Science Foundation under award [1761019](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1761019&HistoricalAwards=false) to Joshua Danish, Ravit Duncan, Cindy Hmelo-Silver and Clark Chinn. More information can be found at [modelingandevidence.org](http://modelingandevidence.org)
 
 **Design** -- The software design team included Joshua Danish, Ravit Duncan, Cindy Hmelo-Silver,
 Clark Chinn, Zachary Ryan, Na'ama Av-Shalom, Mimi Moreland, Morgan Vickery, Danielle
@@ -106,6 +106,8 @@ Murphy and Christina Stiso. Software development was provided by [Inquirium](htt
 Moreland, Vickery, Murphy & Stiso.
 
 **Contact** -- For more information, contact Joshua Danish at [jdanish@iu.edu](mailto:jdanish@iu.edu?subject=MEME) or [http://www.joshuadanish.com](http://www.joshuadanish.com).
+
+**Note**: This software is provided as-is. Please test it thoroughly before using in a learning environment.
 
       `
     };

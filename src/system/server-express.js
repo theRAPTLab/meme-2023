@@ -173,13 +173,11 @@ function Start() {
     }
   });
 
-  // serve resource files: this is necessary to support binding the target fodler
-  //  "resources" to the legacy URL in use by clients in their resource data list
-  app.use('/static/dlc', express.static(PATHS.Resources));
+  // serve resource files
+  app.use('/resources', express.static(PATHS.Resources));
 
-  // for everything else...
+  // and everything else...
   app.use('/', express.static(DOCROOT));
-
 
   // handle image uploads
   app.post(SCREENSHOT_POST_URL, upload.single('screenshot'), (req, res, next) => {

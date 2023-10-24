@@ -141,6 +141,8 @@ function f_GetPlatformConfig(targetPlatform = null, targetArch = null) {
   const packageOutput = path.join(__dirname, 'dist', packageFolder);
 
   let friendlyName;
+  // Note: the entry point is expected to be a subdirectory within the distribution due to conflicts
+  //  between the Electron distribution folder structure and the current MEME folder structure
   let entrypoint;
   switch (electronPlatform) {
     case 'darwin':
@@ -157,11 +159,21 @@ function f_GetPlatformConfig(targetPlatform = null, targetArch = null) {
       break;
     default:
       console.log(PR, `${CR}ERROR${TR} - unable to identify platform`);
-      process.exit(0);
+      process.exit(1);
+  }
+
+  // Defensive check
+  if (!entrypoint.includes(path.sep)) {
+    console.log(
+      PR,
+      'Platform configuration must embed the entry point within a subfolder of ' +
+        'the distribution.'
+    );
+    process.exit(1);
   }
 
   const distOutput = path.join(__dirname, 'dist', friendlyName);
-  const appPath = entrypoint.substring(0, entrypoint.indexOf('/'));
+  const appPath = entrypoint.substring(0, entrypoint.indexOf(path.sep));
 
   return {
     platform: electronPlatform,

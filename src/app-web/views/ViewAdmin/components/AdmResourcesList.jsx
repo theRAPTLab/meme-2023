@@ -244,8 +244,9 @@ class ResourcesList extends React.Component {
                 <li>Enter {resourceTypeList} for the type. Or you can enter a custom value.</li>
                 <li>
                   Enter the URL. e.g. if your resource file name is `myReport.pdf', enter
-                  '/myReport.pdf'. The '/' prefix is important, as is using the right slashes and
-                  right upper/lowercase!
+                  'myReport.pdf'. For a resource file located within a sub-directory, enter
+                  'subdirectory/myReport.pdf'. It is important to use the '/' slash and right
+                  upper/lowercase!
                 </li>
                 <li>Don't forget to enable the resource for a classroom!</li>
               </ol>
@@ -278,7 +279,7 @@ class ResourcesList extends React.Component {
               <TextField
                 id="url"
                 label="URL"
-                placeholder="/filename.ext"
+                placeholder="filename.ext"
                 onChange={this.OnURLChange}
                 value={dialogURL}
                 fullWidth

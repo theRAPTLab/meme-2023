@@ -258,7 +258,7 @@ class ResourceView extends React.Component {
           <iframe
             id="resourceFrame"
             src={
-              resource.url && resource.url.startsWith('/')
+              resource.url && !resource.url.startsWith('http')
                 ? `/resources/${resource.url}`
                 : resource.url
             }

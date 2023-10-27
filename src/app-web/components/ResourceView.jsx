@@ -257,7 +257,11 @@ class ResourceView extends React.Component {
         <div style={{ display: 'flex', height: 'inherit' }}>
           <iframe
             id="resourceFrame"
-            src={resource.url}
+            src={
+              resource.url && !resource.url.startsWith('http')
+                ? `/resources/${resource.url}`
+                : resource.url
+            }
             style={{ height: '90%', flexGrow: '1' }}
             title="resource"
           />

@@ -6,9 +6,9 @@ The software is designed to work in a classroom setting.  The core software runs
 
 **Note**: this software is a work in progress, and is provided as-is. While we have tested it succesfully in our own context, we make no warranty about how it will run in your context nor about its security (we recomend using de-identified data only if you are not using it in a secure environment). Please evaluate it on your own before implementing.
 
-See the [1.3.1](https://gitlab.com/inq-seeds/boilerplate/-/tags/v1.3.1-final) and [1.3.0 Release Notes](https://gitlab.com/inq-seeds/boilerplate/-/tags/v1.3.0-final) for information on the latest features.  You can also view all [Release Notes](https://gitlab.com/inq-seeds/boilerplate/-/tags) by browsing Tags.
+See the [1.3.1](https://github.com/theRAPTLab/meme/releases/tag/v1.3.1-final) and [1.3.0 Release Notes](https://github.com/theRAPTLab/meme/releases/tag/v1.3.0-final) for information on the latest features.  You can also view all [Release Notes](https://github.com/theRAPTLab/meme/releases) by browsing Tags.
 
-See the [Wiki Home](https://gitlab.com/inq-seeds/boilerplate/-/wikis/home) for End User Instructions.
+See the [Wiki Home](https://github.com/theRAPTLab/meme/wiki) for End User Instructions.
 
 Please visit [modelingandevidence.org](http://modelingandevidence.org) for more information about the MEME project.
 
@@ -89,8 +89,8 @@ NOTE: Because the `meme.app` Electron app is not signed and notarized, you may h
 
 
 For more technical information about creating and managing the dataset, see:
-* [Dataset Editing for Curriculum Development](https://gitlab.com/inq-seeds/boilerplate/-/wikis/User/Dataset-Editing-for-Curriculum-Development).
-* [Dataset Mangement](https://gitlab.com/inq-seeds/boilerplate/-/wikis/Developer/Dataset-Management)
+* [Dataset Editing for Curriculum Development](https://github.com/theRAPTLab/meme/wiki/Dataset-Editing-for-Curriculum-Development).
+* [Dataset Management](https://github.com/theRAPTLab/meme/wiki/Dataset-Management)
 
 
 
@@ -124,26 +124,8 @@ If you are running the server on a remote server, you can use the special `?dani
 
 As of 1.0, the meme app should run on Chrome browsers on Mac laptops, Windows laptops, and Chromebooks.  It should mostly work on Android tablets (though they have not been fully tested). Unfortunately there are known rendering issues with iOS Chrome.
 
-### IV.A. Install Screen Capture Extension
 
-In order to capture screens when creating a new evidence, you will need to install the MEME Extension on each student machine.
-
-1. Check out https://gitlab.com/inq-seeds/screenshot
-2. Go to *SETTINGS* in Chrome (in "stacked dot" menu upper right)
-3. Go to *EXTENSIONS* (in left sidebar of settings screen)
-4. Enable ***Developer Mode***
-5. Choose *Load an Unpacked Extension*
-6. Find the *extension* directory in `screenshot` repo
-7. Once the extension is installed, when students create a new evidence, a screenshot of the resource will be automatically captured.
-
-NOTES:
-
-* As of November 2019, the extension has been confirmed to work with Chrome on macOS, Windows 10, and ChromeOS.
-* The screenshot only works when the Resource View is opened.  If you're just viewing the Resource Library list, you can't capture the screen.
-* The app will work without the extension, but students will have to use other tools to capture the screen and manually insert them to evidence.
-
-
-### IV.B. Run as Student
+### IV.A. Run as Student
 
 To bring students into the app:
 1. Start the MEME app.
@@ -159,7 +141,7 @@ NOTES:
 * Sticky note comments are tied to individual students, but any student can edit any comment made by a member of their group.
 
 
-### IV.C. Teachers Viewing and Commenting on Student Work
+### IV.B. Teachers Viewing and Commenting on Student Work
 
 Teachers can log in and view student work much as a student would:
 1. Start the MEME app
@@ -241,8 +223,8 @@ The snapshot time corresponds to the snapshot log, e.g. `2020-0209-log-124525.lo
 ## Getting Ready
 
 * Managing Datasets
-  * [Dataset Editing for Curriculum Development](https://gitlab.com/inq-seeds/boilerplate/-/wikis/User/Dataset-Editing-for-Curriculum-Development)
-  * [Dataset Management](https://gitlab.com/inq-seeds/boilerplate/-/wikis/Developer/Dataset-Management)
+  * [Dataset Editing for Curriculum Development](https://github.com/theRAPTLab/meme/wiki/Dataset-Editing-for-Curriculum-Development)
+  * [Dataset Management](https://github.com/theRAPTLab/meme/wiki/Dataset-Management)
 * Deploying
-  * [Deploy Electron](https://gitlab.com/inq-seeds/boilerplate/-/wikis/Developer/Deploy-Electron)
-  * Digital Ocean Deployment [deploying on digital ocean](https://gitlab.com/inq-seeds/boilerplate/-/wikis/Developer/Digital-Ocean-Deployment) *(Placeholder only)*
+  * [Deploy Electron](https://github.com/theRAPTLab/meme/wiki/Deploy-Electron)
+  * Digital Ocean Deployment [deploying on digital ocean](https://github.com/theRAPTLab/meme/wiki/Digital-Ocean-Deployment)*(Placeholder only)*

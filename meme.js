@@ -141,24 +141,47 @@ function f_GetPlatformConfig(targetPlatform = null, targetArch = null) {
   const packageOutput = path.join(__dirname, 'dist', packageFolder);
 
   let friendlyName;
+  // Note: the entry point is expected to be a subdirectory within the distribution due to conflicts
+  //  between the Electron distribution folder structure and the current MEME folder structure
+  let entrypoint;
   switch (electronPlatform) {
     case 'darwin':
       friendlyName = 'MEME macOS';
+      entrypoint = 'meme.app/Contents/MacOS/meme';
       break;
     case 'linux':
       friendlyName = 'MEME Linux';
+      entrypoint = 'meme.app/meme';
       break;
     case 'win32':
       friendlyName = 'MEME Windows';
+      entrypoint = `meme.app${path.sep}meme`;
       break;
     default:
-      friendlyName = null;
+      console.log(PR, `${CR}ERROR${TR} - unable to identify platform`);
+      process.exit(1);
   }
+
+  // Defensive check
+  if (!entrypoint.includes(path.sep)) {
+    console.log(
+      PR,
+      'Platform configuration must embed the entry point within a subfolder of ' +
+        'the distribution.'
+    );
+    process.exit(1);
+  }
+
+  const distOutput = path.join(__dirname, 'dist', friendlyName);
+  const appPath = entrypoint.substring(0, entrypoint.indexOf(path.sep));
 
   return {
     platform: electronPlatform,
     arch: electronArch,
     packageOutput,
+    distOutput,
+    appPath,
+    entrypoint,
     friendlyName
   };
 }
@@ -183,61 +206,56 @@ function f_PackageApp() {
   // FUTURE: Pass the platform and architecture from the script parameters to allow for
   //  cross-platform builds
   const platformConfig = f_GetPlatformConfig();
+  const { platform, arch, packageOutput, distOutput, appPath } = f_GetPlatformConfig();
 
-  console.log(PR, `using electron-packager to write 'meme.app' to ${platformConfig.packageOutput}`);
+  console.log(PR, `using electron-packager to write '${appPath}' to ${packageOutput}`);
   res = shell.exec(
-    `npx electron-packager . meme --platform ${platformConfig.platform} ` +
-      `--arch ${platformConfig.arch} --out ../dist --overwrite ` +
+    `npx electron-packager . meme --platform ${platform} ` +
+      `--arch ${arch} --out ../dist --overwrite ` +
       `--app-bundle-id ${APP_BUNDLE_ID}`,
     { silent: false }
   );
   // u_checkError(res); // electron-packager stupidly emits status to stderr
 
+  // Rename the output folder if appropriate
+  if (packageOutput !== distOutput) {
+    console.log(PR, `renaming package folder to friendly platform name: ${distOutput}`);
+    fs.renameSync(packageOutput, distOutput);
+  }
+
   // For non-Mac platforms, the application is not stored within a dedicated folder and contains
   //  a 'resources' folder for the Electron resources. Since this conflicts with the 'resources'
   //  folder for MEME, it should be placed in a dedicated folder
-  if (platformConfig.platform !== 'darwin') {
+  if (platform !== 'darwin') {
     // Move the Electron app and resources into the provided subfolder
-    const appFullPath = path.join(__dirname, 'dist', 'meme.app');
-    fs.renameSync(platformConfig.packageOutput, appFullPath);
-    fs.ensureDirSync(platformConfig.packageOutput);
-    fs.moveSync(appFullPath, path.join(platformConfig.packageOutput, 'meme.app'));
+    const tempPath = path.join(__dirname, 'dist', appPath);
+    fs.renameSync(distOutput, tempPath);
+    fs.ensureDirSync(distOutput); // recreate the directory that was just renamed
+    fs.moveSync(tempPath, path.join(distOutput, appPath));
   }
 
-  console.log(PR, `copying templates to output folder: ${platformConfig.packageOutput}`);
+  console.log(PR, `copying templates to output folder: ${distOutput}`);
 
   const templatesPath = path.join(__dirname, 'templates');
-  fs.copySync(templatesPath, path.join(platformConfig.packageOutput, 'templates'));
-  fs.ensureDirSync(path.join(platformConfig.packageOutput, 'data'));
-  fs.ensureDirSync(path.join(platformConfig.packageOutput, 'resources'));
+  fs.copySync(templatesPath, path.join(distOutput, 'templates'));
+  fs.ensureDirSync(path.join(distOutput, 'data'));
+  fs.ensureDirSync(path.join(distOutput, 'resources'));
 
   // For macOS - include a shell script to remove the quarantine flag
   // Note: this is a workaround because the application will run with "translocation" - which will
   //  application bundle in a read-only folder that is in a randomized path. Runtime file write
   //  operations therefore fail when they are targetted relative to the application bundle
-  if (platformConfig.platform === 'darwin') {
+  if (platform === 'darwin') {
     fs.writeFileSync(
-      path.join(platformConfig.packageOutput, 'install.sh'),
-      '#/bin/sh\nxattr -d com.apple.quarantine ./meme.app',
+      path.join(distOutput, 'install.sh'),
+      `#/bin/sh\nxattr -d com.apple.quarantine ./${appPath}`,
       {
         mode: 0o755
       }
     );
   }
 
-  // Rename the output folder to something friendlier
-  let finalOutput;
-  if (platformConfig.friendlyName != null) {
-    fs.renameSync(
-      platformConfig.packageOutput,
-      path.join(__dirname, 'dist', platformConfig.friendlyName)
-    );
-    finalOutput = `dist/${platformConfig.friendlyName}`;
-  } else {
-    finalOutput = path.basename(platformConfig.packageOutput);
-  }
-
-  console.log(PR, `electron app written to ${CY}${finalOutput}${TR}`);
+  console.log(PR, `electron app written to ${CY}${distOutput}${TR}`);
   if (platformConfig.platform === 'darwin') {
     console.log(PR, `NOTE: default macos security requires ${CR}code signing${TR} to run app.`);
     console.log(PR, `use ${CY}npm run appsign${TR} to use default developer id (if installed)\n`);
@@ -245,12 +263,14 @@ function f_PackageApp() {
 }
 
 async function f_SignApp() {
-  const platformConfig = f_GetPlatformConfig();
+  const { platform, distOutput, appPath } = f_GetPlatformConfig();
 
-  if (platformConfig.platform !== 'darwin') {
+  if (platform !== 'darwin') {
     console.log(PR, 'Non-MacOS distributions do not require signing (yet).');
     return;
   }
+
+  const signedPath = path.join(distOutput, appPath);
 
   console.log(`\n`);
   console.log(PR, `using electron/osx-sign to ${CY}securely sign${TR} 'meme.app'`);
@@ -273,20 +293,9 @@ async function f_SignApp() {
     return;
   }
 
-  const appPath = path.join(
-    __dirname,
-    'dist',
-    platformConfig.friendlyName != null
-      ? platformConfig.friendlyName
-      : path.basename(platformConfig.packageOutput),
-    'meme.app'
-  );
-
   try {
-    // FUTURE: Update the path to the meme app folder if signing is made cross-platform
     await signAsync({
-      //app: './dist/meme-darwin-x64/meme.app',
-      app: appPath,
+      app: signedPath,
       preAutoEntitlements: false,
       platform: 'darwin',
       optionsForFile: file => {
@@ -307,7 +316,7 @@ async function f_SignApp() {
   try {
     await electronNotarize.notarize({
       appBundleId: APP_BUNDLE_ID,
-      appPath,
+      appPath: signedPath,
       appleId,
       appleIdPassword,
       teamId,
@@ -327,22 +336,36 @@ async function f_SignApp() {
 }
 
 function f_DebugApp() {
+  // Get the platform config for the current host
+  const { platform, distOutput, appPath, entrypoint } = f_GetPlatformConfig();
+
   console.log(`\n`);
   console.log(PR, `running meme.app with ${CY}console output${TR} to terminal`);
-  console.log(PR, `verifying code signature`);
-  const { code, stderr } = shell.exec('codesign -dvv ./dist/meme-darwin-x64/meme.app', {
-    silent: true
-  });
-  if (code === 0) {
-    console.log(PR, `${CY}console output${TR} from meme.app will appear below`);
-    console.log(PR, `${CY}CTRL-C${TR} or ${CY}close app window${TR} to terminate\n`);
-    shell.exec('./dist/meme-darwin-x64/meme.app/Contents/MacOS/meme');
-  } else {
-    console.log(`\n${stderr.trim()}\n`);
-    console.log(PR, `${CR}ERROR${TR} from codesign check`);
-    console.log(PR, `macos will not run this app until it is signed`);
-    console.log(PR, `if apple developer certs are installed you can run ${CY}npm run appsign${TR}`);
+
+  if (platform === 'darwin') {
+    const signedPath = path.join(distOutput, appPath);
+
+    console.log(PR, `verifying code signature`);
+    const { code, stderr } = shell.exec(`codesign -dvv ${signedPath}`, {
+      silent: true
+    });
+
+    if (code !== 0) {
+      console.log(`\n${stderr.trim()}\n`);
+      console.log(PR, `${CR}ERROR${TR} from codesign check`);
+      console.log(PR, `macos will not run this app until it is signed`);
+      console.log(
+        PR,
+        `if apple developer certs are installed you can run ${CY}npm run appsign${TR}`
+      );
+      return;
+    }
   }
+
+  console.log(PR, `${CY}console output${TR} from meme.app will appear below`);
+  console.log(PR, `${CY}CTRL-C${TR} or ${CY}close app window${TR} to terminate\n`);
+
+  shell.exec(`"${path.join(distOutput, entrypoint)}"`);
 }
 
 function f_DocServe() {

@@ -663,7 +663,7 @@ class EvidenceLink extends React.Component {
                       variant="caption"
                       align="right"
                     >
-                      CONCLUSION:
+                      IDEA:
                     </Typography>
                   </Grid>
 
@@ -676,7 +676,7 @@ class EvidenceLink extends React.Component {
                             classes.evidenceLabelFieldExpanded
                           )}
                           value={note}
-                          placeholder="One conclusion from this evidence..."
+                          placeholder="One idea from this evidence..."
                           autoFocus
                           multiline
                           variant="filled"

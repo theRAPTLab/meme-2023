@@ -16,6 +16,7 @@ const multer = require('multer'); // handle multipart form data (images)
 //
 const PROMPTS = require('../system/util/prompts');
 const SESSION = require('../system/common-session');
+const PATHS = require('../system/common-paths').PATHS;
 
 /// DEBUG /////////////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -28,8 +29,7 @@ const PORT = 3000;
 const PR = `${CLR}${PROMPTS.Pad('UR_EXPRESS')}${TR}`;
 const SCREENSHOT_POST_URL = SESSION.ScreenshotPostURL();
 const SCREENSHOT_URL = SESSION.ScreenshotURL();
-const RUNTIMEPATH = path.join(OS.homedir(), '/Documents/MEME/');
-const UPLOADPATH = path.join(RUNTIMEPATH, SCREENSHOT_URL);
+const UPLOADPATH = PATHS.Screenshot;
 let PAUSE_LISTENING = false;
 
 /// SERVER DECLARATIONS ///////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ const USRV_START = new Date(Date.now()).toISOString(); // server startup time
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function Start() {
   let promise; // promise object to return
-  const isPackaged = __dirname.includes('/Contents/Resources/app/system');
+  const isPackaged = __dirname.toLowerCase().endsWith('/resources/app/system');
   if (isPackaged) {
     // if server-express is running inside an Electron instance, don't use
     // webpack to bundle the webapp on-the-fly.
@@ -146,6 +146,8 @@ function Start() {
 
   // RESUME WITH COMMON SERVER SETUP //
 
+  // make sure resource path exists
+  fs.ensureDirSync(PATHS.Resources);
   // make sure upload path exists
   fs.ensureDirSync(UPLOADPATH);
   // configure cookies middleware (appears in req.cookies)
@@ -170,8 +172,13 @@ function Start() {
       res.send('MEME SERVER IS RESTARTING. Please try again in a few seconds.');
     }
   });
-  // for everything else...
+
+  // serve resource files
+  app.use('/resources', express.static(PATHS.Resources));
+
+  // and everything else...
   app.use('/', express.static(DOCROOT));
+
   // handle image uploads
   app.post(SCREENSHOT_POST_URL, upload.single('screenshot'), (req, res, next) => {
     const { originalname, mimetype, destination, filename } = req.file;

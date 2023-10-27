@@ -21,13 +21,14 @@ const Tracer = require('tracer');
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 const PROMPTS = require('./util/prompts');
 const DATESTR = require('./util/datestring');
+const PATHS = require('./common-paths').PATHS;
 
 const PR = PROMPTS.Pad('LOGGER');
 
 /// MODULE-WIDE VARS //////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-const LOG_DIR = PATH.join(OS.homedir(), '/Documents/MEME/logs');
+const LOG_DIR = PATHS.Log;
 
 const LOG_DELIMITER = '\t';
 const LOG_CONFIG = {

@@ -239,16 +239,14 @@ class ResourcesList extends React.Component {
             <DialogContent>
               <p>Instructions</p>
               <ol>
-                <li>
-                  Copy the resource file into `meme.app/Contents/Resources/app/web/static/dlc/`
-                  folder
-                </li>
+                <li>Copy the resource file into the `/resources` folder</li>
                 <li>Add a label and notes</li>
                 <li>Enter {resourceTypeList} for the type. Or you can enter a custom value.</li>
                 <li>
                   Enter the URL. e.g. if your resource file name is `myReport.pdf', enter
-                  '../static/dlc/myReport.pdf'. The ".." and path "../static/dlc" are important, as
-                  is using the right slashes and right upper/lowercase!
+                  'myReport.pdf'. For a resource file located within a sub-directory, enter
+                  'subdirectory/myReport.pdf'. It is important to use the '/' slash and right
+                  upper/lowercase!
                 </li>
                 <li>Don't forget to enable the resource for a classroom!</li>
               </ol>
@@ -281,7 +279,7 @@ class ResourcesList extends React.Component {
               <TextField
                 id="url"
                 label="URL"
-                placeholder="../static/dlc/filename.ext"
+                placeholder="filename.ext"
                 onChange={this.OnURLChange}
                 value={dialogURL}
                 fullWidth

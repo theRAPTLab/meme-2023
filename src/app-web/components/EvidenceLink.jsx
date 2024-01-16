@@ -603,66 +603,15 @@ class EvidenceLink extends React.Component {
     const resourceFrameIsVisible = resourceFrame !== null && resourceFrame.clientWidth > 0;
     const extensionIsConnected = EXT.IsConnected();
 
-    return (
-      <ClickAwayListener onClickAway={this.OnClickAway}>
-        <Collapse in={isExpanded} collapsedHeight="70px">
-          <Paper
-            className={ClassNames(
-              classes.evidenceLinkPaper,
-              isExpanded ? classes.evidenceLinkPaperExpanded : '',
-              isBeingEdited ? classes.evidenceLinkPaperEditting : '',
-              isHovered ? classes.evidenceLinkPaperHover : ''
-            )}
-            onClick={this.DoToggleExpanded}
-            ref={this.ref}
-            key={`${rsrcId}`}
-            elevation={isExpanded ? 5 : 1}
-            onMouseEnter={() => this.setState({ isHovered: true })}
-            onMouseLeave={() => this.setState({ isHovered: false })}
-          >
-            {/* Title Bar */}
-            <Button
-              className={classes.evidenceExpandButton}
-              onClick={this.DoToggleExpanded}
-              hidden={!isExpanded || isBeingEdited}
-            >
-              <ExpandLessIcon className={isExpanded ? classes.lessIconCollapsed : ''} />
-            </Button>
-            <Typography className={classes.evidenceWindowLabel} hidden={!isExpanded}>
-              EVIDENCE LINK
-            </Typography>
-            {/* Body */}
-            <Grid container className={classes.evidenceBody} spacing={0}>
-              {/* Number / Comment */}
-              <Grid item xs={isExpanded ? 12 : 2} style={{ height: '30px' }}>
-                <div style={{ position: 'relative', left: '230px' }}>
-                  <StickyNoteButton refId={id} />
-                </div>
-                <Avatar className={classes.evidenceBodyNumber} style={{ top: '-37px' }}>
-                  {evlink.numberLabel}
-                </Avatar>
-              </Grid>
-
-              {/* Source */}
-              <Grid item xs={isExpanded ? 12 : 10}>
+    // IDEA
+    const Idea = (
                 <Grid
                   container
                   spacing={1}
-                  className={
-                    isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed
-                  }
-                >
-                  <Grid
-                    item
-                    xs={4}
-                    hidden={!isExpanded}
-                    className={classes.evidenceWindowLabelGrid}
-                  >
-                    <Typography
-                      className={classes.evidenceWindowLabel}
-                      variant="caption"
-                      align="right"
+        className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
                     >
+        <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
+          <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
                       IDEA:
                     </Typography>
                   </Grid>
@@ -698,27 +647,52 @@ class EvidenceLink extends React.Component {
                     )}
                   </Grid>
                 </Grid>
+    );
 
-                {/* Source */}
+    // SCREENSHOT
+    let ScreenShotComponent;
+    if (imageURL === undefined || imageURL === null) {
+      if (!isBeingEdited) {
+        // Screenshot not defined yet -- Show message
+        ScreenShotComponent = (
+          <Typography className={classes.evidenceScreenshotStatus}>No Screenshot</Typography>
+        );
+      } else {
+        // Edit: No image selected -- Show dropzone
+        ScreenShotComponent = <Dropzone onDrop={this.OnDrop} />;
+      }
+    } else {
+      // Edit: Image selected -- Show image with click to select
+      ScreenShotComponent = (
+        <Button className={classes.evidenceScreenshotButton} onClick={this.OnScreenShotClick}>
+          <img src={imageURL} alt="screenshot" className={classes.evidenceScreenshot} />
+        </Button>
+      );
+    }
+
+    const ScreenShot = (
+      <Grid container hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
+        <Grid item xs={4} className={classes.evidenceWindowLabelGrid}>
+          <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
+            SCREENSHOT:
+          </Typography>
+        </Grid>
+        <Grid item xs>
+          {ScreenShotComponent}
+        </Grid>
+      </Grid>
+    );
+
+    // TARGET
+    const Target = (
                 <Grid item xs={12}>
                   <Grid
                     container
                     spacing={1}
-                    className={
-                      isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed
-                    }
-                  >
-                    <Grid
-                      item
-                      xs={4}
-                      hidden={!isExpanded}
-                      className={classes.evidenceWindowLabelGrid}
-                    >
-                      <Typography
-                        className={classes.evidenceWindowLabel}
-                        variant="caption"
-                        align="right"
+          className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
                       >
+          <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
+            <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
                         TARGET:
                       </Typography>
                     </Grid>
@@ -736,27 +710,18 @@ class EvidenceLink extends React.Component {
                     </Grid>
                   </Grid>
                 </Grid>
-              </Grid>
+    );
 
+    // RATING -- show only if TARGET is defined
+    const Rating = sourceType && (
               <Grid item xs={isExpanded ? 12 : 3}>
                 <Grid
                   container
                   spacing={1}
-                  className={
-                    isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed
-                  }
-                >
-                  <Grid
-                    item
-                    xs={4}
-                    hidden={!isExpanded}
-                    className={classes.evidenceWindowLabelGrid}
-                  >
-                    <Typography
-                      className={classes.evidenceWindowLabel}
-                      variant="caption"
-                      align="right"
+          className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed}
                     >
+          <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
+            <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
                       RATING:
                     </Typography>
                   </Grid>
@@ -772,14 +737,14 @@ class EvidenceLink extends React.Component {
                   </Grid>
                 </Grid>
               </Grid>
+    );
+
+    // REASON -- show only if TARGET is defined
+    const Reason = sourceType && (
               <Grid item xs={12} hidden={!isExpanded}>
                 <Grid container spacing={1} className={classes.evidenceBodyRow}>
                   <Grid item xs={4} className={classes.evidenceWindowLabelGrid}>
-                    <Typography
-                      className={classes.evidenceWindowLabel}
-                      variant="caption"
-                      align="right"
-                    >
+            <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
                       REASON
                     </Typography>
                   </Grid>
@@ -811,52 +776,10 @@ class EvidenceLink extends React.Component {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid container hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
-                <Grid item xs={4} className={classes.evidenceWindowLabelGrid}>
-                  <Typography
-                    className={classes.evidenceWindowLabel}
-                    variant="caption"
-                    align="right"
-                  >
-                    SCREENSHOT:
-                  </Typography>
-                </Grid>
-                <Grid item xs>
-                  {imageURL === undefined || imageURL === null ? (
-                    isBeingEdited ? (
-                      <Dropzone onDrop={this.OnDrop} />
-                    ) : (
-                      <Typography className={classes.evidenceScreenshotStatus}>
-                        No Screenshot
-                      </Typography>
-                    )
-                  ) : (
-                    <Button
-                      className={classes.evidenceScreenshotButton}
-                      onClick={this.OnScreenShotClick}
-                    >
-                      <img src={imageURL} alt="screenshot" className={classes.evidenceScreenshot} />
-                    </Button>
-                  )}
-                  {resourceFrameIsVisible && extensionIsConnected ? (
-                    <Button
-                      onClick={this.OnCaptureScreenShotClick}
-                      size="small"
-                      className={classes.btnSuperSmall}
-                    >
-                      Capture Screenshot
-                    </Button>
-                  ) : extensionIsConnected ? (
-                    <Typography className={classes.evidenceScreenshotStatus}>
-                      Open Evidence to Capture Screen
-                    </Typography>
-                  ) : (
-                    ''
-                  )}
-                </Grid>
-              </Grid>
-            </Grid>
-            <Divider style={{ margin: '10px' }} hidden={!isExpanded} />
+    );
+
+    // CONTROL BAR
+    const ControlBar = (
             <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
               <Button
                 hidden={true || !isExpanded || !isBeingEdited}
@@ -900,6 +823,58 @@ class EvidenceLink extends React.Component {
                 Close
               </Button>
             </div>
+    );
+
+    return (
+      <ClickAwayListener onClickAway={this.OnClickAway}>
+        <Collapse in={isExpanded} collapsedHeight="70px">
+          <Paper
+            className={ClassNames(
+              classes.evidenceLinkPaper,
+              isExpanded ? classes.evidenceLinkPaperExpanded : '',
+              isBeingEdited ? classes.evidenceLinkPaperEditting : '',
+              isHovered ? classes.evidenceLinkPaperHover : ''
+            )}
+            onClick={this.DoToggleExpanded}
+            ref={this.ref}
+            key={`${rsrcId}`}
+            elevation={isExpanded ? 5 : 1}
+            onMouseEnter={() => this.setState({ isHovered: true })}
+            onMouseLeave={() => this.setState({ isHovered: false })}
+          >
+            {/* Title Bar ----------------------------------------------------------- */}
+            <Button
+              className={classes.evidenceExpandButton}
+              onClick={this.DoToggleExpanded}
+              hidden={!isExpanded || isBeingEdited}
+            >
+              <ExpandLessIcon className={isExpanded ? classes.lessIconCollapsed : ''} />
+            </Button>
+            <Typography className={classes.evidenceWindowLabel} hidden={!isExpanded}>
+              EVIDENCE LINK
+            </Typography>
+            {/* Body  ---------------------------------------------------------------*/}
+            <Grid container className={classes.evidenceBody} spacing={0}>
+              {/* Number / Comment */}
+              <Grid item xs={isExpanded ? 12 : 2} style={{ height: '30px' }}>
+                <div style={{ position: 'relative', left: '230px' }}>
+                  <StickyNoteButton refId={id} />
+                </div>
+                <Avatar className={classes.evidenceBodyNumber} style={{ top: '-37px' }}>
+                  {evlink.numberLabel}
+                </Avatar>
+              </Grid>
+              <Grid item xs={isExpanded ? 12 : 10}>
+                {Idea}
+                {ScreenShot}
+                {Target}
+              </Grid>
+              {Rating}
+              {Reason}
+            </Grid>
+            <Divider style={{ margin: '10px' }} hidden={!isExpanded} />
+            {/* Contro Bar  -------------------------------------------------------- */}
+            {ControlBar}
           </Paper>
         </Collapse>
       </ClickAwayListener>

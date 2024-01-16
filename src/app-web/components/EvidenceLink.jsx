@@ -90,9 +90,10 @@ Triggers to save data happens in multiple places:
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
-import PropTypes from 'prop-types';
-import ClassNames from 'classnames';
-import DATAMAP from '../../system/common-datamap';
+// Material UI Icons
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+// Material UI Theming
+import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 // Material UI Elements
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -104,10 +105,10 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-// Material UI Icons
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-// Material UI Theming
-import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+// MEME
+import PropTypes from 'prop-types';
+import ClassNames from 'classnames';
+import DATAMAP from '../../system/common-datamap';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

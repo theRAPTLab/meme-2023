@@ -685,7 +685,12 @@ class EvidenceLink extends React.Component {
     );
 
     // TARGET
-    const Target = (
+    const Target =
+      sourceType === undefined && !isBeingEdited ? (
+        <Typography className={classes.evidenceWindowLabel} variant="caption">
+          (Not linked to model yet)
+        </Typography>
+      ) : (
                 <Grid item xs={12}>
                   <Grid
                     container

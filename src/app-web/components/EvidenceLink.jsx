@@ -577,8 +577,8 @@ class EvidenceLink extends React.Component {
     } = this.state;
     if (id === '') return '';
 
-    let sourceType = undefined;
-    let sourceLabel = undefined;
+    let sourceType;
+    let sourceLabel;
     // If we are listeningForSourceSelection, then leave sourceType and sourceLabel
     // undefined so that the link button will show "Click on Target"
     // otherwise show the prop or mech linked.
@@ -606,48 +606,48 @@ class EvidenceLink extends React.Component {
 
     // IDEA
     const Idea = (
-                <Grid
-                  container
-                  spacing={1}
+      <Grid
+        container
+        spacing={1}
         className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
-                    >
+      >
         <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
           <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-                      IDEA:
-                    </Typography>
-                  </Grid>
+            IDEA:
+          </Typography>
+        </Grid>
 
-                  <Grid item xs>
-                    {isExpanded ? (
-                      <MuiThemeProvider theme={theme}>
-                        <FilledInput
-                          className={ClassNames(
-                            classes.evidenceLabelField,
-                            classes.evidenceLabelFieldExpanded
-                          )}
-                          value={note}
-                          placeholder="One idea from this evidence..."
-                          autoFocus
-                          multiline
-                          variant="filled"
-                          disabled={!isBeingEdited}
-                          disableUnderline
-                          onChange={this.OnNoteChange}
-                          onBlur={this.OnBlur}
-                          onClick={e => {
-                            e.stopPropagation();
-                          }}
-                          inputProps={{
-                            readOnly: !isBeingEdited
-                          }}
-                          inputRef={this.textInputRef}
-                        />
-                      </MuiThemeProvider>
-                    ) : (
-                      <div className={classes.evidenceLabelField}>{note}</div>
-                    )}
-                  </Grid>
-                </Grid>
+        <Grid item xs>
+          {isExpanded ? (
+            <MuiThemeProvider theme={theme}>
+              <FilledInput
+                className={ClassNames(
+                  classes.evidenceLabelField,
+                  classes.evidenceLabelFieldExpanded
+                )}
+                value={note}
+                placeholder="One idea from this evidence..."
+                autoFocus
+                multiline
+                variant="filled"
+                disabled={!isBeingEdited}
+                disableUnderline
+                onChange={this.OnNoteChange}
+                onBlur={this.OnBlur}
+                onClick={e => {
+                  e.stopPropagation();
+                }}
+                inputProps={{
+                  readOnly: !isBeingEdited
+                }}
+                inputRef={this.textInputRef}
+              />
+            </MuiThemeProvider>
+          ) : (
+            <div className={classes.evidenceLabelField}>{note}</div>
+          )}
+        </Grid>
+      </Grid>
     );
 
     // SCREENSHOT
@@ -691,144 +691,144 @@ class EvidenceLink extends React.Component {
           (Not linked to model yet)
         </Typography>
       ) : (
-                <Grid item xs={12}>
-                  <Grid
-                    container
-                    spacing={1}
-          className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
-                      >
-          <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
-            <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-                        TARGET:
-                      </Typography>
-                    </Grid>
-                    <Grid item xs>
-                      <div className={classes.evidenceLinkAvatar}>
-                        <LinkButton
-                          sourceType={sourceType}
-                          sourceLabel={sourceLabel}
-                          listenForSourceSelection={listenForSourceSelection}
-                          isBeingEdited={isBeingEdited}
-                          isExpanded={isExpanded}
-                          OnLinkButtonClick={this.OnLinkButtonClick}
-                        />
-                      </div>
-                    </Grid>
-                  </Grid>
-                </Grid>
-    );
+        <Grid item xs={12}>
+          <Grid
+            container
+            spacing={1}
+            className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
+          >
+            <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
+              <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
+                TARGET:
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <div className={classes.evidenceLinkAvatar}>
+                <LinkButton
+                  sourceType={sourceType}
+                  sourceLabel={sourceLabel}
+                  listenForSourceSelection={listenForSourceSelection}
+                  isBeingEdited={isBeingEdited}
+                  isExpanded={isExpanded}
+                  OnLinkButtonClick={this.OnLinkButtonClick}
+                />
+              </div>
+            </Grid>
+          </Grid>
+        </Grid>
+      );
 
     // RATING -- show only if TARGET is defined
     const Rating = sourceType && (
-              <Grid item xs={isExpanded ? 12 : 3}>
-                <Grid
-                  container
-                  spacing={1}
+      <Grid item xs={isExpanded ? 12 : 3}>
+        <Grid
+          container
+          spacing={1}
           className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed}
-                    >
+        >
           <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
             <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-                      RATING:
-                    </Typography>
-                  </Grid>
-                  <Grid item xs style={{ paddingTop: isExpanded ? '4px' : '19px' }}>
-                    <RatingButton
-                      rating={rating}
-                      isExpanded={isExpanded}
-                      disabled={isViewOnly}
-                      ratingLabel=""
-                      ratingDefs={ratingDefs}
-                      OnRatingButtonClick={this.OnRatingButtonClick}
-                    />
-                  </Grid>
-                </Grid>
-              </Grid>
+              RATING:
+            </Typography>
+          </Grid>
+          <Grid item xs style={{ paddingTop: isExpanded ? '4px' : '19px' }}>
+            <RatingButton
+              rating={rating}
+              isExpanded={isExpanded}
+              disabled={isViewOnly}
+              ratingLabel=""
+              ratingDefs={ratingDefs}
+              OnRatingButtonClick={this.OnRatingButtonClick}
+            />
+          </Grid>
+        </Grid>
+      </Grid>
     );
 
     // REASON -- show only if TARGET is defined
     const Reason = sourceType && (
-              <Grid item xs={12} hidden={!isExpanded}>
-                <Grid container spacing={1} className={classes.evidenceBodyRow}>
-                  <Grid item xs={4} className={classes.evidenceWindowLabelGrid}>
+      <Grid item xs={12} hidden={!isExpanded}>
+        <Grid container spacing={1} className={classes.evidenceBodyRow}>
+          <Grid item xs={4} className={classes.evidenceWindowLabelGrid}>
             <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-                      REASON
-                    </Typography>
-                  </Grid>
-                  <Grid item xs style={{ paddingTop: '4px' }}>
-                    <MuiThemeProvider theme={theme}>
-                      <FilledInput
-                        className={ClassNames(
-                          classes.evidenceLabelField,
-                          classes.evidenceLabelFieldExpanded
-                        )}
-                        value={why}
-                        placeholder="Why did you choose this rating?"
-                        autoFocus
-                        multiline
-                        variant="filled"
-                        disabled={!isBeingEdited}
-                        disableUnderline
-                        onChange={this.OnWhyChange}
-                        onBlur={this.OnBlur}
-                        onClick={e => {
-                          e.stopPropagation();
-                        }}
-                        inputProps={{
-                          readOnly: !isBeingEdited
-                        }}
-                        inputRef={this.textInput}
-                      />
-                    </MuiThemeProvider>
-                  </Grid>
-                </Grid>
-              </Grid>
+              REASON
+            </Typography>
+          </Grid>
+          <Grid item xs style={{ paddingTop: '4px' }}>
+            <MuiThemeProvider theme={theme}>
+              <FilledInput
+                className={ClassNames(
+                  classes.evidenceLabelField,
+                  classes.evidenceLabelFieldExpanded
+                )}
+                value={why}
+                placeholder="Why did you choose this rating?"
+                autoFocus
+                multiline
+                variant="filled"
+                disabled={!isBeingEdited}
+                disableUnderline
+                onChange={this.OnWhyChange}
+                onBlur={this.OnBlur}
+                onClick={e => {
+                  e.stopPropagation();
+                }}
+                inputProps={{
+                  readOnly: !isBeingEdited
+                }}
+                inputRef={this.textInput}
+              />
+            </MuiThemeProvider>
+          </Grid>
+        </Grid>
+      </Grid>
     );
 
     // CONTROL BAR
     const ControlBar = (
-            <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
-              <Button
-                hidden={true || !isExpanded || !isBeingEdited}
-                size="small"
-                onClick={this.OnCancelButtonClick}
-              >
-                cancel
-              </Button>
-              <Button
-                hidden={!isExpanded || isBeingEdited || isViewOnly}
-                size="small"
-                className={classes.btnSuperSmall}
-                onClick={this.OnDeleteButtonClick}
-              >
-                delete
-              </Button>
-              <div style={{ flexGrow: '1' }} />
-              <Button
-                hidden={!isExpanded || isBeingEdited || isViewOnly}
-                size="small"
-                className={classes.btnSuperSmall}
-                onClick={this.OnDuplicateButtonClick}
-              >
-                duplicate
-              </Button>
-              <div style={{ flexGrow: '1' }} />
-              <Button
-                variant="contained"
-                onClick={this.OnEditButtonClick}
-                hidden={!isExpanded || isBeingEdited || isViewOnly}
-                size="small"
-              >
-                Edit
-              </Button>
-              <Button
-                variant="contained"
-                onClick={this.OnSaveButtonClick}
-                hidden={!isExpanded || !isBeingEdited}
-                size="small"
-              >
-                Close
-              </Button>
-            </div>
+      <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
+        <Button
+          hidden={true || !isExpanded || !isBeingEdited}
+          size="small"
+          onClick={this.OnCancelButtonClick}
+        >
+          cancel
+        </Button>
+        <Button
+          hidden={!isExpanded || isBeingEdited || isViewOnly}
+          size="small"
+          className={classes.btnSuperSmall}
+          onClick={this.OnDeleteButtonClick}
+        >
+          delete
+        </Button>
+        <div style={{ flexGrow: '1' }} />
+        <Button
+          hidden={!isExpanded || isBeingEdited || isViewOnly}
+          size="small"
+          className={classes.btnSuperSmall}
+          onClick={this.OnDuplicateButtonClick}
+        >
+          duplicate
+        </Button>
+        <div style={{ flexGrow: '1' }} />
+        <Button
+          variant="contained"
+          onClick={this.OnEditButtonClick}
+          hidden={!isExpanded || isBeingEdited || isViewOnly}
+          size="small"
+        >
+          Edit
+        </Button>
+        <Button
+          variant="contained"
+          onClick={this.OnSaveButtonClick}
+          hidden={!isExpanded || !isBeingEdited}
+          size="small"
+        >
+          Close
+        </Button>
+      </div>
     );
 
     return (

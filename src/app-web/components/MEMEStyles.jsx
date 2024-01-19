@@ -190,7 +190,8 @@ const styles = theme => {
     resourceList: {
       height: '100%',
       width: m_resourceListWidth,
-      overflow: 'hidden',
+      overflowX: 'hidden',
+      overflowY: 'visible',
       backgroundColor: teal[50],
       zIndex: m_zResourceList // above drawer, below modal
     },
@@ -200,7 +201,7 @@ const styles = theme => {
     },
     resourceListList: {
       height: '100%',
-      overflowY: 'auto',
+      overflowY: 'visible',
       backgroundColor: teal[50],
       marginTop: `${m_navbarHeight}px`,
       paddingTop: '0'

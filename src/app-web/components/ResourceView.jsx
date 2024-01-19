@@ -266,6 +266,7 @@ class ResourceView extends React.Component {
             title="resource"
           />
           <div className={classes.resourceViewSidebar}>
+            {/* Hide Note Field per #141
             <TextField
               id="informationNote"
               label="Our Notes"
@@ -279,7 +280,7 @@ class ResourceView extends React.Component {
               disabled={noteIsDisabled}
               onChange={this.OnNoteChange}
               onBlur={this.OnNoteSave}
-            />
+            /> */}
             <Typography variant="caption">OUR EVIDENCE LINKS</Typography>
             <div className={classes.resourceViewSidebarEvidenceList}>
               <EvidenceList rsrcId={resource.id} />

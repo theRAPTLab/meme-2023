@@ -613,7 +613,7 @@ class EvidenceLink extends React.Component {
       >
         <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
           <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-            IDEA:
+            CLAIM:
           </Typography>
         </Grid>
 
@@ -626,7 +626,7 @@ class EvidenceLink extends React.Component {
                   classes.evidenceLabelFieldExpanded
                 )}
                 value={note}
-                placeholder="One idea from this evidence..."
+                placeholder="One claim from this evidence..."
                 autoFocus
                 multiline
                 variant="filled"

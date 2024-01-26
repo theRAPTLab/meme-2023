@@ -371,6 +371,9 @@ class StickyNote extends React.Component {
               </Typography>
             </Grid>
             <Grid item xs={9}>
+              <div style={{ float: 'right' }} className={classes.stickynoteCardLabel}>
+                #{comment.id}
+              </div>
               <div hidden={!showCriteria}>
                 <InputLabel className={classes.stickynoteCardLabel}>CRITERIA:&nbsp;</InputLabel>
                 <div className={classes.stickynoteCardCriteria} title={criteriaDescription}>

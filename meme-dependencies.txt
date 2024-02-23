@@ -1,0 +1,24 @@
+
+PROD:
+
+@dagrejs/graphlib  @svgdotjs/svg.js  adm-zip  ajv  babel-polyfill  bootstrap  classnames  clsx  color  cookie-parser  copy-webpack-plugin  cropperjs  debounce  ejs  electron  express  fs-extra  hashids  html-webpack-plugin  ip  jquery  lokijs  markdown-react-js  mini-css-extract-plugin  multer  prop-types  react  react-dom  react-draggable  react-dropzone  react-router  react-router-config  react-router-dom  react-router-prop-types  reactstrap  rfdc  stacktrace-js  superagent  tracer  uuid  webpack  webpack-cli  webpack-dev-middleware  webpack-dev-server  webpack-hot-middleware  webpack-merge  webpack-visualizer-plugin  webrtc-adapter  write-file-webpack-plugin  ws
+
+
+
+BROKE
+markdown-react-js used force install
+
+
+
+
+
+
+DEV:
+
+@babel/core @babel/plugin-proposal-class-properties @babel/plugin-proposal-export-namespace-from @babel/plugin-proposal-throw-expressions @babel/plugin-syntax-dynamic-import @babel/polyfill @babel/preset-env @babel/preset-react @electron/notarize @electron/osx-sign acorn acorn-jsx asar babel-loader blessed css-loader documentation dotenv electron-packager eslint eslint-config-airbnb eslint-config-prettier eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-prettier eslint-plugin-react minimist node-sass css-minimizer-webpack-plugin postcss-loader prettier resolve-url-loader shelljs source-map-loader style-loader url-loader
+
+
+BROKE:
+optimize-css-assets-webpack-plugin replace with css-minimizer-webpack-plugin
+
+uglifyjs-webpack-plugin removed entirely

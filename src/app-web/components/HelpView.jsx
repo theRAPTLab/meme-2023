@@ -15,14 +15,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import MDReactComponent from 'markdown-react-js';
-import Divider from '@material-ui/core/Divider';
-import IconButton from '@material-ui/core/IconButton';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 // Material UI Icons
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@mui/icons-material/Close';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -109,7 +109,7 @@ Moreland, Vickery, Murphy & Stiso.
 
 **Note**: This software is provided as-is. Please test it thoroughly before using in a learning environment.
 
-      `
+      `,
     };
 
     UR.Subscribe('HELP_OPEN', this.DoOpen);
@@ -168,11 +168,11 @@ Moreland, Vickery, Murphy & Stiso.
 
 HelpView.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 HelpView.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

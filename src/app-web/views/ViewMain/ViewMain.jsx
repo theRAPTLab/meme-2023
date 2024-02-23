@@ -12,31 +12,31 @@ import ClassNames from 'classnames';
 import clsx from 'clsx';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Theming
-import { withStyles, createMuiTheme } from '@material-ui/core/styles';
-import { yellow } from '@material-ui/core/colors';
+import { withStyles, createMuiTheme } from '@mui/styles';
+import { yellow } from '@mui/material/colors';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Material UI Elements
-import Drawer from '@material-ui/core/Drawer';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
-import Fab from '@material-ui/core/Fab';
-import InputBase from '@material-ui/core/InputBase';
+import Drawer from '@mui/material/Drawer';
+import CssBaseline from '@mui/material/CssBaseline';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import List from '@mui/material/List';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import Fab from '@mui/material/Fab';
+import InputBase from '@mui/material/InputBase';
 // Material UI Icons
-import AddIcon from '@material-ui/icons/Add';
-import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
-import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
-import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
-import EditIcon from '@material-ui/icons/Edit';
-import MenuIcon from '@material-ui/icons/Menu';
-import ZoomInMapIcon from '@material-ui/icons/CenterFocusWeak';
-import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
+import AddIcon from '@mui/icons-material/Add';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
+import EditIcon from '@mui/icons-material/Edit';
+import MenuIcon from '@mui/icons-material/Menu';
+import ZoomInMapIcon from '@mui/icons-material/CenterFocusWeak';
+import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 // MEME App Components
 import DescriptionView from '../../components/DescriptionView';
 import InfoDialog from '../../components/InfoDialog';
@@ -138,7 +138,7 @@ class ViewMain extends React.Component {
       addEdgeTarget: '', // Add Mech Dialog
       componentIsSelected: false, // A component or component property has been selected by user.  Used for pro-centric actions.
       outcomeIsSelected: false, // A outcome or outcome property has been selected by user.  Used for pro-centric actions.
-      mechIsSelected: false // A mechanism is slected by user.  Used for mech-centric actions.
+      mechIsSelected: false, // A mechanism is slected by user.  Used for mech-centric actions.
     };
   }
 
@@ -188,7 +188,7 @@ class ViewMain extends React.Component {
       isModelAuthor,
       studentId: userStudentId,
       studentName: ADM.GetLggedInUserName(),
-      studentGroup: ADM.GetLoggedInGroupName()
+      studentGroup: ADM.GetLoggedInGroupName(),
     });
   }
 
@@ -213,7 +213,7 @@ class ViewMain extends React.Component {
     console.log('%cUpdateDimensions Fired', cssdraw);
     this.setState({
       viewWidth: Math.min(viewWidth, innerWidth),
-      viewHeight: Math.min(viewHeight, innerHeight)
+      viewHeight: Math.min(viewHeight, innerHeight),
     });
   }
 
@@ -247,10 +247,10 @@ class ViewMain extends React.Component {
   OnOutcomeAdd() {
     UR.Publish('PROPDIALOG_OPEN', {
       isProperty: false,
-      propType: DATAMAP.PMC_MODELTYPES.OUTCOME.id
+      propType: DATAMAP.PMC_MODELTYPES.OUTCOME.id,
     });
     this.setState({
-      addPropOpen: true
+      addPropOpen: true,
     });
   }
 
@@ -258,10 +258,10 @@ class ViewMain extends React.Component {
   OnComponentAdd() {
     UR.Publish('PROPDIALOG_OPEN', {
       isProperty: false,
-      propType: DATAMAP.PMC_MODELTYPES.COMPONENT.id
+      propType: DATAMAP.PMC_MODELTYPES.COMPONENT.id,
     });
     this.setState({
-      addPropOpen: true
+      addPropOpen: true,
     });
   }
 
@@ -272,7 +272,7 @@ class ViewMain extends React.Component {
       : DATAMAP.PMC_MODELTYPES.OUTCOME.id;
     UR.Publish('PROPDIALOG_OPEN', { isProperty: true, propType });
     this.setState({
-      addPropOpen: true
+      addPropOpen: true,
     });
   }
 
@@ -287,10 +287,10 @@ class ViewMain extends React.Component {
         propId,
         propType: prop.propType,
         description: prop.description,
-        isProperty: false
+        isProperty: false,
       });
       this.setState({
-        addPropOpen: true
+        addPropOpen: true,
       });
     }
   }
@@ -306,7 +306,7 @@ class ViewMain extends React.Component {
     if (selectedPropIds.length > 0) {
       const pmcDataId = ASET.selectedPMCDataId;
       const propId = Number(selectedPropIds[0]);
-      UR.DBTryLock('pmcData.entities', [pmcDataId, propId]).then(rdata => {
+      UR.DBTryLock('pmcData.entities', [pmcDataId, propId]).then((rdata) => {
         const { success, semaphore, uaddr, lockedBy } = rdata;
         status += success
           ? `${semaphore} lock acquired by ${uaddr} `
@@ -315,18 +315,18 @@ class ViewMain extends React.Component {
           DATA.PMC_PropDelete(propId);
           if (this.state.addEdgeSource === propId) {
             this.setState({
-              addEdgeSource: ''
+              addEdgeSource: '',
             });
           }
         } else {
           alert(
-            `Sorry, someone else (${rdata.lockedBy}) is editing this Component / Property right now.  Please try again later.`
+            `Sorry, someone else (${rdata.lockedBy}) is editing this Component / Property right now.  Please try again later.`,
           );
         }
       });
     }
     this.setState({
-      componentIsSelected: false
+      componentIsSelected: false,
     });
   }
 
@@ -338,7 +338,7 @@ class ViewMain extends React.Component {
         refId: propId,
         // FIXME: Set position according to parent prop?
         x: 600, // stickynote hack moves it by -325
-        y: 100
+        y: 100,
       });
     }
   }
@@ -352,7 +352,7 @@ class ViewMain extends React.Component {
         refId: mech.id,
         // FIXME: Set position according to parent prop?
         x: 600, // stickynote hack moves it by -325
-        y: 100
+        y: 100,
       });
     }
   }
@@ -362,7 +362,7 @@ class ViewMain extends React.Component {
     // Deselect any mechanisms that might be currently selected so that user can select props
     DATA.VM_DeselectAllMechs();
     this.setState({
-      suppressSelection: true // used to hide Add/Edit buttons
+      suppressSelection: true, // used to hide Add/Edit buttons
     });
     UR.Publish('MECHDIALOG:ADD');
   }
@@ -374,7 +374,7 @@ class ViewMain extends React.Component {
       DATA.VM_DeselectAll(); // deselect so mech buttons disappear
       this.setState({
         suppressSelection: true, // used to hide Add/Edit buttons
-        addEdgeOpen: true
+        addEdgeOpen: true,
       });
       let mechId = selectedMechIds[0];
       let mech = DATA.Mech(mechId);
@@ -385,7 +385,7 @@ class ViewMain extends React.Component {
         description: mech.description,
         sourceId: vw[0],
         targetId: vw[1],
-        bidirectional: mech.bidirectional
+        bidirectional: mech.bidirectional,
       };
       UR.Publish('MECHDIALOG:EDIT', data);
     }
@@ -394,7 +394,7 @@ class ViewMain extends React.Component {
   DoMechClosed() {
     this.setState({
       suppressSelection: false,
-      addEdgeOpen: false
+      addEdgeOpen: false,
     });
   }
 
@@ -406,7 +406,7 @@ class ViewMain extends React.Component {
       const pmcDataId = ASET.selectedPMCDataId;
       const mech = DATA.Mech(mechId);
       const intMechId = Number(mech.id);
-      UR.DBTryLock('pmcData.entities', [pmcDataId, intMechId]).then(rdata => {
+      UR.DBTryLock('pmcData.entities', [pmcDataId, intMechId]).then((rdata) => {
         const { success, semaphore, uaddr, lockedBy } = rdata;
         status += success
           ? `${semaphore} lock acquired by ${uaddr} `
@@ -415,13 +415,13 @@ class ViewMain extends React.Component {
           DATA.PMC_MechDelete(mechId);
         } else {
           alert(
-            `Sorry, someone else (${rdata.lockedBy}) is editing this Mechanism right now.  Please try again later.`
+            `Sorry, someone else (${rdata.lockedBy}) is editing this Mechanism right now.  Please try again later.`,
           );
         }
       });
     }
     this.setState({
-      mechIsSelected: false
+      mechIsSelected: false,
     });
   }
 
@@ -507,7 +507,7 @@ class ViewMain extends React.Component {
       addEdgeTarget: targetId,
       componentIsSelected,
       outcomeIsSelected,
-      mechIsSelected
+      mechIsSelected,
     });
   }
 
@@ -547,7 +547,7 @@ class ViewMain extends React.Component {
       componentIsSelected,
       outcomeIsSelected,
       mechIsSelected,
-      suppressSelection
+      suppressSelection,
     } = this.state;
 
     // we need to use the model author here, not the currently logged in student.
@@ -571,7 +571,7 @@ class ViewMain extends React.Component {
           className={clsx(
             classes.appBar,
             { [classes.toolsPanelClosedShift]: !toolsPanelIsOpen },
-            { [classes.appBarToolsPanelClosedShift]: !toolsPanelIsOpen }
+            { [classes.appBarToolsPanelClosedShift]: !toolsPanelIsOpen },
           )}
           color={isModelAuthor ? 'primary' : 'default'}
         >
@@ -599,7 +599,7 @@ class ViewMain extends React.Component {
                 onChange={this.OnChangeModelTitle}
                 onBlur={this.DoSaveModelTitle}
                 classes={{
-                  input: isModelAuthor ? classes.primaryProjectTitle : classes.projectTitle
+                  input: isModelAuthor ? classes.primaryProjectTitle : classes.projectTitle,
                 }}
               />
             </form>
@@ -652,7 +652,7 @@ class ViewMain extends React.Component {
             <Switch>
               <Route
                 path="/:mode"
-                render={props => (
+                render={(props) => (
                   <RoutedView
                     {...props}
                     viewHeight={this.state.viewHeight}
@@ -662,7 +662,7 @@ class ViewMain extends React.Component {
               />
               <Route
                 path="/"
-                render={props => (
+                render={(props) => (
                   <RoutedView
                     {...props}
                     viewHeight={this.state.viewHeight}
@@ -712,7 +712,7 @@ class ViewMain extends React.Component {
             </div>
             <Paper className={classes.resourceListList}>
               <List dense>
-                {resources.map(resource => (
+                {resources.map((resource) => (
                   <ResourceItem key={resource.id} resource={resource} />
                 ))}
               </List>
@@ -740,7 +740,7 @@ class ViewMain extends React.Component {
             position: 'absolute',
             left: '100px',
             right: '300px',
-            bottom: '20px'
+            bottom: '20px',
           }}
           hidden={suppressSelection}
         >
@@ -767,8 +767,8 @@ class ViewMain extends React.Component {
             {componentIsSelected
               ? DATAMAP.PMC_MODELTYPES.COMPONENT.label
               : outcomeIsSelected
-              ? DATAMAP.PMC_MODELTYPES.OUTCOME.label
-              : DATAMAP.PMC_MODELTYPES.MECHANISM.label}
+                ? DATAMAP.PMC_MODELTYPES.OUTCOME.label
+                : DATAMAP.PMC_MODELTYPES.MECHANISM.label}
           </Fab>
           <Fab
             hidden={!(componentIsSelected || outcomeIsSelected) || isViewOnly}
@@ -799,14 +799,14 @@ class ViewMain extends React.Component {
 /// default props are expect properties that we expect
 /// and are declared for validation
 ViewMain.defaultProps = {
-  classes: {}
+  classes: {},
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
 /// disallowed by eslint, so use shape({prop: ProtType })
 /// to describe them in more detail
 ViewMain.propTypes = {
-  classes: PropTypes.shape({})
+  classes: PropTypes.shape({}),
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// requirement for UR MODULES and COMPONENTS

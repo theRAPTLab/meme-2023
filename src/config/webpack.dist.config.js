@@ -24,7 +24,7 @@
 console.log('!!! BUILDING PACKAGE');
 
 const path = require('path');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -39,7 +39,7 @@ const PR = `${CW}${PROMPTS.Pad('webpack')}${CR}
 `;
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard
-const webConfiguration = env => {
+const webConfiguration = (env) => {
   console.log(`${PR} dist.config webConfiguration loaded`);
   // these paths might be relative to built/ not src/
   // depending on who is loading this file (wds or electron)
@@ -53,17 +53,17 @@ const webConfiguration = env => {
     {
       from: `web-index.html.ejs`,
       to: `${DIR_OUTPUT}/index.ejs`,
-      toType: 'file'
+      toType: 'file',
     },
     {
       from: `favicon.ico`,
       to: `${DIR_OUTPUT}/favicon.ico`,
-      toType: 'file'
+      toType: 'file',
     },
     {
       from: `static/**`,
-      to: `${DIR_OUTPUT}`
-    }
+      to: `${DIR_OUTPUT}`,
+    },
   ];
   // return webConfiguration
   return merge([
@@ -80,7 +80,7 @@ const webConfiguration = env => {
       output: {
         path: outputDir,
         filename: 'web-bundle.js',
-        pathinfo: false // this speeds up compilation (https://webpack.js.org/guides/build-performance/#output-without-path-info)
+        pathinfo: false, // this speeds up compilation (https://webpack.js.org/guides/build-performance/#output-without-path-info)
         // publicPath: 'web',
       },
       devtool: 'source-map',
@@ -88,16 +88,16 @@ const webConfiguration = env => {
       plugins: [
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('development'),
-          COMPILED_BY: JSON.stringify('dist.config.js')
+          COMPILED_BY: JSON.stringify('dist.config.js'),
         }),
-        new CopyWebpackPlugin(copyFilesArray)
+        new CopyWebpackPlugin(copyFilesArray),
       ],
-      stats: 'errors-only'
-    }
+      stats: 'errors-only',
+    },
   ]);
 }; // const webConfiguration
 
-const electronConfiguration = env => {
+const electronConfiguration = (env) => {
   console.log(`${PR} dist.config electronConfiguration loaded`);
 
   const DIR_CONFIG = path.join(__dirname, '../config/');
@@ -113,7 +113,7 @@ const electronConfiguration = env => {
 
     new HtmlWebpackPlugin({
       template: ENTRY_HTML, // uses context
-      filename: ENTRY_HTML // uses output.path
+      filename: ENTRY_HTML, // uses output.path
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('development'),
@@ -121,7 +121,7 @@ const electronConfiguration = env => {
       PACKAGE_TITLE: JSON.stringify(PACKAGE.title),
       PACKAGE_VERSION: JSON.stringify(PACKAGE.version),
       PACKAGE_DESCRIPTION: JSON.stringify(PACKAGE.description),
-      __static: JSON.stringify('static/')
+      __static: JSON.stringify('static/'),
     }),
     new CopyWebpackPlugin([
       {
@@ -129,11 +129,11 @@ const electronConfiguration = env => {
         to: `${DIR_OUTPUT}/console`,
         // ignore console.html and console.js (built by webpack)
         // ignore console.package.json (renamed to built/package.json)
-        ignore: ['.*', 'console.*']
+        ignore: ['.*', 'console.*'],
       },
       {
         from: DIR_SYSTEM,
-        to: `${DIR_OUTPUT}/system`
+        to: `${DIR_OUTPUT}/system`,
         // have to also copy the system directory
         // that contains URSYS, because this will be
         // served from the built directory as well
@@ -141,13 +141,13 @@ const electronConfiguration = env => {
       {
         from: `${DIR_SOURCE}/console.package.json`,
         to: `${DIR_OUTPUT}/package.json`,
-        toType: 'file'
+        toType: 'file',
       },
       {
         from: `${DIR_CONFIG}/*`,
-        to: `${DIR_OUTPUT}/config`
-      }
-    ])
+        to: `${DIR_OUTPUT}/config`,
+      },
+    ]),
   ];
 
   return merge([
@@ -162,16 +162,16 @@ const electronConfiguration = env => {
         path: `${DIR_OUTPUT}/console`,
         // is this necessary?
         // publicPath: DIR_PUBLIC_CONTEXT,
-        filename: FILE_BUNDLE
+        filename: FILE_BUNDLE,
       },
       plugins,
-      stats: 'errors-only'
-    }
+      stats: 'errors-only',
+    },
   ]);
 };
 // return merged configurations
 // webpack will pass the current environment since we are returning function
-module.exports = env => [
+module.exports = (env) => [
   merge(baseConfig(env), webConfiguration(env)),
-  merge(baseConfig(env), electronConfiguration(env))
+  merge(baseConfig(env), electronConfiguration(env)),
 ];

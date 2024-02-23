@@ -52,13 +52,13 @@ See MechDialog and EvidenceLink for example implementations.
 import React from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
+import Button from '@mui/material/Button';
 import DATAMAP from '../../system/common-datamap';
 // Material UI Icons
-import CreateIcon from '@material-ui/icons/Create';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import CreateIcon from '@mui/icons-material/Create';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -68,16 +68,15 @@ const { COLOR } = DEFAULTS;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const LButton = withStyles(theme => ({
+const LButton = withStyles((theme) => ({
   root: {
     padding: '2px 7px',
     lineHeight: '1.2em',
     '&$disabled': {
-      color: 'rgba(0,0,0,0.3)'
-    }
-  }
-}))(props => <Button {...props} />);
-
+      color: 'rgba(0,0,0,0.3)',
+    },
+  },
+}))((props) => <Button {...props} />);
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -105,7 +104,7 @@ class LinkButton extends React.Component {
       listenForSourceSelection,
       isBeingEdited,
       isExpanded,
-      classes
+      classes,
     } = this.props;
     let label;
     let icon;
@@ -156,7 +155,7 @@ class LinkButton extends React.Component {
         onClick={this.OnClick}
         classes={{
           root: evidenceLinkSelectButtonClass,
-          disabled: classes.disabled
+          disabled: classes.disabled,
         }}
         className={clsx({ [classes.evidenceLinkSelectButtonExpanded]: isExpanded })}
         disabled={isDisabled}
@@ -177,7 +176,7 @@ LinkButton.propTypes = {
   listenForSourceSelection: PropTypes.bool,
   isBeingEdited: PropTypes.bool,
   isExpanded: PropTypes.bool,
-  OnLinkButtonClick: PropTypes.func
+  OnLinkButtonClick: PropTypes.func,
 };
 
 LinkButton.defaultProps = {
@@ -189,7 +188,7 @@ LinkButton.defaultProps = {
   isExpanded: false,
   OnLinkButtonClick: () => {
     console.error('Missing OnLinkButtonClick Handler!');
-  }
+  },
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

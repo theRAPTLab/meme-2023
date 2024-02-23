@@ -16,15 +16,15 @@ time rather than having to individually select and save each edit.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import InputLabel from '@material-ui/core/InputLabel';
-import Paper from '@material-ui/core/Paper';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import InputLabel from '@mui/material/InputLabel';
+import Paper from '@mui/material/Paper';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -46,7 +46,7 @@ const defaults = [
   { label: 'Not rated / Irrelevant', rating: 0 },
   { label: 'Disagrees a little', rating: -1 },
   { label: 'Kinda disagrees!', rating: -2 },
-  { label: 'Really disagrees!', rating: -3 }
+  { label: 'Really disagrees!', rating: -3 },
 ];
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -68,14 +68,14 @@ class RatingsView extends React.Component {
       ratingsDef: [],
       origRatingsDef: [],
       isInEditMode: false,
-      classroomId: -1
+      classroomId: -1,
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
   }
 
-  componentDidMount() { }
+  componentDidMount() {}
 
   componentWillUnmount() {
     UR.Unsubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
@@ -85,11 +85,11 @@ class RatingsView extends React.Component {
   DoClassroomSelect(data) {
     this.setState(
       {
-        classroomId: Number(data.classroomId)
+        classroomId: Number(data.classroomId),
       },
       () => {
         this.DoLoadRatings();
-      }
+      },
     );
   }
 
@@ -99,7 +99,7 @@ class RatingsView extends React.Component {
 
   DoLoadRatings() {
     if (this.state.classroomId === -1) return;
-    
+
     let ratingsDefObj = ADM.GetRatingsDefinitionObject(this.state.classroomId);
     let ratingsDef;
     if (ratingsDefObj === undefined) {
@@ -107,7 +107,7 @@ class RatingsView extends React.Component {
       // Create defaults
       ratingsDefObj = ADMObj.RatingsDefinition({
         classroomId: this.state.classroomId,
-        definitions: defaults
+        definitions: defaults,
       });
       ADM.DB_RatingsAdd(this.state.classroomId, ratingsDefObj);
     } else {
@@ -116,7 +116,7 @@ class RatingsView extends React.Component {
     const origRatingsDef = JSON.parse(JSON.stringify(ratingsDef)); // deep clone
     this.setState({
       ratingsDef,
-      origRatingsDef
+      origRatingsDef,
     });
   }
 
@@ -132,28 +132,31 @@ class RatingsView extends React.Component {
 
   OnCancel() {
     // Restore original values.
-    this.setState(state => {
-      return { ratingsDef: state.origRatingsDef }
-    }, () => {
-      this.DoClose();
-    });
+    this.setState(
+      (state) => {
+        return { ratingsDef: state.origRatingsDef };
+      },
+      () => {
+        this.DoClose();
+      },
+    );
   }
 
   DoClose() {
     this.setState({
-      isInEditMode: false
+      isInEditMode: false,
     });
   }
 
   DoUpdateField(rating, label) {
     // Save the changes locally first
     // Store the whole object when "Save" is presssed.
-    this.setState(state => {
+    this.setState((state) => {
       let ratingsDef = state.ratingsDef;
-     
-      const index = ratingsDef.findIndex(item => rating === item.rating);
+
+      const index = ratingsDef.findIndex((item) => rating === item.rating);
       ratingsDef[index].label = label;
-      
+
       return { ratingsDef };
     });
   }
@@ -210,11 +213,11 @@ class RatingsView extends React.Component {
 
 RatingsView.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 RatingsView.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

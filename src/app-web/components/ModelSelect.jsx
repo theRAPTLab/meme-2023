@@ -10,17 +10,17 @@ Dialog for students to select a model.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Divider from '@material-ui/core/Divider';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -65,7 +65,7 @@ class ModelSelect extends React.Component {
       teacherName: '',
       targetSelectDialogOpen: false,
       targetSelectionType: '',
-      targetSelectCallback: undefined
+      targetSelectCallback: undefined,
     };
   }
 
@@ -80,7 +80,7 @@ class ModelSelect extends React.Component {
 
   DoADMDataUpdate() {
     this.setState({
-      canViewOthers: ADM.CanViewOthers()
+      canViewOthers: ADM.CanViewOthers(),
     });
   }
 
@@ -100,7 +100,7 @@ class ModelSelect extends React.Component {
         teacherName,
         targetSelectDialogOpen: false,
         targetSelectionType: '',
-        targetSelectCallback: undefined
+        targetSelectCallback: undefined,
       });
     }
   }
@@ -135,7 +135,7 @@ class ModelSelect extends React.Component {
         modelId,
         targetSelectDialogOpen: true,
         targetSelectionType: 'clone',
-        targetSelectCallback: this.OnCloneTargetSelect
+        targetSelectCallback: this.OnCloneTargetSelect,
       });
     } else {
       const groupId = ADM.GetSelectedGroupId();
@@ -163,7 +163,7 @@ class ModelSelect extends React.Component {
       modelId,
       targetSelectDialogOpen: true,
       targetSelectionType: 'move',
-      targetSelectCallback: this.OnMoveTargetSelect
+      targetSelectCallback: this.OnMoveTargetSelect,
     });
   }
 
@@ -197,23 +197,19 @@ class ModelSelect extends React.Component {
       studentId,
       groupName,
       classroomName,
-      teacherName
+      teacherName,
     } = this.state;
     const isTeacher = SESSION.IsTeacher();
     let myModels = isTeacher ? ADM.GetModelsByTeacher() : ADM.GetModelsByStudent();
-    myModels = myModels.filter(m => !m.deleted);
+    myModels = myModels.filter((m) => !m.deleted);
     let ourModels = ADM.GetMyClassmatesModels(ADM.GetSelectedClassroomId(), studentId);
-    ourModels = ourModels.filter(m => !m.deleted);
+    ourModels = ourModels.filter((m) => !m.deleted);
     let deletedModels = isTeacher ? ADM.GetModelsByTeacher() : ADM.GetModelsByStudent();
-    deletedModels = deletedModels.filter(m => m.deleted);
+    deletedModels = deletedModels.filter((m) => m.deleted);
     const readOnlyStatus = ADM.IsDBReadOnly() ? (
       <Typography variant="caption">READ ONLY MODE</Typography>
-    ) : (
-      undefined
-    );
-    const createNewModelButton = ADM.IsDBReadOnly() ? (
-      undefined
-    ) : (
+    ) : undefined;
+    const createNewModelButton = ADM.IsDBReadOnly() ? undefined : (
       <Button onClick={this.OnNewModel} color="primary" variant="contained">
         Create New Model
       </Button>
@@ -300,11 +296,11 @@ class ModelSelect extends React.Component {
 
 ModelSelect.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 ModelSelect.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

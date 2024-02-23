@@ -8,17 +8,17 @@ Criteria List
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import IconButton from '@material-ui/core/IconButton';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TextField from '@material-ui/core/TextField';
+import IconButton from '@mui/material/IconButton';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TextField from '@mui/material/TextField';
 // Material UI Icons
-import DeleteIcon from '@material-ui/icons/Delete';
+import DeleteIcon from '@mui/icons-material/Delete';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,11 +33,11 @@ const PKG = 'AdminCriteriaList';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const SmTableCell = withStyles(theme => ({
+const SmTableCell = withStyles((theme) => ({
   root: {
-    padding: '2px 10px 2px 2px'
-  }
-}))(props => <TableCell {...props} />);
+    padding: '2px 10px 2px 2px',
+  },
+}))((props) => <TableCell {...props} />);
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -60,14 +60,14 @@ class CriteriaList extends React.Component {
           </TableRow>
         </TableHead>
         <TableBody>
-          {Criteria.map(crit =>
+          {Criteria.map((crit) =>
             IsInEditMode ? (
               <TableRow key={crit.id}>
                 <SmTableCell>
                   <TextField
                     value={crit.label}
                     placeholder="Label"
-                    onChange={e => UpdateField(crit.id, 'label', e.target.value)}
+                    onChange={(e) => UpdateField(crit.id, 'label', e.target.value)}
                   />
                 </SmTableCell>
                 <SmTableCell>
@@ -77,7 +77,7 @@ class CriteriaList extends React.Component {
                     multiline
                     rows={2}
                     style={{ width: '20em' }}
-                    onChange={e => UpdateField(crit.id, 'description', e.target.value)}
+                    onChange={(e) => UpdateField(crit.id, 'description', e.target.value)}
                   />
                 </SmTableCell>
                 <SmTableCell>
@@ -96,7 +96,7 @@ class CriteriaList extends React.Component {
                   />
                 </SmTableCell>
               </TableRow>
-            )
+            ),
           )}
         </TableBody>
       </Table>
@@ -109,7 +109,7 @@ CriteriaList.propTypes = {
   Criteria: PropTypes.array,
   IsInEditMode: PropTypes.bool,
   UpdateField: PropTypes.func,
-  OnDeleteCriteriaClick: PropTypes.func
+  OnDeleteCriteriaClick: PropTypes.func,
 };
 
 CriteriaList.defaultProps = {
@@ -120,7 +120,7 @@ CriteriaList.defaultProps = {
   },
   OnDeleteCriteriaClick: () => {
     console.error('Missing OnDeleteCriteriaClick handler');
-  }
+  },
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

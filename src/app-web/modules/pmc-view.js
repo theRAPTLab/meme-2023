@@ -1,4 +1,4 @@
-import { yellow, green, red, grey } from '@material-ui/core/colors';
+import { yellow, green, red, grey } from '@mui/material/colors';
 import SVGJS from '@svgdotjs/svg.js/src/svg';
 import DATA from './data';
 import VProp from './class-vprop';
@@ -30,7 +30,7 @@ const DBG = false;
 
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-UR.Subscribe('PROP_MOVED', data => {
+UR.Subscribe('PROP_MOVED', (data) => {
   if (data) VMech.DrawEdges();
 });
 
@@ -40,7 +40,7 @@ UR.Subscribe('PROP_MOVED', data => {
  * API: Create an SVGJS-wrapped <svg> child element of `container`.
  * @param {HTMLElement} container - Where to add SVGJS <svg> root element
  */
-PMCView.InitializeViewgraph = container => {
+PMCView.InitializeViewgraph = (container) => {
   m_element = container;
   m_svgroot = SVGJS(m_element);
   m_svgroot
@@ -52,11 +52,7 @@ PMCView.InitializeViewgraph = container => {
   let rect = 2000;
   let rectmid = rect / 2;
   let rectoffset = 20;
-  m_svgroot
-    .rect(rect, rect)
-    .fill({ color: '#fff' })
-    .opacity(0.35)
-    .move(rectoffset, rectoffset);
+  m_svgroot.rect(rect, rect).fill({ color: '#fff' }).opacity(0.35).move(rectoffset, rectoffset);
   // // add center cross on artboard
   // let cross = 10; // length
   // m_svgroot
@@ -106,10 +102,7 @@ PMCView.PanZoomOut = (w, h) => {
  */
 PMCView.PanZoomReset = (w, h) => {
   if (m_svgroot) {
-    m_svgroot
-      .animate()
-      .zoom(1)
-      .viewbox(0, 0, w, h);
+    m_svgroot.animate().zoom(1).viewbox(0, 0, w, h);
     return;
   }
 };
@@ -119,7 +112,7 @@ PMCView.PanZoomReset = (w, h) => {
  * e.g. window.ur.PMCVIEW.PanZoomSet({x:-2500,y:0,w:5000,h:1000,z:0.25})
  * @param parm = {x,y,w,h,z} where z is zoom
  */
-PMCView.PanZoomSet = parm => {
+PMCView.PanZoomSet = (parm) => {
   // cx and cy don't seem to do anything
   if (m_svgroot) {
     console.log('panzoomset', parm);
@@ -140,7 +133,7 @@ PMCView.TestGroups = () => {
 
   console.group('%cTEST GROUP TRANSFORMS', cssdraw);
   /* TEST TRANSFORM on GROUP, MOVE on ELEMENTS */
-  gt.text(add => {
+  gt.text((add) => {
     add.tspan('move then add element test').newLine();
     add.tspan('group using transform').newLine();
     add.tspan('start at 0,0 -> end at 100,200').newLine();
@@ -150,22 +143,17 @@ PMCView.TestGroups = () => {
   /* TRANSFORM GROUP */
   gt.transform({ translateX: 50, translateY: 100 });
   // add another small rect at 0,0, size 10, transform to 10,10
-  gt.rect(10, 10)
-    .fill({ color: 'red' })
-    .transform({ translateX: 10, translateY: 10 });
+  gt.rect(10, 10).fill({ color: 'red' }).transform({ translateX: 10, translateY: 10 });
   /* TRANSFORM GROUP AGAIN */
   gt.transform({ translateX: 100, translateY: 200 });
   // add a circle on root svg at 0,0 radius 20, centered at 50,50
   // then add to group
-  const gtc = m_svgroot
-    .circle(20, 20)
-    .fill({ color: 'red' })
-    .center(50, 50);
+  const gtc = m_svgroot.circle(20, 20).fill({ color: 'red' }).center(50, 50);
   gt.add(gtc);
   /* BECAUSE TRANSFORM IS ADDED TO GROUP, ALL CHILDREN INHERIT */
 
   /* TEST MOVE on GROUP, MOVE on ELEMENTS */
-  gm.text(add => {
+  gm.text((add) => {
     add.tspan('move then add element test').newLine();
     add.tspan('group using move').newLine();
     add.tspan('start at 0,0 -> end at 300,100').newLine();
@@ -175,24 +163,19 @@ PMCView.TestGroups = () => {
   /* MOVE GROUP */
   gm.move(200, 50);
   // add another small rect at 0,0, size 10, transform to 10,10
-  gm.rect(10, 10)
-    .fill({ color: 'green' })
-    .move(10, 10);
+  gm.rect(10, 10).fill({ color: 'green' }).move(10, 10);
   /* MOVE GROUP AGAIN */
   gm.move(300, 100);
   // add a circle on root svg at 0,0 radius 20, centered at 50,50
   // then add to group
-  const gmc = m_svgroot
-    .circle(20, 20)
-    .fill({ color: 'green' })
-    .center(50, 50);
+  const gmc = m_svgroot.circle(20, 20).fill({ color: 'green' }).center(50, 50);
   gm.add(gmc);
   /* BECAUSE GROUP IS MOVED BUT TRANSFORM ISN'T SHARED, ALL CHILDREN
      ARE DRAWN RELATIVE TO ORIGIN
   */
 
   /* TEST MOVE on GROUP, MOVE on ELEMENTS */
-  gr.text(add => {
+  gr.text((add) => {
     add.tspan('move then add element test').newLine();
     add.tspan('group using move+offset').newLine();
     add.tspan('start at 0,0 -> end at 300,300').newLine();
@@ -225,54 +208,54 @@ PMCView.TestGroups = () => {
  * It shouldn't be called externally.
  * @param {SVGJSinstance} svg - SVGJS instance to add DEFs to
  */
-PMCView.DefineDefs = svg => {
+PMCView.DefineDefs = (svg) => {
   SVGDEFS.set(
     'arrowEndHead',
     svg
-      .marker(4, 4, add => {
+      .marker(4, 4, (add) => {
         add.path('M0,0 L0,4 L4,2 Z').fill(COLOR.MECH);
       })
-      .attr({ id: 'arrowEndHead', orient: 'auto', refX: 4 })
+      .attr({ id: 'arrowEndHead', orient: 'auto', refX: 4 }),
   );
   SVGDEFS.set(
     'arrowEndHeadHover',
     svg
-      .marker(4, 4, add => {
+      .marker(4, 4, (add) => {
         add.path('M0,0 L0,4 L4,2 Z').fill(COLOR.MECH_HOV);
       })
-      .attr({ id: 'arrowEndHeadHover', orient: 'auto', refX: 4 })
+      .attr({ id: 'arrowEndHeadHover', orient: 'auto', refX: 4 }),
   );
   SVGDEFS.set(
     'arrowEndHeadSelected',
     svg
-      .marker(4, 4, add => {
+      .marker(4, 4, (add) => {
         add.path('M0,0 L0,4 L4,2 Z').fill(COLOR.MECH_SEL);
       })
-      .attr({ id: 'arrowEndHeadSelected', orient: 'auto', refX: 4 })
+      .attr({ id: 'arrowEndHeadSelected', orient: 'auto', refX: 4 }),
   );
   SVGDEFS.set(
     'arrowStartHead',
     svg
-      .marker(4, 4, add => {
+      .marker(4, 4, (add) => {
         add.path('M4,4 L4,0 L0,2 Z').fill(COLOR.MECH);
       })
-      .attr({ id: 'arrowStartHead', orient: 'auto', refX: 0 })
+      .attr({ id: 'arrowStartHead', orient: 'auto', refX: 0 }),
   );
   SVGDEFS.set(
     'arrowStartHeadHover',
     svg
-      .marker(4, 4, add => {
+      .marker(4, 4, (add) => {
         add.path('M4,4 L4,0 L0,2 Z').fill(COLOR.MECH_HOV);
       })
-      .attr({ id: 'arrowStartHeadHover', orient: 'auto', refX: 0 })
+      .attr({ id: 'arrowStartHeadHover', orient: 'auto', refX: 0 }),
   );
   SVGDEFS.set(
     'arrowStartHeadSelected',
     svg
-      .marker(4, 4, add => {
+      .marker(4, 4, (add) => {
         add.path('M4,4 L4,0 L0,2 Z').fill(COLOR.MECH_SEL);
       })
-      .attr({ id: 'arrowStartHeadSelected', orient: 'auto', refX: 0 })
+      .attr({ id: 'arrowStartHeadSelected', orient: 'auto', refX: 0 }),
   );
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -288,7 +271,7 @@ PMCView.DefineDefs = svg => {
  * 5. Copy the path info
  * @param {SVGJSinstance} svg - SVGJS instance to add DEFs to
  */
-PMCView.DefineSymbols = svg => {
+PMCView.DefineSymbols = (svg) => {
   const chatColor = COLOR.STICKY_BUTTON; // '#ffdd11'; // '#ffd300'; // yellow[800];
   SVGSYMBOLS.set(
     'chatIcon',
@@ -297,12 +280,12 @@ PMCView.DefineSymbols = svg => {
       // from https://material.io/resources/icons/?icon=chat&style=baseline
       icon
         .path(
-          'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z'
+          'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z',
         )
         .fill(chatColor);
       icon.path('M0 0h24v24H0z').fill('none');
       return icon;
-    })()
+    })(),
   );
   SVGSYMBOLS.set(
     'chatBubble',
@@ -314,7 +297,7 @@ PMCView.DefineSymbols = svg => {
         .fill(chatColor);
       icon.path('M0 0h24v24H0z').fill('none');
       return icon;
-    })()
+    })(),
   );
   SVGSYMBOLS.set(
     'chatBubbleOutline',
@@ -324,11 +307,11 @@ PMCView.DefineSymbols = svg => {
       icon.path('M0 0h24v24H0V0z').fill('none');
       icon
         .path(
-          'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z'
+          'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z',
         )
         .fill(chatColor);
       return icon;
-    })()
+    })(),
   );
   SVGSYMBOLS.set(
     'ratingsPositive',
@@ -338,7 +321,7 @@ PMCView.DefineSymbols = svg => {
       icon.path('M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z').fill(green[600]);
       icon.path('M0 0h24v24H0z').fill('none');
       return icon;
-    })()
+    })(),
   );
   SVGSYMBOLS.set(
     'ratingsNegative',
@@ -347,12 +330,12 @@ PMCView.DefineSymbols = svg => {
       // from https://fonts.gstatic.com/s/i/materialicons/clear/v1/24px.svg?download=true
       icon
         .path(
-          'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'
+          'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
         )
         .fill(red[600]);
       icon.path('M0 0h24v24H0z').fill('none');
       return icon;
-    })()
+    })(),
   );
   SVGSYMBOLS.set(
     'ratingsNeutral',
@@ -361,12 +344,12 @@ PMCView.DefineSymbols = svg => {
       // from https://fonts.gstatic.com/s/i/materialicons/clear/v1/24px.svg?download=true
       icon
         .path(
-          'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z'
+          'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z',
         )
         .fill(grey[600]);
       icon.path('M0 0h24v24H0z').fill('none');
       return icon;
-    })()
+    })(),
   );
 };
 
@@ -397,9 +380,9 @@ PMCView.SyncModeSettings = () => {
 PMCView.SyncPropsFromGraphData = () => {
   // if (DBG) console.groupCollapsed(`%c:SyncPropsFromGraphData()`, cssinfo);
   const { added, removed, updated } = DATA.VM_GetVPropChanges(DATA.AllProps());
-  removed.forEach(id => VProp.Release(id));
-  added.forEach(id => VProp.New(id, m_svgroot)); // returns vprop instance but not using
-  updated.forEach(id => VProp.Update(id));
+  removed.forEach((id) => VProp.Release(id));
+  added.forEach((id) => VProp.New(id, m_svgroot)); // returns vprop instance but not using
+  updated.forEach((id) => VProp.Update(id));
   if (DBG) {
     if (removed.length) console.log(`%c:Removing ${removed.length} dead nodes`, csstab);
     if (added.length) console.log(`%c:Adding ${added.length} new nodes`, csstab);
@@ -417,9 +400,9 @@ PMCView.SyncMechsFromGraphData = () => {
   // if (DBG) console.groupCollapsed(`%c:SyncMechsFromGraphData()`, cssinfo);
   // the following arrays contain pathIds
   const { added, removed, updated } = DATA.VM_GetVMechChanges(DATA.AllMechs());
-  removed.forEach(pathId => VMech.Release(pathId));
-  added.forEach(pathId => VMech.New(pathId, m_svgroot));
-  updated.forEach(pathId => VMech.Update(pathId));
+  removed.forEach((pathId) => VMech.Release(pathId));
+  added.forEach((pathId) => VMech.New(pathId, m_svgroot));
+  updated.forEach((pathId) => VMech.Update(pathId));
   if (DBG) {
     if (removed.length) console.log(`%c:Removing ${removed.length} dead edgeObjs`, csstab);
     if (added.length) console.log(`%c:Adding ${added.length} new edgeObjs`, csstab);

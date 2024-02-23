@@ -11,22 +11,22 @@ Teachers use a groupId of 0.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import FormControl from '@material-ui/core/FormControl';
-import Grid from '@material-ui/core/Grid';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Paper from '@material-ui/core/Paper';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import TextField from '@material-ui/core/TextField';
-import Select from '@material-ui/core/Select';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -57,7 +57,7 @@ class TeacherSelector extends React.Component {
       selectedTeacherId: '',
       selectedTeacherName: '',
       addTeacherDialogOpen: false,
-      updateExistingTeacher: false
+      updateExistingTeacher: false,
     };
   }
 
@@ -78,7 +78,7 @@ class TeacherSelector extends React.Component {
   DoTeacherSelect(data) {
     this.setState({
       selectedTeacherId: data.teacherId,
-      selectedTeacherName: ADM.GetTeacher(data.teacherId).name
+      selectedTeacherName: ADM.GetTeacher(data.teacherId).name,
     });
   }
 
@@ -89,7 +89,7 @@ class TeacherSelector extends React.Component {
       this.setState({
         selectedTeacherName: '',
         addTeacherDialogOpen: true,
-        updateExistingTeacher: false
+        updateExistingTeacher: false,
       });
     } else {
       ADM.SelectTeacher(selectedTeacherId);
@@ -103,7 +103,7 @@ class TeacherSelector extends React.Component {
     if (this.state.updateExistingTeacher) {
       const teacher = ADMObj.Teacher({
         id: this.state.selectedTeacherId,
-        name
+        name,
       });
       ADM.DB_UpdateTeacher(teacher);
     } else {
@@ -121,7 +121,7 @@ class TeacherSelector extends React.Component {
     e.stopPropagation();
     this.setState({
       addTeacherDialogOpen: true,
-      updateExistingTeacher: true
+      updateExistingTeacher: true,
     });
   }
 
@@ -132,7 +132,7 @@ class TeacherSelector extends React.Component {
       selectedTeacherId,
       selectedTeacher,
       addTeacherDialogOpen,
-      selectedTeacherName
+      selectedTeacherName,
     } = this.state;
     return (
       <Paper className={classes.admPaper}>
@@ -146,10 +146,10 @@ class TeacherSelector extends React.Component {
                 input={<OutlinedInput name="teacher" id="teacher" labelWidth={120} />}
               >
                 <MenuItem value="" />
-                {teachers.map(teacher => {
+                {teachers.map((teacher) => {
                   const tok = SESSION.MakeTeacherToken(teacher.name, {
                     groupId: 0,
-                    teacherId: teacher.id
+                    teacherId: teacher.id,
                   });
                   return (
                     <MenuItem value={teacher.id} key={teacher.id}>
@@ -180,7 +180,7 @@ class TeacherSelector extends React.Component {
                 label="Name"
                 value={selectedTeacherName}
                 fullWidth
-                onChange={e => this.setState({ selectedTeacherName: e.target.value })}
+                onChange={(e) => this.setState({ selectedTeacherName: e.target.value })}
               />
             </DialogContent>
             <DialogActions>
@@ -200,11 +200,11 @@ class TeacherSelector extends React.Component {
 
 TeacherSelector.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 TeacherSelector.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

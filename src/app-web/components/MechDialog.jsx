@@ -13,15 +13,15 @@ needs to select Properties and Mechanisms while th e "dialog" is open.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import Slide from '@material-ui/core/Slide';
-import Switch from '@material-ui/core/Switch';
-import TextField from '@material-ui/core/TextField';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Slide from '@mui/material/Slide';
+import Switch from '@mui/material/Switch';
+import TextField from '@mui/material/TextField';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -77,7 +77,7 @@ class MechDialog extends React.Component {
       saveButtonLabel: 'Add',
       reversing: false,
       slideIn: true,
-      bidirectional: false
+      bidirectional: false,
     };
 
     UR.Subscribe('MECHDIALOG:ADD', this.DoAdd);
@@ -116,11 +116,11 @@ class MechDialog extends React.Component {
         listenForSourceSelection: true,
         listenForTargetSelection: true,
         saveButtonLabel: 'Add',
-        bidirectional: false
+        bidirectional: false,
       },
       () => {
         this.DoSelectionChange(); // Read selection to prepopulate
-      }
+      },
     );
   }
 
@@ -130,7 +130,7 @@ class MechDialog extends React.Component {
     const pmcDataId = ASET.selectedPMCDataId;
     const intMechId = Number(data.id);
     if (intMechId) {
-      UR.DBTryLock('pmcData.entities', [pmcDataId, intMechId]).then(rdata => {
+      UR.DBTryLock('pmcData.entities', [pmcDataId, intMechId]).then((rdata) => {
         const { success, semaphore, uaddr, lockedBy } = rdata;
         status += success
           ? `${semaphore} lock acquired by ${uaddr} `
@@ -152,13 +152,13 @@ class MechDialog extends React.Component {
               listenForSourceSelection: false,
               listenForTargetSelection: false,
               saveButtonLabel: 'Update',
-              bidirectional
+              bidirectional,
             },
-            () => this.DoSelectSourceAndTarget(sourceId, targetId) // show the selected props
+            () => this.DoSelectSourceAndTarget(sourceId, targetId), // show the selected props
           );
         } else {
           alert(
-            `Sorry, someone else (${rdata.lockedBy}) is editing this ${DATAMAP.PMC_MODELTYPES.MECHANISM.label} right now.  Please try again later.`
+            `Sorry, someone else (${rdata.lockedBy}) is editing this ${DATAMAP.PMC_MODELTYPES.MECHANISM.label} right now.  Please try again later.`,
           );
           UR.Publish('MECHDIALOG_CLOSED'); // tell ViewMain to re-enable ToolsPanel
         }
@@ -170,7 +170,7 @@ class MechDialog extends React.Component {
     this.setState({
       isOpen: false,
       sourceId: '', // clear so mech dialog doesn't try to re-render them
-      targetId: '' // clear so mech dialog doesn't try to re-render them
+      targetId: '', // clear so mech dialog doesn't try to re-render them
     });
     const pmcDataId = ASET.selectedPMCDataId;
     const intMechId = Number(this.state.id);
@@ -222,14 +222,14 @@ class MechDialog extends React.Component {
             alert(
               `${DATA.Prop(sourceId).name} is already selected!  Please select a different ${
                 DATAMAP.PMC_MODELTYPES.COMPONENT.label
-              } or ${DATAMAP.PMC_MODELTYPES.OUTCOME.label}!`
+              } or ${DATAMAP.PMC_MODELTYPES.OUTCOME.label}!`,
             );
             DATA.VM_DeselectAll();
           } else {
             this.setState({
               sourceId,
               sourceLabel: sourceId !== '' ? DATA.Prop(sourceId).name : undefined,
-              listenForSourceSelection: false
+              listenForSourceSelection: false,
             });
           }
         }
@@ -242,14 +242,14 @@ class MechDialog extends React.Component {
             alert(
               `${DATA.Prop(targetId).name} is already selected!  Please select a different ${
                 DATAMAP.PMC_MODELTYPES.COMPONENT.label
-              } or ${DATAMAP.PMC_MODELTYPES.OUTCOME.label}!`
+              } or ${DATAMAP.PMC_MODELTYPES.OUTCOME.label}!`,
             );
             DATA.VM_DeselectAll();
           } else {
             this.setState({
               targetId,
               targetLabel: targetId !== '' ? DATA.Prop(targetId).name : undefined,
-              listenForTargetSelection: false
+              listenForTargetSelection: false,
             });
           }
         }
@@ -294,7 +294,7 @@ class MechDialog extends React.Component {
         editExisting,
         listenForSourceSelection,
         listenForTargetSelection,
-        bidirectional: false
+        bidirectional: false,
       });
     }
   }
@@ -308,7 +308,7 @@ class MechDialog extends React.Component {
         this.setState({
           sourceId: '',
           sourceLabel: undefined,
-          listenForSourceSelection: true
+          listenForSourceSelection: true,
         });
       }
       if (targetId === deletedPropId) {
@@ -316,11 +316,11 @@ class MechDialog extends React.Component {
         this.setState({
           targetId: '',
           targetLabel: undefined,
-          listenForTargetSelection: true
+          listenForTargetSelection: true,
         });
       }
       alert(
-        `The ${DATAMAP.PMC_MODELTYPES.COMPONENT.label} or ${DATAMAP.PMC_MODELTYPES.OUTCOME.label} you were linking was deleted by someone else.  Please select a different component or property.`
+        `The ${DATAMAP.PMC_MODELTYPES.COMPONENT.label} or ${DATAMAP.PMC_MODELTYPES.OUTCOME.label} you were linking was deleted by someone else.  Please select a different component or property.`,
       );
     }
   }
@@ -331,7 +331,7 @@ class MechDialog extends React.Component {
     this.setState({
       sourceId: '',
       sourceLabel: undefined,
-      listenForSourceSelection: true
+      listenForSourceSelection: true,
     });
   }
 
@@ -341,7 +341,7 @@ class MechDialog extends React.Component {
     this.setState({
       targetId: '',
       targetLabel: undefined,
-      listenForTargetSelection: true
+      listenForTargetSelection: true,
     });
   }
 
@@ -354,7 +354,7 @@ class MechDialog extends React.Component {
   }
 
   OnToggleBidirection() {
-    this.setState(state => ({ bidirectional: !state.bidirectional }));
+    this.setState((state) => ({ bidirectional: !state.bidirectional }));
   }
 
   OnReverse() {
@@ -370,7 +370,7 @@ class MechDialog extends React.Component {
         targetId: sourceId,
         targetLabel: sourceLabel,
         reversing: true,
-        slideIn: false
+        slideIn: false,
       },
       () => {
         setTimeout(() => {
@@ -380,7 +380,7 @@ class MechDialog extends React.Component {
             document.getElementsByTagName('body')[0].style.overflow = origOverflowSetting;
           }, 250);
         }, 250);
-      }
+      },
     );
     UTILS.RLog('MechanismReverse', `new source "${targetId}" to new target "${sourceId}"`);
   }
@@ -395,7 +395,7 @@ class MechDialog extends React.Component {
       label,
       description,
       editExisting,
-      bidirectional
+      bidirectional,
     } = this.state;
     if (editExisting) {
       const origMech = { sourceId: origSourceId, targetId: origTargetId, id };
@@ -429,7 +429,7 @@ class MechDialog extends React.Component {
       saveButtonLabel,
       reversing,
       slideIn,
-      bidirectional
+      bidirectional,
     } = this.state;
     const { classes } = this.props;
 
@@ -559,11 +559,11 @@ class MechDialog extends React.Component {
 
 MechDialog.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 MechDialog.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

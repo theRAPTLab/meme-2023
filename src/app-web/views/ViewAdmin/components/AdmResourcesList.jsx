@@ -11,23 +11,23 @@ Each classroom can define its own subset of resources to display.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import InputLabel from '@material-ui/core/InputLabel';
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TextField from '@material-ui/core/TextField';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import InputLabel from '@mui/material/InputLabel';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TextField from '@mui/material/TextField';
 // Material UI Theming
-import DeleteIcon from '@material-ui/icons/DeleteOutlined';
-import { withStyles } from '@material-ui/core/styles';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import { withStyles } from '@mui/styles';
 
 /// Change eto pull from the same array as being used elsewhere (resourceView and resourceItem)
 const resourceTypeList = 'report, simulation, idea, assuption, question, or other';
@@ -66,7 +66,7 @@ class ResourcesList extends React.Component {
       dialogLabel: '',
       dialogNotes: '',
       dialogType: '',
-      dialogURL: ''
+      dialogURL: '',
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
@@ -83,7 +83,7 @@ class ResourcesList extends React.Component {
   DoClassroomSelect(data) {
     this.setState({
       classroomResources: ADM.GetResourcesForClassroom(data.classroomId),
-      classroomId: data.classroomId
+      classroomId: data.classroomId,
     });
   }
 
@@ -92,7 +92,7 @@ class ResourcesList extends React.Component {
     const classroomId = this.state.classroomId;
     if (classroomId) {
       this.setState({
-        classroomResources: ADM.GetResourcesForClassroom(classroomId)
+        classroomResources: ADM.GetResourcesForClassroom(classroomId),
       });
     } else if (data.resources) {
       // Resources were update, so force render to load latest resources
@@ -108,7 +108,7 @@ class ResourcesList extends React.Component {
       dialogLabel: res.label,
       dialogNotes: res.notes,
       dialogType: res.type,
-      dialogURL: res.url
+      dialogURL: res.url,
     });
   }
 
@@ -128,7 +128,7 @@ class ResourcesList extends React.Component {
       dialogLabel: resource.label,
       dialogNotes: resource.notes,
       dialogType: resource.type,
-      dialogURL: resource.url
+      dialogURL: resource.url,
     });
   }
 
@@ -156,7 +156,7 @@ class ResourcesList extends React.Component {
       label: this.state.dialogLabel,
       notes: this.state.dialogNotes,
       type: this.state.dialogType,
-      url: this.state.dialogURL
+      url: this.state.dialogURL,
     });
     if (resource.id === undefined) {
       // Add new resource
@@ -170,7 +170,7 @@ class ResourcesList extends React.Component {
 
   OnDialogCloseClick() {
     this.setState({
-      showDialog: false
+      showDialog: false,
     });
   }
 
@@ -183,7 +183,7 @@ class ResourcesList extends React.Component {
       dialogLabel,
       dialogNotes,
       dialogType,
-      dialogURL
+      dialogURL,
     } = this.state;
     const resources = ADM.AllResources();
     return (
@@ -203,13 +203,15 @@ class ResourcesList extends React.Component {
             </TableRow>
           </TableHead>
           <TableBody>
-            {resources.map(resource => (
+            {resources.map((resource) => (
               <TableRow key={resource.id}>
                 <TableCell>
                   <Checkbox
-                    checked={classroomResources.find(res => res.id === resource.id) ? true : false}
+                    checked={
+                      classroomResources.find((res) => res.id === resource.id) ? true : false
+                    }
                     color="primary"
-                    onChange={e => this.OnResourceCheck(resource.id, e.target.checked)}
+                    onChange={(e) => this.OnResourceCheck(resource.id, e.target.checked)}
                     disabled={classroomId === ''}
                   />
                 </TableCell>
@@ -302,11 +304,11 @@ class ResourcesList extends React.Component {
 
 ResourcesList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 ResourcesList.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

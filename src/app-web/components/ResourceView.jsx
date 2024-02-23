@@ -11,18 +11,18 @@ the Comment system.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Chip from '@material-ui/core/Chip';
-import Modal from '@material-ui/core/Modal';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Chip from '@mui/material/Chip';
+import Modal from '@mui/material/Modal';
+import Paper from '@mui/material/Paper';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -40,10 +40,10 @@ import DEFAULTS from '../modules/defaults';
 // Material UI Icons
 // I want to move this somewhere centralized but wasn't sure the best way, so this is a teemporary shifting
 // in how it is referenced to make it easier later
-import ImageIcon from '@material-ui/icons/Image';
-import DescriptionIcon from '@material-ui/icons/Description';
-import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
-import ContactSupportIcon from '@material-ui/icons/ContactSupport';
+import ImageIcon from '@mui/icons-material/Image';
+import DescriptionIcon from '@mui/icons-material/Description';
+import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
+import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 
 const RESOURCE_TYPES = {
   simulation: <ImageIcon />,
@@ -51,7 +51,7 @@ const RESOURCE_TYPES = {
   idea: <EmojiObjectsIcon />,
   report: <DescriptionIcon />,
   question: <ContactSupportIcon />,
-  other: <DescriptionIcon />
+  other: <DescriptionIcon />,
 };
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ class ResourceView extends React.Component {
       noteRefId: '', // points comment to this resource
       note: 'blank',
       noteIsDisabled: true,
-      commentId: -1 // id of the comment object used to hold the note data
+      commentId: -1, // id of the comment object used to hold the note data
     };
 
     UR.Subscribe('RESOURCEVIEW:OPEN', this.OnOpen);
@@ -106,7 +106,7 @@ class ResourceView extends React.Component {
         // no comment defined yet, so create a new comment
         const comment = PMCObj.Comment({
           refId: noteRefId,
-          author: ADM.GetAuthorId()
+          author: ADM.GetAuthorId(),
         });
         DATA.DB_CommentAdd(noteRefId, comment, () => this.ContinueOpen(resource, noteRefId));
       } else {
@@ -137,7 +137,7 @@ class ResourceView extends React.Component {
 
     const pmcDataId = ASET.selectedPMCDataId;
     const intCommentId = Number(commentId);
-    UR.DBTryLock('pmcData.comments', [pmcDataId, intCommentId]).then(rdata => {
+    UR.DBTryLock('pmcData.comments', [pmcDataId, intCommentId]).then((rdata) => {
       const { success, semaphore, uaddr, lockedBy } = rdata;
       status += success
         ? `${semaphore} lock acquired by ${uaddr} `
@@ -146,7 +146,7 @@ class ResourceView extends React.Component {
         this.setState({ noteIsDisabled: false });
       } else {
         alert(
-          `Sorry, someone else (${rdata.lockedBy}) is editing this Resource Note right now.  Please try again later. (You can still ${DEFAULTS.TEXT.ADD_EVIDENCE}.)`
+          `Sorry, someone else (${rdata.lockedBy}) is editing this Resource Note right now.  Please try again later. (You can still ${DEFAULTS.TEXT.ADD_EVIDENCE}.)`,
         );
       }
     });
@@ -156,7 +156,7 @@ class ResourceView extends React.Component {
       resource,
       noteRefId,
       note,
-      commentId
+      commentId,
     });
     UTILS.RLog('ResourceOpen', resource.label);
   }
@@ -171,12 +171,12 @@ class ResourceView extends React.Component {
       const sw = resourceFrame.clientWidth * px;
       const sh = resourceFrame.clientHeight * px;
       let opt = { sx, sy, sw, sh };
-      UR.PromiseCaptureScreen(opt).then(rdata => {
+      UR.PromiseCaptureScreen(opt).then((rdata) => {
         const { href, error } = rdata;
         if (error) console.log('PromiseCaptureScreen:', error);
         // Always create evidence link even if href is undefined
-        DATA.PMC_AddEvidenceLink({ rsrcId, imageURL: href }, id =>
-          UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId })
+        DATA.PMC_AddEvidenceLink({ rsrcId, imageURL: href }, (id) =>
+          UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }),
         );
       });
     }
@@ -192,7 +192,7 @@ class ResourceView extends React.Component {
       id: this.state.commentId,
       text: this.state.note,
       refId: this.state.noteRefId,
-      author: ADM.GetAuthorId()
+      author: ADM.GetAuthorId(),
     });
     DATA.DB_CommentUpdate(this.state.noteRefId, note);
   }
@@ -208,7 +208,7 @@ class ResourceView extends React.Component {
     }
     this.setState({
       isOpen: false,
-      noteIsDisabled: true
+      noteIsDisabled: true,
     });
   }
 
@@ -303,11 +303,11 @@ class ResourceView extends React.Component {
 
 ResourceView.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 ResourceView.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

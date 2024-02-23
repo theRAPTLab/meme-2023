@@ -8,24 +8,24 @@ Classrooms Selector
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import FormControl from '@material-ui/core/FormControl';
-import Grid from '@material-ui/core/Grid';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Paper from '@material-ui/core/Paper';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Select from '@material-ui/core/Select';
-import Switch from '@material-ui/core/Switch';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import Select from '@mui/material/Select';
+import Switch from '@mui/material/Switch';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -64,7 +64,7 @@ class ClassroomsSelector extends React.Component {
       selectedClassroomName: '',
       addClassroomDialogOpen: false,
       updateExistingClassroom: false,
-      canViewOthers: false
+      canViewOthers: false,
     };
   }
 
@@ -79,13 +79,13 @@ class ClassroomsSelector extends React.Component {
   DoADMDataUpdate() {
     this.DoClassroomListUpdate();
     this.setState({
-      canViewOthers: ADM.CanViewOthers()
+      canViewOthers: ADM.CanViewOthers(),
     });
   }
 
   DoClassroomListUpdate() {
     this.setState({
-      classrooms: ADM.GetClassroomsByTeacher()
+      classrooms: ADM.GetClassroomsByTeacher(),
     });
   }
 
@@ -104,7 +104,7 @@ class ClassroomsSelector extends React.Component {
       this.setState({
         selectedClassroomId: classroom.id,
         selectedClassroomName: classroom.name,
-        canViewOthers: classroom.canViewOthers
+        canViewOthers: classroom.canViewOthers,
       });
     }
   }
@@ -116,7 +116,7 @@ class ClassroomsSelector extends React.Component {
       this.setState({
         selectedClassroomName: '',
         addClassroomDialogOpen: true,
-        updateExistingClassroom: false
+        updateExistingClassroom: false,
       });
     } else {
       ADM.SelectClassroom(classroomId);
@@ -130,7 +130,7 @@ class ClassroomsSelector extends React.Component {
     if (this.state.updateExistingClassroom) {
       const classroomData = {
         id: this.state.selectedClassroomId,
-        name
+        name,
       };
       ADM.DB_UpdateClassroom(this.state.selectedClassroomId, classroomData);
     } else {
@@ -152,7 +152,7 @@ class ClassroomsSelector extends React.Component {
     e.stopPropagation();
     this.setState({
       addClassroomDialogOpen: true,
-      updateExistingClassroom: true
+      updateExistingClassroom: true,
     });
   }
 
@@ -163,7 +163,7 @@ class ClassroomsSelector extends React.Component {
       selectedClassroomId,
       selectedClassroomName,
       addClassroomDialogOpen,
-      canViewOthers
+      canViewOthers,
     } = this.state;
     return (
       <Paper className={classes.admPaper}>
@@ -176,7 +176,7 @@ class ClassroomsSelector extends React.Component {
                 onChange={this.OnClassroomSelect}
                 input={<OutlinedInput name="classroom" id="classroom" labelWidth={120} />}
               >
-                {classrooms.map(classroom => (
+                {classrooms.map((classroom) => (
                   <MenuItem value={classroom.id} key={classroom.id}>
                     {classroom.name}
                   </MenuItem>
@@ -223,7 +223,7 @@ class ClassroomsSelector extends React.Component {
                 label="Name"
                 fullWidth
                 value={selectedClassroomName}
-                onChange={e => this.setState({ selectedClassroomName: e.target.value })}
+                onChange={(e) => this.setState({ selectedClassroomName: e.target.value })}
               />
             </DialogContent>
             <DialogActions>
@@ -243,11 +243,11 @@ class ClassroomsSelector extends React.Component {
 
 ClassroomsSelector.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 ClassroomsSelector.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

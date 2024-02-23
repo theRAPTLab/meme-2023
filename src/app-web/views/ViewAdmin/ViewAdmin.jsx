@@ -8,9 +8,9 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
+import { withStyles } from '@mui/styles';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import UR from '../../../system/ursys';
@@ -34,15 +34,15 @@ import 'bootstrap/dist/css/bootstrap.css';
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true;
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   paper: {
     padding: theme.spacing(2),
     textAlign: 'center',
-    color: theme.palette.text.secondary
-  }
+    color: theme.palette.text.secondary,
+  },
 });
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -125,14 +125,14 @@ class ViewAdmin extends React.Component {
 /// default props are expect properties that we expect
 /// and are declared for validation
 ViewAdmin.defaultProps = {
-  classes: { isDefaultProps: true }
+  classes: { isDefaultProps: true },
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
 /// disallowed by eslint, so use shape({prop:ProtType })
 /// to describe them in more detail
 ViewAdmin.propTypes = {
-  classes: PropTypes.shape({})
+  classes: PropTypes.shape({}),
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// required for UR EXEC phase filtering by view path

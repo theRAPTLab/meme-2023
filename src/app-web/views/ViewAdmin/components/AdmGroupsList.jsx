@@ -8,28 +8,28 @@ Groups List View
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Chip from '@material-ui/core/Chip';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import IconButton from '@material-ui/core/IconButton';
-import InputLabel from '@material-ui/core/InputLabel';
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TextField from '@material-ui/core/TextField';
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
+import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TextField from '@mui/material/TextField';
 // Material UI Icons
-import AddIcon from '@material-ui/icons/Add';
+import AddIcon from '@mui/icons-material/Add';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -69,7 +69,7 @@ class GroupsList extends React.Component {
       addStudentDialogName: '',
       addStudentDialogInvalidNames: undefined,
       classroomId: '',
-      editExistingGroup: false
+      editExistingGroup: false,
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
@@ -88,12 +88,12 @@ class GroupsList extends React.Component {
     if (data && data.classroomId) {
       this.setState({
         groups: ADM.GetGroupsByClassroom(data.classroomId),
-        classroomId: data.classroomId
+        classroomId: data.classroomId,
       });
     } else {
       this.setState({
         groups: [],
-        classroomId: ''
+        classroomId: '',
       });
     }
   }
@@ -103,7 +103,7 @@ class GroupsList extends React.Component {
     const classroomId = this.state.classroomId;
     if (classroomId) {
       this.setState({
-        groups: ADM.GetGroupsByClassroom(classroomId)
+        groups: ADM.GetGroupsByClassroom(classroomId),
       });
     }
   }
@@ -112,7 +112,7 @@ class GroupsList extends React.Component {
     this.setState({
       addGroupDialogOpen: true,
       addGroupDialogName: '',
-      editExistingGroup: false
+      editExistingGroup: false,
     });
   }
 
@@ -134,7 +134,7 @@ class GroupsList extends React.Component {
   OnAddStudentClick(e, groupId) {
     this.setState({
       addStudentDialogOpen: true,
-      addStudentDialogGroupId: groupId
+      addStudentDialogGroupId: groupId,
     });
   }
 
@@ -146,7 +146,7 @@ class GroupsList extends React.Component {
   OnAddStudentName(e) {
     e.preventDefault();
     e.stopPropagation();
-    const names = this.state.addStudentDialogName.split(',').map(name => name.trim());
+    const names = this.state.addStudentDialogName.split(',').map((name) => name.trim());
     ADM.AddStudents(this.state.addStudentDialogGroupId, names);
     this.OnAddStudentDialogClose();
   }
@@ -157,7 +157,7 @@ class GroupsList extends React.Component {
 
   CheckForDuplicates(names) {
     let namesArr = names.split(',');
-    let duplicateNamesArr = namesArr.filter(name => {
+    let duplicateNamesArr = namesArr.filter((name) => {
       return ADM.GetGroupByStudent(name.trim());
     });
     return duplicateNamesArr.length > 0 ? duplicateNamesArr.join(', ') : undefined;
@@ -168,7 +168,7 @@ class GroupsList extends React.Component {
     let duplicateNames = this.CheckForDuplicates(e.target.value);
     this.setState({
       addStudentDialogName: e.target.value,
-      addStudentDialogInvalidNames: duplicateNames
+      addStudentDialogInvalidNames: duplicateNames,
     });
   }
 
@@ -180,7 +180,7 @@ class GroupsList extends React.Component {
       addGroupDialogName: group.name,
       addGroupDialogOpen: true,
       selectedGroupId: groupId,
-      editExistingGroup: true
+      editExistingGroup: true,
     });
   }
 
@@ -192,7 +192,7 @@ class GroupsList extends React.Component {
       addGroupDialogName,
       addStudentDialogOpen,
       addStudentDialogInvalidNames,
-      classroomId
+      classroomId,
     } = this.state;
 
     return (
@@ -208,12 +208,12 @@ class GroupsList extends React.Component {
             </TableRow>
           </TableHead>
           <TableBody>
-            {groups.map(group => (
+            {groups.map((group) => (
               <TableRow key={group.id}>
                 <TableCell>{group.id}</TableCell>
                 <TableCell>
                   {group.name}
-                  <Button onClick={e => this.OnGroupEdit(e, group.id)}>Edit</Button>
+                  <Button onClick={(e) => this.OnGroupEdit(e, group.id)}>Edit</Button>
                 </TableCell>
                 <TableCell>
                   &nbsp;
@@ -222,11 +222,11 @@ class GroupsList extends React.Component {
                       <Chip
                         key={group.id + student}
                         label={student}
-                        onDelete={e => this.OnDeleteStudent(e, group.id, student)}
+                        onDelete={(e) => this.OnDeleteStudent(e, group.id, student)}
                       />
                     );
                   })}
-                  <IconButton size="small" onClick={e => this.OnAddStudentClick(e, group.id)}>
+                  <IconButton size="small" onClick={(e) => this.OnAddStudentClick(e, group.id)}>
                     <AddIcon />
                   </IconButton>
                 </TableCell>
@@ -237,7 +237,7 @@ class GroupsList extends React.Component {
                     style={{ fontFamily: 'monospace' }}
                     value={group.students.reduce(
                       (accumulator, student) => accumulator + ADM.GetToken(group.id, student),
-                      '' // initialValue to force start at index=0
+                      '', // initialValue to force start at index=0
                     )}
                   />
                 </TableCell>
@@ -264,7 +264,7 @@ class GroupsList extends React.Component {
                 label="Group Name"
                 fullWidth
                 value={addGroupDialogName}
-                onChange={e => this.setState({ addGroupDialogName: e.target.value })}
+                onChange={(e) => this.setState({ addGroupDialogName: e.target.value })}
               />
             </DialogContent>
             <DialogActions>
@@ -323,11 +323,11 @@ class GroupsList extends React.Component {
 
 GroupsList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 GroupsList.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

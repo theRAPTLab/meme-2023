@@ -8,15 +8,15 @@ Login
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import TextField from '@material-ui/core/TextField';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -49,7 +49,7 @@ class Login extends React.Component {
     this.state = {
       loginId: '',
       loginDialogOpen: true,
-      isValidLogin: true
+      isValidLogin: true,
     };
   }
 
@@ -57,7 +57,7 @@ class Login extends React.Component {
     this.DoADMDataUpdate();
     if (AUTOBOB) {
       this.setState({ loginId: 'bob-z4in' }, () => {
-        this.OnLogin({ preventDefault: function() {} });
+        this.OnLogin({ preventDefault: function () {} });
       });
     }
   }
@@ -68,7 +68,7 @@ class Login extends React.Component {
     if (ADM.IsLoggedOut()) {
       this.setState({
         loginId: '',
-        loginDialogOpen: true
+        loginDialogOpen: true,
       });
     }
   }
@@ -78,7 +78,7 @@ class Login extends React.Component {
     let isValidLogin = ADM.IsValidLogin(loginId);
     this.setState({
       loginId,
-      isValidLogin
+      isValidLogin,
     });
   }
 
@@ -91,7 +91,7 @@ class Login extends React.Component {
     } else {
       // invalid login
       this.setState({
-        isValidLogin: false
+        isValidLogin: false,
       });
     }
   }
@@ -113,8 +113,8 @@ class Login extends React.Component {
         onClose={this.OnLoginDialogClose}
         BackdropProps={{
           classes: {
-            root: classes.loginBackdrop
-          }
+            root: classes.loginBackdrop,
+          },
         }}
       >
         <form onSubmit={this.OnLogin}>
@@ -146,11 +146,11 @@ class Login extends React.Component {
 
 Login.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 Login.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

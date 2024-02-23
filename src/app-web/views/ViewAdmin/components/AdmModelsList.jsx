@@ -8,16 +8,16 @@ Models List View
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import InputLabel from '@material-ui/core/InputLabel';
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+import Button from '@mui/material/Button';
+import InputLabel from '@mui/material/InputLabel';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -48,7 +48,7 @@ class ModelsList extends React.Component {
       models: [],
       modelId: undefined,
       targetSelectDialogOpen: false,
-      targetSelectionType: ''
+      targetSelectionType: '',
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
@@ -67,12 +67,12 @@ class ModelsList extends React.Component {
   DoClassroomSelect(data) {
     this.setState({
       classroomId: data.classroomId,
-      models: ADM.GetModelsByClassroom(data.classroomId)
+      models: ADM.GetModelsByClassroom(data.classroomId),
     });
   }
 
   DoADMDataUpdate() {
-    this.setState(state => {
+    this.setState((state) => {
       return { models: ADM.GetModelsByClassroom(state.classroomId) };
     });
   }
@@ -87,7 +87,7 @@ class ModelsList extends React.Component {
       modelId,
       targetSelectDialogOpen: true,
       targetSelectionType: 'clone',
-      targetSelectCallback: this.OnCloneTargetSelect
+      targetSelectCallback: this.OnCloneTargetSelect,
     });
   }
 
@@ -107,7 +107,7 @@ class ModelsList extends React.Component {
       modelId,
       targetSelectDialogOpen: true,
       targetSelectionType: 'move',
-      targetSelectCallback: this.OnMoveTargetSelect
+      targetSelectCallback: this.OnMoveTargetSelect,
     });
   }
 
@@ -128,15 +128,11 @@ class ModelsList extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const {
-      models,
-      targetSelectDialogOpen,
-      targetSelectionType,
-      targetSelectCallback
-    } = this.state;
+    const { models, targetSelectDialogOpen, targetSelectionType, targetSelectCallback } =
+      this.state;
 
-    const activeModels = models.filter(m => !m.deleted);
-    const deletedModels = models.filter(m => m.deleted);
+    const activeModels = models.filter((m) => !m.deleted);
+    const deletedModels = models.filter((m) => m.deleted);
 
     return (
       <>
@@ -174,11 +170,11 @@ class ModelsList extends React.Component {
 
 ModelsList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 ModelsList.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

@@ -13,17 +13,17 @@ Save on every single edit.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import IconButton from '@material-ui/core/IconButton';
-import InputLabel from '@material-ui/core/InputLabel';
-import Paper from '@material-ui/core/Paper';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import Paper from '@mui/material/Paper';
 // Material UI Icons
-import AddIcon from '@material-ui/icons/Add';
+import AddIcon from '@mui/icons-material/Add';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -39,12 +39,12 @@ const PKG = 'AdminCriteriaView';
 const defaults = [
   {
     label: 'Clarity',
-    description: 'How clear is the explanation?'
+    description: 'How clear is the explanation?',
   },
   {
     label: 'Visuals',
-    description: 'Does the layout make sense?'
-  }
+    description: 'Does the layout make sense?',
+  },
 ];
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -65,7 +65,7 @@ class CriteriaView extends React.Component {
     this.state = {
       criteria: [],
       isInEditMode: false,
-      classroomId: -1
+      classroomId: -1,
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
@@ -84,20 +84,20 @@ class CriteriaView extends React.Component {
   DoClassroomSelect(data) {
     this.setState(
       {
-        classroomId: Number(data.classroomId)
+        classroomId: Number(data.classroomId),
       },
       () => {
         this.DoLoadCriteria();
-      }
+      },
     );
   }
 
   DoCreateDefaultCriteria(classroomId) {
-    defaults.map(def => {
+    defaults.map((def) => {
       ADM.DB_NewCriteria({
         classroomId: classroomId,
         label: def.label,
-        description: def.description
+        description: def.description,
       });
     });
   }
@@ -106,7 +106,7 @@ class CriteriaView extends React.Component {
     if (this.state.classroomId === -1) return;
     let criteria = ADM.GetCriteriaByClassroom(this.state.classroomId);
     this.setState({
-      criteria
+      criteria,
     });
   }
 
@@ -135,7 +135,7 @@ class CriteriaView extends React.Component {
 
   DoClose() {
     this.setState({
-      isInEditMode: false
+      isInEditMode: false,
     });
   }
 
@@ -169,10 +169,10 @@ class CriteriaView extends React.Component {
   UpdateField(critId, fieldName, value, e) {
     // Save the changes locally first
     // Store the whole object when "Save" is presssed.
-    this.setState(state => {
+    this.setState((state) => {
       let criteria = state.criteria;
 
-      const i = criteria.findIndex(cr => cr.id === critId);
+      const i = criteria.findIndex((cr) => cr.id === critId);
       if (i < 0) {
         console.error(PKG, 'UpdateField could not find index of criteria with id', critId);
         return undefined;
@@ -247,11 +247,11 @@ class CriteriaView extends React.Component {
 
 CriteriaView.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 CriteriaView.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

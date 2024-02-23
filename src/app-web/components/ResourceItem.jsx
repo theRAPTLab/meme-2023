@@ -8,26 +8,26 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 // Material UI Elements
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import Chip from '@material-ui/core/Chip';
-import Collapse from '@material-ui/core/Collapse';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import Collapse from '@mui/material/Collapse';
+import ListItem from '@mui/material/ListItem';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// RESOURCE TYPES /////////////////////////////////////////////////////////////////
 // Material UI Icons
 // I want to move this somewhere centralized but wasn't sure the best way, so this is a teemporary shifting
 // in how it is referenced to make it easier later
-import ImageIcon from '@material-ui/icons/Image';
-import DescriptionIcon from '@material-ui/icons/Description';
-import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
-import ContactSupportIcon from '@material-ui/icons/ContactSupport';
+import ImageIcon from '@mui/icons-material/Image';
+import DescriptionIcon from '@mui/icons-material/Description';
+import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
+import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 
 const RESOURCE_TYPES = {
   simulation: <ImageIcon />,
@@ -35,7 +35,7 @@ const RESOURCE_TYPES = {
   idea: <EmojiObjectsIcon />,
   report: <DescriptionIcon />,
   question: <ContactSupportIcon />,
-  other: <DescriptionIcon />
+  other: <DescriptionIcon />,
 };
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ class ResourceItem extends React.Component {
     super(props);
     this.state = {
       isExpanded: true,
-      hideAddButton: false
+      hideAddButton: false,
     };
 
     this.DoToggleExpanded = this.DoToggleExpanded.bind(this);
@@ -90,9 +90,9 @@ class ResourceItem extends React.Component {
 
   DoToggleExpanded() {
     if (DBG) console.log(PKG, 'expansion clicked');
-    this.setState(prevState => {
+    this.setState((prevState) => {
       return {
-        isExpanded: !prevState.isExpanded
+        isExpanded: !prevState.isExpanded,
       };
     });
   }
@@ -104,12 +104,12 @@ class ResourceItem extends React.Component {
       if (DBG) console.log(PKG, 'OPENING Resource', data.rsrcId, ' data.evId is', data);
       this.setState(
         {
-          isExpanded: true
+          isExpanded: true,
         },
         () => {
           // First open resource list, then open evidence Link
           UR.Publish('SHOW_EVIDENCE_LINK_SECONDARY', data);
-        }
+        },
       );
     }
   }
@@ -125,8 +125,8 @@ class ResourceItem extends React.Component {
 
   OnCreateEvidence(rsrcId) {
     if (DBG) console.log(PKG, 'create new evidence:', rsrcId);
-    DATA.PMC_AddEvidenceLink({ rsrcId }, id =>
-      UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId })
+    DATA.PMC_AddEvidenceLink({ rsrcId }, (id) =>
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }),
     );
   }
 
@@ -161,7 +161,7 @@ class ResourceItem extends React.Component {
           <ListItemText
             className={ClassNames(
               classes.resourceViewLabel,
-              isExpanded ? classes.resourceViewLabelExpanded : ''
+              isExpanded ? classes.resourceViewLabelExpanded : '',
             )}
             primary={`${resource.label}`}
             secondary={`${resource.notes}`}
@@ -198,7 +198,7 @@ ResourceItem.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
-  resource: PropTypes.object
+  resource: PropTypes.object,
 };
 
 ResourceItem.defaultProps = {
@@ -210,8 +210,8 @@ ResourceItem.defaultProps = {
     notes: '',
     type: '',
     url: '',
-    links: 0
-  }
+    links: 0,
+  },
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

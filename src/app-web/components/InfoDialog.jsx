@@ -14,15 +14,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import MDReactComponent from 'markdown-react-js';
 // Material UI Components
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogActions from '@material-ui/core/DialogActions';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
 // Material UI Icons
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@mui/icons-material/Close';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -54,7 +54,7 @@ class InfoDialog extends React.Component {
 
     this.state = {
       isOpen: false,
-      infoText: ``
+      infoText: ``,
     };
 
     UR.Subscribe('DIALOG_OPEN', this.DoOpen);
@@ -69,7 +69,7 @@ class InfoDialog extends React.Component {
   DoOpen(data) {
     this.setState({
       isOpen: true,
-      infoText: data.text
+      infoText: data.text,
     });
   }
 
@@ -101,11 +101,11 @@ class InfoDialog extends React.Component {
 
 InfoDialog.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 InfoDialog.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

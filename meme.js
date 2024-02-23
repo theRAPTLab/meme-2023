@@ -123,7 +123,7 @@ function f_RunElectron() {
   let res = shell.exec(
     // note: to pass an enviroment setting to the webpack config script, add --env.MYSETTING='value'
     `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.console.config.js`,
-    { silent: true }
+    { silent: true },
   );
   u_checkError(res);
   shell.exec(`npx electron ./built/console/console-main`);
@@ -167,7 +167,7 @@ function f_GetPlatformConfig(targetPlatform = null, targetArch = null) {
     console.log(
       PR,
       'Platform configuration must embed the entry point within a subfolder of ' +
-        'the distribution.'
+        'the distribution.',
     );
     process.exit(1);
   }
@@ -182,7 +182,7 @@ function f_GetPlatformConfig(targetPlatform = null, targetArch = null) {
     distOutput,
     appPath,
     entrypoint,
-    friendlyName
+    friendlyName,
   };
 }
 
@@ -196,7 +196,7 @@ function f_PackageApp() {
   let res = shell.exec(
     // note: to pass an enviroment setting to the webpack config script, add --env.MYSETTING='value'
     `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.dist.config.js`,
-    { silent: true }
+    { silent: true },
   );
   u_checkError(res);
   console.log(PR, `installing node dependencies into ./built`);
@@ -213,7 +213,7 @@ function f_PackageApp() {
     `npx electron-packager . meme --platform ${platform} ` +
       `--arch ${arch} --out ../dist --overwrite ` +
       `--app-bundle-id ${APP_BUNDLE_ID}`,
-    { silent: false }
+    { silent: false },
   );
   // u_checkError(res); // electron-packager stupidly emits status to stderr
 
@@ -250,8 +250,8 @@ function f_PackageApp() {
       path.join(distOutput, 'install.sh'),
       `#/bin/sh\nxattr -d com.apple.quarantine ./${appPath}`,
       {
-        mode: 0o755
-      }
+        mode: 0o755,
+      },
     );
   }
 
@@ -283,7 +283,7 @@ async function f_SignApp() {
   if (!appleId || !appleIdPassword || !teamId) {
     console.log(
       PR,
-      `signing/notarizing the app requires credentials from your Apple account to be stored your shell environment:`
+      `signing/notarizing the app requires credentials from your Apple account to be stored your shell environment:`,
     );
     console.log(PR, `\tAPPLE_ID: Your Apple ID`);
     console.log(PR, `\tAPPLE_PASSWORD: An Apple app-specific password`);
@@ -298,12 +298,12 @@ async function f_SignApp() {
       app: signedPath,
       preAutoEntitlements: false,
       platform: 'darwin',
-      optionsForFile: file => {
+      optionsForFile: (file) => {
         return {
           hardenedRuntime: true,
-          entitlements: './src/config/darwin.entitlements.plist'
+          entitlements: './src/config/darwin.entitlements.plist',
         };
-      }
+      },
     });
   } catch (err) {
     console.log(PR, `unable to sign application, error: ${err}.`);
@@ -320,7 +320,7 @@ async function f_SignApp() {
       appleId,
       appleIdPassword,
       teamId,
-      tool: 'notarytool'
+      tool: 'notarytool',
     });
   } catch (err) {
     console.log(PR, `unable to notarize the application, error: ${err}`);
@@ -329,7 +329,7 @@ async function f_SignApp() {
 
   console.log(
     PR,
-    `the app has been successfully signed and notarized. You may receive an email from Apple indicating that the notarization was successful`
+    `the app has been successfully signed and notarized. You may receive an email from Apple indicating that the notarization was successful`,
   );
 
   console.log(PR, `use script ${CY}npm run app${TR} to run with console debug output\n`);
@@ -347,7 +347,7 @@ function f_DebugApp() {
 
     console.log(PR, `verifying code signature`);
     const { code, stderr } = shell.exec(`codesign -dvv ${signedPath}`, {
-      silent: true
+      silent: true,
     });
 
     if (code !== 0) {
@@ -356,7 +356,7 @@ function f_DebugApp() {
       console.log(PR, `macos will not run this app until it is signed`);
       console.log(
         PR,
-        `if apple developer certs are installed you can run ${CY}npm run appsign${TR}`
+        `if apple developer certs are installed you can run ${CY}npm run appsign${TR}`,
       );
       return;
     }
@@ -374,11 +374,11 @@ function f_DocServe() {
   console.log(PR, `point your browser to "${loc}" to read JSDoc-generate documentation.`);
   console.log(
     PR,
-    `you can edit source and the documentation will live-update (browser refresh required).`
+    `you can edit source and the documentation will live-update (browser refresh required).`,
   );
   console.log(PR, `when you're done, type CTRL-C to stop the documentation server`);
   shell.exec(
-    `npx documentation serve --config meme-documentation.yml --watch ./src/app-web/web-index.js`
+    `npx documentation serve --config meme-documentation.yml --watch ./src/app-web/web-index.js`,
   );
 }
 

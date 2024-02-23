@@ -10,18 +10,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Material UI Elements
-import Drawer from '@material-ui/core/Drawer';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import InputBase from '@material-ui/core/InputBase';
+import Drawer from '@mui/material/Drawer';
+import CssBaseline from '@mui/material/CssBaseline';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import InputBase from '@mui/material/InputBase';
 // MEME App Components
 import Login from '../../components/Login';
 import ModelSelect from '../../components/ModelSelect';
@@ -79,7 +79,7 @@ class PrintMain extends React.Component {
       studentName: '',
       studentGroup: '',
       criteria: [],
-      viewHeight: 0 // need to init this to prevent error with first render of resourceList
+      viewHeight: 0, // need to init this to prevent error with first render of resourceList
     };
   }
 
@@ -126,7 +126,7 @@ class PrintMain extends React.Component {
       studentId: userStudentId,
       studentName: ADM.GetLggedInUserName(),
       studentGroup: ADM.GetLoggedInGroupName(),
-      criteria: ADM.GetCriteriaByModel()
+      criteria: ADM.GetCriteriaByModel(),
     });
   }
 
@@ -151,7 +151,7 @@ class PrintMain extends React.Component {
     console.log('%cUpdateDimensions Fired', cssdraw);
     this.setState({
       viewWidth: Math.min(viewWidth, innerWidth),
-      viewHeight: Math.min(viewHeight, innerHeight)
+      viewHeight: Math.min(viewHeight, innerHeight),
     });
   }
 
@@ -170,7 +170,7 @@ class PrintMain extends React.Component {
   /// PRINTING  /////////////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   RenderComponentsList(propIds, filterByPropType) {
-    let relevantProps = propIds.filter(id => {
+    let relevantProps = propIds.filter((id) => {
       const prop = DATA.Prop(id);
       if (filterByPropType === DATAMAP.PMC_MODELTYPES.COMPONENT.id) {
         return prop.propType === DATAMAP.PMC_MODELTYPES.COMPONENT.id || prop.propType === undefined; // for backward compatibility
@@ -179,7 +179,7 @@ class PrintMain extends React.Component {
         return prop.propType === filterByPropType;
       }
     });
-    return relevantProps.map(propId => {
+    return relevantProps.map((propId) => {
       return this.RenderComponentsListItem(propId);
     });
   }
@@ -202,7 +202,7 @@ class PrintMain extends React.Component {
         {this.RenderComments(propId)}
         <br />
         {children.length > 0
-          ? children.map(childId => this.RenderComponentsListItem(childId, true))
+          ? children.map((childId) => this.RenderComponentsListItem(childId, true))
           : ''}
       </div>
     );
@@ -212,7 +212,7 @@ class PrintMain extends React.Component {
     const { selectedMechId, hoveredMechId } = this.state;
     const { classes } = this.props;
     let i = 0;
-    return mechIds.map(mechId => {
+    return mechIds.map((mechId) => {
       const mech = DATA.Mech(mechId);
       const sourceObj = DATA.Prop(mechId.v);
       const targetObj = DATA.Prop(mechId.w);
@@ -251,13 +251,13 @@ class PrintMain extends React.Component {
     const date = new Date(comment.date);
     const timestring = date.toLocaleTimeString('en-Us', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
     const datestring = date.toLocaleDateString('en-US', {
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
-    const selectedCriteria = this.state.criteria.find(crit => crit.id === comment.criteriaId);
+    const selectedCriteria = this.state.criteria.find((crit) => crit.id === comment.criteriaId);
     const criteriaLabel = selectedCriteria !== undefined ? selectedCriteria.label + ': ' : '';
     const criteriaDescription = selectedCriteria !== undefined ? selectedCriteria.description : '';
     return (
@@ -339,7 +339,7 @@ class PrintMain extends React.Component {
   }
 
   RenderResourceList(resources) {
-    return resources.map(resource => {
+    return resources.map((resource) => {
       const evidence = this.RenderEvidenceLinks(resource.id);
       // Notes for evidence are saved as comments
       const noteRefId = `res${resource.id}`;
@@ -374,7 +374,7 @@ class PrintMain extends React.Component {
       title,
       studentName,
       studentGroup,
-      resourceLibraryIsOpen
+      resourceLibraryIsOpen,
     } = this.state;
 
     // we need to use the model author here, not the currently logged in student.
@@ -387,11 +387,11 @@ class PrintMain extends React.Component {
     // print
     const componentsList = this.RenderComponentsList(
       DATA.Components(),
-      DATAMAP.PMC_MODELTYPES.COMPONENT.id
+      DATAMAP.PMC_MODELTYPES.COMPONENT.id,
     );
     const outcomesList = this.RenderComponentsList(
       DATA.Components(),
-      DATAMAP.PMC_MODELTYPES.OUTCOME.id
+      DATAMAP.PMC_MODELTYPES.OUTCOME.id,
     );
     const mechanismsList = this.RenderMechanismsList(DATA.AllMechs());
     const resourcesList = this.RenderResourceList(resources);
@@ -424,7 +424,7 @@ class PrintMain extends React.Component {
                 onChange={this.OnChangeModelTitle}
                 onBlur={this.DoSaveModelTitle}
                 classes={{
-                  input: isModelAuthor ? classes.primaryProjectTitle : classes.projectTitle
+                  input: isModelAuthor ? classes.primaryProjectTitle : classes.projectTitle,
                 }}
               />
             </form>
@@ -472,7 +472,7 @@ class PrintMain extends React.Component {
               */}
               <Route
                 path="/"
-                render={props => (
+                render={(props) => (
                   <RoutedView
                     {...props}
                     viewHeight={this.state.viewHeight}
@@ -485,7 +485,7 @@ class PrintMain extends React.Component {
 
           <div
             style={{
-              margin: '10px'
+              margin: '10px',
             }}
           >
             <h3>Model: {title}</h3>
@@ -513,14 +513,14 @@ class PrintMain extends React.Component {
 /// default props are expect properties that we expect
 /// and are declared for validation
 PrintMain.defaultProps = {
-  classes: {}
+  classes: {},
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
 /// disallowed by eslint, so use shape({prop: ProtType })
 /// to describe them in more detail
 PrintMain.propTypes = {
-  classes: PropTypes.shape({})
+  classes: PropTypes.shape({}),
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// requirement for UR MODULES and COMPONENTS

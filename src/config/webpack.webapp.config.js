@@ -13,10 +13,10 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 const path = require('path');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+// const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const baseConfig = require('./webpack.base.config');
@@ -28,7 +28,7 @@ const PR = `${CW}${PROMPTS.Pad('WEBPACK')}${CR}`;
 
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard
-const webConfiguration = env => {
+const webConfiguration = (env) => {
   console.log(PR, `... using webpack.webapp.config`);
 
   let entryFiles = ['./web-index.js', 'webpack-hot-middleware/client?reload=true'];
@@ -38,18 +38,21 @@ const webConfiguration = env => {
     {
       from: `web-index.html.ejs`,
       to: `${DIR_OUT}/index.ejs`,
-      toType: 'file'
+      // context: DIR_SOURCE,
+      // toType: 'file',
     },
     {
       from: `favicon.ico`,
       to: `${DIR_OUT}/favicon.ico`,
-      toType: 'file'
+      // context: DIR_SOURCE,
+      // toType: 'file',
     },
     {
       from: `static`,
       to: `${DIR_OUT}/static`,
-      toType: 'dir'
-    }
+      // context: DIR_SOURCE,
+      // toType: 'dir',
+    },
   ];
 
   // return webConfiguration
@@ -66,32 +69,33 @@ const webConfiguration = env => {
       output: {
         path: DIR_OUT,
         filename: 'web-bundle.js',
-        pathinfo: false // this speeds up compilation (https://webpack.js.org/guides/build-performance/#output-without-path-info)
+        pathinfo: false, // this speeds up compilation (https://webpack.js.org/guides/build-performance/#output-without-path-info)
         // publicPath: 'web',
       },
       node: {
         // enable webpack's __filename and __dirname substitution in browsers
         // for use in URSYS lifecycle event filtering as set in SystemInit.jsx
         __filename: true,
-        __dirname: true
+        __dirname: true,
       },
       devtool: 'source-map',
       // apply these additional plugins
       plugins: [
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('development'),
-          COMPILED_BY: JSON.stringify('webapp.config.js')
+          COMPILED_BY: JSON.stringify('webapp.config.js'),
         }),
         new WriteFilePlugin({
-          test: /^(.(?!.*\.hot-update.js$|.*\.hot-update.*))*$/ // don't write hot-updates at all, just bundles
+          test: /^(.(?!.*\.hot-update.js$|.*\.hot-update.*))*$/, // don't write hot-updates at all, just bundles
         }),
-        new CopyWebpackPlugin(copyFilesArray),
-        new webpack.HotModuleReplacementPlugin()
-      ]
-    }
+        // new CopyWebpackPlugin(copyFilesArray),
+        new CopyWebpackPlugin({ patterns: copyFilesArray }),
+        new webpack.HotModuleReplacementPlugin(),
+      ],
+    },
   ]);
 }; // const webConfiguration
 
 // return merged configurations
 // webpack will pass the current environment since we are returning function
-module.exports = env => merge(baseConfig(env), webConfiguration(env));
+module.exports = (env) => merge(baseConfig(env), webConfiguration(env));

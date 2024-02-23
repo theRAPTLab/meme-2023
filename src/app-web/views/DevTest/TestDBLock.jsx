@@ -9,10 +9,10 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
-import Fade from '@material-ui/core/Fade'
+import { withStyles } from '@mui/styles';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
+import Fade from '@mui/material/Fade';
 
 /// MODULES ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -30,15 +30,15 @@ const SEC = 10;
 
 /// COMPUTED STYLES ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   paper: {
     padding: theme.spacing(2),
     textAlign: 'center',
-    color: theme.palette.text.secondary
-  }
+    color: theme.palette.text.secondary,
+  },
 });
 
 /// MODULE HOOKS //////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ class TestDBLock extends React.Component {
     this.cstrName = `${this.constructor.name} ${UR.SocketUADDR()}`;
     this._mounted = false;
     this.state = {
-      status: 'loading'
+      status: 'loading',
     };
     //
     this.editingCommentId = undefined; // for comment lock
@@ -70,19 +70,20 @@ class TestDBLock extends React.Component {
     this._mounted = true;
     let status = '';
     // immediately-executed asynchronous function
-    ADM.Login('bob-z4in').then(rdata => {
+    ADM.Login('bob-z4in').then((rdata) => {
       if (rdata.success) status += `'${rdata.token.split('-')[0]}' ${rdata.status}! `;
-      UR.DBTryLock('pmcData.entities', [1, 1])
-        .then(rdata => {
-          const { success, semaphore, uaddr, lockedBy } = rdata;
-          status += success ? `${semaphore} lock acquired by ${uaddr} ` : `failed to acquired ${semaphore} lock `;
-          this.setState({ status });
-          if (rdata.success) {
-            console.log('do something here because u-locked!');
-          } else {
-            console.log('aw, locked by', rdata.lockedBy);
-          }
-        });
+      UR.DBTryLock('pmcData.entities', [1, 1]).then((rdata) => {
+        const { success, semaphore, uaddr, lockedBy } = rdata;
+        status += success
+          ? `${semaphore} lock acquired by ${uaddr} `
+          : `failed to acquired ${semaphore} lock `;
+        this.setState({ status });
+        if (rdata.success) {
+          console.log('do something here because u-locked!');
+        } else {
+          console.log('aw, locked by', rdata.lockedBy);
+        }
+      });
     });
   }
 
@@ -101,8 +102,8 @@ class TestDBLock extends React.Component {
           <Grid item xs={12}>
             <Paper className={classes.paper}>
               <p>
-                OPEN TWO or MORE instance of /#/test-dblock and observe console
-                Try refreshing different instances
+                OPEN TWO or MORE instance of /#/test-dblock and observe console Try refreshing
+                different instances
               </p>
             </Paper>
             <Fade in={true} timeout={1000}>
@@ -112,7 +113,7 @@ class TestDBLock extends React.Component {
             </Fade>
           </Grid>
         </Grid>
-      </div >
+      </div>
     );
   }
 } // TestDBLock component
@@ -121,14 +122,14 @@ class TestDBLock extends React.Component {
 /// default props are expect properties that we expect
 /// and are declared for validation
 TestDBLock.defaultProps = {
-  classes: { isDefaultProps: true }
+  classes: { isDefaultProps: true },
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
 /// disallowed by eslint, so use shape({prop: ProtType })
 /// to describe them in more detail
 TestDBLock.propTypes = {
-  classes: PropTypes.shape({})
+  classes: PropTypes.shape({}),
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// required for UR EXEC phase filtering by view path

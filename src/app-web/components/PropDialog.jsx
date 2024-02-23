@@ -10,17 +10,17 @@ Display a dialog for adding a new component or property
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogActions from '@material-ui/core/DialogActions';
-import TextField from '@material-ui/core/TextField';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
+import TextField from '@mui/material/TextField';
 // Material UI Icons
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@mui/icons-material/Close';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -50,7 +50,7 @@ class PropDialog extends React.Component {
 
     this.state = {
       isOpen: false,
-      label: ``
+      label: ``,
     };
 
     UR.Subscribe('PROPDIALOG_OPEN', this.DoOpen);
@@ -71,7 +71,7 @@ class PropDialog extends React.Component {
         propType: data.propType || DATAMAP.PMC_MODELTYPES.COMPONENT.id,
         label: data.label || '', // clear the old property name
         description: data.description || '',
-        isProperty: data.isProperty
+        isProperty: data.isProperty,
       });
       return;
     }
@@ -80,7 +80,7 @@ class PropDialog extends React.Component {
     if (intPropId === undefined || intPropId === NaN)
       throw Error(`DoOpen called with bad propId ${data.propId}`);
     // existing prop, so lock it
-    UR.DBTryLock('pmcData.entities', [pmcDataId, intPropId]).then(rdata => {
+    UR.DBTryLock('pmcData.entities', [pmcDataId, intPropId]).then((rdata) => {
       const { success, semaphore, uaddr, lockedBy } = rdata;
       status += success
         ? `${semaphore} lock acquired by ${uaddr} `
@@ -92,11 +92,11 @@ class PropDialog extends React.Component {
           propType: data.propType || DATAMAP.PMC_MODELTYPES.COMPONENT.id, // default to component for backward compatibility
           label: data.label || '', // clear the old property name
           description: data.description || '',
-          isProperty: data.isProperty
+          isProperty: data.isProperty,
         });
       } else {
         alert(
-          `Sorry, someone else (${rdata.lockedBy}) is editing this ${data.propType} right now.  Please try again later.`
+          `Sorry, someone else (${rdata.lockedBy}) is editing this ${data.propType} right now.  Please try again later.`,
         );
         UR.Publish('PROPDIALOG_CLOSE'); // tell ViewMain to re-enable ToolsPanel
       }
@@ -199,11 +199,11 @@ class PropDialog extends React.Component {
 
 PropDialog.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
 PropDialog.defaultProps = {
-  classes: {}
+  classes: {},
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

@@ -46,7 +46,7 @@ const storage = multer.diskStorage({
     const ext = path.extname(file.originalname);
     const fname = Date.now().toString(36);
     callback(null, fname + ext);
-  }
+  },
 });
 /*** STORAGE ***/
 
@@ -94,7 +94,7 @@ function Start() {
     const instance = wpack_mid(compiler, {
       // logLevel: 'silent', // turns off [wdm] messages
       publicPath: webConfig.output.publicPath,
-      stats: 'errors-only' // see https://webpack.js.org/configuration/stats/
+      stats: 'errors-only', // see https://webpack.js.org/configuration/stats/
     });
     app.use(instance);
     app.use(wpack_hot(compiler));
@@ -214,7 +214,7 @@ function GetTemplateValues(req) {
     USRV_Host: hostname,
     USRV_IP: IP.address(),
     USRV_MsgPort: 2929,
-    USRV_Start: USRV_START
+    USRV_Start: USRV_START,
   };
   return params;
 }

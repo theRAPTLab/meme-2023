@@ -88,7 +88,6 @@ const webConfiguration = (env) => {
         new WriteFilePlugin({
           test: /^(.(?!.*\.hot-update.js$|.*\.hot-update.*))*$/, // don't write hot-updates at all, just bundles
         }),
-        // new CopyWebpackPlugin(copyFilesArray),
         new CopyWebpackPlugin({ patterns: copyFilesArray }),
         new webpack.HotModuleReplacementPlugin(),
       ],

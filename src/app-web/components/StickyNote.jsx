@@ -58,7 +58,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 
 // Material UI Theming
-import { withStyles, MuiThemeProvider, createMuiTheme } from '@mui/styles';
+import { withStyles } from '@mui/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -286,7 +287,7 @@ class StickyNote extends React.Component {
   render() {
     // theme overrides
     // See https://github.com/mui-org/material-ui/issues/14905 for details
-    const theme = createMuiTheme();
+    const theme = createTheme();
     theme.overrides = {
       MuiInputBase: {
         input: {
@@ -381,7 +382,7 @@ class StickyNote extends React.Component {
                   />
                 </div>
               </div>
-              <MuiThemeProvider theme={theme}>
+              <ThemeProvider theme={theme}>
                 <Input
                   className={classes.stickynoteCardInput}
                   value={comment.text}
@@ -398,7 +399,7 @@ class StickyNote extends React.Component {
                   }}
                   inputRef={this.textInput}
                 />
-              </MuiThemeProvider>
+              </ThemeProvider>
               <div className={classes.stickynoteCardLabel}>
                 <EvidenceNotes comment={comment} isBeingEdited={isBeingEdited} />
               </div>

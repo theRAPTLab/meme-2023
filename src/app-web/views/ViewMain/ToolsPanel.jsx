@@ -22,8 +22,7 @@ import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import Fab from '@mui/material/Fab';
 import Tooltip from '@mui/material/Tooltip';
-import TreeView from '@mui/x-tree-view/TreeView';
-import TreeItem from '@mui/x-tree-view/TreeItem';
+import { TreeView, TreeItem } from '@mui/x-tree-view';
 import Typography from '@mui/material/Typography';
 // Material UI Icons
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';

@@ -93,7 +93,9 @@ import React from 'react';
 // Material UI Icons
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 // Material UI Theming
-import { withStyles, MuiThemeProvider, createMuiTheme } from '@mui/styles';
+import { withStyles } from '@mui/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
 // Material UI Elements
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -541,9 +543,7 @@ class EvidenceLink extends React.Component {
   }
 
   render() {
-    // theme overrides
-    // See https://github.com/mui-org/material-ui/issues/14905 for details
-    const theme = createMuiTheme();
+    const theme = createTheme();
     theme.overrides = {
       MuiFilledInput: {
         root: {
@@ -619,7 +619,7 @@ class EvidenceLink extends React.Component {
 
         <Grid item xs>
           {isExpanded ? (
-            <MuiThemeProvider theme={theme}>
+            <ThemeProvider theme={theme}>
               <FilledInput
                 className={ClassNames(
                   classes.evidenceLabelField,
@@ -642,7 +642,7 @@ class EvidenceLink extends React.Component {
                 }}
                 inputRef={this.textInputRef}
               />
-            </MuiThemeProvider>
+            </ThemeProvider>
           ) : (
             <div className={classes.evidenceLabelField}>{note}</div>
           )}
@@ -755,7 +755,7 @@ class EvidenceLink extends React.Component {
             </Typography>
           </Grid>
           <Grid item xs style={{ paddingTop: '4px' }}>
-            <MuiThemeProvider theme={theme}>
+            <ThemeProvider theme={theme}>
               <FilledInput
                 className={ClassNames(
                   classes.evidenceLabelField,
@@ -778,7 +778,7 @@ class EvidenceLink extends React.Component {
                 }}
                 inputRef={this.textInput}
               />
-            </MuiThemeProvider>
+            </ThemeProvider>
           </Grid>
         </Grid>
       </Grid>

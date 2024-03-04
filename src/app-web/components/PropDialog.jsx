@@ -20,7 +20,7 @@ import TextField from '@mui/material/TextField';
 // Material UI Icons
 import CloseIcon from '@mui/icons-material/Close';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -208,4 +208,4 @@ PropDialog.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(PropDialog);
+export default styled(MEMEStyles)(PropDialog);

@@ -22,7 +22,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -312,4 +312,4 @@ ResourceView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(ResourceView);
+export default styled(MEMEStyles)(ResourceView);

@@ -19,7 +19,7 @@ import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 // Material UI Theming
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -220,4 +220,4 @@ ModelsListTable.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(ModelsListTable);
+export default styled(MEMEStyles)(ModelsListTable);

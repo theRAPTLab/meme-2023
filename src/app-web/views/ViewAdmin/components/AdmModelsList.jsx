@@ -17,7 +17,7 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -179,4 +179,4 @@ ModelsList.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(ModelsList);
+export default styled(MEMEStyles)(ModelsList);

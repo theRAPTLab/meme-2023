@@ -29,7 +29,7 @@ import ChatIcon from '@mui/icons-material/Chat';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -150,4 +150,4 @@ StickyNoteButton.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(StickyNoteButton);
+export default styled(MEMEStyles)(StickyNoteButton);

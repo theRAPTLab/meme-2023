@@ -14,7 +14,8 @@ https://github.com/mzabriskie/react-draggable
 import React from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
-import MDReactComponent from 'markdown-react-js';
+// import MDReactComponent from 'markdown-react-js';
+import MDReactComponent from 'react-markdown'
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
@@ -22,7 +23,7 @@ import Typography from '@mui/material/Typography';
 // Material UI Icons
 import CloseIcon from '@mui/icons-material/Close';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -157,8 +158,10 @@ Moreland, Vickery, Murphy & Stiso.
               </p>
             </div>
             <CriteriaList Criteria={criteria} IsInEditMode={false} />
-            <MDReactComponent className={classes.helpViewText} text={helptext} />
-            <MDReactComponent className={classes.helpViewText} text={credittext} />
+            {/* <MDReactComponent className={classes.helpViewText} text={helptext} />
+            <MDReactComponent className={classes.helpViewText} text={credittext} /> */}
+            <MDReactComponent className={classes.helpViewText} skipHtml>{helptext}</MDReactComponent>
+            <MDReactComponent className={classes.helpViewText} skipHtml>{credittext}</MDReactComponent>
           </div>
         </Paper>
       </Draggable>
@@ -177,4 +180,4 @@ HelpView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(HelpView);
+export default styled(MEMEStyles)(HelpView);

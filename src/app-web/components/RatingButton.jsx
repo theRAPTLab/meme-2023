@@ -53,7 +53,7 @@ import NegativeIcon from '@mui/icons-material/Clear';
 import BlockIcon from '@mui/icons-material/Block';
 import PositiveIcon from '@mui/icons-material/Add';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -134,4 +134,4 @@ RatingButton.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(RatingButton);
+export default styled(MEMEStyles)(RatingButton);

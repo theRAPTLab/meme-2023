@@ -21,7 +21,7 @@ import Slide from '@mui/material/Slide';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -568,4 +568,4 @@ MechDialog.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(MechDialog);
+export default styled(MEMEStyles)(MechDialog);

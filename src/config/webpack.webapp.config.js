@@ -38,20 +38,20 @@ const webConfiguration = (env) => {
     {
       from: `web-index.html.ejs`,
       to: `${DIR_OUT}/index.ejs`,
-      // context: DIR_SOURCE,
-      // toType: 'file',
+      context: DIR_SOURCE,
+      toType: 'file',
     },
     {
       from: `favicon.ico`,
       to: `${DIR_OUT}/favicon.ico`,
-      // context: DIR_SOURCE,
-      // toType: 'file',
+      context: DIR_SOURCE,
+      toType: 'file',
     },
     {
       from: `static`,
       to: `${DIR_OUT}/static`,
-      // context: DIR_SOURCE,
-      // toType: 'dir',
+      context: DIR_SOURCE,
+      toType: 'dir',
     },
   ];
 
@@ -72,12 +72,12 @@ const webConfiguration = (env) => {
         pathinfo: false, // this speeds up compilation (https://webpack.js.org/guides/build-performance/#output-without-path-info)
         // publicPath: 'web',
       },
-      node: {
-        // enable webpack's __filename and __dirname substitution in browsers
-        // for use in URSYS lifecycle event filtering as set in SystemInit.jsx
-        __filename: true,
-        __dirname: true,
-      },
+      // node: {
+      //   // enable webpack's __filename and __dirname substitution in browsers
+      //   // for use in URSYS lifecycle event filtering as set in SystemInit.jsx
+      //   __filename: true,
+      //   __dirname: true,
+      // },
       devtool: 'source-map',
       // apply these additional plugins
       plugins: [
@@ -90,6 +90,16 @@ const webConfiguration = (env) => {
         }),
         new CopyWebpackPlugin({ patterns: copyFilesArray }),
         new webpack.HotModuleReplacementPlugin(),
+        {
+          apply(compiler) {
+            compiler.hooks.emit.tap('LogOutputPathsPlugin', compilation => {
+              console.log('Output paths:');
+              for (const filename of Object.keys(compilation.assets)) {
+                console.log(`- ${filename}: ${path.resolve(compiler.outputPath, filename)}`);
+              }
+            });
+          },
+        },
       ],
     },
   ]);

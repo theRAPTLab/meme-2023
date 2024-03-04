@@ -27,7 +27,7 @@ import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 // Material UI Theming
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// Change eto pull from the same array as being used elsewhere (resourceView and resourceItem)
 const resourceTypeList = 'report, simulation, idea, assuption, question, or other';
@@ -313,4 +313,4 @@ ResourcesList.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(ResourcesList);
+export default styled(MEMEStyles)(ResourcesList);

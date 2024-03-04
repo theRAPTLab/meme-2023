@@ -90,7 +90,7 @@ const webConfiguration = (env) => {
           'process.env.NODE_ENV': JSON.stringify('development'),
           COMPILED_BY: JSON.stringify('dist.config.js'),
         }),
-        new CopyWebpackPlugin(copyFilesArray),
+        new CopyWebpackPlugin({ patterns: copyFilesArray }),
       ],
       stats: 'errors-only',
     },
@@ -123,31 +123,39 @@ const electronConfiguration = (env) => {
       PACKAGE_DESCRIPTION: JSON.stringify(PACKAGE.description),
       __static: JSON.stringify('static/'),
     }),
-    new CopyWebpackPlugin([
-      {
-        from: DIR_SOURCE,
-        to: `${DIR_OUTPUT}/console`,
-        // ignore console.html and console.js (built by webpack)
-        // ignore console.package.json (renamed to built/package.json)
-        ignore: ['.*', 'console.*'],
-      },
-      {
-        from: DIR_SYSTEM,
-        to: `${DIR_OUTPUT}/system`,
-        // have to also copy the system directory
-        // that contains URSYS, because this will be
-        // served from the built directory as well
-      },
-      {
-        from: `${DIR_SOURCE}/console.package.json`,
-        to: `${DIR_OUTPUT}/package.json`,
-        toType: 'file',
-      },
-      {
-        from: `${DIR_CONFIG}/*`,
-        to: `${DIR_OUTPUT}/config`,
-      },
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: DIR_SOURCE,
+          to: `${DIR_OUTPUT}/console`,
+          // ignore console.html and console.js (built by webpack)
+          // ignore console.package.json (renamed to built/package.json)
+          filter: (resourcePath) => {
+            // ignore if it matches .* or console.*
+            return !/(^|\/)\.[^/\.]/.test(resourcePath) && !/(^|\/)console\./.test(resourcePath);
+          },
+          globOptions: {
+            ignore: ['.*', 'console.*'],
+          },
+        },
+        {
+          from: DIR_SYSTEM,
+          to: `${DIR_OUTPUT}/system`,
+          // have to also copy the system directory
+          // that contains URSYS, because this will be
+          // served from the built directory as well
+        },
+        {
+          from: `${DIR_SOURCE}/console.package.json`,
+          to: `${DIR_OUTPUT}/package.json`,
+          toType: 'file',
+        },
+        {
+          from: `${DIR_CONFIG}/*`,
+          to: `${DIR_OUTPUT}/config`,
+        },
+      ]
+    }),
   ];
 
   return merge([

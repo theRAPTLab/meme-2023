@@ -8,7 +8,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
@@ -140,4 +140,4 @@ ViewAdmin.MOD_ID = __dirname;
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(styles)(ViewAdmin);
+export default styled(styles)(ViewAdmin);

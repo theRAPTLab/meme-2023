@@ -9,7 +9,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import Fade from '@mui/material/Fade';
@@ -137,4 +137,4 @@ TestDBLock.MOD_ID = __dirname;
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(styles)(TestDBLock);
+export default styled(styles)(TestDBLock);

@@ -24,7 +24,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -215,4 +215,4 @@ GroupSelector.MOD_ID = __dirname;
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(styles)(GroupSelector);
+export default styled(styles)(GroupSelector);

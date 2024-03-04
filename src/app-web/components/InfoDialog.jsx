@@ -12,7 +12,8 @@ You can use markdown in the dialog text.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import MDReactComponent from 'markdown-react-js';
+// import MDReactComponent from 'markdown-react-js';
+import MDReactComponent from 'react-markdown'
 // Material UI Components
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -22,7 +23,7 @@ import DialogActions from '@mui/material/DialogActions';
 // Material UI Icons
 import CloseIcon from '@mui/icons-material/Close';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -85,7 +86,8 @@ class InfoDialog extends React.Component {
         {isOpen && (
           <Dialog className={classes.infoDialog} open>
             <DialogContent>
-              <MDReactComponent text={infoText} />
+              {/* <MDReactComponent text={infoText} /> */}
+              <MDReactComponent skipHtml>{infoText}</MDReactComponent>
             </DialogContent>
             <DialogActions>
               <Button color="primary" variant="contained" onClick={this.DoClose}>
@@ -110,4 +112,4 @@ InfoDialog.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(InfoDialog);
+export default styled(MEMEStyles)(InfoDialog);

@@ -18,13 +18,14 @@ import TextField from '@mui/material/TextField';
 // Material UI Icons
 import DeleteIcon from '@mui/icons-material/Delete';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../../components/MEMEStyles';
 import UR from '../../../../system/ursys';
-import MDReactComponent from 'markdown-react-js';
+// import MDReactComponent from 'markdown-react-js';
+import MDReactComponent from 'react-markdown'
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,7 +34,7 @@ const PKG = 'AdminCriteriaList';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const SmTableCell = withStyles((theme) => ({
+const SmTableCell = styled((theme) => ({
   root: {
     padding: '2px 10px 2px 2px',
   },
@@ -90,10 +91,15 @@ class CriteriaList extends React.Component {
               <TableRow key={crit.id}>
                 <SmTableCell>{crit.label}</SmTableCell>
                 <SmTableCell>
-                  <MDReactComponent
+                  {/* <MDReactComponent
                     text={crit.description}
                     markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
-                  />
+                  /> */}
+                  <MDReactComponent
+                    // markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
+                  >
+                    {crit.description}
+                  </MDReactComponent>
                 </SmTableCell>
               </TableRow>
             ),
@@ -125,4 +131,4 @@ CriteriaList.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(CriteriaList);
+export default styled(MEMEStyles)(CriteriaList);

@@ -28,7 +28,7 @@ import DialogContent from '@mui/material/DialogContent';
 import PositiveIcon from '@mui/icons-material/Add';
 import NegativeIcon from '@mui/icons-material/Clear';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -129,4 +129,4 @@ RatingsDialog.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(RatingsDialog);
+export default styled(MEMEStyles)(RatingsDialog);

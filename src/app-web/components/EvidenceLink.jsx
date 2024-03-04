@@ -77,7 +77,7 @@ Triggers to save data happens in multiple places:
 * [ ]     a5. EvLink LinkButton is ready to set target
 * [ ]     a6. Clicking target will set target in LinkButton
 
-## 5. Networked 
+## 5. Networked
 
 * [ ]  a. When evidence is not being edited, any updates to the evidence from another
           computer should be loaded and displayed, whether collapsed or expanded.
@@ -93,7 +93,7 @@ import React from 'react';
 // Material UI Icons
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 // Material UI Elements
@@ -910,4 +910,4 @@ EvidenceLink.defaultProps = {
 };
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(EvidenceLink);
+export default styled(MEMEStyles)(EvidenceLink);

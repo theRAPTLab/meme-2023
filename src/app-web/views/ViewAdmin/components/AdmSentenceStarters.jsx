@@ -13,7 +13,7 @@ import InputLabel from '@mui/material/InputLabel';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -157,4 +157,4 @@ SentenceStarters.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(SentenceStarters);
+export default styled(MEMEStyles)(SentenceStarters);

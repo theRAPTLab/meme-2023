@@ -94,7 +94,7 @@ function Start() {
     const instance = wpack_mid(compiler, {
       // logLevel: 'silent', // turns off [wdm] messages
       publicPath: webConfig.output.publicPath,
-      stats: 'errors-only', // see https://webpack.js.org/configuration/stats/
+      stats: 'summary', // see https://webpack.js.org/configuration/stats/
     });
     app.use(instance);
     app.use(wpack_hot(compiler));

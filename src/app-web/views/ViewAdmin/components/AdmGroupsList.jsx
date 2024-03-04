@@ -29,7 +29,7 @@ import TextField from '@mui/material/TextField';
 // Material UI Icons
 import AddIcon from '@mui/icons-material/Add';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -332,4 +332,4 @@ GroupsList.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(GroupsList);
+export default styled(MEMEStyles)(GroupsList);

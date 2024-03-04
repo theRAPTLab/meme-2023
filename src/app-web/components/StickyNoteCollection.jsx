@@ -112,7 +112,7 @@ import Paper from '@mui/material/Paper';
 // Material UI Icons
 import CloseIcon from '@mui/icons-material/Close';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -346,4 +346,4 @@ StickyNoteCollection.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(StickyNoteCollection);
+export default styled(MEMEStyles)(StickyNoteCollection);

@@ -12,7 +12,7 @@ import ClassNames from 'classnames';
 import clsx from 'clsx';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Theming
-import { withStyles, createMuiTheme } from '@mui/styles';
+import { styled } from "@mui/system";
 import { yellow } from '@mui/material/colors';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
@@ -815,4 +815,4 @@ ViewMain.MOD_ID = __dirname;
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles
-export default withStyles(MEMEStyles)(ViewMain);
+export default styled(MEMEStyles)(ViewMain);

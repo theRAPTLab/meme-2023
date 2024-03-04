@@ -31,7 +31,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 import { ipcRenderer } from 'electron';
 import path from 'path';
 
@@ -71,7 +71,7 @@ const styles = (theme) => ({
   },
 });
 
-const App = withStyles(styles)((props) => {
+const App = styled(styles)((props) => {
   const { classes } = props;
   const { main, client } = remote.getGlobal('serverinfo');
   const [dragExport, setDragExport] = useState(false);

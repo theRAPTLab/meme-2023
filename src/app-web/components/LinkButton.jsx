@@ -58,7 +58,7 @@ import DATAMAP from '../../system/common-datamap';
 import CreateIcon from '@mui/icons-material/Create';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -68,7 +68,7 @@ const { COLOR } = DEFAULTS;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const LButton = withStyles((theme) => ({
+const LButton = styled((theme) => ({
   root: {
     padding: '2px 7px',
     lineHeight: '1.2em',
@@ -193,4 +193,4 @@ LinkButton.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(LinkButton);
+export default styled(MEMEStyles)(LinkButton);

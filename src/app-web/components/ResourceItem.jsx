@@ -18,7 +18,7 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// RESOURCE TYPES /////////////////////////////////////////////////////////////////
 // Material UI Icons
@@ -216,4 +216,4 @@ ResourceItem.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(ResourceItem);
+export default styled(MEMEStyles)(ResourceItem);

@@ -11,7 +11,7 @@ import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -43,7 +43,7 @@ const { COLOR, CoerceToEdgeObj } = DEFAULTS;
 const DBG = false;
 const PKG = 'ToolsPanel:';
 
-const SmallFab = withStyles((theme) => ({
+const SmallFab = styled((theme) => ({
   root: {
     margin: '5px 0',
   },
@@ -55,7 +55,7 @@ const SmallFab = withStyles((theme) => ({
 }))((props) => <Fab {...props} />);
 
 // Customized TreeItem Component with smaller font
-const SmallTreeItem = withStyles((theme) => ({
+const SmallTreeItem = styled((theme) => ({
   iconContainer: {
     width: '16px',
   },
@@ -458,4 +458,4 @@ ToolsPanel.MOD_ID = __dirname;
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles
-export default withStyles(MEMEStyles)(ToolsPanel);
+export default styled(MEMEStyles)(ToolsPanel);

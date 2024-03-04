@@ -58,7 +58,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
@@ -68,7 +68,8 @@ import UR from '../../system/ursys';
 import ADM from '../modules/data';
 import PMC from '../modules/pmc-data';
 import ASET from '../modules/adm-settings';
-import MDReactComponent from 'markdown-react-js';
+// import MDReactComponent from 'markdown-react-js';
+import MDReactComponent from 'react-markdown'
 import EvidenceNotes from './EvidenceNotes';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -375,11 +376,17 @@ class StickyNote extends React.Component {
                   {criteriaDisplay}
                 </div>
                 <div hidden={!isBeingEdited}>
-                  <MDReactComponent
+                  {/* <MDReactComponent
                     className={classes.stickynoteCardCriteriaDescription}
                     text={criteriaDescription}
                     markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
-                  />
+                  /> */}
+                  <MDReactComponent
+                    className={classes.stickynoteCardCriteriaDescription}
+                    // markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
+                  >
+                    {criteriaDescription}
+                  </MDReactComponent>
                 </div>
               </div>
               <ThemeProvider theme={theme}>
@@ -475,4 +482,4 @@ StickyNote.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(StickyNote);
+export default styled(MEMEStyles)(StickyNote);

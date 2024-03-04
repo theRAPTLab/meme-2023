@@ -23,7 +23,7 @@ import Paper from '@mui/material/Paper';
 // Material UI Icons
 import AddIcon from '@mui/icons-material/Add';
 // Material UI Theming
-import { withStyles } from '@mui/styles';
+import { styled } from "@mui/system";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -256,4 +256,4 @@ CriteriaView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(CriteriaView);
+export default styled(MEMEStyles)(CriteriaView);

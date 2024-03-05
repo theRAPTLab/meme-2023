@@ -90,16 +90,6 @@ const webConfiguration = (env) => {
         }),
         new CopyWebpackPlugin({ patterns: copyFilesArray }),
         new webpack.HotModuleReplacementPlugin(),
-        {
-          apply(compiler) {
-            compiler.hooks.emit.tap('LogOutputPathsPlugin', compilation => {
-              console.log('Output paths:');
-              for (const filename of Object.keys(compilation.assets)) {
-                console.log(`- ${filename}: ${path.resolve(compiler.outputPath, filename)}`);
-              }
-            });
-          },
-        },
       ],
     },
   ]);

@@ -95,6 +95,7 @@ function Start() {
       // logLevel: 'silent', // turns off [wdm] messages
       publicPath: webConfig.output.publicPath,
       stats: 'summary', // see https://webpack.js.org/configuration/stats/
+      writeToDisk: true, // write files to disk in addition to memory
     });
     app.use(instance);
     app.use(wpack_hot(compiler));
@@ -219,4 +220,7 @@ function GetTemplateValues(req) {
   return params;
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Start();
+
 module.exports = { Start, CloseAppServer, OpenAppServer };

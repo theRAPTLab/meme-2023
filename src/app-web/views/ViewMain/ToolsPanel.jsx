@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 // Material UI Theming
 import { styled } from "@mui/system";
+import { withStyles } from "tss-react/mui";
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -97,7 +98,7 @@ class ToolsPanel extends React.Component {
     UR.Subscribe('MECH_HOVER_END', this.DoMechHoverEnd);
   }
 
-  componentDidMount() {}
+  componentDidMount() { }
 
   componentWillUnmount() {
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
@@ -458,4 +459,4 @@ ToolsPanel.MOD_ID = __dirname;
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles
-export default styled(MEMEStyles)(ToolsPanel);
+export default withStyles(ToolsPanel, (theme) => MEMEStyles(theme));

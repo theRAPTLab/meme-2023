@@ -14,6 +14,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
 import debounce from 'debounce';
 import SystemRoutes from './SystemRoutes';
@@ -80,15 +81,23 @@ function Init() {
 function m_PromiseRenderApp() {
   if (DBG) console.log('%cINIT %cReactDOM.render() begin', 'color:blue', 'color:auto');
   return new Promise((resolve, reject) => {
-    ReactDOM.render(
+    // ReactDOM.render(
+    //   <HashRouter hashType="slash">
+    //     <SystemShell />
+    //   </HashRouter>,
+    //   document.getElementById('app-container'),
+    //   () => {
+    //     console.log('%cURSYS: START', cssur);
+    //     resolve();
+    //   }
+    // );
+    const container = document.getElementById('app-container');
+    const root = createRoot(container);
+
+    root.render(
       <HashRouter hashType="slash">
         <SystemShell />
-      </HashRouter>,
-      document.getElementById('app-container'),
-      () => {
-        console.log('%cURSYS: START', cssur);
-        resolve();
-      }
+      </HashRouter>
     );
   }); // promise
 }

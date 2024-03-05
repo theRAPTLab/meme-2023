@@ -93,6 +93,11 @@ class NetMessage {
     // OPTION 1
     // create NetMessage from (generic object)
     if (typeof msg === 'object' && data === undefined) {
+      // transform buffer to object
+      if (msg instanceof Buffer) {
+        msg = JSON.parse(msg.toString());
+      }
+
       // make sure it has a msg and data obj
       if (typeof msg.msg !== 'string' || typeof msg.data !== 'object') {
         throw ERR_NOT_NETMESG;

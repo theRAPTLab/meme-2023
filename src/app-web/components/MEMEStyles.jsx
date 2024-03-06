@@ -82,10 +82,10 @@ const styles = (theme) => {
     toolsPanelClosedShift: {
       marginLeft: -m_drawerWidth,
     },
-    toolbar: theme.mixins.toolbar,
+    toolbar: theme?.mixins?.toolbar || {},
     content: {
       flexGrow: 1,
-      backgroundColor: theme.palette.background.default,
+      backgroundColor: theme?.palette?.background?.default || '#fff',
       padding: 0,
     },
     view: {
@@ -216,7 +216,7 @@ const styles = (theme) => {
       fontSize: '0.8em',
       color: m_systemTextColor,
       marginBottom: '5px',
-      marginRight: theme.spacing(2),
+      marginRight: theme?.spacing?.(2) || '16px',
       alignSelf: 'flex-start',
     },
     resourceViewTitle: {
@@ -230,7 +230,7 @@ const styles = (theme) => {
     resourceViewAvatar: {
       color: '#366',
       backgroundColor: teal[100],
-      marginRight: theme.spacing(1),
+      marginRight: theme?.spacing?.(1) || '8px',
     },
     resourceViewLabel: {
       paddingLeft: '0',
@@ -292,7 +292,7 @@ const styles = (theme) => {
       backgroundColor: yellow[50],
     },
     resourceViewCreatebutton: {
-      marginBottom: theme.spacing(1),
+      marginBottom: theme?.spacing?.(1) || '8px',
       width: '100%',
     },
     resourceItem: {

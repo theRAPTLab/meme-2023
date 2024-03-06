@@ -23,6 +23,9 @@ import UR from '../../system/ursys';
 import EXEC from '../../system/ur-exec';
 import { cssreset, cssur, cssuri } from '../modules/console-styles';
 
+import MEMEStyles from "../components/MEMEStyles";
+import { ThemeProvider } from '@mui/system';
+
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
@@ -96,7 +99,9 @@ function m_PromiseRenderApp() {
 
     root.render(
       <HashRouter hashType="slash">
-        <SystemShell />
+        <ThemeProvider theme={MEMEStyles({})}>
+          <SystemShell />
+        </ThemeProvider>
       </HashRouter>
     );
   }); // promise

@@ -36,6 +36,7 @@ import DEFAULTS from '../../modules/defaults';
 import DATA from '../../modules/data';
 import ADM from '../../modules/data';
 import DATAMAP from '../../../system/common-datamap';
+import { withTheme } from 'styled-components';
 
 const { COLOR, CoerceToEdgeObj } = DEFAULTS;
 
@@ -44,7 +45,7 @@ const { COLOR, CoerceToEdgeObj } = DEFAULTS;
 const DBG = false;
 const PKG = 'ToolsPanel:';
 
-const SmallFab = styled((theme) => ({
+const SmallFab = styled(Fab)(({ theme }) => ({
   root: {
     margin: '5px 0',
   },
@@ -53,17 +54,17 @@ const SmallFab = styled((theme) => ({
     textTransform: 'capitalize',
     color: '#fff',
   },
-}))((props) => <Fab {...props} />);
+}));
 
 // Customized TreeItem Component with smaller font
-const SmallTreeItem = styled((theme) => ({
+const SmallTreeItem = styled(TreeItem)(({ theme }) => ({
   iconContainer: {
     width: '16px',
   },
   label: {
     fontSize: '11px',
   },
-}))((props) => <TreeItem {...props} />);
+}));
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -206,7 +207,7 @@ class ToolsPanel extends React.Component {
   // This supports recursive calls to handle nested components.
   RenderComponentsListItem(propId, isSub = false) {
     const { selectedPropId, hoveredPropId } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const prop = DATA.Prop(propId);
     if (prop === undefined) {
       // Catch error if a component has not been correctly deleted, so a mech
@@ -442,6 +443,7 @@ class ToolsPanel extends React.Component {
 /// and are declared for validation
 ToolsPanel.defaultProps = {
   classes: {},
+  theme: {},
   isDisabled: false,
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -455,8 +457,7 @@ ToolsPanel.propTypes = {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// requirement for UR MODULES and COMPONENTS
 ToolsPanel.MOD_ID = __dirname;
-
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles
-export default withStyles(ToolsPanel, (theme) => MEMEStyles(theme));
+export default ToolsPanel;

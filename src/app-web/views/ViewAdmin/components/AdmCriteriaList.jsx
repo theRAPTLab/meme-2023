@@ -18,7 +18,7 @@ import TextField from '@mui/material/TextField';
 // Material UI Icons
 import DeleteIcon from '@mui/icons-material/Delete';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -26,6 +26,7 @@ import MEMEStyles from '../../../components/MEMEStyles';
 import UR from '../../../../system/ursys';
 // import MDReactComponent from 'markdown-react-js';
 import MDReactComponent from 'react-markdown'
+import { styled } from '@mui/system';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -34,11 +35,11 @@ const PKG = 'AdminCriteriaList';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const SmTableCell = styled((theme) => ({
+const SmTableCell = styled(TableCell)((theme) => ({
   root: {
     padding: '2px 10px 2px 2px',
   },
-}))((props) => <TableCell {...props} />);
+}));
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -131,4 +132,4 @@ CriteriaList.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(CriteriaList);
+export default withTheme(CriteriaList);

@@ -17,7 +17,7 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -127,7 +127,7 @@ class ModelsList extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const { models, targetSelectDialogOpen, targetSelectionType, targetSelectCallback } =
       this.state;
 
@@ -136,7 +136,7 @@ class ModelsList extends React.Component {
 
     return (
       <>
-        <Paper className={classes.admPaper} style={{ maxHeight: '75%', overflowY: 'scroll' }}>
+        <Paper style={{ ...classes.admPaper, maxHeight: '75%', overflowY: 'scroll' }}>
           <InputLabel>MODELS</InputLabel>
           <ModelsListTable
             models={activeModels}
@@ -179,4 +179,4 @@ ModelsList.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(ModelsList);
+export default withTheme(ModelsList);

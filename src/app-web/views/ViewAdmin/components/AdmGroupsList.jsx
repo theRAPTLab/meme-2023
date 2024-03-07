@@ -29,7 +29,7 @@ import TextField from '@mui/material/TextField';
 // Material UI Icons
 import AddIcon from '@mui/icons-material/Add';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -185,7 +185,7 @@ class GroupsList extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const {
       groups,
       addGroupDialogOpen,
@@ -196,7 +196,7 @@ class GroupsList extends React.Component {
     } = this.state;
 
     return (
-      <Paper className={classes.admPaper}>
+      <Paper style={classes.admPaper}>
         <InputLabel>GROUPS</InputLabel>
         <Table>
           <TableHead>
@@ -288,7 +288,7 @@ class GroupsList extends React.Component {
               <FormControl
                 error={addStudentDialogInvalidNames !== undefined}
                 fullWidth
-                className={classes.oneEmBefore}
+                style={classes.oneEmBefore}
               >
                 <TextField
                   autoFocus
@@ -332,4 +332,4 @@ GroupsList.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(GroupsList);
+export default withTheme(GroupsList);

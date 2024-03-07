@@ -11,8 +11,7 @@ import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 // Material UI Theming
-import { styled } from "@mui/system";
-import { withStyles } from "tss-react/mui";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -36,7 +35,7 @@ import DEFAULTS from '../../modules/defaults';
 import DATA from '../../modules/data';
 import ADM from '../../modules/data';
 import DATAMAP from '../../../system/common-datamap';
-import { withTheme } from 'styled-components';
+import { styled } from '@mui/system';
 
 const { COLOR, CoerceToEdgeObj } = DEFAULTS;
 
@@ -249,7 +248,7 @@ class ToolsPanel extends React.Component {
 
   RenderMechanismsList(mechIds) {
     const { selectedMechId, hoveredMechId } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     let i = 0;
     return mechIds.map((mechId) => {
       const mech = DATA.Mech(mechId);
@@ -460,4 +459,4 @@ ToolsPanel.MOD_ID = __dirname;
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles
-export default ToolsPanel;
+export default withTheme(ToolsPanel);

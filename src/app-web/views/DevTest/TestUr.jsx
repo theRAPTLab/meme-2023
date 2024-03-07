@@ -8,7 +8,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 
@@ -131,7 +131,7 @@ class TestUR extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     NETTEST.DoRenderTests();
     return (
       <div className={classes.root}>
@@ -176,4 +176,4 @@ TestUR.MOD_ID = __dirname;
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(styles)(TestUR);
+export default withTheme(TestUR);

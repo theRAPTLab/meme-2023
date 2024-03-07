@@ -116,7 +116,7 @@ function Start() {
     // return promise when server starts
     promise = new Promise((resolve, reject) => {
       let INTERVAL_COUNT = 0;
-      const INTERVAL_MAX = 15;
+      const INTERVAL_MAX = 60;
       let COMPILE_RESOLVED = false;
       const INTERVAL_PERIOD = 2000;
       const COMPILE_TIME = Math.floor((INTERVAL_MAX * INTERVAL_PERIOD) / 1000);

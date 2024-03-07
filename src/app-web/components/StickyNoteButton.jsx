@@ -29,7 +29,7 @@ import ChatIcon from '@mui/icons-material/Chat';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -118,20 +118,20 @@ class StickyNoteButton extends React.Component {
 
   render() {
     const { hasNoComments, hasUnreadComments, isOpen } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const iconCSS = isOpen ? classes.stickynoteIconOpen : classes.stickynoteIcon;
 
     // Figure out which icon to show
     let icon;
     if (hasNoComments) {
       if (DBG) console.log(PKG, 'setting icon to chat empty');
-      icon = <ChatBubbleOutlineIcon className={iconCSS} />; // No comments
+      icon = <ChatBubbleOutlineIcon style={iconCSS} />; // No comments
     } else if (hasUnreadComments) {
       if (DBG) console.log(PKG, 'setting icon to chat + text');
-      icon = <ChatIcon className={iconCSS} />; // Has comments, unread
+      icon = <ChatIcon style={iconCSS} />; // Has comments, unread
     } else {
       if (DBG) console.log(PKG, 'setting icon to chat cleared');
-      icon = <ChatBubbleIcon className={iconCSS} />; // Has comments, all read
+      icon = <ChatBubbleIcon style={iconCSS} />; // Has comments, all read
     }
 
     return <Button onClick={this.OnCommentClick}>{icon}</Button>;
@@ -150,4 +150,4 @@ StickyNoteButton.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(StickyNoteButton);
+export default withTheme(StickyNoteButton);

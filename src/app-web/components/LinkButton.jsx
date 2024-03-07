@@ -58,17 +58,18 @@ import DATAMAP from '../../system/common-datamap';
 import CreateIcon from '@mui/icons-material/Create';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
 import DEFAULTS from '../modules/defaults';
+import { styled } from '@mui/system';
 const { COLOR } = DEFAULTS;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const LButton = styled((theme) => ({
+const LButton = styled(Button)((theme) => ({
   root: {
     padding: '2px 7px',
     lineHeight: '1.2em',
@@ -76,7 +77,7 @@ const LButton = styled((theme) => ({
       color: 'rgba(0,0,0,0.3)',
     },
   },
-}))((props) => <Button {...props} />);
+}));
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -160,6 +161,7 @@ class LinkButton extends React.Component {
         className={clsx({ [classes.evidenceLinkSelectButtonExpanded]: isExpanded })}
         disabled={isDisabled}
         size={'small'}
+        ref={this.props.forwardedRef}
       >
         {icon}
         <span className={classes.evidenceLinkSelectButtonLabel}>{label}</span>
@@ -191,6 +193,8 @@ LinkButton.defaultProps = {
   },
 };
 
+const forwardRef = React.forwardRef((props, ref) => <LinkButton {...props} forwardedRef={ref} />);
+
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(LinkButton);
+export default withTheme(forwardRef);

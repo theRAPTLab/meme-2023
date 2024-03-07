@@ -23,7 +23,7 @@ import DialogActions from '@mui/material/DialogActions';
 // Material UI Icons
 import CloseIcon from '@mui/icons-material/Close';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -80,7 +80,7 @@ class InfoDialog extends React.Component {
 
   render() {
     const { isOpen, infoText } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     return (
       <>
         {isOpen && (
@@ -112,4 +112,4 @@ InfoDialog.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(InfoDialog);
+export default withTheme(InfoDialog);

@@ -27,7 +27,7 @@ import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 // Material UI Theming
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// Change eto pull from the same array as being used elsewhere (resourceView and resourceItem)
 const resourceTypeList = 'report, simulation, idea, assuption, question, or other';
@@ -175,7 +175,7 @@ class ResourcesList extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const {
       classroomResources,
       classroomId,
@@ -187,7 +187,7 @@ class ResourcesList extends React.Component {
     } = this.state;
     const resources = ADM.AllResources();
     return (
-      <Paper className={classes.admResourceListPaper}>
+      <Paper style={classes.admResourceListPaper}>
         <InputLabel>RESOURCES (EVIDENCE)</InputLabel>
         <Table>
           <TableHead>
@@ -313,4 +313,4 @@ ResourcesList.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(ResourcesList);
+export default withTheme(ResourcesList);

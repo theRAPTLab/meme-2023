@@ -58,7 +58,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
@@ -314,7 +314,7 @@ class StickyNote extends React.Component {
 
     const { isBeingEdited, allowedToEdit, allowedToDelete, showEditButtons, criteria, comment } =
       this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const hasBeenRead = PMC.HasBeenRead(this.props.comment.id, ADM.GetAuthorId());
     const date = new Date(comment.date);
     const timestring = date.toLocaleTimeString('en-Us', {
@@ -482,4 +482,4 @@ StickyNote.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(StickyNote);
+export default withTheme(StickyNote);

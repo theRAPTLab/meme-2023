@@ -31,7 +31,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 import { ipcRenderer } from 'electron';
 import path from 'path';
 

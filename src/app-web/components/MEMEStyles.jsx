@@ -82,7 +82,7 @@ const styles = (theme) => {
     toolsPanelClosedShift: {
       marginLeft: -m_drawerWidth,
     },
-    toolbar: theme?.mixins?.toolbar || {},
+    toolbar: theme?.mixins?.toolbar || "",
     content: {
       flexGrow: 1,
       backgroundColor: theme?.palette?.background?.default || '#fff',
@@ -127,7 +127,7 @@ const styles = (theme) => {
       wordBreak: 'break-all',
       cursor: 'pointer',
     },
-    treeItemSelected: {},
+    treeItemSelected: "",
     treePropItemColor: {
       color: COLOR.PROP,
       backgroundColor: COLOR.PROP_TOOLSPANEL_BG, // necessary to trigger hover brightness filter

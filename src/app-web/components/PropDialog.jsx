@@ -20,7 +20,7 @@ import TextField from '@mui/material/TextField';
 // Material UI Icons
 import CloseIcon from '@mui/icons-material/Close';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -150,7 +150,7 @@ class PropDialog extends React.Component {
 
   render() {
     const { isOpen, propId, propType, label, description, isProperty } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const propTypeLabel =
       UTILS.InitialCaps(DATAMAP.ModelTypeLabel(propType)) + (isProperty ? ' property' : '');
     const propTypeDescription = DATAMAP.ModelTypeDescription(propType);
@@ -208,4 +208,4 @@ PropDialog.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(PropDialog);
+export default withTheme(PropDialog);

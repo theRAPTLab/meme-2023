@@ -25,7 +25,7 @@ import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -157,7 +157,7 @@ class ClassroomsSelector extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const {
       classrooms,
       selectedClassroomId,
@@ -166,15 +166,15 @@ class ClassroomsSelector extends React.Component {
       canViewOthers,
     } = this.state;
     return (
-      <Paper className={classes.admPaper}>
+      <Paper style={classes.admPaper}>
         <Grid container direction="row" spacing={2}>
           <Grid item xs={4}>
-            <FormControl variant="outlined" className={classes.admTeacherSelector}>
+            <FormControl variant="outlined" style={classes.admTeacherSelector}>
               <InputLabel>CLASSROOMS</InputLabel>
               <Select
                 value={selectedClassroomId}
                 onChange={this.OnClassroomSelect}
-                input={<OutlinedInput name="classroom" id="classroom" labelWidth={120} />}
+                input={<OutlinedInput name="classroom" id="classroom" sx={{ width: 120 }} />}
               >
                 {classrooms.map((classroom) => (
                   <MenuItem value={classroom.id} key={classroom.id}>
@@ -252,4 +252,4 @@ ClassroomsSelector.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(ClassroomsSelector);
+export default withTheme(ClassroomsSelector);

@@ -22,7 +22,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -214,7 +214,7 @@ class ResourceView extends React.Component {
 
   render() {
     const { isOpen, resource, note, noteIsDisabled } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     // don't render if resource hasn't been defined yet
     if (resource === undefined || resource.id === undefined) return '';
@@ -312,4 +312,4 @@ ResourceView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(ResourceView);
+export default withTheme(ResourceView);

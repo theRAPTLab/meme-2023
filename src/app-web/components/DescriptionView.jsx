@@ -18,7 +18,7 @@ import PropTypes from 'prop-types';
 import MDReactComponent from 'react-markdown'
 import Paper from '@mui/material/Paper';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -98,7 +98,7 @@ class DescriptionView extends React.Component {
 
   render() {
     const { isOpen, propId, propType, text, label } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     // Fake some text
     const descriptionText = text || '*no description*';
@@ -137,4 +137,4 @@ DescriptionView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(DescriptionView);
+export default withTheme(DescriptionView);

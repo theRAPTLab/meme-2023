@@ -23,7 +23,7 @@ import Paper from '@mui/material/Paper';
 // Material UI Icons
 import AddIcon from '@mui/icons-material/Add';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -189,11 +189,11 @@ class CriteriaView extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const { criteria, isInEditMode, classroomId } = this.state;
 
     return (
-      <Paper className={classes.admPaper}>
+      <Paper style={classes.admPaper}>
         <InputLabel>CRITERIA FOR A GOOD MODEL</InputLabel>
         <Dialog open={isInEditMode}>
           <DialogTitle>Edit Criteria</DialogTitle>
@@ -256,4 +256,4 @@ CriteriaView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(CriteriaView);
+export default withTheme(CriteriaView);

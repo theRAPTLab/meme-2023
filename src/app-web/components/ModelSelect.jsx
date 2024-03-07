@@ -20,7 +20,7 @@ import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -105,7 +105,10 @@ class ModelSelect extends React.Component {
     }
   }
 
-  OnModelDialogClose() {
+  OnModelDialogClose(event, reason) {
+    // disableBackdropClick
+    if (reason === 'backdropClick') return;
+
     this.setState({ modelSelectDialogOpen: false });
   }
 
@@ -217,10 +220,9 @@ class ModelSelect extends React.Component {
     return (
       <>
         <Dialog
-          disableBackdropClick
           disableEscapeKeyDown
           open={modelSelectDialogOpen}
-          onClose={this.OnLoginDialogClose}
+          onClose={this.OnModelDialogClose}
           fullScreen
         >
           <DialogActions>
@@ -305,4 +307,4 @@ ModelSelect.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(ModelSelect);
+export default withTheme(ModelSelect);

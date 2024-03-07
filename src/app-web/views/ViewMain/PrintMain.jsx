@@ -10,7 +10,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -186,7 +186,7 @@ class PrintMain extends React.Component {
 
   RenderComponentsListItem(propId, isSub = false) {
     const { selectedPropId, hoveredPropId } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const prop = DATA.Prop(propId);
     if (prop === undefined) {
       // Catch error if a component has not been correctly deleted, so a mech
@@ -210,7 +210,7 @@ class PrintMain extends React.Component {
 
   RenderMechanismsList(mechIds) {
     const { selectedMechId, hoveredMechId } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     let i = 0;
     return mechIds.map((mechId) => {
       const mech = DATA.Mech(mechId);
@@ -365,7 +365,7 @@ class PrintMain extends React.Component {
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     const {
       modelId,
@@ -529,4 +529,4 @@ PrintMain.MOD_ID = __dirname;
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles
-export default styled(MEMEStyles)(PrintMain);
+export default withTheme(PrintMain);

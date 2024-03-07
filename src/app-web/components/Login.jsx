@@ -16,8 +16,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 // Material UI Theming
-import { styled } from "@mui/system";
-
+import { withTheme } from 'styled-components';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
@@ -96,18 +95,19 @@ class Login extends React.Component {
     }
   }
 
-  OnLoginDialogClose() {
+  OnLoginDialogClose(event, reason) {
+    // disableBackdropClick
+    if (reason === 'backdropClick') return;
     this.setState({ loginDialogOpen: false });
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const { loginId, loginDialogOpen, isValidLogin } = this.state;
     const loginTitle = ADM.IsDBReadOnly() ? 'MEME Login (READ ONLY)' : 'MEME Login';
 
     return (
       <Dialog
-        disableBackdropClick
         disableEscapeKeyDown
         open={loginDialogOpen}
         onClose={this.OnLoginDialogClose}
@@ -155,4 +155,4 @@ Login.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(Login);
+export default withTheme(Login);

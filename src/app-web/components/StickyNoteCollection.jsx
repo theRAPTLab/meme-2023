@@ -112,7 +112,7 @@ import Paper from '@mui/material/Paper';
 // Material UI Icons
 import CloseIcon from '@mui/icons-material/Close';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -289,11 +289,11 @@ class StickyNoteCollection extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const { comments, isHidden, isBeingEdited, isDBReadOnly, top, left, refId } = this.state;
     return (
       <Draggable>
-        <Paper className={classes.stickynotePaper} hidden={isHidden} style={{ top, left }}>
+        <Paper style={{ ...classes.stickynotePaper, top, left }} hidden={isHidden} >
           {/* <IconButton
             size="small"
             style={{ position: 'absolute', right: '-25px', top: '-25px' }}
@@ -346,4 +346,4 @@ StickyNoteCollection.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(StickyNoteCollection);
+export default withTheme(StickyNoteCollection);

@@ -98,7 +98,15 @@ function StyledDropzone(props) {
     isDragReject,
     //
     acceptedFiles
-  } = useDropzone({ accept: 'image/*', onDrop, onDropRejected, multiple: false });
+  } = useDropzone({
+    accept: {
+      // only images
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpg'],
+      'image/gif': ['.gif'],
+      'image/svg': ['.svg']
+    }, onDrop, onDropRejected, maxFiles: 1
+  });
 
   // react memoize hook, which runs at rendertime
   // and returns computed value from function

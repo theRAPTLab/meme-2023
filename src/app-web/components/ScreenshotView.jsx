@@ -18,7 +18,7 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -82,11 +82,11 @@ class ScreenshotView extends React.Component {
 
   render() {
     const { imageURL, isOpen } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     return (
       <Draggable>
-        <Paper className={classes.screenshotViewPaper} hidden={!isOpen}>
+        <Paper style={classes.screenshotViewPaper} hidden={!isOpen}>
           <Grid container spacing={5} style={{ height: '100%' }}>
             <Grid item xs={12} style={{ height: '100%' }}>
               {imageURL === undefined || imageURL === null ? (
@@ -126,4 +126,4 @@ ScreenshotView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(ScreenshotView);
+export default withTheme(ScreenshotView);

@@ -12,7 +12,7 @@ import ClassNames from 'classnames';
 import clsx from 'clsx';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 import { yellow } from '@mui/material/colors';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
@@ -530,7 +530,7 @@ class ViewMain extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     const {
       modelId,
@@ -575,7 +575,7 @@ class ViewMain extends React.Component {
           )}
           color={isModelAuthor ? 'primary' : 'default'}
         >
-          <Toolbar className={classes.appBarToolbar}>
+          <Toolbar style={classes.appBarToolbar}>
             <Switch>
               <Route path="/:mode" />
             </Switch>
@@ -710,7 +710,7 @@ class ViewMain extends React.Component {
                 <DoubleArrowIcon />
               </Button>
             </div>
-            <Paper className={classes.resourceListList}>
+            <Paper style={classes.resourceListList}>
               <List dense>
                 {resources.map((resource) => (
                   <ResourceItem key={resource.id} resource={resource} />
@@ -815,4 +815,5 @@ ViewMain.MOD_ID = __dirname;
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles
-export default styled(MEMEStyles)(ViewMain);
+// export default withTheme(ViewMain);
+export default withTheme(ViewMain);

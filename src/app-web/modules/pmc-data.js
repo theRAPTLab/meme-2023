@@ -208,7 +208,7 @@ PMCData.InitializeModel = (model, admdb) => {
   m_graph = GraphJSON.read(JSON.parse(json));
   // MONKEY PATCH graphlib so it doesn't use ancient lodash _.keys()
   // command, which converts numbers to string.
-  m_graph.nodes = () => Object.keys(m_graph._nodes);
+  // m_graph.nodes = () => Object.keys(m_graph._nodes);
 
   // update the essential data structures
   // this also fires DATA_UPDATED

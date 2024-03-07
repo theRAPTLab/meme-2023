@@ -28,7 +28,7 @@ import DialogContent from '@mui/material/DialogContent';
 import PositiveIcon from '@mui/icons-material/Add';
 import NegativeIcon from '@mui/icons-material/Clear';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -99,7 +99,7 @@ class RatingsDialog extends React.Component {
 
   render() {
     const { isOpen, ratingsDef, selectedRating } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     return (
       <Dialog open={isOpen} onClose={this.OnClose} maxWidth="xs">
@@ -129,4 +129,4 @@ RatingsDialog.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(RatingsDialog);
+export default withTheme(RatingsDialog);

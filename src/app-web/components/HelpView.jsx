@@ -23,7 +23,7 @@ import Typography from '@mui/material/Typography';
 // Material UI Icons
 import CloseIcon from '@mui/icons-material/Close';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -132,12 +132,12 @@ Moreland, Vickery, Murphy & Stiso.
 
   render() {
     const { isOpen, helptext, credittext } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const criteria = ADM.GetCriteriaByModel(); // always use the current model's criteria
 
     return (
       <Draggable>
-        <Paper className={classes.helpViewPaper} hidden={!isOpen}>
+        <Paper style={classes.helpViewPaper} hidden={!isOpen}>
           <IconButton
             size="small"
             style={{ position: 'absolute', right: '5px', top: '5px' }}
@@ -180,4 +180,4 @@ HelpView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(HelpView);
+export default withTheme(HelpView);

@@ -26,7 +26,7 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -126,7 +126,7 @@ class TeacherSelector extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const {
       teachers,
       selectedTeacherId,
@@ -135,15 +135,15 @@ class TeacherSelector extends React.Component {
       selectedTeacherName,
     } = this.state;
     return (
-      <Paper className={classes.admPaper}>
+      <Paper style={classes.admPaper}>
         <Grid container direction="row" space={2}>
           <Grid item xs={9}>
-            <FormControl variant="outlined" className={classes.admTeacherSelector}>
+            <FormControl variant="outlined" style={classes.admTeacherSelector}>
               <InputLabel>TEACHER</InputLabel>
               <Select
                 value={selectedTeacherId}
                 onChange={this.OnTeacherSelect}
-                input={<OutlinedInput name="teacher" id="teacher" labelWidth={120} />}
+                input={<OutlinedInput name="teacher" id="teacher" sx={{ width: 120 }} />}
               >
                 <MenuItem value="" />
                 {teachers.map((teacher) => {
@@ -209,4 +209,4 @@ TeacherSelector.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(TeacherSelector);
+export default withTheme(TeacherSelector);

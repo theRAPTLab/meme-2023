@@ -24,7 +24,7 @@ import EXEC from '../../system/ur-exec';
 import { cssreset, cssur, cssuri } from '../modules/console-styles';
 
 import MEMEStyles from "../components/MEMEStyles";
-import { ThemeProvider } from '@mui/system';
+import { ThemeProvider } from 'styled-components';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

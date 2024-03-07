@@ -93,7 +93,7 @@ import React from 'react';
 // Material UI Icons
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 // Material UI Theming
-import { styled } from "@mui/system";
+import { withTheme } from 'styled-components';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 // Material UI Elements
@@ -910,4 +910,4 @@ EvidenceLink.defaultProps = {
 };
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default styled(MEMEStyles)(EvidenceLink);
+export default withTheme(EvidenceLink);

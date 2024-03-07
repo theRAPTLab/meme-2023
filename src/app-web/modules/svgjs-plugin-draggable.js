@@ -29,8 +29,8 @@ class DragHandler {
   // Enables or disabled drag based on input
   init(enabled) {
     if (enabled) {
-      this.el.on('mousedown.drag', this.startDrag);
-      this.el.on('touchstart.drag', this.startDrag);
+      this.el.on('mousedown.drag', this.startDrag, { passive: true });
+      this.el.on('touchstart.drag', this.startDrag, { passive: true });
     } else {
       this.el.off('mousedown.drag');
       this.el.off('touchstart.drag');

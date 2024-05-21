@@ -17,8 +17,7 @@
 /// SYSTEM LIBRARIES //////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const HashIds = require('hashids');
-// const UUIDv5 = require('uuid/v5');
-const UUIDv5 = require('uuid');
+const UUIDv5 = require('uuid/v5');
 const PROMPTS = require('../system/util/prompts');
 
 /// DEBUGGING /////////////////////////////////////////////////////////////////
@@ -173,8 +172,7 @@ function f_checkIdValue(idsObj) {
  */
 SESSION.MakeAccessKey = (...args) => {
   const name = [...args].join(':');
-  // const key = UUIDv5(name, UUID_NAMESPACE);
-  const key = UUIDv5.v5(name, UUID_NAMESPACE);
+  const key = UUIDv5(name, UUID_NAMESPACE);
   return key;
 };
 

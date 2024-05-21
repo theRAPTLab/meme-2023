@@ -4,7 +4,6 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Taking_still_photos
 // IFRAME COMM: https://gist.github.com/pbojinov/8965299
 // ALSO https://sokolskynikita.github.io/cross-domain-iframe-communication/
-import adapter from 'webrtc-adapter';
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.min.css';
 // possible croppers: https://www.npmjs.com/package/cropperjs

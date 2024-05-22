@@ -146,15 +146,42 @@ const App = withStyles(styles)(props => {
         <Typography>{PACKAGE_DESCRIPTION}</Typography>
       </Paper>
       <Typography variant="caption" style={{ padding: '1.5em 0 1em 24px' }}>
-        {loadStatus}
+        Status: {loadStatus}
       </Typography>
-      <Typography variant="h6" style={{ padding: '1.5em 0 0 24px' }}>
+      <Typography variant="h6" style={{ padding: '1em 0 0 24px' }}>
         Connection Instructions:
       </Typography>
-      <Typography style={{ padding: '1em 0 2em 24px' }}>
+      <Typography style={{ padding: '1em 0 1em 24px' }}>
+        <b>Reminder:</b> please open MEME only using Chrome or it may not work properly.
+        <br />
+        <br />
         Admin: open <b>{main}/#/admin</b>
         <br />
         Students: open <b>{client}</b>
+      </Typography>
+      <Typography variant="h6" style={{ padding: '1em 0 0 24px' }}>
+        About:
+      </Typography>
+      <Typography style={{ padding: '1em 0 1em 24px' }}>
+        The Model and Evidence Mapping Environment (<b>MEME</b>) was developed as part of the
+        Scaffolding Explanations and Epistemic Development for Systems (<b>SEEDS</b>) project, a
+        collaborative project that was funded by the National Science Foundation under{' '}
+        <a
+          target="_blank"
+          href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=1761019&HistoricalAwards=false"
+        >
+          award 1761019
+        </a>{' '}
+        to Joshua Danish, Ravit Duncan, Cindy Hmelo-Silver and Clark Chinn. More information can be
+        found at{' '}
+        <a target="_blank" href="http://modelingandevidence.org">
+          http://modelingandevidence.org
+        </a>
+        .
+        <br />
+        <br />
+        <b>Note:</b> This software is provided as-is. Please test it thoroughly before using in a
+        learning environment.
       </Typography>
       <div>
         <div className={classes.importZone}>

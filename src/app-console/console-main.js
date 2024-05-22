@@ -10,7 +10,7 @@
 
 // import appserver
 // Import parts of electron to use
-const { app, BrowserWindow, dialog, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, MessagePort, dialog, Menu, ipcMain } = require('electron');
 const ip = require('ip');
 const fs = require('fs-extra');
 const os = require('os');
@@ -20,7 +20,6 @@ const URSERVER = require('../system/server.js');
 const PROMPTS = require('../system/util/prompts');
 
 const AssetPath = asset => path.join(__dirname, 'static', asset);
-const RuntimePath = file => path.join(__dirname, '../../runtime');
 
 const PR = PROMPTS.Pad('ElectronHost');
 // this is available through electron remote in console.js

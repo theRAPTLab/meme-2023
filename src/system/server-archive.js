@@ -7,11 +7,11 @@ const os = require('os');
 const path = require('path');
 const AdmZip = require('adm-zip');
 const DATESTR = require('./util/datestring');
+const PATHS = require('./common-paths').PATHS;
 
 /// HELPERS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const AssetPath = asset => path.join(__dirname, 'static', asset);
-const RuntimePath = file => path.join(__dirname, '../../runtime', file);
 const TempDir = prefix => fs.mkdtempSync(path.join(os.tmpdir(), prefix || TMP_PREFIX));
 
 /// DEBUG /////////////////////////////////////////////////////////////////////
@@ -65,13 +65,15 @@ function MakeDBArchive(dbName = 'meme') {
   const fileBlob = MakeJSONFile(MakeManifest(dbName));
   zip.addFile('00-manifest.json', fileBlob);
   // add loki file
-  const rpath = RuntimePath(`${dbName}.loki`);
+  const rpath = PATHS.Database(dbName);
   if (DBG) console.log('*** RPATH', rpath);
   if (!fs.existsSync(rpath)) {
-    console.log(`server-archive: runtime path does not exist yet`);
+    console.log(`server-archive: dataset does not exist yet`);
     return undefined;
   }
-  let err = zip.addLocalFile(rpath, 'runtime/');
+
+  let err = zip.addLocalFile(rpath, '/');
+  
   // write zip archive to os temp folder
   if (err) console.log('addLocalFile error', err);
   //

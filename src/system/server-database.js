@@ -17,6 +17,7 @@ const DBG = true;
 const Loki = require('lokijs');
 const PATH = require('path');
 const FS = require('fs-extra');
+const OS = require('os');
 
 const DATAMAP = require('./common-datamap');
 const LOGGER = require('./server-logger');
@@ -24,13 +25,13 @@ const PROMPTS = require('../system/util/prompts');
 const UNET = require('./server-network');
 const DATESTR = require('./util/datestring');
 const SESSION = require('../system/common-session');
+const { PATHS, MEME_TEMPLATES } = require('../system/common-paths');
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 const { TERM_DB: CLR, TR, CCRIT: CC } = PROMPTS;
 const LPR = 'UR_DB';
 const PR = `${CLR}${PROMPTS.Pad(LPR)}${TR}`;
-const RUNTIMEPATH = PATH.join(__dirname, '../../runtime');
 
 /// MODULE-WIDE VARS //////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -62,7 +63,7 @@ DB.ReInitializeDatabase = (options = {}) => {
   /*/
   At this point, we want to mirror InitializeDatabase.
   /*/
-  const db_file = `${archivepath}/runtime/${dbfile}.loki`;
+  const db_file = `${archivepath}/${dbfile}.loki`;
   FS.ensureDirSync(PATH.dirname(db_file));
   return new Promise((resolve, reject) => {
     if (!FS.existsSync(db_file)) reject(Error(`couldn't find ${db_file}`));
@@ -93,7 +94,8 @@ DB.InitializeDatabase = (options = {}) => {
   } else {
     console.log(PR, `USING DATABASE FILE '${dataset}.loki'`);
     LOGGER.Write(LPR, `using database file '${dataset}.loki'`);
-    FS.copyFile(db_file, `${RUNTIMEPATH}/${db_bkup}`, err => {
+    FS.ensureDirSync(PATHS.DatabaseBackups);
+    FS.copyFile(db_file, PATH.join(PATHS.DatabaseBackups, db_bkup), err => {
       if (err) {
         LOGGER.Write(LPR, `*** ERROR *** could not make snapshot of '${dataset}.loki'`);
         LOGGER.Write(LPR, err);
@@ -142,11 +144,26 @@ DB.InitializeDatabase = (options = {}) => {
      *  (this is set by ropts above)
      */
 
+    // determine template that will be used to source collection data if not present
+    const templateOrder = [ dataset, MEME_TEMPLATES.init, MEME_TEMPLATES.blank ];
+    const template = templateOrder.find(x => f_CheckTemplate(x));
+
+    console.log(PR, `data template if needed: ${template}`);
+
     // on the first load of (non-existent database), we will have no
     // collections so we can detect the absence of our collections and
     // add (and configure) them now.
     // loop over all collections, initializing if necessary
-    DATAMAP.Collections().forEach(name => f_LoadCollection(name));
+    const loadedCollections = DATAMAP.Collections()
+      .map(name => f_LoadCollection(name, template));
+
+    const init = loadedCollections.every(x => x);
+
+    if (init) {
+      // Initialize resources
+      f_InitResources(template);
+    }
+
     // clear special tables on first start
     let locks = m_db.getCollection('session_locks');
     if (!locks) {
@@ -159,6 +176,18 @@ DB.InitializeDatabase = (options = {}) => {
     console.log(PR, `database ready`);
     console.log(PR, fout_CountCollections());
     m_db.saveDatabase();
+
+    function f_CheckTemplate(template) {
+      const templatePath = PATHS.Template(template);
+
+      // Check the path and see if there are database files there
+      if (FS.existsSync(templatePath)) {
+        return FS.readdirSync(templatePath).some(file => file.endsWith('.db.js'));
+      }
+
+      return false;
+    }
+
   } // end f_LoadDataset
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function f_AutosaveStatus() {
@@ -166,7 +195,7 @@ DB.InitializeDatabase = (options = {}) => {
     console.log(PR, `AUTOSAVING! ${status}`);
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  function f_LoadCollection(col) {
+  function f_LoadCollection(col, template) {
     // ensure collection exists
     const isInit = m_db.getCollection(col) === null;
     if (isInit) {
@@ -179,8 +208,10 @@ DB.InitializeDatabase = (options = {}) => {
     const collection = m_db.getCollection(col);
     // autoincrement enable
     collection.on('insert', u_CopyLokiId);
+
     // get datapath
-    const dpath = PATH.join(__dirname, `/datasets/${dataset}/${col}.db`);
+    const dpath = PATH.join(PATHS.Template(template), `${col}.db`);
+
     // if running devserver, always overwrite
     if (options.memehost === 'devserver') {
       // output a message of dataset had been overridden at the begining of f_LoadDataset
@@ -189,7 +220,7 @@ DB.InitializeDatabase = (options = {}) => {
       // clear the collection, then load dpath into it.
       collection.clear();
       collection.insert(require(dpath));
-      return;
+      return true;
     }
     // got this far, then we're not running a devserver, so we need to
     // initialize the collection ONLY if isInit is true
@@ -199,6 +230,8 @@ DB.InitializeDatabase = (options = {}) => {
     } else {
       console.log(PR, `${options.memehost}: '${col}' has ${collection.count()} elements`);
     }
+
+    return isInit;
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function fout_CountCollections() {
@@ -225,6 +258,19 @@ DB.InitializeDatabase = (options = {}) => {
     map_count.set(col, currcount);
     if (out) return `${col}${out} `;
     return '';
+  }
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  function f_InitResources(template) {
+    const templateResources = PATH.join(PATHS.Template(template), 'resources');
+
+    if (FS.existsSync(templateResources)) {
+      console.log(PR, `copying template resources from ${templateResources}`);
+
+      const files = FS.readdirSync(templateResources);
+      files.forEach(file => 
+        FS.copyFileSync(PATH.join(templateResources, file), 
+          PATH.join(PATHS.Resources, PATH.basename(file))));
+    }
   }
 }; // Initialize Database
 
@@ -725,7 +771,7 @@ function m_GetValidDBFilePath(dataset) {
     console.error(PR, `Trying to initialize database with bad dataset name: ${dataset}`);
   }
 
-  return `${RUNTIMEPATH}/${dataset}.loki`;
+  return PATHS.Database(dataset);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,0 +1,20 @@
+/* Styles for hyperlink-like buttons */
+.evidence-link {
+    /* Remove button styles */
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    color: blue; /* Set the color to blue for hyperlink appearance */
+    text-decoration: underline; /* Add underline to simulate hyperlink text */
+  
+    /* Remove hover and focus effects */
+    outline: none;
+  }
+  
+  /* Remove the default button focus outline */
+  .evidence-link:focus {
+    outline: none;
+  }
+  

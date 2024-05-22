@@ -6,9 +6,9 @@ The software is designed to work in a classroom setting.  The core software runs
 
 **Note**: this software is a work in progress, and is provided as-is. While we have tested it succesfully in our own context, we make no warranty about how it will run in your context nor about its security (we recomend using de-identified data only if you are not using it in a secure environment). Please evaluate it on your own before implementing.
 
-See the [1.3.1](https://gitlab.com/inq-seeds/boilerplate/-/tags/v1.3.1-final) and [1.3.0 Release Notes](https://gitlab.com/inq-seeds/boilerplate/-/tags/v1.3.0-final) for information on the latest features.  You can also view all [Release Notes](https://gitlab.com/inq-seeds/boilerplate/-/tags) by browsing Tags.
+See the [1.3.1](https://github.com/theRAPTLab/meme/releases/tag/v1.3.1-final) and [1.3.0 Release Notes](https://github.com/theRAPTLab/meme/releases/tag/v1.3.0-final) for information on the latest features.  You can also view all [Release Notes](https://github.com/theRAPTLab/meme/releases) by browsing Tags.
 
-See the [Wiki Home](https://gitlab.com/inq-seeds/boilerplate/wikis/home) for End User Instructions.
+See the [Wiki Home](https://github.com/theRAPTLab/meme/wiki) for End User Instructions.
 
 Please visit [modelingandevidence.org](http://modelingandevidence.org) for more information about the MEME project.
 
@@ -41,7 +41,7 @@ This assumes you've already installed NodeJS.  If you haven't, we recommend usin
 
 ### I.B. Download Resources
 
-The pdf and netlogo simulation resources are not currently in the repo.  You will need to download them from the source (ask Joshua for them) and place them in the `boilerplate/src/app-web/static/dlc` folder.
+The pdf and netlogo simulation resources are not currently in the repo.  You will need to download them from the source (ask Joshua for them) and place them in the `resources` folder.
 
 
 ### I.C. Build and Run the Local Server
@@ -63,7 +63,7 @@ This will start the local server and load the existing `meme` database.
 
 You can also create and use arbitrary databases.  E.g. to create a new database, you would:
 
-1. Duplicate `datasets/_blank`, e.g. name it `fall2020`
+1. Duplicate `templates/_blank`, e.g. name it `fall2020`
 1. Start it up using the `DATASET` environment parameter, e.g. `DATASET="fall2020" npm start`
 1. You can quit/reboot/update the server, and start it up again with `DATASET="fall2020" npm start` and the data will be retained.
 
@@ -72,12 +72,12 @@ You can also create and use arbitrary databases.  E.g. to create a new database,
 
 Once you verify the local server is running, you can build and deploy a standalone Electron application for distribution to teachers, so all they have do to start a MEME server in their classroom is to double click on the MEME.app.
 
-If you want to seed (no pun intended) a MEME Electron application with sample data, e.g. configure teachers, classrooms, and groups, example models, etc, you can just run the MEME application, make the changes, and then duplicate and the MEME.app.  
+If you want to seed (no pun intended) a MEME Electron application with sample data, e.g. configure teachers, classrooms, and groups, example models, etc, you can just run the MEME application, make the changes, and then duplicate and run the MEME.app.  
 
-The one thing that can't be easily changed via the admin interface are the resources, so generally it's best to download them first.  (Technical note: By running the Electron app, you're automatically loading the `db.js` files in `system/datasets/meme`.  If you want to edit the `db.js` files by hand for the Electron app, edit those.
+The one thing that can't be easily changed via the admin interface are the resources, so generally it's best to download them first.  (Technical note: By running the Electron app, you're automatically seeding the application with the `*.db.js` files from one of the templates stored in `templates`.  If you want to edit the `*.db.js` files by hand for the Electron app, edit those.
 
 To build and run the Electron app:
-1. Make sure all the resources you want to use are in the `boilerplate/src/app-web/static/dlc` folder.
+1. Make sure all the resources you want to use are in one of the MEME templates or in the current resource folder (`/resources`).
 2. `npm run package`
 3. Find the app in `boilerplate/dist/meme-darwin-x64/meme.app`
 4. Double click the `meme.app` file to start it.
@@ -85,31 +85,29 @@ To build and run the Electron app:
 
 You can copy and distribute the `meme.app` file by itself.  But first, you might want to set up some template admin settings.  See the "Admin Interface" section below.
 
-NOTE: Because the `meme.app` Electron app is not a signed and notarized, you may have to disable some security features on your Mac to run it.
+NOTE: Because the `meme.app` Electron app is not signed and notarized, you may have to disable some security features on your Mac to run it.  As of April 2023, it is now possible to Code Sign and Notarize the Electron app for distribution.  You will need to be registered as an Apple Developer in order to do so.  Please refer to the [README-signing.md](README-signing.md) file for details.
 
 
 For more technical information about creating and managing the dataset, see:
-* [Dataset Editing for Curriculum Development](https://gitlab.com/inq-seeds/boilerplate/wikis/Dataset-Editing-for-Curriculum-Development).
-* [Dataset Mangement](https://gitlab.com/inq-seeds/boilerplate/wikis/Dataset-Management)
+* [Dataset Editing for Curriculum Development](https://github.com/theRAPTLab/meme/wiki/Dataset-Editing-for-Curriculum-Development).
+* [Dataset Management](https://github.com/theRAPTLab/meme/wiki/Dataset-Management)
 
 
 
 **Updating Resources in the MEME.app**
 
+TODO: Scott->Ben: Review instructions if there is a better way to describe how to do this in MacOS
+
 If you've already built and distributed the MEME app and find that you need to add or change resources, you can still update resources in the MEME.app manually:
 1. Quit the MEME app.
-2. Find the "meme.app" file in your Finder.
-3. Ctrl-Click on the "meme.app" and select "Show Package Contents"
-4. Navigate to `meme.app/Contents/Resources/app/web/static/dlc`
-5. Copy your new resources into the `dlc` folder.
-6. Run the MEME app and use the admin interface to add the resources and assign them to classrooms.
-7. You can now duplicate the MEME app file and distribute it.  The new resources should be included with the app.
-
-
+2. Find the MEME application folder in your Finder.
+3. Copy your new resources into the `resources` folder.
+4. Run the MEME app and use the admin interface to add the resources and assign them to classrooms.
+5. You can now duplicate the MEME app file and distribute it.  The new resources should be included with the app.
 
 ## III. Admin Interface
 
-Use the interface to set up teachers, classrooms, groups, students, ratings definitions, criteria, sentence starters, and resources.
+Use the Admin Interface to set up teachers, classrooms, groups, students, ratings definitions, criteria, sentence starters, and resources.
 
 Each classroom can have its own ratings definition, criteria, and sentence starter, as well as a subset of the resources enabled for them.  Resources are shared across all classrooms, but are only visible to the class if you enable it.  This means you'll want to carefully set up each class's initial settings if you want them to be anything other than the defaults.  No resources are enabled by default, so you will have to enable them for each class.
 
@@ -126,26 +124,8 @@ If you are running the server on a remote server, you can use the special `?dani
 
 As of 1.0, the meme app should run on Chrome browsers on Mac laptops, Windows laptops, and Chromebooks.  It should mostly work on Android tablets (though they have not been fully tested). Unfortunately there are known rendering issues with iOS Chrome.
 
-### IV.A. Install Screen Capture Extension
 
-In order to capture screens when creating a new evidence, you will need to install the MEME Extension on each student machine.
-
-1. Check out https://gitlab.com/inq-seeds/screenshot
-2. Go to *SETTINGS* in Chrome (in "stacked dot" menu upper right)
-3. Go to *EXTENSIONS* (in left sidebar of settings screen)
-4. Enable ***Developer Mode***
-5. Choose *Load an Unpacked Extension*
-6. Find the *extension* directory in `screenshot` repo
-7. Once the extension is installed, when students create a new evidence, a screenshot of the resource will be automatically captured.
-
-NOTES:
-
-* As of November 2019, the extension has been confirmed to work with Chrome on macOS, Windows 10, and ChromeOS.
-* The screenshot only works when the Resource View is opened.  If you're just viewing the Resource Library list, you can't capture the screen.
-* The app will work without the extension, but students will have to use other tools to capture the screen and manually insert them to evidence.
-
-
-### IV.B. Run as Student
+### IV.A. Run as Student
 
 To bring students into the app:
 1. Start the MEME app.
@@ -161,7 +141,7 @@ NOTES:
 * Sticky note comments are tied to individual students, but any student can edit any comment made by a member of their group.
 
 
-### IV.C. Teachers Viewing and Commenting on Student Work
+### IV.B. Teachers Viewing and Commenting on Student Work
 
 Teachers can log in and view student work much as a student would:
 1. Start the MEME app
@@ -208,8 +188,8 @@ To import a database file:
 
 ### Research Logs
 
-* Researcher logs can be found in `meme.app/Contents/Resources/runtime/logs`.  Look for dated log files like `meme.app/Contents/Resources/runtime/logs/2019-09102019-0910-log-102440.txt`
-* Screenshots can be found in `meme.app/Contents/Resources/runtime/screenshots`.
+* Researcher logs can be found in `data/logs`.  Look for dated log files like `data/logs/2019-09102019-0910-log-102440.txt`
+* Screenshots can be found in `data/logs/screenshots`.
 
 NOTE: Over time research logs and screenshots can grow quite large.  You'll want to keep an eye on disk space, especially if you use the same app over months.
 
@@ -225,12 +205,13 @@ NOTE: Over time research logs and screenshots can grow quite large.  You'll want
 We recommend daily backups.  Better yet, back up after each classroom period.
 
 * The easiest way to backup is to just duplicate the whole MEME app.
-* If you want to save space, you can just grab the database file in `meme.app/Contents/Resources/system/datasets/meme.loki` (assuming you didn't rename the database or are running a different database file).
+
+* If you want to save space, you can just grab the database file in `data/db/meme.loki` (assuming you didn't rename the database or are running a different database file).
 
 *Database Snapshots*
 When the server starts up, MEME will now:
 
-* automatically copy the current LOKI database file (usually `meme.loki` in the classroom) to a backup file using the same date format as the log files. The database file is of the form `YYYY-MMDD-meme-HHMMSS.loki.snapshot` and is in the `runtime` directory.
+* automatically copy the current LOKI database file (usually `meme.loki` in the classroom) to a backup file using the same date format as the log files. The database file is of the form `YYYY-MMDD-meme-HHMMSS.loki.snapshot` and is in the `data/db/backups` directory.
 * log the file name of the database snapshot in the log
 
 The snapshot time corresponds to the snapshot log, e.g. `2020-0209-log-124525.loki.snapshot` = state of db at the *start* of the `2020-0209-log-124525.txt` log.
@@ -242,8 +223,8 @@ The snapshot time corresponds to the snapshot log, e.g. `2020-0209-log-124525.lo
 ## Getting Ready
 
 * Managing Datasets
-  * [Dataset Editing for Curriculum Development](Dataset-Editing-for-Curriculum-Development)
-  * [Dataset Management](Dataset-Management)
+  * [Dataset Editing for Curriculum Development](https://github.com/theRAPTLab/meme/wiki/Dataset-Editing-for-Curriculum-Development)
+  * [Dataset Management](https://github.com/theRAPTLab/meme/wiki/Dataset-Management)
 * Deploying
-  * [Deploy Electron](deploy-electron)
-  * Digital Ocean Deployment [deploying on digital ocean](deploy-do) *(Placeholder only)*
+  * [Deploy Electron](https://github.com/theRAPTLab/meme/wiki/Deploy-Electron)
+  * Digital Ocean Deployment [deploying on digital ocean](https://github.com/theRAPTLab/meme/wiki/Digital-Ocean-Deployment)*(Placeholder only)*

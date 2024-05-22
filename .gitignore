@@ -20,8 +20,16 @@ npm-debug.log
 # Ignore generated files in output folder
 /dist
 /built
-/runtime
-/src/app-web/static/dlc
+
+# Ignore dataset/templates and runtime artifacts
+/resources
+/data
+templates/*
+# .. but include the blank template
+!templates/_blank/
+
+# Ignore configuration
+.env
 
 # Numerous always-ignore extensions
 *~
@@ -55,5 +63,3 @@ Thumbs.db
 
 # Ignore JetBrains' IDEs
 .idea
-data
-src/system/datasets

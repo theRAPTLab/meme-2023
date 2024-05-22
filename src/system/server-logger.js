@@ -13,6 +13,7 @@ const DBG = false;
 /// LOAD LIBRARIES ////////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 const PATH = require('path');
+const OS = require('os');
 const FSE = require('fs-extra');
 const Tracer = require('tracer');
 
@@ -20,13 +21,14 @@ const Tracer = require('tracer');
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 const PROMPTS = require('./util/prompts');
 const DATESTR = require('./util/datestring');
+const PATHS = require('./common-paths').PATHS;
 
 const PR = PROMPTS.Pad('LOGGER');
 
 /// MODULE-WIDE VARS //////////////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-const LOG_DIR = PATH.join(__dirname, '../../runtime/logs');
+const LOG_DIR = PATHS.Log;
 
 const LOG_DELIMITER = '\t';
 const LOG_CONFIG = {

@@ -19,7 +19,7 @@ UTILS.InitialCaps = str => {
 /**
  * Researcher Logs
  *
- * This will write events out to the server runtime logs at '../../runtime/logs';
+ * This will write events out to the server runtime logs at '/data/logs';
  *
  * Calls are documented here: https://docs.google.com/spreadsheets/d/1EjsoXLeaWU-lvtd2addln6gftcqQ4vgzt7Cw9ADl7rw/edit#gid=0
  *

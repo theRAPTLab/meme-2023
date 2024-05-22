@@ -38,8 +38,10 @@ let MEMEXT_INSTALLED = false;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// do session overrides  React does first render in phase after CONFIGURE
 EXEC.Hook(__dirname, 'CONFIGURE', () => {
+  // 2024-0116 Update: MEME screenshot extension is no longer necessary.  #133
   // attempt to connect to extension
-  EXT.ConnectToExtension(SocketUADDR());
+  // EXT.ConnectToExtension(SocketUADDR());
+
   // set SESSION.ReadOnly mode
   if (NetMessage.IsReadOnly()) SESSION.SetDBReadOnly();
   // check for admin override thenreturn

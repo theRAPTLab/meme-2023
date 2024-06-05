@@ -833,7 +833,7 @@ class EvidenceLink extends React.Component {
 
     return (
       <ClickAwayListener onClickAway={this.OnClickAway}>
-        <Collapse in={isExpanded} collapsedHeight="70px">
+        <Collapse in={isExpanded} collapsedSize="70px">
           <Paper
             className={ClassNames(
               classes.evidenceLinkPaper,

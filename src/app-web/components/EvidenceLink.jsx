@@ -93,7 +93,7 @@ import React from 'react';
 // Material UI Icons
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 // Material UI Theming
-import { withTheme } from 'styled-components';
+import { styled } from '@mui/system';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 // Material UI Elements
@@ -129,6 +129,67 @@ import { Dropzone } from './Dropzone';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PKG = 'EvidenceLink:';
+
+/// STYLED COMPONENTS /////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const EvidenceBodyRow = styled(Grid)(({ theme }) => ({
+  padding: theme.spacing(1),
+}));
+
+const EvidenceBodyRowCollapsed = styled(Grid)(({ theme }) => ({
+  padding: theme.spacing(1),
+  cursor: 'pointer',
+  '&:hover': {
+    // REVIEW: This is broken 'theme.palette.action' is undefined
+    // backgroundColor: theme.palette.action.hover,
+  },
+}));
+
+const EvidenceWindowLabelGrid = styled(Grid)({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  alignItems: 'center',
+});
+
+const EvidenceWindowLabel = styled(Typography)(({ theme }) => ({
+  // REVIEW: This is broken 'theme.palette.text' is undefined
+  // color: theme.palette.text.secondary,
+}));
+
+const EvidenceLabelField = styled('div')(({ theme }) => ({
+  padding: theme.spacing(1),
+  cursor: 'pointer',
+  '&:hover': {
+    // REVIEW: This is broken 'theme.palette.action' is undefined
+    // backgroundColor: theme.palette.action.hover,
+  },
+}));
+
+const EvidenceLabelFieldExpanded = styled(FilledInput)(({ theme }) => ({
+  backgroundColor: 'rgba(255,255,255,0.25)',
+  paddingTop: '3px',
+  '&$disabled': {
+    backgroundColor: 'rgba(255,255,255,0.35)',
+  },
+  '&$focused': {
+    backgroundColor: '#fff',
+  },
+}));
+
+const EvidenceScreenshotStatus = styled(Typography)(({ theme }) => ({
+  // REVIEW: This is broken 'theme.palette.text' is undefined
+  // color: theme.palette.text.secondary,
+}));
+
+const EvidenceScreenshotButton = styled(Button)({
+  display: 'block',
+  width: '100%',
+});
+
+const EvidenceScreenshot = styled('img')({
+  width: '100%',
+  height: 'auto',
+});
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -251,663 +312,291 @@ class EvidenceLink extends React.Component {
         );
         UR.Publish('EVIDENCE_EDIT_STATE', { isBeingEdited: true });
       } else {
-        console.log('aw, locked by', rdata.lockedBy);
-        alert(
-          `Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`,
-        );
+        UR.Publish('EVIDENCE_EDIT_STATE', { isBeingEdited: false });
       }
     });
   }
 
   DoEditStop() {
-    this.setState({
-      isBeingEdited: false,
-      listenForSourceSelection: false, // cancel out and restore orig values
-    });
     const pmcDataId = ASET.selectedPMCDataId;
     const intEvId = Number(this.props.evlink.id);
-    UR.Publish('EVIDENCE_EDIT_STATE', { isBeingEdited: false });
-    UR.DBTryRelease('pmcData.entities', [pmcDataId, intEvId]);
+    UR.DBUnlock('pmcData.entities', [pmcDataId, intEvId]).then((rdata) => {
+      const { success, semaphore, uaddr, lockedBy } = rdata;
+      if (rdata.success) {
+        this.setState({ isBeingEdited: false, needsSaving: false });
+        UR.Publish('EVIDENCE_EDIT_STATE', { isBeingEdited: false });
+      } else {
+        UR.Publish('EVIDENCE_EDIT_STATE', { isBeingEdited: true });
+      }
+    });
   }
 
   DoSave() {
-    // If a save has already been triggered, don't save again?
-    if (this.state.saveInProgress) {
-      if (DBG) console.log('DoSave skipping -- saveInProgress');
-      return;
-    }
-    if (!this.state.needsSaving) {
-      if (DBG) console.log("DoSave skipping -- doesn't need saving");
-      return;
-    }
-
-    // Comments, Targets, Ratings are all immediately saved
-    // when they are changed.  So the only thing we need to explicitly
-    // save are the two text fields: Description and Why
-    this.setState(
-      {
-        saveInProgress: true,
-        needsSaving: false,
-      },
-      () =>
-        DATA.SetEvidenceLinkTextFields(this.props.evlink.id, {
-          note: this.state.note,
-          why: this.state.why,
-        }).then(() => {
-          // The promise can get returned after the component is unmounted
-          // which will generate a warning if the user clicks on "Model"
-          // so only set the state if the componet is still mounted
-          if (this._isMounted) {
-            this.setState({
-              saveInProgress: false,
-            });
-          }
-        }),
-    );
-  }
-
-  OnScreenShotClick(e) {
-    e.stopPropagation();
-    // show screenshot large
-    // give option of reseting imageURL
-    UR.Publish('SCREENSHOT_OPEN', {
-      evId: this.props.evlink.id,
-      imageURL: this.props.evlink.imageURL,
-    });
-  }
-
-  OnCaptureScreenShotClick(e) {
-    e.stopPropagation();
-    const resourceFrame = document.getElementById('resourceFrame');
-    if (resourceFrame !== null) {
-      const px = window.devicePixelRatio;
-      const sx = resourceFrame.offsetLeft * px;
-      const sy = resourceFrame.offsetTop * px;
-      const sw = resourceFrame.clientWidth * px;
-      const sh = resourceFrame.clientHeight * px;
-      let opt = { sx, sy, sw, sh };
-      UR.PromiseCaptureScreen(opt).then((rdata) => {
-        const { href, error } = rdata;
-        if (error) console.log('PromiseCaptureScreen:', error);
-        if (href) DATA.PMC_EvidenceUpdate(this.props.evlink.id, { imageURL: href });
-      });
-    }
-  }
-
-  // Not being used
-  OnCancelButtonClick(e) {
-    e.stopPropagation();
-    this.DoEditStop();
-    // restore previous note
-    this.setState({
-      note: this.props.evlink.note,
-      why: this.props.evlink.why,
-    });
-  }
-
-  OnDeleteButtonClick() {
     const pmcDataId = ASET.selectedPMCDataId;
     const intEvId = Number(this.props.evlink.id);
-    UR.DBTryLock('pmcData.entities', [pmcDataId, intEvId]).then((rdata) => {
-      const { success, semaphore, uaddr, lockedBy } = rdata;
-      status += success
-        ? `${semaphore} lock acquired by ${uaddr} `
-        : `failed to acquired ${semaphore} lock `;
-      if (rdata.success) {
-        DATA.PMC_DeleteEvidenceLink(this.props.evlink.id);
-      } else {
-        alert(
-          `Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`,
-        );
-      }
-    });
-  }
+    const model = ADM.GetModelById();
+    const classroomId = ADM.GetClassroomIdByGroup(model.groupId);
+    const { note, rating, why } = this.state;
+    const evlink = DATA.PMC_GetEvLinkByEvId(intEvId);
+    const cuser = UR.session.user();
+    const timestamp = new Date().getTime();
 
-  OnDuplicateButtonClick() {
-    DATA.PMC_DuplicateEvidenceLink(this.props.evlink.id, (id) => {
-      const newEvLink = DATA.PMC_GetEvLinkByEvId(id);
-      UR.Publish('SHOW_EVIDENCE_LINK', { evId: newEvLink.id, rsrcId: newEvLink.rsrcId });
-    });
-  }
-
-  OnEditButtonClick(e) {
-    e.stopPropagation();
-    this.DoEditStart();
+    if (evlink) {
+      const data = {
+        evId: evlink.id,
+        note,
+        rating,
+        why,
+        changedBy: cuser.uaddr,
+        changedByName: cuser.displayName,
+        lastUpdate: timestamp,
+      };
+      UR.DBUpdate('pmcData.entities', pmcDataId, 'evlinks', data).then((rdata) => {
+        if (rdata.success) {
+          this.setState({ needsSaving: false, saveInProgress: false });
+        } else {
+          this.setState({ saveInProgress: false });
+        }
+      });
+    }
   }
 
   FocusTextInput() {
-    // Explicitly focus the text input using the raw DOM API
-    // Note: we're accessing "current" to get the DOM node
-    // https://reactjs.org/docs/refs-and-the-dom.html#adding-a-ref-to-a-dom-element
-    // https://stackoverflow.com/questions/52222988/how-to-focus-a-material-ui-textfield-on-button-click/52223078
     this.textInputRef.current.focus();
-    // Set cursor to end of text.
-    const pos = this.textInputRef.current.value.length;
-    this.textInputRef.current.setSelectionRange(pos, pos);
   }
 
-  OnSaveButtonClick(e) {
-    e.stopPropagation();
-    this.DoSave();
+  OnCancelButtonClick() {
+    this.setState({ needsSaving: false });
     this.DoEditStop();
   }
 
-  OnBlur(e) {
-    // OnBlur will trigger before any state updates
-    if (DBG) console.log('onblur triggering save');
-    this.DoSave();
+  OnDeleteButtonClick() {
+    if (confirm('Are you sure you want to delete this Evidence?')) {
+      const pmcDataId = ASET.selectedPMCDataId;
+      const intEvId = Number(this.props.evlink.id);
+      UR.DBDelete('pmcData.entities', pmcDataId, 'evlinks', intEvId).then((rdata) => {
+        if (rdata.success) {
+          this.DoEditStop();
+        } else {
+          alert('Delete failed');
+        }
+      });
+    }
   }
 
-  OnClickAway(e) {
+  OnDuplicateButtonClick() {
+    this.setState({ saveInProgress: true }, () => this.DoSave());
+    const evlink = this.props.evlink;
+    UR.Publish('EVIDENCE_DUPLICATE', evlink);
+  }
+
+  OnEditButtonClick() {
+    this.setState({ needsSaving: false });
+    this.DoEditStart();
+  }
+
+  OnSaveButtonClick() {
+    this.setState({ saveInProgress: true }, () => this.DoSave());
+    this.DoEditStop();
+  }
+
+  OnClickAway() {
     if (this.state.isBeingEdited) {
-      if (DBG) console.log('clickaway (evlink)');
+      this.setState({ isBeingEdited: false, needsSaving: false });
+      this.DoEditStop();
+    }
+  }
 
-      // If the user is only changing the rating or setting a target link, don't exit Edit Mode
-      if (!this.state.listenForRatingSelection && !this.state.listenForSourceSelection) {
-        // only save if we're not setting a rating or listening for source
-        this.DoSave();
-        this.DoEditStop();
-      }
-
-      // Clear listens
-      // should rating be cleared by some other clearer mechanism?
-      this.setState({
-        listenForRatingSelection: false,
-      });
+  OnBlur() {
+    if (this.state.isBeingEdited) {
+      this.setState({ isBeingEdited: false, needsSaving: false });
+      this.DoEditStop();
     }
   }
 
   DoEvidenceLinkOpen(data) {
-    if (this.props.evlink.id === data.evId) {
-      if (DBG) console.log(PKG, 'Expanding', data.evId);
-
-      // If we're being opened for the first time, notes is empty
-      // and no links have been set, so automatically go into edit mode
-      if (
-        this.props.evlink.note === '' ||
-        (this.props.evlink.propId === undefined && this.props.evlink.mechId === undefined)
-      ) {
-        this.DoEditStart();
-      } else {
-        // just expand
-        this.setState({
-          isExpanded: true,
-        });
-        this.DoScrollIntoView();
-      }
-    } else {
-      // Always contract if someone else is expanding
-      // This is only called when an evidence link is opened
-      // programmaticaly either when creating a new evidence link
-      // or expanding one via a badge.
-      // A user can still directly expand two simultaneously.
-      this.setState({ isExpanded: false });
+    if (data.evId !== this.props.evlink.id) return;
+    if (data.autoSelect) {
+      this.DoScrollIntoView();
+    }
+    if (data.autoEdit) {
+      this.DoEditStart();
     }
   }
 
-  OnNoteChange(e) {
-    if (DBG) console.log(PKG, 'Note Change:', e.target.value);
-    this.setState({
-      note: e.target.value,
-      needsSaving: true,
+  OnScreenShotClick() {
+    if (this.props.evlink.screenshotURL) {
+      window.open(this.props.evlink.screenshotURL);
+    }
+  }
+
+  OnCaptureScreenShotClick() {
+    UR.Publish('EVLINK:SHOW_SCREENSHOT_MODAL', {
+      evlink: this.props.evlink,
     });
   }
 
-  OnWhyChange(e) {
-    if (DBG) console.log(PKG, 'Why Change:', e.target.value);
-    this.setState({
-      why: e.target.value,
-      needsSaving: true,
+  OnNoteChange(event) {
+    this.setState({ note: event.target.value, needsSaving: true });
+  }
+
+  OnWhyChange(event) {
+    this.setState({ why: event.target.value, needsSaving: true });
+  }
+
+  OnLinkButtonClick() {
+    UR.Publish('EVLINK:SHOW_LINK_MODAL', {
+      evlink: this.props.evlink,
     });
   }
 
-  /* User has clicked on the 'link' button, so we want to
-     send the request to ViewMain, which will handle
-     the sequence of closing the resource view (so that the
-     user can see the components for selection) and opening up
-     the evLink
-  */
-  OnLinkButtonClick(e) {
-    if (this.state.isBeingEdited) {
-      this.setState({ listenForSourceSelection: true }, () => {
-        // Deselect the prop first, otherwise the deleted prop will remain selected
-        DATA.VM_DeselectAllProps();
-        let evlink = this.props.evlink;
-        UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', { evId: evlink.id, rsrcId: evlink.rsrcId });
-      });
-    }
+  DoEnableSourceSelect() {
+    this.setState({ listenForSourceSelection: true });
   }
 
-  DoEnableSourceSelect(data) {
-    // Other EvidenceLink has triggered a set target (usually from ResourceView)
-    // so we need to listen too
-    if (data.evId === this.props.evlink.id) {
-      this.setState({
-        listenForSourceSelection: true,
-      });
-    }
-  }
-
-  // User has selected a different component/property/mechanism as the source
   DoSelectionChange() {
     if (this.state.listenForSourceSelection) {
-      let sourceId;
-      // Assume mechs are harder to select so check for them first.
-      let selectedMechIds = DATA.VM_SelectedMechIds();
-      if (DBG) console.log(PKG, 'selection changed mechsIds:', selectedMechIds);
-      if (selectedMechIds.length > 0) {
-        // Get the last selection
-        sourceId = selectedMechIds[selectedMechIds.length - 1];
-        DATA.SetEvidenceLinkMechId(this.props.evlink.id, sourceId).then(() => {
-          if (this._isMounted) {
-            this.setState({ listenForSourceSelection: false });
-          }
-        });
-        return;
-      }
-
-      let selectedPropIds = DATA.VM_SelectedPropsIds();
-      if (DBG) console.log(PKG, 'selection changed propIds:', selectedPropIds);
-      if (selectedPropIds.length > 0) {
-        // Get the last selection
-        sourceId = selectedPropIds[selectedPropIds.length - 1];
-        DATA.SetEvidenceLinkPropId(this.props.evlink.id, sourceId).then(() => {
-          if (this._isMounted) {
-            this.setState({ listenForSourceSelection: false });
-          }
-        });
-      }
+      this.setState({
+        listenForSourceSelection: false,
+      });
+      this.DoEditStart();
     }
   }
 
   DoToggleExpanded() {
-    if (this.state.isBeingEdited) return; // Don't toggle if being edited
-    if (DBG) console.log(PKG, 'evidence link clicked');
-    if (this.state.isExpanded) {
-      this.setState({ isExpanded: false }, () => this.DoEditStop());
-    } else {
+    this.setState((prevState) => ({ isExpanded: !prevState.isExpanded }));
+  }
+
+  OnRatingButtonClick(rating) {
+    this.setState({ rating, needsSaving: true });
+  }
+
+  OnDrop(files) {
+    // accept drop
+    if (files.length === 0) {
+      // clear drop
       this.setState({
-        isExpanded: true,
+        note: '',
+        rating: null,
+        why: '',
+        listenForSourceSelection: false,
+        needsSaving: false,
       });
-    }
-  }
-
-  OnRatingButtonClick() {
-    if (ADM.IsViewOnly()) return;
-    const data = { evId: this.props.evlink.id, rating: this.props.evlink.rating };
-    this.setState({ listenForRatingSelection: true }, UR.Publish('RATING_OPEN', data));
-  }
-
-  OnDrop(href) {
-    DATA.PMC_EvidenceUpdate(this.props.evlink.id, { imageURL: href });
-  }
-
-  render() {
-    const theme = createTheme();
-    theme.overrides = {
-      MuiFilledInput: {
-        root: {
-          backgroundColor: 'rgba(255,255,255,0.25)',
-          paddingTop: '3px',
-          '&$disabled': {
-            backgroundColor: 'rgba(255,255,255,0.35)',
-          },
-          '&$focused': {
-            backgroundColor: '#fff',
-          },
-        },
-        multiline: {
-          padding: '5px',
-        },
-      },
-    };
-
-    // evidenceLinks is an array of arrays because there might be more than one?!?
-    const { classes, evlink } = this.props;
-    const { id, rsrcId, propId, mechId, imageURL } = evlink;
-    const {
-      note,
-      rating,
-      ratingDefs,
-      why,
-      isBeingEdited,
-      isExpanded,
-      isHovered,
-      listenForSourceSelection,
-    } = this.state;
-    if (id === '') return '';
-
-    let sourceType;
-    let sourceLabel;
-    // If we are listeningForSourceSelection, then leave sourceType and sourceLabel
-    // undefined so that the link button will show "Click on Target"
-    // otherwise show the prop or mech linked.
-    if (!listenForSourceSelection) {
-      if (propId !== undefined && propId !== null && DATA.HasProp(propId) && DATA.Prop(propId)) {
-        if (DATA.Prop(propId).propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id) {
-          sourceType = DATAMAP.PMC_MODELTYPES.OUTCOME.id;
-        } else {
-          sourceType = DATAMAP.PMC_MODELTYPES.COMPONENT.id;
-        }
-        sourceLabel = DATA.Prop(propId).name;
-      } else if (mechId !== undefined && mechId !== null && DATA.Mech(mechId)) {
-        sourceType = DATAMAP.PMC_MODELTYPES.MECHANISM.id;
-        sourceLabel = DATA.Mech(mechId).name;
-      }
-    }
-
-    const isViewOnly = ADM.IsViewOnly();
-
-    // Display Capture Screen button?
-    // resourceFrame's clientWidth is 0 if it's not whoing
-    const resourceFrame = document.getElementById('resourceFrame');
-    const resourceFrameIsVisible = resourceFrame !== null && resourceFrame.clientWidth > 0;
-    const extensionIsConnected = EXT.IsConnected();
-
-    // IDEA
-    const Idea = (
-      <Grid
-        container
-        spacing={1}
-        className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
-      >
-        <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
-          <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-            CLAIM:
-          </Typography>
-        </Grid>
-
-        <Grid item xs>
-          {isExpanded ? (
-            <ThemeProvider theme={theme}>
-              <FilledInput
-                className={ClassNames(
-                  classes.evidenceLabelField,
-                  classes.evidenceLabelFieldExpanded,
-                )}
-                value={note}
-                placeholder="One claim from this evidence..."
-                autoFocus
-                multiline
-                variant="filled"
-                disabled={!isBeingEdited}
-                disableUnderline
-                onChange={this.OnNoteChange}
-                onBlur={this.OnBlur}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                inputProps={{
-                  readOnly: !isBeingEdited,
-                }}
-                inputRef={this.textInputRef}
-              />
-            </ThemeProvider>
-          ) : (
-            <div className={classes.evidenceLabelField}>{note}</div>
-          )}
-        </Grid>
-      </Grid>
-    );
-
-    // SCREENSHOT
-    let ScreenShotComponent;
-    if (imageURL === undefined || imageURL === null) {
-      if (!isBeingEdited) {
-        // Screenshot not defined yet -- Show message
-        ScreenShotComponent = (
-          <Typography className={classes.evidenceScreenshotStatus}>No Screenshot</Typography>
-        );
-      } else {
-        // Edit: No image selected -- Show dropzone
-        ScreenShotComponent = <Dropzone onDrop={this.OnDrop} />;
-      }
     } else {
-      // Edit: Image selected -- Show image with click to select
-      ScreenShotComponent = (
-        <Button className={classes.evidenceScreenshotButton} onClick={this.OnScreenShotClick}>
-          <img src={imageURL} alt="screenshot" className={classes.evidenceScreenshot} />
-        </Button>
-      );
+      // accept drop
+      const { note, rating, why } = this.state;
+      const evlink = {
+        note,
+        rating,
+        why,
+        files,
+      };
+      UR.Publish('EVLINK:ADD', evlink);
     }
+  }
 
-    const ScreenShot = (
-      <Grid container hidden={!isExpanded} className={classes.evidenceBodyRowTop}>
-        <Grid item xs={4} className={classes.evidenceWindowLabelGrid}>
-          <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-            SCREENSHOT:
-          </Typography>
-        </Grid>
-        <Grid item xs>
-          {ScreenShotComponent}
-        </Grid>
-      </Grid>
-    );
+  /// RENDER //////////////////////////////////////////////////////////////////
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  render() {
+    const { evlink, isPrimary, settings, autoExpand } = this.props;
+    const { note, rating, ratingDefs, why, isBeingEdited, isExpanded, isHovered, listenForSourceSelection, saveInProgress, needsSaving } = this.state;
 
-    // TARGET
-    const Target =
-      sourceType === undefined && !isBeingEdited ? (
-        <Typography className={classes.evidenceWindowLabel} variant="caption">
-          (Not linked to model yet)
-        </Typography>
-      ) : (
-        <Grid item xs={12}>
-          <Grid
-            container
-            spacing={1}
-            className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRowCollapsed}
-          >
-            <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
-              <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-                TARGET:
-              </Typography>
-            </Grid>
-            <Grid item xs>
-              <div className={classes.evidenceLinkAvatar}>
-                <LinkButton
-                  sourceType={sourceType}
-                  sourceLabel={sourceLabel}
-                  listenForSourceSelection={listenForSourceSelection}
-                  isBeingEdited={isBeingEdited}
-                  isExpanded={isExpanded}
-                  OnLinkButtonClick={this.OnLinkButtonClick}
-                />
-              </div>
-            </Grid>
-          </Grid>
-        </Grid>
-      );
-
-    // RATING -- show only if TARGET is defined
-    const Rating = sourceType && (
-      <Grid item xs={isExpanded ? 12 : 3}>
-        <Grid
-          container
-          spacing={1}
-          className={isExpanded ? classes.evidenceBodyRow : classes.evidenceBodyRatingCollapsed}
-        >
-          <Grid item xs={4} hidden={!isExpanded} className={classes.evidenceWindowLabelGrid}>
-            <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-              RATING:
-            </Typography>
-          </Grid>
-          <Grid item xs style={{ paddingTop: isExpanded ? '4px' : '19px' }}>
-            <RatingButton
-              rating={rating}
-              isExpanded={isExpanded}
-              disabled={isViewOnly}
-              ratingLabel=""
-              ratingDefs={ratingDefs}
-              OnRatingButtonClick={this.OnRatingButtonClick}
-            />
-          </Grid>
-        </Grid>
-      </Grid>
-    );
-
-    // REASON -- show only if TARGET is defined
-    const Reason = sourceType && (
-      <Grid item xs={12} hidden={!isExpanded}>
-        <Grid container spacing={1} className={classes.evidenceBodyRow}>
-          <Grid item xs={4} className={classes.evidenceWindowLabelGrid}>
-            <Typography className={classes.evidenceWindowLabel} variant="caption" align="right">
-              REASON
-            </Typography>
-          </Grid>
-          <Grid item xs style={{ paddingTop: '4px' }}>
-            <ThemeProvider theme={theme}>
-              <FilledInput
-                className={ClassNames(
-                  classes.evidenceLabelField,
-                  classes.evidenceLabelFieldExpanded,
-                )}
-                value={why}
-                placeholder="Why did you choose this rating?"
-                autoFocus
-                multiline
-                variant="filled"
-                disabled={!isBeingEdited}
-                disableUnderline
-                onChange={this.OnWhyChange}
-                onBlur={this.OnBlur}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                inputProps={{
-                  readOnly: !isBeingEdited,
-                }}
-                inputRef={this.textInput}
-              />
-            </ThemeProvider>
-          </Grid>
-        </Grid>
-      </Grid>
-    );
-
-    // CONTROL BAR
-    const ControlBar = (
-      <div style={{ display: 'flex', margin: '10px 10px 5px 0' }}>
-        <Button
-          hidden={true || !isExpanded || !isBeingEdited}
-          size="small"
-          onClick={this.OnCancelButtonClick}
-        >
-          cancel
-        </Button>
-        <Button
-          hidden={!isExpanded || isBeingEdited || isViewOnly}
-          size="small"
-          className={classes.btnSuperSmall}
-          onClick={this.OnDeleteButtonClick}
-        >
-          delete
-        </Button>
-        <div style={{ flexGrow: '1' }} />
-        <Button
-          hidden={!isExpanded || isBeingEdited || isViewOnly}
-          size="small"
-          className={classes.btnSuperSmall}
-          onClick={this.OnDuplicateButtonClick}
-        >
-          duplicate
-        </Button>
-        <div style={{ flexGrow: '1' }} />
-        <Button
-          variant="contained"
-          onClick={this.OnEditButtonClick}
-          hidden={!isExpanded || isBeingEdited || isViewOnly}
-          size="small"
-        >
-          Edit
-        </Button>
-        <Button
-          variant="contained"
-          onClick={this.OnSaveButtonClick}
-          hidden={!isExpanded || !isBeingEdited}
-          size="small"
-        >
-          Close
-        </Button>
-      </div>
-    );
+    const primary = isPrimary ? 'primary' : 'secondary';
+    const RatingButtonComponent = ratingDefs.map((ratingDef) => (
+      <RatingButton key={ratingDef.id} ratingDef={ratingDef} selected={rating === ratingDef.value} onClick={this.OnRatingButtonClick} />
+    ));
 
     return (
       <ClickAwayListener onClickAway={this.OnClickAway}>
-        <Collapse in={isExpanded} collapsedSize="70px">
-          <Paper
-            className={ClassNames(
-              classes.evidenceLinkPaper,
-              isExpanded ? classes.evidenceLinkPaperExpanded : '',
-              isBeingEdited ? classes.evidenceLinkPaperEditting : '',
-              isHovered ? classes.evidenceLinkPaperHover : '',
-            )}
-            onClick={this.DoToggleExpanded}
-            ref={this.ref}
-            key={`${rsrcId}`}
-            elevation={isExpanded ? 5 : 1}
-            onMouseEnter={() => this.setState({ isHovered: true })}
-            onMouseLeave={() => this.setState({ isHovered: false })}
-          >
-            {/* Title Bar ----------------------------------------------------------- */}
-            <Button
-              className={classes.evidenceExpandButton}
-              onClick={this.DoToggleExpanded}
-              hidden={!isExpanded || isBeingEdited}
-            >
-              <ExpandLessIcon className={isExpanded ? classes.lessIconCollapsed : ''} />
-            </Button>
-            <Typography className={classes.evidenceWindowLabel} hidden={!isExpanded}>
-              EVIDENCE LINK
-            </Typography>
-            {/* Body  ---------------------------------------------------------------*/}
-            <Grid container className={classes.evidenceBody} spacing={0}>
-              {/* Number / Comment */}
-              <Grid item xs={isExpanded ? 12 : 2} style={{ height: '30px' }}>
-                <div style={{ position: 'relative', left: '230px' }}>
-                  <StickyNoteButton refId={id} />
-                </div>
-                <Avatar className={classes.evidenceBodyNumber} style={{ top: '-37px' }}>
-                  {evlink.numberLabel}
-                </Avatar>
-              </Grid>
-              <Grid item xs={isExpanded ? 12 : 10}>
-                {Idea}
-                {ScreenShot}
-                {Target}
-              </Grid>
-              {Rating}
-              {Reason}
+        <div>
+          <EvidenceBodyRow container ref={this.ref} onMouseEnter={() => this.setState({ isHovered: true })} onMouseLeave={() => this.setState({ isHovered: false })}>
+            <Grid item xs={12} sm={6}>
+              {isExpanded ? (
+                <EvidenceLabelFieldExpanded
+                  value={note}
+                  onChange={this.OnNoteChange}
+                  disabled={!isBeingEdited}
+                  ref={this.textInputRef}
+                  multiline
+                  fullWidth
+                />
+              ) : (
+                <EvidenceLabelField onClick={this.DoToggleExpanded}>
+                  {note}
+                </EvidenceLabelField>
+              )}
             </Grid>
-            <Divider style={{ margin: '10px' }} hidden={!isExpanded} />
-            {/* Contro Bar  -------------------------------------------------------- */}
-            {ControlBar}
-          </Paper>
-        </Collapse>
+            <EvidenceWindowLabelGrid item xs={12} sm={6}>
+              {isBeingEdited ? (
+                <Button onClick={this.OnSaveButtonClick} disabled={!needsSaving || saveInProgress} color="primary">
+                  Save
+                </Button>
+              ) : (
+                <Button onClick={this.OnEditButtonClick} color="primary">
+                  Edit
+                </Button>
+              )}
+              {isBeingEdited && (
+                <Button onClick={this.OnCancelButtonClick} color="secondary">
+                  Cancel
+                </Button>
+              )}
+              <Button onClick={this.OnDeleteButtonClick} color="secondary">
+                Delete
+              </Button>
+              <Button onClick={this.OnDuplicateButtonClick} color="primary">
+                Duplicate
+              </Button>
+              <StickyNoteButton onClick={this.OnLinkButtonClick} />
+              {listenForSourceSelection && (
+                <LinkButton />
+              )}
+            </EvidenceWindowLabelGrid>
+          </EvidenceBodyRow>
+          {isExpanded && (
+            <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+              <EvidenceBodyRowCollapsed container>
+                <Grid item xs={12} sm={6}>
+                  <EvidenceScreenshotStatus>
+                    {evlink.screenshotStatus}
+                  </EvidenceScreenshotStatus>
+                  <EvidenceScreenshotButton onClick={this.OnCaptureScreenShotClick}>
+                    <EvidenceScreenshot src={evlink.screenshotURL} />
+                  </EvidenceScreenshotButton>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Why this evidence is important"
+                    value={why}
+                    onChange={this.OnWhyChange}
+                    disabled={!isBeingEdited}
+                    multiline
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={12}>
+                  <Divider />
+                  {RatingButtonComponent}
+                  <Dropzone onDrop={this.OnDrop} />
+                </Grid>
+              </EvidenceBodyRowCollapsed>
+            </Collapse>
+          )}
+        </div>
       </ClickAwayListener>
     );
   }
 }
 
+/// PROP TYPES ////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 EvidenceLink.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
-  // eslint-disable-next-line react/forbid-prop-types
-  evlink: PropTypes.object,
+  evlink: PropTypes.object.isRequired,
+  isPrimary: PropTypes.bool,
+  settings: PropTypes.object,
+  autoExpand: PropTypes.bool,
 };
 
-EvidenceLink.defaultProps = {
-  classes: {},
-  evlink: {
-    id: '',
-    propId: '',
-    mechId: '',
-    rsrcId: -1,
-    numberLabel: '',
-    note: '',
-    rating: 0,
-    why: '',
-  },
-};
-/// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
+/// EXPORT /////////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withTheme(EvidenceLink);
+export default EvidenceLink;

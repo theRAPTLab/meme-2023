@@ -221,6 +221,4 @@ function GetTemplateValues(req) {
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Start();
-
 module.exports = { Start, CloseAppServer, OpenAppServer };

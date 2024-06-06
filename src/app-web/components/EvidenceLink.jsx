@@ -94,7 +94,7 @@ import React from 'react';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 // Material UI Theming
 import { withTheme } from 'styled-components';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 
 // Material UI Elements
 import Avatar from '@mui/material/Avatar';
@@ -619,30 +619,32 @@ class EvidenceLink extends React.Component {
 
         <Grid item xs>
           {isExpanded ? (
-            <ThemeProvider theme={theme}>
-              <FilledInput
-                className={ClassNames(
-                  classes.evidenceLabelField,
-                  classes.evidenceLabelFieldExpanded,
-                )}
-                value={note}
-                placeholder="One claim from this evidence..."
-                autoFocus
-                multiline
-                variant="filled"
-                disabled={!isBeingEdited}
-                disableUnderline
-                onChange={this.OnNoteChange}
-                onBlur={this.OnBlur}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                inputProps={{
-                  readOnly: !isBeingEdited,
-                }}
-                inputRef={this.textInputRef}
-              />
-            </ThemeProvider>
+            <StyledEngineProvider injectFirst>
+              <ThemeProvider theme={theme}>
+                <FilledInput
+                  className={ClassNames(
+                    classes.evidenceLabelField,
+                    classes.evidenceLabelFieldExpanded,
+                  )}
+                  value={note}
+                  placeholder="One claim from this evidence..."
+                  autoFocus
+                  multiline
+                  variant="filled"
+                  disabled={!isBeingEdited}
+                  disableUnderline
+                  onChange={this.OnNoteChange}
+                  onBlur={this.OnBlur}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  inputProps={{
+                    readOnly: !isBeingEdited,
+                  }}
+                  inputRef={this.textInputRef}
+                />
+              </ThemeProvider>
+            </StyledEngineProvider>
           ) : (
             <div className={classes.evidenceLabelField}>{note}</div>
           )}
@@ -755,30 +757,32 @@ class EvidenceLink extends React.Component {
             </Typography>
           </Grid>
           <Grid item xs style={{ paddingTop: '4px' }}>
-            <ThemeProvider theme={theme}>
-              <FilledInput
-                className={ClassNames(
-                  classes.evidenceLabelField,
-                  classes.evidenceLabelFieldExpanded,
-                )}
-                value={why}
-                placeholder="Why did you choose this rating?"
-                autoFocus
-                multiline
-                variant="filled"
-                disabled={!isBeingEdited}
-                disableUnderline
-                onChange={this.OnWhyChange}
-                onBlur={this.OnBlur}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                inputProps={{
-                  readOnly: !isBeingEdited,
-                }}
-                inputRef={this.textInput}
-              />
-            </ThemeProvider>
+            <StyledEngineProvider injectFirst>
+              <ThemeProvider theme={theme}>
+                <FilledInput
+                  className={ClassNames(
+                    classes.evidenceLabelField,
+                    classes.evidenceLabelFieldExpanded,
+                  )}
+                  value={why}
+                  placeholder="Why did you choose this rating?"
+                  autoFocus
+                  multiline
+                  variant="filled"
+                  disabled={!isBeingEdited}
+                  disableUnderline
+                  onChange={this.OnWhyChange}
+                  onBlur={this.OnBlur}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  inputProps={{
+                    readOnly: !isBeingEdited,
+                  }}
+                  inputRef={this.textInput}
+                />
+              </ThemeProvider>
+            </StyledEngineProvider>
           </Grid>
         </Grid>
       </Grid>
@@ -833,7 +837,7 @@ class EvidenceLink extends React.Component {
 
     return (
       <ClickAwayListener onClickAway={this.OnClickAway}>
-        <Collapse in={isExpanded} collapsedHeight="70px">
+        <Collapse in={isExpanded} collapsedSize="70px">
           <Paper
             className={ClassNames(
               classes.evidenceLinkPaper,

@@ -24,7 +24,7 @@ import EXEC from '../../system/ur-exec';
 import { cssreset, cssur, cssuri } from '../modules/console-styles';
 
 import MEMEStyles from "../components/MEMEStyles";
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider, StyledEngineProvider } from 'styled-components';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -102,9 +102,11 @@ function m_PromiseRenderApp() {
         }}
       >
         <HashRouter hashType="slash">
-          <ThemeProvider theme={MEMEStyles({})}>
-            <SystemShell />
-          </ThemeProvider>
+          <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={MEMEStyles({})}>
+              <SystemShell />
+            </ThemeProvider>
+          </StyledEngineProvider>
         </HashRouter>
       </div>
     );

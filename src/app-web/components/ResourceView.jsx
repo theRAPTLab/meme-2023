@@ -16,17 +16,14 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
-import Modal from '@mui/material/Modal';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import { styled } from '@mui/material/styles';
 
-// Material UI Theming
-import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/data';
 import ADM from '../modules/data';
@@ -58,9 +55,59 @@ const RESOURCE_TYPES = {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PKG = 'ResourceView:';
+const ResourceViewPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+}));
+
+const ResourceViewTitle = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  marginBottom: theme.spacing(2),
+}));
+
+const ResourceViewWindowLabel = styled('div')(({ theme }) => ({
+  fontWeight: 'bold',
+  marginRight: theme.spacing(2),
+}));
+
+const ResourceViewAvatar = styled(Avatar)(({ theme }) => ({
+  marginRight: theme.spacing(2),
+}));
+
+const ResourceViewCard = styled(Card)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+}));
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const ResourceViewCardContent = styled(CardContent)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+}));
+
+const ResourceViewLinksBadge = styled(Chip)(({ theme }) => ({
+  marginLeft: theme.spacing(1),
+}));
+
+const EvidenceCloseBtn = styled(Button)(({ theme }) => ({
+  marginLeft: theme.spacing(2),
+}));
+
+const ResourceViewSidebar = styled('div')(({ theme }) => ({
+  marginLeft: theme.spacing(2),
+  display: 'flex',
+  flexDirection: 'column',
+}));
+
+const ResourceViewSidebarEvidenceList = styled('div')(({ theme }) => ({
+  flexGrow: 1,
+  overflowY: 'auto',
+  marginTop: theme.spacing(2),
+}));
+
+const ResourceViewCreateButton = styled(Button)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+}));
 
 class ResourceView extends React.Component {
   constructor(props) {
@@ -214,27 +261,25 @@ class ResourceView extends React.Component {
 
   render() {
     const { isOpen, resource, note, noteIsDisabled } = this.state;
-    const { theme: classes } = this.props;
 
     // don't render if resource hasn't been defined yet
     if (resource === undefined || resource.id === undefined) return '';
     const links = resource.links || 0;
 
     return (
-      <Paper className={classes.resourceViewPaper} hidden={!isOpen}>
-        <div className={classes.resourceViewTitle}>
-          <div className={classes.resourceViewWindowLabel}>RESOURCE VIEW</div>
-          <Avatar className={classes.resourceViewAvatar}>{resource.referenceLabel}</Avatar>
-          &nbsp;
+      <ResourceViewPaper hidden={!isOpen}>
+        <ResourceViewTitle>
+          <ResourceViewWindowLabel>RESOURCE VIEW</ResourceViewWindowLabel>
+          <ResourceViewAvatar>{resource.referenceLabel}</ResourceViewAvatar>
           <div style={{ flexGrow: 1 }}>{resource.label}</div>
-          <Card className={classes.resourceViewCard}>
-            <CardContent className={classes.resourceViewCardContent}>
+          <ResourceViewCard>
+            <ResourceViewCardContent>
               <Typography variant="overline">Notes:&nbsp;</Typography>
               <Typography variant="body2">{resource.notes}</Typography>
-            </CardContent>
-          </Card>
-          <Card className={classes.resourceViewCard}>
-            <CardContent className={classes.resourceViewCardContent}>
+            </ResourceViewCardContent>
+          </ResourceViewCard>
+          <ResourceViewCard>
+            <ResourceViewCardContent>
               <Typography variant="overline">Type:&nbsp;</Typography>
               <Typography variant="body2">
                 {resource.type}{' '}
@@ -242,18 +287,18 @@ class ResourceView extends React.Component {
                   ? RESOURCE_TYPES[resource.type]
                   : RESOURCE_TYPES.other}
               </Typography>
-            </CardContent>
-          </Card>
-          <Card className={classes.resourceViewCard}>
-            <CardContent className={classes.resourceViewCardContent}>
+            </ResourceViewCardContent>
+          </ResourceViewCard>
+          <ResourceViewCard>
+            <ResourceViewCardContent>
               <Typography variant="overline">Links:&nbsp;</Typography>
-              <Chip className={classes.resourceViewLinksBadge} label={links} color="primary" />
-            </CardContent>
-          </Card>
-          <Button className={classes.evidenceCloseBtn} onClick={this.OnClose} color="primary">
+              <ResourceViewLinksBadge label={links} color="primary" />
+            </ResourceViewCardContent>
+          </ResourceViewCard>
+          <EvidenceCloseBtn onClick={this.OnClose} color="primary">
             Close
-          </Button>
-        </div>
+          </EvidenceCloseBtn>
+        </ResourceViewTitle>
         <div style={{ display: 'flex', height: 'inherit' }}>
           <iframe
             id="resourceFrame"
@@ -265,7 +310,7 @@ class ResourceView extends React.Component {
             style={{ height: '90%', flexGrow: '1' }}
             title="resource"
           />
-          <div className={classes.resourceViewSidebar}>
+          <ResourceViewSidebar>
             {/* Hide Note Field per #141
             <TextField
               id="informationNote"
@@ -273,7 +318,6 @@ class ResourceView extends React.Component {
               placeholder="We noticed..."
               multiline
               rows="10"
-              className={classes.resourceViewNote}
               margin="normal"
               variant="outlined"
               value={note}
@@ -282,21 +326,20 @@ class ResourceView extends React.Component {
               onBlur={this.OnNoteSave}
             /> */}
             <Typography variant="caption">OUR EVIDENCE LINKS</Typography>
-            <div className={classes.resourceViewSidebarEvidenceList}>
+            <ResourceViewSidebarEvidenceList>
               <EvidenceList rsrcId={resource.id} />
-            </div>
-            <Button
-              className={classes.resourceViewCreatebutton}
+            </ResourceViewSidebarEvidenceList>
+            <ResourceViewCreateButton
               variant="contained"
               onClick={() => this.OnCreateEvidence(resource.id)}
               color="primary"
               hidden={ADM.IsViewOnly()}
             >
               {DEFAULTS.TEXT.ADD_EVIDENCE}
-            </Button>
-          </div>
+            </ResourceViewCreateButton>
+          </ResourceViewSidebar>
         </div>
-      </Paper>
+      </ResourceViewPaper>
     );
   }
 }
@@ -312,4 +355,4 @@ ResourceView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withTheme(ResourceView);
+export default ResourceView;

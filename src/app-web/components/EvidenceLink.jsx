@@ -95,6 +95,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 // Material UI Theming
 import { withTheme } from 'styled-components';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { filledInputClasses } from '@mui/material/FilledInput';
 
 // Material UI Elements
 import Avatar from '@mui/material/Avatar';
@@ -543,24 +544,27 @@ class EvidenceLink extends React.Component {
   }
 
   render() {
-    const theme = createTheme();
-    theme.overrides = {
-      MuiFilledInput: {
-        root: {
-          backgroundColor: 'rgba(255,255,255,0.25)',
-          paddingTop: '3px',
-          '&.Mui-disabled': {
-            backgroundColor: 'rgba(255,255,255,0.35)',
+    const theme = createTheme({
+      components: {
+        MuiFilledInput: {
+          styleOverrides: {
+            root: {
+              backgroundColor: 'rgba(255,255,255,0.25)',
+              paddingTop: '3px',
+              [`&.${filledInputClasses.disabled}`]: {
+                backgroundColor: 'rgba(255,255,255,0.35)',
+              },
+              [`&.${filledInputClasses.focused}`]: {
+                backgroundColor: '#fff',
+              },
+            },
+            multiline: {
+              padding: '5px',
+            },
           },
-          '&.Mui-focused': {
-            backgroundColor: '#fff',
-          },
-        },
-        multiline: {
-          padding: '5px',
         },
       },
-    };
+    });
 
     // evidenceLinks is an array of arrays because there might be more than one?!?
     const { classes, evlink } = this.props;

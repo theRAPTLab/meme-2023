@@ -73,7 +73,7 @@ const LButton = styled(Button)((theme) => ({
   root: {
     padding: '2px 7px',
     lineHeight: '1.2em',
-    '&$disabled': {
+    '&.Mui-disabled': {
       color: 'rgba(0,0,0,0.3)',
     },
   },

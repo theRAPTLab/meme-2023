@@ -59,7 +59,7 @@ import SaveIcon from '@mui/icons-material/Save';
 
 // Material UI Theming
 import { withTheme } from 'styled-components';
-import { createTheme, ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -69,7 +69,7 @@ import ADM from '../modules/data';
 import PMC from '../modules/pmc-data';
 import ASET from '../modules/adm-settings';
 // import MDReactComponent from 'markdown-react-js';
-import MDReactComponent from 'react-markdown'
+import MDReactComponent from 'react-markdown';
 import EvidenceNotes from './EvidenceNotes';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -389,26 +389,26 @@ class StickyNote extends React.Component {
                   </MDReactComponent>
                 </div>
               </div>
-              <StyledEngineProvider injectFirst>
-                <ThemeProvider theme={theme}>
-                  <Input
-                    className={classes.stickynoteCardInput}
-                    value={comment.text}
-                    placeholder={comment.placeholder}
-                    onChange={(e) => this.OnCommentTextChange(e.target.value)}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    variant="filled"
-                    rowsMax="4"
-                    multiline
-                    disableUnderline
-                    inputProps={{
-                      readOnly: !(allowedToEdit && isBeingEdited) || selectedCriteria === undefined,
-                      disabled: !(allowedToEdit && isBeingEdited) || selectedCriteria === undefined,
-                    }}
-                    inputRef={this.textInput}
-                  />
-                </ThemeProvider>
-              </StyledEngineProvider>
+
+              <ThemeProvider theme={theme}>
+                <Input
+                  className={classes.stickynoteCardInput}
+                  value={comment.text}
+                  placeholder={comment.placeholder}
+                  onChange={(e) => this.OnCommentTextChange(e.target.value)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  variant="filled"
+                  rowsMax="4"
+                  multiline
+                  disableUnderline
+                  inputProps={{
+                    readOnly: !(allowedToEdit && isBeingEdited) || selectedCriteria === undefined,
+                    disabled: !(allowedToEdit && isBeingEdited) || selectedCriteria === undefined,
+                  }}
+                  inputRef={this.textInput}
+                />
+              </ThemeProvider>
+
               <div className={classes.stickynoteCardLabel}>
                 <EvidenceNotes comment={comment} isBeingEdited={isBeingEdited} />
               </div>

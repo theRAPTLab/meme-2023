@@ -94,7 +94,7 @@ import React from 'react';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 // Material UI Theming
 import { withTheme } from 'styled-components';
-import { createTheme, ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 // Material UI Elements
 import Avatar from '@mui/material/Avatar';
@@ -619,32 +619,30 @@ class EvidenceLink extends React.Component {
 
         <Grid item xs>
           {isExpanded ? (
-            <StyledEngineProvider injectFirst>
-              <ThemeProvider theme={theme}>
-                <FilledInput
-                  className={ClassNames(
-                    classes.evidenceLabelField,
-                    classes.evidenceLabelFieldExpanded,
-                  )}
-                  value={note}
-                  placeholder="One claim from this evidence..."
-                  autoFocus
-                  multiline
-                  variant="filled"
-                  disabled={!isBeingEdited}
-                  disableUnderline
-                  onChange={this.OnNoteChange}
-                  onBlur={this.OnBlur}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  inputProps={{
-                    readOnly: !isBeingEdited,
-                  }}
-                  inputRef={this.textInputRef}
-                />
-              </ThemeProvider>
-            </StyledEngineProvider>
+            <ThemeProvider theme={theme}>
+              <FilledInput
+                className={ClassNames(
+                  classes.evidenceLabelField,
+                  classes.evidenceLabelFieldExpanded,
+                )}
+                value={note}
+                placeholder="One claim from this evidence..."
+                autoFocus
+                multiline
+                variant="filled"
+                disabled={!isBeingEdited}
+                disableUnderline
+                onChange={this.OnNoteChange}
+                onBlur={this.OnBlur}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                inputProps={{
+                  readOnly: !isBeingEdited,
+                }}
+                inputRef={this.textInputRef}
+              />
+            </ThemeProvider>
           ) : (
             <div className={classes.evidenceLabelField}>{note}</div>
           )}

@@ -23,8 +23,8 @@ import UR from '../../system/ursys';
 import EXEC from '../../system/ur-exec';
 import { cssreset, cssur, cssuri } from '../modules/console-styles';
 
-import MEMEStyles from "../components/MEMEStyles";
-import { ThemeProvider, StyledEngineProvider } from 'styled-components';
+import MEMEStyles from '../components/MEMEStyles';
+import { ThemeProvider } from 'styled-components';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -48,7 +48,7 @@ function Init() {
     debounce(() => {
       UR.Publish('WINDOW_SIZE');
       // console.clear();
-    }, 500)
+    }, 500),
   );
   // initialize app when DOM is completely resolved
   document.addEventListener('DOMContentLoaded', () => {
@@ -102,13 +102,11 @@ function m_PromiseRenderApp() {
         }}
       >
         <HashRouter hashType="slash">
-          <StyledEngineProvider injectFirst>
-            <ThemeProvider theme={MEMEStyles({})}>
-              <SystemShell />
-            </ThemeProvider>
-          </StyledEngineProvider>
+          <ThemeProvider theme={MEMEStyles({})}>
+            <SystemShell />
+          </ThemeProvider>
         </HashRouter>
-      </div>
+      </div>,
     );
   }); // promise
 }

@@ -502,7 +502,7 @@ class MechDialog extends React.Component {
                 component="label"
                 container
                 alignItems="center"
-                justifyContent="center"
+                justify="center"
                 spacing={1}
                 item
                 xs={3}

@@ -552,7 +552,7 @@ class EvidenceLink extends React.Component {
           '&$disabled': {
             backgroundColor: 'rgba(255,255,255,0.35)',
           },
-          '&$focused': {
+          '&.Mui-focused': {
             backgroundColor: '#fff',
           },
         },

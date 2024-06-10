@@ -94,7 +94,7 @@ import React from 'react';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 // Material UI Theming
 import { withTheme } from 'styled-components';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles';
 import { filledInputClasses } from '@mui/material/FilledInput';
 
 // Material UI Elements
@@ -544,7 +544,7 @@ class EvidenceLink extends React.Component {
   }
 
   render() {
-    const theme = createTheme({
+    const theme = createTheme(adaptV4Theme({
       components: {
         MuiFilledInput: {
           styleOverrides: {
@@ -564,7 +564,7 @@ class EvidenceLink extends React.Component {
           },
         },
       },
-    });
+    }));
 
     // evidenceLinks is an array of arrays because there might be more than one?!?
     const { classes, evlink } = this.props;
@@ -623,30 +623,32 @@ class EvidenceLink extends React.Component {
 
         <Grid item xs>
           {isExpanded ? (
-            <ThemeProvider theme={theme}>
-              <FilledInput
-                className={ClassNames(
-                  classes.evidenceLabelField,
-                  classes.evidenceLabelFieldExpanded,
-                )}
-                value={note}
-                placeholder="One claim from this evidence..."
-                autoFocus
-                multiline
-                variant="filled"
-                disabled={!isBeingEdited}
-                disableUnderline
-                onChange={this.OnNoteChange}
-                onBlur={this.OnBlur}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                inputProps={{
-                  readOnly: !isBeingEdited,
-                }}
-                inputRef={this.textInputRef}
-              />
-            </ThemeProvider>
+            <StyledEngineProvider injectFirst>
+              <ThemeProvider theme={theme}>
+                <FilledInput
+                  className={ClassNames(
+                    classes.evidenceLabelField,
+                    classes.evidenceLabelFieldExpanded,
+                  )}
+                  value={note}
+                  placeholder="One claim from this evidence..."
+                  autoFocus
+                  multiline
+                  variant="filled"
+                  disabled={!isBeingEdited}
+                  disableUnderline
+                  onChange={this.OnNoteChange}
+                  onBlur={this.OnBlur}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  inputProps={{
+                    readOnly: !isBeingEdited,
+                  }}
+                  inputRef={this.textInputRef}
+                />
+              </ThemeProvider>
+            </StyledEngineProvider>
           ) : (
             <div className={classes.evidenceLabelField}>{note}</div>
           )}

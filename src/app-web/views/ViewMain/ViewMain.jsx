@@ -213,7 +213,7 @@ class ViewMain extends React.Component {
     console.log('%cUpdateDimensions Fired', cssdraw);
     this.setState({
       viewWidth: Math.min(viewWidth, innerWidth),
-      viewHeight: Math.min(viewHeight, innerHeight),
+      viewHeight: Math.max(viewHeight, innerHeight),
     });
   }
 

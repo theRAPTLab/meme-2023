@@ -12,7 +12,6 @@ You can use markdown in the dialog text.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-// import MDReactComponent from 'markdown-react-js';
 import MDReactComponent from 'react-markdown'
 // Material UI Components
 import Button from '@mui/material/Button';
@@ -55,7 +54,7 @@ class InfoDialog extends React.Component {
 
     this.state = {
       isOpen: false,
-      infoText: ``,
+      infoText: ``
     };
 
     UR.Subscribe('DIALOG_OPEN', this.DoOpen);
@@ -70,7 +69,7 @@ class InfoDialog extends React.Component {
   DoOpen(data) {
     this.setState({
       isOpen: true,
-      infoText: data.text,
+      infoText: data.text
     });
   }
 
@@ -86,7 +85,6 @@ class InfoDialog extends React.Component {
         {isOpen && (
           <Dialog className={classes.infoDialog} open>
             <DialogContent>
-              {/* <MDReactComponent text={infoText} /> */}
               <MDReactComponent skipHtml>{infoText}</MDReactComponent>
             </DialogContent>
             <DialogActions>
@@ -103,11 +101,11 @@ class InfoDialog extends React.Component {
 
 InfoDialog.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 InfoDialog.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

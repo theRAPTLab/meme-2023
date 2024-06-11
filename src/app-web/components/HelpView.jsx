@@ -14,7 +14,6 @@ https://github.com/mzabriskie/react-draggable
 import React from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
-// import MDReactComponent from 'markdown-react-js';
 import MDReactComponent from 'react-markdown'
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
@@ -110,7 +109,7 @@ Moreland, Vickery, Murphy & Stiso.
 
 **Note**: This software is provided as-is. Please test it thoroughly before using in a learning environment.
 
-      `,
+      `
     };
 
     UR.Subscribe('HELP_OPEN', this.DoOpen);
@@ -158,8 +157,6 @@ Moreland, Vickery, Murphy & Stiso.
               </p>
             </div>
             <CriteriaList Criteria={criteria} IsInEditMode={false} />
-            {/* <MDReactComponent className={classes.helpViewText} text={helptext} />
-            <MDReactComponent className={classes.helpViewText} text={credittext} /> */}
             <MDReactComponent className={classes.helpViewText} skipHtml>{helptext}</MDReactComponent>
             <MDReactComponent className={classes.helpViewText} skipHtml>{credittext}</MDReactComponent>
           </div>
@@ -171,11 +168,11 @@ Moreland, Vickery, Murphy & Stiso.
 
 HelpView.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 HelpView.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

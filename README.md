@@ -31,13 +31,13 @@ Running the system involves building and packaging the application, and starting
 
 ### I.A. Check Out Local Server Code
 
-This assumes you've already installed NodeJS.  If you haven't, we recommend using [nvm](https://github.com/nvm-sh/nvm).  This will allow you to select different Node versions.  As of November 2019, we are currently using Node Version 10.9.0.
+This assumes you've already installed NodeJS.  If you haven't, we recommend using [nvm](https://github.com/nvm-sh/nvm).  This will allow you to select different Node versions.  As of June 11th, 2024, we are using the latest release of LTS/Hydrogen (v18.20.3).
 
 1. Check out the `dev` branch.
-1. If you're using `nvm`, type `nvm use` to auto-load the recommended Node version (10.9.0).  You may also need to type `nvm install` to install 10.9 if it's not already installed on your machine.
-2. `npm ci` -- You might need to install some packages before doing a clean.
-3. `npm run clean:all` -- Remove all existing database and node modules.
-4. `npm ci` -- Install node modules
+2. If you're using `nvm`, type `nvm use` to auto-load the recommended Node version (lts/hydrogen, currently 18.20.3).  You may also need to type `nvm install` to install this version if it's not already installed on your machine.
+3. `npm ci` -- You might need to install some packages before doing a clean.
+4. `npm run clean:all` -- Remove all existing database and node modules.
+5. `npm ci` -- Install node modules
 
 ### I.B. Download Resources
 

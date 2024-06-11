@@ -28,15 +28,15 @@ const DBG = true;
 
 /// COMPUTED STYLES ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const styles = (theme) => ({
+const styles = theme => ({
   root: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   paper: {
     padding: theme.spacing(2),
     textAlign: 'center',
-    color: theme.palette.text.secondary,
-  },
+    color: theme.palette.text.secondary
+  }
 });
 
 /// MODULE HOOKS //////////////////////////////////////////////////////////////
@@ -90,14 +90,14 @@ class TestScreencap extends React.Component {
 /// default props are expect properties that we expect
 /// and are declared for validation
 TestScreencap.defaultProps = {
-  classes: { isDefaultProps: true },
+  classes: { isDefaultProps: true }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
 /// disallowed by eslint, so use shape({prop: ProtType })
 /// to describe them in more detail
 TestScreencap.propTypes = {
-  classes: PropTypes.shape({}),
+  classes: PropTypes.shape({})
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// required for UR EXEC phase filtering by view path

@@ -64,7 +64,7 @@ class ClassroomsSelector extends React.Component {
       selectedClassroomName: '',
       addClassroomDialogOpen: false,
       updateExistingClassroom: false,
-      canViewOthers: false,
+      canViewOthers: false
     };
   }
 
@@ -79,13 +79,13 @@ class ClassroomsSelector extends React.Component {
   DoADMDataUpdate() {
     this.DoClassroomListUpdate();
     this.setState({
-      canViewOthers: ADM.CanViewOthers(),
+      canViewOthers: ADM.CanViewOthers()
     });
   }
 
   DoClassroomListUpdate() {
     this.setState({
-      classrooms: ADM.GetClassroomsByTeacher(),
+      classrooms: ADM.GetClassroomsByTeacher()
     });
   }
 
@@ -104,7 +104,7 @@ class ClassroomsSelector extends React.Component {
       this.setState({
         selectedClassroomId: classroom.id,
         selectedClassroomName: classroom.name,
-        canViewOthers: classroom.canViewOthers,
+        canViewOthers: classroom.canViewOthers
       });
     }
   }
@@ -116,7 +116,7 @@ class ClassroomsSelector extends React.Component {
       this.setState({
         selectedClassroomName: '',
         addClassroomDialogOpen: true,
-        updateExistingClassroom: false,
+        updateExistingClassroom: false
       });
     } else {
       ADM.SelectClassroom(classroomId);
@@ -130,7 +130,7 @@ class ClassroomsSelector extends React.Component {
     if (this.state.updateExistingClassroom) {
       const classroomData = {
         id: this.state.selectedClassroomId,
-        name,
+        name
       };
       ADM.DB_UpdateClassroom(this.state.selectedClassroomId, classroomData);
     } else {
@@ -152,7 +152,7 @@ class ClassroomsSelector extends React.Component {
     e.stopPropagation();
     this.setState({
       addClassroomDialogOpen: true,
-      updateExistingClassroom: true,
+      updateExistingClassroom: true
     });
   }
 
@@ -163,7 +163,7 @@ class ClassroomsSelector extends React.Component {
       selectedClassroomId,
       selectedClassroomName,
       addClassroomDialogOpen,
-      canViewOthers,
+      canViewOthers
     } = this.state;
     return (
       <Paper style={classes.admPaper}>
@@ -176,7 +176,7 @@ class ClassroomsSelector extends React.Component {
                 onChange={this.OnClassroomSelect}
                 input={<OutlinedInput name="classroom" id="classroom" sx={{ width: 120 }} />}
               >
-                {classrooms.map((classroom) => (
+                {classrooms.map(classroom => (
                   <MenuItem value={classroom.id} key={classroom.id}>
                     {classroom.name}
                   </MenuItem>
@@ -223,7 +223,7 @@ class ClassroomsSelector extends React.Component {
                 label="Name"
                 fullWidth
                 value={selectedClassroomName}
-                onChange={(e) => this.setState({ selectedClassroomName: e.target.value })}
+                onChange={e => this.setState({ selectedClassroomName: e.target.value })}
               />
             </DialogContent>
             <DialogActions>
@@ -243,11 +243,11 @@ class ClassroomsSelector extends React.Component {
 
 ClassroomsSelector.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 ClassroomsSelector.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

@@ -14,7 +14,6 @@ MarkDown is supported for the description.
 import React from 'react';
 import ClassNames from 'classnames';
 import PropTypes from 'prop-types';
-// import MDReactComponent from 'markdown-react-js';
 import MDReactComponent from 'react-markdown'
 import Paper from '@mui/material/Paper';
 // Material UI Theming
@@ -46,7 +45,7 @@ class DescriptionView extends React.Component {
       propId: '',
       propType: '',
       label: '',
-      text: undefined,
+      text: undefined
     };
 
     UR.Subscribe('PROP_HOVER_START', this.DoOpen);
@@ -55,7 +54,7 @@ class DescriptionView extends React.Component {
     UR.Subscribe('MECH_HOVER_END', this.DoClose);
   }
 
-  componentDidMount() {}
+  componentDidMount() { }
 
   componentWillUnmount() {
     UR.Unsubscribe('PROP_HOVER_START', this.DoOpen);
@@ -76,7 +75,7 @@ class DescriptionView extends React.Component {
         propType: prop.propType,
         mechId: undefined,
         label: prop.name,
-        text: prop.description,
+        text: prop.description
       });
     } else if (mechId) {
       const mech = DATA.Mech(mechId);
@@ -86,7 +85,7 @@ class DescriptionView extends React.Component {
         propType: mech.propType, // currently undefined and not used
         mechId,
         label: mech.name,
-        text: mech.description,
+        text: mech.description
       });
     }
   }
@@ -111,14 +110,13 @@ class DescriptionView extends React.Component {
             ? propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
               ? classes.descriptionViewPaperOutcomeColor
               : classes.descriptionViewPaperPropColor
-            : classes.descriptionViewPaperMechColor,
+            : classes.descriptionViewPaperMechColor
         )}
         hidden={!isOpen}
         elevation={24}
       >
         <div style={{ overflowY: 'auto' }}>
           <div className={classes.descriptionLabel}>{label}</div>
-          {/* <MDReactComponent className={classes.descriptionViewText} text={descriptionText} /> */}
           <MDReactComponent className={classes.descriptionViewText} skipHtml>{ descriptionText }</MDReactComponent>
         </div>
       </Paper>
@@ -128,11 +126,11 @@ class DescriptionView extends React.Component {
 
 DescriptionView.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 DescriptionView.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

@@ -48,7 +48,7 @@ class ModelsList extends React.Component {
       models: [],
       modelId: undefined,
       targetSelectDialogOpen: false,
-      targetSelectionType: '',
+      targetSelectionType: ''
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
@@ -67,12 +67,12 @@ class ModelsList extends React.Component {
   DoClassroomSelect(data) {
     this.setState({
       classroomId: data.classroomId,
-      models: ADM.GetModelsByClassroom(data.classroomId),
+      models: ADM.GetModelsByClassroom(data.classroomId)
     });
   }
 
   DoADMDataUpdate() {
-    this.setState((state) => {
+    this.setState(state => {
       return { models: ADM.GetModelsByClassroom(state.classroomId) };
     });
   }
@@ -87,7 +87,7 @@ class ModelsList extends React.Component {
       modelId,
       targetSelectDialogOpen: true,
       targetSelectionType: 'clone',
-      targetSelectCallback: this.OnCloneTargetSelect,
+      targetSelectCallback: this.OnCloneTargetSelect
     });
   }
 
@@ -107,7 +107,7 @@ class ModelsList extends React.Component {
       modelId,
       targetSelectDialogOpen: true,
       targetSelectionType: 'move',
-      targetSelectCallback: this.OnMoveTargetSelect,
+      targetSelectCallback: this.OnMoveTargetSelect
     });
   }
 
@@ -128,11 +128,15 @@ class ModelsList extends React.Component {
 
   render() {
     const { theme: classes } = this.props;
-    const { models, targetSelectDialogOpen, targetSelectionType, targetSelectCallback } =
-      this.state;
+    const {
+      models,
+      targetSelectDialogOpen,
+      targetSelectionType,
+      targetSelectCallback
+    } = this.state;
 
-    const activeModels = models.filter((m) => !m.deleted);
-    const deletedModels = models.filter((m) => m.deleted);
+    const activeModels = models.filter(m => !m.deleted);
+    const deletedModels = models.filter(m => m.deleted);
 
     return (
       <>
@@ -170,11 +174,11 @@ class ModelsList extends React.Component {
 
 ModelsList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 ModelsList.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

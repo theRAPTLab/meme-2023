@@ -45,15 +45,15 @@ const SEC = 10;
 
 /// COMPUTED STYLES ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const styles = (theme) => ({
+const styles = theme => ({
   root: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   paper: {
     padding: theme.spacing(2),
     textAlign: 'center',
-    color: theme.palette.text.secondary,
-  },
+    color: theme.palette.text.secondary
+  }
 });
 
 /// MODULE HOOKS //////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ class TestLockSync extends React.Component {
     this.cstrName = `${this.constructor.name} ${UR.SocketUADDR()}`;
     this._mounted = false;
     this.state = {
-      status: 'loading',
+      status: 'loading'
     };
     //
     this.editingCommentId = undefined; // for comment lock
@@ -105,11 +105,11 @@ class TestLockSync extends React.Component {
     if (data.id == this.editingCommentId) {
       retval[UR.SocketUADDR()] = this.editingCommentId;
       this.setState({
-        status: `I have the lock! Retaining control of '${data.id}'`,
+        status: `I have the lock! Retaining control of '${data.id}'`
       });
     } else {
       this.setState({
-        status: `I don't have the lock, so allowing control of '${data.id}'`,
+        status: `I don't have the lock, so allowing control of '${data.id}'`
       });
     }
     return retval;
@@ -117,38 +117,39 @@ class TestLockSync extends React.Component {
 
   PUB_TryEditComment(id) {
     // NetCall returns a Promise
-    return this.ULINK.NetCall('NET:SYNC_EDIT_COMMENT', { id }).then((rdata) => {
-      let status = '';
-      // if the SYNC_EDIT_COMMENT message isn't there, we can assume log
-      if (rdata.code === 1) {
-        rdata = {};
-        status += `We are only client, so grabbing lock! `;
-        this.setState({ status });
-        console.log(status);
-      }
-      // search keys for matching id
-      const responses = Object.entries(rdata);
-      const inUse = responses.find((kvp) => kvp[1] == id);
-      // lock it
-      if (!inUse) {
-        this.editingCommentId = id;
-        status += `Grabbing control of '${id}' for ${SEC} secs!!! `;
-        this.setState({ status });
-        console.log(status);
-        setTimeout(() => {
-          status += `Released control of '${id}'! `;
+    return this.ULINK.NetCall('NET:SYNC_EDIT_COMMENT', { id })
+      .then(rdata => {
+        let status = '';
+        // if the SYNC_EDIT_COMMENT message isn't there, we can assume log
+        if (rdata.code === 1) {
+          rdata = {};
+          status += `We are only client, so grabbing lock! `;
           this.setState({ status });
           console.log(status);
-          this.editingCommentId = undefined;
-        }, SEC * 1000);
-        // return implicitly resolved value promise
-        return status;
-      } else {
-        status += `${inUse[0]} already has the lock on ${id} `;
-        this.setState({ status });
-        console.log(status);
-      }
-    });
+        }
+        // search keys for matching id
+        const responses = Object.entries(rdata);
+        const inUse = responses.find(kvp => kvp[1] == id);
+        // lock it
+        if (!inUse) {
+          this.editingCommentId = id;
+          status += `Grabbing control of '${id}' for ${SEC} secs!!! `;
+          this.setState({ status });
+          console.log(status);
+          setTimeout(() => {
+            status += `Released control of '${id}'! `;
+            this.setState({ status });
+            console.log(status);
+            this.editingCommentId = undefined;
+          }, SEC * 1000);
+          // return implicitly resolved value promise
+          return status;
+        } else {
+          status += `${inUse[0]} already has the lock on ${id} `;
+          this.setState({ status });
+          console.log(status);
+        }
+      });
   }
 
   render() {
@@ -162,8 +163,8 @@ class TestLockSync extends React.Component {
           <Grid item xs={12}>
             <Paper className={classes.paper}>
               <p>
-                OPEN TWO or MORE instance of /#/test-locksync and observe console Try refreshing
-                different instances
+                OPEN TWO or MORE instance of /#/test-locksync and observe console
+                Try refreshing different instances
               </p>
             </Paper>
             <Fade in={true} timeout={1000}>
@@ -173,7 +174,7 @@ class TestLockSync extends React.Component {
             </Fade>
           </Grid>
         </Grid>
-      </div>
+      </div >
     );
   }
 } // TestLockSync component
@@ -182,14 +183,14 @@ class TestLockSync extends React.Component {
 /// default props are expect properties that we expect
 /// and are declared for validation
 TestLockSync.defaultProps = {
-  classes: { isDefaultProps: true },
+  classes: { isDefaultProps: true }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
 /// disallowed by eslint, so use shape({prop: ProtType })
 /// to describe them in more detail
 TestLockSync.propTypes = {
-  classes: PropTypes.shape({}),
+  classes: PropTypes.shape({})
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// required for UR EXEC phase filtering by view path

@@ -46,7 +46,7 @@ const storage = multer.diskStorage({
     const ext = path.extname(file.originalname);
     const fname = Date.now().toString(36);
     callback(null, fname + ext);
-  },
+  }
 });
 /*** STORAGE ***/
 
@@ -95,7 +95,7 @@ function Start() {
       // logLevel: 'silent', // turns off [wdm] messages
       publicPath: webConfig.output.publicPath,
       stats: 'summary', // see https://webpack.js.org/configuration/stats/
-      writeToDisk: true, // write files to disk in addition to memory
+      writeToDisk: true // write files to disk in addition to memory
     });
     app.use(instance);
     app.use(wpack_hot(compiler));
@@ -215,10 +215,9 @@ function GetTemplateValues(req) {
     USRV_Host: hostname,
     USRV_IP: IP.address(),
     USRV_MsgPort: 2929,
-    USRV_Start: USRV_START,
+    USRV_Start: USRV_START
   };
   return params;
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 module.exports = { Start, CloseAppServer, OpenAppServer };

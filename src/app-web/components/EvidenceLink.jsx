@@ -149,7 +149,7 @@ class EvidenceLink extends React.Component {
       listenForSourceSelection: false, // Used to set LinkButton state
       listenForRatingSelection: false, // Used to skip saves when editing rating
       needsSaving: false,
-      saveInProgress: false,
+      saveInProgress: false
     };
 
     // Handle Promise cancellation
@@ -219,7 +219,7 @@ class EvidenceLink extends React.Component {
         note,
         rating,
         ratingDefs,
-        why,
+        why
       });
     }
     // Don't throw an error here
@@ -236,7 +236,7 @@ class EvidenceLink extends React.Component {
   DoEditStart() {
     const pmcDataId = ASET.selectedPMCDataId;
     const intEvId = Number(this.props.evlink.id);
-    UR.DBTryLock('pmcData.entities', [pmcDataId, intEvId]).then((rdata) => {
+    UR.DBTryLock('pmcData.entities', [pmcDataId, intEvId]).then(rdata => {
       const { success, semaphore, uaddr, lockedBy } = rdata;
       status += success
         ? `${semaphore} lock acquired by ${uaddr} `
@@ -245,15 +245,15 @@ class EvidenceLink extends React.Component {
         this.setState(
           {
             isBeingEdited: true,
-            isExpanded: true,
+            isExpanded: true
           },
-          () => this.FocusTextInput(),
+          () => this.FocusTextInput()
         );
         UR.Publish('EVIDENCE_EDIT_STATE', { isBeingEdited: true });
       } else {
         console.log('aw, locked by', rdata.lockedBy);
         alert(
-          `Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`,
+          `Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`
         );
       }
     });
@@ -262,7 +262,7 @@ class EvidenceLink extends React.Component {
   DoEditStop() {
     this.setState({
       isBeingEdited: false,
-      listenForSourceSelection: false, // cancel out and restore orig values
+      listenForSourceSelection: false // cancel out and restore orig values
     });
     const pmcDataId = ASET.selectedPMCDataId;
     const intEvId = Number(this.props.evlink.id);
@@ -287,22 +287,22 @@ class EvidenceLink extends React.Component {
     this.setState(
       {
         saveInProgress: true,
-        needsSaving: false,
+        needsSaving: false
       },
       () =>
         DATA.SetEvidenceLinkTextFields(this.props.evlink.id, {
           note: this.state.note,
-          why: this.state.why,
+          why: this.state.why
         }).then(() => {
           // The promise can get returned after the component is unmounted
           // which will generate a warning if the user clicks on "Model"
           // so only set the state if the componet is still mounted
           if (this._isMounted) {
             this.setState({
-              saveInProgress: false,
+              saveInProgress: false
             });
           }
-        }),
+        })
     );
   }
 
@@ -312,7 +312,7 @@ class EvidenceLink extends React.Component {
     // give option of reseting imageURL
     UR.Publish('SCREENSHOT_OPEN', {
       evId: this.props.evlink.id,
-      imageURL: this.props.evlink.imageURL,
+      imageURL: this.props.evlink.imageURL
     });
   }
 
@@ -326,7 +326,7 @@ class EvidenceLink extends React.Component {
       const sw = resourceFrame.clientWidth * px;
       const sh = resourceFrame.clientHeight * px;
       let opt = { sx, sy, sw, sh };
-      UR.PromiseCaptureScreen(opt).then((rdata) => {
+      UR.PromiseCaptureScreen(opt).then(rdata => {
         const { href, error } = rdata;
         if (error) console.log('PromiseCaptureScreen:', error);
         if (href) DATA.PMC_EvidenceUpdate(this.props.evlink.id, { imageURL: href });
@@ -341,14 +341,14 @@ class EvidenceLink extends React.Component {
     // restore previous note
     this.setState({
       note: this.props.evlink.note,
-      why: this.props.evlink.why,
+      why: this.props.evlink.why
     });
   }
 
   OnDeleteButtonClick() {
     const pmcDataId = ASET.selectedPMCDataId;
     const intEvId = Number(this.props.evlink.id);
-    UR.DBTryLock('pmcData.entities', [pmcDataId, intEvId]).then((rdata) => {
+    UR.DBTryLock('pmcData.entities', [pmcDataId, intEvId]).then(rdata => {
       const { success, semaphore, uaddr, lockedBy } = rdata;
       status += success
         ? `${semaphore} lock acquired by ${uaddr} `
@@ -357,14 +357,14 @@ class EvidenceLink extends React.Component {
         DATA.PMC_DeleteEvidenceLink(this.props.evlink.id);
       } else {
         alert(
-          `Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`,
+          `Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`
         );
       }
     });
   }
 
   OnDuplicateButtonClick() {
-    DATA.PMC_DuplicateEvidenceLink(this.props.evlink.id, (id) => {
+    DATA.PMC_DuplicateEvidenceLink(this.props.evlink.id, id => {
       const newEvLink = DATA.PMC_GetEvLinkByEvId(id);
       UR.Publish('SHOW_EVIDENCE_LINK', { evId: newEvLink.id, rsrcId: newEvLink.rsrcId });
     });
@@ -412,7 +412,7 @@ class EvidenceLink extends React.Component {
       // Clear listens
       // should rating be cleared by some other clearer mechanism?
       this.setState({
-        listenForRatingSelection: false,
+        listenForRatingSelection: false
       });
     }
   }
@@ -431,7 +431,7 @@ class EvidenceLink extends React.Component {
       } else {
         // just expand
         this.setState({
-          isExpanded: true,
+          isExpanded: true
         });
         this.DoScrollIntoView();
       }
@@ -449,7 +449,7 @@ class EvidenceLink extends React.Component {
     if (DBG) console.log(PKG, 'Note Change:', e.target.value);
     this.setState({
       note: e.target.value,
-      needsSaving: true,
+      needsSaving: true
     });
   }
 
@@ -457,7 +457,7 @@ class EvidenceLink extends React.Component {
     if (DBG) console.log(PKG, 'Why Change:', e.target.value);
     this.setState({
       why: e.target.value,
-      needsSaving: true,
+      needsSaving: true
     });
   }
 
@@ -483,7 +483,7 @@ class EvidenceLink extends React.Component {
     // so we need to listen too
     if (data.evId === this.props.evlink.id) {
       this.setState({
-        listenForSourceSelection: true,
+        listenForSourceSelection: true
       });
     }
   }
@@ -527,7 +527,7 @@ class EvidenceLink extends React.Component {
       this.setState({ isExpanded: false }, () => this.DoEditStop());
     } else {
       this.setState({
-        isExpanded: true,
+        isExpanded: true
       });
     }
   }
@@ -550,16 +550,16 @@ class EvidenceLink extends React.Component {
           backgroundColor: 'rgba(255,255,255,0.25)',
           paddingTop: '3px',
           '&$disabled': {
-            backgroundColor: 'rgba(255,255,255,0.35)',
+            backgroundColor: 'rgba(255,255,255,0.35)'
           },
           '&$focused': {
-            backgroundColor: '#fff',
-          },
+            backgroundColor: '#fff'
+          }
         },
         multiline: {
-          padding: '5px',
-        },
-      },
+          padding: '5px'
+        }
+      }
     };
 
     // evidenceLinks is an array of arrays because there might be more than one?!?
@@ -573,7 +573,7 @@ class EvidenceLink extends React.Component {
       isBeingEdited,
       isExpanded,
       isHovered,
-      listenForSourceSelection,
+      listenForSourceSelection
     } = this.state;
     if (id === '') return '';
 
@@ -623,7 +623,7 @@ class EvidenceLink extends React.Component {
               <FilledInput
                 className={ClassNames(
                   classes.evidenceLabelField,
-                  classes.evidenceLabelFieldExpanded,
+                  classes.evidenceLabelFieldExpanded
                 )}
                 value={note}
                 placeholder="One claim from this evidence..."
@@ -634,11 +634,11 @@ class EvidenceLink extends React.Component {
                 disableUnderline
                 onChange={this.OnNoteChange}
                 onBlur={this.OnBlur}
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                 }}
                 inputProps={{
-                  readOnly: !isBeingEdited,
+                  readOnly: !isBeingEdited
                 }}
                 inputRef={this.textInputRef}
               />
@@ -759,7 +759,7 @@ class EvidenceLink extends React.Component {
               <FilledInput
                 className={ClassNames(
                   classes.evidenceLabelField,
-                  classes.evidenceLabelFieldExpanded,
+                  classes.evidenceLabelFieldExpanded
                 )}
                 value={why}
                 placeholder="Why did you choose this rating?"
@@ -770,11 +770,11 @@ class EvidenceLink extends React.Component {
                 disableUnderline
                 onChange={this.OnWhyChange}
                 onBlur={this.OnBlur}
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                 }}
                 inputProps={{
-                  readOnly: !isBeingEdited,
+                  readOnly: !isBeingEdited
                 }}
                 inputRef={this.textInput}
               />
@@ -839,7 +839,7 @@ class EvidenceLink extends React.Component {
               classes.evidenceLinkPaper,
               isExpanded ? classes.evidenceLinkPaperExpanded : '',
               isBeingEdited ? classes.evidenceLinkPaperEditting : '',
-              isHovered ? classes.evidenceLinkPaperHover : '',
+              isHovered ? classes.evidenceLinkPaperHover : ''
             )}
             onClick={this.DoToggleExpanded}
             ref={this.ref}
@@ -892,7 +892,7 @@ EvidenceLink.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
-  evlink: PropTypes.object,
+  evlink: PropTypes.object
 };
 
 EvidenceLink.defaultProps = {
@@ -905,8 +905,8 @@ EvidenceLink.defaultProps = {
     numberLabel: '',
     note: '',
     rating: 0,
-    why: '',
-  },
+    why: ''
+  }
 };
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

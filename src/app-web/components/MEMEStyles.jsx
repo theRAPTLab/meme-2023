@@ -8,7 +8,7 @@ import {
   red,
   teal,
   yellow
-} from '@material-ui/core/colors';
+} from '@mui/material/colors';
 import { registerMorphableType } from '@svgdotjs/svg.js/src/main';
 import { Hidden } from '@mui/material';
 import DEFAULTS from '../modules/defaults';

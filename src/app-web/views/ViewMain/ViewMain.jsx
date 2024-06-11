@@ -815,5 +815,4 @@ ViewMain.MOD_ID = __dirname;
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles
-// export default withTheme(ViewMain);
 export default withTheme(ViewMain);

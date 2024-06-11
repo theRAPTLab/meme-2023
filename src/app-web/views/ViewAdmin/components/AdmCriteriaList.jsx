@@ -92,13 +92,7 @@ class CriteriaList extends React.Component {
               <TableRow key={crit.id}>
                 <SmTableCell>{crit.label}</SmTableCell>
                 <SmTableCell>
-                  {/* <MDReactComponent
-                    text={crit.description}
-                    markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
-                  /> */}
-                  <MDReactComponent
-                  // markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
-                  >
+                  <MDReactComponent>
                     {crit.description}
                   </MDReactComponent>
                 </SmTableCell>

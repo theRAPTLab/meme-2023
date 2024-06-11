@@ -382,14 +382,8 @@ class StickyNote extends React.Component {
                   {criteriaDisplay}
                 </div>
                 <div hidden={!isBeingEdited}>
-                  {/* <MDReactComponent
-                    className={classes.stickynoteCardCriteriaDescription}
-                    text={criteriaDescription}
-                    markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
-                  /> */}
                   <MDReactComponent
                     className={classes.stickynoteCardCriteriaDescription}
-                    // markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
                   >
                     {criteriaDescription}
                   </MDReactComponent>

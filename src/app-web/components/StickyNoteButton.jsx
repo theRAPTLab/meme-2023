@@ -56,7 +56,7 @@ class StickyNoteButton extends React.Component {
     this.state = {
       hasNoComments: true,
       hasUnreadComments: false,
-      isOpen: false,
+      isOpen: false
     };
 
     UR.Subscribe('DATA_UPDATED', this.DoDataUpdate); // Update sticky button when model is first loaded
@@ -97,7 +97,7 @@ class StickyNoteButton extends React.Component {
     const hasUnreadComments = PMC.HasUnreadComments(comments, author);
     this.setState({
       hasNoComments,
-      hasUnreadComments,
+      hasUnreadComments
     });
   }
 
@@ -110,7 +110,7 @@ class StickyNoteButton extends React.Component {
     UR.Publish('STICKY_OPEN', {
       refId: this.props.refId,
       x: e.clientX,
-      y: e.clientY,
+      y: e.clientY
       // windowWidth: e.view.window.innerWidth, // not used
       // windowHeight: e.view.window.innerHeight // not used
     });
@@ -140,12 +140,12 @@ class StickyNoteButton extends React.Component {
 
 StickyNoteButton.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 StickyNoteButton.defaultProps = {
   classes: {},
-  refId: undefined,
+  refId: undefined
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

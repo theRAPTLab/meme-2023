@@ -48,7 +48,7 @@ class Login extends React.Component {
     this.state = {
       loginId: '',
       loginDialogOpen: true,
-      isValidLogin: true,
+      isValidLogin: true
     };
   }
 
@@ -56,7 +56,7 @@ class Login extends React.Component {
     this.DoADMDataUpdate();
     if (AUTOBOB) {
       this.setState({ loginId: 'bob-z4in' }, () => {
-        this.OnLogin({ preventDefault: function () {} });
+        this.OnLogin({ preventDefault: function() {} });
       });
     }
   }
@@ -67,7 +67,7 @@ class Login extends React.Component {
     if (ADM.IsLoggedOut()) {
       this.setState({
         loginId: '',
-        loginDialogOpen: true,
+        loginDialogOpen: true
       });
     }
   }
@@ -77,7 +77,7 @@ class Login extends React.Component {
     let isValidLogin = ADM.IsValidLogin(loginId);
     this.setState({
       loginId,
-      isValidLogin,
+      isValidLogin
     });
   }
 
@@ -90,7 +90,7 @@ class Login extends React.Component {
     } else {
       // invalid login
       this.setState({
-        isValidLogin: false,
+        isValidLogin: false
       });
     }
   }
@@ -113,8 +113,8 @@ class Login extends React.Component {
         onClose={this.OnLoginDialogClose}
         BackdropProps={{
           classes: {
-            root: classes.loginBackdrop,
-          },
+            root: classes.loginBackdrop
+          }
         }}
       >
         <form onSubmit={this.OnLogin}>
@@ -146,11 +146,11 @@ class Login extends React.Component {
 
 Login.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 Login.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

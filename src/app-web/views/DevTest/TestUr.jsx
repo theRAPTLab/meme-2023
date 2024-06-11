@@ -27,15 +27,15 @@ const DBG = true;
 
 /// COMPUTED STYLES ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const styles = (theme) => ({
+const styles = theme => ({
   root: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   paper: {
     padding: theme.spacing(2),
     textAlign: 'center',
-    color: theme.palette.text.secondary,
-  },
+    color: theme.palette.text.secondary
+  }
 });
 
 /// MODULE HOOKS //////////////////////////////////////////////////////////////
@@ -57,8 +57,8 @@ class TestUR extends React.Component {
     this.AddTestResult = this.AddTestResult.bind(this);
     this.RegisterTest = this.RegisterTest.bind(this);
     this.state = {
-      tests: [],
-    };
+      tests: []
+    }
     this._mounted = false;
     // test data structures
     this.tests = [];
@@ -101,10 +101,10 @@ class TestUR extends React.Component {
     console.log(`tests passed ${this.passed.length}`);
     console.log(`tests failed ${this.failed.length}`);
     let union = [...new Set([...this.passed, ...this.failed])];
-    let difference = this.tests.filter((x) => !union.includes(x));
+    let difference = this.tests.filter(x => !union.includes(x));
     if (difference.length) console.log(`tests incomplete %c${difference.join(', ')}`, cssalert);
     if (this.failed.length) console.log(`tests failed %c${this.failed.join(', ')}`, cssalert);
-    return this.tests.length - union.length + (numtests - this.tests.length) === 0;
+    return (this.tests.length - union.length) + (numtests - this.tests.length) === 0;
   }
 
   RegisterTest(testname) {
@@ -121,8 +121,8 @@ class TestUR extends React.Component {
         if (dbg) console.log(`%cpassed test: ${testname}`, cssinfo);
         this.AddTestResult(test.name);
         this.passed.push(test.name);
-      },
-    };
+      }
+    }
     test.pass = test.pass.bind(this);
     test.fail = test.fail.bind(this);
     //
@@ -141,15 +141,13 @@ class TestUR extends React.Component {
           </Grid>
 
           {this.state.tests.map((test, i) => {
-            let bgcolor = test.status === 'OK' ? 'white' : 'red';
+            let bgcolor = (test.status === 'OK') ? 'white' : 'red';
             if (test.status === 'PASS') bgcolor = 'limegreen';
             return (
               <Grid item xs={4} key={i}>
-                <Paper className={classes.paper} style={{ backgroundColor: bgcolor }}>
-                  {test.name} = {test.status}
-                </Paper>
+                <Paper className={classes.paper} style={{ backgroundColor: bgcolor }}>{test.name} = {test.status}</Paper>
               </Grid>
-            );
+            )
           })}
         </Grid>
       </div>
@@ -161,14 +159,14 @@ class TestUR extends React.Component {
 /// default props are expect properties that we expect
 /// and are declared for validation
 TestUR.defaultProps = {
-  classes: { isDefaultProps: true },
+  classes: { isDefaultProps: true }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
 /// disallowed by eslint, so use shape({prop: ProtType })
 /// to describe them in more detail
 TestUR.propTypes = {
-  classes: PropTypes.shape({}),
+  classes: PropTypes.shape({})
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// required for UR EXEC phase filtering by view path

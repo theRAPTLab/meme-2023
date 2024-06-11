@@ -45,14 +45,14 @@ class SentenceStarters extends React.Component {
       id: '',
       sentences: '',
       isInEditMode: false,
-      classroomId: '',
+      classroomId: ''
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
     UR.Subscribe('ADM_DATA_UPDATED', this.DoLoadSentences);
   }
 
-  componentDidMount() {}
+  componentDidMount() { }
 
   componentWillUnmount() {
     UR.Unsubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
@@ -60,22 +60,19 @@ class SentenceStarters extends React.Component {
   }
 
   DoClassroomSelect(data) {
-    this.setState(
-      {
-        classroomId: data.classroomId,
-      },
-      () => {
+    this.setState({
+      classroomId: data.classroomId
+    }, () => {
         this.DoLoadSentences();
-      },
-    );
+    });
   }
 
   DoLoadSentences() {
     const { classroomId } = this.state;
     if (classroomId == undefined) return;
-
+    
     let sentenceStarter = ADM.GetSentenceStartersByClassroom(classroomId);
-
+    
     // Create default sentence starters if none have been defined.
     if (sentenceStarter === undefined) {
       ADM.DB_SentenceStarterNew({ classroomId });
@@ -84,15 +81,15 @@ class SentenceStarters extends React.Component {
     const { id, sentences } = sentenceStarter;
     this.setState({
       id,
-      sentences,
+      sentences
     });
   }
 
   OnEditClick() {
-    this.setState((state) => {
+    this.setState(state => {
       return {
         isInEditMode: true,
-        sentences: state.sentences === '' ? defaultSentenceStarter : state.sentences,
+        sentences: state.sentences === '' ? defaultSentenceStarter : state.sentences
       };
     });
   }
@@ -102,17 +99,17 @@ class SentenceStarters extends React.Component {
     const sentenceStarter = ADMObj.SentenceStarter({
       id,
       classroomId,
-      sentences,
+      sentences
     });
     ADM.DB_SentenceStarterUpdate(sentenceStarter);
     this.setState({
-      isInEditMode: false,
+      isInEditMode: false
     });
   }
 
   OnTextChange(e) {
     this.setState({
-      sentences: e.target.value,
+      sentences: e.target.value
     });
   }
 
@@ -148,11 +145,11 @@ class SentenceStarters extends React.Component {
 
 SentenceStarters.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 SentenceStarters.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

@@ -55,7 +55,7 @@ class InfoDialog extends React.Component {
 
     this.state = {
       isOpen: false,
-      infoText: ``,
+      infoText: ``
     };
 
     UR.Subscribe('DIALOG_OPEN', this.DoOpen);
@@ -70,7 +70,7 @@ class InfoDialog extends React.Component {
   DoOpen(data) {
     this.setState({
       isOpen: true,
-      infoText: data.text,
+      infoText: data.text
     });
   }
 
@@ -103,11 +103,11 @@ class InfoDialog extends React.Component {
 
 InfoDialog.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 InfoDialog.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

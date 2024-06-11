@@ -69,9 +69,9 @@ class RatingButton extends React.Component {
     this.OnClick = this.OnClick.bind(this);
   }
 
-  componentDidMount() {}
+  componentDidMount() { }
 
-  componentWillUnmount() {}
+  componentWillUnmount() { }
 
   OnClick(e) {
     e.preventDefault();
@@ -91,17 +91,17 @@ class RatingButton extends React.Component {
       for (let i = 0; i < count; i++) {
         if (rating < 0) {
           icons.push(
-            <NegativeIcon className={classes.ratingIconNegative} key={i} fontSize="small" />,
+            <NegativeIcon className={classes.ratingIconNegative} key={i} fontSize="small" />
           );
         } else if (rating > 0) {
           icons.push(
-            <PositiveIcon className={classes.ratingIconPositive} key={i} fontSize="small" />,
+            <PositiveIcon className={classes.ratingIconPositive} key={i} fontSize="small" />
           );
         }
       }
     }
 
-    const ratingObject = ratingDefs.find((ro) => ro.rating === rating);
+    const ratingObject = ratingDefs.find(ro => ro.rating === rating);
     const label = ratingObject ? ratingObject.label : 'Label not found';
 
     return (
@@ -119,7 +119,7 @@ RatingButton.propTypes = {
   rating: PropTypes.number,
   isExpanded: PropTypes.bool,
   ratingDefs: PropTypes.array,
-  OnRatingButtonClick: PropTypes.func,
+  OnRatingButtonClick: PropTypes.func
 };
 
 RatingButton.defaultProps = {
@@ -129,7 +129,7 @@ RatingButton.defaultProps = {
   ratingDefs: [],
   OnRatingButtonClick: () => {
     console.error('Missing OnRatingButtonClick Handler!');
-  },
+  }
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

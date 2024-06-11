@@ -69,7 +69,7 @@ class GroupsList extends React.Component {
       addStudentDialogName: '',
       addStudentDialogInvalidNames: undefined,
       classroomId: '',
-      editExistingGroup: false,
+      editExistingGroup: false
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
@@ -88,12 +88,12 @@ class GroupsList extends React.Component {
     if (data && data.classroomId) {
       this.setState({
         groups: ADM.GetGroupsByClassroom(data.classroomId),
-        classroomId: data.classroomId,
+        classroomId: data.classroomId
       });
     } else {
       this.setState({
         groups: [],
-        classroomId: '',
+        classroomId: ''
       });
     }
   }
@@ -103,7 +103,7 @@ class GroupsList extends React.Component {
     const classroomId = this.state.classroomId;
     if (classroomId) {
       this.setState({
-        groups: ADM.GetGroupsByClassroom(classroomId),
+        groups: ADM.GetGroupsByClassroom(classroomId)
       });
     }
   }
@@ -112,7 +112,7 @@ class GroupsList extends React.Component {
     this.setState({
       addGroupDialogOpen: true,
       addGroupDialogName: '',
-      editExistingGroup: false,
+      editExistingGroup: false
     });
   }
 
@@ -134,7 +134,7 @@ class GroupsList extends React.Component {
   OnAddStudentClick(e, groupId) {
     this.setState({
       addStudentDialogOpen: true,
-      addStudentDialogGroupId: groupId,
+      addStudentDialogGroupId: groupId
     });
   }
 
@@ -146,7 +146,7 @@ class GroupsList extends React.Component {
   OnAddStudentName(e) {
     e.preventDefault();
     e.stopPropagation();
-    const names = this.state.addStudentDialogName.split(',').map((name) => name.trim());
+    const names = this.state.addStudentDialogName.split(',').map(name => name.trim());
     ADM.AddStudents(this.state.addStudentDialogGroupId, names);
     this.OnAddStudentDialogClose();
   }
@@ -157,7 +157,7 @@ class GroupsList extends React.Component {
 
   CheckForDuplicates(names) {
     let namesArr = names.split(',');
-    let duplicateNamesArr = namesArr.filter((name) => {
+    let duplicateNamesArr = namesArr.filter(name => {
       return ADM.GetGroupByStudent(name.trim());
     });
     return duplicateNamesArr.length > 0 ? duplicateNamesArr.join(', ') : undefined;
@@ -168,7 +168,7 @@ class GroupsList extends React.Component {
     let duplicateNames = this.CheckForDuplicates(e.target.value);
     this.setState({
       addStudentDialogName: e.target.value,
-      addStudentDialogInvalidNames: duplicateNames,
+      addStudentDialogInvalidNames: duplicateNames
     });
   }
 
@@ -180,7 +180,7 @@ class GroupsList extends React.Component {
       addGroupDialogName: group.name,
       addGroupDialogOpen: true,
       selectedGroupId: groupId,
-      editExistingGroup: true,
+      editExistingGroup: true
     });
   }
 
@@ -192,7 +192,7 @@ class GroupsList extends React.Component {
       addGroupDialogName,
       addStudentDialogOpen,
       addStudentDialogInvalidNames,
-      classroomId,
+      classroomId
     } = this.state;
 
     return (
@@ -208,12 +208,12 @@ class GroupsList extends React.Component {
             </TableRow>
           </TableHead>
           <TableBody>
-            {groups.map((group) => (
+            {groups.map(group => (
               <TableRow key={group.id}>
                 <TableCell>{group.id}</TableCell>
                 <TableCell>
                   {group.name}
-                  <Button onClick={(e) => this.OnGroupEdit(e, group.id)}>Edit</Button>
+                  <Button onClick={e => this.OnGroupEdit(e, group.id)}>Edit</Button>
                 </TableCell>
                 <TableCell>
                   &nbsp;
@@ -222,11 +222,11 @@ class GroupsList extends React.Component {
                       <Chip
                         key={group.id + student}
                         label={student}
-                        onDelete={(e) => this.OnDeleteStudent(e, group.id, student)}
+                        onDelete={e => this.OnDeleteStudent(e, group.id, student)}
                       />
                     );
                   })}
-                  <IconButton size="small" onClick={(e) => this.OnAddStudentClick(e, group.id)}>
+                  <IconButton size="small" onClick={e => this.OnAddStudentClick(e, group.id)}>
                     <AddIcon />
                   </IconButton>
                 </TableCell>
@@ -237,7 +237,7 @@ class GroupsList extends React.Component {
                     style={{ fontFamily: 'monospace' }}
                     value={group.students.reduce(
                       (accumulator, student) => accumulator + ADM.GetToken(group.id, student),
-                      '', // initialValue to force start at index=0
+                      '' // initialValue to force start at index=0
                     )}
                   />
                 </TableCell>
@@ -264,7 +264,7 @@ class GroupsList extends React.Component {
                 label="Group Name"
                 fullWidth
                 value={addGroupDialogName}
-                onChange={(e) => this.setState({ addGroupDialogName: e.target.value })}
+                onChange={e => this.setState({ addGroupDialogName: e.target.value })}
               />
             </DialogContent>
             <DialogActions>
@@ -323,11 +323,11 @@ class GroupsList extends React.Component {
 
 GroupsList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 GroupsList.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

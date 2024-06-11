@@ -39,12 +39,12 @@ const PKG = 'AdminCriteriaView';
 const defaults = [
   {
     label: 'Clarity',
-    description: 'How clear is the explanation?',
+    description: 'How clear is the explanation?'
   },
   {
     label: 'Visuals',
-    description: 'Does the layout make sense?',
-  },
+    description: 'Does the layout make sense?'
+  }
 ];
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -65,7 +65,7 @@ class CriteriaView extends React.Component {
     this.state = {
       criteria: [],
       isInEditMode: false,
-      classroomId: -1,
+      classroomId: -1
     };
 
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
@@ -84,20 +84,20 @@ class CriteriaView extends React.Component {
   DoClassroomSelect(data) {
     this.setState(
       {
-        classroomId: Number(data.classroomId),
+        classroomId: Number(data.classroomId)
       },
       () => {
         this.DoLoadCriteria();
-      },
+      }
     );
   }
 
   DoCreateDefaultCriteria(classroomId) {
-    defaults.map((def) => {
+    defaults.map(def => {
       ADM.DB_NewCriteria({
         classroomId: classroomId,
         label: def.label,
-        description: def.description,
+        description: def.description
       });
     });
   }
@@ -106,7 +106,7 @@ class CriteriaView extends React.Component {
     if (this.state.classroomId === -1) return;
     let criteria = ADM.GetCriteriaByClassroom(this.state.classroomId);
     this.setState({
-      criteria,
+      criteria
     });
   }
 
@@ -135,7 +135,7 @@ class CriteriaView extends React.Component {
 
   DoClose() {
     this.setState({
-      isInEditMode: false,
+      isInEditMode: false
     });
   }
 
@@ -169,10 +169,10 @@ class CriteriaView extends React.Component {
   UpdateField(critId, fieldName, value, e) {
     // Save the changes locally first
     // Store the whole object when "Save" is presssed.
-    this.setState((state) => {
+    this.setState(state => {
       let criteria = state.criteria;
 
-      const i = criteria.findIndex((cr) => cr.id === critId);
+      const i = criteria.findIndex(cr => cr.id === critId);
       if (i < 0) {
         console.error(PKG, 'UpdateField could not find index of criteria with id', critId);
         return undefined;
@@ -247,11 +247,11 @@ class CriteriaView extends React.Component {
 
 CriteriaView.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 CriteriaView.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

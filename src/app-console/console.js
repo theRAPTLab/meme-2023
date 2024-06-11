@@ -37,13 +37,13 @@ import path from 'path';
 
 const remote = require('electron').remote;
 
-const AssetPath = (asset) => path.join(__static, asset);
+const AssetPath = asset => path.join(__static, asset);
 
-const styles = (theme) => ({
+const styles = theme => ({
   // theme will have properties for dynamic style definition
   menuButton: {
     marginLeft: -12,
-    marginRight: 20,
+    marginRight: 20
   },
   exportZone: {
     float: 'left',
@@ -52,7 +52,7 @@ const styles = (theme) => ({
     backgroundColor: '#b9efb8',
     border: '2px dashed #b9efb8',
     padding: '10px',
-    textAlign: 'center',
+    textAlign: 'center'
   },
   importZone: {
     float: 'left',
@@ -61,17 +61,17 @@ const styles = (theme) => ({
     backgroundColor: '#d6bfe8',
     border: '2px dashed #d6bfe8',
     padding: '10px',
-    textAlign: 'center',
+    textAlign: 'center'
   },
   dropHilight: {
-    border: '2px dashed rgba(255,0,0,1)',
+    border: '2px dashed rgba(255,0,0,1)'
   },
   disableZone: {
-    display: 'none',
-  },
+    display: 'none'
+  }
 });
 
-const App = styled(styles)((props) => {
+const App = styled(styles)(props => {
   const { classes } = props;
   const { main, client } = remote.getGlobal('serverinfo');
   const [dragExport, setDragExport] = useState(false);
@@ -90,19 +90,19 @@ const App = styled(styles)((props) => {
     });
   }, []);
 
-  const doDragToDesktop = (event) => {
+  const doDragToDesktop = event => {
     event.preventDefault();
     setDragExport(true);
     ipcRenderer.sendSync('dragtodesktop');
     setDragExport(false);
   };
   //
-  const doExportFile = (event) => {
+  const doExportFile = event => {
     event.preventDefault();
     ipcRenderer.send('onexport');
   };
   //
-  const doDragFromDesktop = (event) => {
+  const doDragFromDesktop = event => {
     event.preventDefault();
     // Use DataTransfer interface to access the file(s)
     const files = [];
@@ -113,7 +113,7 @@ const App = styled(styles)((props) => {
         path: file.path,
         size: file.size,
         type: file.type,
-        lastModified: file.lastModified,
+        lastModified: file.lastModified
       });
     }
     const retval = ipcRenderer.sendSync('dragfromdesktop', files);
@@ -123,7 +123,7 @@ const App = styled(styles)((props) => {
     setImported(true);
   };
   //
-  const doImportFile = (event) => {
+  const doImportFile = event => {
     event.preventDefault();
     const retval = ipcRenderer.sendSync('onimport');
     const { error, zippath } = retval;
@@ -189,20 +189,20 @@ const App = styled(styles)((props) => {
             src={AssetPath('mzip-import.png')}
             width="128px"
             onClick={doImportFile}
-            onDrop={(event) => {
+            onDrop={event => {
               if (dragExport) return;
               event.currentTarget.classList.remove(classes.dropHilight);
               doDragFromDesktop(event);
               event.preventDefault();
             }}
-            onDragStart={(event) => {
+            onDragStart={event => {
               event.preventDefault();
             }}
-            onDragOver={(event) => {
+            onDragOver={event => {
               if (!dragExport) event.currentTarget.classList.add(classes.dropHilight);
               event.preventDefault();
             }}
-            onDragLeave={(event) => {
+            onDragLeave={event => {
               event.currentTarget.classList.remove(classes.dropHilight);
               event.preventDefault();
             }}

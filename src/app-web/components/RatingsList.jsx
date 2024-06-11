@@ -74,7 +74,7 @@ class RatingsList extends React.Component {
 
     // Pre-render ratings icons
     const icons = {};
-    ratingsDef.forEach((def) => {
+    ratingsDef.forEach(def => {
       const n = def.rating;
       const count = Math.abs(n);
       const result = [];
@@ -95,7 +95,7 @@ class RatingsList extends React.Component {
 
     return (
       <div>
-        {ratingsDef.map((def) => {
+        {ratingsDef.map(def => {
           switch (Mode) {
             case 'edit':
               return (
@@ -104,7 +104,7 @@ class RatingsList extends React.Component {
                   <TextField
                     value={def.label}
                     placeholder="Label"
-                    onChange={(e) => UpdateField(def.rating, e.target.value)}
+                    onChange={e => UpdateField(def.rating, e.target.value)}
                   />
                 </div>
               );
@@ -114,7 +114,7 @@ class RatingsList extends React.Component {
                 <Button
                   key={def.label}
                   style={{ width: '300px' }}
-                  onClick={(e) => OnRatingSelect(e, def.rating)}
+                  onClick={e => OnRatingSelect(e, def.rating)}
                   color="primary"
                   variant={SelectedRating === String(def.rating) ? 'contained' : 'text'}
                   size="small"
@@ -149,7 +149,7 @@ RatingsList.propTypes = {
   RatingsDef: PropTypes.array,
   Mode: PropTypes.string,
   UpdateField: PropTypes.func,
-  OnRatingSelect: PropTypes.func, // optional
+  OnRatingSelect: PropTypes.func // optional
 };
 
 RatingsList.defaultProps = {
@@ -162,7 +162,7 @@ RatingsList.defaultProps = {
   },
   OnRatingSelect: () => {
     console.error('OnRatingSelect handler not defined (but optional)');
-  },
+  }
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

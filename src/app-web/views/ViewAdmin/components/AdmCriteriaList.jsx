@@ -25,7 +25,7 @@ import { withTheme } from 'styled-components';
 import MEMEStyles from '../../../components/MEMEStyles';
 import UR from '../../../../system/ursys';
 // import MDReactComponent from 'markdown-react-js';
-import MDReactComponent from 'react-markdown'
+import MDReactComponent from 'react-markdown';
 import { styled } from '@mui/system';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
@@ -35,10 +35,10 @@ const PKG = 'AdminCriteriaList';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const SmTableCell = styled(TableCell)((theme) => ({
+const SmTableCell = styled(TableCell)(theme => ({
   root: {
-    padding: '2px 10px 2px 2px',
-  },
+    padding: '2px 10px 2px 2px'
+  }
 }));
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -62,14 +62,14 @@ class CriteriaList extends React.Component {
           </TableRow>
         </TableHead>
         <TableBody>
-          {Criteria.map((crit) =>
+          {Criteria.map(crit =>
             IsInEditMode ? (
               <TableRow key={crit.id}>
                 <SmTableCell>
                   <TextField
                     value={crit.label}
                     placeholder="Label"
-                    onChange={(e) => UpdateField(crit.id, 'label', e.target.value)}
+                    onChange={e => UpdateField(crit.id, 'label', e.target.value)}
                   />
                 </SmTableCell>
                 <SmTableCell>
@@ -79,7 +79,7 @@ class CriteriaList extends React.Component {
                     multiline
                     rows={2}
                     style={{ width: '20em' }}
-                    onChange={(e) => UpdateField(crit.id, 'description', e.target.value)}
+                    onChange={e => UpdateField(crit.id, 'description', e.target.value)}
                   />
                 </SmTableCell>
                 <SmTableCell>
@@ -97,13 +97,13 @@ class CriteriaList extends React.Component {
                     markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
                   /> */}
                   <MDReactComponent
-                    // markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
+                  // markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
                   >
                     {crit.description}
                   </MDReactComponent>
                 </SmTableCell>
               </TableRow>
-            ),
+            )
           )}
         </TableBody>
       </Table>
@@ -116,7 +116,7 @@ CriteriaList.propTypes = {
   Criteria: PropTypes.array,
   IsInEditMode: PropTypes.bool,
   UpdateField: PropTypes.func,
-  OnDeleteCriteriaClick: PropTypes.func,
+  OnDeleteCriteriaClick: PropTypes.func
 };
 
 CriteriaList.defaultProps = {
@@ -127,7 +127,7 @@ CriteriaList.defaultProps = {
   },
   OnDeleteCriteriaClick: () => {
     console.error('Missing OnDeleteCriteriaClick handler');
-  },
+  }
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

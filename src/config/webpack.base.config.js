@@ -7,7 +7,7 @@ const PR = `${CW}${PROMPTS.Pad('WEBPACK')}${CR}`;
 
 // see https://webpack.js.org/configuration/module/#rule-use for better 'use' options syntax
 
-module.exports = (env) => {
+module.exports = env => {
   console.log(PR, `... using webpack.base.config`);
 
   // Any directories you will be adding code/files into, need to be added to this array so webpack will pick them up
@@ -20,19 +20,19 @@ module.exports = (env) => {
         rules: [
           {
             test: /\.css$/,
-            use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
+            use: [{ loader: 'style-loader' }, { loader: 'css-loader' }]
             // we're loading css from node_modules, so don't exclude it
             // exclude: /node_modules/
           },
           {
             test: /\.jsx?$/,
             use: {
-              loader: 'babel-loader',
+              loader: 'babel-loader'
             },
             include: defaultInclude,
             // note: assuming that we're not loading anything from
             // node_modules that needs to be babelized
-            exclude: /node_modules/,
+            exclude: /node_modules/
           },
           // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
           { enforce: 'pre', test: /\.js$/, loader: 'source-map-loader' },
@@ -40,24 +40,24 @@ module.exports = (env) => {
             test: /\.(jpe?g|png|gif)$/,
             type: 'asset/resource',
             generator: {
-              filename: 'img/[name]__[hash:base64:5][ext]',
+              filename: 'img/[name]__[hash:base64:5][ext]'
             },
-            include: [path.resolve(__dirname, 'src')],
+            include: [path.resolve(__dirname, 'src')]
           },
           {
             test: /\.(eot|svg|ttf|woff|woff2)$/,
             type: 'asset/resource',
             generator: {
-              filename: 'font/[name]__[hash:base64:5][ext]',
+              filename: 'font/[name]__[hash:base64:5][ext]'
             },
-            include: [path.resolve(__dirname, 'src')],
-          },
-        ],
+            include: [path.resolve(__dirname, 'src')]
+          }
+        ]
       },
       // make require() handle both .js and .jsx files (default only .js)
       resolve: {
-        extensions: ['.js', '.jsx'],
-      },
-    },
+        extensions: ['.js', '.jsx']
+      }
+    }
   ]); // merge array
 };

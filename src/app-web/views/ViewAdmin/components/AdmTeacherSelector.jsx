@@ -57,7 +57,7 @@ class TeacherSelector extends React.Component {
       selectedTeacherId: '',
       selectedTeacherName: '',
       addTeacherDialogOpen: false,
-      updateExistingTeacher: false,
+      updateExistingTeacher: false
     };
   }
 
@@ -78,7 +78,7 @@ class TeacherSelector extends React.Component {
   DoTeacherSelect(data) {
     this.setState({
       selectedTeacherId: data.teacherId,
-      selectedTeacherName: ADM.GetTeacher(data.teacherId).name,
+      selectedTeacherName: ADM.GetTeacher(data.teacherId).name
     });
   }
 
@@ -89,7 +89,7 @@ class TeacherSelector extends React.Component {
       this.setState({
         selectedTeacherName: '',
         addTeacherDialogOpen: true,
-        updateExistingTeacher: false,
+        updateExistingTeacher: false
       });
     } else {
       ADM.SelectTeacher(selectedTeacherId);
@@ -103,7 +103,7 @@ class TeacherSelector extends React.Component {
     if (this.state.updateExistingTeacher) {
       const teacher = ADMObj.Teacher({
         id: this.state.selectedTeacherId,
-        name,
+        name
       });
       ADM.DB_UpdateTeacher(teacher);
     } else {
@@ -121,7 +121,7 @@ class TeacherSelector extends React.Component {
     e.stopPropagation();
     this.setState({
       addTeacherDialogOpen: true,
-      updateExistingTeacher: true,
+      updateExistingTeacher: true
     });
   }
 
@@ -132,7 +132,7 @@ class TeacherSelector extends React.Component {
       selectedTeacherId,
       selectedTeacher,
       addTeacherDialogOpen,
-      selectedTeacherName,
+      selectedTeacherName
     } = this.state;
     return (
       <Paper style={classes.admPaper}>
@@ -146,10 +146,10 @@ class TeacherSelector extends React.Component {
                 input={<OutlinedInput name="teacher" id="teacher" sx={{ width: 120 }} />}
               >
                 <MenuItem value="" />
-                {teachers.map((teacher) => {
+                {teachers.map(teacher => {
                   const tok = SESSION.MakeTeacherToken(teacher.name, {
                     groupId: 0,
-                    teacherId: teacher.id,
+                    teacherId: teacher.id
                   });
                   return (
                     <MenuItem value={teacher.id} key={teacher.id}>
@@ -180,7 +180,7 @@ class TeacherSelector extends React.Component {
                 label="Name"
                 value={selectedTeacherName}
                 fullWidth
-                onChange={(e) => this.setState({ selectedTeacherName: e.target.value })}
+                onChange={e => this.setState({ selectedTeacherName: e.target.value })}
               />
             </DialogContent>
             <DialogActions>
@@ -200,11 +200,11 @@ class TeacherSelector extends React.Component {
 
 TeacherSelector.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 TeacherSelector.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

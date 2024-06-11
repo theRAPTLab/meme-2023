@@ -51,11 +51,11 @@ import 'bootstrap/dist/css/bootstrap.css';
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true;
-const styles = (theme) => ({
+const styles = theme => ({
   formControl: {
     margin: theme.spacing(1),
-    minWidth: 120,
-  },
+    minWidth: 120
+  }
 });
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ class GroupSelector extends React.Component {
     this.state = {
       selectedTeacherId: '',
       selectedClassroomId: '',
-      selectedGroupId: '',
+      selectedGroupId: ''
     };
     this.OnTeacherSelect = this.OnTeacherSelect.bind(this);
     this.OnClassroomSelect = this.OnClassroomSelect.bind(this);
@@ -79,19 +79,19 @@ class GroupSelector extends React.Component {
 
   OnTeacherSelect(e) {
     this.setState({
-      selectedTeacherId: e.target.value,
+      selectedTeacherId: e.target.value
     });
   }
 
   OnClassroomSelect(e) {
     this.setState({
-      selectedClassroomId: e.target.value,
+      selectedClassroomId: e.target.value
     });
   }
 
   OnGroupSelect(e) {
     this.setState({
-      selectedGroupId: e.target.value,
+      selectedGroupId: e.target.value
     });
   }
 
@@ -129,7 +129,7 @@ class GroupSelector extends React.Component {
               onChange={this.OnTeacherSelect}
               inputProps={{ id: 'clone-teacher-select' }}
             >
-              {teachers.map((teacher) => (
+              {teachers.map(teacher => (
                 <MenuItem value={teacher.id} key={teacher.id}>
                   {teacher.name}
                 </MenuItem>
@@ -143,7 +143,7 @@ class GroupSelector extends React.Component {
               onChange={this.OnClassroomSelect}
               inputProps={{ id: 'clone-classroom-select' }}
             >
-              {classrooms.map((classroom) => (
+              {classrooms.map(classroom => (
                 <MenuItem value={classroom.id} key={classroom.id}>
                   {classroom.name}
                 </MenuItem>
@@ -158,7 +158,7 @@ class GroupSelector extends React.Component {
               inputProps={{ id: 'clone-group-select' }}
             >
               <MenuItem value=""> </MenuItem>
-              {groups.map((group) => (
+              {groups.map(group => (
                 <MenuItem value={group.id} key={group.id}>
                   {group.name}
                 </MenuItem>
@@ -196,7 +196,7 @@ GroupSelector.defaultProps = {
   OnSelect: () => {
     console.log('OnSelect function not defined!');
   },
-  classes: { isDefaultProps: true },
+  classes: { isDefaultProps: true }
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
@@ -207,7 +207,7 @@ GroupSelector.propTypes = {
   type: PropTypes.string, // 'clone' || 'move'
   OnClose: PropTypes.func,
   OnSelect: PropTypes.func,
-  classes: PropTypes.shape({ formControl: PropTypes.string }),
+  classes: PropTypes.shape({ formControl: PropTypes.string })
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// required for UR EXEC phase filtering by view path

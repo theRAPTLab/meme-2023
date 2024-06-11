@@ -36,11 +36,11 @@ function HumanDate(timestamp) {
   const timestring = date.toLocaleTimeString('en-Us', {
     hour: '2-digit',
     minute: '2-digit',
-    second: '2-digit',
+    second: '2-digit'
   });
   const datestring = date.toLocaleDateString('en-US', {
     month: 'short',
-    day: 'numeric',
+    day: 'numeric'
   });
   return `${datestring} ${timestring}`;
 }
@@ -68,7 +68,7 @@ function Sort(array, comparator) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
-  return stabilizedThis.map((el) => el[0]);
+  return stabilizedThis.map(el => el[0]);
 }
 
 class ModelsListTable extends React.Component {
@@ -76,7 +76,7 @@ class ModelsListTable extends React.Component {
     super();
     this.state = {
       order: 'desc',
-      orderBy: 'dateModified',
+      orderBy: 'dateModified'
     };
     this.OnSortClick = this.OnSortClick.bind(this);
   }
@@ -86,9 +86,9 @@ class ModelsListTable extends React.Component {
   componentWillUnmount() {}
 
   OnSortClick(id) {
-    this.setState((state) => ({
+    this.setState(state => ({
       order: state.orderBy === id && state.order === 'asc' ? 'desc' : 'asc',
-      orderBy: id,
+      orderBy: id
     }));
   }
 
@@ -101,7 +101,7 @@ class ModelsListTable extends React.Component {
       OnModelSelect,
       OnModelMove,
       OnModelClone,
-      OnModelDelete,
+      OnModelDelete
     } = this.props;
     const { orderBy, order } = this.state;
 
@@ -117,15 +117,15 @@ class ModelsListTable extends React.Component {
     headCells.push(
       { id: 'dateModified', label: 'UPDATED' },
       { id: 'dateCreated', label: 'CREATED' },
-      { id: 'actions', label: '' },
+      { id: 'actions', label: '' }
     );
 
-    const modelsWithGroupLabels = models.map((m) => {
+    const modelsWithGroupLabels = models.map(m => {
       // in showAdminOnlyView, also show Classrooms
       return Object.assign(m, {
         groupLabel: showAdminOnlyView
           ? `${ADM.GetClassroomNameByGroup(m.groupId)}:${ADM.GetGroupName(m.groupId)}`
-          : ADM.GetGroupName(m.groupId),
+          : ADM.GetGroupName(m.groupId)
       });
     });
 
@@ -134,7 +134,7 @@ class ModelsListTable extends React.Component {
         <Table>
           <TableHead>
             <TableRow>
-              {headCells.map((c) => (
+              {headCells.map(c => (
                 <TableCell key={c.id}>
                   <TableSortLabel
                     active={orderBy === c.id}
@@ -148,11 +148,11 @@ class ModelsListTable extends React.Component {
             </TableRow>
           </TableHead>
           <TableBody>
-            {Sort(modelsWithGroupLabels, GetComparator(order, orderBy)).map((model) => (
+            {Sort(modelsWithGroupLabels, GetComparator(order, orderBy)).map(model => (
               <TableRow key={model.id}>
                 <TableCell>
                   {isLoggedIn ? (
-                    <Button color="primary" onClick={(e) => OnModelSelect(model.id)}>
+                    <Button color="primary" onClick={e => OnModelSelect(model.id)}>
                       {model.title}
                     </Button>
                   ) : (
@@ -164,13 +164,13 @@ class ModelsListTable extends React.Component {
                 <TableCell>{HumanDate(model.dateCreated)}</TableCell>
                 <TableCell>
                   {showAdminOnlyView ? (
-                    <Button onClick={(e) => OnModelMove(model.id)}>MOVE</Button>
+                    <Button onClick={e => OnModelMove(model.id)}>MOVE</Button>
                   ) : (
                     ''
                   )}
-                  <Button onClick={(e) => OnModelClone(model.id)}>CLONE</Button>
+                  <Button onClick={e => OnModelClone(model.id)}>CLONE</Button>
                   {showAdminOnlyView && !model.deleted ? (
-                    <Button onClick={(e) => OnModelDelete(model.id)}>
+                    <Button onClick={e => OnModelDelete(model.id)}>
                       <DeleteIcon />
                     </Button>
                   ) : (
@@ -196,7 +196,7 @@ ModelsListTable.propTypes = {
   OnModelSelect: PropTypes.func,
   OnModelMove: PropTypes.func,
   OnModelClone: PropTypes.func,
-  OnModelDelete: PropTypes.func,
+  OnModelDelete: PropTypes.func
 };
 
 ModelsListTable.defaultProps = {
@@ -215,7 +215,7 @@ ModelsListTable.defaultProps = {
   },
   OnModelDelete: () => {
     console.error('Missing OnModelDelete handler');
-  },
+  }
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

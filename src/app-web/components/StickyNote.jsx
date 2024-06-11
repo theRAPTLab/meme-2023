@@ -327,13 +327,19 @@ class StickyNote extends React.Component {
     });
 
     // Styled Components
-    const StickyNoteTypographyAuthor = styled(Typography)(() => classes.stickynoteCardAuthor);
-    const StickyNoteTypographyLabel = styled(Typography)(() => classes.stickynoteCardLabel);
-    const StickyNoteInputLabel = styled(InputLabel)(() => classes.stickynoteCardLabel);
-    const StickyNoteIconButton = styled(IconButton)(() => classes.stickynoteCardEditBtn);
-    const StickyNotePaper = styled(Paper)(() =>
+    const StyledTypographyAuthor = styled(Typography)(() => classes.stickynoteCardAuthor);
+    const StyledTypographyLabel = styled(Typography)(() => classes.stickynoteCardLabel);
+    const StyledInputLabel = styled(InputLabel)(() => classes.stickynoteCardLabel);
+    const StyledIconButton = styled(IconButton)(() => classes.stickynoteCardEditBtn);
+    const StyledPaper = styled(Paper)(() =>
       hasBeenRead ? classes.stickynoteCardRead : classes.stickynoteCard,
     );
+    const StyledDeleteIcon = styled(DeleteIcon)(() => classes.stickynoteCardAuthor);
+    const StyledSaveIcon = styled(SaveIcon)(() => classes.stickynoteCardAuthor);
+    const StyledEditIcon = styled(EditIcon)(() => classes.stickynoteCardAuthor);
+    const StyledDivLabel = styled('div')(() => classes.stickynoteCardLabel);
+    const StyledDivCriteria = styled('div')(() => classes.stickynoteCardCriteria);
+    const StyledInput = styled(Input)(() => classes.stickynoteCardInput);
 
     const showCriteria = isBeingEdited || comment.id !== '';
     const selectedCriteria = criteria.find((crit) => crit.id === comment.criteriaId);
@@ -357,29 +363,25 @@ class StickyNote extends React.Component {
     }
     return (
       <ClickAwayListener onClickAway={this.OnClickAway}>
-        <StickyNotePaper onMouseEnter={this.OnMouseEnter} onMouseLeave={this.OnMouseLeave}>
+        <StyledPaper onMouseEnter={this.OnMouseEnter} onMouseLeave={this.OnMouseLeave}>
           <Grid container>
             <Grid item xs={3}>
-              <StickyNoteTypographyAuthor variant="subtitle2">
+              <StyledTypographyAuthor variant="subtitle2">
                 {`${ADM.GetStudentName(comment.author)} ${ADM.GetGroupNameByStudent(
                   comment.author,
                 )}`}
-              </StickyNoteTypographyAuthor>
-              <StickyNoteTypographyLabel variant="caption">
+              </StyledTypographyAuthor>
+              <StyledTypographyLabel variant="caption">
                 {`${timestring}`}
                 <br />
                 {`${datestring}`}
-              </StickyNoteTypographyLabel>
+              </StyledTypographyLabel>
             </Grid>
             <Grid item xs={9}>
-              <div style={{ float: 'right' }} className={classes.stickynoteCardLabel}>
-                #{comment.id}
-              </div>
+              <StyledDivLabel style={{ float: 'right' }}>#{comment.id}</StyledDivLabel>
               <div hidden={!showCriteria}>
-                <StickyNoteInputLabel>CRITERIA:&nbsp;</StickyNoteInputLabel>
-                <div className={classes.stickynoteCardCriteria} title={criteriaDescription}>
-                  {criteriaDisplay}
-                </div>
+                <StyledInputLabel>CRITERIA:&nbsp;</StyledInputLabel>
+                <StyledDivCriteria title={criteriaDescription}>{criteriaDisplay}</StyledDivCriteria>
                 <div hidden={!isBeingEdited}>
                   {/* <MDReactComponent
                     className={classes.stickynoteCardCriteriaDescription}
@@ -395,14 +397,13 @@ class StickyNote extends React.Component {
                 </div>
               </div>
               <ThemeProvider theme={theme}>
-                <Input
-                  className={classes.stickynoteCardInput}
+                <StyledInput
                   value={comment.text}
                   placeholder={comment.placeholder}
                   onChange={(e) => this.OnCommentTextChange(e.target.value)}
                   onMouseDown={(e) => e.stopPropagation()}
                   variant="filled"
-                  rowsMax="4"
+                  maxRows={4}
                   multiline
                   disableUnderline
                   inputProps={{
@@ -412,43 +413,43 @@ class StickyNote extends React.Component {
                   inputRef={this.textInput}
                 />
               </ThemeProvider>
-              <div className={classes.stickynoteCardLabel}>
+              <StyledDivLabel>
                 <EvidenceNotes comment={comment} isBeingEdited={isBeingEdited} />
-              </div>
+              </StyledDivLabel>
             </Grid>
           </Grid>
           <Grid container style={{ alignItems: 'flex-end', marginTop: '3px', height: '20px' }}>
             <Grid item style={{ flexGrow: '1' }}>
-              <StickyNoteIconButton
+              <StyledIconButton
                 size="small"
                 hidden={!showEditButtons || !allowedToDelete}
                 onClick={this.OnDeleteClick}
               >
-                <DeleteIcon fontSize="small" className={classes.stickynoteCardAuthor} />
-              </StickyNoteIconButton>
+                <StyledDeleteIcon fontSize="small" />
+              </StyledIconButton>
             </Grid>
             <Grid item xs={1}>
               {isBeingEdited ? ( // Render the Save button when in edit mode
-                <StickyNoteIconButton
+                <StyledIconButton
                   size="small"
                   hidden={!(allowedToEdit && isBeingEdited) || selectedCriteria === undefined}
                   onClick={this.OnSaveClick}
                 >
-                  <SaveIcon fontSize="small" className={classes.stickynoteCardAuthor} />
-                </StickyNoteIconButton>
+                  <StyledSaveIcon fontSize="small" />
+                </StyledIconButton>
               ) : (
                 // Render the Edit button when not in edit mode
-                <StickyNoteIconButton
+                <StyledIconButton
                   size="small"
                   hidden={!showEditButtons || !allowedToEdit || isBeingEdited}
                   onClick={this.OnEditClick}
                 >
-                  <EditIcon fontSize="small" className={classes.stickynoteCardAuthor} />
-                </StickyNoteIconButton>
+                  <StyledEditIcon fontSize="small" />
+                </StyledIconButton>
               )}
             </Grid>
           </Grid>
-        </StickyNotePaper>
+        </StyledPaper>
       </ClickAwayListener>
     );
   }

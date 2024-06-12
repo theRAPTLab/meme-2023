@@ -25,10 +25,10 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
-import Fade from '@material-ui/core/Fade'
+import { withTheme } from 'styled-components';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
+import Fade from '@mui/material/Fade';
 
 /// MODULES ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -153,7 +153,7 @@ class TestLockSync extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     return (
       <div className={classes.root}>
         <Grid container spacing={2}>
@@ -198,4 +198,4 @@ TestLockSync.MOD_ID = __dirname;
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(styles)(TestLockSync);
+export default withTheme(TestLockSync);

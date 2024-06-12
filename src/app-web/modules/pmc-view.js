@@ -1,5 +1,6 @@
-import { yellow, green, red, grey } from '@material-ui/core/colors';
-import SVGJS from '@svgdotjs/svg.js/src/svg';
+import { yellow, green, red, grey } from '@mui/material/colors';
+import { SVG } from '@svgdotjs/svg.js';
+import '@svgdotjs/svg.panzoom.js';
 import DATA from './data';
 import VProp from './class-vprop';
 import VMech from './class-vmech';
@@ -42,7 +43,7 @@ UR.Subscribe('PROP_MOVED', data => {
  */
 PMCView.InitializeViewgraph = container => {
   m_element = container;
-  m_svgroot = SVGJS(m_element);
+  m_svgroot = SVG(m_element);
   m_svgroot
     .size(1000, 1000)
     .panZoom({ zoomMin: 0.25, zoomMax: 2 })

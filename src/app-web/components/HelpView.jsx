@@ -14,15 +14,15 @@ https://github.com/mzabriskie/react-draggable
 import React from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
-import MDReactComponent from 'markdown-react-js';
-import Divider from '@material-ui/core/Divider';
-import IconButton from '@material-ui/core/IconButton';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
+import MDReactComponent from 'react-markdown'
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 // Material UI Icons
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@mui/icons-material/Close';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -131,12 +131,12 @@ Moreland, Vickery, Murphy & Stiso.
 
   render() {
     const { isOpen, helptext, credittext } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const criteria = ADM.GetCriteriaByModel(); // always use the current model's criteria
 
     return (
       <Draggable>
-        <Paper className={classes.helpViewPaper} hidden={!isOpen}>
+        <Paper style={classes.helpViewPaper} hidden={!isOpen}>
           <IconButton
             size="small"
             style={{ position: 'absolute', right: '5px', top: '5px' }}
@@ -157,8 +157,8 @@ Moreland, Vickery, Murphy & Stiso.
               </p>
             </div>
             <CriteriaList Criteria={criteria} IsInEditMode={false} />
-            <MDReactComponent className={classes.helpViewText} text={helptext} />
-            <MDReactComponent className={classes.helpViewText} text={credittext} />
+            <MDReactComponent className={classes.helpViewText} skipHtml>{helptext}</MDReactComponent>
+            <MDReactComponent className={classes.helpViewText} skipHtml>{credittext}</MDReactComponent>
           </div>
         </Paper>
       </Draggable>
@@ -177,4 +177,4 @@ HelpView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(HelpView);
+export default withTheme(HelpView);

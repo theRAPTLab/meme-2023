@@ -8,12 +8,12 @@ Sentence Starters
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import InputLabel from '@material-ui/core/InputLabel';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
+import Button from '@mui/material/Button';
+import InputLabel from '@mui/material/InputLabel';
+import Paper from '@mui/material/Paper';
+import TextField from '@mui/material/TextField';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -114,11 +114,11 @@ class SentenceStarters extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const { sentences, isInEditMode, classroomId } = this.state;
 
     return (
-      <Paper className={classes.admPaper}>
+      <Paper style={classes.admPaper}>
         <InputLabel>SENTENCE STARTERS</InputLabel>
         <TextField
           value={sentences}
@@ -154,4 +154,4 @@ SentenceStarters.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(SentenceStarters);
+export default withTheme(SentenceStarters);

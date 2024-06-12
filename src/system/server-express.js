@@ -94,7 +94,8 @@ function Start() {
     const instance = wpack_mid(compiler, {
       // logLevel: 'silent', // turns off [wdm] messages
       publicPath: webConfig.output.publicPath,
-      stats: 'errors-only' // see https://webpack.js.org/configuration/stats/
+      stats: 'summary', // see https://webpack.js.org/configuration/stats/
+      writeToDisk: true // write files to disk in addition to memory
     });
     app.use(instance);
     app.use(wpack_hot(compiler));
@@ -115,7 +116,7 @@ function Start() {
     // return promise when server starts
     promise = new Promise((resolve, reject) => {
       let INTERVAL_COUNT = 0;
-      const INTERVAL_MAX = 15;
+      const INTERVAL_MAX = 60;
       let COMPILE_RESOLVED = false;
       const INTERVAL_PERIOD = 2000;
       const COMPILE_TIME = Math.floor((INTERVAL_MAX * INTERVAL_PERIOD) / 1000);

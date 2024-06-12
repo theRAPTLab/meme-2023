@@ -45,20 +45,21 @@ state
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import Input from '@mui/material/Input';
+import InputLabel from '@mui/material/InputLabel';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 // Material UI Icons
-import DeleteIcon from '@material-ui/icons/Delete';
-import EditIcon from '@material-ui/icons/Edit';
-import SaveIcon from '@material-ui/icons/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
 
 // Material UI Theming
-import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -67,7 +68,8 @@ import UR from '../../system/ursys';
 import ADM from '../modules/data';
 import PMC from '../modules/pmc-data';
 import ASET from '../modules/adm-settings';
-import MDReactComponent from 'markdown-react-js';
+// import MDReactComponent from 'markdown-react-js';
+import MDReactComponent from 'react-markdown';
 import EvidenceNotes from './EvidenceNotes';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -286,7 +288,7 @@ class StickyNote extends React.Component {
   render() {
     // theme overrides
     // See https://github.com/mui-org/material-ui/issues/14905 for details
-    const theme = createMuiTheme();
+    const theme = createTheme();
     theme.overrides = {
       MuiInputBase: {
         input: {
@@ -318,7 +320,7 @@ class StickyNote extends React.Component {
       criteria,
       comment
     } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const hasBeenRead = PMC.HasBeenRead(this.props.comment.id, ADM.GetAuthorId());
     const date = new Date(comment.date);
     const timestring = date.toLocaleTimeString('en-Us', {
@@ -382,12 +384,12 @@ class StickyNote extends React.Component {
                 <div hidden={!isBeingEdited}>
                   <MDReactComponent
                     className={classes.stickynoteCardCriteriaDescription}
-                    text={criteriaDescription}
-                    markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
-                  />
+                  >
+                    {criteriaDescription}
+                  </MDReactComponent>
                 </div>
               </div>
-              <MuiThemeProvider theme={theme}>
+              <ThemeProvider theme={theme}>
                 <Input
                   className={classes.stickynoteCardInput}
                   value={comment.text}
@@ -404,7 +406,7 @@ class StickyNote extends React.Component {
                   }}
                   inputRef={this.textInput}
                 />
-              </MuiThemeProvider>
+              </ThemeProvider>
               <div className={classes.stickynoteCardLabel}>
                 <EvidenceNotes comment={comment} isBeingEdited={isBeingEdited} />
               </div>
@@ -435,7 +437,7 @@ class StickyNote extends React.Component {
                 // Render the Edit button when not in edit mode
                 <IconButton
                   size="small"
-                  hidden={!showEditButtons || (!allowedToEdit || isBeingEdited)}
+                  hidden={!showEditButtons || !allowedToEdit || isBeingEdited}
                   onClick={this.OnEditClick}
                   className={classes.stickynoteCardEditBtn}
                 >
@@ -480,4 +482,4 @@ StickyNote.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(StickyNote);
+export default withTheme(StickyNote);

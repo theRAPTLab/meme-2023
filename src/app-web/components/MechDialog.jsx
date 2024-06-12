@@ -13,15 +13,15 @@ needs to select Properties and Mechanisms while th e "dialog" is open.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import Slide from '@material-ui/core/Slide';
-import Switch from '@material-ui/core/Switch';
-import TextField from '@material-ui/core/TextField';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Slide from '@mui/material/Slide';
+import Switch from '@mui/material/Switch';
+import TextField from '@mui/material/TextField';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -431,7 +431,7 @@ class MechDialog extends React.Component {
       slideIn,
       bidirectional
     } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     let sourceSourceType;
     if (sourceId !== '') {
@@ -453,7 +453,7 @@ class MechDialog extends React.Component {
 
     return (
       <Card className={classes.edgeDialog} hidden={!isOpen}>
-        <Paper className={classes.edgeDialogPaper}>
+        <Paper style={classes.edgeDialogPaper}>
           <form onSubmit={this.OnCreateClick}>
             <div className={classes.edgeDialogWindowLabel}>
               <b>ADD {DATAMAP.PMC_MODELTYPES.MECHANISM.label.toUpperCase()}</b>
@@ -482,7 +482,7 @@ class MechDialog extends React.Component {
                 label="Label"
                 value={label}
                 onChange={this.OnTextChange}
-                className={classes.edgeDialogTextField}
+                style={classes.edgeDialogTextField}
               />
               &nbsp;&nbsp;
               <MechArrow />
@@ -534,7 +534,7 @@ class MechDialog extends React.Component {
                 rows={2}
                 value={description}
                 onChange={this.OnDescriptionChange}
-                className={classes.edgeDialogDescriptionField}
+                style={classes.edgeDialogDescriptionField}
               />
               <div style={{ flexGrow: '1' }}>&nbsp;</div>
               <Button onClick={this.OnClose} color="primary" size="small">
@@ -568,4 +568,4 @@ MechDialog.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(MechDialog);
+export default withTheme(MechDialog);

@@ -11,24 +11,23 @@ import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Material UI Elements
-import { indigo } from '@material-ui/core/colors';
-import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
-import Drawer from '@material-ui/core/Drawer';
-import Fab from '@material-ui/core/Fab';
-import Tooltip from '@material-ui/core/Tooltip';
-import TreeView from '@material-ui/lab/TreeView';
-import TreeItem from '@material-ui/lab/TreeItem';
-import Typography from '@material-ui/core/Typography';
+import { indigo } from '@mui/material/colors';
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
+import Drawer from '@mui/material/Drawer';
+import Fab from '@mui/material/Fab';
+import Tooltip from '@mui/material/Tooltip';
+import { TreeView, TreeItem } from '@mui/x-tree-view';
+import Typography from '@mui/material/Typography';
 // Material UI Icons
-import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 // MEME Modules and Utils
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
@@ -36,6 +35,7 @@ import DEFAULTS from '../../modules/defaults';
 import DATA from '../../modules/data';
 import ADM from '../../modules/data';
 import DATAMAP from '../../../system/common-datamap';
+import { styled } from '@mui/system';
 
 const { COLOR, CoerceToEdgeObj } = DEFAULTS;
 
@@ -44,7 +44,7 @@ const { COLOR, CoerceToEdgeObj } = DEFAULTS;
 const DBG = false;
 const PKG = 'ToolsPanel:';
 
-const SmallFab = withStyles(theme => ({
+const SmallFab = styled(Fab)(({ theme }) => ({
   root: {
     margin: '5px 0'
   },
@@ -53,17 +53,17 @@ const SmallFab = withStyles(theme => ({
     textTransform: 'capitalize',
     color: '#fff'
   }
-}))(props => <Fab {...props} />);
+}));
 
 // Customized TreeItem Component with smaller font
-const SmallTreeItem = withStyles(theme => ({
+const SmallTreeItem = styled(TreeItem)(({ theme }) => ({
   iconContainer: {
     width: '16px'
   },
   label: {
     fontSize: '11px'
   }
-}))(props => <TreeItem {...props} />);
+}));
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -206,7 +206,7 @@ class ToolsPanel extends React.Component {
   // This supports recursive calls to handle nested components.
   RenderComponentsListItem(propId, isSub = false) {
     const { selectedPropId, hoveredPropId } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const prop = DATA.Prop(propId);
     if (prop === undefined) {
       // Catch error if a component has not been correctly deleted, so a mech
@@ -248,7 +248,7 @@ class ToolsPanel extends React.Component {
 
   RenderMechanismsList(mechIds) {
     const { selectedMechId, hoveredMechId } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     let i = 0;
     return mechIds.map(mechId => {
       const mech = DATA.Mech(mechId);
@@ -442,6 +442,7 @@ class ToolsPanel extends React.Component {
 /// and are declared for validation
 ToolsPanel.defaultProps = {
   classes: {},
+  theme: {},
   isDisabled: false
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -459,4 +460,4 @@ ToolsPanel.MOD_ID = __dirname;
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles
-export default withStyles(MEMEStyles)(ToolsPanel);
+export default withTheme(ToolsPanel);

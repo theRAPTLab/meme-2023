@@ -47,13 +47,13 @@ ratingsDefs looks like this:
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
+import Button from '@mui/material/Button';
 // Material UI Icons
-import NegativeIcon from '@material-ui/icons/Clear';
-import BlockIcon from '@material-ui/icons/Block';
-import PositiveIcon from '@material-ui/icons/Add';
+import NegativeIcon from '@mui/icons-material/Clear';
+import BlockIcon from '@mui/icons-material/Block';
+import PositiveIcon from '@mui/icons-material/Add';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -134,4 +134,4 @@ RatingButton.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(RatingButton);
+export default withTheme(RatingButton);

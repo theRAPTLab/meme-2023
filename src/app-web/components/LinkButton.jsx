@@ -52,23 +52,24 @@ See MechDialog and EvidenceLink for example implementations.
 import React from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
+import Button from '@mui/material/Button';
 import DATAMAP from '../../system/common-datamap';
 // Material UI Icons
-import CreateIcon from '@material-ui/icons/Create';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import CreateIcon from '@mui/icons-material/Create';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
 import DEFAULTS from '../modules/defaults';
+import { styled } from '@mui/system';
 const { COLOR } = DEFAULTS;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const LButton = withStyles(theme => ({
+const LButton = styled(Button)(theme => ({
   root: {
     padding: '2px 7px',
     lineHeight: '1.2em',
@@ -76,8 +77,7 @@ const LButton = withStyles(theme => ({
       color: 'rgba(0,0,0,0.3)'
     }
   }
-}))(props => <Button {...props} />);
-
+}));
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -161,6 +161,7 @@ class LinkButton extends React.Component {
         className={clsx({ [classes.evidenceLinkSelectButtonExpanded]: isExpanded })}
         disabled={isDisabled}
         size={'small'}
+        ref={this.props.forwardedRef}
       >
         {icon}
         <span className={classes.evidenceLinkSelectButtonLabel}>{label}</span>
@@ -192,6 +193,10 @@ LinkButton.defaultProps = {
   }
 };
 
+const forwardRef = React.forwardRef((props, ref) => (
+  <LinkButton {...props} forwardedRef={ref} />
+));
+
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(LinkButton);
+export default withTheme(forwardRef);

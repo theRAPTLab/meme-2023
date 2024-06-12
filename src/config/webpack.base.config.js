@@ -1,4 +1,4 @@
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const path = require('path');
 const PROMPTS = require('../system/util/prompts');
 //
@@ -38,17 +38,19 @@ module.exports = env => {
           { enforce: 'pre', test: /\.js$/, loader: 'source-map-loader' },
           {
             test: /\.(jpe?g|png|gif)$/,
-            use: [{ loader: 'file-loader?name=img/[name]__[hash:base64:5].[ext]' }],
-            // note: webpack imported images probably are only in our source folder
-            // doesn't cover static assets loaded at runtime (?)
-            include: defaultInclude
+            type: 'asset/resource',
+            generator: {
+              filename: 'img/[name]__[hash:base64:5][ext]'
+            },
+            include: [path.resolve(__dirname, 'src')]
           },
           {
             test: /\.(eot|svg|ttf|woff|woff2)$/,
-            use: [{ loader: 'file-loader?name=font/[name]__[hash:base64:5].[ext]' }],
-            // note: webpack imported fonts are probably only in our source folder
-            // doesn't cover static assets loaded at runtime (?)
-            include: defaultInclude
+            type: 'asset/resource',
+            generator: {
+              filename: 'font/[name]__[hash:base64:5][ext]'
+            },
+            include: [path.resolve(__dirname, 'src')]
           }
         ]
       },

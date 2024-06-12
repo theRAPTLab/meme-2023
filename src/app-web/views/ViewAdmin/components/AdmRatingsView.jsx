@@ -16,15 +16,15 @@ time rather than having to individually select and save each edit.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import InputLabel from '@material-ui/core/InputLabel';
-import Paper from '@material-ui/core/Paper';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import InputLabel from '@mui/material/InputLabel';
+import Paper from '@mui/material/Paper';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -159,11 +159,11 @@ class RatingsView extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const { ratingsDef, isInEditMode, classroomId } = this.state;
 
     return (
-      <Paper className={classes.admPaper}>
+      <Paper style={classes.admPaper}>
         <InputLabel>RATINGS DEFINITIONS</InputLabel>
         <Dialog open={isInEditMode}>
           <DialogTitle>Edit Ratings Definitions</DialogTitle>
@@ -219,4 +219,4 @@ RatingsView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(RatingsView);
+export default withTheme(RatingsView);

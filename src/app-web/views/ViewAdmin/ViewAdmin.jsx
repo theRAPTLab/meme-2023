@@ -8,9 +8,9 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
+import { withTheme } from 'styled-components';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import UR from '../../../system/ursys';
@@ -66,7 +66,7 @@ class ViewAdmin extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     if (!UR.IsAdminLoggedIn())
       return (
@@ -140,4 +140,4 @@ ViewAdmin.MOD_ID = __dirname;
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(styles)(ViewAdmin);
+export default withTheme(ViewAdmin);

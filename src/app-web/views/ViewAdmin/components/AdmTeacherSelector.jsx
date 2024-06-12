@@ -11,22 +11,22 @@ Teachers use a groupId of 0.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import FormControl from '@material-ui/core/FormControl';
-import Grid from '@material-ui/core/Grid';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Paper from '@material-ui/core/Paper';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import TextField from '@material-ui/core/TextField';
-import Select from '@material-ui/core/Select';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -126,7 +126,7 @@ class TeacherSelector extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const {
       teachers,
       selectedTeacherId,
@@ -135,15 +135,15 @@ class TeacherSelector extends React.Component {
       selectedTeacherName
     } = this.state;
     return (
-      <Paper className={classes.admPaper}>
+      <Paper style={classes.admPaper}>
         <Grid container direction="row" space={2}>
           <Grid item xs={9}>
-            <FormControl variant="outlined" className={classes.admTeacherSelector}>
+            <FormControl variant="outlined" style={classes.admTeacherSelector}>
               <InputLabel>TEACHER</InputLabel>
               <Select
                 value={selectedTeacherId}
                 onChange={this.OnTeacherSelect}
-                input={<OutlinedInput name="teacher" id="teacher" labelWidth={120} />}
+                input={<OutlinedInput name="teacher" id="teacher" sx={{ width: 120 }} />}
               >
                 <MenuItem value="" />
                 {teachers.map(teacher => {
@@ -209,4 +209,4 @@ TeacherSelector.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(TeacherSelector);
+export default withTheme(TeacherSelector);

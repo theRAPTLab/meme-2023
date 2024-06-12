@@ -13,10 +13,9 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 const path = require('path');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const baseConfig = require('./webpack.base.config');
@@ -38,16 +37,19 @@ const webConfiguration = env => {
     {
       from: `web-index.html.ejs`,
       to: `${DIR_OUT}/index.ejs`,
+      context: DIR_SOURCE,
       toType: 'file'
     },
     {
       from: `favicon.ico`,
       to: `${DIR_OUT}/favicon.ico`,
+      context: DIR_SOURCE,
       toType: 'file'
     },
     {
       from: `static`,
       to: `${DIR_OUT}/static`,
+      context: DIR_SOURCE,
       toType: 'dir'
     }
   ];
@@ -69,12 +71,12 @@ const webConfiguration = env => {
         pathinfo: false // this speeds up compilation (https://webpack.js.org/guides/build-performance/#output-without-path-info)
         // publicPath: 'web',
       },
-      node: {
-        // enable webpack's __filename and __dirname substitution in browsers
-        // for use in URSYS lifecycle event filtering as set in SystemInit.jsx
-        __filename: true,
-        __dirname: true
-      },
+      // node: {
+      //   // enable webpack's __filename and __dirname substitution in browsers
+      //   // for use in URSYS lifecycle event filtering as set in SystemInit.jsx
+      //   __filename: true,
+      //   __dirname: true,
+      // },
       devtool: 'source-map',
       // apply these additional plugins
       plugins: [
@@ -85,7 +87,7 @@ const webConfiguration = env => {
         new WriteFilePlugin({
           test: /^(.(?!.*\.hot-update.js$|.*\.hot-update.*))*$/ // don't write hot-updates at all, just bundles
         }),
-        new CopyWebpackPlugin(copyFilesArray),
+        new CopyWebpackPlugin({ patterns: copyFilesArray }),
         new webpack.HotModuleReplacementPlugin()
       ]
     }

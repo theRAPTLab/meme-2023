@@ -26,12 +26,12 @@ https://github.com/electron/electron/blob/v3.1.13/docs/api/ipc-renderer.md
 
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import AppBar from '@material-ui/core/AppBar';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import { withStyles } from '@material-ui/core/styles';
+import AppBar from '@mui/material/AppBar';
+import CssBaseline from '@mui/material/CssBaseline';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import { withTheme } from 'styled-components';
 import { ipcRenderer } from 'electron';
 import path from 'path';
 
@@ -71,7 +71,7 @@ const styles = theme => ({
   }
 });
 
-const App = withStyles(styles)(props => {
+const App = styled(styles)(props => {
   const { classes } = props;
   const { main, client } = remote.getGlobal('serverinfo');
   const [dragExport, setDragExport] = useState(false);

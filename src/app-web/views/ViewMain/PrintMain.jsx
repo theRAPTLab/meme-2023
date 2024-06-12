@@ -10,18 +10,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Material UI Elements
-import Drawer from '@material-ui/core/Drawer';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import InputBase from '@material-ui/core/InputBase';
+import Drawer from '@mui/material/Drawer';
+import CssBaseline from '@mui/material/CssBaseline';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import InputBase from '@mui/material/InputBase';
 // MEME App Components
 import Login from '../../components/Login';
 import ModelSelect from '../../components/ModelSelect';
@@ -186,7 +186,7 @@ class PrintMain extends React.Component {
 
   RenderComponentsListItem(propId, isSub = false) {
     const { selectedPropId, hoveredPropId } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const prop = DATA.Prop(propId);
     if (prop === undefined) {
       // Catch error if a component has not been correctly deleted, so a mech
@@ -210,7 +210,7 @@ class PrintMain extends React.Component {
 
   RenderMechanismsList(mechIds) {
     const { selectedMechId, hoveredMechId } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     let i = 0;
     return mechIds.map(mechId => {
       const mech = DATA.Mech(mechId);
@@ -365,7 +365,7 @@ class PrintMain extends React.Component {
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     const {
       modelId,
@@ -529,4 +529,4 @@ PrintMain.MOD_ID = __dirname;
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles
-export default withStyles(MEMEStyles)(PrintMain);
+export default withTheme(PrintMain);

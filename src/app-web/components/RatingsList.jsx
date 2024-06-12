@@ -7,7 +7,7 @@ The RatingsList is part of a positive/neutral/negative rating system.
 RatingsDialog displays a dialog showing the available types of ratings and
 lets the user select a rating.
 
-The RatingsList component actually renders each rating item, including the 
+The RatingsList component actually renders each rating item, including the
 positive/negative icons and the label.
 
 The Ratings List has three Modes:
@@ -21,7 +21,7 @@ It is opened via an URSYS call, e.g.
       rating: this.props.evlink.rating
     };
     UR.Publish('RATING_OPEN', data);
-    
+
 It relies on the parent object passing props for the ratingsDef (ratings definition)
 and setting the mode.
 
@@ -37,14 +37,14 @@ RatingsDialog does that.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 // Material UI Icons
-import NegativeIcon from '@material-ui/icons/Clear';
-import BlockIcon from '@material-ui/icons/Block';
-import PositiveIcon from '@material-ui/icons/Add';
+import NegativeIcon from '@mui/icons-material/Clear';
+import BlockIcon from '@mui/icons-material/Block';
+import PositiveIcon from '@mui/icons-material/Add';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -167,4 +167,4 @@ RatingsList.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(RatingsList);
+export default withTheme(RatingsList);

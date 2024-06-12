@@ -14,11 +14,11 @@ https://github.com/mzabriskie/react-draggable
 import React from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -82,11 +82,11 @@ class ScreenshotView extends React.Component {
 
   render() {
     const { imageURL, isOpen } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     return (
       <Draggable>
-        <Paper className={classes.screenshotViewPaper} hidden={!isOpen}>
+        <Paper style={classes.screenshotViewPaper} hidden={!isOpen}>
           <Grid container spacing={5} style={{ height: '100%' }}>
             <Grid item xs={12} style={{ height: '100%' }}>
               {imageURL === undefined || imageURL ===  null
@@ -133,4 +133,4 @@ ScreenshotView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(ScreenshotView);
+export default withTheme(ScreenshotView);

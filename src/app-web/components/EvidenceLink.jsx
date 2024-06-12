@@ -91,20 +91,22 @@ Triggers to save data happens in multiple places:
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 // Material UI Icons
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 // Material UI Theming
-import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
 // Material UI Elements
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import Collapse from '@material-ui/core/Collapse';
-import Divider from '@material-ui/core/Divider';
-import FilledInput from '@material-ui/core/FilledInput';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import Collapse from '@mui/material/Collapse';
+import Divider from '@mui/material/Divider';
+import FilledInput from '@mui/material/FilledInput';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 // MEME
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
@@ -541,9 +543,7 @@ class EvidenceLink extends React.Component {
   }
 
   render() {
-    // theme overrides
-    // See https://github.com/mui-org/material-ui/issues/14905 for details
-    const theme = createMuiTheme();
+    const theme = createTheme();
     theme.overrides = {
       MuiFilledInput: {
         root: {
@@ -619,7 +619,7 @@ class EvidenceLink extends React.Component {
 
         <Grid item xs>
           {isExpanded ? (
-            <MuiThemeProvider theme={theme}>
+            <ThemeProvider theme={theme}>
               <FilledInput
                 className={ClassNames(
                   classes.evidenceLabelField,
@@ -642,7 +642,7 @@ class EvidenceLink extends React.Component {
                 }}
                 inputRef={this.textInputRef}
               />
-            </MuiThemeProvider>
+            </ThemeProvider>
           ) : (
             <div className={classes.evidenceLabelField}>{note}</div>
           )}
@@ -755,7 +755,7 @@ class EvidenceLink extends React.Component {
             </Typography>
           </Grid>
           <Grid item xs style={{ paddingTop: '4px' }}>
-            <MuiThemeProvider theme={theme}>
+            <ThemeProvider theme={theme}>
               <FilledInput
                 className={ClassNames(
                   classes.evidenceLabelField,
@@ -778,7 +778,7 @@ class EvidenceLink extends React.Component {
                 }}
                 inputRef={this.textInput}
               />
-            </MuiThemeProvider>
+            </ThemeProvider>
           </Grid>
         </Grid>
       </Grid>
@@ -910,4 +910,4 @@ EvidenceLink.defaultProps = {
 };
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(EvidenceLink);
+export default withTheme(EvidenceLink);

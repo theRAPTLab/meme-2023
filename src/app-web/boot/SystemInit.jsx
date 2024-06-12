@@ -14,6 +14,7 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
 import debounce from 'debounce';
 import SystemRoutes from './SystemRoutes';
@@ -21,6 +22,9 @@ import SystemShell from './SystemShell';
 import UR from '../../system/ursys';
 import EXEC from '../../system/ur-exec';
 import { cssreset, cssur, cssuri } from '../modules/console-styles';
+
+import MEMEStyles from "../components/MEMEStyles";
+import { ThemeProvider } from 'styled-components';
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -80,15 +84,29 @@ function Init() {
 function m_PromiseRenderApp() {
   if (DBG) console.log('%cINIT %cReactDOM.render() begin', 'color:blue', 'color:auto');
   return new Promise((resolve, reject) => {
-    ReactDOM.render(
-      <HashRouter hashType="slash">
-        <SystemShell />
-      </HashRouter>,
-      document.getElementById('app-container'),
-      () => {
-        console.log('%cURSYS: START', cssur);
-        resolve();
-      }
+    const container = document.getElementById('app-container');
+    const root = createRoot(container);
+    let resolved = false;
+
+    // render() no longer supports a callback; use a ref to resolve when the tree is
+    //  mounted
+    root.render(
+      <div
+        ref={() => {
+          // Prevent calling twice (though it doesn't appear to)
+          // See: https://legacy.reactjs.org/docs/refs-and-the-dom.html#caveats-with-callback-refs
+          if (!resolved) {
+            resolve();
+            resolved = true;
+          }
+        }}
+      >
+        <HashRouter hashType="slash">
+          <ThemeProvider theme={MEMEStyles({})}>
+            <SystemShell />
+          </ThemeProvider>
+        </HashRouter>
+      </div>
     );
   }); // promise
 }

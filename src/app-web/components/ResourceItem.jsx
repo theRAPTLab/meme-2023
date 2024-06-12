@@ -8,26 +8,26 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 // Material UI Elements
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import Chip from '@material-ui/core/Chip';
-import Collapse from '@material-ui/core/Collapse';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import Collapse from '@mui/material/Collapse';
+import ListItem from '@mui/material/ListItem';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// RESOURCE TYPES /////////////////////////////////////////////////////////////////
 // Material UI Icons
 // I want to move this somewhere centralized but wasn't sure the best way, so this is a teemporary shifting
 // in how it is referenced to make it easier later
-import ImageIcon from '@material-ui/icons/Image';
-import DescriptionIcon from '@material-ui/icons/Description';
-import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
-import ContactSupportIcon from '@material-ui/icons/ContactSupport';
+import ImageIcon from '@mui/icons-material/Image';
+import DescriptionIcon from '@mui/icons-material/Description';
+import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
+import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 
 const RESOURCE_TYPES = {
   simulation: <ImageIcon />,
@@ -216,4 +216,4 @@ ResourceItem.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(ResourceItem);
+export default withTheme(ResourceItem);

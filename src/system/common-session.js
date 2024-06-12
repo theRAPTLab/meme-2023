@@ -16,7 +16,7 @@
 
 /// SYSTEM LIBRARIES //////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const HashIds = require('hashids').default;
+const HashIds = require('hashids');
 const UUIDv5 = require('uuid/v5');
 const PROMPTS = require('../system/util/prompts');
 

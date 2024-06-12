@@ -8,23 +8,25 @@ Criteria List
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import IconButton from '@material-ui/core/IconButton';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TextField from '@material-ui/core/TextField';
+import IconButton from '@mui/material/IconButton';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TextField from '@mui/material/TextField';
 // Material UI Icons
-import DeleteIcon from '@material-ui/icons/Delete';
+import DeleteIcon from '@mui/icons-material/Delete';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from '../../../components/MEMEStyles';
 import UR from '../../../../system/ursys';
-import MDReactComponent from 'markdown-react-js';
+// import MDReactComponent from 'markdown-react-js';
+import MDReactComponent from 'react-markdown';
+import { styled } from '@mui/system';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,11 +35,11 @@ const PKG = 'AdminCriteriaList';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const SmTableCell = withStyles(theme => ({
+const SmTableCell = styled(TableCell)(theme => ({
   root: {
     padding: '2px 10px 2px 2px'
   }
-}))(props => <TableCell {...props} />);
+}));
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -90,10 +92,9 @@ class CriteriaList extends React.Component {
               <TableRow key={crit.id}>
                 <SmTableCell>{crit.label}</SmTableCell>
                 <SmTableCell>
-                  <MDReactComponent
-                    text={crit.description}
-                    markdownOptions={{ html: true, typographer: true, linkify: true, breaks: true }}
-                  />
+                  <MDReactComponent>
+                    {crit.description}
+                  </MDReactComponent>
                 </SmTableCell>
               </TableRow>
             )
@@ -125,4 +126,4 @@ CriteriaList.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(CriteriaList);
+export default withTheme(CriteriaList);

@@ -8,16 +8,15 @@ Login
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import TextField from '@material-ui/core/TextField';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
-
+import { withTheme } from 'styled-components';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import MEMEStyles from './MEMEStyles';
@@ -96,18 +95,19 @@ class Login extends React.Component {
     }
   }
 
-  OnLoginDialogClose() {
+  OnLoginDialogClose(event, reason) {
+    // disableBackdropClick
+    if (reason === 'backdropClick') return;
     this.setState({ loginDialogOpen: false });
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
     const { loginId, loginDialogOpen, isValidLogin } = this.state;
     const loginTitle = ADM.IsDBReadOnly() ? 'MEME Login (READ ONLY)' : 'MEME Login';
 
     return (
       <Dialog
-        disableBackdropClick
         disableEscapeKeyDown
         open={loginDialogOpen}
         onClose={this.OnLoginDialogClose}
@@ -155,4 +155,4 @@ Login.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(Login);
+export default withTheme(Login);

@@ -12,31 +12,31 @@ import ClassNames from 'classnames';
 import clsx from 'clsx';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Theming
-import { withStyles, createMuiTheme } from '@material-ui/core/styles';
-import { yellow } from '@material-ui/core/colors';
+import { withTheme } from 'styled-components';
+import { yellow } from '@mui/material/colors';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Material UI Elements
-import Drawer from '@material-ui/core/Drawer';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
-import Fab from '@material-ui/core/Fab';
-import InputBase from '@material-ui/core/InputBase';
+import Drawer from '@mui/material/Drawer';
+import CssBaseline from '@mui/material/CssBaseline';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import List from '@mui/material/List';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import Fab from '@mui/material/Fab';
+import InputBase from '@mui/material/InputBase';
 // Material UI Icons
-import AddIcon from '@material-ui/icons/Add';
-import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
-import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
-import DeleteRoundedIcon from '@material-ui/icons/DeleteRounded';
-import EditIcon from '@material-ui/icons/Edit';
-import MenuIcon from '@material-ui/icons/Menu';
-import ZoomInMapIcon from '@material-ui/icons/CenterFocusWeak';
-import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
+import AddIcon from '@mui/icons-material/Add';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
+import EditIcon from '@mui/icons-material/Edit';
+import MenuIcon from '@mui/icons-material/Menu';
+import ZoomInMapIcon from '@mui/icons-material/CenterFocusWeak';
+import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 // MEME App Components
 import DescriptionView from '../../components/DescriptionView';
 import InfoDialog from '../../components/InfoDialog';
@@ -530,7 +530,7 @@ class ViewMain extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     const {
       modelId,
@@ -575,7 +575,7 @@ class ViewMain extends React.Component {
           )}
           color={isModelAuthor ? 'primary' : 'default'}
         >
-          <Toolbar className={classes.appBarToolbar}>
+          <Toolbar style={classes.appBarToolbar}>
             <Switch>
               <Route path="/:mode" />
             </Switch>
@@ -710,7 +710,7 @@ class ViewMain extends React.Component {
                 <DoubleArrowIcon />
               </Button>
             </div>
-            <Paper className={classes.resourceListList}>
+            <Paper style={classes.resourceListList}>
               <List dense>
                 {resources.map(resource => (
                   <ResourceItem key={resource.id} resource={resource} />
@@ -815,4 +815,4 @@ ViewMain.MOD_ID = __dirname;
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles
-export default withStyles(MEMEStyles)(ViewMain);
+export default withTheme(ViewMain);

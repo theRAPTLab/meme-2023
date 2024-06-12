@@ -21,14 +21,14 @@ It is opened via an URSYS call, e.g.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
 // Material UI Icons
-import PositiveIcon from '@material-ui/icons/Add';
-import NegativeIcon from '@material-ui/icons/Clear';
+import PositiveIcon from '@mui/icons-material/Add';
+import NegativeIcon from '@mui/icons-material/Clear';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -99,7 +99,7 @@ class RatingsDialog extends React.Component {
 
   render() {
     const { isOpen, ratingsDef, selectedRating } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     return (
       <Dialog open={isOpen} onClose={this.OnClose} maxWidth="xs">
@@ -129,4 +129,4 @@ RatingsDialog.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(RatingsDialog);
+export default withTheme(RatingsDialog);

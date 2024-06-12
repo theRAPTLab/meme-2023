@@ -11,18 +11,18 @@ the Comment system.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Chip from '@material-ui/core/Chip';
-import Modal from '@material-ui/core/Modal';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Chip from '@mui/material/Chip';
+import Modal from '@mui/material/Modal';
+import Paper from '@mui/material/Paper';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -40,10 +40,10 @@ import DEFAULTS from '../modules/defaults';
 // Material UI Icons
 // I want to move this somewhere centralized but wasn't sure the best way, so this is a teemporary shifting
 // in how it is referenced to make it easier later
-import ImageIcon from '@material-ui/icons/Image';
-import DescriptionIcon from '@material-ui/icons/Description';
-import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
-import ContactSupportIcon from '@material-ui/icons/ContactSupport';
+import ImageIcon from '@mui/icons-material/Image';
+import DescriptionIcon from '@mui/icons-material/Description';
+import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
+import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 
 const RESOURCE_TYPES = {
   simulation: <ImageIcon />,
@@ -214,7 +214,7 @@ class ResourceView extends React.Component {
 
   render() {
     const { isOpen, resource, note, noteIsDisabled } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     // don't render if resource hasn't been defined yet
     if (resource === undefined || resource.id === undefined) return '';
@@ -312,4 +312,4 @@ ResourceView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(ResourceView);
+export default withTheme(ResourceView);

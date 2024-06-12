@@ -10,17 +10,17 @@ Dialog for students to select a model.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Divider from '@material-ui/core/Divider';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -105,7 +105,10 @@ class ModelSelect extends React.Component {
     }
   }
 
-  OnModelDialogClose() {
+  OnModelDialogClose(event, reason) {
+    // disableBackdropClick
+    if (reason === 'backdropClick') return;
+
     this.setState({ modelSelectDialogOpen: false });
   }
 
@@ -221,10 +224,9 @@ class ModelSelect extends React.Component {
     return (
       <>
         <Dialog
-          disableBackdropClick
           disableEscapeKeyDown
           open={modelSelectDialogOpen}
-          onClose={this.OnLoginDialogClose}
+          onClose={this.OnModelDialogClose}
           fullScreen
         >
           <DialogActions>
@@ -309,4 +311,4 @@ ModelSelect.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(ModelSelect);
+export default withTheme(ModelSelect);

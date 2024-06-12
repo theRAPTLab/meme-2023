@@ -14,10 +14,10 @@ MarkDown is supported for the description.
 import React from 'react';
 import ClassNames from 'classnames';
 import PropTypes from 'prop-types';
-import MDReactComponent from 'markdown-react-js';
-import Paper from '@material-ui/core/Paper';
+import MDReactComponent from 'react-markdown'
+import Paper from '@mui/material/Paper';
 // Material UI Theming
-import { withStyles } from '@material-ui/core/styles';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -97,7 +97,7 @@ class DescriptionView extends React.Component {
 
   render() {
     const { isOpen, propId, propType, text, label } = this.state;
-    const { classes } = this.props;
+    const { theme: classes } = this.props;
 
     // Fake some text
     const descriptionText = text || '*no description*';
@@ -117,7 +117,7 @@ class DescriptionView extends React.Component {
       >
         <div style={{ overflowY: 'auto' }}>
           <div className={classes.descriptionLabel}>{label}</div>
-          <MDReactComponent className={classes.descriptionViewText} text={descriptionText} />
+          <MDReactComponent className={classes.descriptionViewText} skipHtml>{ descriptionText }</MDReactComponent>
         </div>
       </Paper>
     );
@@ -135,4 +135,4 @@ DescriptionView.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(DescriptionView);
+export default withTheme(DescriptionView);

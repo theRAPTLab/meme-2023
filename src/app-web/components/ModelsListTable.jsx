@@ -8,18 +8,18 @@ Models List Table
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import InputLabel from '@material-ui/core/InputLabel';
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Button from '@mui/material/Button';
+import InputLabel from '@mui/material/InputLabel';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TableSortLabel from '@mui/material/TableSortLabel';
 // Material UI Theming
-import DeleteIcon from '@material-ui/icons/DeleteOutlined';
-import { withStyles } from '@material-ui/core/styles';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import { withTheme } from 'styled-components';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -130,7 +130,7 @@ class ModelsListTable extends React.Component {
     });
 
     return (
-      <Paper className={classes.admPaper}>
+      <Paper style={classes.admPaper}>
         <Table>
           <TableHead>
             <TableRow>
@@ -220,4 +220,4 @@ ModelsListTable.defaultProps = {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withStyles(MEMEStyles)(ModelsListTable);
+export default withTheme(ModelsListTable);

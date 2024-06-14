@@ -56,7 +56,7 @@ const styles = theme => {
     },
     appBarToolbar: {
       minHeight: `${m_navbarHeight}px`,
-      paddingLeft: '0',
+      paddingLeft: '140px',
       paddingRight: '0'
     },
     appBarRight: {

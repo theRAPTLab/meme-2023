@@ -45,7 +45,7 @@ import Login from '../../components/Login';
 import MechDialog from '../../components/MechDialog';
 import ModelSelect from '../../components/ModelSelect';
 import PropDialog from '../../components/PropDialog';
-import ResourceView from '../../components/ResourceView';
+import EVResourceItemDialog from '../../components/EVResourceItemDialog';
 import ResourceItem from '../../components/ResourceItem';
 import RatingsDialog from '../../components/RatingsDialog';
 import ScreenshotView from '../../components/ScreenshotView';
@@ -721,7 +721,7 @@ class ViewMain extends React.Component {
         </Drawer>
 
         {/* Resource View */}
-        <ResourceView />
+        <EVResourceItemDialog />
 
         {/* Help View */}
         <HelpView />

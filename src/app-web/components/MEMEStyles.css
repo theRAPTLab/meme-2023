@@ -1,0 +1,78 @@
+:root {
+  --clr-txt: #111;
+  --clr-txt-reverse: white;
+  
+  --clr-btn-primary: #0088D4;
+  
+  --clr-ev:#0BAC8F;
+  --clr-ev-dark: #007A64;
+  --clr-ev-bg: #c5ede6;
+  
+  --txt-size: 16px;
+  --txt-weight: 300;
+  --txt-weight-semibold: 500;
+  --txt-weight-bold: 600;
+}
+
+body {
+  color: var(--clr-txt);
+  font-family: "Roboto", sans-serif;
+}
+
+h3 {
+  font-size: var(--clr-txt);
+  font-weight: var(--txt-weight);
+}
+
+/* -- TITLE ---------------------------------- */
+.title {
+  --clr-txt: white;
+  --txt-size: 16px;
+  --txt-weight: 600;
+}
+
+/* -- BUTTON --------------------------------- */
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+}
+button.primary {
+  color: var(--clr-txt-reverse);
+  background-color: var(--clr-btn-primary);
+}
+button.transparent {
+  border: none;
+  background-color: transparent;
+}
+
+/* -- BOX (Card) ----------------------------- */
+.box-group {
+  display: flex;
+  column-gap: 10px;
+}
+.box {
+  display: flex;
+  margin-right: 1px;
+  padding: 10px 20px;
+  line-height: 1.6;
+  border-radius: 5px;
+  background-color: #fff6;
+}
+
+/* -- DOT (Badge) ---------------------------- */
+.dot {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  border-radius: 50%;
+  color: var(--clr-txt-reverse);
+  background-color: var(--clr-ev);
+  text-align: center;
+  margin: 0 5px;
+}
+.dot.small {
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
+}

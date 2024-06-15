@@ -1,6 +1,6 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-LinkButton
+EVLinkButton
 
 A LinkButton is used to select and show the source or target
 component/property/mechanism that an Evidence Link points to.
@@ -50,47 +50,21 @@ See MechDialog and EvidenceLink for example implementations.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
-import clsx from 'clsx';
-import PropTypes from 'prop-types';
-import Button from '@mui/material/Button';
+import './MEMEStyles.css';
+import './EVLinkButton.css';
+
 import DATAMAP from '../../system/common-datamap';
 // Material UI Icons
 import CreateIcon from '@mui/icons-material/Create';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-// Material UI Theming
-import { withTheme } from 'styled-components';
-
-/// COMPONENTS ////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import MEMEStyles from './MEMEStyles';
-import DEFAULTS from '../modules/defaults';
-import { styled } from '@mui/system';
-const { COLOR } = DEFAULTS;
-
-/// CONSTANTS /////////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const LButton = styled(Button)(theme => ({
-  root: {
-    padding: '2px 7px',
-    lineHeight: '1.2em',
-    '&$disabled': {
-      color: 'rgba(0,0,0,0.3)'
-    }
-  }
-}));
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-class LinkButton extends React.Component {
+class EVLinkButton extends React.Component {
   constructor(props) {
     super(props);
     this.OnClick = this.OnClick.bind(this);
   }
-
-  componentDidMount() {}
-
-  componentWillUnmount() {}
 
   OnClick(e) {
     e.preventDefault();
@@ -104,52 +78,33 @@ class LinkButton extends React.Component {
       sourceType,
       listenForSourceSelection,
       isBeingEdited,
-      isExpanded,
-      classes
+      isExpanded
     } = this.props;
     let label;
     let icon;
-    let evidenceLinkSelectButtonClass = classes.evidenceLinkSelectButton;
+    let btnClass;
 
-    let isDisabled = !isBeingEdited || listenForSourceSelection;
+    const isDisabled = !isBeingEdited || listenForSourceSelection;
 
     if (sourceLabel !== undefined) {
       label = sourceLabel;
       switch (sourceType) {
         case DATAMAP.PMC_MODELTYPES.MECHANISM.id: // 'mech':
           if (label === '') label = 'unlabeled';
-          if (isDisabled) {
-            evidenceLinkSelectButtonClass =
-              classes.evidenceLinkSourceMechAvatarDisabled;
-          } else {
-            evidenceLinkSelectButtonClass =
-              classes.evidenceLinkSourceMechAvatarSelected;
-          }
+          btnClass = 'mech';
           break;
         case DATAMAP.PMC_MODELTYPES.OUTCOME.id:
-          if (isDisabled) {
-            evidenceLinkSelectButtonClass =
-              classes.evidenceLinkSourceOutcomeAvatarDisabled;
-          } else {
-            evidenceLinkSelectButtonClass =
-              classes.evidenceLinkSourceOutcomeAvatarSelected;
-          }
+          btnClass = 'outcome';
           break;
         default:
         case DATAMAP.PMC_MODELTYPES.COMPONENT.id: // 'prop':
-          if (isDisabled) {
-            evidenceLinkSelectButtonClass =
-              classes.evidenceLinkSourcePropAvatarDisabled;
-          } else {
-            evidenceLinkSelectButtonClass =
-              classes.evidenceLinkSourcePropAvatarSelected;
-          }
+          btnClass = 'prop';
           break;
       }
     } else if (listenForSourceSelection) {
       label = 'Click on Target...';
       icon = <ArrowBackIcon />;
-      evidenceLinkSelectButtonClass = classes.evidenceLinkSourceAvatarWaiting;
+      btnClass = 'waiting';
     } else if (isBeingEdited) {
       label = 'Set Target';
       icon = <CreateIcon />;
@@ -158,51 +113,18 @@ class LinkButton extends React.Component {
     }
 
     return (
-      <LButton
+      <button
         onClick={this.OnClick}
-        classes={{
-          root: evidenceLinkSelectButtonClass,
-          disabled: classes.disabled
-        }}
-        className={clsx({ [classes.evidenceLinkSelectButtonExpanded]: isExpanded })}
+        className={`EVLinkButton ${btnClass} ${isExpanded ? 'expanded' : ''}`}
         disabled={isDisabled}
-        size={'small'}
-        ref={this.props.forwardedRef}
       >
         {icon}
-        <span className={classes.evidenceLinkSelectButtonLabel}>{label}</span>
-      </LButton>
+        <span>{label}</span>
+      </button>
     );
   }
 }
 
-LinkButton.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
-  sourceLabel: PropTypes.string,
-  sourceType: PropTypes.string,
-  listenForSourceSelection: PropTypes.bool,
-  isBeingEdited: PropTypes.bool,
-  isExpanded: PropTypes.bool,
-  OnLinkButtonClick: PropTypes.func
-};
-
-LinkButton.defaultProps = {
-  classes: {},
-  sourceLabel: undefined,
-  sourceType: undefined,
-  listenForSourceSelection: false,
-  isBeingEdited: false,
-  isExpanded: false,
-  OnLinkButtonClick: () => {
-    console.error('Missing OnLinkButtonClick Handler!');
-  }
-};
-
-const forwardRef = React.forwardRef((props, ref) => (
-  <LinkButton {...props} forwardedRef={ref} />
-));
-
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withTheme(forwardRef);
+export default EVLinkButton;

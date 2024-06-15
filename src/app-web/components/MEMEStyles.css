@@ -4,12 +4,32 @@
   
   --clr-btn-primary: #0088D4;
   
+  --clr-entity: #0088D4;
+  --clr-entity-dark: #004F7A; /* use for text on bg */
+  --clr-entity-med: #0088D433; /* on top of bg */
+  --clr-entity-bg: #BFE1F4;
+  
+  --clr-outcome: #7C44CE;
+  --clr-outcome-dark: #4A1F7A;
+  --clr-outcome-med: #7C44CE33; /* on top of bg */
+  --clr-outcome-bg: #DED0F3;
+  
+  --clr-mech: #DE6A29;
+  --clr-mech-dark: #7A3A1F;
+  --clr-mech-med: #DE6A2933; /* on top of bg */
+  --clr-mech-bg: #FFF1CC;
+  
   --clr-ev:#0BAC8F;
   --clr-ev-dark: #007A64;
   --clr-ev-bg: #c5ede6;
   
+  --clr-evlink-bg: #fff;
+  
   --txt-size: 16px;
+  --txt-size-sm: 12px;
+  --txt-size-tiny: 10px; /* use for display only */
   --txt-weight: 300;
+  --txt-weight-med: 400;
   --txt-weight-semibold: 500;
   --txt-weight-bold: 600;
 }
@@ -71,8 +91,24 @@ button.transparent {
   text-align: center;
   margin: 0 5px;
 }
+.dot.med {
+  width: 24px;
+  height: 24px;
+  font-size: var(--txt-size-sm);
+  line-height: 22px;
+}
 .dot.small {
   width: 22px;
   height: 22px;
   line-height: 22px;
+}
+
+/* -- Evidence ------------------------------- */
+.ev-title {
+  display: flex;
+  align-items: baseline;
+  font-weight: var(--txt-weight-semibold);
+}
+.ev-title .dot {
+  margin-right: 0.5rem;
 }

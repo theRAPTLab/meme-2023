@@ -7,7 +7,7 @@ INFO="\033[34;1m" # blue
 NRML="\033[0m"    # normal
 BOLD="\033[1m"    # normal bold
 
-# Check if NVM_DIR is defined
+# Check if NVM_DIR is defined (this is set by nvm on startup)
 if [ -z "$NVM_DIR" ]; then
   printf "\n"
   printf "vsenv: ${ALRT}NVM does not appear to be installed${NRML}\n"
@@ -30,16 +30,11 @@ if [ -n "$NVM_DIR" ] && [ -s "./.nvmrc" ] && [ -d "./.vscode" ]; then
     NODE_LABEL="$NODE_LABEL ($NODE_VERSION)"
   fi
 
-  str_out="(nvm)";
-  str_use=$(nvm use "$NODE_VERSION")
-  if [ -n "$str_use" ]; then
-    str_out="$str_out current version"
-  fi
   printf "\n"
   printf "vsenv: VISUAL STUDIO CODE INTEGRATED TERMINAL DETECTED\n"
-  printf "       ${str_out} detected setting: node ${INFO}$NODE_LABEL${NRML}\n"
+  printf "       detected node version is ${INFO}$NODE_LABEL${NRML}\n"
   ARCH=$(uname -m)
-  printf "       architecture is ${INFO}$ARCH${NRML} (can override in code-workspace)\n"
+  printf "       detected architecture is ${INFO}$ARCH${NRML} (can override in code-workspace)\n"
 
   # check if node binary is in the path
   if ! command -v node &> /dev/null; then
@@ -64,6 +59,11 @@ if [ -n "$NVM_DIR" ] && [ -s "./.nvmrc" ] && [ -d "./.vscode" ]; then
     printf "       Type ${ALRT}nvm use${NRML} to use .nvmrc version. You may need to run ${ALRT}npm ci${NRML} again.\n"
     printf "       If you want to use this version as default, type ${ALRT}nvm alias default $NODE_VERSION${NRML}\n"
   fi
+else
+  printf "\n"
+  printf "vsenv: ${ALRT}Missing .nvmrc file or .vscode folder${NRML}\n"
+  printf "       This script is intended to be used within a VSCODE integrated terminal opened as a Code Workspace.\n"
+  printf "       The project folder should contain a .nvmrc file and a .vscode folder.\n"
 fi
 
 # for bash and zsh shells: if ./ is not in PATH, add it to end of PATH

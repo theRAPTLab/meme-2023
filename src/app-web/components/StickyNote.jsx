@@ -123,7 +123,7 @@ class StickyNote extends React.Component {
       allowedToDelete: false,
       showEditButtons: false,
       criteria: [],
-      comment: {},
+      comment: {}
     };
   }
 
@@ -161,14 +161,14 @@ class StickyNote extends React.Component {
       comment,
       // selectedCriteriaId: this.props.comment.criteriaId,
       allowedToEdit,
-      allowedToDelete,
+      allowedToDelete
     });
   }
 
   DoEditStart() {
     const pmcDataId = ASET.selectedPMCDataId;
     const intCommentId = Number(this.props.comment.id);
-    UR.DBTryLock('pmcData.comments', [pmcDataId, intCommentId]).then((rdata) => {
+    UR.DBTryLock('pmcData.comments', [pmcDataId, intCommentId]).then(rdata => {
       const { success, semaphore, uaddr, lockedBy } = rdata;
       status += success
         ? `${semaphore} lock acquired by ${uaddr} `
@@ -180,7 +180,7 @@ class StickyNote extends React.Component {
         });
       } else {
         alert(
-          `Sorry, someone else (${rdata.lockedBy}) is editing this Comment right now.  Please try again later.`,
+          `Sorry, someone else (${rdata.lockedBy}) is editing this Comment right now.  Please try again later.`
         );
       }
     });
@@ -195,7 +195,7 @@ class StickyNote extends React.Component {
 
     if (this.state.isBeingEdited) {
       // save
-      PMC.DB_CommentUpdate(this.props.refId, comment, (rdata) => {
+      PMC.DB_CommentUpdate(this.props.refId, comment, rdata => {
         this.props.OnUpdateComment();
       });
       const pmcDataId = ASET.selectedPMCDataId;
@@ -213,7 +213,7 @@ class StickyNote extends React.Component {
   DoDelete() {
     const pmcDataId = ASET.selectedPMCDataId;
     const intCommentId = Number(this.props.comment.id);
-    UR.DBTryLock('pmcData.comments', [pmcDataId, intCommentId]).then((rdata) => {
+    UR.DBTryLock('pmcData.comments', [pmcDataId, intCommentId]).then(rdata => {
       const { success, semaphore, uaddr, lockedBy } = rdata;
       status += success
         ? `${semaphore} lock acquired by ${uaddr} `
@@ -223,7 +223,7 @@ class StickyNote extends React.Component {
         this.props.OnUpdateComment(); // tell StickyNoteCollection to exit edit mode
       } else {
         alert(
-          `Sorry, someone else (${rdata.lockedBy}) is editing this Comment right now.  Please try again later.`,
+          `Sorry, someone else (${rdata.lockedBy}) is editing this Comment right now.  Please try again later.`
         );
       }
     });
@@ -253,7 +253,7 @@ class StickyNote extends React.Component {
     this.DoSave();
     // stop editing and close
     this.setState({
-      isBeingEdited: false,
+      isBeingEdited: false
     });
   }
 
@@ -261,13 +261,13 @@ class StickyNote extends React.Component {
     this.DoDelete();
     // stop editing and close
     this.setState({
-      isBeingEdited: false,
+      isBeingEdited: false
     });
   }
 
   OnCriteriaSelect(e) {
     let criteriaId = parseInt(e.target.value);
-    this.setState((state) => {
+    this.setState(state => {
       let comment = state.comment;
       comment.criteriaId = criteriaId;
       return { comment };
@@ -275,7 +275,7 @@ class StickyNote extends React.Component {
   }
 
   OnCommentTextChange(text) {
-    this.setState((state) => {
+    this.setState(state => {
       const comment = state.comment;
       comment.text = text;
       return { comment };
@@ -287,7 +287,7 @@ class StickyNote extends React.Component {
     e.stopPropagation();
     // Show Edit Buttons
     this.setState({
-      showEditButtons: true,
+      showEditButtons: true
     });
   }
 
@@ -296,7 +296,7 @@ class StickyNote extends React.Component {
     e.stopPropagation();
     // Hide Edit Buttons
     this.setState({
-      showEditButtons: false,
+      showEditButtons: false
     });
   }
 
@@ -317,36 +317,42 @@ class StickyNote extends React.Component {
           //   backgroundColor: 'rgba(255,255,255,1)'
           // },
           '&:disabled': {
-            backgroundColor: 'rgba(255,255,255,0.1)',
-          },
-        },
+            backgroundColor: 'rgba(255,255,255,0.1)'
+          }
+        }
       },
       MuiFilledInput: {
         root: {
-          paddingTop: '3px',
+          paddingTop: '3px'
         },
         multiline: {
-          padding: '0',
-        },
-      },
+          padding: '0'
+        }
+      }
     };
 
-    const { isBeingEdited, allowedToEdit, allowedToDelete, showEditButtons, criteria, comment } =
-      this.state;
+    const {
+      isBeingEdited,
+      allowedToEdit,
+      allowedToDelete,
+      showEditButtons,
+      criteria,
+      comment
+    } = this.state;
     const { theme: classes } = this.props;
     const hasBeenRead = PMC.HasBeenRead(this.props.comment.id, ADM.GetAuthorId());
     const date = new Date(comment.date);
     const timestring = date.toLocaleTimeString('en-Us', {
       hour: '2-digit',
-      minute: '2-digit',
+      minute: '2-digit'
     });
     const datestring = date.toLocaleDateString('en-US', {
       month: 'short',
-      day: 'numeric',
+      day: 'numeric'
     });
 
     const showCriteria = isBeingEdited || comment.id !== '';
-    const selectedCriteria = criteria.find((crit) => crit.id === comment.criteriaId);
+    const selectedCriteria = criteria.find(crit => crit.id === comment.criteriaId);
     const criteriaDescription = selectedCriteria !== undefined ? selectedCriteria.description : '';
     let criteriaDisplay;
     if (isBeingEdited) {
@@ -425,15 +431,15 @@ class StickyNote extends React.Component {
                   className={`${classes.stickynoteCardInput}`}
                   value={comment.text}
                   placeholder={comment.placeholder}
-                  onChange={(e) => this.OnCommentTextChange(e.target.value)}
-                  onMouseDown={(e) => e.stopPropagation()}
+                  onChange={e => this.OnCommentTextChange(e.target.value)}
+                  onMouseDown={e => e.stopPropagation()}
                   variant="filled"
                   maxRows={4}
                   multiline
                   disableUnderline
                   inputProps={{
                     readOnly: !(allowedToEdit && isBeingEdited) || selectedCriteria === undefined,
-                    disabled: !(allowedToEdit && isBeingEdited) || selectedCriteria === undefined,
+                    disabled: !(allowedToEdit && isBeingEdited) || selectedCriteria === undefined
                   }}
                   inputRef={this.textInput}
                 />
@@ -505,7 +511,7 @@ StickyNote.propTypes = {
   comment: PropTypes.object,
   refId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   OnStartEdit: PropTypes.func,
-  OnUpdateComment: PropTypes.func,
+  OnUpdateComment: PropTypes.func
 };
 
 StickyNote.defaultProps = {
@@ -515,7 +521,7 @@ StickyNote.defaultProps = {
     author: '',
     date: new Date(),
     text: '',
-    criteriaId: '',
+    criteriaId: ''
   },
   refId: '',
   OnStartEdit: () => {
@@ -523,7 +529,7 @@ StickyNote.defaultProps = {
   },
   OnUpdateComment: () => {
     console.error('StickyNote: OnUpdateComment prop was not defined!');
-  },
+  }
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

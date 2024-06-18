@@ -35,7 +35,7 @@ const RESOURCE_TYPES = {
   idea: <EmojiObjectsIcon />,
   report: <DescriptionIcon />,
   question: <ContactSupportIcon />,
-  other: <DescriptionIcon />,
+  other: <DescriptionIcon />
 };
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ class ResourceItem extends React.Component {
     super(props);
     this.state = {
       isExpanded: true,
-      hideAddButton: false,
+      hideAddButton: false
     };
 
     this.DoToggleExpanded = this.DoToggleExpanded.bind(this);
@@ -90,9 +90,9 @@ class ResourceItem extends React.Component {
 
   DoToggleExpanded() {
     if (DBG) console.log(PKG, 'expansion clicked');
-    this.setState((prevState) => {
+    this.setState(prevState => {
       return {
-        isExpanded: !prevState.isExpanded,
+        isExpanded: !prevState.isExpanded
       };
     });
   }
@@ -104,12 +104,12 @@ class ResourceItem extends React.Component {
       if (DBG) console.log(PKG, 'OPENING Resource', data.rsrcId, ' data.evId is', data);
       this.setState(
         {
-          isExpanded: true,
+          isExpanded: true
         },
         () => {
           // First open resource list, then open evidence Link
           UR.Publish('SHOW_EVIDENCE_LINK_SECONDARY', data);
-        },
+        }
       );
     }
   }
@@ -125,8 +125,8 @@ class ResourceItem extends React.Component {
 
   OnCreateEvidence(rsrcId) {
     if (DBG) console.log(PKG, 'create new evidence:', rsrcId);
-    DATA.PMC_AddEvidenceLink({ rsrcId }, (id) =>
-      UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }),
+    DATA.PMC_AddEvidenceLink({ rsrcId }, id =>
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId })
     );
   }
 
@@ -161,7 +161,7 @@ class ResourceItem extends React.Component {
           <ListItemText
             className={ClassNames(
               classes.resourceViewLabel,
-              isExpanded ? classes.resourceViewLabelExpanded : '',
+              isExpanded ? classes.resourceViewLabelExpanded : ''
             )}
             primary={`${resource.label}`}
             secondary={`${resource.notes}`}
@@ -198,7 +198,7 @@ ResourceItem.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
-  resource: PropTypes.object,
+  resource: PropTypes.object
 };
 
 ResourceItem.defaultProps = {
@@ -210,8 +210,8 @@ ResourceItem.defaultProps = {
     notes: '',
     type: '',
     url: '',
-    links: 0,
-  },
+    links: 0
+  }
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

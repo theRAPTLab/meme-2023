@@ -69,14 +69,14 @@ const { COLOR } = DEFAULTS;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const LButton = styled(Button)((theme) => ({
+const LButton = styled(Button)(theme => ({
   root: {
     padding: '2px 7px',
     lineHeight: '1.2em',
     '&$disabled': {
-      color: 'rgba(0,0,0,0.3)',
-    },
-  },
+      color: 'rgba(0,0,0,0.3)'
+    }
+  }
 }));
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ class LinkButton extends React.Component {
       listenForSourceSelection,
       isBeingEdited,
       isExpanded,
-      classes,
+      classes
     } = this.props;
     let label;
     let icon;
@@ -156,7 +156,7 @@ class LinkButton extends React.Component {
         onClick={this.OnClick}
         classes={{
           root: evidenceLinkSelectButtonClass,
-          disabled: classes.disabled,
+          disabled: classes.disabled
         }}
         className={clsx({ [classes.evidenceLinkSelectButtonExpanded]: isExpanded })}
         disabled={isDisabled}
@@ -178,7 +178,7 @@ LinkButton.propTypes = {
   listenForSourceSelection: PropTypes.bool,
   isBeingEdited: PropTypes.bool,
   isExpanded: PropTypes.bool,
-  OnLinkButtonClick: PropTypes.func,
+  OnLinkButtonClick: PropTypes.func
 };
 
 LinkButton.defaultProps = {
@@ -190,10 +190,12 @@ LinkButton.defaultProps = {
   isExpanded: false,
   OnLinkButtonClick: () => {
     console.error('Missing OnLinkButtonClick Handler!');
-  },
+  }
 };
 
-const forwardRef = React.forwardRef((props, ref) => <LinkButton {...props} forwardedRef={ref} />);
+const forwardRef = React.forwardRef((props, ref) => (
+  <LinkButton {...props} forwardedRef={ref} />
+));
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

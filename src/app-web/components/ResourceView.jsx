@@ -51,7 +51,7 @@ const RESOURCE_TYPES = {
   idea: <EmojiObjectsIcon />,
   report: <DescriptionIcon />,
   question: <ContactSupportIcon />,
-  other: <DescriptionIcon />,
+  other: <DescriptionIcon />
 };
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ class ResourceView extends React.Component {
       noteRefId: '', // points comment to this resource
       note: 'blank',
       noteIsDisabled: true,
-      commentId: -1, // id of the comment object used to hold the note data
+      commentId: -1 // id of the comment object used to hold the note data
     };
 
     UR.Subscribe('RESOURCEVIEW:OPEN', this.OnOpen);
@@ -106,7 +106,7 @@ class ResourceView extends React.Component {
         // no comment defined yet, so create a new comment
         const comment = PMCObj.Comment({
           refId: noteRefId,
-          author: ADM.GetAuthorId(),
+          author: ADM.GetAuthorId()
         });
         DATA.DB_CommentAdd(noteRefId, comment, () => this.ContinueOpen(resource, noteRefId));
       } else {
@@ -137,7 +137,7 @@ class ResourceView extends React.Component {
 
     const pmcDataId = ASET.selectedPMCDataId;
     const intCommentId = Number(commentId);
-    UR.DBTryLock('pmcData.comments', [pmcDataId, intCommentId]).then((rdata) => {
+    UR.DBTryLock('pmcData.comments', [pmcDataId, intCommentId]).then(rdata => {
       const { success, semaphore, uaddr, lockedBy } = rdata;
       status += success
         ? `${semaphore} lock acquired by ${uaddr} `
@@ -146,7 +146,7 @@ class ResourceView extends React.Component {
         this.setState({ noteIsDisabled: false });
       } else {
         alert(
-          `Sorry, someone else (${rdata.lockedBy}) is editing this Resource Note right now.  Please try again later. (You can still ${DEFAULTS.TEXT.ADD_EVIDENCE}.)`,
+          `Sorry, someone else (${rdata.lockedBy}) is editing this Resource Note right now.  Please try again later. (You can still ${DEFAULTS.TEXT.ADD_EVIDENCE}.)`
         );
       }
     });
@@ -156,7 +156,7 @@ class ResourceView extends React.Component {
       resource,
       noteRefId,
       note,
-      commentId,
+      commentId
     });
     UTILS.RLog('ResourceOpen', resource.label);
   }
@@ -171,12 +171,12 @@ class ResourceView extends React.Component {
       const sw = resourceFrame.clientWidth * px;
       const sh = resourceFrame.clientHeight * px;
       let opt = { sx, sy, sw, sh };
-      UR.PromiseCaptureScreen(opt).then((rdata) => {
+      UR.PromiseCaptureScreen(opt).then(rdata => {
         const { href, error } = rdata;
         if (error) console.log('PromiseCaptureScreen:', error);
         // Always create evidence link even if href is undefined
-        DATA.PMC_AddEvidenceLink({ rsrcId, imageURL: href }, (id) =>
-          UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId }),
+        DATA.PMC_AddEvidenceLink({ rsrcId, imageURL: href }, id =>
+          UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId })
         );
       });
     }
@@ -192,7 +192,7 @@ class ResourceView extends React.Component {
       id: this.state.commentId,
       text: this.state.note,
       refId: this.state.noteRefId,
-      author: ADM.GetAuthorId(),
+      author: ADM.GetAuthorId()
     });
     DATA.DB_CommentUpdate(this.state.noteRefId, note);
   }
@@ -208,7 +208,7 @@ class ResourceView extends React.Component {
     }
     this.setState({
       isOpen: false,
-      noteIsDisabled: true,
+      noteIsDisabled: true
     });
   }
 
@@ -303,11 +303,11 @@ class ResourceView extends React.Component {
 
 ResourceView.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 ResourceView.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

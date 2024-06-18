@@ -46,23 +46,23 @@ const PKG = 'ToolsPanel:';
 
 const SmallFab = styled(Fab)(({ theme }) => ({
   root: {
-    margin: '5px 0',
+    margin: '5px 0'
   },
   label: {
     fontSize: '10px',
     textTransform: 'capitalize',
-    color: '#fff',
-  },
+    color: '#fff'
+  }
 }));
 
 // Customized TreeItem Component with smaller font
 const SmallTreeItem = styled(TreeItem)(({ theme }) => ({
   iconContainer: {
-    width: '16px',
+    width: '16px'
   },
   label: {
-    fontSize: '11px',
-  },
+    fontSize: '11px'
+  }
 }));
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ class ToolsPanel extends React.Component {
       selectedPropId: '',
       selectedMechId: '', // edgeObj e.g. {w,v}
       hoveredPropId: '',
-      hoveredMechId: '', // edgeObj e.g. {w,v}
+      hoveredMechId: '' // edgeObj e.g. {w,v}
     };
 
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
@@ -98,7 +98,7 @@ class ToolsPanel extends React.Component {
     UR.Subscribe('MECH_HOVER_END', this.DoMechHoverEnd);
   }
 
-  componentDidMount() { }
+  componentDidMount() {}
 
   componentWillUnmount() {
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
@@ -145,7 +145,7 @@ class ToolsPanel extends React.Component {
     }
     this.setState({
       selectedPropId,
-      selectedMechId,
+      selectedMechId
     });
   }
 
@@ -169,7 +169,7 @@ class ToolsPanel extends React.Component {
     e.stopPropagation();
     this.setState({
       selectedPropId: propId,
-      selectedMechId: '',
+      selectedMechId: ''
     });
     const vprop = DATA.VM_VProp(propId);
     DATA.VM_DeselectAll();
@@ -181,7 +181,7 @@ class ToolsPanel extends React.Component {
     e.stopPropagation();
     this.setState({
       selectedPropId: '',
-      selectedMechId: mechId,
+      selectedMechId: mechId
     });
     const vmech = DATA.VM_VMech(mechId);
     DATA.VM_DeselectAll();
@@ -189,7 +189,7 @@ class ToolsPanel extends React.Component {
   }
 
   RenderComponentsList(propIds, filterByPropType) {
-    let relevantProps = propIds.filter((id) => {
+    let relevantProps = propIds.filter(id => {
       const prop = DATA.Prop(id);
       if (filterByPropType === DATAMAP.PMC_MODELTYPES.COMPONENT.id) {
         return prop.propType === DATAMAP.PMC_MODELTYPES.COMPONENT.id || prop.propType === undefined; // for backward compatibility
@@ -198,7 +198,7 @@ class ToolsPanel extends React.Component {
         return prop.propType === filterByPropType;
       }
     });
-    return relevantProps.map((propId) => {
+    return relevantProps.map(propId => {
       return this.RenderComponentsListItem(propId);
     });
   }
@@ -223,24 +223,24 @@ class ToolsPanel extends React.Component {
           isSub
             ? classes.treeSubPropItem
             : prop.propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
-              ? classes.treeOutcomeItemColor
-              : classes.treePropItemColor,
+            ? classes.treeOutcomeItemColor
+            : classes.treePropItemColor,
           selectedPropId === propId ? classes.treeItemSelected : '',
-          hoveredPropId === propId ? classes.treeItemHovered : '',
+          hoveredPropId === propId ? classes.treeItemHovered : ''
         )}
-        onClick={(e) => this.OnPropClick(e, propId)}
-        onMouseEnter={(e) => {
+        onClick={e => this.OnPropClick(e, propId)}
+        onMouseEnter={e => {
           e.stopPropagation();
           UR.Publish('PROP_HOVER_START', { propId: propId });
         }}
-        onMouseLeave={(e) => {
+        onMouseLeave={e => {
           e.stopPropagation();
           UR.Publish('PROP_HOVER_END', { propId: propId });
         }}
       >
         {prop.name}
         {children.length > 0
-          ? children.map((childId) => this.RenderComponentsListItem(childId, true))
+          ? children.map(childId => this.RenderComponentsListItem(childId, true))
           : ''}
       </div>
     );
@@ -250,7 +250,7 @@ class ToolsPanel extends React.Component {
     const { selectedMechId, hoveredMechId } = this.state;
     const { theme: classes } = this.props;
     let i = 0;
-    return mechIds.map((mechId) => {
+    return mechIds.map(mechId => {
       const mech = DATA.Mech(mechId);
       const sourceObj = DATA.Prop(mechId.v);
       const targetObj = DATA.Prop(mechId.w);
@@ -271,15 +271,15 @@ class ToolsPanel extends React.Component {
               : '',
             hoveredMechId.v === mechId.v && hoveredMechId.w === mechId.w
               ? classes.treeItemHovered
-              : '',
+              : ''
           )}
-          onClick={(e) => this.OnMechClick(e, mechId)}
-          onMouseEnter={(e) => {
+          onClick={e => this.OnMechClick(e, mechId)}
+          onMouseEnter={e => {
             e.stopPropagation();
             UR.Publish('MECH_HOVER_START', { mechId: mechId });
             this.setState({ hoveredMechId: mechId });
           }}
-          onMouseLeave={(e) => {
+          onMouseLeave={e => {
             e.stopPropagation();
             UR.Publish('MECH_HOVER_END', { mechId: mechId });
           }}
@@ -314,11 +314,11 @@ class ToolsPanel extends React.Component {
 
     const outcomesList = this.RenderComponentsList(
       DATA.Components(),
-      DATAMAP.PMC_MODELTYPES.OUTCOME.id,
+      DATAMAP.PMC_MODELTYPES.OUTCOME.id
     );
     const componentsList = this.RenderComponentsList(
       DATA.Components(),
-      DATAMAP.PMC_MODELTYPES.COMPONENT.id,
+      DATAMAP.PMC_MODELTYPES.COMPONENT.id
     );
     const mechanismsList = this.RenderMechanismsList(DATA.AllMechs());
 
@@ -329,7 +329,7 @@ class ToolsPanel extends React.Component {
         className={classes.drawer}
         variant="persistent"
         classes={{
-          paper: classes.drawerPaper,
+          paper: classes.drawerPaper
         }}
         anchor="left"
         open={isOpen}
@@ -443,7 +443,7 @@ class ToolsPanel extends React.Component {
 ToolsPanel.defaultProps = {
   classes: {},
   theme: {},
-  isDisabled: false,
+  isDisabled: false
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
@@ -451,11 +451,12 @@ ToolsPanel.defaultProps = {
 /// to describe them in more detail
 ToolsPanel.propTypes = {
   classes: PropTypes.shape({}),
-  isDisabled: PropTypes.bool,
+  isDisabled: PropTypes.bool
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// requirement for UR MODULES and COMPONENTS
 ToolsPanel.MOD_ID = __dirname;
+
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles

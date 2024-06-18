@@ -44,13 +44,13 @@ class ScreenshotView extends React.Component {
     this.DoClose = this.DoClose.bind(this);
 
     this.state = {
-      isOpen: false,
+      isOpen: false
     };
 
     UR.Subscribe('SCREENSHOT_OPEN', this.DoOpen);
   }
 
-  componentDidMount() {}
+  componentDidMount() { }
 
   componentWillUnmount() {
     UR.Unsubscribe('SCREENSHOT_OPEN', this.DoOpen);
@@ -60,22 +60,22 @@ class ScreenshotView extends React.Component {
     this.setState({
       evId: data.evId,
       imageURL: data.imageURL,
-      isOpen: true,
-    });
-    this.setState({});
+      isOpen: true
+    })
+    this.setState({ });
   }
 
   DoClearScreenshot() {
     this.OnDrop(null);
   }
-
+  
   OnDrop(href) {
     DATA.PMC_EvidenceUpdate(this.state.evId, { imageURL: href });
     this.setState({
-      imageURL: href,
+      imageURL: href
     });
   }
-
+  
   DoClose() {
     this.setState({ isOpen: false });
   }
@@ -89,11 +89,14 @@ class ScreenshotView extends React.Component {
         <Paper style={classes.screenshotViewPaper} hidden={!isOpen}>
           <Grid container spacing={5} style={{ height: '100%' }}>
             <Grid item xs={12} style={{ height: '100%' }}>
-              {imageURL === undefined || imageURL === null ? (
-                <Dropzone onDrop={this.OnDrop} />
-              ) : (
-                <img src={imageURL} alt="screenshot" className={classes.screenshotViewScreenshot} />
-              )}
+              {imageURL === undefined || imageURL ===  null
+                ? <Dropzone onDrop={this.OnDrop} />
+                : <img
+                  src={imageURL}
+                  alt="screenshot"
+                  className={classes.screenshotViewScreenshot}
+                />
+              }
             </Grid>
           </Grid>
           <Grid container spacing={5}>
@@ -105,8 +108,12 @@ class ScreenshotView extends React.Component {
                 Clear Screenshot
               </Button>
             </Grid>
-            <Grid item xs={6} style={{ textAlign: 'right' }}>
-              <Button onClick={this.DoClose}>Close</Button>
+            <Grid item xs={6} style={{ textAlign: 'right'}}>
+              <Button
+                onClick={this.DoClose}
+              >
+                Close
+              </Button>
             </Grid>
           </Grid>
         </Paper>
@@ -117,11 +124,11 @@ class ScreenshotView extends React.Component {
 
 ScreenshotView.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 ScreenshotView.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

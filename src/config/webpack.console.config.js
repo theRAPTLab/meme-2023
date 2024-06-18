@@ -41,13 +41,13 @@ const ENTRY_HTML = 'console.html';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/
 /*/
-const electronRendererConfig = (env) => {
+const electronRendererConfig = env => {
   console.log(`${PR} console.config electronRendererConfig loaded`);
 
   const plugins = [
     new HtmlWebpackPlugin({
       template: ENTRY_HTML, // uses context
-      filename: ENTRY_HTML, // uses output.path
+      filename: ENTRY_HTML // uses output.path
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('development'),
@@ -55,7 +55,7 @@ const electronRendererConfig = (env) => {
       PACKAGE_TITLE: JSON.stringify(PACKAGE.title),
       PACKAGE_VERSION: JSON.stringify(PACKAGE.version),
       PACKAGE_DESCRIPTION: JSON.stringify(PACKAGE.description),
-      __static: JSON.stringify(path.resolve(DIR_OUTPUT, 'console/static/')),
+      __static: JSON.stringify(path.resolve(DIR_OUTPUT, 'console/static/'))
     }),
     new CopyWebpackPlugin({
       patterns: [
@@ -65,17 +65,20 @@ const electronRendererConfig = (env) => {
           // ignore console.html and console.js (built by webpack)
           // ignore console.package.json (renamed to built/package.json)
           // ignore: ['.*', 'console.*'],
-          filter: (resourcePath) => {
+          filter: resourcePath => {
             // ignore if it matches .* or console.*
-            return !/(^|\/)\.[^/\.]/.test(resourcePath) && !/(^|\/)console\./.test(resourcePath);
+            return (
+              !/(^|\/)\.[^/\.]/.test(resourcePath) &&
+              !/(^|\/)console\./.test(resourcePath)
+            );
           },
           globOptions: {
-            ignore: ['.*', 'console.*'],
-          },
+            ignore: ['.*', 'console.*']
+          }
         },
         {
           from: DIR_SYSTEM,
-          to: `${DIR_OUTPUT}/system`,
+          to: `${DIR_OUTPUT}/system`
           // have to also copy the system directory
           // that contains URSYS, because this will be
           // served from the built directory as well
@@ -83,14 +86,14 @@ const electronRendererConfig = (env) => {
         {
           from: `${DIR_SOURCE}/console.package.json`,
           to: `${DIR_OUTPUT}/package.json`,
-          toType: 'file',
+          toType: 'file'
         },
         {
           from: `${DIR_CONFIG}/*`,
-          to: `${DIR_OUTPUT}/config`,
-        },
+          to: `${DIR_OUTPUT}/config`
+        }
       ]
-    }),
+    })
   ];
 
   return merge([
@@ -104,15 +107,15 @@ const electronRendererConfig = (env) => {
         path: `${DIR_OUTPUT}/console`,
         // is this necessary?
         // publicPath: DIR_PUBLIC_CONTEXT,
-        filename: FILE_BUNDLE,
+        filename: FILE_BUNDLE
       },
       plugins,
-      stats: 'errors-only',
-    },
+      stats: 'errors-only'
+    }
   ]);
 };
 
 // return merged configurations
 const baseConfig = require('./webpack.base.config');
 //
-module.exports = (env) => merge(baseConfig(env), electronRendererConfig(env));
+module.exports = env => merge(baseConfig(env), electronRendererConfig(env));

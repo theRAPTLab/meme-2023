@@ -16,7 +16,6 @@ const path = require('path');
 const { merge } = require('webpack-merge');
 
 const webpack = require('webpack');
-// const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const baseConfig = require('./webpack.base.config');
@@ -28,7 +27,7 @@ const PR = `${CW}${PROMPTS.Pad('WEBPACK')}${CR}`;
 
 // setting up a verbose webpack configuration object
 // because our configuration is nonstandard
-const webConfiguration = (env) => {
+const webConfiguration = env => {
   console.log(PR, `... using webpack.webapp.config`);
 
   let entryFiles = ['./web-index.js', 'webpack-hot-middleware/client?reload=true'];
@@ -39,20 +38,20 @@ const webConfiguration = (env) => {
       from: `web-index.html.ejs`,
       to: `${DIR_OUT}/index.ejs`,
       context: DIR_SOURCE,
-      toType: 'file',
+      toType: 'file'
     },
     {
       from: `favicon.ico`,
       to: `${DIR_OUT}/favicon.ico`,
       context: DIR_SOURCE,
-      toType: 'file',
+      toType: 'file'
     },
     {
       from: `static`,
       to: `${DIR_OUT}/static`,
       context: DIR_SOURCE,
-      toType: 'dir',
-    },
+      toType: 'dir'
+    }
   ];
 
   // return webConfiguration
@@ -69,7 +68,7 @@ const webConfiguration = (env) => {
       output: {
         path: DIR_OUT,
         filename: 'web-bundle.js',
-        pathinfo: false, // this speeds up compilation (https://webpack.js.org/guides/build-performance/#output-without-path-info)
+        pathinfo: false // this speeds up compilation (https://webpack.js.org/guides/build-performance/#output-without-path-info)
         // publicPath: 'web',
       },
       // node: {
@@ -83,18 +82,18 @@ const webConfiguration = (env) => {
       plugins: [
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('development'),
-          COMPILED_BY: JSON.stringify('webapp.config.js'),
+          COMPILED_BY: JSON.stringify('webapp.config.js')
         }),
         new WriteFilePlugin({
-          test: /^(.(?!.*\.hot-update.js$|.*\.hot-update.*))*$/, // don't write hot-updates at all, just bundles
+          test: /^(.(?!.*\.hot-update.js$|.*\.hot-update.*))*$/ // don't write hot-updates at all, just bundles
         }),
         new CopyWebpackPlugin({ patterns: copyFilesArray }),
-        new webpack.HotModuleReplacementPlugin(),
-      ],
-    },
+        new webpack.HotModuleReplacementPlugin()
+      ]
+    }
   ]);
 }; // const webConfiguration
 
 // return merged configurations
 // webpack will pass the current environment since we are returning function
-module.exports = (env) => merge(baseConfig(env), webConfiguration(env));
+module.exports = env => merge(baseConfig(env), webConfiguration(env));

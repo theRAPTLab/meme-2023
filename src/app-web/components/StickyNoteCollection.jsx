@@ -153,7 +153,7 @@ class StickyNoteCollection extends React.Component {
       comments: [],
       top: 0,
       left: 0,
-      refId: '',
+      refId: ''
     };
 
     UR.Subscribe('STICKY_OPEN', this.DoOpenSticky);
@@ -175,7 +175,7 @@ class StickyNoteCollection extends React.Component {
       author: ADM.GetAuthorId(),
       text: '',
       placeholder: ADM.GetSentenceStarter(),
-      criteriaId: '',
+      criteriaId: ''
     });
   }
 
@@ -202,7 +202,7 @@ class StickyNoteCollection extends React.Component {
       isDBReadOnly,
       top: y,
       left: x - 375, // width of stickyonotecard HACK!!!
-      refId,
+      refId
     });
   }
 
@@ -221,7 +221,7 @@ class StickyNoteCollection extends React.Component {
     if (DBG) console.log(PKG, 'DoStickyUpdate with refId, comments', refId, comments);
     if (DBG) console.table(comments);
     this.setState({
-      comments,
+      comments
     });
   }
 
@@ -232,14 +232,14 @@ class StickyNoteCollection extends React.Component {
 
     // Mark Comments Read
     const author = ADM.GetAuthorId();
-    this.state.comments.forEach((comment) => {
+    this.state.comments.forEach(comment => {
       if (!PMC.HasBeenRead(comment.id, author) && !this.state.isDBReadOnly) {
         PMC.DB_MarkRead(comment.id, author);
       }
     });
 
     this.setState({
-      isHidden: true,
+      isHidden: true
     });
   }
 
@@ -254,7 +254,7 @@ class StickyNoteCollection extends React.Component {
   OnStartEdit() {
     if (DBG) console.log(PKG, 'OnStartEdit');
     this.setState({
-      isBeingEdited: true,
+      isBeingEdited: true
     });
   }
 
@@ -301,7 +301,7 @@ class StickyNoteCollection extends React.Component {
           >
             <CloseIcon />
           </IconButton> */}
-          {comments.map((comment) => {
+          {comments.map(comment => {
             return (
               <StickyNote
                 comment={comment}
@@ -337,11 +337,11 @@ class StickyNoteCollection extends React.Component {
 
 StickyNoteCollection.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 StickyNoteCollection.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

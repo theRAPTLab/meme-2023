@@ -58,14 +58,14 @@ class RatingsDialog extends React.Component {
       isOpen: false,
       evId: '',
       selectedRating: '',
-      ratingsDef: [],
+      ratingsDef: []
     };
 
     UR.Subscribe('RATING_OPEN', this.DoOpen);
     UR.Subscribe('RATING_CLOSE', this.DoClose); // used by ViewMain to force close Ratings when the main window is closing
   }
 
-  componentDidMount() {}
+  componentDidMount() { }
 
   componentWillUnmount() {
     UR.Unsubscribe('RATING_OPEN', this.OnOpen);
@@ -78,13 +78,13 @@ class RatingsDialog extends React.Component {
       evId: data.evId,
       selectedRating: String(data.rating),
       isOpen: true,
-      ratingsDef: ADM.GetRatingsDefinition(classroomId),
+      ratingsDef: ADM.GetRatingsDefinition(classroomId)
     });
   }
 
   DoClose() {
     this.setState({
-      isOpen: false,
+      isOpen: false
     });
   }
 
@@ -120,11 +120,11 @@ class RatingsDialog extends React.Component {
 
 RatingsDialog.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
+  classes: PropTypes.object
 };
 
 RatingsDialog.defaultProps = {
-  classes: {},
+  classes: {}
 };
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////

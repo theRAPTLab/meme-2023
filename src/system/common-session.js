@@ -53,7 +53,7 @@ const SESSION = {};
     containing as many decoded values as possible. Check isValid for
     complete decode succes. groupId is also set if successful
 /*/
-SESSION.DecodeToken = (hashedToken) => {
+SESSION.DecodeToken = hashedToken => {
   let studentName;
   let hashedData; // token
   let groupId; // decoded data
@@ -89,7 +89,7 @@ SESSION.DecodeToken = (hashedToken) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /*/ Return TRUE if the token decodes into an expected range of values
 /*/
-SESSION.IsValidToken = (token) => {
+SESSION.IsValidToken = token => {
   let decoded = SESSION.DecodeToken(token);
   return decoded && Number.isInteger(decoded.groupId) && typeof decoded.studentName === 'string';
 };
@@ -147,7 +147,7 @@ SESSION.MakeTeacherToken = (teacherName, dataIds = {}) => {
 function f_checkIdValue(idsObj) {
   const ids = Object.keys(idsObj);
   let error = '';
-  ids.forEach((key) => {
+  ids.forEach(key => {
     const val = idsObj[key];
     if (!Number.isInteger(val)) {
       error += `'${key}' is not an integer. `;
@@ -181,7 +181,7 @@ SESSION.MakeAccessKey = (...args) => {
  * Set the global GROUPID, which is included in all NetMessage packets that are
  * sent to server. Do not use from server-based code.
  */
-SESSION.DecodeAndSet = (token) => {
+SESSION.DecodeAndSet = token => {
   const decoded = SESSION.DecodeToken(token);
   const { isValid, studentName, groupId, classroomId } = decoded;
   if (isValid) {
@@ -189,7 +189,7 @@ SESSION.DecodeAndSet = (token) => {
     m_current_idsobj = {
       studentName,
       groupId,
-      classroomId,
+      classroomId
     };
     // handle teacher login
     // in this case, the groupId is 0 and classroomId is actually
@@ -219,7 +219,7 @@ SESSION.Clear = () => {
  * Set the global SESSION ACCESS KEY, which is necessary as a parameter for
  * some operations (e.g. database writes). Do not use from server-based code.
  */
-SESSION.SetAccessKey = (key) => {
+SESSION.SetAccessKey = key => {
   if (typeof key === 'string') {
     m_access_key = key;
     if (DBG) console.log('setting access key', key);
@@ -235,7 +235,7 @@ SESSION.AccessKey = () => {
   return m_access_key;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SESSION.SetAdminKey = (key) => {
+SESSION.SetAdminKey = key => {
   ADMIN_KEY = key || ADMIN_KEY;
   return ADMIN_KEY;
 };

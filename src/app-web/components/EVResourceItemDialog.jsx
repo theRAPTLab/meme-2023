@@ -14,7 +14,26 @@ import React from 'react';
 import './MEMEStyles.css';
 import './EVResourceItemDialog.css';
 
+import EVResourceItemTitleBar from './EVResourceItemTitleBar';
 import ICNCountBadge from './ICNCountBadge';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faImage } from '@fortawesome/free-solid-svg-icons';
+import { faFileLines } from '@fortawesome/free-solid-svg-icons';
+import { faLightbulb } from '@fortawesome/free-solid-svg-icons';
+import { faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
+const ImageIcon = <FontAwesomeIcon icon={faImage} />;
+const DescriptionIcon = <FontAwesomeIcon icon={faFileLines} />;
+const IdeaIcon = <FontAwesomeIcon icon={faLightbulb} />;
+const ContactSupportIcon = <FontAwesomeIcon icon={faCircleQuestion} />;
+const RESOURCE_TYPES = {
+  simulation: ImageIcon,
+  assumption: IdeaIcon,
+  idea: IdeaIcon,
+  report: DescriptionIcon,
+  question: ContactSupportIcon,
+  other: DescriptionIcon
+};
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -26,24 +45,6 @@ import PMCObj from '../modules/pmc-objects';
 import UTILS from '../modules/utils';
 import EVList from './EVList';
 import DEFAULTS from '../modules/defaults';
-
-/// RESOURCE TYPES /////////////////////////////////////////////////////////////////
-// Material UI Icons
-// I want to move this somewhere centralized but wasn't sure the best way, so this is a teemporary shifting
-// in how it is referenced to make it easier later
-import ImageIcon from '@mui/icons-material/Image';
-import DescriptionIcon from '@mui/icons-material/Description';
-import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
-import ContactSupportIcon from '@mui/icons-material/ContactSupport';
-
-const RESOURCE_TYPES = {
-  simulation: <ImageIcon />,
-  assumption: <EmojiObjectsIcon />,
-  idea: <EmojiObjectsIcon />,
-  report: <DescriptionIcon />,
-  question: <ContactSupportIcon />,
-  other: <DescriptionIcon />
-};
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -211,7 +212,7 @@ class EVResourceItemDialog extends React.Component {
 
     // don't render if resource hasn't been defined yet
     if (resource === undefined || resource.id === undefined) return '';
-    const links = resource.links || 0;
+    const linksCount = DATA.GetEvLinksCountByResourceId(resource.id);
 
     const TitleBar = (
       <div className="titlebar">
@@ -219,11 +220,7 @@ class EVResourceItemDialog extends React.Component {
         <div></div> {/* spacer */}
         <div className="box-group">
           <div className="box">
-            <div>Notes:&nbsp;</div>
-            <div>{resource.notes}</div>
-          </div>
-          <div className="box">
-            <div>Type:</div>
+            <div>Type:&nbsp;</div>
             <div>
               {resource.type}&nbsp;
               {RESOURCE_TYPES[resource.type]
@@ -232,8 +229,8 @@ class EVResourceItemDialog extends React.Component {
             </div>
           </div>
           <div className="box">
-            <div>Links:</div>
-            <ICNCountBadge count={links} size="small" type="ev-light" />
+            <div>Links:&nbsp;</div>
+            <ICNCountBadge count={linksCount} size="small" type="ev-light" />
           </div>
         </div>
         <button className="transparent" onClick={this.OnClose}>
@@ -254,10 +251,7 @@ class EVResourceItemDialog extends React.Component {
           title="resource"
         />
         <div className="sidebar">
-          <div className="ev-title">
-            <ICNCountBadge count={resource.referenceLabel} type="ev-dark" />
-            <div className="label">{resource.label}</div>
-          </div>
+          <EVResourceItemTitleBar resource={resource} isAlwaysExpanded={true} />
           <button
             className="primary"
             onClick={() => this.OnCreateEvidence(resource.id)}

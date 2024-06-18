@@ -18,10 +18,6 @@ const IcnRights = <FontAwesomeIcon icon={faAnglesRight} />;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class ICNExpandDoubleArrow extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { direction } = this.props;
     return (

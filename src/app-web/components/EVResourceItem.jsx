@@ -14,26 +14,7 @@ import React from 'react';
 import './MEMEStyles.css';
 import './EVResourceItem.css';
 
-import ICNCountBadge from './ICNCountBadge';
-import ICNExpandSingleArrow from './ICNExpandSingleArrow';
-
-/// RESOURCE TYPES /////////////////////////////////////////////////////////////////
-// Material UI Icons
-// I want to move this somewhere centralized but wasn't sure the best way, so this is a teemporary shifting
-// in how it is referenced to make it easier later
-import ImageIcon from '@mui/icons-material/Image';
-import DescriptionIcon from '@mui/icons-material/Description';
-import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
-import ContactSupportIcon from '@mui/icons-material/ContactSupport';
-
-const RESOURCE_TYPES = {
-  simulation: <ImageIcon />,
-  assumption: <EmojiObjectsIcon />,
-  idea: <EmojiObjectsIcon />,
-  report: <DescriptionIcon />,
-  question: <ContactSupportIcon />,
-  other: <DescriptionIcon />
-};
+import EVResourceItemTitleBar from './EVResourceItemTitleBar';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -65,6 +46,7 @@ class EVResourceItem extends React.Component {
     this.OnResourceClick = this.OnResourceClick.bind(this);
     this.OnCreateEvidence = this.OnCreateEvidence.bind(this);
     this.DoCollapseAll = this.DoCollapseAll.bind(this);
+    this.evt_OnExpand = this.evt_OnExpand.bind(this);
 
     UR.Subscribe('SHOW_EVIDENCE_LINK', this.DoEvidenceLinkOpen);
     UR.Subscribe('EVIDENCE_EDIT_STATE', this.DoEvidenceEditStateUpdate);
@@ -138,38 +120,23 @@ class EVResourceItem extends React.Component {
     }
   }
 
+  evt_OnExpand() {
+    const { isExpanded } = this.state;
+    this.setState({ isExpanded: !isExpanded });
+  }
+
   render() {
     const { resource } = this.props;
     const { isExpanded, hideAddButton } = this.state;
-    const linksCount = DATA.GetEvLinksCountByResourceId(resource.id);
 
     return (
       <div
         className={`EVResourceItem ${isExpanded ? 'expanded' : ''}`}
           onClick={() => this.OnResourceClick(resource.id)}
         >
-        <div className="titlebar">
-          <ICNCountBadge
-            count={resource.referenceLabel}
-            size="large"
-            type="ev-dark"
-          />
-          <div>
-            <div className="label">{resource.label}</div>
-            <div className="notes">{resource.notes}</div>
-          </div>
-          <div>
-            {RESOURCE_TYPES[resource.type]
-              ? RESOURCE_TYPES[resource.type]
-              : RESOURCE_TYPES.other}
-            {!isExpanded && <ICNCountBadge count={linksCount} size="tiny" />}
-          </div>
-          <div onClick={this.DoToggleExpanded}>
-            <ICNExpandSingleArrow expanded={isExpanded} />
-          </div>
-        </div>
+        <EVResourceItemTitleBar resource={resource} onExpand={this.evt_OnExpand} />
         {isExpanded && (
-          <>
+          <div className="ev-list">
             <EVList rsrcId={resource.id} />
             <div className="emulate-evlink">
               <div>
@@ -181,7 +148,7 @@ class EVResourceItem extends React.Component {
                 </button>
           </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     );

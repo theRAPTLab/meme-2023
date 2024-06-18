@@ -1,6 +1,7 @@
 .EVResourceItem {
   display: flex;
   flex-direction: column;
+  background-color: var(--clr-ev-bg);
 }
 /* .EVResourceItem.expanded {
   height: 500px;
@@ -20,17 +21,10 @@
   font-size: 1em;
   font-weight: var(--txt-weight-semibold);
   color: var(--clr-txt);
-  background-color: var(--clr-ev-bg);
 }
-.EVResourceItem > .titlebar .ICNCountBadge {
-  margin-right: 0.5rem;
-}
-.EVResourceItem > .titlebar .label {
-  font-weight: var(--txt-weight-semibold);
-}
-.EVResourceItem > .titlebar .notes {
-  font-size: var(--txt-size-sm);
-  font-weight: var(--txt-weight);
+
+.EVResourceItem > .ev-list {
+  padding: 8px;
 }
 
 .EVResourceItem .EVLink:last-child {
@@ -39,14 +33,14 @@
   border-bottom-right-radius: 0;
 }
 
-.EVResourceItem > .emulate-evlink {
+.EVResourceItem .emulate-evlink {
   display: flex;
   flex-direction: column;
   margin-top: -8px; /* raise up to evlink */
-  padding: 0 8px 8px 8px;
+  padding: 8px 0;
   background-color: var(--clr-ev-bg);
 }
-.EVResourceItem > .emulate-evlink > div {
+.EVResourceItem .emulate-evlink > div {
   display: flex;
   flex-direction: column;
   padding: 12px 10px 10px 10px;
@@ -54,7 +48,7 @@
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
 }
-.EVResourceItem > .emulate-evlink button {
+.EVResourceItem .emulate-evlink button {
   color: var(--clr-txt-reverse);
   background-color: var(--clr-ev);
 }

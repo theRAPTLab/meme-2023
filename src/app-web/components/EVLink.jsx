@@ -548,7 +548,7 @@ class EVLink extends React.Component {
 
   render() {
     // evidenceLinks is an array of arrays because there might be more than one?!?
-    const { classes, evlink } = this.props;
+    const { evlink } = this.props;
     const { id, rsrcId, propId, mechId, imageURL } = evlink;
     const {
       note,
@@ -620,16 +620,12 @@ class EVLink extends React.Component {
         type="text"
                 value={note}
                 placeholder="One claim from this evidence..."
-                disabled={!isBeingEdited}
                 onChange={this.OnNoteChange}
                 onBlur={this.OnBlur}
                 onClick={e => {
                   e.stopPropagation();
                 }}
-        // autoFocus -- restore?  not currently used.
-        // multiline -- restore?  not currently used.
-        // disableUnderline -- restore?  not currently used.
-        // readOnly: !isBeingEdited -- restore?  not currently used.
+        autoFocus
               />
           ) : (
       <input type="text" value={note} readOnly />
@@ -668,7 +664,7 @@ class EVLink extends React.Component {
 
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const REASON = isBeingEdited ? (
-      <input
+      <textarea
         type="text"
         value={why}
         placeholder="Why did you choose this rating?"
@@ -676,7 +672,7 @@ class EVLink extends React.Component {
         onBlur={this.OnBlur}
       />
     ) : (
-      <input type="text" value={why} readOnly />
+      <textarea type="text" value={why} readOnly />
     );
 
     ///////////////////////////////////////////////////////////////////////////
@@ -716,10 +712,10 @@ class EVLink extends React.Component {
         <div className="titlebar">
           <h3>Evidence Link</h3>
           <ICNExpandSingleArrow expanded={isExpanded} />
+          <StickyNoteButton refId={id} />
         </div>
         <div className="titlebar">
           <ICNCountBadge count={evlink.numberLabel} size="medium" type="ev-light" />
-                  <StickyNoteButton refId={id} />
                 </div>
         {/* Body  ----------------------------------------------------- */}
         <div className="ev-form">

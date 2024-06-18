@@ -6,6 +6,9 @@
   border-bottom: 1px solid var(--clr-ev-bg);
   overflow: hidden;
 }
+.EVLink:hover {
+  background-color: var(--clr-evlink-bg-hover);
+}
 .EVLink.closed {
   transform: scaleY(0);
   transform-origin: top;
@@ -33,6 +36,8 @@
 .EVLink.collapsed .titlebar {
   display: flex;
   flex-direction: column;
+  row-gap: 10px;
+  justify-content: flex-start; /* override .titlebar space-betwen */
   font-size: var(--txt-size-tiny);
   line-height: 12px;
 }
@@ -72,12 +77,14 @@
 .EVLink .ev-form label {
   margin-left: 40px;
 }
-.EVLink .ev-form input {
+.EVLink .ev-form input,
+.EVLink .ev-form textarea {
   border-radius: 4px;
   border-color: var(--clr-ev);
   border-style: solid;
 }
-.EVLink .ev-form input:read-only {
+.EVLink .ev-form input:read-only,
+.EVLink .ev-form textarea:read-only {
   border-style: hidden;
   padding: 0;
 }

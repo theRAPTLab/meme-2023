@@ -427,8 +427,8 @@ class StickyNote extends React.Component {
                   placeholder={comment.placeholder}
                   onChange={(e) => this.OnCommentTextChange(e.target.value)}
                   onMouseDown={(e) => e.stopPropagation()}
-                  variant="filled"
                   maxRows={4}
+                  sx={{ backgroundColor: 'rgba(255,255,255,0.8)' }}
                   multiline
                   disableUnderline
                   inputProps={{

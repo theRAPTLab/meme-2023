@@ -58,9 +58,16 @@ const INQ_RULES = {
   'no-underscore-dangle': 'off',
   'no-plusplus': 'off',
   'prefer-const': 'off',
+  'one-var': 'off',
   'prefer-destructuring': 'off',
   'class-methods-use-this': 'off',
-  'no-param-reassign': 'warn'
+  // habit rules warnings
+  'no-param-reassign': 'warn',
+  'no-shadow': 'warn',
+  'grouped-accessor-pairs': 'warn',
+  'import/prefer-default-export': 'off',
+  'import/no-duplicates': ['warn', { 'considerQueryString': true }],
+  'radix': 'as-needed'
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** react rules that we don't like */
@@ -68,7 +75,14 @@ const REACT_ICKS = {
   'react/prop-types': 'warn',
   'react/no-unescaped-entities': 'off',
   'react/destructuring-assignment': 'off',
-  'react/jsx-one-expression-per-line': 'off'
+  'react/jsx-one-expression-per-line': 'off',
+  // new with removal of prettier/react, which is now included in prettier
+  'react/no-unused-class-component-methods': 'off',
+  'react/no-unused-prop-types': 'warn',
+  'react/no-unused-state': 'warn',
+  // new with meme
+  'react/jsx-props-no-spreading': 'warn',
+  'react/no-array-index-key': 'warn'
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

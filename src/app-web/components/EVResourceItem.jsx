@@ -14,6 +14,8 @@ import React from 'react';
 import './MEMEStyles.css';
 import './EVResourceItem.css';
 
+import ICNCountBadge from './ICNCountBadge';
+import ICNExpandSingleArrow from './ICNExpandSingleArrow';
 
 /// RESOURCE TYPES /////////////////////////////////////////////////////////////////
 // Material UI Icons
@@ -147,6 +149,10 @@ class EVResourceItem extends React.Component {
           onClick={() => this.OnResourceClick(resource.id)}
         >
         <div className="titlebar">
+          <ICNCountBadge
+            count={resource.referenceLabel}
+            size="large"
+            type="ev-dark"
           />
           <div>
             <div className="label">{resource.label}</div>
@@ -159,6 +165,7 @@ class EVResourceItem extends React.Component {
             {!isExpanded && <ICNCountBadge count={linksCount} size="tiny" />}
           </div>
           <div onClick={this.DoToggleExpanded}>
+            <ICNExpandSingleArrow expanded={isExpanded} />
           </div>
         </div>
         {isExpanded && (

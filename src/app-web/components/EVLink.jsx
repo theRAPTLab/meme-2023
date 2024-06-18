@@ -93,6 +93,8 @@ import React from 'react';
 import './MEMEStyles.css';
 import './EVLink.css';
 
+import ICNCountBadge from './ICNCountBadge';
+import ICNExpandSingleArrow from './ICNExpandSingleArrow';
 
 // Material UI Elements
 import ClickAwayListener from '@mui/material/ClickAwayListener';
@@ -687,6 +689,8 @@ class EVLink extends React.Component {
         className={`EVLink collapsed ${animateInitialRender ? 'opened' : 'closed'}`}
             onClick={this.DoToggleExpanded}
           >
+        {/* Badge --------------------------------------------------------- */}
+        <ICNCountBadge count={evlink.numberLabel} size="medium" type="ev-light" />
         {/* Title Bar ----------------------------------------------------- */}
         <div className="titlebar">
           <div className="claim">{note}</div>
@@ -711,8 +715,10 @@ class EVLink extends React.Component {
         {/* Title Bar ------------------------------------------------- */}
         <div className="titlebar">
           <h3>Evidence Link</h3>
+          <ICNExpandSingleArrow expanded={isExpanded} />
         </div>
         <div className="titlebar">
+          <ICNCountBadge count={evlink.numberLabel} size="medium" type="ev-light" />
                   <StickyNoteButton refId={id} />
                 </div>
         {/* Body  ----------------------------------------------------- */}

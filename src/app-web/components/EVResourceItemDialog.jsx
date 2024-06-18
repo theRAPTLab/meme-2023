@@ -14,6 +14,8 @@ import React from 'react';
 import './MEMEStyles.css';
 import './EVResourceItemDialog.css';
 
+import ICNCountBadge from './ICNCountBadge';
+
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import UR from '../../system/ursys';
@@ -231,7 +233,7 @@ class EVResourceItemDialog extends React.Component {
           </div>
           <div className="box">
             <div>Links:</div>
-            <div className="dot small">{links}</div>
+            <ICNCountBadge count={links} size="small" type="ev-light" />
           </div>
         </div>
         <button className="transparent" onClick={this.OnClose}>
@@ -253,7 +255,7 @@ class EVResourceItemDialog extends React.Component {
         />
         <div className="sidebar">
           <div className="ev-title">
-            <div className="dot">{resource.referenceLabel}</div>
+            <ICNCountBadge count={resource.referenceLabel} type="ev-dark" />
             <div className="label">{resource.label}</div>
           </div>
           <button

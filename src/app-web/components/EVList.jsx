@@ -1,25 +1,26 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
+EVList displays a list of EVLinks items.
+It is used in EVResourceItem and EVResourceItemDialog
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
-import PropTypes from 'prop-types';
-// Material UI Theming
-import { withTheme } from 'styled-components';
+import './MEMEStyles.css';
+import './EVList.css';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import MEMEStyles from './MEMEStyles';
 import DATA from '../modules/data';
 import UR from '../../system/ursys';
-import EvidenceLink from './EvidenceLink';
+import EVLink from './EVLink';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-class EvidenceList extends React.Component {
+class EVList extends React.Component {
   constructor(props) {
     super(props);
     this.HandleDataUpdate = this.HandleDataUpdate.bind(this);
@@ -38,31 +39,20 @@ class EvidenceList extends React.Component {
   }
 
   render() {
-    const { classes, rsrcId } = this.props;
+    const { rsrcId } = this.props;
     const evLinks = DATA.GetEvLinksByResourceId(rsrcId);
     if (evLinks === undefined) return '';
     // evLinks [ { id: <pmcid> propId: mechId: rsrcId: note: }, ... ]
     return (
-      <div key={rsrcId}>
+      <div key={rsrcId} className="EVList">
         {evLinks.map((evlink, index) => (
-          <EvidenceLink evlink={evlink} key={index} />
+          <EVLink evlink={evlink} key={index} />
         ))}
       </div>
     );
   }
 }
 
-EvidenceList.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
-  rsrcId: PropTypes.number
-};
-
-EvidenceList.defaultProps = {
-  classes: {},
-  rsrcId: ''
-};
-
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withTheme(EvidenceList);
+export default EVList;

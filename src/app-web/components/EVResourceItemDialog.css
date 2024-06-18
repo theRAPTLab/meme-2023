@@ -10,7 +10,7 @@
 }
 
 /* Titlebar */
-.EVResourceItemDialog .titlebar {
+.EVResourceItemDialog > .titlebar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -21,34 +21,31 @@
   color: var(--clr-txt-reverse);
   background-color: var(--clr-ev);
 }
-.EVResourceItemDialog .titlebar h1 {
+.EVResourceItemDialog > .titlebar h1 {
   font-size: var(--txt-size);
   font-weight: var(--txt-weight-bold);
   color: var(--clr-txt-reverse);
   margin-bottom: 0;
   margin-right: 25px;
 }
-.EVResourceItemDialog .titlebar .label {
+.EVResourceItemDialog > .titlebar .label {
   flex-grow: 1;
   margin-left: 0.5rem;
 }
-.EVResourceItemDialog .titlebar .box {
+.EVResourceItemDialog > .titlebar .box {
   color: var(--clr-txt-reverse);
-  background-color:var(--clr-ev-dark);
+  background-color: var(--clr-ev-dark);
   padding: 3px 12px;
 }
-.EVResourceItemDialog .titlebar button {
+.EVResourceItemDialog > .titlebar button {
   margin-left: 15px;
   color: var(--clr-txt-reverse);
   font-weight: var(--txt-weight-bold);
 }
-.EVResourceItemDialog .titlebar .dot.small {
+.EVResourceItemDialog > .titlebar .ICNCountBadge.small {
   margin-top: 3px;
-  color: var(--clr-txt);
-  background-color: var(--clr-ev-bg);
   border: none;
 }
-
 
 /* Content */
 .EVResourceItemDialog .content {
@@ -63,7 +60,7 @@
   flex-grow: 1;
 }
 .EVResourceItemDialog .content .sidebar {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   align-items: stretch;
   width: 320px;
@@ -72,20 +69,11 @@
   vertical-align: top;
   overflow: hidden;
 }
-.EVResourceItemDialog .content .sidebar .ev-title {
-  display: flex;
-  align-items: baseline;
-  font-weight: var(--txt-weight-semibold);
-}
-.EVResourceItemDialog .content .sidebar .ev-title .dot {
-  margin-right: 0.5rem;
-}
-.EVResourceItemDialog .content .sidebar button {
+.EVResourceItemDialog .content .sidebar > button {
   background-color: var(--clr-ev);
   margin: 16px 0;
 }
 .EVResourceItemDialog .content .sidebar .ev-list {
-  display: inline-flex;
   background-color: #c7d7d6;
   width: 100%;
   height: 100%;

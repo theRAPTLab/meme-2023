@@ -1,0 +1,60 @@
+.EVResourceItem {
+  display: flex;
+  flex-direction: column;
+}
+/* .EVResourceItem.expanded {
+  height: 500px;
+  transition-property: height;
+  transition-duration: 4s;
+  transition-timing-function: ease-in-out;
+  transition-delay: 2s;
+} */
+
+.EVResourceItem > .titlebar {
+  display: grid;
+  grid-template-columns: 40px auto 40px 40px;
+  column-gap: 5px;
+  align-items: center;
+  height: 60px;
+  padding: 10px;
+  font-size: 1em;
+  font-weight: var(--txt-weight-semibold);
+  color: var(--clr-txt);
+  background-color: var(--clr-ev-bg);
+}
+.EVResourceItem > .titlebar .ICNCountBadge {
+  margin-right: 0.5rem;
+}
+.EVResourceItem > .titlebar .label {
+  font-weight: var(--txt-weight-semibold);
+}
+.EVResourceItem > .titlebar .notes {
+  font-size: var(--txt-size-sm);
+  font-weight: var(--txt-weight);
+}
+
+.EVResourceItem .EVLink:last-child {
+  /* undo radius so button can appear next to evlinks */
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.EVResourceItem > .emulate-evlink {
+  display: flex;
+  flex-direction: column;
+  margin-top: -8px; /* raise up to evlink */
+  padding: 0 8px 8px 8px;
+  background-color: var(--clr-ev-bg);
+}
+.EVResourceItem > .emulate-evlink > div {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 10px 10px 10px;
+  background-color: var(--clr-evlink-bg);
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.EVResourceItem > .emulate-evlink button {
+  color: var(--clr-txt-reverse);
+  background-color: var(--clr-ev);
+}

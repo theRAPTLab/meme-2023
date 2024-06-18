@@ -22,7 +22,7 @@ import ADM from '../modules/data';
 import ASET from '../modules/adm-settings';
 import PMCObj from '../modules/pmc-objects';
 import UTILS from '../modules/utils';
-import EvidenceList from './EvidenceList';
+import EVList from './EVList';
 import DEFAULTS from '../modules/defaults';
 
 /// RESOURCE TYPES /////////////////////////////////////////////////////////////////
@@ -264,7 +264,7 @@ class EVResourceItemDialog extends React.Component {
             + {DEFAULTS.TEXT.ADD_EVIDENCE}
           </button>
           <div className="ev-list">
-            <EvidenceList rsrcId={resource.id} />
+            <EVList rsrcId={resource.id} />
           </div>
         </div>
       </div>

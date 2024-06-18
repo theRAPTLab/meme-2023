@@ -1,24 +1,19 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
+Resource Item
+
+For each Resource in the Evidence Library, this component displays the
+list of EVLink items associated with the Resource.
+
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
-import PropTypes from 'prop-types';
-import ClassNames from 'classnames';
-// Material UI Elements
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
-import Collapse from '@mui/material/Collapse';
-import ListItem from '@mui/material/ListItem';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-// Material UI Theming
-import { withTheme } from 'styled-components';
+import './MEMEStyles.css';
+import './EVResourceItem.css';
+
 
 /// RESOURCE TYPES /////////////////////////////////////////////////////////////////
 // Material UI Icons
@@ -40,21 +35,20 @@ const RESOURCE_TYPES = {
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DATA from '../modules/data';
 import DEFAULTS from '../modules/defaults';
-import EvidenceList from './EvidenceList';
+import EVList from './EVList';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
-const PKG = 'ResourceItem:';
+const PKG = 'EVResourceItem:';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-class ResourceItem extends React.Component {
+class EVResourceItem extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -91,7 +85,9 @@ class ResourceItem extends React.Component {
     );
   }
 
-  DoToggleExpanded() {
+  DoToggleExpanded(event) {
+    event.stopPropagation();
+    event.preventDefault();
     if (DBG) console.log(PKG, 'expansion clicked');
     this.setState(prevState => {
       return {
@@ -135,100 +131,56 @@ class ResourceItem extends React.Component {
   }
 
   DoCollapseAll() {
-    // FIXME: Why is `this` undefined?!?
     if (this) {
       this.setState({ isExpanded: false });
     }
   }
 
   render() {
-    const { resource, classes } = this.props;
+    const { resource } = this.props;
     const { isExpanded, hideAddButton } = this.state;
-    let evBadge = {};
-    if (!isExpanded) {
-      let links = DATA.GetEvLinksCountByResourceId(resource.id);
-      evBadge = (
-        <Chip className={classes.evidenceBadge} label={links} color="primary" />
-      );
-    } else {
-      evBadge = '';
-    }
+    const linksCount = DATA.GetEvLinksCountByResourceId(resource.id);
+
     return (
-      <div className={classes.resourceItem}>
-        <ListItem
-          button
-          key={resource.id}
+      <div
+        className={`EVResourceItem ${isExpanded ? 'expanded' : ''}`}
           onClick={() => this.OnResourceClick(resource.id)}
-          style={{ paddingLeft: '8px' }}
         >
-          <ListItemAvatar>
-            <Avatar className={classes.resourceViewAvatar}>
-              {resource.referenceLabel}
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText
-            className={ClassNames(
-              classes.resourceViewLabel,
-              isExpanded ? classes.resourceViewLabelExpanded : ''
-            )}
-            primary={`${resource.label}`}
-            secondary={`${resource.notes}`}
+        <div className="titlebar">
           />
-          <ListItemSecondaryAction style={{ right: '0px' }}>
+          <div>
+            <div className="label">{resource.label}</div>
+            <div className="notes">{resource.notes}</div>
+          </div>
+          <div>
             {RESOURCE_TYPES[resource.type]
               ? RESOURCE_TYPES[resource.type]
               : RESOURCE_TYPES.other}
-            {evBadge}
-            <Button
-              className={classes.resourceExpandButton}
-              onClick={this.DoToggleExpanded}
-            >
-              <ExpandMoreIcon
-                className={
-                  isExpanded ? classes.lessIconExpanded : classes.lessIconCollapsed
-                }
-              />
-            </Button>
-          </ListItemSecondaryAction>
-        </ListItem>
-        <Collapse in={isExpanded}>
-          <div className={classes.resourceViewEvList}>
-            <EvidenceList rsrcId={resource.id} key={`${resource.id}ev`} />
-            <Button
-              size="small"
-              color="primary"
+            {!isExpanded && <ICNCountBadge count={linksCount} size="tiny" />}
+          </div>
+          <div onClick={this.DoToggleExpanded}>
+          </div>
+        </div>
+        {isExpanded && (
+          <>
+            <EVList rsrcId={resource.id} />
+            <div className="emulate-evlink">
+              <div>
+                <button
               onClick={() => this.OnCreateEvidence(resource.id)}
               hidden={DATA.IsViewOnly() || hideAddButton}
             >
-              {DEFAULTS.TEXT.ADD_EVIDENCE}
-            </Button>
+                  + {DEFAULTS.TEXT.ADD_EVIDENCE}
+                </button>
           </div>
-        </Collapse>
+            </div>
+          </>
+        )}
       </div>
     );
   }
 }
 
-ResourceItem.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
-  // eslint-disable-next-line react/forbid-prop-types
-  resource: PropTypes.object
-};
-
-ResourceItem.defaultProps = {
-  classes: {},
-  resource: {
-    rsrcId: '',
-    referenceLabel: '',
-    label: '',
-    notes: '',
-    type: '',
-    url: '',
-    links: 0
-  }
-};
-
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withTheme(ResourceItem);
+export default EVResourceItem;

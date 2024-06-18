@@ -6,7 +6,6 @@
   "recommendations": [
     "editorconfig.editorconfig",
     "dbaeumer.vscode-eslint",
-    "ms-vsliveshare.vsliveshare",
     "esbenp.prettier-vscode",
     "stkb.rewrap"
   ],

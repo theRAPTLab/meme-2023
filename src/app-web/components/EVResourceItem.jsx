@@ -107,7 +107,9 @@ class EVResourceItem extends React.Component {
     UR.Publish('RESOURCEVIEW:OPEN', { rsrcId });
   }
 
-  OnCreateEvidence(rsrcId) {
+  OnCreateEvidence(event, rsrcId) {
+    event.stopPropagation();
+    event.preventDefault();
     if (DBG) console.log(PKG, 'create new evidence:', rsrcId);
     DATA.PMC_AddEvidenceLink({ rsrcId }, id =>
       UR.Publish('SHOW_EVIDENCE_LINK', { evId: id, rsrcId })
@@ -141,7 +143,7 @@ class EVResourceItem extends React.Component {
             <div className="emulate-evlink">
               <div>
                 <button
-              onClick={() => this.OnCreateEvidence(resource.id)}
+                  onClick={event => this.OnCreateEvidence(event, resource.id)}
               hidden={DATA.IsViewOnly() || hideAddButton}
             >
                   + {DEFAULTS.TEXT.ADD_EVIDENCE}

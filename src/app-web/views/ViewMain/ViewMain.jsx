@@ -13,6 +13,7 @@ import clsx from 'clsx';
 import { Switch, Route } from 'react-router-dom';
 // Material UI Theming
 import { withTheme } from 'styled-components';
+import { styled } from '@mui/material/styles';
 import { yellow } from '@mui/material/colors';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
@@ -67,6 +68,17 @@ import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PKG = 'ViewMain:';
+// Styled components
+const StyledMain = styled('main')(({ theme }) => ({
+  paddingLeft: '140px',
+  paddingTop: '64px',
+  flexGrow: 1,
+  backgroundColor: 'rgb(250, 250, 250)',
+}));
+const StyledViewDiv = styled('div')(({ theme }) => ({
+  backgroundColor: '#f0f0ff',
+  flex: 1
+}))
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -213,7 +225,7 @@ class ViewMain extends React.Component {
     console.log('%cUpdateDimensions Fired', cssdraw);
     this.setState({
       viewWidth: Math.min(viewWidth, innerWidth),
-      viewHeight: Math.min(viewHeight, innerHeight)
+      viewHeight: Math.max(viewHeight, innerHeight),
     });
   }
 
@@ -639,12 +651,12 @@ class ViewMain extends React.Component {
           toggleOpen={this.OnToolsPanelToggle}
         />
 
-        <main
+        <StyledMain
           className={clsx(classes.content, { [classes.toolsPanelClosedShift]: !toolsPanelIsOpen })}
           ref={this.refMain}
         >
           <div className={classes.toolbar} ref={this.refToolbar} />
-          <div
+          <StyledViewDiv
             className={classes.view}
             ref={this.refView}
             style={{ height: this.state.viewHeight }}
@@ -673,28 +685,28 @@ class ViewMain extends React.Component {
             </Switch>
             <ZoomInMapIcon
               onClick={() => UR.Publish('SVG_PANZOOM_RESET')}
-              style={{ position: 'absolute', left: '110px', bottom: '60px' }}
+              style={{ position: 'absolute', left: '140px', bottom: '60px' }}
             />
             <ZoomOutMapIcon
               onClick={() => UR.Publish('SVG_PANZOOM_OUT')}
-              style={{ position: 'absolute', left: '110px', bottom: '10px' }}
+              style={{ position: 'absolute', left: '140px', bottom: '10px' }}
             />
             <Typography
               variant="caption"
-              style={{ position: 'absolute', left: '160px', bottom: '12px' }}
+              style={{ position: 'absolute', left: '190px', bottom: '12px' }}
             >
               {' '}
               {/* STATUS LABEL */}
               {viewStatus}
             </Typography>
-          </div>
+          </StyledViewDiv>
 
           <StickyNoteCollection />
           <RatingsDialog />
           <MechDialog />
           <DescriptionView />
           <ScreenshotView />
-        </main>
+        </StyledMain>
 
         {/* Resource Library */}
         <Drawer variant="persistent" anchor="right" open={resourceLibraryIsOpen}>

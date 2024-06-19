@@ -711,7 +711,7 @@ class EVLink extends React.Component {
         {/* Title Bar ------------------------------------------------- */}
         <div className="titlebar">
           <h3>Evidence Link</h3>
-          <ICNExpandSingleArrow expanded={isExpanded} />
+          {!isBeingEdited && <ICNExpandSingleArrow expanded={isExpanded} />}
           <StickyNoteButton refId={id} />
         </div>
         <div className="titlebar">

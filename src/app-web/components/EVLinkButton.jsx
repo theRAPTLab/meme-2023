@@ -52,11 +52,12 @@ See MechDialog and EvidenceLink for example implementations.
 import React from 'react';
 import './MEMEStyles.css';
 import './EVLinkButton.css';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faPencil } from '@fortawesome/free-solid-svg-icons';
+const IcnArrowLeft = <FontAwesomeIcon icon={faArrowLeft} />;
+const IcnPencil = <FontAwesomeIcon icon={faPencil} />;
 import DATAMAP from '../../system/common-datamap';
-// Material UI Icons
-import CreateIcon from '@mui/icons-material/Create';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -103,11 +104,11 @@ class EVLinkButton extends React.Component {
       }
     } else if (listenForSourceSelection) {
       label = 'Click on Target...';
-      icon = <ArrowBackIcon />;
+      icon = IcnArrowLeft;
       btnClass = 'waiting';
     } else if (isBeingEdited) {
       label = 'Set Target';
-      icon = <CreateIcon />;
+      icon = IcnPencil;
     } else {
       label = 'Target Not Set';
     }
@@ -118,7 +119,7 @@ class EVLinkButton extends React.Component {
         className={`EVLinkButton ${btnClass} ${isExpanded ? 'expanded' : ''}`}
         disabled={isDisabled}
       >
-        {icon}
+        {icon}&nbsp;
         <span>{label}</span>
       </button>
     );

@@ -1,6 +1,6 @@
 .EVResourceItemTitleBar {
   display: grid;
-  grid-template-columns: 40px auto 60px;
+  grid-template-columns: 40px auto 68px;
   column-gap: 5px;
   align-items: center;
   padding: 10px;
@@ -15,6 +15,9 @@
   justify-content: flex-end;
   column-gap: 10px;
   font-size: 20px;
+}
+.EVResourceItemTitleBar .widgets .type-icon {
+  color: var(--clr-ev);
 }
 
 .EVResourceItemTitleBar .ICNCountBadge {

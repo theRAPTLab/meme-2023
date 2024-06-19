@@ -85,7 +85,7 @@ class EVResourceItemTitleBar extends React.Component {
         </div>
         <div className="widgets">
           {!isExpanded && <ICNCountBadge count={linksCount} size="tiny" />}
-          <div title={resource.type}>
+          <div className="type-icon" title={resource.type}>
             {RESOURCE_TYPES[resource.type]
               ? RESOURCE_TYPES[resource.type]
               : RESOURCE_TYPES.other}

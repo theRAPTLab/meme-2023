@@ -56,7 +56,7 @@ import RatingsDialog from '../../components/RatingsDialog';
 import ScreenshotView from '../../components/ScreenshotView';
 import StickyNoteButton from '../../components/StickyNoteButton';
 import StickyNoteCollection from '../../components/StickyNoteCollection';
-import ToolsPanel from './ToolsPanel';
+import METoolsPanel from '../../components/METoolsPanel';
 // MEME Modules and Utils
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
@@ -738,7 +738,7 @@ class ViewMEME extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /// Left Tool Sidebar Drawer
     const TOOLSPANEL = (
-      <ToolsPanel
+      <METoolsPanel
         isDisabled={addPropOpen || addEdgeOpen}
         isOpen={toolsPanelIsOpen}
         toggleOpen={this.OnToolsPanelToggle}

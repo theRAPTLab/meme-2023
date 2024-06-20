@@ -7,6 +7,9 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import '../../components/MEMEStyles.css';
+import './ViewMEME.css';
+
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 import clsx from 'clsx';
@@ -210,20 +213,21 @@ class ViewMEME extends React.Component {
     NOTE: Material UI uses FlexBox
     we can insert a CSSGRID into here eventually
     /*/
-    this.viewRect = this.refMain.current.getBoundingClientRect();
-    this.toolRect = this.refToolbar.current.getBoundingClientRect();
-    // NOTE: viewWidth/viewHeigg
-    const viewWidth = this.viewRect.width;
-    const viewHeight = this.viewRect.height - this.toolRect.height;
-    const innerWidth = window.innerWidth - MEMEStyles.DRAWER_WIDTH;
-    const innerHeight = window.innerHeight - this.toolRect.height;
+    console.warn('disable UpdateDimensions for now');
+    // this.viewRect = this.refMain.current.getBoundingClientRect();
+    // this.toolRect = this.refToolbar.current.getBoundingClientRect();
+    // // NOTE: viewWidth/viewHeigg
+    // const viewWidth = this.viewRect.width;
+    // const viewHeight = this.viewRect.height - this.toolRect.height;
+    // const innerWidth = window.innerWidth - MEMEStyles.DRAWER_WIDTH;
+    // const innerHeight = window.innerHeight - this.toolRect.height;
 
-    // debugging: double-refresh issue
-    console.log('%cUpdateDimensions Fired', cssdraw);
-    this.setState({
-      viewWidth: Math.min(viewWidth, innerWidth),
-      viewHeight: Math.min(viewHeight, innerHeight)
-    });
+    // // debugging: double-refresh issue
+    // console.log('%cUpdateDimensions Fired', cssdraw);
+    // this.setState({
+    //   viewWidth: Math.min(viewWidth, innerWidth),
+    //   viewHeight: Math.min(viewHeight, innerHeight)
+    // });
   }
 
   DoModelTitleUpdate(data) {
@@ -578,6 +582,11 @@ class ViewMEME extends React.Component {
     viewStatus = isViewOnly ? 'VIEW MODE' : '';
     viewStatus = isDBReadOnly ? 'DATABASE ARCHIVE REVIEW MODE' : '';
 
+    // Layout
+    const toolsPanelWidth = toolsPanelIsOpen ? '200px' : '0px';
+    const resourceLibraryWidth = resourceLibraryIsOpen ? '200px' : '0px';
+    const gridColumns = `${toolsPanelWidth} auto ${resourceLibraryWidth}`;
+
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const LIBRARIES = (
       <>
@@ -604,7 +613,50 @@ class ViewMEME extends React.Component {
       </>
     );
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    const TITLEBAR = (
+    const APPBAR_ELEMENTS = toolsPanelIsOpen ? (
+      <div onClick={() => this.setState({ toolsPanelIsOpen: false })}>go</div>
+    ) : (
+      <div onClick={() => this.setState({ toolsPanelIsOpen: true })}>&gt;&gt;</div>
+    );
+    const APPBAR_RESOURCELIB = resourceLibraryIsOpen ? (
+      <div onClick={() => this.setState({ resourceLibraryIsOpen: false })}>go</div>
+    ) : (
+      <div onClick={() => this.setState({ resourceLibraryIsOpen: true })}>
+        &lt;&lt;
+      </div>
+    );
+    const APPBAR = (
+      <div className={`appbar ${!isModelAuthor ? '' : 'otherauthor'}`}>
+        {APPBAR_ELEMENTS}
+        <div onClick={this.OnCloseModel}>Home</div>
+        <form onSubmit={this.DoSubmitModelTitleForm}>
+          <input
+            type="text"
+            id="projectTitle"
+            style={{ flexGrow: 1 }}
+            placeholder="Untitled Model"
+            value={title}
+            disabled={isViewOnly}
+            onChange={this.OnChangeModelTitle}
+            onBlur={this.DoSaveModelTitle}
+            // classes={{
+            //   input: isModelAuthor
+            //     ? classes.primaryProjectTitle
+            //     : classes.projectTitle
+            // }}
+          />
+        </form>
+        <div>by {modelAuthorGroupName} Group</div>
+        <StickyNoteButton refId="9999" />
+        <button onClick={this.OnCloseModel}>
+          {studentName}&nbsp;:&nbsp;{studentGroup}
+        </button>
+        <button onClick={this.OnLogout}>Logout</button>
+        <button onClick={this.OnHelp}>?</button>
+        {APPBAR_RESOURCELIB}
+      </div>
+    );
+    const OLDTITLEBAR = (
       <AppBar
         position="fixed"
         className={clsx(
@@ -799,10 +851,20 @@ class ViewMEME extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     return (
-      <div className={classes.root}>
+      <div className="MEME">
+        <div className="ViewMEME" style={{ gridTemplateColumns: gridColumns }}>
+          <div className="leftsidebar">a</div>
+          <div className="main">{APPBAR}</div>
+          <div className="rightsidebar">c</div>
+        </div>
+      </div>
+    );
+
+    return (
+      <div className={`ViewMEME ${classes.root}`}>
         {LIBRARIES}
         {DIALOGS}
-        {TITLEBAR}
+        {APPBAR}
 
         {TOOLSPANEL}
 

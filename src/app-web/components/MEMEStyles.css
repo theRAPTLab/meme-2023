@@ -3,6 +3,7 @@
   --clr-txt-reverse: white;
 
   --clr-btn-primary: #0088d4;
+  --clr-btn-hover: #0003;
 
   --clr-entity: #0088d4;
   --clr-entity-dark: #004f7a; /* use for text on bg */
@@ -33,6 +34,11 @@
   --txt-weight-med: 400;
   --txt-weight-semibold: 500;
   --txt-weight-bold: 600;
+
+  --clr-appbar: var(--clr-txt-reverse);
+  --clr-appbar-bg: #4f66a0;
+  --clr-appbar-bg-other: #999;
+  --appbar-height: 48px;
 }
 
 body {

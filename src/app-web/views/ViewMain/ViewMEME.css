@@ -25,6 +25,7 @@ body {
   display: grid;
   /* grid-template: auto / 292px auto 292px; overridden by ViewMEME */
   height: 100%;
+  transition: all 0.2s ease-in;
 }
 .ViewMEME .leftsidebar,
 .ViewMEME .rightsidebar {

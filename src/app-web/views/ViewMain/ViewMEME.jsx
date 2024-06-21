@@ -57,6 +57,7 @@ import ScreenshotView from '../../components/ScreenshotView';
 import StickyNoteButton from '../../components/StickyNoteButton';
 import StickyNoteCollection from '../../components/StickyNoteCollection';
 import METoolsPanel from '../../components/METoolsPanel';
+import MEPanelResources from '../../components/MEPanelResources';
 // MEME Modules and Utils
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
@@ -560,8 +561,8 @@ class ViewMEME extends React.Component {
       studentId,
       studentName,
       studentGroup,
-      resourceLibraryIsOpen,
       toolsPanelIsOpen,
+      resourceLibraryIsOpen,
       addPropOpen,
       addEdgeOpen,
       componentIsSelected,
@@ -583,8 +584,8 @@ class ViewMEME extends React.Component {
     viewStatus = isDBReadOnly ? 'DATABASE ARCHIVE REVIEW MODE' : '';
 
     // Layout
-    const toolsPanelWidth = toolsPanelIsOpen ? '200px' : '0px';
-    const resourceLibraryWidth = resourceLibraryIsOpen ? '200px' : '0px';
+    const toolsPanelWidth = toolsPanelIsOpen ? '292px' : '0px';
+    const resourceLibraryWidth = resourceLibraryIsOpen ? '292px' : '0px';
     const gridColumns = `${toolsPanelWidth} auto ${resourceLibraryWidth}`;
 
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -619,7 +620,7 @@ class ViewMEME extends React.Component {
       <div onClick={() => this.setState({ toolsPanelIsOpen: true })}>&gt;&gt;</div>
     );
     const APPBAR_RESOURCELIB = resourceLibraryIsOpen ? (
-      <div onClick={() => this.setState({ resourceLibraryIsOpen: false })}>go</div>
+      ''
     ) : (
       <div onClick={() => this.setState({ resourceLibraryIsOpen: true })}>
         &lt;&lt;
@@ -745,7 +746,13 @@ class ViewMEME extends React.Component {
       />
     );
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    const RESOURCELIBRARY = (
+    const PANELRESOURCES = (
+      <MEPanelResources
+        toggleOpen={() => this.setState({ resourceLibraryIsOpen: false })}
+        resources={resources}
+      />
+    );
+    const OLDRESOURCELIBRARY = (
       <Drawer variant="persistent" anchor="right" open={resourceLibraryIsOpen}>
         <div className={classes.resourceList}>
           <div className={clsx(classes.drawerAppBar, classes.resourceListAppBar)}>
@@ -855,7 +862,7 @@ class ViewMEME extends React.Component {
         <div className="ViewMEME" style={{ gridTemplateColumns: gridColumns }}>
           <div className="leftsidebar">a</div>
           <div className="main">{APPBAR}</div>
-          <div className="rightsidebar">c</div>
+          <div className="rightsidebar">{PANELRESOURCES}</div>
         </div>
       </div>
     );
@@ -921,7 +928,7 @@ class ViewMEME extends React.Component {
           </div>
         </main>
 
-        {RESOURCELIBRARY}
+        {PANELRESOURCES}
         {CONTROLBAR}
       </div>
     );

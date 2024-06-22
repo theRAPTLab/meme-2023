@@ -74,6 +74,8 @@ import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 const DBG = false;
 const PKG = 'ViewMEME:';
 
+const SIDEBARWIDTH = 292;
+
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class ViewMEME extends React.Component {
@@ -210,25 +212,16 @@ class ViewMEME extends React.Component {
   }
 
   UpdateDimensions() {
-    /*/
-    NOTE: Material UI uses FlexBox
-    we can insert a CSSGRID into here eventually
-    /*/
-    console.warn('disable UpdateDimensions for now');
-    // this.viewRect = this.refMain.current.getBoundingClientRect();
-    // this.toolRect = this.refToolbar.current.getBoundingClientRect();
-    // // NOTE: viewWidth/viewHeigg
-    // const viewWidth = this.viewRect.width;
-    // const viewHeight = this.viewRect.height - this.toolRect.height;
-    // const innerWidth = window.innerWidth - MEMEStyles.DRAWER_WIDTH;
-    // const innerHeight = window.innerHeight - this.toolRect.height;
-
-    // // debugging: double-refresh issue
-    // console.log('%cUpdateDimensions Fired', cssdraw);
-    // this.setState({
-    //   viewWidth: Math.min(viewWidth, innerWidth),
-    //   viewHeight: Math.min(viewHeight, innerHeight)
-    // });
+    this.viewRect = this.refMain.current.getBoundingClientRect();
+    // NOTE: viewWidth/viewHeight
+    const viewWidth = this.viewRect.width;
+    const viewHeight = this.viewRect.height;
+    const innerWidth = window.innerWidth - SIDEBARWIDTH * 2;
+    const innerHeight = window.innerHeight;
+    this.setState({
+      viewWidth: Math.min(viewWidth, innerWidth),
+      viewHeight: Math.min(viewHeight, innerHeight)
+    });
   }
 
   DoModelTitleUpdate(data) {
@@ -584,8 +577,8 @@ class ViewMEME extends React.Component {
     viewStatus = isDBReadOnly ? 'DATABASE ARCHIVE REVIEW MODE' : '';
 
     // Layout
-    const toolsPanelWidth = toolsPanelIsOpen ? '292px' : '0px';
-    const resourceLibraryWidth = resourceLibraryIsOpen ? '292px' : '0px';
+    const toolsPanelWidth = toolsPanelIsOpen ? `${SIDEBARWIDTH}px` : '0px';
+    const resourceLibraryWidth = resourceLibraryIsOpen ? `${SIDEBARWIDTH}px` : '0px';
     const gridColumns = `${toolsPanelWidth} auto ${resourceLibraryWidth}`;
 
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

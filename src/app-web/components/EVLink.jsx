@@ -681,10 +681,7 @@ class EVLink extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // hover: isHovered -- restore?  not currently used.
     const VIEW_COLLAPSED = (
-      <div
-        className={`EVLink collapsed ${animateInitialRender ? 'opened' : 'closed'}`}
-            onClick={this.DoToggleExpanded}
-          >
+      <div className={`EVLink collapsed`} onClick={this.DoToggleExpanded}>
         {/* Badge --------------------------------------------------------- */}
         <ICNCountBadge count={evlink.numberLabel} size="medium" type="ev-light" />
         {/* Title Bar ----------------------------------------------------- */}
@@ -704,10 +701,7 @@ class EVLink extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // hover: isHovered -- restore?  not currently used.
     const VIEW_EXPANDED = (
-      <div
-        className={`EVLink ${animateInitialRender ? 'opened' : 'closed'}`}
-              onClick={this.DoToggleExpanded}
-            >
+      <div className={`EVLink`} onClick={this.DoToggleExpanded}>
         {/* Title Bar ------------------------------------------------- */}
         <div className="titlebar">
           <h3>Evidence Link</h3>

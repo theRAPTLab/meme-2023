@@ -134,24 +134,22 @@ class EVResourceItem extends React.Component {
     return (
       <div
         className={`EVResourceItem ${isExpanded ? 'expanded' : ''}`}
-          onClick={() => this.OnResourceClick(resource.id)}
-        >
+        onClick={() => this.OnResourceClick(resource.id)}
+      >
         <EVResourceItemTitleBar resource={resource} onExpand={this.evt_OnExpand} />
-        {isExpanded && (
-          <div className="ev-list">
-            <EVList rsrcId={resource.id} />
-            <div className="emulate-evlink">
-              <div>
-                <button
-                  onClick={event => this.OnCreateEvidence(event, resource.id)}
-              hidden={DATA.IsViewOnly() || hideAddButton}
-            >
-                  + {DEFAULTS.TEXT.ADD_EVIDENCE}
-                </button>
-          </div>
+        <div className={`ev-list ${isExpanded ? 'expanded' : 'collapsed'}`}>
+          <EVList rsrcId={resource.id} />
+          <div className="emulate-evlink">
+            <div>
+              <button
+                onClick={event => this.OnCreateEvidence(event, resource.id)}
+                hidden={DATA.IsViewOnly() || hideAddButton}
+              >
+                + {DEFAULTS.TEXT.ADD_EVIDENCE}
+              </button>
             </div>
           </div>
-        )}
+        </div>
       </div>
     );
   }

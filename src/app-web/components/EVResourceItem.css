@@ -25,6 +25,25 @@
 
 .EVResourceItem > .ev-list {
   padding: 8px;
+  overflow: hidden;
+}
+.EVResourceItem > .ev-list.collapsed {
+  transform: scaleY(0%);
+  max-height: 0;
+  transition-property: all;
+  transition-duration: 0.25s;
+  transition-timing-function: ease-out;
+  transition-delay: 0.1s;
+  transform-origin: top;
+}
+.EVResourceItem > .ev-list.expanded {
+  transform: scaleY(100%);
+  max-height: 100%;
+  transition-property: all;
+  transition-duration: 0.25s;
+  transition-timing-function: ease-in;
+  transition-delay: 0.05s;
+  transform-origin: top;
 }
 
 .EVResourceItem .EVLink:last-child {

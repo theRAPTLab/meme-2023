@@ -9,15 +9,6 @@
 .EVLink:hover {
   background-color: var(--clr-evlink-bg-hover);
 }
-.EVLink.closed {
-  transform: scaleY(0);
-  transform-origin: top;
-  transition: all 0.5s ease-in;
-}
-.EVLink.opened {
-  transform: scaleY(1);
-  transition: all 0.5s ease-in;
-}
 .EVLink:first-child {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;

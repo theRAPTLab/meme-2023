@@ -63,8 +63,6 @@
   row-gap: 8px;
   line-height: var(--txt-size-med);
 }
-.MEPanelTools .processesPanel .item {
-}
 
 .MEPanelTools .subItem {
   margin: 0 0 0 0.5em;

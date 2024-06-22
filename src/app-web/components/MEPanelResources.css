@@ -9,5 +9,5 @@
   padding-right: 0px;
 }
 .MEPanelResources .list {
-  overflow: scroll;
+  overflow: auto;
 }

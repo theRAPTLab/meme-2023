@@ -1,74 +1,39 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  ToolsPanel - Left sidebar in Main Application View
+  MEPanelTools - Left sidebar in Main Application View
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
-import clsx from 'clsx';
+import './MEMEStyles.css';
+import './MEPanelTools.css';
+
 import PropTypes from 'prop-types';
-import ClassNames from 'classnames';
-// Material UI Theming
-import { withTheme } from 'styled-components';
 
 import ICNExpandDoubleArrow from './ICNExpandDoubleArrow';
+import WDisclosure from './WDisclosure';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Material UI Elements
-import { indigo } from '@mui/material/colors';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
-import Drawer from '@mui/material/Drawer';
-import Fab from '@mui/material/Fab';
-import Tooltip from '@mui/material/Tooltip';
-import { TreeView, TreeItem } from '@mui/x-tree-view';
-import Typography from '@mui/material/Typography';
-// Material UI Icons
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 // MEME Modules and Utils
-import MEMEStyles from './MEMEStyles';
 import UR from '../../system/ursys';
 import DEFAULTS from '../modules/defaults';
 import DATA from '../modules/data';
 import ADM from '../modules/data';
 import DATAMAP from '../../system/common-datamap';
-import { styled } from '@mui/system';
 
 const { COLOR, CoerceToEdgeObj } = DEFAULTS;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
-const PKG = 'ToolsPanel:';
-
-const SmallFab = styled(Fab)(({ theme }) => ({
-  root: {
-    margin: '5px 0'
-  },
-  label: {
-    fontSize: '10px',
-    textTransform: 'capitalize',
-    color: '#fff'
-  }
-}));
-
-// Customized TreeItem Component with smaller font
-const SmallTreeItem = styled(TreeItem)(({ theme }) => ({
-  iconContainer: {
-    width: '16px'
-  },
-  label: {
-    fontSize: '11px'
-  }
-}));
+const PKG = 'MEPanelTools:';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-class METoolsPanel extends React.Component {
+class MEPanelTools extends React.Component {
   // constructor
   constructor(props) {
     super(props);
@@ -222,19 +187,20 @@ class METoolsPanel extends React.Component {
       return '';
     }
     const children = DATA.Children(propId);
+
+    const cssSub = isSub ? 'subItem' : '';
+    const cssClr =
+      prop.propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
+        ? 'clr-item-outcome'
+        : 'clr-item-entity';
+    const cssSelected = selectedPropId === propId ? 'selected' : '';
+    const cssHovered = hoveredPropId === propId ? 'hovered' : '';
+    const cssClasses = `${cssSub} ${cssClr} ${cssSelected} ${cssHovered}`;
+
     return (
       <div
         key={propId}
-        className={ClassNames(
-          classes.treeItem,
-          isSub
-            ? classes.treeSubPropItem
-            : prop.propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
-              ? classes.treeOutcomeItemColor
-              : classes.treePropItemColor,
-          selectedPropId === propId ? classes.treeItemSelected : '',
-          hoveredPropId === propId ? classes.treeItemHovered : ''
-        )}
+        className={cssClasses}
         onClick={e => this.OnPropClick(e, propId)}
         onMouseEnter={e => {
           e.stopPropagation();
@@ -267,19 +233,19 @@ class METoolsPanel extends React.Component {
       const target = targetObj ? targetObj.name : 'missing prop';
       const targetType = sourceObj ? targetObj.propType : 'missing prop';
       i++;
+
+      const cssSelected =
+        selectedMechId.v === mechId.v && selectedMechId.w === mechId.w
+          ? 'selected'
+          : '';
+      const cssHovered =
+        hoveredMechId.v === mechId.v && hoveredMechId.w === mechId.w ? 'hovered' : '';
+      const cssClasses = `item clr-item-mech ${cssSelected} ${cssHovered}`;
+
       return (
         <div
           key={`mech${i}`}
-          className={ClassNames(
-            classes.treeItem,
-            classes.treeMechItem,
-            selectedMechId.v === mechId.v && selectedMechId.w === mechId.w
-              ? classes.treeItemSelected
-              : '',
-            hoveredMechId.v === mechId.v && hoveredMechId.w === mechId.w
-              ? classes.treeItemHovered
-              : ''
-          )}
+          className={cssClasses}
           onClick={e => this.OnMechClick(e, mechId)}
           onMouseEnter={e => {
             e.stopPropagation();
@@ -294,8 +260,8 @@ class METoolsPanel extends React.Component {
           <span
             className={
               sourceType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
-                ? classes.treeOutcomeItemColor
-                : classes.treePropItemColor
+                ? 'clr-item-outcome'
+                : 'clr-item-entity'
             }
           >
             {source}{' '}
@@ -304,8 +270,8 @@ class METoolsPanel extends React.Component {
           <span
             className={
               targetType === DATAMAP.PMC_MODELTYPES.OUTCOME.id
-                ? classes.treeOutcomeItemColor
-                : classes.treePropItemColor
+                ? 'clr-item-outcome'
+                : 'clr-item-entity'
             }
           >
             {' '}
@@ -317,7 +283,7 @@ class METoolsPanel extends React.Component {
   }
 
   render() {
-    const { classes, isDisabled, isOpen, toggleOpen } = this.props;
+    const { classes, isDisabled, toggleOpen } = this.props;
 
     const outcomesList = this.RenderComponentsList(
       DATA.Components(),
@@ -331,128 +297,67 @@ class METoolsPanel extends React.Component {
 
     const isViewOnly = ADM.IsViewOnly();
 
+    const ENTITIESPANEL = (
+      <div className="entitiesPanel">
+        <WDisclosure
+          title={DATAMAP.PMC_MODELTYPES.COMPONENT.plural}
+          items={componentsList}
+        />
+        <button
+          onClick={this.OnComponentAdd}
+          disabled={isDisabled}
+          hidden={isViewOnly}
+        >
+          Add {DATAMAP.PMC_MODELTYPES.COMPONENT.label}
+        </button>
+      </div>
+    );
+
+    const PROCESSESPANEL = (
+      <div className="processesPanel">
+        <WDisclosure
+          title={DATAMAP.PMC_MODELTYPES.MECHANISM.plural}
+          items={mechanismsList}
+        />
+        <button onClick={this.OnMechAdd} disabled={isDisabled} hidden={isViewOnly}>
+          Add {DATAMAP.PMC_MODELTYPES.MECHANISM.label}
+        </button>
+      </div>
+    );
+
+    const OUTCOMESPANEL = (
+      <div className="outcomesPanel">
+        <WDisclosure
+          title={DATAMAP.PMC_MODELTYPES.OUTCOME.plural}
+          items={outcomesList}
+        />
+        <button onClick={this.OnOutcomeAdd} disabled={isDisabled} hidden={isViewOnly}>
+          Add {DATAMAP.PMC_MODELTYPES.OUTCOME.label}
+        </button>
+      </div>
+    );
+
     return (
-      <Drawer
-        className={classes.drawer}
-        variant="persistent"
-        classes={{
-          paper: classes.drawerPaper
-        }}
-        anchor="left"
-        open={isOpen}
-      >
-        <div className={clsx(classes.drawerAppBar, classes.toolsPanelAppBar)}>
-          <Button
-            onClick={toggleOpen}
-            color="inherit"
-            size="small"
-            style={{ width: '100%' }}
-          >
+      <div className="MEPanelTools">
+        <div className="appbar">
+          <button onClick={toggleOpen}>
             <ICNExpandDoubleArrow direction="left" />
-            <div style={{ width: '100%', textAlign: 'left' }}></div>
-          </Button>
+          </button>
+          Elements
         </div>
-        <div className={classes.toolsPanelList}>
-          <div
-            className={classes.toolsPanelGroup}
-            style={{ backgroundColor: COLOR.OUTCOME_TOOLSPANEL_BG }}
-          >
-            <TreeView
-              defaultCollapseIcon={<ExpandMoreIcon />}
-              defaultExpandIcon={<ChevronRightIcon />}
-              className={classes.treeView}
-            >
-              <SmallTreeItem
-                nodeId={'outcomes'}
-                label={DATAMAP.PMC_MODELTYPES.OUTCOME.plural.toUpperCase()}
-              >
-                {outcomesList}
-              </SmallTreeItem>
-            </TreeView>
-            <SmallFab
-              color="inherit"
-              size="small"
-              variant="extended"
-              aria-label="Add"
-              onClick={this.OnOutcomeAdd}
-              disabled={isDisabled}
-              hidden={isViewOnly}
-              style={{ backgroundColor: COLOR.OUTCOME }}
-            >
-              Add {DATAMAP.PMC_MODELTYPES.OUTCOME.label}
-            </SmallFab>
-          </div>
-
-          <div
-            className={classes.toolsPanelGroup}
-            style={{ backgroundColor: COLOR.MECH_TOOLSPANEL_BG }}
-          >
-            <TreeView
-              defaultExpanded={['mechanisms']}
-              defaultCollapseIcon={<ExpandMoreIcon />}
-              defaultExpandIcon={<ChevronRightIcon />}
-              className={classes.treeView}
-            >
-              <SmallTreeItem
-                nodeId={'mechanisms'}
-                label={DATAMAP.PMC_MODELTYPES.MECHANISM.plural.toUpperCase()}
-              >
-                {mechanismsList}
-              </SmallTreeItem>
-            </TreeView>
-            <SmallFab
-              color="inherit"
-              size="small"
-              variant="extended"
-              aria-label="Add"
-              onClick={this.OnMechAdd}
-              disabled={isDisabled}
-              hidden={isViewOnly}
-              style={{ backgroundColor: COLOR.MECH }}
-            >
-              Add {DATAMAP.PMC_MODELTYPES.MECHANISM.label}
-            </SmallFab>
-          </div>
-
-          <div
-            className={classes.toolsPanelGroup}
-            style={{ backgroundColor: COLOR.PROP_TOOLSPANEL_BG }}
-          >
-            <TreeView
-              defaultCollapseIcon={<ExpandMoreIcon />}
-              defaultExpandIcon={<ChevronRightIcon />}
-              className={classes.treeView}
-            >
-              <SmallTreeItem
-                nodeId={'components'}
-                label={DATAMAP.PMC_MODELTYPES.COMPONENT.plural.toUpperCase()}
-              >
-                {componentsList}
-              </SmallTreeItem>
-            </TreeView>
-            <SmallFab
-              color="inherit"
-              size="small"
-              variant="extended"
-              aria-label="Add"
-              className={classes.fab}
-              onClick={this.OnComponentAdd}
-              disabled={isDisabled}
-              hidden={isViewOnly}
-              style={{ backgroundColor: COLOR.PROP }}
-            >
-              Add {DATAMAP.PMC_MODELTYPES.COMPONENT.label}
-            </SmallFab>
-          </div>
+        <div className="list">
+          {ENTITIESPANEL}
+          {PROCESSESPANEL}
+          {OUTCOMESPANEL}
         </div>
-      </Drawer>
+      </div>
     );
   }
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// default props are expect properties that we expect
 /// and are declared for validation
-METoolsPanel.defaultProps = {
+MEPanelTools.defaultProps = {
   classes: {},
   theme: {},
   isDisabled: false
@@ -461,15 +366,15 @@ METoolsPanel.defaultProps = {
 /// propTypes are declared. Note "vague" propstypes are
 /// disallowed by eslint, so use shape({prop: ProtType })
 /// to describe them in more detail
-METoolsPanel.propTypes = {
+MEPanelTools.propTypes = {
   classes: PropTypes.shape({}),
   isDisabled: PropTypes.bool
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// requirement for UR MODULES and COMPONENTS
-METoolsPanel.MOD_ID = __dirname;
+MEPanelTools.MOD_ID = __dirname;
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles
-export default withTheme(METoolsPanel);
+export default MEPanelTools;

@@ -2,10 +2,10 @@
   --clr-txt: #111;
   --clr-txt-reverse: white;
 
-  --clr-btn-primary: #0088d4;
+  --clr-btn-primary: #4f66a0;
   --clr-btn-hover: #0003;
 
-  --clr-entity: #0088d4;
+  --clr-entity: #0088d4; /* aka 'prop' */
   --clr-entity-dark: #004f7a; /* use for text on bg */
   --clr-entity-med: #0088d433; /* on top of bg */
   --clr-entity-bg: #bfe1f4;
@@ -15,9 +15,10 @@
   --clr-outcome-med: #7c44ce33; /* on top of bg */
   --clr-outcome-bg: #ded0f3;
 
-  --clr-mech: #de6a29;
+  --clr-mech: #de6a29; /* aka 'process' */
   --clr-mech-dark: #7a3a1f;
   --clr-mech-med: #de6a2933; /* on top of bg */
+  --clr-mech-med-overlay: #de6a2966; /* on top of bg */
   --clr-mech-bg: #fff1cc;
 
   --clr-ev: #0bac8f;
@@ -27,7 +28,10 @@
   --clr-evlink-bg: #fff;
   --clr-evlink-bg-hover: #e8faf7;
 
+  --clr-comment: #ffe143;
+
   --txt-size: 16px;
+  --txt-size-med: 14px;
   --txt-size-sm: 12px;
   --txt-size-tiny: 10px; /* use for display only */
   --txt-weight: 300;
@@ -58,6 +62,36 @@ h3 {
   --txt-weight: 600;
 }
 
+/* -- APPBAR --------------------------------- */
+.appbar {
+  color: var(--clr-appbar);
+  background-color: var(--clr-appbar-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  row-gap: 24px;
+  height: var(--appbar-height);
+  padding: 0 24px;
+}
+.appbar.otherauthor {
+  background-color: var(--clr-appbar-bg-other);
+}
+.appbar input {
+  color: var(--clr-appbar);
+  border: none;
+  background-color: transparent;
+}
+.appbar input::placeholder {
+  color: #fff8;
+}
+.appbar button {
+  color: var(--clr-appbar);
+  background-color: transparent;
+}
+.appbar button:hover {
+  background-color: var(--clr-btn-hover);
+}
+
 /* -- BUTTON --------------------------------- */
 button {
   padding: 8px 16px;
@@ -67,6 +101,14 @@ button {
 button.primary {
   color: var(--clr-txt-reverse);
   background-color: var(--clr-btn-primary);
+}
+button.danger {
+  color: var(--clr-txt-reverse);
+  background-color: #e9000e;
+}
+button.comment {
+  color: var(--clr-txt);
+  background-color: var(--clr-comment);
 }
 button.transparent {
   border: none;

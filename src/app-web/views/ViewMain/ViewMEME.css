@@ -45,6 +45,23 @@ body {
   display: grid;
   grid-template-rows: var(--appbar-height) auto;
 }
+.ViewMEME .main .view {
+  flex: 1;
+  background-color: #f0f0ff;
+  position: relative; /* needed to place zoom controls */
+  transition: all 0.2s ease-in;
+}
+.ViewMEME .main .view svg {
+  transition: all 0.2s ease-in; /* ease resource library slide out */
+}
+
+.ViewMEME .main .controlbar {
+  display: flex;
+  justify-content: space-evenly;
+  position: absolute;
+  bottom: 60px;
+  width: 100%;
+}
 
 .ViewMEME .rightsidebar {
   background-color: green;

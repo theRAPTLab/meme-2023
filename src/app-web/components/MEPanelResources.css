@@ -8,3 +8,6 @@
   background-color: var(--clr-ev);
   padding-right: 0px;
 }
+.MEPanelResources .list {
+  overflow: scroll;
+}

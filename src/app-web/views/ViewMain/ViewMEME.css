@@ -9,6 +9,9 @@ body {
   grid-template-rows: 1fr;
   grid-template-columns: 1fr;
 }
+#app-container {
+  overflow: hidden;
+}
 #app-container > div {
   /* HACKish SystemInit.jsx MUI theeme provider ref */
   width: 100%;

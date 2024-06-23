@@ -1,38 +1,26 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  ViewMain - Main Application View
+  ViewMEME - Main Application View
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import '../../components/MEMEStyles.css';
+import './ViewMEME.css';
+
 import PropTypes from 'prop-types';
-import ClassNames from 'classnames';
-import clsx from 'clsx';
 import { Switch, Route } from 'react-router-dom';
+
 // Material UI Theming
-import { withTheme } from 'styled-components';
-import { styled } from '@mui/material/styles';
 import { yellow } from '@mui/material/colors';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Material UI Elements
-import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
-import Fab from '@mui/material/Fab';
-import InputBase from '@mui/material/InputBase';
 // Material UI Icons
 import AddIcon from '@mui/icons-material/Add';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditIcon from '@mui/icons-material/Edit';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -47,16 +35,14 @@ import MechDialog from '../../components/MechDialog';
 import ModelSelect from '../../components/ModelSelect';
 import PropDialog from '../../components/PropDialog';
 import EVResourceItemDialog from '../../components/EVResourceItemDialog';
-import ResourceItem from '../../components/ResourceItem';
 import RatingsDialog from '../../components/RatingsDialog';
 import ScreenshotView from '../../components/ScreenshotView';
 import StickyNoteButton from '../../components/StickyNoteButton';
 import StickyNoteCollection from '../../components/StickyNoteCollection';
-import ToolsPanel from './ToolsPanel';
+import MEPanelTools from '../../components/MEPanelTools';
+import MEPanelResources from '../../components/MEPanelResources';
 // MEME Modules and Utils
-import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
-import UTILS from '../../modules/utils';
 import RoutedView from './RoutedView';
 import DATA from '../../modules/data';
 import ADM from '../../modules/data';
@@ -67,34 +53,28 @@ import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
-const PKG = 'ViewMain:';
-// Styled components
-const StyledMain = styled('main')(({ theme }) => ({
-  paddingLeft: '140px',
-  paddingTop: '64px',
-  flexGrow: 1,
-  backgroundColor: 'rgb(250, 250, 250)',
-}));
-const StyledViewDiv = styled('div')(({ theme }) => ({
-  backgroundColor: '#f0f0ff',
-  flex: 1
-}))
+const PKG = 'ViewMEME:';
+
+const SIDEBARWIDTH = 292;
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-class ViewMain extends React.Component {
+class ViewMEME extends React.Component {
   // constructor
   constructor(props) {
     super(props);
-    UR.ReactPreflight(ViewMain, module);
+    UR.ReactPreflight(ViewMEME, module);
     UR.DisableAdminPowers();
 
     this.displayName = this.constructor.name;
     this.refMain = React.createRef();
-    this.refToolbar = React.createRef();
     this.refView = React.createRef();
-    this.refDrawer = React.createRef();
-    this.state = { viewHeight: 0, viewWidth: 0 };
+
+    this.state = {
+      viewHeight: 0,
+      viewWidth: 0
+    };
+
     this.DoDataUpdate = this.DoDataUpdate.bind(this);
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
@@ -102,7 +82,8 @@ class ViewMain extends React.Component {
     this.OnChangeModelTitle = this.OnChangeModelTitle.bind(this);
     this.DoSaveModelTitle = this.DoSaveModelTitle.bind(this);
     this.DoSubmitModelTitleForm = this.DoSubmitModelTitleForm.bind(this);
-    this.OnToolsPanelToggle = this.OnToolsPanelToggle.bind(this);
+    this.OnToggleToolsPanel = this.OnToggleToolsPanel.bind(this);
+    this.OnToggleResourceLibrary = this.OnToggleResourceLibrary.bind(this);
     this.OnShowEvidenceLink = this.OnShowEvidenceLink.bind(this);
     this.OnOutcomeAdd = this.OnOutcomeAdd.bind(this);
     this.OnPropAdd = this.OnPropAdd.bind(this);
@@ -116,7 +97,8 @@ class ViewMain extends React.Component {
     this.DoMechClosed = this.DoMechClosed.bind(this);
     this.OnComponentAdd = this.OnComponentAdd.bind(this);
     this.OnPropDialogClose = this.OnPropDialogClose.bind(this);
-    this.handleEvLinkSourceSelectRequest = this.handleEvLinkSourceSelectRequest.bind(this);
+    this.handleEvLinkSourceSelectRequest =
+      this.handleEvLinkSourceSelectRequest.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
     this.OnCloseModel = this.OnCloseModel.bind(this);
     this.OnLogout = this.OnLogout.bind(this);
@@ -131,7 +113,10 @@ class ViewMain extends React.Component {
     UR.Subscribe('PROP_ADD', this.OnComponentAdd);
     UR.Subscribe('PROPDIALOG_CLOSE', this.OnPropDialogClose);
     UR.Subscribe('MECH_ADD', this.OnMechAdd);
-    UR.Subscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
+    UR.Subscribe(
+      'REQUEST_SELECT_EVLINK_SOURCE',
+      this.handleEvLinkSourceSelectRequest
+    );
     UR.Subscribe('MECHDIALOG_CLOSED', this.DoMechClosed);
     this.state = {
       title: '',
@@ -175,7 +160,10 @@ class ViewMain extends React.Component {
     UR.Unsubscribe('PROP_ADD', this.OnComponentAdd);
     UR.Unsubscribe('PROPDIALOG_CLOSE', this.OnPropDialogClose);
     UR.Unsubscribe('MECH_ADD', this.OnMechAdd);
-    UR.Unsubscribe('REQUEST_SELECT_EVLINK_SOURCE', this.handleEvLinkSourceSelectRequest);
+    UR.Unsubscribe(
+      'REQUEST_SELECT_EVLINK_SOURCE',
+      this.handleEvLinkSourceSelectRequest
+    );
     UR.Unsubscribe('MECHDIALOG_CLOSED', this.DoMechClosed);
   }
 
@@ -209,24 +197,40 @@ class ViewMain extends React.Component {
   }
 
   UpdateDimensions() {
-    /*/
-    NOTE: Material UI uses FlexBox
-    we can insert a CSSGRID into here eventually
-    /*/
-    this.viewRect = this.refMain.current.getBoundingClientRect();
-    this.toolRect = this.refToolbar.current.getBoundingClientRect();
-    // NOTE: viewWidth/viewHeigg
-    const viewWidth = this.viewRect.width;
-    const viewHeight = this.viewRect.height - this.toolRect.height;
-    const innerWidth = window.innerWidth - MEMEStyles.DRAWER_WIDTH;
-    const innerHeight = window.innerHeight - this.toolRect.height;
+    const { toolsPanelIsOpen, resourceLibraryIsOpen } = this.state;
+    let sidebarwidth = resourceLibraryIsOpen ? SIDEBARWIDTH : 0;
+    sidebarwidth += toolsPanelIsOpen ? SIDEBARWIDTH : 0;
 
-    // debugging: double-refresh issue
-    console.log('%cUpdateDimensions Fired', cssdraw);
+    this.viewRect = this.refView.current.getBoundingClientRect();
+    // NOTE: viewWidth/viewHeight
+    const viewWidth = this.viewRect.width;
+    const viewHeight = this.viewRect.height;
+    const innerWidth = window.innerWidth - sidebarwidth;
+    const innerHeight = window.innerHeight;
+    console.log(
+      'UpdateDimensions',
+      'toolsPanelIsOpen',
+      toolsPanelIsOpen,
+      'resourceLibraryIsOpen',
+      resourceLibraryIsOpen,
+      'viewWidth',
+      viewWidth,
+      'window.innerWidth',
+      window.innerWidth,
+      'sidebarwidth',
+      sidebarwidth,
+      'innerWidth',
+      innerWidth
+    );
     this.setState({
-      viewWidth: Math.min(viewWidth, innerWidth),
-      viewHeight: Math.max(viewHeight, innerHeight),
+      viewWidth: innerWidth,
+      viewHeight: innerHeight
     });
+    // orig -- use smaller of innner, but with non-MUI sidebars, just use full width
+    // this.setState({
+    //   viewWidth: Math.min(viewWidth, innerWidth),
+    //   viewHeight: Math.min(viewHeight, innerHeight)
+    // });
   }
 
   DoModelTitleUpdate(data) {
@@ -247,8 +251,16 @@ class ViewMain extends React.Component {
     document.activeElement.blur(); // will trigger save
   }
 
-  OnToolsPanelToggle() {
-    this.setState({ toolsPanelIsOpen: !this.state.toolsPanelIsOpen });
+  OnToggleToolsPanel() {
+    this.setState({ toolsPanelIsOpen: !this.state.toolsPanelIsOpen }, () =>
+      this.UpdateDimensions()
+    );
+  }
+
+  OnToggleResourceLibrary() {
+    this.setState({ resourceLibraryIsOpen: !this.state.resourceLibraryIsOpen }, () =>
+      this.UpdateDimensions()
+    );
   }
 
   OnShowEvidenceLink() {
@@ -447,7 +459,13 @@ class ViewMain extends React.Component {
       let selectedPropIds = DATA.VM_SelectedPropsIds();
       if (selectedPropIds.length > 0) {
         let parentPropId = selectedPropIds[0];
-        if (DBG) console.log('...setting parent of', this.state.addPropLabel, 'to', parentPropId);
+        if (DBG)
+          console.log(
+            '...setting parent of',
+            this.state.addPropLabel,
+            'to',
+            parentPropId
+          );
         // Create new prop
         DATA.PMC_PropAdd(this.state.addPropLabel, parentPropId);
       }
@@ -512,7 +530,8 @@ class ViewMain extends React.Component {
     // editing buttons
     let mechIsSelected = false;
     let selectedMechIds = DATA.VM_SelectedMechIds();
-    if (selectedMechIds.length === 1 && !this.state.addEdgeOpen) mechIsSelected = true;
+    if (selectedMechIds.length === 1 && !this.state.addEdgeOpen)
+      mechIsSelected = true;
 
     this.setState({
       addEdgeSource: sourceId,
@@ -552,8 +571,8 @@ class ViewMain extends React.Component {
       studentId,
       studentName,
       studentGroup,
-      resourceLibraryIsOpen,
       toolsPanelIsOpen,
+      resourceLibraryIsOpen,
       addPropOpen,
       addEdgeOpen,
       componentIsSelected,
@@ -565,7 +584,8 @@ class ViewMain extends React.Component {
     // we need to use the model author here, not the currently logged in student.
     const model = ADM.GetModelById(modelId);
     const classroomId = model ? ADM.GetClassroomIdByGroup(model.groupId) : '';
-    const resources = classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
+    const resources =
+      classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
 
     const isViewOnly = ADM.IsViewOnly();
     const isDBReadOnly = ADM.IsDBReadOnly();
@@ -573,236 +593,210 @@ class ViewMain extends React.Component {
     viewStatus = isViewOnly ? 'VIEW MODE' : '';
     viewStatus = isDBReadOnly ? 'DATABASE ARCHIVE REVIEW MODE' : '';
 
-    return (
-      <div className={classes.root}>
-        <CssBaseline />
+    // Layout
+    const toolsPanelWidth = toolsPanelIsOpen ? `${SIDEBARWIDTH}px` : '0px';
+    const resourceLibraryWidth = resourceLibraryIsOpen ? `${SIDEBARWIDTH}px` : '0px';
+    const gridColumns = `${toolsPanelWidth} auto ${resourceLibraryWidth}`;
+
+    /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    const DIALOGS = (
+      <>
         <Login />
         <ModelSelect />
-        <AppBar
-          position="fixed"
-          className={clsx(
-            classes.appBar,
-            { [classes.toolsPanelClosedShift]: !toolsPanelIsOpen },
-            { [classes.appBarToolsPanelClosedShift]: !toolsPanelIsOpen }
-          )}
-          color={isModelAuthor ? 'primary' : 'default'}
-        >
-          <Toolbar style={classes.appBarToolbar}>
-            <Switch>
-              <Route path="/:mode" />
-            </Switch>
-            <Button
-              onClick={() => this.setState({ toolsPanelIsOpen: true })}
-              hidden={toolsPanelIsOpen}
-              color="inherit"
-            >
-              <MenuIcon />
-            </Button>
-            <Button onClick={this.OnCloseModel} color="inherit" style={{ marginLeft: '20px' }}>
-              Model:&nbsp;&nbsp;
-            </Button>
-            <form onSubmit={this.DoSubmitModelTitleForm}>
-              <InputBase
-                id="projectTitle"
-                style={{ flexGrow: 1 }}
-                placeholder="Untitled Model"
-                value={title}
-                disabled={isViewOnly}
-                onChange={this.OnChangeModelTitle}
-                onBlur={this.DoSaveModelTitle}
-                classes={{
-                  input: isModelAuthor ? classes.primaryProjectTitle : classes.projectTitle
-                }}
-              />
-            </form>
-            <Typography variant="caption">&nbsp;&nbsp;by {modelAuthorGroupName} Group</Typography>
-            <div
-              className={resourceLibraryIsOpen ? classes.appBarRight : classes.appBarRightExpanded}
-            >
-              <StickyNoteButton refId="9999" />
-              &nbsp;&nbsp; &nbsp;&nbsp;
-              <Button onClick={this.OnCloseModel} color="inherit">
-                <div>{studentName}</div>
-                &nbsp;:&nbsp;
-                <div>{studentGroup}</div>
-              </Button>
-              &nbsp;&nbsp; &nbsp;&nbsp;
-              <Button onClick={this.OnLogout} color="inherit">
-                Logout
-              </Button>
-              <Button onClick={this.OnHelp} color="inherit">
-                ?
-              </Button>
-              <Button
-                onClick={() => this.setState({ resourceLibraryIsOpen: true })}
-                hidden={resourceLibraryIsOpen}
-                color="inherit"
-              >
-                <MenuIcon />
-              </Button>
-            </div>
-          </Toolbar>
-        </AppBar>
-
-        {/* Left Tool Sidebar */}
-        <ToolsPanel
-          isDisabled={addPropOpen || addEdgeOpen}
-          isOpen={toolsPanelIsOpen}
-          toggleOpen={this.OnToolsPanelToggle}
-        />
-
-        <StyledMain
-          className={clsx(classes.content, { [classes.toolsPanelClosedShift]: !toolsPanelIsOpen })}
-          ref={this.refMain}
-        >
-          <div className={classes.toolbar} ref={this.refToolbar} />
-          <StyledViewDiv
-            className={classes.view}
-            ref={this.refView}
-            style={{ height: this.state.viewHeight }}
-          >
-            <Switch>
-              <Route
-                path="/:mode"
-                render={props => (
-                  <RoutedView
-                    {...props}
-                    viewHeight={this.state.viewHeight}
-                    viewWidth={this.state.viewWidth}
-                  />
-                )}
-              />
-              <Route
-                path="/"
-                render={props => (
-                  <RoutedView
-                    {...props}
-                    viewHeight={this.state.viewHeight}
-                    viewWidth={this.state.viewWidth}
-                  />
-                )}
-              />
-            </Switch>
-            <ZoomInMapIcon
-              onClick={() => UR.Publish('SVG_PANZOOM_RESET')}
-              style={{ position: 'absolute', left: '140px', bottom: '60px' }}
-            />
-            <ZoomOutMapIcon
-              onClick={() => UR.Publish('SVG_PANZOOM_OUT')}
-              style={{ position: 'absolute', left: '140px', bottom: '10px' }}
-            />
-            <Typography
-              variant="caption"
-              style={{ position: 'absolute', left: '190px', bottom: '12px' }}
-            >
-              {' '}
-              {/* STATUS LABEL */}
-              {viewStatus}
-            </Typography>
-          </StyledViewDiv>
-
-          <StickyNoteCollection />
-          <RatingsDialog />
-          <MechDialog />
-          <DescriptionView />
-          <ScreenshotView />
-        </StyledMain>
-
-        {/* Resource Library */}
-        <Drawer variant="persistent" anchor="right" open={resourceLibraryIsOpen}>
-          <div className={classes.resourceList}>
-            <div className={clsx(classes.drawerAppBar, classes.resourceListAppBar)}>
-              <Button
-                onClick={() => this.setState({ resourceLibraryIsOpen: false })}
-                color="inherit"
-                size="small"
-                style={{ width: '100%' }}
-              >
-                <div style={{ textAlign: 'left', flexGrow: 1 }}>EVIDENCE LIBRARY</div>
-                <DoubleArrowIcon />
-              </Button>
-            </div>
-            <Paper style={classes.resourceListList}>
-              <List dense>
-                {resources.map(resource => (
-                  <ResourceItem key={resource.id} resource={resource} />
-                ))}
-              </List>
-            </Paper>
-          </div>
-        </Drawer>
-
+        <HelpView />
         {/* Resource View */}
         <EVResourceItemDialog />
-
-        {/* Help View */}
-        <HelpView />
-
         {/* Prop Dialog -- Property label editing dialog */}
         <PropDialog />
-
         {/* General Information Dialog */}
         <InfoDialog />
-
-        {/* Component/Mech add/edit/delete buttons that respond to selection events */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-evenly',
-            position: 'absolute',
-            left: '100px',
-            right: '300px',
-            bottom: '20px'
-          }}
-          hidden={suppressSelection}
+        <StickyNoteCollection />
+        <RatingsDialog />
+        <MechDialog />
+        <DescriptionView />
+        <ScreenshotView />
+      </>
+    );
+    /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    const APPBAR_ELEMENTS = toolsPanelIsOpen ? (
+      ''
+    ) : (
+      <div onClick={this.OnToggleToolsPanel}>&gt;&gt;</div>
+    );
+    const APPBAR_RESOURCELIB = resourceLibraryIsOpen ? (
+      ''
+    ) : (
+      <div onClick={this.OnToggleResourceLibrary}>&lt;&lt;</div>
+    );
+    const APPBAR = (
+      <div className={`appbar ${isModelAuthor ? '' : 'otherauthor'}`}>
+        {APPBAR_ELEMENTS}
+        <div onClick={this.OnCloseModel}>Home</div>
+        <form onSubmit={this.DoSubmitModelTitleForm}>
+          <input
+            type="text"
+            id="projectTitle"
+            style={{ flexGrow: 1 }}
+            placeholder="Untitled Model"
+            value={title}
+            disabled={isViewOnly}
+            onChange={this.OnChangeModelTitle}
+            onBlur={this.DoSaveModelTitle}
+          />
+        </form>
+        <div>by {modelAuthorGroupName} Group</div>
+        <StickyNoteButton refId="9999" />
+        <button onClick={this.OnCloseModel}>
+          {studentName}&nbsp;:&nbsp;{studentGroup}
+        </button>
+        <button onClick={this.OnLogout}>Logout</button>
+        <button onClick={this.OnHelp}>?</button>
+        {APPBAR_RESOURCELIB}
+      </div>
+    );
+    /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /// Left Tool Sidebar Drawer
+    const PANELTOOLS = (
+      <MEPanelTools
+        isDisabled={addPropOpen || addEdgeOpen}
+        toggleOpen={this.OnToggleToolsPanel}
+      />
+    );
+    /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    const PANELRESOURCES = (
+      <MEPanelResources
+        toggleOpen={this.OnToggleResourceLibrary}
+        resources={resources}
+      />
+    );
+    /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /// Component/Mech add/edit/delete buttons that respond to selection events
+    const CONTROLBAR = (
+      <div className="controlbar" hidden={suppressSelection}>
+        <button
+          className="danger"
+          hidden={
+            !(componentIsSelected || outcomeIsSelected || mechIsSelected) ||
+            isViewOnly
+          }
+          onClick={
+            componentIsSelected || outcomeIsSelected
+              ? this.OnPropDelete
+              : this.OnMechDelete
+          }
         >
-          <Fab
-            hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected) || isViewOnly}
-            onClick={
-              componentIsSelected || outcomeIsSelected ? this.OnPropDelete : this.OnMechDelete
-            }
-            color="secondary"
-            variant="extended"
-            size="small"
-          >
-            <DeleteRoundedIcon />
-            &nbsp;&nbsp;Delete&nbsp;
-          </Fab>
-          <Fab
-            hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected) || isViewOnly}
-            onClick={componentIsSelected || outcomeIsSelected ? this.DoPropEdit : this.OnMechEdit}
-            color="primary"
-            variant="extended"
-          >
-            <EditIcon />
-            &nbsp;&nbsp;Edit{' '}
-            {componentIsSelected
-              ? DATAMAP.PMC_MODELTYPES.COMPONENT.label
-              : outcomeIsSelected
+          <DeleteRoundedIcon />
+          &nbsp;&nbsp;Delete&nbsp;
+        </button>
+        <button
+          className="primary"
+          hidden={
+            !(componentIsSelected || outcomeIsSelected || mechIsSelected) ||
+            isViewOnly
+          }
+          onClick={
+            componentIsSelected || outcomeIsSelected
+              ? this.DoPropEdit
+              : this.OnMechEdit
+          }
+        >
+          <EditIcon />
+          &nbsp;&nbsp;Edit{' '}
+          {componentIsSelected
+            ? DATAMAP.PMC_MODELTYPES.COMPONENT.label
+            : outcomeIsSelected
               ? DATAMAP.PMC_MODELTYPES.OUTCOME.label
               : DATAMAP.PMC_MODELTYPES.MECHANISM.label}
-          </Fab>
-          <Fab
-            hidden={!(componentIsSelected || outcomeIsSelected) || isViewOnly}
-            onClick={this.OnPropAdd}
-            color="primary"
-            variant="extended"
+        </button>
+        <button
+          className="primary"
+          hidden={!(componentIsSelected || outcomeIsSelected) || isViewOnly}
+          onClick={this.OnPropAdd}
+        >
+          <AddIcon /> Add property
+        </button>
+        <button
+          className="comment"
+          hidden={
+            !(componentIsSelected || outcomeIsSelected || mechIsSelected) ||
+            isDBReadOnly
+          }
+          onClick={
+            componentIsSelected || outcomeIsSelected
+              ? this.OnAddPropComment
+              : this.OnAddMechComment
+          }
+        >
+          <ChatBubbleOutlineIcon htmlColor={yellow[800]} />
+          &nbsp;&nbsp;Add Comment
+        </button>
+      </div>
+    );
+    /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    const MAINVIEW = (
+      <div style={{ backgroundColor: 'red' }} ref={this.refMain}>
+        <div
+          className="view"
+          ref={this.refView}
+          // style={{
+          //   height: this.state.viewHeight
+          // }}
+        >
+          <Switch>
+            <Route
+              path="/:mode"
+              render={props => (
+                <RoutedView
+                  {...props}
+                  viewHeight={this.state.viewHeight}
+                  viewWidth={this.state.viewWidth}
+                />
+              )}
+            />
+            <Route
+              path="/"
+              render={props => (
+                <RoutedView
+                  {...props}
+                  viewHeight={this.state.viewHeight}
+                  viewWidth={this.state.viewWidth}
+                />
+              )}
+            />
+          </Switch>
+          <ZoomInMapIcon
+            onClick={() => UR.Publish('SVG_PANZOOM_RESET')}
+            style={{ position: 'absolute', left: '20px', top: '20px' }}
+          />
+          <ZoomOutMapIcon
+            onClick={() => UR.Publish('SVG_PANZOOM_OUT')}
+            style={{ position: 'absolute', left: '20px', top: '52px' }}
+          />
+          <div
+            className="help"
+            style={{ position: 'absolute', left: '20px', bottom: '12px' }}
           >
-            <AddIcon /> Add property
-          </Fab>
-          <Fab
-            hidden={!(componentIsSelected || outcomeIsSelected || mechIsSelected) || isDBReadOnly}
-            onClick={
-              componentIsSelected || outcomeIsSelected
-                ? this.OnAddPropComment
-                : this.OnAddMechComment
-            }
-            variant="extended"
-          >
-            <ChatBubbleOutlineIcon htmlColor={yellow[800]} />
-            &nbsp;&nbsp;Add Comment
-          </Fab>
+            {/* STATUS LABEL */}
+            {viewStatus}
+          </div>
+          {CONTROLBAR}
         </div>
+      </div>
+    );
+
+    /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    return (
+      <div className="MEME">
+        <div className="ViewMEME" style={{ gridTemplateColumns: gridColumns }}>
+          <div className="leftsidebar">{PANELTOOLS}</div>
+          <div className="main">
+            {APPBAR}
+            {MAINVIEW}
+          </div>
+          <div className="rightsidebar">{PANELRESOURCES}</div>
+        </div>
+        {DIALOGS}
       </div>
     );
   }
@@ -810,21 +804,21 @@ class ViewMain extends React.Component {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// default props are expect properties that we expect
 /// and are declared for validation
-ViewMain.defaultProps = {
+ViewMEME.defaultProps = {
   classes: {}
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
 /// disallowed by eslint, so use shape({prop: ProtType })
 /// to describe them in more detail
-ViewMain.propTypes = {
+ViewMEME.propTypes = {
   classes: PropTypes.shape({})
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// requirement for UR MODULES and COMPONENTS
-ViewMain.MOD_ID = __dirname;
+ViewMEME.MOD_ID = __dirname;
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// include MaterialUI styles
-export default withTheme(ViewMain);
+export default ViewMEME;

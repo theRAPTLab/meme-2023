@@ -1,0 +1,13 @@
+.MEPanelResources {
+  background-color: white;
+  display: grid;
+  grid-template-rows: var(--appbar-height) auto;
+  height: 100%;
+}
+.MEPanelResources .appbar {
+  background-color: var(--clr-ev);
+  padding-right: 0px;
+}
+.MEPanelResources .list {
+  overflow: auto;
+}

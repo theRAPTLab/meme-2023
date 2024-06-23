@@ -1,0 +1,45 @@
+/* ICNCountBadge Default Colors*/
+.ICNCountBadge {
+  --clr-icn-txt: white;
+  --clr-icn-bg: #4f66a0;
+}
+
+/* MEME-specific Override Colors */
+.ICNCountBadge.ev-dark {
+  --clr-icn-bg: var(--clr-ev);
+}
+.ICNCountBadge.ev-light {
+  --clr-icn-txt: var(--clr-txt);
+  --clr-icn-bg: var(--clr-ev-bg);
+}
+
+/* ICNCountBadge */
+.ICNCountBadge {
+  /* default is large */
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  border-radius: 50%;
+  color: var(--clr-icn-txt);
+  background-color: var(--clr-icn-bg);
+  text-align: center;
+}
+.ICNCountBadge.tiny {
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  line-height: 16px;
+  font-weight: 600;
+}
+.ICNCountBadge.small {
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+  line-height: 22px;
+}
+.ICNCountBadge.medium {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  line-height: 22px;
+}

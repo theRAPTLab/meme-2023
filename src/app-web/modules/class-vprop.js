@@ -370,7 +370,7 @@ class VProp {
     if (this.visualState.IsSelected('first')) stroke.width *= 2;
     this.visBG.stroke(stroke);
     // draw label
-    this.gDataName.transform({ translateX: m_pad, translateY: m_pad / 2 });
+    this.gDataName.transform({ translateX: m_pad, translateY: m_pad * 2 });
     // draw badge
     this.vBadge.Draw(this);
     // move

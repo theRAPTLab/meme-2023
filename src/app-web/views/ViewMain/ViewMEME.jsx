@@ -27,7 +27,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ZoomInMapIcon from '@mui/icons-material/CenterFocusWeak';
 import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 // MEME App Components
-import DescriptionView from '../../components/DescriptionView';
+import WDescriptionPopup from '../../components/WDescriptionPopup';
 import InfoDialog from '../../components/InfoDialog';
 import HelpView from '../../components/HelpView';
 import Login from '../../components/Login';
@@ -613,7 +613,6 @@ class ViewMEME extends React.Component {
         <StickyNoteCollection />
         <RatingsDialog />
         <MechDialog />
-        <DescriptionView />
         <ScreenshotView />
       </>
     );
@@ -780,6 +779,7 @@ class ViewMEME extends React.Component {
             {viewStatus}
           </div>
           {CONTROLBAR}
+          <WDescriptionPopup />
         </div>
       </div>
     );

@@ -1,8 +1,9 @@
 :root {
   --clr-txt: #111;
   --clr-txt-reverse: white;
-
+  --clr-txt-help: #696969;
   --clr-btn-primary: #4f66a0;
+
   --clr-btn-hover: #0003;
 
   --clr-entity: #0088d4; /* aka 'prop' */
@@ -31,6 +32,7 @@
   --clr-comment: #ffe143;
 
   --txt-size: 16px;
+  --txt-size-lrg: 24px;
   --txt-size-med: 14px;
   --txt-size-sm: 12px;
   --txt-size-tiny: 10px; /* use for display only */
@@ -62,6 +64,11 @@ h3 {
   --clr-txt: white;
   --txt-size: 16px;
   --txt-weight: 600;
+}
+.help {
+  color: var(--clr-txt-help);
+  font-size: var(--txt-size-sm);
+  font-weight: var(--txt-weight-med);
 }
 
 /* -- APPBAR --------------------------------- */

@@ -30,7 +30,7 @@ import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 import WDescriptionPopup from '../../components/WDescriptionPopup';
 import InfoDialog from '../../components/InfoDialog';
 import HelpView from '../../components/HelpView';
-import Login from '../../components/Login';
+import WLogin from '../../components/WLogin';
 import MechDialog from '../../components/MechDialog';
 import ModelSelect from '../../components/ModelSelect';
 import PropDialog from '../../components/PropDialog';
@@ -601,7 +601,7 @@ class ViewMEME extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const DIALOGS = (
       <>
-        <Login />
+        <WLogin />
         <ModelSelect />
         <HelpView />
         {/* Resource View */}

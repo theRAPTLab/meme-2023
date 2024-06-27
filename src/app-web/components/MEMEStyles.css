@@ -43,6 +43,8 @@
   --clr-appbar-bg: #4f66a0;
   --clr-appbar-bg-other: #999;
   --appbar-height: 48px;
+
+  --z-resource-list: 1250;
 }
 
 body {

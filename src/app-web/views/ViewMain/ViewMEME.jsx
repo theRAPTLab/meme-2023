@@ -29,7 +29,7 @@ import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 // MEME App Components
 import WDescriptionPopup from '../../components/WDescriptionPopup';
 import InfoDialog from '../../components/InfoDialog';
-import HelpView from '../../components/HelpView';
+import WHelpView from '../../components/WHelpView';
 import WLogin from '../../components/WLogin';
 import MechDialog from '../../components/MechDialog';
 import ModelSelect from '../../components/ModelSelect';
@@ -603,7 +603,6 @@ class ViewMEME extends React.Component {
       <>
         <WLogin />
         <ModelSelect />
-        <HelpView />
         {/* Resource View */}
         <EVResourceItemDialog />
         {/* Prop Dialog -- Property label editing dialog */}
@@ -780,6 +779,7 @@ class ViewMEME extends React.Component {
           </div>
           {CONTROLBAR}
           <WDescriptionPopup />
+          <WHelpView />
         </div>
       </div>
     );

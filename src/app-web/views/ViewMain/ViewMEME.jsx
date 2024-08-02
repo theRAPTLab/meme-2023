@@ -33,7 +33,7 @@ import HelpView from '../../components/HelpView';
 import WLogin from '../../components/WLogin';
 import MechDialog from '../../components/MechDialog';
 import ModelSelect from '../../components/ModelSelect';
-import PropDialog from '../../components/PropDialog';
+import WPropDialog from '../../components/WPropDialog';
 import EVResourceItemDialog from '../../components/EVResourceItemDialog';
 import RatingsDialog from '../../components/RatingsDialog';
 import ScreenshotView from '../../components/ScreenshotView';
@@ -607,7 +607,7 @@ class ViewMEME extends React.Component {
         {/* Resource View */}
         <EVResourceItemDialog />
         {/* Prop Dialog -- Property label editing dialog */}
-        <PropDialog />
+        <WPropDialog />
         {/* General Information Dialog */}
         <InfoDialog />
         <StickyNoteCollection />
@@ -793,10 +793,10 @@ class ViewMEME extends React.Component {
           <div className="main">
             {APPBAR}
             {MAINVIEW}
+            {DIALOGS}
           </div>
           <div className="rightsidebar">{PANELRESOURCES}</div>
         </div>
-        {DIALOGS}
       </div>
     );
   }

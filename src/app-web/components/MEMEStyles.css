@@ -3,6 +3,7 @@
   --clr-txt-reverse: white;
   --clr-txt-help: #696969;
   --clr-btn-primary: #4f66a0;
+  --clr-btn-cancel: #696969;
 
   --clr-btn-hover: #0003;
 
@@ -46,7 +47,9 @@
   --clr-appbar-bg-other: #999;
   --appbar-height: 48px;
 
+  --z-dialog: 1000;
   --z-resource-list: 1250;
+  --z-help: 1600;
 }
 
 body {
@@ -111,6 +114,10 @@ button.primary {
   color: var(--clr-txt-reverse);
   background-color: var(--clr-btn-primary);
 }
+button.cancel {
+  color: var(--clr-txt-reverse);
+  background: var(--clr-btn-cancel);
+}
 button.danger {
   color: var(--clr-txt-reverse);
   background-color: #e9000e;
@@ -122,6 +129,20 @@ button.comment {
 button.transparent {
   border: none;
   background-color: transparent;
+}
+
+/* -- DIALOG --------------------------------- */
+/* bottom-centered dialog */
+.dialog-container {
+  position: absolute;
+  left: 0px;
+  width: 100%;
+  z-index: var(--z-dialog);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
 }
 
 /* -- BOX (Card) ----------------------------- */

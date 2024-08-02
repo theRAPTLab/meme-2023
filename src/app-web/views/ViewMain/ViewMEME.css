@@ -45,17 +45,17 @@ body {
   display: grid;
   grid-template-rows: var(--appbar-height) auto;
 }
-.ViewMEME .main .view {
+.ViewMEME .main > div > .view {
   flex: 1;
   background-color: #f0f0ff;
   position: relative; /* needed to place zoom controls */
   transition: all 0.2s ease-in;
 }
-.ViewMEME .main .view svg {
+.ViewMEME .main > div > .view svg {
   transition: all 0.2s ease-in; /* ease resource library slide out */
 }
 
-.ViewMEME .main .controlbar {
+.ViewMEME .main > div > .view > .controlbar {
   display: flex;
   justify-content: space-evenly;
   position: absolute;

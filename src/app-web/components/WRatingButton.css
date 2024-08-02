@@ -1,0 +1,9 @@
+button.WRatingButton {
+  padding: 0;
+  align-items: start;
+  display: flex;
+}
+button.WRatingButton div {
+  font-size: 0.8em;
+  line-height: 18px;
+}

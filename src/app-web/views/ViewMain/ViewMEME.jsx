@@ -35,7 +35,7 @@ import MechDialog from '../../components/MechDialog';
 import ModelSelect from '../../components/ModelSelect';
 import WPropDialog from '../../components/WPropDialog';
 import EVResourceItemDialog from '../../components/EVResourceItemDialog';
-import RatingsDialog from '../../components/RatingsDialog';
+import WRatingsDialog from '../../components/WRatingsDialog';
 import ScreenshotView from '../../components/ScreenshotView';
 import StickyNoteButton from '../../components/StickyNoteButton';
 import StickyNoteCollection from '../../components/StickyNoteCollection';
@@ -610,8 +610,8 @@ class ViewMEME extends React.Component {
         {/* General Information Dialog */}
         <InfoDialog />
         <StickyNoteCollection />
-        <RatingsDialog />
         <MechDialog />
+        <WRatingsDialog />
         <ScreenshotView />
       </>
     );

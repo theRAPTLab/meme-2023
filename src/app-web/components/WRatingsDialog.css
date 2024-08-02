@@ -1,0 +1,13 @@
+.WRatingsDialog {
+  padding: 24px;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0px 4px 27.7px 0px rgba(0, 0, 0, 0.25);
+
+  display: flex;
+  flex-direction: column;
+}
+
+.WRatingsDialog > .close {
+  justify-content: flex-end;
+}

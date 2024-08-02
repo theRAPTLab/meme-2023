@@ -110,7 +110,7 @@ import ASET from '../modules/adm-settings';
 import UR from '../../system/ursys';
 import EXT from '../../system/ur-extension';
 import StickyNoteButton from './StickyNoteButton';
-import RatingButton from './RatingButton';
+import WRatingButton from './WRatingButton';
 import EVLinkButton from './EVLinkButton';
 import { Dropzone } from './Dropzone';
 
@@ -652,7 +652,7 @@ class EVLink extends React.Component {
 
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const RATING = (
-            <RatingButton
+      <WRatingButton
               rating={rating}
               isExpanded={isExpanded}
               disabled={isViewOnly}

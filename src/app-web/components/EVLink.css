@@ -55,7 +55,7 @@
   grid-template-columns: 100px auto;
   column-gap: 10px;
   row-gap: 12px;
-  align-items: baseline;
+  align-items: start;
   font-size: var(--txt-size-sm);
   font-weight: var(--txt-weight-med);
 }

@@ -1,4 +1,5 @@
 .dialog-container {
+  height: fit-content;
   bottom: 80px;
 }
 

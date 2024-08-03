@@ -36,7 +36,7 @@ import ModelSelect from '../../components/ModelSelect';
 import WPropDialog from '../../components/WPropDialog';
 import EVResourceItemDialog from '../../components/EVResourceItemDialog';
 import WRatingsDialog from '../../components/WRatingsDialog';
-import ScreenshotView from '../../components/ScreenshotView';
+import WScreenshotView from '../../components/WScreenshotView';
 import StickyNoteButton from '../../components/StickyNoteButton';
 import StickyNoteCollection from '../../components/StickyNoteCollection';
 import MEPanelTools from '../../components/MEPanelTools';
@@ -612,7 +612,7 @@ class ViewMEME extends React.Component {
         <StickyNoteCollection />
         <MechDialog />
         <WRatingsDialog />
-        <ScreenshotView />
+        <WScreenshotView />
       </>
     );
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

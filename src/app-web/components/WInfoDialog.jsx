@@ -34,7 +34,6 @@ const PKG = 'WInfoDialog:';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 class WInfoDialog extends React.Component {
   constructor(props) {
     super();

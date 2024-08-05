@@ -131,7 +131,6 @@ Moreland, Vickery, Murphy & Stiso.
     const { isOpen, helptext, credittext } = this.state;
     const criteria = ADM.GetCriteriaByModel(); // always use the current model's criteria
 
-    console.warn('WHelpView.render', isOpen, criteria);
     if (!isOpen) {
       return '';
     } else {

@@ -219,7 +219,7 @@ class EVLink extends React.Component {
   }
 
   DoScrollIntoView() {
-    this.ref.current.scrollIntoView({ block: 'end' }); // alignToTop=true
+    this.ref.current.scrollIntoView({ block: 'start', inline: 'start' }); // alignToTop=true
   }
 
   DoEditStart() {
@@ -617,17 +617,18 @@ class EVLink extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const CLAIM = isBeingEdited ? (
       <input
+        ref={this.textInputRef}
         type="text"
-                value={note}
-                placeholder="One claim from this evidence..."
-                onChange={this.OnNoteChange}
-                onBlur={this.OnBlur}
-                onClick={e => {
-                  e.stopPropagation();
-                }}
+        value={note}
+        placeholder="One claim from this evidence..."
+        onChange={this.OnNoteChange}
+        onBlur={this.OnBlur}
+        onClick={e => {
+          e.stopPropagation();
+        }}
         autoFocus
-              />
-          ) : (
+      />
+    ) : (
       <input type="text" value={note} readOnly />
     );
 
@@ -653,13 +654,13 @@ class EVLink extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const RATING = (
       <WRatingButton
-              rating={rating}
-              isExpanded={isExpanded}
-              disabled={isViewOnly}
-              ratingLabel=""
-              ratingDefs={ratingDefs}
-              OnRatingButtonClick={this.OnRatingButtonClick}
-            />
+        rating={rating}
+        isExpanded={isExpanded}
+        disabled={isViewOnly}
+        ratingLabel=""
+        ratingDefs={ratingDefs}
+        OnRatingButtonClick={this.OnRatingButtonClick}
+      />
     );
 
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -681,17 +682,22 @@ class EVLink extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // hover: isHovered -- restore?  not currently used.
     const VIEW_COLLAPSED = (
-      <div className={`EVLink collapsed`} onClick={this.DoToggleExpanded}>
+      <div
+        className={`EVLink collapsed`}
+        onClick={this.DoToggleExpanded}
+        key={`${rsrcId}`}
+        ref={this.ref}
+      >
         {/* Badge --------------------------------------------------------- */}
         <ICNCountBadge count={evlink.numberLabel} size="medium" type="ev-light" />
         {/* Title Bar ----------------------------------------------------- */}
         <div className="titlebar">
-          <div className="claim">{note}</div>
-          <div className="reason">{why}</div>
+          {note && <div className="claim">{note}</div>}
+          {why && <div className="reason">{why}</div>}
           <div className="target">{TARGET}</div>
         </div>
         {/* Buttons ------------------------------------------------------- */}
-        <div>
+        <div className="rightbar">
           <StickyNoteButton refId={id} />
           {RATING}
         </div>
@@ -701,16 +707,24 @@ class EVLink extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // hover: isHovered -- restore?  not currently used.
     const VIEW_EXPANDED = (
-      <div className={`EVLink`} onClick={this.DoToggleExpanded}>
+      <div
+        className={`EVLink`}
+        onClick={this.DoToggleExpanded}
+        key={`${rsrcId}`}
+        ref={this.ref}
+      >
         {/* Title Bar ------------------------------------------------- */}
         <div className="titlebar">
-          <h3>Evidence Link</h3>
-          {!isBeingEdited && <ICNExpandSingleArrow expanded={isExpanded} />}
-          <StickyNoteButton refId={id} />
-        </div>
-        <div className="titlebar">
           <ICNCountBadge count={evlink.numberLabel} size="medium" type="ev-light" />
-                </div>
+          <div style={{ flexGrow: 1 }}></div>
+          <StickyNoteButton refId={id} />
+          {!isBeingEdited && <ICNExpandSingleArrow expanded={isExpanded} />}
+        </div>
+        {/* Leave it out for now to save space
+              <div className="titlebar">
+                <h3>Evidence Link</h3>
+              </div>
+        */}
         {/* Body  ----------------------------------------------------- */}
         <div className="ev-form">
           <label>Claim:</label>

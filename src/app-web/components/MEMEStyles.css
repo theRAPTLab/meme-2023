@@ -140,7 +140,10 @@ button.close {
   align-self: flex-end;
 }
 button:hover {
-  background-color: var(--clr-btn-hover);
+  opacity: 0.8;
+}
+button:disabled {
+  opacity: 0.5;
 }
 
 /* -- DIALOG --------------------------------- */

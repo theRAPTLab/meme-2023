@@ -21,7 +21,7 @@
 
 .EVLink.collapsed {
   display: grid;
-  grid-template-columns: 40px auto 40px;
+  grid-template-columns: 25px auto 40px;
   column-gap: 5px;
 }
 .EVLink.collapsed .titlebar {
@@ -31,6 +31,7 @@
   justify-content: flex-start; /* override .titlebar space-betwen */
   font-size: var(--txt-size-tiny);
   line-height: 12px;
+  padding-top: 5px; /* align with badge */
 }
 .EVLink.collapsed .titlebar .claim {
   font-size: var(--txt-size-sm);
@@ -39,6 +40,17 @@
 .EVLink.collapsed .titlebar .reason {
   font-size: var(--txt-size-sm);
   font-weight: var(--txt-weight);
+  line-height: var(--txt-size);
+}
+.EVLink.collapsed .rightbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -5px;
+}
+.EVLink.collapsed .rightbar button.WRatingButton {
+  margin-left: 4px; /* bump rating to center it with comment */
+  width: unset;
 }
 
 .EVLink .titlebar {
@@ -49,10 +61,13 @@
 .EVLink .titlebar h3 {
   font-size: var(--txt-size-tiny);
 }
+.EVLink .titlebar button {
+  margin-top: -5px;
+}
 
 .EVLink .ev-form {
   display: grid;
-  grid-template-columns: 100px auto;
+  grid-template-columns: 63px auto;
   column-gap: 10px;
   row-gap: 12px;
   align-items: start;
@@ -66,7 +81,13 @@
   line-height: 16px;
 }
 .EVLink .ev-form label {
-  margin-left: 40px;
+  text-align: right;
+}
+.EVLink .ev-form button {
+  overflow: hidden;
+}
+.EVLink .ev-form button img {
+  width: 100%;
 }
 .EVLink .ev-form input,
 .EVLink .ev-form textarea {

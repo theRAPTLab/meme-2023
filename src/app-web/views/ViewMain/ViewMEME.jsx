@@ -28,10 +28,10 @@ import ZoomInMapIcon from '@mui/icons-material/CenterFocusWeak';
 import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 // MEME App Components
 import WDescriptionPopup from '../../components/WDescriptionPopup';
-import InfoDialog from '../../components/InfoDialog';
+import WInfoDialog from '../../components/WInfoDialog';
 import WHelpView from '../../components/WHelpView';
 import WLogin from '../../components/WLogin';
-import MechDialog from '../../components/MechDialog';
+import WMechDialog from '../../components/WMechDialog';
 import WModelSelect from '../../components/WModelSelect';
 import WPropDialog from '../../components/WPropDialog';
 import EVResourceItemDialog from '../../components/EVResourceItemDialog';
@@ -608,10 +608,10 @@ class ViewMEME extends React.Component {
         {/* Prop Dialog -- Property label editing dialog */}
         <WPropDialog />
         {/* General Information Dialog */}
-        <InfoDialog />
+        <WInfoDialog />
         <StickyNoteCollection />
-        <MechDialog />
         <WRatingsDialog />
+        <WMechDialog />
         <WScreenshotView />
       </>
     );

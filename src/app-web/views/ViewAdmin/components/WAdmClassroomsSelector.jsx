@@ -74,9 +74,7 @@ class WClassroomsSelector extends React.Component {
     console.log('classrooms', classrooms);
     const selectedClassroomId =
       classrooms && classrooms.length > 0 ? classrooms[0].id : '';
-    this.setState({ classrooms }, () =>
-      this.DoClassroomSelect({ classroomId: selectedClassroomId })
-    );
+    this.setState({ classrooms }, () => ADM.SelectClassroom(selectedClassroomId));
   }
 
   DoTeacherSelect(data) {

@@ -24,8 +24,8 @@ import { withTheme } from 'styled-components';
 import MEMEStyles from '../../../components/MEMEStyles';
 import UR from '../../../../system/ursys';
 import ADM from '../../../modules/data';
-import ModelsListTable from '../../../components/ModelsListTable';
-import GroupSelector from './AdmGroupSelector';
+import WModelsListTable from '../../../components/WModelsListTable';
+import WGroupSelector from './WAdmGroupSelector';
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -142,7 +142,7 @@ class ModelsList extends React.Component {
       <>
         <Paper style={{ ...classes.admPaper, maxHeight: '75%', overflowY: 'scroll' }}>
           <InputLabel>MODELS</InputLabel>
-          <ModelsListTable
+          <WModelsListTable
             models={activeModels}
             isAdmin
             OnModelSelect={this.OnModelView}
@@ -152,7 +152,7 @@ class ModelsList extends React.Component {
           />
           <br />
           <InputLabel>DELETED MODELS</InputLabel>
-          <ModelsListTable
+          <WModelsListTable
             models={deletedModels}
             isAdmin
             OnModelSelect={this.OnModelView}
@@ -161,7 +161,7 @@ class ModelsList extends React.Component {
             OnModelDelete={this.OnModelDelete}
           />
         </Paper>
-        <GroupSelector
+        <WGroupSelector
           open={targetSelectDialogOpen}
           type={targetSelectionType}
           OnClose={this.OnTargetSelectClose}

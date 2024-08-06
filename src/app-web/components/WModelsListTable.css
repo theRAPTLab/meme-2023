@@ -1,0 +1,7 @@
+.WModelsListTable .handsontable td {
+  vertical-align: baseline;
+}
+
+.WModelsListTable button {
+  margin-right: 3px;
+}

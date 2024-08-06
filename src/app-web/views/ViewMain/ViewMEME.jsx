@@ -32,7 +32,7 @@ import InfoDialog from '../../components/InfoDialog';
 import WHelpView from '../../components/WHelpView';
 import WLogin from '../../components/WLogin';
 import MechDialog from '../../components/MechDialog';
-import ModelSelect from '../../components/ModelSelect';
+import WModelSelect from '../../components/WModelSelect';
 import WPropDialog from '../../components/WPropDialog';
 import EVResourceItemDialog from '../../components/EVResourceItemDialog';
 import WRatingsDialog from '../../components/WRatingsDialog';
@@ -602,7 +602,7 @@ class ViewMEME extends React.Component {
     const DIALOGS = (
       <>
         <WLogin />
-        <ModelSelect />
+        <WModelSelect />
         {/* Resource View */}
         <EVResourceItemDialog />
         {/* Prop Dialog -- Property label editing dialog */}

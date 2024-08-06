@@ -253,6 +253,8 @@ class ModelSelect extends React.Component {
                 OnModelMove={this.OnModelMove}
                 OnModelDelete={this.OnModelDelete}
               />
+              {canViewOthers && (
+                <>
               <h2>My Class&rsquo; Models</h2>
               <WModelsListTable
                 models={ourModels}
@@ -263,6 +265,8 @@ class ModelSelect extends React.Component {
                 OnModelMove={this.OnModelMove}
                 OnModelDelete={this.OnModelDelete}
               />
+                </>
+              )}
               {isTeacher && (
                 <>
                   <h2>Deleted Models</h2>

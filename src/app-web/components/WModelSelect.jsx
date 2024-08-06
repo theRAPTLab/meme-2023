@@ -242,9 +242,9 @@ class ModelSelect extends React.Component {
           <div className="dialog">
             {TITLEBAR}
             <h1>Hi {ADM.GetLoggedInUserName()}!</h1>
-            {CreateNewModelButton}
             <hr />
             <div>
+              {CreateNewModelButton}
               <h2>{ADM.GetStudentGroupName()} Group&rsquo;s Models</h2>
               <WModelsListTable
                 models={myModels}

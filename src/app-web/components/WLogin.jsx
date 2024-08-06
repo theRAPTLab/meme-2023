@@ -10,7 +10,6 @@ import React from 'react';
 import './MEMEStyles.css';
 import './WLogin.css';
 
-import PropTypes from 'prop-types';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import UR from '../../system/ursys';
@@ -41,7 +40,7 @@ class WLogin extends React.Component {
     this.state = {
       loginId: '',
       loginDialogOpen: true,
-      isValidLogin: true
+      isValidLogin: false
     };
   }
 
@@ -112,8 +111,8 @@ class WLogin extends React.Component {
               <div className="help">Please enter your login token:</div>
               <input
                 autoFocus
-                error={!isValidLogin}
                 id="loginId"
+                className={isValidLogin ? 'valid' : 'invalid'}
                 placeholder="NAME-XXXX"
                 value={loginId}
                 onChange={this.OnLoginIdChange}
@@ -133,15 +132,6 @@ class WLogin extends React.Component {
     }
   }
 }
-
-WLogin.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
-};
-
-WLogin.defaultProps = {
-  classes: {}
-};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

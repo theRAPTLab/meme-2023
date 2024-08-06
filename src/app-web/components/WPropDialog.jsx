@@ -147,8 +147,8 @@ class WPropDialog extends React.Component {
     if (!isOpen) return '';
     else
       return (
-        <div className="dialog-container">
-          <div className="WPropDialog">
+        <div className="WPropDialog dialog-container">
+          <div className="dialog">
             <form onSubmit={this.OnSubmit}>
               <h3>Add {propTypeLabel}</h3>
               <div>{propTypeDescription}</div>

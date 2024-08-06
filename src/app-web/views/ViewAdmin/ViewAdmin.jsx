@@ -17,8 +17,8 @@ import Grid from '@mui/material/Grid';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import UR from '../../../system/ursys';
-import ClassroomsSelector from './components/AdmClassroomsSelector';
 import WTeacherSelector from './components/WAdmTeacherSelector';
+import WClassroomsSelector from './components/WAdmClassroomsSelector';
 import WCriteriaView from './components/WAdmCriteriaView';
 import SentenceStarters from './components/AdmSentenceStarters';
 import GroupsList from './components/AdmGroupsList';

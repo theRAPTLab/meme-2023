@@ -5,6 +5,7 @@
   bottom: 0;
   right: 0;
   background-color: #4f64a0;
+  z-index: var(--z-help);
 
   display: flex;
   flex-direction: column;

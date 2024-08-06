@@ -82,7 +82,6 @@ class ModelSelect extends React.Component {
   }
 
   DoModelDialogOpen() {
-    console.error('ModelSelect open');
     if (ADM.GetSelectedModelId() !== undefined) {
       const studentId = ADM.GetAuthorId();
       const groupName = ADM.GetGroupNameByStudent(studentId);
@@ -104,7 +103,6 @@ class ModelSelect extends React.Component {
   }
 
   OnModelDialogClose(event, reason) {
-    console.error('ModelSelect close');
     // disableBackdropClick
     if (reason === 'backdropClick') return;
 

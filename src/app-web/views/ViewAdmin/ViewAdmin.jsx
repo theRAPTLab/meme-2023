@@ -16,7 +16,7 @@ import Grid from '@mui/material/Grid';
 import UR from '../../../system/ursys';
 import TeacherSelector from './components/AdmTeacherSelector';
 import ClassroomsSelector from './components/AdmClassroomsSelector';
-import CriteriaView from './components/AdmCriteriaView';
+import WCriteriaView from './components/WAdmCriteriaView';
 import SentenceStarters from './components/AdmSentenceStarters';
 import GroupsList from './components/AdmGroupsList';
 import ModelsList from './components/AdmModelsList';
@@ -102,7 +102,7 @@ class ViewAdmin extends React.Component {
             <RatingsView />
           </Grid>
           <Grid item xs={5}>
-            <CriteriaView />
+            <WCriteriaView />
           </Grid>
           <Grid item xs={3}>
             <SentenceStarters />

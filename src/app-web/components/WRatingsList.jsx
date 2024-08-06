@@ -62,7 +62,7 @@ class WRatingsList extends React.Component {
   componentWillUnmount() {}
 
   render() {
-    const { classes, SelectedRating, RatingsDef, Mode, UpdateField, OnRatingSelect } =
+    const { SelectedRating, RatingsDef, Mode, UpdateField, OnRatingSelect } =
       this.props;
 
     let ratingsDef = RatingsDef;

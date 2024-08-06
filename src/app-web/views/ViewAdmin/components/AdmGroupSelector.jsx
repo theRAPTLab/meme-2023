@@ -2,7 +2,9 @@
 
   GroupSelector
 
-  Used to select a target classroom or group for cloning or moving
+  Used by a teacher or administrator
+  to select a target classroom or group
+  for cloning or moving
 
 
   # Cloning
@@ -175,7 +177,9 @@ class GroupSelector extends React.Component {
           <Button onClick={OnClose}>Cancel</Button>
           <Button
             onClick={this.OnSelect}
-            disabled={type === 'clone' ? selectedClassroomId === '' : selectedGroupId === ''}
+            disabled={
+              type === 'clone' ? selectedClassroomId === '' : selectedGroupId === ''
+            }
           >
             {type === 'clone' ? 'Clone' : 'Move'}
           </Button>

@@ -750,7 +750,7 @@ ADMData.GetAuthorId = () => {
  *  Returns logged in user name, normalizing the case to initial caps.
  *  @return {string} Name of student, or '' if not found
  */
-ADMData.GetLggedInUserName = () => {
+ADMData.GetLoggedInUserName = () => {
   // return just the first part of the studentid without the hash
   // note SESSION.LoggedInName() is also an option
   let authorId = ADMData.GetAuthorId();

@@ -23,28 +23,3 @@
   grid-template-columns: auto 100px 100px;
   align-items: flex-end;
 }
-
-/* One-way/Two-way Switch */
-.WMechDialog button.switch {
-  margin: 0;
-  padding: 0;
-  border: 1px solid #0003;
-  border-radius: 10px;
-}
-.WMechDialog button.switch span {
-  margin: 1px;
-  padding: 7px 10px 8px 10px;
-  pointer-events: none;
-  border-radius: 8px;
-}
-
-[role='switch'][aria-checked='false'] :first-child,
-[role='switch'][aria-checked='true'] :last-child {
-  background: var(--clr-btn-primary);
-  color: #eef;
-}
-
-[role='switch'][aria-checked='false'] :last-child,
-[role='switch'][aria-checked='true'] :first-child {
-  color: #bbd;
-}

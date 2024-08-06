@@ -146,6 +146,36 @@ button:disabled {
   opacity: 0.5;
 }
 
+/* -- TOGGLE SWITCH BUTTON ------------------- */
+button.switch {
+  margin: 0;
+  padding: 0;
+  border: 1px solid #0003;
+  border-radius: 15px;
+  height: 30px;
+  line-height: 30px;
+  box-sizing: content-box;
+}
+button.switch span {
+  display: inline-block;
+  padding: 0 13px;
+  pointer-events: none;
+  border: 1px;
+  border-radius: 15px;
+  height: 30px;
+}
+
+[role='switch'][aria-checked='false'] :first-child,
+[role='switch'][aria-checked='true'] :last-child {
+  background: var(--clr-btn-primary);
+  color: #eef;
+}
+
+[role='switch'][aria-checked='false'] :last-child,
+[role='switch'][aria-checked='true'] :first-child {
+  color: #bbd;
+}
+
 /* -- DIALOG --------------------------------- */
 /* centered dialog -- override as needed*/
 .dialog-container {

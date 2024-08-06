@@ -187,7 +187,7 @@ class ViewMEME extends React.Component {
       modelAuthorGroupName,
       isModelAuthor,
       studentId: userStudentId,
-      studentName: ADM.GetLggedInUserName(),
+      studentName: ADM.GetLoggedInUserName(),
       studentGroup: ADM.GetLoggedInGroupName()
     });
   }

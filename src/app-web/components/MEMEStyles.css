@@ -193,6 +193,7 @@ button.switch span {
 .dialog {
   display: flex;
   flex-direction: column;
+  row-gap: 5px;
   padding: 24px;
   color: var(--clr-txt-help);
   background-color: white;
@@ -203,6 +204,13 @@ button.switch span {
   font-weight: var(--txt-weight-semibold);
 }
 
+/* -- Controlbar ----------------------------- */
+.controlbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* -- Label Box ------------------------------ */
 .labelbox {
   display: flex;
   flex-direction: column;

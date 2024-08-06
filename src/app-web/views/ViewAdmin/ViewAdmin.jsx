@@ -8,14 +8,17 @@
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import PropTypes from 'prop-types';
+import '../../components/MEMEStyles.css';
+import './ViewAdmin.css';
+
 import { withTheme } from 'styled-components';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import UR from '../../../system/ursys';
-import TeacherSelector from './components/AdmTeacherSelector';
 import ClassroomsSelector from './components/AdmClassroomsSelector';
+import WTeacherSelector from './components/WAdmTeacherSelector';
 import WCriteriaView from './components/WAdmCriteriaView';
 import SentenceStarters from './components/AdmSentenceStarters';
 import GroupsList from './components/AdmGroupsList';
@@ -70,15 +73,23 @@ class ViewAdmin extends React.Component {
 
     if (!UR.IsAdminLoggedIn())
       return (
-        <div className={classes.root}>
-          <Paper className={classes.paper}>
+        <div className="dialog">
             <p>The admin panel is accessible on the server machine at</p>
             <pre>http://localhost:3000/#/admin</pre>
             <p>If you are unable to use localhost, use ADMIN_QSTRING override</p>
-          </Paper>
         </div>
       );
 
+    return (
+      <div className="ViewAdmin dialog-container">
+        <WTeacherSelector />
+        <WClassroomsSelector />
+        <WCriteriaView />
+
+        {/* General Information Dialog */}
+        <WInfoDialog />
+      </div>
+    );
     return (
       <div className={classes.root}>
         <Grid container spacing={2}>

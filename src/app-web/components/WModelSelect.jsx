@@ -69,12 +69,6 @@ class ModelSelect extends React.Component {
   }
 
   DoADMDataUpdate(data) {
-    console.warn(
-      'ModelSelect ADM_DATA_UPDATED',
-      ADM.IsLoggedOut(),
-      'Why were we trying to re-open the dialog?',
-      data
-    );
     this.setState({
       // modelSelectDialogOpen: !ADM.IsLoggedOut(),
       canViewOthers: ADM.CanViewOthers()
@@ -255,16 +249,16 @@ class ModelSelect extends React.Component {
               />
               {canViewOthers && (
                 <>
-              <h2>My Class&rsquo; Models</h2>
-              <WModelsListTable
-                models={ourModels}
-                isAdmin={false}
-                showGroup
-                OnModelSelect={this.OnModelView}
-                OnModelClone={this.OnModelClone}
-                OnModelMove={this.OnModelMove}
-                OnModelDelete={this.OnModelDelete}
-              />
+                  <h2>My Class&rsquo; Models</h2>
+                  <WModelsListTable
+                    models={ourModels}
+                    isAdmin={false}
+                    showGroup
+                    OnModelSelect={this.OnModelView}
+                    OnModelClone={this.OnModelClone}
+                    OnModelMove={this.OnModelMove}
+                    OnModelDelete={this.OnModelDelete}
+                  />
                 </>
               )}
               {isTeacher && (

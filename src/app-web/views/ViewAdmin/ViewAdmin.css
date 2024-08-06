@@ -1,0 +1,6 @@
+.ViewAdmin {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 5px;
+  column-gap: 5px;
+}

@@ -40,7 +40,7 @@ class WCriteriaList extends React.Component {
           <div>DESCRIPTION</div>
         </div>
         {Criteria.map(crit => (
-          <div className="item">
+          <div className="item" key={crit.id}>
             <div>{crit.label}</div>
             <MDReactComponent>{crit.description}</MDReactComponent>
           </div>
@@ -56,7 +56,7 @@ class WCriteriaList extends React.Component {
           <div></div>
         </div>
         {Criteria.map(crit => (
-          <div className="item">
+          <div className="item" key={crit.id}>
             <input
               value={crit.label}
               placeholder="Label"

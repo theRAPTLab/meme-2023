@@ -134,6 +134,12 @@ button.transparent {
   color: var(--clr-btn-primary);
   background-color: transparent;
 }
+button.sm {
+  padding: 0 1px;
+  font-size: var(--txt-size-tiny);
+  height: 14px;
+  line-height: 14px;
+}
 button.close {
   margin-top: -20px;
   margin-right: -20px;
@@ -206,8 +212,10 @@ button.switch span {
 
 /* -- Controlbar ----------------------------- */
 .controlbar {
+  margin-top: 0.5rem;
   display: flex;
   justify-content: flex-end;
+  column-gap: 10px;
 }
 
 /* -- Label Box ------------------------------ */

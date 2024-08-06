@@ -1,0 +1,21 @@
+.WAdmGroupsList {
+}
+
+.WAdmGroupsList table {
+  font-size: var(--txt-size-sm);
+}
+.WAdmGroupsList table td {
+  padding: 3px 5px;
+}
+.WAdmGroupsList table td.students {
+  display: flex;
+}
+.WAdmGroupsList table td .chip {
+  display: flex;
+  align-items: center;
+  width: min-content;
+  padding: 0 5px;
+  margin: 1px;
+  border-radius: 5px;
+  background-color: #0001;
+}

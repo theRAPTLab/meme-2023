@@ -21,7 +21,7 @@ import WTeacherSelector from './components/WAdmTeacherSelector';
 import WClassroomsSelector from './components/WAdmClassroomsSelector';
 import WCriteriaView from './components/WAdmCriteriaView';
 import SentenceStarters from './components/AdmSentenceStarters';
-import GroupsList from './components/AdmGroupsList';
+import WGroupsList from './components/WAdmGroupsList';
 import ModelsList from './components/AdmModelsList';
 import ResourcesList from './components/AdmResourcesList';
 import RatingsView from './components/AdmRatingsView';
@@ -74,9 +74,9 @@ class ViewAdmin extends React.Component {
     if (!UR.IsAdminLoggedIn())
       return (
         <div className="dialog">
-            <p>The admin panel is accessible on the server machine at</p>
-            <pre>http://localhost:3000/#/admin</pre>
-            <p>If you are unable to use localhost, use ADMIN_QSTRING override</p>
+          <p>The admin panel is accessible on the server machine at</p>
+          <pre>http://localhost:3000/#/admin</pre>
+          <p>If you are unable to use localhost, use ADMIN_QSTRING override</p>
         </div>
       );
 
@@ -84,8 +84,8 @@ class ViewAdmin extends React.Component {
       <div className="ViewAdmin dialog-container">
         <WTeacherSelector />
         <WClassroomsSelector />
+        <WGroupsList />
         <WCriteriaView />
-
         {/* General Information Dialog */}
         <WInfoDialog />
       </div>
@@ -102,7 +102,7 @@ class ViewAdmin extends React.Component {
         </Grid>
         <Grid container spacing={2}>
           <Grid item xs={6}>
-            <GroupsList />
+            <WGroupsList />
           </Grid>
           <Grid item xs={6}>
             <ModelsList />

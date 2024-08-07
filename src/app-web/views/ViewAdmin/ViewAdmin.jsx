@@ -23,7 +23,7 @@ import WCriteriaView from './components/WAdmCriteriaView';
 import SentenceStarters from './components/AdmSentenceStarters';
 import WGroupsList from './components/WAdmGroupsList';
 import WModelsList from './components/WAdmModelsList';
-import ResourcesList from './components/AdmResourcesList';
+import WResourcesList from './components/WAdmResourcesList';
 import WRatingsView from './components/WAdmRatingsView';
 import WInfoDialog from '../../components/WInfoDialog';
 /// MODULES ///////////////////////////////////////////////////////////////////
@@ -92,6 +92,7 @@ class ViewAdmin extends React.Component {
           <WRatingsView />
           <WCriteriaView />
         </div>
+        <WResourcesList />
         {/* General Information Dialog */}
         <WInfoDialog />
       </div>

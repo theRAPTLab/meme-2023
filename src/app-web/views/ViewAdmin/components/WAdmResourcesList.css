@@ -1,0 +1,14 @@
+.WAdmResourcesList {
+  background-color: var(--clr-ev-bg);
+}
+
+.WAdmResourcesList .dialog {
+  width: 50%;
+}
+
+.WAdmResourcesList table {
+  font-size: var(--txt-size-sm);
+}
+.WAdmResourcesList table td {
+  padding: 3px 5px;
+}

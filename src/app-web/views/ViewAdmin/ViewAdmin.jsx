@@ -22,7 +22,7 @@ import WClassroomsSelector from './components/WAdmClassroomsSelector';
 import WCriteriaView from './components/WAdmCriteriaView';
 import SentenceStarters from './components/AdmSentenceStarters';
 import WGroupsList from './components/WAdmGroupsList';
-import ModelsList from './components/AdmModelsList';
+import WModelsList from './components/WAdmModelsList';
 import ResourcesList from './components/AdmResourcesList';
 import RatingsView from './components/AdmRatingsView';
 import WInfoDialog from '../../components/WInfoDialog';
@@ -82,10 +82,15 @@ class ViewAdmin extends React.Component {
 
     return (
       <div className="ViewAdmin dialog-container">
-        <WTeacherSelector />
-        <WClassroomsSelector />
+        <div>
+          <WTeacherSelector />
+          <WClassroomsSelector />
+        </div>
         <WGroupsList />
-        <WCriteriaView />
+        <WModelsList />
+        <div>
+          <WCriteriaView />
+        </div>
         {/* General Information Dialog */}
         <WInfoDialog />
       </div>

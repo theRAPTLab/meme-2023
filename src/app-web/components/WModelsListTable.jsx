@@ -154,8 +154,8 @@ class WModelsListTable extends React.Component {
       });
     }
 
-    const COLWIDTHS = [200, 150, 150, 250];
-    if (showAdminOnlyView || showGroup) COLWIDTHS.splice(1, 0, 200);
+    const COLWIDTHS = [200, 110, 110, 200];
+    if (showAdminOnlyView || showGroup) COLWIDTHS.splice(1, 0, 110);
 
     const modelsWithGroupLabels = models.map(m => {
       return Object.assign(

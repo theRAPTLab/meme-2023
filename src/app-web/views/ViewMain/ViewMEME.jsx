@@ -785,7 +785,6 @@ class ViewMEME extends React.Component {
             {viewStatus}
           </div>
           {CONTROLBAR}
-          <WDescriptionPopup />
           <WHelpView />
         </div>
       </div>
@@ -796,7 +795,10 @@ class ViewMEME extends React.Component {
     return (
       <div className="MEME">
         <div className="ViewMEME" style={{ gridTemplateColumns: gridColumns }}>
-          <div className="leftsidebar">{PANELTOOLS}</div>
+          <div className="leftsidebar">
+            {PANELTOOLS}
+            <WDescriptionPopup />
+          </div>
           <div className="main">
             {APPBAR}
             {MAINVIEW}

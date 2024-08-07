@@ -24,7 +24,7 @@ import SentenceStarters from './components/AdmSentenceStarters';
 import WGroupsList from './components/WAdmGroupsList';
 import WModelsList from './components/WAdmModelsList';
 import ResourcesList from './components/AdmResourcesList';
-import RatingsView from './components/AdmRatingsView';
+import WRatingsView from './components/WAdmRatingsView';
 import WInfoDialog from '../../components/WInfoDialog';
 /// MODULES ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -89,6 +89,7 @@ class ViewAdmin extends React.Component {
         <WGroupsList />
         <WModelsList />
         <div>
+          <WRatingsView />
           <WCriteriaView />
         </div>
         {/* General Information Dialog */}
@@ -115,7 +116,7 @@ class ViewAdmin extends React.Component {
         </Grid>
         <Grid container spacing={2}>
           <Grid item xs={4}>
-            <RatingsView />
+            <WRatingsView />
           </Grid>
           <Grid item xs={5}>
             <WCriteriaView />

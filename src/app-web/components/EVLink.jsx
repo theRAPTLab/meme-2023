@@ -738,7 +738,7 @@ class EVLink extends React.Component {
           <label>Reason:</label>
           {REASON}
         </div>
-        {/* Contro Bar  ----------------------------------------------- */}
+        {/* Control Bar  ----------------------------------------------- */}
         <div className="controlbar">
           {isBeingEdited && !isViewOnly ? (
             <>

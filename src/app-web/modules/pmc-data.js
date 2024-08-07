@@ -1086,6 +1086,9 @@ function GenerateNumberLabel(rsrcId) {
  *  This also calculates the numberLabel automatically based on the assets already
  *  in the system.
  *
+ *  evObjData.note and evObjData.why are not always passed, so default to ''
+ *  to prevent uncontrolled-to-controlled error.
+ *
  *  @param {Object} evObjData - Any subset of PMBObj.Evidence keys
  *  @param {Function} cb - callback function will be called with the new id as a parameter
  *                         e.g. cb(id);
@@ -1097,8 +1100,8 @@ PMCData.PMC_AddEvidenceLink = (evObjData, cb) => {
     // propId and mechId remain undefined until the user sets it later
     rsrcId: evObjData.rsrcId,
     numberLabel,
-    note: evObjData.note,
-    why: evObjData.why,
+    note: evObjData.note || '', // prevent uncontrolled-to-controlled error
+    why: evObjData.why || '', // prevent uncontrolled-to-controlled error
     imageURL: evObjData.imageURL
   });
 

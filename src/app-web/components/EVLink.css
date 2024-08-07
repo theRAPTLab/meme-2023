@@ -5,6 +5,7 @@
   padding: 8px 10px;
   border-bottom: 1px solid var(--clr-ev-bg);
   overflow: hidden;
+  cursor: pointer;
 }
 .EVLink:hover {
   background-color: var(--clr-evlink-bg-hover);

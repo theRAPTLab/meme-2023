@@ -629,7 +629,7 @@ class EVLink extends React.Component {
         autoFocus
       />
     ) : (
-      <input type="text" value={note} readOnly />
+      <input type="text" value={note} readOnly disabled />
     );
 
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -656,7 +656,7 @@ class EVLink extends React.Component {
       <WRatingButton
         rating={rating}
         isExpanded={isExpanded}
-        disabled={isViewOnly}
+        disabled={!isBeingEdited}
         ratingLabel=""
         ratingDefs={ratingDefs}
         OnRatingButtonClick={this.OnRatingButtonClick}
@@ -673,7 +673,7 @@ class EVLink extends React.Component {
         onBlur={this.OnBlur}
       />
     ) : (
-      <textarea type="text" value={why} readOnly />
+      <textarea type="text" value={why} readOnly disabled />
     );
 
     ///////////////////////////////////////////////////////////////////////////

@@ -4,8 +4,9 @@
   column-gap: 5px;
   align-items: center;
   padding: 10px;
-  font-size: 1em;
+  font-size: 14px;
   font-weight: var(--txt-weight-semibold);
+  line-height: 16px;
   color: var(--clr-txt);
 }
 

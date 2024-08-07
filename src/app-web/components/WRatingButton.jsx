@@ -68,19 +68,27 @@ class WRatingButton extends React.Component {
   componentWillUnmount() {}
 
   OnClick(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    this.props.OnRatingButtonClick();
+    const { disabled } = this.props;
+    if (!disabled) {
+      // not necessary b/c clicks won't register if disabled
+      e.preventDefault();
+      e.stopPropagation();
+      this.props.OnRatingButtonClick();
+    }
   }
 
   render() {
-    const { rating, isExpanded, classes, ratingDefs } = this.props;
+    const { rating, isExpanded, ratingDefs, disabled } = this.props;
 
     const ratingObject = ratingDefs.find(ro => ro.rating === rating);
     const label = ratingObject ? ratingObject.label : 'Label not found';
 
     return (
-      <button className="WRatingButton transparent" onClick={this.OnClick}>
+      <button
+        className="WRatingButton transparent"
+        onClick={this.OnClick}
+        disabled={disabled}
+      >
         {RATINGS.getIcon(rating)}&nbsp;
         <div>{isExpanded ? label : ''}</div>
       </button>

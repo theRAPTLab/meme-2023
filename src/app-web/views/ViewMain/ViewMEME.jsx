@@ -15,6 +15,7 @@ import { Switch, Route } from 'react-router-dom';
 
 // Material UI Theming
 import { yellow } from '@mui/material/colors';
+import SVGImg from '../../components/ICNSvgImg';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -762,14 +763,20 @@ class ViewMEME extends React.Component {
               )}
             />
           </Switch>
-          <ZoomInMapIcon
+          <button
+            className="transparent"
+            id="zoom-in"
             onClick={() => UR.Publish('SVG_PANZOOM_RESET')}
-            style={{ position: 'absolute', left: '20px', top: '20px' }}
-          />
-          <ZoomOutMapIcon
+          >
+            <SVGImg src="navigation_fullView_32px.svg" alt="fullview" />
+          </button>
+          <button
+            className="transparent"
+            id="zoom-out"
             onClick={() => UR.Publish('SVG_PANZOOM_OUT')}
-            style={{ position: 'absolute', left: '20px', top: '52px' }}
-          />
+          >
+            <SVGImg src="navigation_zoom_32px.svg" alt="zoomout" />
+          </button>
           <div
             className="help"
             style={{ position: 'absolute', left: '20px', bottom: '12px' }}

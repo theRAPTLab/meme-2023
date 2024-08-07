@@ -7,6 +7,10 @@
   background-color: #f44336;
 }
 
+.EVLinkButton:disabled {
+  opacity: 1; /* override MEMESytles.css */
+}
+
 .EVLinkButton.disabled {
   color: rgba(0, 0, 0, 0.3);
 }
@@ -25,7 +29,8 @@
   color: #f44336;
   background-color: #ffcdd2;
 }
-.EVLinkButton.prop { /* prop = entity */
+.EVLinkButton.prop {
+  /* prop = entity */
   color: #fff;
   background-color: var(--clr-entity);
 }
@@ -39,7 +44,8 @@
 .EVLinkButton.outcome:disabled {
   opacity: 0.8;
 }
-.EVLinkButton.mech { /* mech = process */
+.EVLinkButton.mech {
+  /* mech = process */
   color: #fff;
   background-color: var(--clr-mech);
 }

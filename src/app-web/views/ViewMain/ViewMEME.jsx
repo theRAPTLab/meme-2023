@@ -56,6 +56,38 @@ const PKG = 'ViewMEME:';
 
 const SIDEBARWIDTH = 292;
 
+/// PLACEDHOLDER for chat icon until we get comment system in place
+const CHATICON = (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <g id="Union">
+      <mask id="path-1-inside-1_331_7241" fill="white">
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M10 20C15.5228 20 20 15.5228 20 10C20 4.47715 15.5228 0 10 0C4.47715 0 0 4.47715 0 10C0 11.6529 0.401034 13.2122 1.11111 14.5858V20H10Z"
+        />
+      </mask>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M10 20C15.5228 20 20 15.5228 20 10C20 4.47715 15.5228 0 10 0C4.47715 0 0 4.47715 0 10C0 11.6529 0.401034 13.2122 1.11111 14.5858V20H10Z"
+        fill="#FFE143"
+      />
+      <path
+        d="M1.11111 14.5858H3.11111V14.0994L2.88776 13.6673L1.11111 14.5858ZM1.11111 20H-0.888889V22H1.11111V20ZM18 10C18 14.4183 14.4183 18 10 18V22C16.6274 22 22 16.6274 22 10H18ZM10 2C14.4183 2 18 5.58172 18 10H22C22 3.37258 16.6274 -2 10 -2V2ZM2 10C2 5.58172 5.58172 2 10 2V-2C3.37258 -2 -2 3.37258 -2 10H2ZM2.88776 13.6673C2.32099 12.571 2 11.3259 2 10H-2C-2 11.98 -1.51892 13.8534 -0.665538 15.5042L2.88776 13.6673ZM3.11111 20V14.5858H-0.888889V20H3.11111ZM10 18H1.11111V22H10V18Z"
+        fill="#D44127"
+        mask="url(#path-1-inside-1_331_7241)"
+      />
+    </g>
+  </svg>
+);
+
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class ViewMEME extends React.Component {
@@ -207,21 +239,21 @@ class ViewMEME extends React.Component {
     const innerWidth = window.innerWidth - sidebarwidth;
     const innerHeight = window.innerHeight;
     if (DBG)
-    console.log(
-      'UpdateDimensions',
-      'toolsPanelIsOpen',
-      toolsPanelIsOpen,
-      'resourceLibraryIsOpen',
-      resourceLibraryIsOpen,
-      'viewWidth',
-      viewWidth,
-      'window.innerWidth',
-      window.innerWidth,
-      'sidebarwidth',
-      sidebarwidth,
-      'innerWidth',
-      innerWidth
-    );
+      console.log(
+        'UpdateDimensions',
+        'toolsPanelIsOpen',
+        toolsPanelIsOpen,
+        'resourceLibraryIsOpen',
+        resourceLibraryIsOpen,
+        'viewWidth',
+        viewWidth,
+        'window.innerWidth',
+        window.innerWidth,
+        'sidebarwidth',
+        sidebarwidth,
+        'innerWidth',
+        innerWidth
+      );
     this.setState({
       viewWidth: innerWidth,
       viewHeight: innerHeight
@@ -727,7 +759,7 @@ class ViewMEME extends React.Component {
               : this.OnAddMechComment
           }
         >
-          <ChatBubbleOutlineIcon htmlColor={yellow[800]} />
+          {CHATICON}
           &nbsp;&nbsp;Add Comment
         </button>
       </div>

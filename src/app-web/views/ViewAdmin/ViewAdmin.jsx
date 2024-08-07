@@ -20,7 +20,7 @@ import UR from '../../../system/ursys';
 import WTeacherSelector from './components/WAdmTeacherSelector';
 import WClassroomsSelector from './components/WAdmClassroomsSelector';
 import WCriteriaView from './components/WAdmCriteriaView';
-import SentenceStarters from './components/AdmSentenceStarters';
+import WSentenceStarters from './components/WAdmSentenceStarters';
 import WGroupsList from './components/WAdmGroupsList';
 import WModelsList from './components/WAdmModelsList';
 import WResourcesList from './components/WAdmResourcesList';
@@ -85,12 +85,13 @@ class ViewAdmin extends React.Component {
         <div>
           <WTeacherSelector />
           <WClassroomsSelector />
-        </div>
-        <WGroupsList />
-        <WModelsList />
-        <div>
           <WRatingsView />
           <WCriteriaView />
+          <WSentenceStarters />
+        </div>
+        <div>
+        <WGroupsList />
+        <WModelsList />
         </div>
         <WResourcesList />
         {/* General Information Dialog */}

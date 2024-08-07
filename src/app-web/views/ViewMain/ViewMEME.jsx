@@ -13,20 +13,19 @@ import './ViewMEME.css';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
 
-// Material UI Theming
-import { yellow } from '@mui/material/colors';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPencil } from '@fortawesome/free-solid-svg-icons';
+import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
+const IcnAdd = <FontAwesomeIcon icon={faPlus} />;
+const IcnPencil = <FontAwesomeIcon icon={faPencil} />;
+const IcnTrash = <FontAwesomeIcon icon={faTrashCan} />;
+import ICNExpandDoubleArrow from '../../components/ICNExpandDoubleArrow';
+
 import SVGImg from '../../components/ICNSvgImg';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Material UI Icons
-import AddIcon from '@mui/icons-material/Add';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
-import EditIcon from '@mui/icons-material/Edit';
-import MenuIcon from '@mui/icons-material/Menu';
-import ZoomInMapIcon from '@mui/icons-material/CenterFocusWeak';
-import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 // MEME App Components
 import WDescriptionPopup from '../../components/WDescriptionPopup';
 import WInfoDialog from '../../components/WInfoDialog';
@@ -49,7 +48,6 @@ import DATA from '../../modules/data';
 import ADM from '../../modules/data';
 import ASET from '../../modules/adm-settings';
 import DATAMAP from '../../../system/common-datamap';
-import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -208,6 +206,7 @@ class ViewMEME extends React.Component {
     const viewHeight = this.viewRect.height;
     const innerWidth = window.innerWidth - sidebarwidth;
     const innerHeight = window.innerHeight;
+    if (DBG)
     console.log(
       'UpdateDimensions',
       'toolsPanelIsOpen',
@@ -562,8 +561,6 @@ class ViewMEME extends React.Component {
   }
 
   render() {
-    const { theme: classes } = this.props;
-
     const {
       modelId,
       modelAuthorGroupName,
@@ -620,12 +617,16 @@ class ViewMEME extends React.Component {
     const APPBAR_ELEMENTS = toolsPanelIsOpen ? (
       ''
     ) : (
-      <div onClick={this.OnToggleToolsPanel}>&gt;&gt;</div>
+      <button onClick={this.OnToggleToolsPanel}>
+        <ICNExpandDoubleArrow direction="right" />
+      </button>
     );
     const APPBAR_RESOURCELIB = resourceLibraryIsOpen ? (
       ''
     ) : (
-      <div onClick={this.OnToggleResourceLibrary}>&lt;&lt;</div>
+      <button onClick={this.OnToggleResourceLibrary}>
+        <ICNExpandDoubleArrow direction="left" />
+      </button>
     );
     const APPBAR = (
       <div className={`appbar ${isModelAuthor ? '' : 'otherauthor'}`}>
@@ -684,7 +685,7 @@ class ViewMEME extends React.Component {
               : this.OnMechDelete
           }
         >
-          <DeleteRoundedIcon />
+          {IcnTrash}
           &nbsp;&nbsp;Delete&nbsp;
         </button>
         <button
@@ -699,7 +700,7 @@ class ViewMEME extends React.Component {
               : this.OnMechEdit
           }
         >
-          <EditIcon />
+          {IcnPencil}
           &nbsp;&nbsp;Edit{' '}
           {componentIsSelected
             ? DATAMAP.PMC_MODELTYPES.COMPONENT.label
@@ -712,7 +713,7 @@ class ViewMEME extends React.Component {
           hidden={!(componentIsSelected || outcomeIsSelected) || isViewOnly}
           onClick={this.OnPropAdd}
         >
-          <AddIcon /> Add property
+          {IcnAdd} Add property
         </button>
         <button
           className="comment"
@@ -734,13 +735,7 @@ class ViewMEME extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const MAINVIEW = (
       <div style={{ backgroundColor: 'red' }} ref={this.refMain}>
-        <div
-          className="view"
-          ref={this.refView}
-          // style={{
-          //   height: this.state.viewHeight
-          // }}
-        >
+        <div className="view" ref={this.refView}>
           <Switch>
             <Route
               path="/:mode"

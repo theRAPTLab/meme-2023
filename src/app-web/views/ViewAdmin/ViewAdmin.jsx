@@ -11,9 +11,6 @@ import PropTypes from 'prop-types';
 import '../../components/MEMEStyles.css';
 import './ViewAdmin.css';
 
-import { withTheme } from 'styled-components';
-import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import UR from '../../../system/ursys';
@@ -37,16 +34,6 @@ import 'bootstrap/dist/css/bootstrap.css';
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true;
-const styles = theme => ({
-  root: {
-    flexGrow: 1
-  },
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary
-  }
-});
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -69,8 +56,6 @@ class ViewAdmin extends React.Component {
   }
 
   render() {
-    const { theme: classes } = this.props;
-
     if (!UR.IsAdminLoggedIn())
       return (
         <div className="dialog">
@@ -90,50 +75,10 @@ class ViewAdmin extends React.Component {
           <WSentenceStarters />
         </div>
         <div>
-        <WGroupsList />
-        <WModelsList />
+          <WGroupsList />
+          <WModelsList />
         </div>
         <WResourcesList />
-        {/* General Information Dialog */}
-        <WInfoDialog />
-      </div>
-    );
-    return (
-      <div className={classes.root}>
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <TeacherSelector />
-          </Grid>
-          <Grid item xs={6}>
-            <ClassroomsSelector />
-          </Grid>
-        </Grid>
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <WGroupsList />
-          </Grid>
-          <Grid item xs={6}>
-            <ModelsList />
-          </Grid>
-        </Grid>
-        <Grid container spacing={2}>
-          <Grid item xs={4}>
-            <WRatingsView />
-          </Grid>
-          <Grid item xs={5}>
-            <WCriteriaView />
-          </Grid>
-          <Grid item xs={3}>
-            <SentenceStarters />
-          </Grid>
-        </Grid>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <ResourcesList />
-          </Grid>
-          <Grid item xs={3} />
-        </Grid>
-
         {/* General Information Dialog */}
         <WInfoDialog />
       </div>
@@ -143,20 +88,17 @@ class ViewAdmin extends React.Component {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// default props are expect properties that we expect
 /// and are declared for validation
-ViewAdmin.defaultProps = {
-  classes: { isDefaultProps: true }
-};
+ViewAdmin.defaultProps = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
 /// disallowed by eslint, so use shape({prop:ProtType })
 /// to describe them in more detail
-ViewAdmin.propTypes = {
-  classes: PropTypes.shape({})
-};
+ViewAdmin.propTypes = {};
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// required for UR EXEC phase filtering by view path
 ViewAdmin.MOD_ID = __dirname;
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default withTheme(ViewAdmin);
+export default ViewAdmin;

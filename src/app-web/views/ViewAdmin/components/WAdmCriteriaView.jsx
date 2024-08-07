@@ -204,10 +204,18 @@ class WCriteriaView extends React.Component {
           <button onClick={this.OnAddClick} hidden={!isInEditMode}>
             {IcnAdd}
           </button>
-          <button onClick={this.OnEditCancel} hidden={!isInEditMode}>
+          <button
+            className="close"
+            onClick={this.OnEditCancel}
+            hidden={!isInEditMode}
+          >
             Close
           </button>
-          <button onClick={this.OnEditSave} hidden={!isInEditMode}>
+          <button
+            className="primary"
+            onClick={this.OnEditSave}
+            hidden={!isInEditMode}
+          >
             Save
           </button>
         </div>

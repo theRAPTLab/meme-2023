@@ -141,8 +141,6 @@ button.sm {
   line-height: 14px;
 }
 button.close {
-  margin-top: -20px;
-  margin-right: -20px;
   align-self: flex-end;
 }
 button:hover {

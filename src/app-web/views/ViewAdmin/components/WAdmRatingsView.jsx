@@ -172,7 +172,7 @@ class WRatingsView extends React.Component {
             <button className="close" onClick={this.OnCancel}>
               Cancel
             </button>
-            <button className="save" onClick={this.OnSave}>
+            <button className="primary" onClick={this.OnSave}>
               Save
             </button>
           </div>

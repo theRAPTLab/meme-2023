@@ -214,7 +214,7 @@ class EVResourceItemDialog extends React.Component {
     if (resource === undefined || resource.id === undefined) return '';
     const linksCount = DATA.GetEvLinksCountByResourceId(resource.id);
 
-    const TitleBar = (
+    const TITLEBAR = (
       <div className="titlebar">
         <h1>Resource View</h1>
         <div></div> {/* spacer */}
@@ -239,7 +239,7 @@ class EVResourceItemDialog extends React.Component {
       </div>
     );
 
-    const Content = (
+    const CONTENT = (
       <div className="content">
         <iframe
           id="resourceFrame"
@@ -252,6 +252,9 @@ class EVResourceItemDialog extends React.Component {
         />
         <div className="sidebar">
           <EVResourceItemTitleBar resource={resource} isAlwaysExpanded={true} />
+          <div className="ev-list">
+            <EVList rsrcId={resource.id} />
+          </div>
           <button
             className="primary"
             onClick={() => this.OnCreateEvidence(resource.id)}
@@ -259,17 +262,16 @@ class EVResourceItemDialog extends React.Component {
           >
             + {DEFAULTS.TEXT.ADD_EVIDENCE}
           </button>
-          <div className="ev-list">
-            <EVList rsrcId={resource.id} />
-          </div>
         </div>
       </div>
     );
 
     return (
-      <div className="EVResourceItemDialog" hidden={!isOpen}>
-        {TitleBar}
-        {Content}
+      <div className="EVResourceItemDialog dialog-container" hidden={!isOpen}>
+        <div className="dialog">
+          {TITLEBAR}
+          {CONTENT}
+        </div>
       </div>
     );
   }

@@ -4,6 +4,9 @@
   background-color: var(--clr-ev-bg);
   cursor: pointer;
 }
+.EVResourceItem:hover {
+  background-color: var(--clr-ev-bg-hover);
+}
 /* .EVResourceItem.expanded {
   height: 500px;
   transition-property: height;
@@ -69,6 +72,8 @@
   border-bottom-right-radius: 8px;
 }
 .EVResourceItem .emulate-evlink button {
+  font-size: var(--txt-size-med);
+  padding: 4px 16px;
   color: var(--clr-txt-reverse);
   background-color: var(--clr-ev);
 }

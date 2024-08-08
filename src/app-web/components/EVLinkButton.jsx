@@ -119,7 +119,7 @@ class EVLinkButton extends React.Component {
         className={`EVLinkButton ${btnClass} ${isExpanded ? 'expanded' : ''}`}
         disabled={isDisabled}
       >
-        {icon}&nbsp;&nbsp;
+        {icon ? `${icon}&nbsp;&nbsp;` : ''}
         <span>{label}</span>
       </button>
     );

@@ -1,16 +1,22 @@
-.EVResourceItemDialog {
-  position: absolute;
-  width: 99%;
-  height: 95%;
+.EVResourceItemDialog.dialog-container {
+  /* position: absolute;
   z-index: 1300;
-  top: 5px;
-  left: 5px;
+  top: 15px;
+  left: 15px; */
   margin: 0 auto;
+}
+
+.EVResourceItemDialog .dialog {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  height: 90%;
   background-color: var(--clr-ev-bg);
+  box-shadow: var(--dialog-shadow);
 }
 
 /* Titlebar */
-.EVResourceItemDialog > .titlebar {
+.EVResourceItemDialog .dialog > .titlebar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -21,28 +27,28 @@
   color: var(--clr-txt-reverse);
   background-color: var(--clr-ev);
 }
-.EVResourceItemDialog > .titlebar h1 {
+.EVResourceItemDialog .dialog > .titlebar h1 {
   font-size: var(--txt-size);
   font-weight: var(--txt-weight-bold);
   color: var(--clr-txt-reverse);
   margin-bottom: 0;
   margin-right: 25px;
 }
-.EVResourceItemDialog > .titlebar .label {
+.EVResourceItemDialog .dialog > .titlebar .label {
   flex-grow: 1;
   margin-left: 0.5rem;
 }
-.EVResourceItemDialog > .titlebar .box {
+.EVResourceItemDialog .dialog > .titlebar .box {
   color: var(--clr-txt-reverse);
   background-color: var(--clr-ev-dark);
   padding: 3px 12px;
 }
-.EVResourceItemDialog > .titlebar button {
+.EVResourceItemDialog .dialog > .titlebar button {
   margin-left: 15px;
   color: var(--clr-txt-reverse);
   font-weight: var(--txt-weight-bold);
 }
-.EVResourceItemDialog > .titlebar .ICNCountBadge.small {
+.EVResourceItemDialog .dialog > .titlebar .ICNCountBadge.small {
   margin-top: 3px;
   border: none;
 }
@@ -52,11 +58,10 @@
   display: flex;
   column-gap: 24px;
   height: 100%;
-  padding: 16px 24px;
+  padding-top: 16px;
 }
 #resourceFrame {
   border-radius: 8px;
-  height: 90%;
   flex-grow: 1;
 }
 .EVResourceItemDialog .content .sidebar {
@@ -64,14 +69,12 @@
   flex-direction: column;
   align-items: stretch;
   width: 320px;
-  height: 90%;
   padding-left: 10px;
   vertical-align: top;
   overflow: hidden;
 }
 .EVResourceItemDialog .content .sidebar > button {
   background-color: var(--clr-ev);
-  margin: 16px 0;
 }
 .EVResourceItemDialog .content .sidebar .ev-list {
   width: 100%;

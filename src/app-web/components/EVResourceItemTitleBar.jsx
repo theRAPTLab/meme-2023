@@ -26,23 +26,7 @@ import React from 'react';
 import './MEMEStyles.css';
 import './EVResourceItemTitleBar.css';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImage } from '@fortawesome/free-solid-svg-icons';
-import { faFileLines } from '@fortawesome/free-solid-svg-icons';
-import { faLightbulb } from '@fortawesome/free-solid-svg-icons';
-import { faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
-const ImageIcon = <FontAwesomeIcon icon={faImage} />;
-const DescriptionIcon = <FontAwesomeIcon icon={faFileLines} />;
-const IdeaIcon = <FontAwesomeIcon icon={faLightbulb} />;
-const ContactSupportIcon = <FontAwesomeIcon icon={faCircleQuestion} />;
-const RESOURCE_TYPES = {
-  simulation: ImageIcon,
-  assumption: IdeaIcon,
-  idea: IdeaIcon,
-  report: DescriptionIcon,
-  question: ContactSupportIcon,
-  other: DescriptionIcon
-};
+import EVResourceTypeIcon from './EVResourceTypeIcon';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -86,9 +70,7 @@ class EVResourceItemTitleBar extends React.Component {
         <div className="widgets">
           {!isExpanded && <ICNCountBadge count={linksCount} size="tiny" />}
           <div className="type-icon" title={resource.type}>
-            {RESOURCE_TYPES[resource.type]
-              ? RESOURCE_TYPES[resource.type]
-              : RESOURCE_TYPES.other}
+            <EVResourceTypeIcon type={resource.type} />
           </div>
           {!isAlwaysExpanded && (
             <div onClick={this.evt_OnExpand}>

@@ -61,15 +61,17 @@ class WTeacherSelector extends React.Component {
 
   // Called by TEACHER_SELECT
   DoTeacherSelect(data) {
+    const selectedTeacher = ADM.GetTeacher(data.teacherId);
+    const selectedTeacherName = selectedTeacher ? selectedTeacher.name : '';
     this.setState({
       selectedTeacherId: data.teacherId,
-      selectedTeacherName: ADM.GetTeacher(data.teacherId).name
+      selectedTeacherName
     });
   }
 
   // Called by User
   OnTeacherSelect(e) {
-    let selectedTeacherId = Number(e.target.value);
+    let selectedTeacherId = e.target.value;
     if (selectedTeacherId === 'new') {
       this.setState({
         selectedTeacherName: '',
@@ -77,7 +79,7 @@ class WTeacherSelector extends React.Component {
         updateExistingTeacher: false
       });
     } else {
-      ADM.SelectTeacher(selectedTeacherId);
+      ADM.SelectTeacher(Number(selectedTeacherId));
     }
   }
 

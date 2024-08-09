@@ -61,9 +61,7 @@ class WClassroomsSelector extends React.Component {
   }
 
   DoADMDataUpdate(data) {
-    console.log('ADM update', data);
     this.DoClassroomListUpdate();
-    console.log('...CanViewOthers', this.state.canViewOthers, ADM.CanViewOthers());
     this.setState({
       canViewOthers: ADM.CanViewOthers()
     });
@@ -71,14 +69,12 @@ class WClassroomsSelector extends React.Component {
 
   DoClassroomListUpdate() {
     const classrooms = ADM.GetClassroomsByTeacher();
-    console.log('classrooms', classrooms);
     const selectedClassroomId =
       classrooms && classrooms.length > 0 ? classrooms[0].id : '';
     this.setState({ classrooms }, () => ADM.SelectClassroom(selectedClassroomId));
   }
 
   DoTeacherSelect(data) {
-    console.log('teacher sellected', data.teacherId, typeof data.teacherId);
     if (DBG)
       console.log(
         'AdmClassroomsSelector: loading classrooms with teacher',
@@ -104,7 +100,7 @@ class WClassroomsSelector extends React.Component {
 
   // User has selected a classroom from the dropdown menu
   OnClassroomSelect(e) {
-    let classroomId = Number(e.target.value);
+    let classroomId = e.target.value;
     if (classroomId === 'new') {
       this.setState({
         selectedClassroomName: '',
@@ -112,7 +108,7 @@ class WClassroomsSelector extends React.Component {
         updateExistingClassroom: false
       });
     } else {
-      ADM.SelectClassroom(classroomId);
+      ADM.SelectClassroom(Number(classroomId));
     }
   }
 
@@ -191,6 +187,7 @@ class WClassroomsSelector extends React.Component {
             onChange={this.OnClassroomSelect}
             className="select"
           >
+            <option value="">Select a Classroom</option>
             {classrooms.map(classroom => (
               <option value={classroom.id} key={classroom.id}>
                 {classroom.name}

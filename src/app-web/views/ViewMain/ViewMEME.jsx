@@ -7,10 +7,10 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import '../../components/MEMEStyles.css';
 import './ViewMEME.css';
 
-import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -840,16 +840,12 @@ class ViewMEME extends React.Component {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// default props are expect properties that we expect
 /// and are declared for validation
-ViewMEME.defaultProps = {
-  classes: {}
-};
+ViewMEME.defaultProps = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// propTypes are declared. Note "vague" propstypes are
 /// disallowed by eslint, so use shape({prop: ProtType })
 /// to describe them in more detail
-ViewMEME.propTypes = {
-  classes: PropTypes.shape({})
-};
+ViewMEME.propTypes = {};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// requirement for UR MODULES and COMPONENTS
 ViewMEME.MOD_ID = __dirname;

@@ -7,6 +7,7 @@ Login
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WLogin.css';
 
@@ -132,6 +133,10 @@ class WLogin extends React.Component {
     }
   }
 }
+
+WLogin.propTypes = {};
+
+WLogin.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

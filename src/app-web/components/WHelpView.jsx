@@ -12,16 +12,16 @@ https://github.com/mzabriskie/react-draggable
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WHelpView.css';
+
+import Draggable from 'react-draggable';
+import MDReactComponent from 'react-markdown';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 const IcnClose = <FontAwesomeIcon icon={faXmark} />;
-
-import PropTypes from 'prop-types';
-import Draggable from 'react-draggable';
-import MDReactComponent from 'react-markdown';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -168,14 +168,9 @@ Moreland, Vickery, Murphy & Stiso.
   }
 }
 
-WHelpView.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
-};
+WHelpView.propTypes = {};
 
-WHelpView.defaultProps = {
-  classes: {}
-};
+WHelpView.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

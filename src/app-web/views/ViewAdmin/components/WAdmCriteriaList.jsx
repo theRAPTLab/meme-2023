@@ -7,14 +7,13 @@ Criteria List
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import '../../../components/MEMEStyles.css';
 import './WAdmCriteriaList.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
 const IcnTrash = <FontAwesomeIcon icon={faTrashCan} />;
-
-import PropTypes from 'prop-types';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

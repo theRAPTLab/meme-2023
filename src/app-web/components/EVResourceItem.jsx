@@ -11,6 +11,7 @@ list of EVLink items associated with the Resource.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './EVResourceItem.css';
 
@@ -154,6 +155,22 @@ class EVResourceItem extends React.Component {
     );
   }
 }
+
+EVResourceItem.propTypes = {
+  resource: PropTypes.object
+};
+
+EVResourceItem.defaultProps = {
+  resource: {
+    rsrcId: '',
+    referenceLabel: '',
+    label: '',
+    notes: '',
+    type: '',
+    url: '',
+    links: 0
+  }
+};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -50,6 +50,7 @@ See MechDialog and EvidenceLink for example implementations.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './EVLinkButton.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -125,6 +126,26 @@ class EVLinkButton extends React.Component {
     );
   }
 }
+
+EVLinkButton.propTypes = {
+  sourceLabel: PropTypes.string,
+  sourceType: PropTypes.string,
+  listenForSourceSelection: PropTypes.bool,
+  isBeingEdited: PropTypes.bool,
+  isExpanded: PropTypes.bool,
+  OnLinkButtonClick: PropTypes.func
+};
+
+EVLinkButton.defaultProps = {
+  sourceLabel: undefined,
+  sourceType: undefined,
+  listenForSourceSelection: false,
+  isBeingEdited: false,
+  isExpanded: false,
+  OnLinkButtonClick: () => {
+    console.error('Missing OnLinkButtonClick Handler!');
+  }
+};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

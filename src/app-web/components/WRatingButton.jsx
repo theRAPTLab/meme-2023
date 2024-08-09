@@ -46,6 +46,7 @@ ratingsDefs looks like this:
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WRatingButton.css';
 
@@ -95,6 +96,24 @@ class WRatingButton extends React.Component {
     );
   }
 }
+
+WRatingButton.propTypes = {
+  rating: PropTypes.number,
+  isExpanded: PropTypes.bool,
+  ratingDefs: PropTypes.array,
+  disabled: PropTypes.bool,
+  OnRatingButtonClick: PropTypes.func
+};
+
+WRatingButton.defaultProps = {
+  rating: 0,
+  isExpanded: false,
+  ratingDefs: [],
+  disabled: false,
+  OnRatingButtonClick: () => {
+    console.error('Missing OnRatingButtonClick Handler!');
+  }
+};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

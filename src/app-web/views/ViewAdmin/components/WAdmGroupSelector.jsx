@@ -25,6 +25,7 @@
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import '../../../components/MEMEStyles.css';
 import './WAdmGroupSelector.css';
 
@@ -78,14 +79,15 @@ class WGroupSelector extends React.Component {
   }
 
   OnSelect() {
+    const { OnSelect } = this.props;
     const { selectedTeacherId, selectedClassroomId, selectedGroupId } = this.state;
     const data = { selectedTeacherId, selectedClassroomId, selectedGroupId };
-    this.props.OnSelect(data);
+    OnSelect(data);
   }
 
   render() {
     let { selectedTeacherId, selectedClassroomId, selectedGroupId } = this.state;
-    const { open, type, OnClose } = this.props;
+    const { open, type, OnClose, OnSelect } = this.props;
     const teachers = ADM.GetAllTeachers();
     if (selectedTeacherId === '') {
       // use the currently selected teacher if possible
@@ -169,6 +171,25 @@ class WGroupSelector extends React.Component {
     );
   }
 }
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+WGroupSelector.defaultProps = {
+  open: false,
+  type: 'clone',
+  OnClose: () => {
+    console.log('OnClose function not defined!');
+  },
+  OnSelect: () => {
+    console.log('OnSelect function not defined!');
+  }
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+WGroupSelector.propTypes = {
+  open: PropTypes.bool,
+  type: PropTypes.string, // 'clone' || 'move'
+  OnClose: PropTypes.func,
+  OnSelect: PropTypes.func
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// required for UR EXEC phase filtering by view path

@@ -358,7 +358,6 @@ class MEPanelTools extends React.Component {
 /// default props are expect properties that we expect
 /// and are declared for validation
 MEPanelTools.defaultProps = {
-  classes: {},
   theme: {},
   isDisabled: false
 };
@@ -367,7 +366,6 @@ MEPanelTools.defaultProps = {
 /// disallowed by eslint, so use shape({prop: ProtType })
 /// to describe them in more detail
 MEPanelTools.propTypes = {
-  classes: PropTypes.shape({}),
   isDisabled: PropTypes.bool
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

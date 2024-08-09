@@ -12,14 +12,13 @@ Save on every single edit.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import '../../../components/MEMEStyles.css';
 import './WAdmCriteriaView.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 const IcnAdd = <FontAwesomeIcon icon={faPlus} />;
-
-import PropTypes from 'prop-types';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -188,7 +187,6 @@ class WCriteriaView extends React.Component {
   }
 
   render() {
-    const { theme: classes } = this.props;
     const { criteria, isInEditMode, classroomId } = this.state;
 
     const DIALOG = (
@@ -226,7 +224,6 @@ class WCriteriaView extends React.Component {
       <div className="WCriteriaView dialog">
         <h3>CRITERIA FOR A GOOD MODEL</h3>
         <WCriteriaList Criteria={criteria} IsInEditMode={false} />
-        {isInEditMode && DIALOG}
         <button
           onClick={this.OnEditClick}
           disabled={classroomId === ''}
@@ -234,18 +231,15 @@ class WCriteriaView extends React.Component {
         >
           Edit Criteria
         </button>
+        {isInEditMode && DIALOG}
       </div>
     );
   }
 }
 
-WCriteriaView.propTypes = {
-  classes: PropTypes.object
-};
+WCriteriaView.propTypes = {};
 
-WCriteriaView.defaultProps = {
-  classes: {}
-};
+WCriteriaView.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

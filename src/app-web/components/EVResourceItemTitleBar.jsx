@@ -23,6 +23,7 @@ Props
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './EVResourceItemTitleBar.css';
 
@@ -82,6 +83,28 @@ class EVResourceItemTitleBar extends React.Component {
     );
   }
 }
+
+EVResourceItemTitleBar.propTypes = {
+  resource: PropTypes.object,
+  isAlwaysExpanded: PropTypes.bool,
+  onExpand: PropTypes.func
+};
+
+EVResourceItemTitleBar.defaultProps = {
+  resource: {
+    rsrcId: '',
+    referenceLabel: '',
+    label: '',
+    notes: '',
+    type: '',
+    url: '',
+    links: 0
+  },
+  isAlwaysExpanded: false,
+  onExpand: () => {
+    console.error('Missing onExpand Handler!');
+  }
+};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

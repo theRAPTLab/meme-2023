@@ -12,6 +12,7 @@ https://github.com/mzabriskie/react-draggable
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WScreenshotView.css';
 import Draggable from 'react-draggable';
@@ -106,6 +107,10 @@ class WScreenshotView extends React.Component {
     );
   }
 }
+
+WScreenshotView.propTypes = {};
+
+WScreenshotView.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

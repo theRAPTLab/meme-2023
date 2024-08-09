@@ -36,6 +36,7 @@ RatingsDialog does that.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WRatingsList.css';
 
@@ -107,6 +108,26 @@ class WRatingsList extends React.Component {
     );
   }
 }
+
+WRatingsList.propTypes = {
+  SelectedRating: PropTypes.string, // optional
+  RatingsDef: PropTypes.array,
+  Mode: PropTypes.string,
+  UpdateField: PropTypes.func,
+  OnRatingSelect: PropTypes.func // optional
+};
+
+WRatingsList.defaultProps = {
+  SelectedRating: '',
+  RatingsDef: [],
+  Mode: 'inactive',
+  UpdateField: () => {
+    console.error('Missing UpdateField handler');
+  },
+  OnRatingSelect: () => {
+    console.error('OnRatingSelect handler not defined (but optional)');
+  }
+};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

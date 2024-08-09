@@ -160,14 +160,9 @@ class WModelsList extends React.Component {
   }
 }
 
-WModelsList.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
-};
+WModelsList.propTypes = {};
 
-WModelsList.defaultProps = {
-  classes: {}
-};
+WModelsList.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

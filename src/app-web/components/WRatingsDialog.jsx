@@ -20,6 +20,7 @@ It is opened via an URSYS call, e.g.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WRatingsDialog.css';
 
@@ -117,6 +118,10 @@ class WRatingsDialog extends React.Component {
     );
   }
 }
+
+WRatingsDialog.propTypes = {};
+
+WRatingsDialog.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

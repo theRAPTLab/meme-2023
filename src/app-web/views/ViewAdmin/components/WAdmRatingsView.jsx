@@ -179,6 +179,7 @@ class WRatingsView extends React.Component {
         </div>
       </div>
     );
+
     return (
       <div className="WAdmRatingsView dialog">
         <h3>RATINGS DEFINITIONS</h3>
@@ -192,14 +193,9 @@ class WRatingsView extends React.Component {
   }
 }
 
-WRatingsView.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
-};
+WRatingsView.propTypes = {};
 
-WRatingsView.defaultProps = {
-  classes: {}
-};
+WRatingsView.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

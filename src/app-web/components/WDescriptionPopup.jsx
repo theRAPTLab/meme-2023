@@ -120,14 +120,9 @@ class WDescriptionPopup extends React.Component {
   }
 }
 
-WDescriptionPopup.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
-};
+WDescriptionPopup.propTypes = {};
 
-WDescriptionPopup.defaultProps = {
-  classes: {}
-};
+WDescriptionPopup.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

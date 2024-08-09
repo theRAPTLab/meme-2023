@@ -166,13 +166,9 @@ class WTeacherSelector extends React.Component {
   }
 }
 
-WTeacherSelector.propTypes = {
-  classes: PropTypes.object
-};
+WTeacherSelector.propTypes = {};
 
-WTeacherSelector.defaultProps = {
-  classes: {}
-};
+WTeacherSelector.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

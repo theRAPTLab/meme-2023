@@ -8,6 +8,7 @@ It is used in EVResourceItem and EVResourceItemDialog
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './EVList.css';
 
@@ -52,6 +53,14 @@ class EVList extends React.Component {
     );
   }
 }
+
+EVList.propTypes = {
+  rsrcId: PropTypes.number
+};
+
+EVList.defaultProps = {
+  rsrcId: ''
+};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

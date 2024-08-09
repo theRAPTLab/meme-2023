@@ -10,6 +10,7 @@ Displays a list of all the models in a table format.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WModelsListTable.css';
 
@@ -202,6 +203,34 @@ class WModelsListTable extends React.Component {
     );
   }
 }
+
+WModelsListTable.propTypes = {
+  models: PropTypes.array,
+  isAdmin: PropTypes.bool,
+  showGroup: PropTypes.bool,
+  OnModelSelect: PropTypes.func,
+  OnModelMove: PropTypes.func,
+  OnModelClone: PropTypes.func,
+  OnModelDelete: PropTypes.func
+};
+
+WModelsListTable.defaultProps = {
+  models: [],
+  isAdmin: false,
+  showGroup: false,
+  OnModelSelect: () => {
+    console.error('Missing OnModeSelect handler');
+  },
+  OnModelMove: () => {
+    console.error('Missing OnModelMove handler');
+  },
+  OnModelClone: () => {
+    console.error('Missing OnModelClone handler');
+  },
+  OnModelDelete: () => {
+    console.error('Missing OnModelDelete handler');
+  }
+};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -9,6 +9,7 @@ Dialog for students to select a model.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WModelSelect.css';
 
@@ -24,7 +25,7 @@ import UTILS from '../modules/utils';
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-class ModelSelect extends React.Component {
+class WModelSelect extends React.Component {
   constructor(props) {
     super();
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
@@ -289,6 +290,10 @@ class ModelSelect extends React.Component {
   }
 }
 
+WModelSelect.propTypes = {};
+
+WModelSelect.defaultProps = {};
+
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default ModelSelect;
+export default WModelSelect;

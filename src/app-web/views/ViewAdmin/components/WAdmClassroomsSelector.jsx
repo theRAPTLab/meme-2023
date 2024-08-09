@@ -155,7 +155,6 @@ class WClassroomsSelector extends React.Component {
   }
 
   render() {
-    const { theme: classes } = this.props;
     const {
       classrooms,
       selectedClassroomId,
@@ -229,14 +228,9 @@ class WClassroomsSelector extends React.Component {
   }
 }
 
-WClassroomsSelector.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
-};
+WClassroomsSelector.propTypes = {};
 
-WClassroomsSelector.defaultProps = {
-  classes: {}
-};
+WClassroomsSelector.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -12,6 +12,7 @@ needs to select Properties and Mechanisms while th e "dialog" is open.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WMechDialog.css';
 
@@ -533,6 +534,10 @@ class WMechDialog extends React.Component {
     );
   }
 }
+
+WMechDialog.propTypes = {};
+
+WMechDialog.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

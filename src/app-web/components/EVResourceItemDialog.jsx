@@ -11,6 +11,7 @@ This replaces ResourceView.jsx.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './EVResourceItemDialog.css';
 
@@ -191,7 +192,6 @@ class EVResourceItemDialog extends React.Component {
 
   render() {
     const { isOpen, resource, note, noteIsDisabled } = this.state;
-    const { theme: classes } = this.props;
 
     // don't render if resource hasn't been defined yet
     if (resource === undefined || resource.id === undefined) return '';

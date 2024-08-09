@@ -18,6 +18,7 @@ Currently only used with adm-data.js.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WInfoDialog.css';
 
@@ -68,21 +69,23 @@ class WInfoDialog extends React.Component {
   render() {
     const { isOpen, infoText } = this.state;
     return (
-      <>
-        {isOpen && (
-          <div className="dialog-container">
-            <div className="WInfoDialog">
-              <MDReactComponent>{infoText}</MDReactComponent>
-              <button className="primary" onClick={this.DoClose}>
-                Close
-              </button>
-            </div>
+      isOpen && (
+        <div className="dialog-container">
+          <div className="WInfoDialog">
+            <MDReactComponent>{infoText}</MDReactComponent>
+            <button className="primary" onClick={this.DoClose}>
+              Close
+            </button>
           </div>
-        )}
-      </>
+        </div>
+      )
     );
   }
 }
+
+WInfoDialog.propTypes = {};
+
+WInfoDialog.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

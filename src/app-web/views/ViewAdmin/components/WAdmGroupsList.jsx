@@ -177,6 +177,7 @@ class WGroupsList extends React.Component {
       addGroupDialogOpen,
       addGroupDialogName,
       addStudentDialogOpen,
+      addStudentDialogName,
       addStudentDialogInvalidNames,
       classroomId
     } = this.state;
@@ -220,7 +221,7 @@ class WGroupsList extends React.Component {
               <input
                 autoFocus
                 type="text"
-                value={this.state.addStudentDialogName}
+                value={addStudentDialogName}
                 onChange={this.OnUpdateAddStudentName}
               />
             </label>
@@ -321,14 +322,9 @@ class WGroupsList extends React.Component {
   }
 }
 
-WGroupsList.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
-};
+WGroupsList.propTypes = {};
 
-WGroupsList.defaultProps = {
-  classes: {}
-};
+WGroupsList.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

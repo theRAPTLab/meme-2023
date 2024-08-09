@@ -9,10 +9,9 @@ Display a dialog for adding a new component or property
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WPropDialog.css';
-
-import PropTypes from 'prop-types';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -144,9 +143,8 @@ class WPropDialog extends React.Component {
       (isProperty ? ' property' : '');
     const propTypeDescription = DATAMAP.ModelTypeDescription(propType);
 
-    if (!isOpen) return '';
-    else
-      return (
+    return (
+      isOpen && (
         <div className="WPropDialog dialog-container">
           <div className="dialog">
             <form onSubmit={this.OnSubmit}>
@@ -171,18 +169,14 @@ class WPropDialog extends React.Component {
             </form>
           </div>
         </div>
-      );
+      )
+    );
   }
 }
 
-WPropDialog.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object
-};
+WPropDialog.propTypes = {};
 
-WPropDialog.defaultProps = {
-  classes: {}
-};
+WPropDialog.defaultProps = {};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

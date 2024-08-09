@@ -90,6 +90,7 @@ Triggers to save data happens in multiple places:
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './EVLink.css';
 
@@ -768,6 +769,23 @@ class EVLink extends React.Component {
     );
   }
 }
+
+EVLink.propTypes = {
+  evlink: PropTypes.object
+};
+
+EVLink.defaultProps = {
+  evlink: {
+    id: '',
+    propId: '',
+    mechId: '',
+    rsrcId: -1,
+    numberLabel: '',
+    note: '',
+    rating: 0,
+    why: ''
+  }
+};
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

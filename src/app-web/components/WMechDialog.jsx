@@ -23,7 +23,7 @@ import DATA from '../modules/data';
 import ASET from '../modules/adm-settings';
 import UTILS from '../modules/utils';
 import EVLinkButton from './EVLinkButton';
-import MechArrow from './MechArrow';
+import ICNMechArrow from './ICNMechArrow';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -468,7 +468,7 @@ class WMechDialog extends React.Component {
                   OnLinkButtonClick={this.OnSourceLinkButtonClick}
                 />
                 {/* end slide */}
-                <MechArrow orientation="left" disabled={!bidirectional} />
+                <ICNMechArrow orientation="left" disabled={!bidirectional} />
                 <div className="labelbox">
                   <label htmlFor="linkLabel">Label</label>
                   <input
@@ -480,7 +480,7 @@ class WMechDialog extends React.Component {
                     onChange={this.OnTextChange}
                   />
                 </div>
-                <MechArrow />
+                <ICNMechArrow />
                 {/* slide */}
                 <EVLinkButton
                   sourceType={targetSourceType}

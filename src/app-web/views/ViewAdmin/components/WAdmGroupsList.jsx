@@ -50,7 +50,7 @@ class WGroupsList extends React.Component {
       addStudentDialogOpen: false,
       addStudentDialogGroupId: '',
       addStudentDialogName: '',
-      addStudentDialogInvalidNames: undefined,
+      addStudentDialogInvalidMsg: '',
       classroomId: '',
       editExistingGroup: false
     };
@@ -67,7 +67,6 @@ class WGroupsList extends React.Component {
   }
 
   DoClassroomSelect(data) {
-    console.error('AdmGroupsList: DoClassroomSelect', data);
     if (DBG) console.log('AdmGroupsList: DoClassroomSelect', data);
     if (data && data.classroomId) {
       this.setState({
@@ -84,7 +83,6 @@ class WGroupsList extends React.Component {
 
   // Update the groups list from ADMData in case a new group was added
   DoADMDataUpdate() {
-    console.error('AdmGroupsList: DoADMDataUpdate', data);
     const classroomId = this.state.classroomId;
     if (classroomId) {
       this.setState({
@@ -142,20 +140,42 @@ class WGroupsList extends React.Component {
     this.setState({ addStudentDialogOpen: false });
   }
 
+  CheckForMinimumLength(names) {
+    let namesArr = names.split(',');
+    let invalidNamesArr = namesArr.filter(name => {
+      return name.trim().length < 3;
+    });
+    return invalidNamesArr.length > 0 ? invalidNamesArr.join(', ') : [];
+  }
+
   CheckForDuplicates(names) {
+    const { addStudentDialogGroupId } = this.state;
+    const studentsInGroup = ADM.GetGroup(addStudentDialogGroupId).students;
+    const caseInsensitiveStudentsInGroup = studentsInGroup.map(student =>
+      student.toLowerCase()
+    );
     let namesArr = names.split(',');
     let duplicateNamesArr = namesArr.filter(name => {
-      return ADM.GetGroupByStudent(name.trim());
+      return caseInsensitiveStudentsInGroup.includes(name.trim().toLowerCase());
     });
-    return duplicateNamesArr.length > 0 ? duplicateNamesArr.join(', ') : undefined;
+    return duplicateNamesArr.length > 0 ? duplicateNamesArr.join(', ') : [];
   }
 
   OnUpdateAddStudentName(e) {
     // Check for duplicates
-    let duplicateNames = this.CheckForDuplicates(e.target.value);
+    const invalidNames = this.CheckForMinimumLength(e.target.value);
+    const duplicateNames = this.CheckForDuplicates(e.target.value);
+    let addStudentDialogInvalidMsg =
+      invalidNames.length > 0
+        ? `Names need to have at least three letters: ${invalidNames}.\n`
+        : '';
+    addStudentDialogInvalidMsg +=
+      duplicateNames.length > 0
+        ? `${duplicateNames} is already in this group.  Please use a unique name.`
+        : '';
     this.setState({
       addStudentDialogName: e.target.value,
-      addStudentDialogInvalidNames: duplicateNames
+      addStudentDialogInvalidMsg
     });
   }
 
@@ -178,7 +198,7 @@ class WGroupsList extends React.Component {
       addGroupDialogName,
       addStudentDialogOpen,
       addStudentDialogName,
-      addStudentDialogInvalidNames,
+      addStudentDialogInvalidMsg,
       classroomId
     } = this.state;
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -214,7 +234,8 @@ class WGroupsList extends React.Component {
             <h3>Add Student(s)</h3>
             <p>
               Add a student first name, or add multiple students separated by a comma.
-              Please use first names only. (e.g. 'Bob, Brianna, Brenda').
+              Please use first names only. (e.g. 'Bob, Brianna, Brenda'). Student
+              names need to have at least three letters.
             </p>
             <label>
               Name(s):&nbsp;
@@ -225,18 +246,15 @@ class WGroupsList extends React.Component {
                 onChange={this.OnUpdateAddStudentName}
               />
             </label>
-            {addStudentDialogInvalidNames && (
-              <p className="error">
-                {addStudentDialogInvalidNames} is already in this group. Please use a
-                unique name.
-              </p>
+            {addStudentDialogInvalidMsg && (
+              <p className="error">{addStudentDialogInvalidMsg}</p>
             )}
             <div className="controlbar">
               <button onClick={this.OnAddStudentDialogClose}>Cancel</button>
               <button
                 className="primary"
                 type="submit"
-                disabled={addStudentDialogInvalidNames !== undefined}
+                disabled={addStudentDialogInvalidMsg !== ''}
               >
                 Add
               </button>

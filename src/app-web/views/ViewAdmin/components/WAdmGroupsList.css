@@ -1,4 +1,5 @@
-.WAdmGroupsList {
+.WAdmGroupsList .dialog {
+  max-width: 500px;
 }
 
 .WAdmGroupsList table {
@@ -18,4 +19,8 @@
   margin: 1px;
   border-radius: 5px;
   background-color: #0001;
+}
+
+.WAdmGroupsList .error {
+  color: red;
 }

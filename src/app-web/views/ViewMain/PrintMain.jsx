@@ -1,6 +1,10 @@
 /*///////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  ViewMain - Main Application View
+  DEPRECATED: 2024-08-09
+  This needs to be rebuilt from ViewMEME.
+
+
+  PrintMain - Main Application View
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
@@ -23,8 +27,8 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import InputBase from '@mui/material/InputBase';
 // MEME App Components
-import Login from '../../components/Login';
-import ModelSelect from '../../components/ModelSelect';
+import WLogin from '../../components/WLogin';
+import WModelSelect from '../../components/WModelSelect';
 // MEME Modules and Utils
 import MEMEStyles from '../../components/MEMEStyles';
 import UR from '../../../system/ursys';
@@ -173,7 +177,10 @@ class PrintMain extends React.Component {
     let relevantProps = propIds.filter(id => {
       const prop = DATA.Prop(id);
       if (filterByPropType === DATAMAP.PMC_MODELTYPES.COMPONENT.id) {
-        return prop.propType === DATAMAP.PMC_MODELTYPES.COMPONENT.id || prop.propType === undefined; // for backward compatibility
+        return (
+          prop.propType === DATAMAP.PMC_MODELTYPES.COMPONENT.id ||
+          prop.propType === undefined
+        ); // for backward compatibility
         // project data that predated propTypes assumed all props were components
       } else {
         return prop.propType === filterByPropType;
@@ -191,7 +198,10 @@ class PrintMain extends React.Component {
     if (prop === undefined) {
       // Catch error if a component has not been correctly deleted, so a mech
       // is left with a stray propId.
-      console.error('ToolsPanel.RenderComponentsListItem skipping missing propId', propId);
+      console.error(
+        'ToolsPanel.RenderComponentsListItem skipping missing propId',
+        propId
+      );
       return '';
     }
     const children = DATA.Children(propId);
@@ -257,9 +267,13 @@ class PrintMain extends React.Component {
       month: 'short',
       day: 'numeric'
     });
-    const selectedCriteria = this.state.criteria.find(crit => crit.id === comment.criteriaId);
-    const criteriaLabel = selectedCriteria !== undefined ? selectedCriteria.label + ': ' : '';
-    const criteriaDescription = selectedCriteria !== undefined ? selectedCriteria.description : '';
+    const selectedCriteria = this.state.criteria.find(
+      crit => crit.id === comment.criteriaId
+    );
+    const criteriaLabel =
+      selectedCriteria !== undefined ? selectedCriteria.label + ': ' : '';
+    const criteriaDescription =
+      selectedCriteria !== undefined ? selectedCriteria.description : '';
     return (
       <div key={index}>
         <br />
@@ -286,10 +300,16 @@ class PrintMain extends React.Component {
   }
 
   RenderEvidence(evlink, index) {
-    const { id, rsrcId, propId, mechId, imageURL, note, rating, why, numberLabel } = evlink;
+    const { id, rsrcId, propId, mechId, imageURL, note, rating, why, numberLabel } =
+      evlink;
     let sourceType;
     let sourceLabel;
-    if (propId !== undefined && propId !== null && DATA.HasProp(propId) && DATA.Prop(propId)) {
+    if (
+      propId !== undefined &&
+      propId !== null &&
+      DATA.HasProp(propId) &&
+      DATA.Prop(propId)
+    ) {
       console.log('evidence source is prop', DATA.Prop(propId));
       sourceType =
         DATAMAP.ModelTypeLabel(DATA.Prop(propId).propType) ||
@@ -380,7 +400,8 @@ class PrintMain extends React.Component {
     // we need to use the model author here, not the currently logged in student.
     const model = ADM.GetModelById(modelId);
     const classroomId = model ? ADM.GetClassroomIdByGroup(model.groupId) : '';
-    const resources = classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
+    const resources =
+      classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
 
     const isViewOnly = ADM.IsViewOnly();
 
@@ -399,8 +420,8 @@ class PrintMain extends React.Component {
     return (
       <div className={classes.root}>
         <CssBaseline />
-        <Login />
-        <ModelSelect />
+        <WLogin />
+        <WModelSelect />
         <AppBar
           position="fixed"
           className={classes.appBar}
@@ -424,13 +445,21 @@ class PrintMain extends React.Component {
                 onChange={this.OnChangeModelTitle}
                 onBlur={this.DoSaveModelTitle}
                 classes={{
-                  input: isModelAuthor ? classes.primaryProjectTitle : classes.projectTitle
+                  input: isModelAuthor
+                    ? classes.primaryProjectTitle
+                    : classes.projectTitle
                 }}
               />
             </form>
-            <Typography variant="caption">&nbsp;&nbsp;by {modelAuthorGroupName} Group</Typography>
+            <Typography variant="caption">
+              &nbsp;&nbsp;by {modelAuthorGroupName} Group
+            </Typography>
             <div
-              className={resourceLibraryIsOpen ? classes.appBarRight : classes.appBarRightExpanded}
+              className={
+                resourceLibraryIsOpen
+                  ? classes.appBarRight
+                  : classes.appBarRightExpanded
+              }
             >
               <Button onClick={this.OnCloseModel} color="inherit">
                 <div>{studentName}</div>

@@ -23,8 +23,12 @@ import UR from '../../system/ursys';
 import EXEC from '../../system/ur-exec';
 import { cssreset, cssur, cssuri } from '../modules/console-styles';
 
-import MEMEStyles from "../components/MEMEStyles";
+import MEMEStyles from '../components/MEMEStyles';
 import { ThemeProvider } from 'styled-components';
+
+import { ConsoleStyler } from '@ursys/core';
+const PR = ConsoleStyler('SysInit', 'TagPink');
+console.log(...PR('URSYS CORE was successfully loaded!'));
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -205,8 +205,9 @@ class EVResourceItemDialog extends React.Component {
           <div className="box">
             <div>Type:&nbsp;</div>
             <div>
-              {resource.type}&nbsp;
               <EVResourceTypeIcon type={resource.type} />
+              &nbsp;
+              {resource.type}
             </div>
           </div>
           <div className="box">

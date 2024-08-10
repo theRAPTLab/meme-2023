@@ -1,5 +1,4 @@
 .WRatingsDialog {
-  padding: 24px;
   background-color: white;
   border-radius: var(--dialog-border-radius);
   box-shadow: var(--dialog-shadow);
@@ -10,4 +9,16 @@
 
 .WRatingsDialog > .close {
   justify-content: flex-end;
+}
+
+.WRatingsDialog h3 {
+  max-width: 400px;
+}
+
+.WRatingsDialog .dialog-content {
+  padding: 6px 40px 40px 40px;
+}
+
+.WRatingsDialog img {
+  width: 30px;
 }

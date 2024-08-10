@@ -8,6 +8,7 @@
   display: grid;
   grid-template-columns: 100px auto;
   justify-content: start;
+  align-items: center;
   column-gap: 10px;
   margin-bottom: 5px;
   width: 300px;

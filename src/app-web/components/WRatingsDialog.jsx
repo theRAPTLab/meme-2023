@@ -104,14 +104,16 @@ class WRatingsDialog extends React.Component {
             <button className="close" onClick={this.OnClose}>
               {ICNXmark}
             </button>
-            <h3>How well does this evidence support your model?</h3>
-            <WRatingsList
-              RatingsDef={ratingsDef}
-              Mode="active"
-              SelectedRating={selectedRating}
-              UpdateField={this.DoUpdateField}
-              OnRatingSelect={this.OnRatingSelect}
-            />
+            <div className="dialog-content">
+              <h3>How well does this evidence support your model?</h3>
+              <WRatingsList
+                RatingsDef={ratingsDef}
+                Mode="active"
+                SelectedRating={selectedRating}
+                UpdateField={this.DoUpdateField}
+                OnRatingSelect={this.OnRatingSelect}
+              />
+            </div>
           </div>
         </div>
       )

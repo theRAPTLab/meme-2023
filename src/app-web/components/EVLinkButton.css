@@ -1,5 +1,6 @@
 .EVLinkButton {
   border-radius: 4px;
+  min-width: 60px;
   padding: 4px 8px;
   font-size: var(--txt-size-tiny);
   line-height: 10.5px;

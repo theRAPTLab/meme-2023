@@ -19,6 +19,10 @@
   width: 170px;
 }
 
+.EVLinkButton svg {
+  margin-right: 0.5rem;
+}
+
 .EVLinkButton span {
   max-width: 140px;
   text-overflow: ellipsis;

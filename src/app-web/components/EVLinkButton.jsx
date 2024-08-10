@@ -83,7 +83,7 @@ class EVLinkButton extends React.Component {
       isExpanded
     } = this.props;
     let label;
-    let icon;
+    let icon = '';
     let btnClass = '';
 
     const isDisabled = !isBeingEdited || listenForSourceSelection;
@@ -120,7 +120,7 @@ class EVLinkButton extends React.Component {
         className={`EVLinkButton ${btnClass} ${isExpanded ? 'expanded' : ''}`}
         disabled={isDisabled}
       >
-        {icon ? `${icon}&nbsp;&nbsp;` : ''}
+        {icon}
         <span>{label}</span>
       </button>
     );

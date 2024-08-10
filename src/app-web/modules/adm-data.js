@@ -552,6 +552,7 @@ ADMData.GetGroupIdsByClassroom = classroomId => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Finds the first group with for provided student id
+ *  NOTE `studentId` is a token
  *  Used to look up models associated with student.
  */
 ADMData.GetGroupByStudent = (studentId = ASET.selectedStudentId) => {

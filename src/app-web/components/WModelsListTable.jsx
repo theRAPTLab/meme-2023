@@ -197,6 +197,7 @@ class WModelsListTable extends React.Component {
           manualColumnResize={true}
           autoWrapRow={true}
           autoWrapCol={true}
+          readOnly={true}
           licenseKey="non-commercial-and-evaluation" // for non-commercial use only
         />
       </div>

@@ -741,21 +741,22 @@ class EVLink extends React.Component {
         </div>
         {/* Control Bar  ----------------------------------------------- */}
         <div className="controlbar">
-          {isBeingEdited && !isViewOnly ? (
-            <>
-              <button className="primary" onClick={this.OnSaveButtonClick}>
-                Save
-              </button>
-            </>
-          ) : (
-            <>
-              <button className="primary" onClick={this.OnEditButtonClick}>
-                Edit
-              </button>
-              <button onClick={this.OnDuplicateButtonClick}>Duplicate</button>
-              <button onClick={this.OnDeleteButtonClick}>Delete</button>
-            </>
-          )}
+          {!isViewOnly &&
+            (isBeingEdited ? (
+              <>
+                <button className="primary" onClick={this.OnSaveButtonClick}>
+                  Save
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="primary" onClick={this.OnEditButtonClick}>
+                  Edit
+                </button>
+                <button onClick={this.OnDuplicateButtonClick}>Duplicate</button>
+                <button onClick={this.OnDeleteButtonClick}>Delete</button>
+              </>
+            ))}
         </div>
       </div>
     );

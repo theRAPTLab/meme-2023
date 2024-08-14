@@ -149,6 +149,9 @@ class WModelsListTable extends React.Component {
       {
         title: '-',
         renderer: this.RendererAction,
+        columnSorting: {
+          headerAction: false
+        },
         data: 'id'
       }
     ];

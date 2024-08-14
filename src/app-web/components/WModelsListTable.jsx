@@ -195,6 +195,7 @@ class WModelsListTable extends React.Component {
           columnSorting={true}
           colWidths={COLWIDTHS}
           manualColumnResize={true}
+          disableVisualSelection={true}
           autoWrapRow={true}
           autoWrapCol={true}
           readOnly={true}

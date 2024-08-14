@@ -663,7 +663,9 @@ class ViewMEME extends React.Component {
     const APPBAR = (
       <div className={`appbar ${isModelAuthor ? '' : 'otherauthor'}`}>
         {APPBAR_ELEMENTS}
-        <div onClick={this.OnCloseModel}>Home</div>
+        <button onClick={this.OnCloseModel}>
+          <SVGImg src="navigation_home_24px.svg" alt="Home" />
+        </button>
         <form onSubmit={this.DoSubmitModelTitleForm}>
           <input
             type="text"

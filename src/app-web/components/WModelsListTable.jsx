@@ -80,9 +80,10 @@ class WModelsListTable extends React.Component {
    * @param {object} value { id, title }
    */
   RendererTitle(hotInstance, td, row, column, prop, value, cellProperties) {
-    const { OnModelSelect } = this.props;
+    const { isAdmin, OnModelSelect } = this.props;
     td.innerText = '';
-    td.appendChild(RenderTableButton(value.title, e => OnModelSelect(value.id)));
+    if (isAdmin) td.innerText = value.title;
+    else td.appendChild(RenderTableButton(value.title, e => OnModelSelect(value.id)));
   }
 
   /**

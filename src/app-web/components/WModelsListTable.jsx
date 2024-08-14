@@ -126,9 +126,10 @@ class WModelsListTable extends React.Component {
         renderer: this.RendererTitle,
         columnSorting: {
           compareFunctionFactory: (sortOrder, columnMeta) => {
+            const order = sortOrder === 'asc' ? 1 : -1;
             return (a, b) => {
-              if (a.title < b.title) return -1;
-              if (a.title > b.title) return 1;
+              if (a.title < b.title) return order * -1;
+              if (a.title > b.title) return order;
               return 0;
             };
           }

@@ -1,0 +1,35 @@
+.EVResourceItemTitleBar {
+  display: grid;
+  grid-template-columns: 40px auto 68px;
+  column-gap: 5px;
+  align-items: center;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: var(--txt-weight-semibold);
+  line-height: 16px;
+  color: var(--clr-txt);
+}
+
+.EVResourceItemTitleBar .widgets {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  column-gap: 10px;
+  font-size: 20px;
+}
+.EVResourceItemTitleBar .widgets .type-icon {
+  color: var(--clr-ev);
+}
+
+.EVResourceItemTitleBar .ICNCountBadge {
+  position: relative;
+}
+
+.EVResourceItemTitleBar .label {
+  font-weight: var(--txt-weight-semibold);
+}
+
+.EVResourceItemTitleBar .notes {
+  font-size: var(--txt-size-sm);
+  font-weight: var(--txt-weight);
+}

@@ -1,0 +1,18 @@
+.WCriteriaView > .dialog {
+  position: absolute;
+
+  width: 444px;
+  padding: 48px 36px;
+  border-radius: 16px;
+  background-color: white;
+
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+}
+
+.WCriteriaView > .dialog > .controlbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

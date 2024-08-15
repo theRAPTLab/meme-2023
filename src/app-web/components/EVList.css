@@ -1,0 +1,6 @@
+.EVList {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background-color: var(--clr-ev-bg);
+}

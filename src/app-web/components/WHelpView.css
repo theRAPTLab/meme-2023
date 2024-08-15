@@ -1,0 +1,36 @@
+.WHelpView {
+  position: absolute;
+  display: grid;
+  grid-template-rows: 40px auto;
+  width: 300px;
+  height: 90%;
+  top: 0;
+  right: 0;
+  z-index: var(--z-help);
+  padding: 10px 0 0 10px;
+  background-color: rgba(255, 243, 211, 0.9);
+
+  font-size: var(--txt-size-sm);
+  overflow: hidden;
+}
+.WHelpView .toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.WHelpView .toolbar button {
+  font-size: var(--txt-size-lrg);
+}
+.WHelpView .content {
+  overflow-y: auto;
+}
+
+.WHelpView h1,
+.WHelpView h6 {
+  font-size: var(--txt-size-med);
+  margin: 0;
+}
+.WHelpView .help-text {
+  display: block; /* override default MDReactComponent <span> */
+  padding: 10px 0 5px 0;
+}

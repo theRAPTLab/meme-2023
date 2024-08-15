@@ -1,0 +1,8 @@
+.WDisclosure > .triangle {
+  display: flex;
+  color: var(--clr-txt);
+  font-size: var(--txt-size-med);
+}
+.WDisclosure > .items {
+  margin-left: 20px;
+}

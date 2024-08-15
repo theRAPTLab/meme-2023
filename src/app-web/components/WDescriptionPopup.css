@@ -1,0 +1,35 @@
+.WDescriptionPopup {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 220px;
+  padding: 15px 15px 0 15px;
+  border-radius: 8px;
+  color: var(--clr-txt-reverse);
+  z-index: var(--z-resource-list);
+}
+.WDescriptionPopup.outcome {
+  background-color: var(--clr-outcome);
+}
+.WDescriptionPopup.entity {
+  background-color: var(--clr-entity);
+}
+.WDescriptionPopup.mech {
+  background-color: var(--clr-mech);
+}
+
+.WDescriptionPopup > .content {
+  overflow-y: auto;
+}
+.WDescriptionPopup > .content > .label {
+  font-size: var(--txt-size-med);
+  font-weight: var(--txt-weight-semibold);
+  margin-bottom: 0.5em;
+}
+
+.WDescriptionPopup > .content > .description {
+  display: block; /* override default MDReactComponent <span> */
+  padding: 0;
+  font-size: var(--txt-size-sm);
+  font-weight: var(--txt-weight-med);
+}

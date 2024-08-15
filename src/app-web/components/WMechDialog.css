@@ -1,0 +1,25 @@
+.WMechDialog.dialog-container {
+  height: fit-content;
+  bottom: 80px;
+}
+
+.WMechDialog .dialog {
+  display: flex;
+  flex-direction: column;
+  max-width: 900px;
+}
+
+.WMechDialog form {
+  display: flex;
+  flex-direction: column;
+  row-gap: 25px;
+}
+.WMechDialog form .dialog-row {
+  display: flex;
+  column-gap: 10px;
+}
+.WMechDialog form .dialog-row.control-bar {
+  display: grid;
+  grid-template-columns: auto 100px 100px;
+  align-items: flex-end;
+}

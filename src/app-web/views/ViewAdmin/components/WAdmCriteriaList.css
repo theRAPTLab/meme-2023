@@ -1,0 +1,19 @@
+.WCriteriaList {
+  margin-bottom: 1rem;
+}
+.WCriteriaList > .view > .heading,
+.WCriteriaList > .view > .item {
+  display: grid;
+  grid-template-columns: 4.5rem auto;
+}
+.WCriteriaList > .edit > .heading,
+.WCriteriaList > .edit > .item {
+  display: grid;
+  grid-template-columns: 4.5rem auto 2rem;
+}
+.WCriteriaList .heading {
+  font-weight: var(--txt-weight-bold);
+}
+.WCriteriaList .item > p {
+  margin-bottom: 0;
+}

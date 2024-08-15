@@ -1,0 +1,59 @@
+.EVLinkButton {
+  border-radius: 4px;
+  min-width: 60px;
+  padding: 4px 8px;
+  font-size: var(--txt-size-tiny);
+  line-height: 10.5px;
+  color: #fff;
+  background-color: #f44336;
+}
+
+.EVLinkButton:disabled {
+  opacity: 1; /* override MEMESytles.css */
+}
+
+.EVLinkButton.disabled {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.EVLinkButton.expanded {
+  width: 170px;
+}
+
+.EVLinkButton svg {
+  margin-right: 0.5rem;
+}
+
+.EVLinkButton span {
+  max-width: 140px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.EVLinkButton.waiting {
+  color: #f44336;
+  background-color: #ffcdd2;
+}
+.EVLinkButton.prop {
+  /* prop = entity */
+  color: #fff;
+  background-color: var(--clr-entity);
+}
+.EVLinkButton.prop:disabled {
+  opacity: 0.8;
+}
+.EVLinkButton.outcome {
+  color: #fff;
+  background-color: var(--clr-outcome);
+}
+.EVLinkButton.outcome:disabled {
+  opacity: 0.8;
+}
+.EVLinkButton.mech {
+  /* mech = process */
+  color: #fff;
+  background-color: var(--clr-mech);
+}
+.EVLinkButton.mech:disabled {
+  opacity: 0.8;
+}

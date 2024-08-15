@@ -1,0 +1,253 @@
+:root {
+  --clr-txt: #111;
+  --clr-txt-reverse: white;
+  --clr-txt-help: #696969;
+  --clr-btn-primary: #4f66a0;
+  --clr-btn-cancel: #696969;
+
+  --clr-btn-hover: #0003;
+
+  --clr-entity: #0088d4; /* aka 'prop' */
+  --clr-entity-dark: #004f7a; /* use for text on bg */
+  --clr-entity-med: #0088d433; /* on top of bg */
+  --clr-entity-bg: #bfe1f4;
+
+  --clr-outcome: #7c44ce;
+  --clr-outcome-dark: #4a1f7a;
+  --clr-outcome-med: #7c44ce33; /* on top of bg */
+  --clr-outcome-bg: #ded0f3;
+
+  --clr-mech: #de6a29; /* aka 'process' */
+  --clr-mech-dark: #7a3a1f;
+  --clr-mech-med: #de6a2933; /* on top of bg */
+  --clr-mech-med-overlay: #de6a2966; /* on top of bg */
+  --clr-mech-bg: #fff1cc;
+
+  --clr-ev: #0bac8f;
+  --clr-ev-dark: #007a64;
+  --clr-ev-bg: #c5ede6;
+  --clr-ev-bg-hover: #84dbcb;
+
+  --clr-evlink-bg: #fff;
+  --clr-evlink-bg-hover: #e8faf7;
+
+  --clr-comment: #ffe143;
+
+  --txt-size: 16px;
+  --txt-size-lrg: 24px;
+  --txt-size-med: 14px;
+  --txt-size-sm: 12px;
+  --txt-size-tiny: 10px; /* use for display only */
+  --txt-weight: 300;
+  --txt-weight-med: 400;
+  --txt-weight-semibold: 500;
+  --txt-weight-bold: 600;
+
+  --clr-appbar: var(--clr-txt-reverse);
+  --clr-appbar-bg: #4f66a0;
+  --clr-appbar-bg-other: #999;
+  --appbar-height: 48px;
+
+  --dialog-border-radius: 8px;
+  --dialog-shadow: 0px 4px 27.7px 0px rgba(0, 0, 0, 0.25);
+  --z-dialog: 1000;
+  --z-resource-list: 1250;
+  --z-help: 1600;
+}
+
+body {
+  color: var(--clr-txt);
+  font-family: 'Roboto', sans-serif;
+}
+
+h3 {
+  font-size: var(--clr-txt);
+  font-weight: var(--txt-weight);
+}
+
+/* -- TITLE ---------------------------------- */
+.title {
+  --clr-txt: white;
+  --txt-size: 16px;
+  --txt-weight: 600;
+}
+.help {
+  color: var(--clr-txt-help);
+  font-size: var(--txt-size-sm);
+  font-weight: var(--txt-weight-med);
+}
+
+/* -- APPBAR --------------------------------- */
+.appbar {
+  color: var(--clr-appbar);
+  background-color: var(--clr-appbar-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  row-gap: 24px;
+  height: var(--appbar-height);
+  padding: 0 24px;
+}
+.appbar.otherauthor {
+  background-color: var(--clr-appbar-bg-other);
+}
+.appbar input {
+  color: var(--clr-appbar);
+  border: none;
+  background-color: transparent;
+}
+.appbar input::placeholder {
+  color: #fff8;
+}
+.appbar button {
+  color: var(--clr-appbar);
+  background-color: transparent;
+}
+.appbar button:hover {
+  background-color: var(--clr-btn-hover);
+}
+
+/* -- BUTTON --------------------------------- */
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+}
+button.primary {
+  color: var(--clr-txt-reverse);
+  background-color: var(--clr-btn-primary);
+}
+button.cancel {
+  color: var(--clr-txt-reverse);
+  background: var(--clr-btn-cancel);
+}
+button.danger {
+  color: var(--clr-txt-reverse);
+  background-color: #e9000e;
+}
+button.comment {
+  color: var(--clr-txt);
+  background-color: var(--clr-comment);
+}
+button.close,
+button.transparent {
+  border: none;
+  color: var(--clr-btn-primary);
+  background-color: transparent;
+}
+button.sm {
+  padding: 0 1px;
+  font-size: var(--txt-size-tiny);
+  height: 14px;
+  line-height: 14px;
+}
+button.close {
+  align-self: flex-end;
+}
+button:hover {
+  opacity: 0.8;
+}
+button:disabled {
+  opacity: 0.5;
+}
+
+/* -- TOGGLE SWITCH BUTTON ------------------- */
+button.switch {
+  margin: 0;
+  padding: 0;
+  border: 1px solid #0003;
+  border-radius: 15px;
+  height: 30px;
+  line-height: 30px;
+  box-sizing: content-box;
+}
+button.switch span {
+  display: inline-block;
+  padding: 0 13px;
+  pointer-events: none;
+  border: 1px;
+  border-radius: 15px;
+  height: 30px;
+}
+
+[role='switch'][aria-checked='false'] :first-child,
+[role='switch'][aria-checked='true'] :last-child {
+  background: var(--clr-btn-primary);
+  color: #eef;
+}
+
+[role='switch'][aria-checked='false'] :last-child,
+[role='switch'][aria-checked='true'] :first-child {
+  color: #bbd;
+}
+
+/* -- DIALOG --------------------------------- */
+/* centered dialog -- override as needed*/
+.dialog-container {
+  position: absolute;
+  left: 0px;
+  width: 100%;
+  height: 100%; /* use fit-content for bottom-centered dialogs */
+  z-index: var(--z-dialog);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.dialog {
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+  padding: 24px;
+  color: var(--clr-txt-help);
+  background-color: white;
+  border-radius: var(--dialog-border-radius);
+  box-shadow: var(--dialog-shadow);
+}
+.dialog h3 {
+  font-weight: var(--txt-weight-semibold);
+}
+
+/* -- Controlbar ----------------------------- */
+.controlbar {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+  column-gap: 10px;
+}
+
+/* -- Label Box ------------------------------ */
+.labelbox {
+  display: flex;
+  flex-direction: column;
+}
+.labelbox label {
+  font-size: var(--txt-size-tiny);
+  font-weight: var(--txt-weight);
+  margin-top: -12px;
+}
+
+/* -- BOX (Card) ----------------------------- */
+.box-group {
+  display: flex;
+  column-gap: 10px;
+}
+.box {
+  display: flex;
+  margin-right: 1px;
+  padding: 10px 20px;
+  line-height: 1.6;
+  border-radius: 5px;
+  background-color: #fff6;
+}
+
+/* -- Evidence ------------------------------- */
+.ev-title {
+  display: flex;
+  align-items: baseline;
+  font-weight: var(--txt-weight-semibold);
+}
+.ev-title .ICNCountBadge {
+  margin-right: 0.5rem;
+}

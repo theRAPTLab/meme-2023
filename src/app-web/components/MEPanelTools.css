@@ -1,0 +1,97 @@
+.MEPanelTools {
+  background-color: white;
+  display: grid;
+  grid-template-rows: var(--appbar-height) auto;
+  height: 100%;
+}
+.MEPanelTools .appbar {
+  background-color: #354263;
+  padding-left: 0px;
+}
+
+.MEPanelTools .list {
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+  padding: 8px;
+  overflow: auto;
+}
+.MEPanelTools .entitiesPanel,
+.MEPanelTools .processesPanel,
+.MEPanelTools .outcomesPanel {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: var(--txt-size-sm);
+  font-weight: var(--txt-weight-semibold);
+}
+.MEPanelTools .entitiesPanel button,
+.MEPanelTools .processesPanel button,
+.MEPanelTools .outcomesPanel button {
+  color: var(--clr-txt-reverse);
+  margin-top: 8px;
+}
+.MEPanelTools .entitiesPanel {
+  color: var(--clr-entity);
+  background-color: var(--clr-entity-bg);
+}
+.MEPanelTools .entitiesPanel button {
+  background-color: var(--clr-entity);
+}
+.MEPanelTools .processesPanel {
+  color: var(--clr-mech);
+  background-color: var(--clr-mech-bg);
+}
+.MEPanelTools .processesPanel button {
+  background-color: var(--clr-mech);
+}
+.MEPanelTools .outcomesPanel {
+  color: var(--clr-outcome);
+  background-color: var(--clr-outcome-bg);
+}
+.MEPanelTools .outcomesPanel button {
+  background-color: var(--clr-outcome);
+}
+
+.MEPanelTools .WDisclosure > .triangle {
+  padding-bottom: 8px;
+}
+.MEPanelTools .WDisclosure > .items {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  line-height: var(--txt-size-med);
+}
+
+.MEPanelTools .subItem {
+  margin: 0 0 0 0.5em;
+  font-style: italic;
+}
+.MEPanelTools .hovered {
+  cursor: pointer;
+}
+.MEPanelTools .clr-item-outcome {
+  color: var(--clr-outcome);
+}
+.MEPanelTools .clr-item-outcome.hovered,
+.MEPanelTools .clr-item-outcome.selected {
+  background-color: var(--clr-outcome-med);
+}
+.MEPanelTools .clr-item-entity {
+  color: var(--clr-entity);
+}
+.MEPanelTools .clr-item-entity.hovered,
+.MEPanelTools .clr-item-entity.selected {
+  background-color: var(--clr-entity-med);
+}
+.MEPanelTools .clr-item-mech {
+  color: var(--clr-mech);
+  background-color: var(--clr-mech-med);
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+.MEPanelTools .clr-item-mech.hovered,
+.MEPanelTools .clr-item-mech.selected {
+  background-color: var(--clr-mech-med-overlay);
+}

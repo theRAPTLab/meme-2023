@@ -1,0 +1,14 @@
+.ViewAdmin {
+  display: flex;
+  flex-flow: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  row-gap: 24px;
+  column-gap: 24px;
+
+  padding: 24px;
+}
+
+.ViewAdmin .dialog {
+  margin-bottom: 12px;
+}

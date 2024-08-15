@@ -134,10 +134,14 @@ PMCData.InitializeModel = (model, admdb) => {
   }
 
   // get essentials
-  const { resources, pmcData } = admdb;
+  const { resources, pmcData, classroomResources } = admdb;
 
   // Resources
   a_resources = resources || [];
+  // Look up current classroom's resources for filtering later
+  // so that resources that are currently hidden are not displayed
+  // especially VBadges
+  const thisClassroomResources = classroomResources.find(c => c.classroomId === ASET.selectedClassroomId);
 
   /*/
   The model data format changed in october 2019 to better separate pmcdata from model
@@ -176,8 +180,17 @@ PMCData.InitializeModel = (model, admdb) => {
             });
           break;
         case 'evidence':
+          // HACK
+          // Only add evidence if it's selected/included for this classroom.
+          // If this evidence is referring to a resource that is hidden
+          // (e.g. not in the current list of classroom resources), don't add it.
+          // This lets us hide evidence link badges if the resource
+          // has been hidden, without necessarily changing the data?
+          // See also BuildModel() for how evidence is built up
+          if (thisClassroomResources.resources.includes(obj.rsrcId)) {
           obj.comments = obj.comments || [];
           a_evidence.push(obj);
+          }
           break;
         default:
           console.error('PMCData.InitializeModel could not map unknown type', obj);
@@ -1086,6 +1099,9 @@ function GenerateNumberLabel(rsrcId) {
  *  This also calculates the numberLabel automatically based on the assets already
  *  in the system.
  *
+ *  evObjData.note and evObjData.why are not always passed, so default to ''
+ *  to prevent uncontrolled-to-controlled error.
+ *
  *  @param {Object} evObjData - Any subset of PMBObj.Evidence keys
  *  @param {Function} cb - callback function will be called with the new id as a parameter
  *                         e.g. cb(id);
@@ -1097,8 +1113,8 @@ PMCData.PMC_AddEvidenceLink = (evObjData, cb) => {
     // propId and mechId remain undefined until the user sets it later
     rsrcId: evObjData.rsrcId,
     numberLabel,
-    note: evObjData.note,
-    why: evObjData.why,
+    note: evObjData.note || '', // prevent uncontrolled-to-controlled error
+    why: evObjData.why || '', // prevent uncontrolled-to-controlled error
     imageURL: evObjData.imageURL
   });
 

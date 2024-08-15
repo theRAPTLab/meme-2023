@@ -1,0 +1,14 @@
+button.WRatingButton {
+  width: 100%;
+  padding: 0;
+  align-items: center;
+  display: flex;
+}
+button.WRatingButton img {
+  height: 24px;
+  width: 24px !important;
+}
+button.WRatingButton div {
+  font-size: 0.8em;
+  line-height: 18px;
+}

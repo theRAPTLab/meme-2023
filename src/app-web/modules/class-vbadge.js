@@ -87,7 +87,7 @@ class VBadge {
       // An Evidence Link Badge got the click
       // Figure out which badge
       this.gEvLinkBadges.children().forEach(gBadge => {
-        console.log('checking',offsetX,svgPt.x,offsetY,svgPt.y,gBadge)
+        console.log('checking', offsetX, svgPt.x, offsetY, svgPt.y, gBadge)
         if (gBadge.inside(svgPt.x, svgPt.y)) {
           gBadge.fire('click', { event: mouseEvent });
         }
@@ -193,7 +193,7 @@ class VBadge {
     // Set Current Read/Unreaad status
     let hasNoComments;
     let hasUnreadComments;
-    const comments = PMC.GetComments( isVMech ? vparent.data.id : vparent.id );
+    const comments = PMC.GetComments(isVMech ? vparent.data.id : vparent.id);
     if (comments === undefined) {
       hasNoComments = true;
       hasUnreadComments = false;
@@ -300,7 +300,7 @@ VBadge.SVGEvLink = (evlink, vparent) => {
   gBadge.gLabel = gBadge
     .text(evlink.numberLabel)
     .font({ fill: '#fff', size: '12px', anchor: 'middle' })
-    .dmove(radius / 2, 2)
+    .dmove(radius / 2, radius / 2 + 4)
     .attr({ cursor: 'pointer' });
 
   gBadge.gRating = VBadge.SVGRating(evlink, gBadge).move(

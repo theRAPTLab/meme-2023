@@ -1,0 +1,23 @@
+.WScreenshotView {
+  padding: 24px;
+  background-color: white;
+  border-radius: var(--dialog-border-radius);
+  box-shadow: var(--dialog-shadow);
+
+  display: flex;
+  flex-direction: column;
+}
+
+.WScreenshotView .screenshot {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.WScreenshotView > .controlbar {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 1rem;
+}

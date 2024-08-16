@@ -177,15 +177,15 @@ MOD.GetCREFSourceLabel = cref => {
   switch (type) {
     case 'n':
       typeLabel = 'Node';
-      node = UDATA.AppState('NCDATA').nodes.find(n => n.id === Number(id));
+      node = STATE.State('NCDATA').nodes.find(n => n.id === Number(id));
       if (!node) break; // node might be missing if comment references a node that was removed
       if (node) sourceLabel = node.label;
       break;
     case 'e':
       typeLabel = 'Edge';
-      edge = UDATA.AppState('NCDATA').edges.find(e => e.id === Number(id));
+      edge = STATE.State('NCDATA').edges.find(e => e.id === Number(id));
       if (!edge) break; // edge might be missing if the comment references an edge that was removed
-      nodes = UDATA.AppState('NCDATA').nodes;
+      nodes = STATE.State('NCDATA').nodes;
       sourceNode = nodes.find(n => n.id === Number(edge.source));
       targetNode = nodes.find(n => n.id === Number(edge.target));
       if (edge && sourceNode && targetNode)
@@ -209,7 +209,7 @@ MOD.GetCREFSourceLabel = cref => {
 //       UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [parseInt(id)] });
 //       break;
 //     case 'e':
-//       edge = UDATA.AppState('NCDATA').edges.find(e => e.id === Number(id));
+//       edge = STATE.State('NCDATA').edges.find(e => e.id === Number(id));
 //       UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [edge.source] }).then(() => {
 //         UDATA.LocalCall('EDGE_SELECT', { edgeId: edge.id });
 //       });
@@ -234,7 +234,7 @@ MOD.GetCREFSourceLabel = cref => {
 //       });
 //       break;
 //     case 'e':
-//       edge = UDATA.AppState('NCDATA').edges.find(e => e.id === Number(id));
+//       edge = STATE.State('NCDATA').edges.find(e => e.id === Number(id));
 //       UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [edge.source] }).then(() => {
 //         UDATA.LocalCall('EDGE_SELECT', { edgeId: edge.id }).then(() => {
 //           UDATA.LocalCall('COMMENT_SELECT', { cref }).then(() => {

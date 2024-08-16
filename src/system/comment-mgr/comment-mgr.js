@@ -17,6 +17,8 @@ import * as COMMENT from './ac-comment.ts';
 
 const STATE = require('./lib/client-state');
 
+import ADM from '../../app-web/modules/data';
+
 // const DATASTORE = require('system/datastore');
 // const { ARROW_RIGHT } = require('system/util/constant');
 // const { EDITORTYPE } = require('system/util/enum');
@@ -31,10 +33,13 @@ const PR = 'comment-mgr: ';
 
 /// INITIALIZE MODULE /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// orig call, ok to del
 // let MOD = UNISYS.NewModule(module.id);
-const MOD = {};
-
+// orig call.  UDATA can be called directly
 // let UDATA = UNISYS.NewDataLink(MOD);
+
+const MOD = {};
+const UDATA = UR.NewConnection('data');
 
 const dialogContainerId = 'dialog-container'; // used to inject dialogs into NetCreate.jsx
 
@@ -97,11 +102,11 @@ MOD.LoadDB = data => {
 // /// HELPER FUNCTIONS //////////////////////////////////////////////////////////
 // /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// MOD.COMMENTICON = (
-//   <svg id="comment-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42 42">
-//     <path d="M21,0C9.4,0,0,9.4,0,21c0,4.12,1.21,7.96,3.26,11.2l-2.26,9.8,11.56-1.78c2.58,1.14,5.44,1.78,8.44,1.78,11.6,0,21-9.4,21-21S32.6,0,21,0Z" />
-//   </svg>
-// );
+MOD.COMMENTICON = (
+  <svg id="comment-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42 42">
+    <path d="M21,0C9.4,0,0,9.4,0,21c0,4.12,1.21,7.96,3.26,11.2l-2.26,9.8,11.56-1.78c2.58,1.14,5.44,1.78,8.44,1.78,11.6,0,21-9.4,21-21S32.6,0,21,0Z" />
+  </svg>
+);
 
 function m_SetAppStateCommentCollections() {
   const COMMENTCOLLECTION = COMMENT.GetCommentCollections();
@@ -143,55 +148,55 @@ function m_UpdatePermissions(data) {
 // /// CONSTANTS
 // MOD.VIEWMODE = NCUI.VIEWMODE;
 
-// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// /// Collection Reference Generators
-// /// e.g. converts node id to "n32"
-// MOD.GetNodeCREF = nodeId => `n${nodeId}`;
-// MOD.GetEdgeCREF = edgeId => `e${edgeId}`;
-// MOD.GetProjectCREF = projectId => `p${projectId}`;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Collection Reference Generators
+/// e.g. converts node id to "n32"
+MOD.GetNodeCREF = nodeId => `n${nodeId}`;
+MOD.GetEdgeCREF = edgeId => `e${edgeId}`;
+MOD.GetProjectCREF = projectId => `p${projectId}`;
 
-// /// deconstructs "n32" into {type: "n", id: 32}
-// MOD.DeconstructCref = cref => {
-//   const type = cref.substring(0, 1);
-//   const id = cref.substring(1);
-//   return { type, id };
-// }
+/// deconstructs "n32" into {type: "n", id: 32}
+MOD.DeconstructCref = cref => {
+  const type = cref.substring(0, 1);
+  const id = cref.substring(1);
+  return { type, id };
+}
 
-// /**
-//  * Generate a human friendly label based on the cref (e.g. `n21`, `e4`)
-// * e.g. "n32" becomes {typeLabel "Node", sourceLabel: "32"}
-// * @param {string} cref
-//  * @returns { typeLabel, sourceLabel } sourceLabel is undefined if the source has been deleted
-//  */
-// MOD.GetCREFSourceLabel = cref => {
-//   const { type, id } = MOD.DeconstructCref(cref);
-//   let typeLabel;
-//   let node, edge, nodes, sourceNode, targetNode;
-//   let sourceLabel; // undefined if not found
-//   switch (type) {
-//     case 'n':
-//       typeLabel = 'Node';
-//       node = UDATA.AppState('NCDATA').nodes.find(n => n.id === Number(id));
-//       if (!node) break; // node might be missing if comment references a node that was removed
-//       if (node) sourceLabel = node.label;
-//       break;
-//     case 'e':
-//       typeLabel = 'Edge';
-//       edge = UDATA.AppState('NCDATA').edges.find(e => e.id === Number(id));
-//       if (!edge) break; // edge might be missing if the comment references an edge that was removed
-//       nodes = UDATA.AppState('NCDATA').nodes;
-//       sourceNode = nodes.find(n => n.id === Number(edge.source));
-//       targetNode = nodes.find(n => n.id === Number(edge.target));
-//       if (edge && sourceNode && targetNode)
-//         sourceLabel = `${sourceNode.label}${ARROW_RIGHT}${targetNode.label}`;
-//       break;
-//     case 'p':
-//       typeLabel = 'Project';
-//       sourceLabel = id;
-//       break;
-//   }
-//   return { typeLabel, sourceLabel };
-// };
+/**
+ * Generate a human friendly label based on the cref (e.g. `n21`, `e4`)
+* e.g. "n32" becomes {typeLabel "Node", sourceLabel: "32"}
+* @param {string} cref
+ * @returns { typeLabel, sourceLabel } sourceLabel is undefined if the source has been deleted
+ */
+MOD.GetCREFSourceLabel = cref => {
+  const { type, id } = MOD.DeconstructCref(cref);
+  let typeLabel;
+  let node, edge, nodes, sourceNode, targetNode;
+  let sourceLabel; // undefined if not found
+  switch (type) {
+    case 'n':
+      typeLabel = 'Node';
+      node = UDATA.AppState('NCDATA').nodes.find(n => n.id === Number(id));
+      if (!node) break; // node might be missing if comment references a node that was removed
+      if (node) sourceLabel = node.label;
+      break;
+    case 'e':
+      typeLabel = 'Edge';
+      edge = UDATA.AppState('NCDATA').edges.find(e => e.id === Number(id));
+      if (!edge) break; // edge might be missing if the comment references an edge that was removed
+      nodes = UDATA.AppState('NCDATA').nodes;
+      sourceNode = nodes.find(n => n.id === Number(edge.source));
+      targetNode = nodes.find(n => n.id === Number(edge.target));
+      if (edge && sourceNode && targetNode)
+        sourceLabel = `${sourceNode.label}${ARROW_RIGHT}${targetNode.label}`;
+      break;
+    case 'p':
+      typeLabel = 'Project';
+      sourceLabel = id;
+      break;
+  }
+  return { typeLabel, sourceLabel };
+};
 
 // /// Open the object that the comment refers to
 // /// e.g. in Net.Create it's a node or edge object
@@ -244,16 +249,16 @@ function m_UpdatePermissions(data) {
 //   }
 // };
 
-// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// /// User Id
-// MOD.SetCurrentUserId = uid => UID = uid;
-// MOD.GetCurrentUserId = () => UID; // called by other comment classes
-// MOD.GetUserName = uid => {
-//   return COMMENT.GetUserName(uid);
-// };
-// MOD.IsAdmin = () => {
-//   return SETTINGS.IsAdmin();
-// }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// User Id
+MOD.SetCurrentUserId = uid => UID = uid;
+MOD.GetCurrentUserId = () => UID; // called by other comment classes
+MOD.GetUserName = uid => {
+  return COMMENT.GetUserName(uid);
+};
+MOD.IsAdmin = () => {
+  return SETTINGS.IsAdmin();
+}
 
 // /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // /// Comment Type
@@ -280,55 +285,55 @@ function m_UpdatePermissions(data) {
 //   m_SetAppStateCommentCollections();
 // };
 
-// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// /// Comment Collections
-// MOD.GetCommentCollection = uiref => {
-//   return COMMENT.GetCommentCollection(uiref);
-// };
-// /**
-//  * Marks a comment as read, and closes the component.
-//  * Called by NCCommentBtn when clicking "Close"
-//  * @param {Object} uiref comment button id
-//  * @param {Object} cref collection_ref
-//  * @param {Object} uid user id
-//  */
-// MOD.CloseCommentCollection = (uiref, cref, uid) => {
-//   if (!MOD.OKtoClose(cref)) {
-//     // Comment is still being edited, prevent close
-//     alert(
-//       'This comment is still being edited!  Please Save or Cancel before closing the comment.'
-//     );
-//     return;
-//   }
-//   // OK to close
-//   m_DBUpdateReadBy(cref, uid);
-//   COMMENT.CloseCommentCollection(uiref, cref, uid);
-//   m_SetAppStateCommentCollections();
-// };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Comment Collections
+MOD.GetCommentCollection = uiref => {
+  return COMMENT.GetCommentCollection(uiref);
+};
+/**
+ * Marks a comment as read, and closes the component.
+ * Called by NCCommentBtn when clicking "Close"
+ * @param {Object} uiref comment button id
+ * @param {Object} cref collection_ref
+ * @param {Object} uid user id
+ */
+MOD.CloseCommentCollection = (uiref, cref, uid) => {
+  if (!MOD.OKtoClose(cref)) {
+    // Comment is still being edited, prevent close
+    alert(
+      'This comment is still being edited!  Please Save or Cancel before closing the comment.'
+    );
+    return;
+  }
+  // OK to close
+  m_DBUpdateReadBy(cref, uid);
+  COMMENT.CloseCommentCollection(uiref, cref, uid);
+  m_SetAppStateCommentCollections();
+};
 
-// MOD.GetCommentStats = () => {
-//   const uid = MOD.GetCurrentUserId();
-//   return COMMENT.GetCommentStats(uid);
-// };
+MOD.GetCommentStats = () => {
+  const uid = MOD.GetCurrentUserId();
+  return COMMENT.GetCommentStats(uid);
+};
 
-// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// /// Comment UI State
-// MOD.GetCommentUIState = uiref => {
-//   return COMMENT.GetCommentUIState(uiref);
-// };
-// /**
-//  *
-//  * @param {string} uiref
-//  * @param {TCommentOpenState} openState
-//  */
-// MOD.UpdateCommentUIState = (uiref, openState) => {
-//   COMMENT.UpdateCommentUIState(uiref, openState);
-//   m_SetAppStateCommentCollections();
-// };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Comment UI State
+MOD.GetCommentUIState = uiref => {
+  return COMMENT.GetCommentUIState(uiref);
+};
+/**
+ *
+ * @param {string} uiref
+ * @param {TCommentOpenState} openState
+ */
+MOD.UpdateCommentUIState = (uiref, openState) => {
+  COMMENT.UpdateCommentUIState(uiref, openState);
+  m_SetAppStateCommentCollections();
+};
 
-// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// /// Open Comments
-// MOD.GetOpenComments = cref => COMMENT.GetOpenComments(cref);
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Open Comments
+MOD.GetOpenComments = cref => COMMENT.GetOpenComments(cref);
 
 // /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // /// Editable Comments (comments being ddited)
@@ -342,14 +347,14 @@ function m_UpdatePermissions(data) {
 //   return !isBeingEdited;
 // };
 
-// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// /// Threaded View Objects
-// MOD.GetThreadedViewObjects = (cref, uid) => {
-//   return COMMENT.GetThreadedViewObjects(cref, uid);
-// };
-// MOD.GetThreadedViewObjectsCount = (cref, uid) => {
-//   return COMMENT.GetThreadedViewObjectsCount(cref, uid);
-// };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Threaded View Objects
+MOD.GetThreadedViewObjects = (cref, uid) => {
+  return COMMENT.GetThreadedViewObjects(cref, uid);
+};
+MOD.GetThreadedViewObjectsCount = (cref, uid) => {
+  return COMMENT.GetThreadedViewObjectsCount(cref, uid);
+};
 
 // /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // /// Comment View Objects
@@ -368,18 +373,18 @@ function m_UpdatePermissions(data) {
 // MOD.GetUnreadComments = () => {
 //   return COMMENT.GetUnreadComments();
 // };
-// /**
-//  *
-//  * @param {Object} cobj Comment Object
-//  */
-// MOD.AddComment = cobj => {
-//   // This just generates a new ID, but doesn't update the DB
-//   DATASTORE.PromiseNewCommentID().then(newCommentID => {
-//     cobj.comment_id = newCommentID;
-//     COMMENT.AddComment(cobj); // creates a comment vobject
-//     m_SetAppStateCommentVObjs();
-//   });
-// };
+/**
+ *
+ * @param {Object} cobj Comment Object
+ */
+MOD.AddComment = cobj => {
+  // This just generates a new ID, but doesn't update the DB
+  DATASTORE.PromiseNewCommentID().then(newCommentID => {
+    cobj.comment_id = newCommentID;
+    COMMENT.AddComment(cobj); // creates a comment vobject
+    m_SetAppStateCommentVObjs();
+  });
+};
 // /**
 //  * Update the ac/dc comments, then save it to the db
 //  * This will also broadcast COMMENT_UPDATE so other clients on the network

@@ -114,10 +114,10 @@ function m_SetAppStateCommentCollections() {
   STATE.SetState('COMMENTCOLLECTION', COMMENTCOLLECTION);
 }
 
-// function m_SetAppStateCommentVObjs() {
-//   const COMMENTVOBJS = COMMENT.GetCOMMENTVOBJS();
-//   STATE.SetState('COMMENTVOBJS', COMMENTVOBJS);
-// }
+function m_SetAppStateCommentVObjs() {
+  const COMMENTVOBJS = COMMENT.GetCOMMENTVOBJS();
+  STATE.SetState('COMMENTVOBJS', COMMENTVOBJS);
+}
 
 // function m_UpdateComment(comment) {
 //   const cobj = {
@@ -145,9 +145,12 @@ function m_UpdatePermissions(data) {
 // /// API METHODS ///////////////////////////////////////////////////////////////
 // /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// /// CONSTANTS
-// MOD.VIEWMODE = NCUI.VIEWMODE;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// CONSTANTS
+MOD.VIEWMODE = {
+  EDIT: 'edit',
+  VIEW: 'view'
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Collection Reference Generators
@@ -258,20 +261,21 @@ MOD.GetUserName = uid => {
   return COMMENT.GetUserName(uid);
 };
 MOD.IsAdmin = () => {
-  return SETTINGS.IsAdmin();
+  // nc return SETTINGS.IsAdmin();
+  return UR.IsAdminLoggedIn()
 }
 
-// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// /// Comment Type
-// MOD.GetCommentTypes = () => {
-//   return COMMENT.GetCommentTypes();
-// };
-// MOD.GetCommentType = slug => {
-//   return COMMENT.GetCommentType(slug);
-// };
-// MOD.GetDefaultCommentType = () => {
-//   return COMMENT.GetDefaultCommentType();
-// };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Comment Type
+MOD.GetCommentTypes = () => {
+  return COMMENT.GetCommentTypes();
+};
+MOD.GetCommentType = slug => {
+  return COMMENT.GetCommentType(slug);
+};
+MOD.GetDefaultCommentType = () => {
+  return COMMENT.GetDefaultCommentType();
+};
 
 // /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // /// Global Operations
@@ -357,17 +361,17 @@ MOD.GetThreadedViewObjectsCount = (cref, uid) => {
   return COMMENT.GetThreadedViewObjectsCount(cref, uid);
 };
 
-// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// /// Comment View Objects
-// MOD.GetCommentVObj = (cref, cid) => {
-//   return COMMENT.GetCommentVObj(cref, cid);
-// };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Comment View Objects
+MOD.GetCommentVObj = (cref, cid) => {
+  return COMMENT.GetCommentVObj(cref, cid);
+};
 
-// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// /// Comments
-// MOD.GetComment = cid => {
-//   return COMMENT.GetComment(cid);
-// }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Comments
+MOD.GetComment = cid => {
+  return COMMENT.GetComment(cid);
+}
 // MOD.GetUnreadRepliesToMe = uid => {
 //   return COMMENT.GetUnreadRepliesToMe(uid);
 // }
@@ -542,22 +546,25 @@ MOD.HandleREADBY_UPDATE = data => {
   // logged in to multiple browsers.
 };
 
-// /// DB CALLS //////////////////////////////////////////////////////////////////
-// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// MOD.LockComment = comment_id => {
-//   UDATA.NetCall('SRV_DBLOCKCOMMENT', { commentID: comment_id }).then(
-//     () => {
-//       UDATA.NetCall('SRV_REQ_EDIT_LOCK', { editor: EDITORTYPE.COMMENT });
-//       UDATA.LocalCall('SELECTMGR_SET_MODE', { mode: 'comment_edit' });
-//     }
-//   );
-// }
-// MOD.UnlockComment = comment_id => {
-//   UDATA.NetCall('SRV_DBUNLOCKCOMMENT', { commentID: comment_id }).then(() => {
-//     UDATA.NetCall('SRV_RELEASE_EDIT_LOCK', { editor: EDITORTYPE.COMMENT });
-//     UDATA.LocalCall('SELECTMGR_SET_MODE', { mode: 'normal' });
-//   });
-// }
+/// DB CALLS //////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+MOD.LockComment = comment_id => {
+  console.log('%sLockComment.  Skipping DB operation for now.', 'color:yellow')
+  return;
+  UDATA.NetCall('SRV_DBLOCKCOMMENT', { commentID: comment_id }).then(
+    () => {
+      UDATA.NetCall('SRV_REQ_EDIT_LOCK', { editor: EDITORTYPE.COMMENT });
+      UDATA.LocalCall('SELECTMGR_SET_MODE', { mode: 'comment_edit' });
+    }
+  );
+}
+MOD.UnlockComment = comment_id => {
+  console.warn('UnlockComment.  Skipping DB operation for now.')
+  UDATA.NetCall('SRV_DBUNLOCKCOMMENT', { commentID: comment_id }).then(() => {
+    UDATA.NetCall('SRV_RELEASE_EDIT_LOCK', { editor: EDITORTYPE.COMMENT });
+    UDATA.LocalCall('SELECTMGR_SET_MODE', { mode: 'normal' });
+  });
+}
 
 // function m_DBUpdateComment(cobj, cb) {
 //   const comment = {

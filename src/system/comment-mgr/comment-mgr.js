@@ -2,9 +2,6 @@
 
   COMMENT MANAGER
 
-  See UR ADDONS / Comment
-
-
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
 const React = require('react');
@@ -14,8 +11,10 @@ const ReactDOM = require('react-dom');
 // const { COMMENT } = require('@ursys/addons');
 import UR from '../../system/ursys';
 import * as COMMENT from './ac-comment.ts';
-
 const STATE = require('./lib/client-state');
+
+import CMTDB from './comment-db';
+
 
 import ADM from '../../app-web/modules/data';
 
@@ -64,7 +63,6 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
    *  @param {Object} data.comments
    */
   // Comment AddOn Handlers
-  UDATA.Subscribe('LOAD_COMMENT_DATACORE', MOD.LoadDB);
   /// STATE UPDATES and Message Handlers
   UDATA.Subscribe('COMMENTS_UPDATE', MOD.HandleCOMMENTS_UPDATE);
   UDATA.Subscribe('COMMENT_UPDATE', MOD.HandleCOMMENT_UPDATE);
@@ -93,8 +91,11 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 // }); // end APP_READY Hook
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MOD.LoadDB = data => {
-  const TEMPLATE = UDATA.AppState('TEMPLATE');
+/** Initializes ac-comment/dc-comment with database data read from the db
+ *  @param {*} data Comment data read from the database
+ */
+MOD.LoadDBData = data => {
+  const TEMPLATE = STATE.State('TEMPLATE');
   COMMENT.LoadTemplate(TEMPLATE.COMMENTTYPES);
   COMMENT.LoadDB(data);
 }
@@ -379,7 +380,8 @@ MOD.GetThreadedViewObjectsCount = (cref, uid) => {
  */
 MOD.AddComment = cobj => {
   // This just generates a new ID, but doesn't update the DB
-  DATASTORE.PromiseNewCommentID().then(newCommentID => {
+  CMTDB.PromiseNewCommentID().then(newCommentID => {
+    console.error('new comment id', newCommentID)
     cobj.comment_id = newCommentID;
     COMMENT.AddComment(cobj); // creates a comment vobject
     m_SetAppStateCommentVObjs();

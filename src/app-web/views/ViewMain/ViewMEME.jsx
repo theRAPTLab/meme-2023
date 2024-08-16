@@ -227,6 +227,7 @@ class ViewMEME extends React.Component {
 
     // Init comment system
     CMTMGR.SetCurrentUserId(userStudentId);
+    CMTMGR.LoadDBData({});
   }
 
   DoADMDataUpdate() {

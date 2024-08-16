@@ -88,7 +88,7 @@ function URComment({ cref, cid, uid }) {
     return () => {
       if (state.uIsBeingEdited) CMTMGR.UnlockComment(cid);
       STATE.OffStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
-      UR.Unubscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
+      UR.Unsubscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
     };
   }, [state.uIsBeingEdited]); // run when uIsBeingEdited changes
 

@@ -3,7 +3,8 @@
   dc-comments
   
   Data Care Comments
-      
+  Ported from Net.Create a5a947d5007bfef213bb107c521c59547fa72714
+
   DATA
   
     COMMENTS
@@ -546,7 +547,8 @@ function RemoveComment(parms): TCommentQueueActions[] {
     } else {
       // is not admin and is reply thread...
       const hasNext = NEXT.get(cidToDelete);
-      if (hasNext) markDeleted = true; // ...has Next so just mark it
+      if (hasNext)
+        markDeleted = true; // ...has Next so just mark it
       else deleteTarget = true; // ...else orphan, just delete
     }
   }
@@ -618,7 +620,8 @@ function RemoveComment(parms): TCommentQueueActions[] {
   // This an odd call because if we're deleting a thread item, we need to pop up a level
   // and also delete and relink the root
   let rootId;
-  if (cobjIsRoot) rootId = comment_id; // get the first reply and the next
+  if (cobjIsRoot)
+    rootId = comment_id; // get the first reply and the next
   else rootId = cobjToDelete.comment_id_parent; // is a thread reply, so pop up a level and get the root
   if (m_AllAreMarkedDeleted(rootId)) {
     if (DBG) console.log('delete all!');

@@ -48,6 +48,9 @@ import DATA from '../../modules/data';
 import ADM from '../../modules/data';
 import ASET from '../../modules/adm-settings';
 import DATAMAP from '../../../system/common-datamap';
+// MEME Comment Components
+import CMTMGR from '../../../system/comment-mgr/comment-mgr';
+import URCommentBtn from '../../../system/comment-mgr/view/URCommentBtn';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -221,6 +224,9 @@ class ViewMEME extends React.Component {
       studentName: ADM.GetLoggedInUserName(),
       studentGroup: ADM.GetLoggedInGroupName()
     });
+
+    // Init comment system
+    CMTMGR.SetCurrentUserId(userStudentId);
   }
 
   DoADMDataUpdate() {
@@ -680,6 +686,7 @@ class ViewMEME extends React.Component {
         </form>
         <div>by {modelAuthorGroupName} Group</div>
         <StickyNoteButton refId="9999" />
+        <URCommentBtn cref="9999" />
         <button onClick={this.OnCloseModel}>
           {studentName}&nbsp;:&nbsp;{studentGroup}
         </button>

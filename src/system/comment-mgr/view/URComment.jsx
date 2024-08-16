@@ -15,15 +15,19 @@
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
 import React, { useState, useEffect, useCallback } from 'react';
-import UNISYS from 'unisys/client';
+// nc import UNISYS from 'unisys/client';
+import UR from '../../../system/ursys';
 import CMTMGR from '../comment-mgr';
 import URCommentPrompt from './URCommentPrompt';
+const STATE = require('../lib/client-state');
 
 /// CONSTANTS & DECLARATIONS //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Initialize UNISYS DATA LINK for react component
-const UDATAOwner = { name: 'URComment' };
-const UDATA = UNISYS.NewDataLink(UDATAOwner);
+// nc const UDATAOwner = { name: 'URComment' };
+const UDATAOwner = 'URComment';
+// nc const UDATA = UNISYS.NewDataLink(UDATAOwner);
+const UDATA = UR.NewConnection(UDATAOwner);
 /// Debug Flags
 const DBG = false;
 const PR = 'URComment';
@@ -77,14 +81,14 @@ function URComment({ cref, cid, uid }) {
     const urstate_UpdateCommentVObjs = () => c_LoadCommentVObj();
 
     // hook UNISYS state change and message handlers
-    UDATA.OnAppStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
-    UDATA.HandleMessage('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
+    STATE.OnStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
+    UR.Subscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
 
     // cleanup methods for functional component unmount
     return () => {
       if (state.uIsBeingEdited) CMTMGR.UnlockComment(cid);
-      UDATA.AppStateChangeOff('COMMENTVOBJS', urstate_UpdateCommentVObjs);
-      UDATA.UnhandleMessage('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
+      STATE.OffStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
+      UR.Unubscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
     };
   }, [state.uIsBeingEdited]); // run when uIsBeingEdited changes
 

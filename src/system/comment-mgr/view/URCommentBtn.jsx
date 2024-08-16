@@ -63,15 +63,22 @@
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
 import React, { useState, useEffect } from 'react';
-import UNISYS from 'unisys/client';
+import './URComment.css';
+
+// nc import UNISYS from 'unisys/client';
+import UR from '../../../system/ursys';
+const STATE = require('../lib/client-state');
+
 import CMTMGR from '../comment-mgr';
 import URCommentThread from './URCommentThread';
 
 /// CONSTANTS & DECLARATIONS //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Initialize UNISYS DATA LINK for functional react component
-const UDATAOwner = { name: 'URCommentThread' };
-const UDATA = UNISYS.NewDataLink(UDATAOwner);
+// nc const UDATAOwner = { name: 'URCommentThread' };
+const UDATAOwner = 'URCommentThread';
+// nc const UDATA = UNISYS.NewDataLink(UDATAOwner);
+const UDATA = UR.NewConnection(UDATAOwner);
 /// Debug Flags
 const DBG = false;
 const PR = 'URCommentBtn';
@@ -97,19 +104,25 @@ function URCommentBtn({ cref, uuiid }) {
 
   /** Component Effect - set up listeners on mount */
   useEffect(() => {
-    UDATA.OnAppStateChange('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
-    UDATA.OnAppStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
-    UDATA.HandleMessage('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
-    UDATA.HandleMessage('COMMENT_SELECT', urmsg_COMMENT_SELECT);
+    // nc UDATA.OnAppStateChange('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
+    // nc UDATA.OnAppStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
+    STATE.OnStateChange('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
+    STATE.OnStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
+    // nc UDATA.HandleMessage('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
+    // nc UDATA.HandleMessage('COMMENT_SELECT', urmsg_COMMENT_SELECT);
+    UR.Subscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
+    UR.Subscribe('COMMENT_SELECT', urmsg_COMMENT_SELECT);
     window.addEventListener('resize', evt_OnResize);
 
     setPosition(c_GetCommentThreadPosition());
 
     return () => {
-      UDATA.AppStateChangeOff('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
-      UDATA.AppStateChangeOff('COMMENTVOBJS', urstate_UpdateCommentVObjs);
-      UDATA.UnhandleMessage('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
-      UDATA.UnhandleMessage('COMMENT_SELECT', urmsg_COMMENT_SELECT);
+      STATE.OffStateChange('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
+      STATE.OffStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
+      // nc UDATA.UnhandleMessage('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
+      // nc UDATA.UnhandleMessage('COMMENT_SELECT', urmsg_COMMENT_SELECT);
+      UR.Unubscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
+      UR.Unubscribe('COMMENT_SELECT', urmsg_COMMENT_SELECT);
       window.removeEventListener('resize', evt_OnResize);
     };
   }, []);

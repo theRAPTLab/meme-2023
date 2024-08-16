@@ -50,16 +50,14 @@ function URCommentStatus(props) {
 
   /** Component Effect - register listeners on mount */
   useEffect(() => {
-    UDATA.OnAppStateChange('COMMENTCOLLECTION', () => setDummy(dummy => dummy + 1)); // respond to close
-    UDATA.HandleMessage('COMMENTS_UPDATE', urmsg_COMMENTS_UPDATE);
-    UDATA.HandleMessage('COMMENT_UPDATE', urmsg_COMMENT_UPDATE);
+    STATE.OnStateChange('COMMENTCOLLECTION', () => setDummy(dummy => dummy + 1)); // respond to close
+    UR.Subscribe('COMMENTS_UPDATE', urmsg_COMMENTS_UPDATE);
+    UR.Subscribe('COMMENT_UPDATE', urmsg_COMMENT_UPDATE);
 
     return () => {
-      UDATA.AppStateChangeOff('COMMENTCOLLECTION', () =>
-        setDummy(dummy => dummy + 1)
-      ); // respond to close
-      UDATA.UnhandleMessage('COMMENTS_UPDATE', urmsg_COMMENTS_UPDATE);
-      UDATA.UnhandleMessage('COMMENT_UPDATE', urmsg_COMMENT_UPDATE);
+      STATE.OffStateChange('COMMENTCOLLECTION', () => setDummy(dummy => dummy + 1)); // respond to close
+      UR.Unubscribe('COMMENTS_UPDATE', urmsg_COMMENTS_UPDATE);
+      UR.Unubscribe('COMMENT_UPDATE', urmsg_COMMENT_UPDATE);
     };
   }, []);
 

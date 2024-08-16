@@ -26,15 +26,19 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Draggable from 'react-draggable';
-import UNISYS from 'unisys/client';
+// nc import UNISYS from 'unisys/client';
+import UR from '../../../system/ursys';
 import CMTMGR from '../comment-mgr';
 import URComment from './URComment';
+const STATE = require('../lib/client-state');
 
 /// CONSTANTS & DECLARATIONS //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Initialize UNISYS DATA LINK for react component
-const UDATAOwner = { name: 'URCommentThread' };
-const UDATA = UNISYS.NewDataLink(UDATAOwner);
+// nc const UDATAOwner = { name: 'URCommentThread' };
+const UDATAOwner = 'URCommentThread';
+// nc const UDATA = UNISYS.NewDataLink(UDATAOwner);
+const UDATA = UR.NewConnection(UDATAOwner);
 /// Debug Flags
 const DBG = false;
 const PR = 'URCommentThread';
@@ -54,10 +58,10 @@ function URCommentThread({ uiref, cref, uid, x, y }) {
       setIsDisabled(data.commentBeingEditedByMe);
     }
 
-    UDATA.HandleMessage('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
+    UR.Subscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
 
     return () => {
-      UDATA.UnhandleMessage('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
+      UR.Unubscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
     };
   }, []);
 

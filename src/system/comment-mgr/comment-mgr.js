@@ -10,15 +10,13 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
 
+// const UNISYS = require('unisys/client');
+// const { COMMENT } = require('@ursys/addons');
 import UR from '../../system/ursys';
-const UDATA = UR.NewConnection('data');
-
 import * as COMMENT from './ac-comment.ts';
 
 const STATE = require('./lib/client-state');
 
-// const UNISYS = require('unisys/client');
-// const { COMMENT } = require('@ursys/addons');
 // const DATASTORE = require('system/datastore');
 // const { ARROW_RIGHT } = require('system/util/constant');
 // const { EDITORTYPE } = require('system/util/enum');
@@ -105,14 +103,14 @@ MOD.LoadDB = data => {
 //   </svg>
 // );
 
-// function m_SetAppStateCommentCollections() {
-//   const COMMENTCOLLECTION = COMMENT.GetCommentCollections();
-//   UDATA.SetAppState('COMMENTCOLLECTION', COMMENTCOLLECTION);
-// }
+function m_SetAppStateCommentCollections() {
+  const COMMENTCOLLECTION = COMMENT.GetCommentCollections();
+  STATE.SetState('COMMENTCOLLECTION', COMMENTCOLLECTION);
+}
 
 // function m_SetAppStateCommentVObjs() {
 //   const COMMENTVOBJS = COMMENT.GetCOMMENTVOBJS();
-//   UDATA.SetAppState('COMMENTVOBJS', COMMENTVOBJS);
+//   STATE.SetState('COMMENTVOBJS', COMMENTVOBJS);
 // }
 
 // function m_UpdateComment(comment) {

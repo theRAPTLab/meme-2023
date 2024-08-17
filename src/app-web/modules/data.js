@@ -14,7 +14,6 @@ import VM from './vm-data';
 import UR from '../../system/ursys';
 import DATAMAP from '../../system/common-datamap';
 import ASET from './adm-settings';
-const COMMENTMGR = require('../../system/comment-mgr/comment-mgr').default;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -30,7 +29,6 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
     const cmd = data.cmd;
     if (!cmd) throw Error('SYSTEM_DBSYNC packet missing cmd property');
     if (!DATAMAP.ValidateCommand(cmd)) throw Error(`SYSTEM_DBSYNC unrecognized command '${cmd}'`);
-    COMMENTMGR.Init();
     switch (cmd) {
       case 'add':
         ADM.SyncAddedData(data);

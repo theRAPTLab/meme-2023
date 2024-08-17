@@ -19,6 +19,11 @@ const UDATA = UR.NewConnection('comment-db');
 /// API METHODS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+MOD.GetCommentData = () => {
+  return {}; // add data after we figure out how to load
+  return PMC.URGetComments();
+}
+
 /**
  *
  * @returns {number} commentID

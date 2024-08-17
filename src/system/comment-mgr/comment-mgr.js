@@ -2,28 +2,46 @@
 
   COMMENT MANAGER
 
+  The comment manager is the central hub between the
+  * React URComment* components
+  * the ac-comment/dc-comment data and logic
+  * the database data handled by comment-db manager
+
+  Loading Data
+  Comment data is read from the raw database data (comment-db),
+  processed and thread and view objects are derived (ac/dc-comments).
+
+  Updating Data
+  The React URComments receive data updates to comment-mgr,
+  which then directs traffic to:
+  * comment-db to store the data to the database
+  * ac/dc-comments to update the view objects
+
+  Initialization
+  The comment manager module is loaded by the UR system, principally
+  adding the URCommentBtn somewhere on the app will initialize the
+  comment manager.
+  0. URCommmentBtn is added to the app/component
+  1. comment-mgr is initialized via UR Hook 'INITIALIZE'.
+  2. It then waits for the `DATA_UPDATED` UR message.
+  3. When that is received, we request a LoadDBData from the PMC module.
+
+
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
 const React = require('react');
 const ReactDOM = require('react-dom');
 
-// const UNISYS = require('unisys/client');
-// const { COMMENT } = require('@ursys/addons');
 import UR from '../../system/ursys';
-import * as COMMENT from './ac-comment.ts';
 const STATE = require('./lib/client-state');
-
 import CMTDB from './comment-db';
-
-
+import * as COMMENT from './ac-comment.ts';
 import ADM from '../../app-web/modules/data';
 
-// const DATASTORE = require('system/datastore');
-// const { ARROW_RIGHT } = require('system/util/constant');
 // const { EDITORTYPE } = require('system/util/enum');
 // const NCUI = require('./nc-ui');
 // const NCDialog = require('./components/NCDialog');
-// const SETTINGS = require('settings');
 
 /// CONSTANTS & DECLARATIONS //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -32,13 +50,8 @@ const PR = 'comment-mgr: ';
 
 /// INITIALIZE MODULE /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// orig call, ok to del
-// let MOD = UNISYS.NewModule(module.id);
-// orig call.  UDATA can be called directly
-// let UDATA = UNISYS.NewDataLink(MOD);
-
 const MOD = {};
-const UDATA = UR.NewConnection('data');
+const UDATA = UR.NewConnection('comment-mgr');
 
 const dialogContainerId = 'dialog-container'; // used to inject dialogs into NetCreate.jsx
 
@@ -64,6 +77,7 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
    */
   // Comment AddOn Handlers
   /// STATE UPDATES and Message Handlers
+  UDATA.Subscribe('DATA_UPDATED', MOD.LoadDBData);
   UDATA.Subscribe('COMMENTS_UPDATE', MOD.HandleCOMMENTS_UPDATE);
   UDATA.Subscribe('COMMENT_UPDATE', MOD.HandleCOMMENT_UPDATE);
   UDATA.Subscribe('READBY_UPDATE', MOD.HandleREADBY_UPDATE);
@@ -92,11 +106,13 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Initializes ac-comment/dc-comment with database data read from the db
- *  @param {*} data Comment data read from the database
  */
-MOD.LoadDBData = data => {
+MOD.LoadDBData = () => {
   const TEMPLATE = STATE.State('TEMPLATE');
   COMMENT.LoadTemplate(TEMPLATE.COMMENTTYPES);
+  const userStudentId = ADM.GetAuthorId();
+  MOD.SetCurrentUserId(userStudentId);
+  const data = CMTDB.GetCommentData();
   COMMENT.LoadDB(data);
 }
 

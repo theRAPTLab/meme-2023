@@ -386,7 +386,7 @@ function GetThreadedViewObjects(
   uid: TUserID
 ): TCommentVisualObject[] {
   const commentVObjs = COMMENTVOBJS.get(cref);
-  return commentVObjs === undefined
+  return commentVObjs === undefined || commentVObjs.length === 0
     ? DeriveThreadedViewObjects(cref, uid)
     : commentVObjs;
 }

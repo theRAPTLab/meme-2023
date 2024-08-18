@@ -300,7 +300,6 @@ function URCommentPrompt({
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   const RenderViewMode = () => {
     const NOTHING_SELECTED = <span className="help">(nothing selected)</span>;
-
     return commentTypes.get(commentType).prompts.map((prompt, promptIndex) => {
       let displayJSX;
       switch (prompt.format) {

@@ -192,8 +192,8 @@ PMCData.InitializeModel = (model, admdb) => {
           // has been hidden, without necessarily changing the data?
           // See also BuildModel() for how evidence is built up
           if (thisClassroomResources.resources.includes(obj.rsrcId)) {
-          obj.comments = obj.comments || [];
-          a_evidence.push(obj);
+            obj.comments = obj.comments || [];
+            a_evidence.push(obj);
           }
           break;
         default:

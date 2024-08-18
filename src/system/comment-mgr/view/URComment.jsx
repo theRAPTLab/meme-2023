@@ -12,6 +12,15 @@
       key={cvobj.comment_id} // part of thread array
     />
 
+  1. UI input cycle
+      URComment handles updates from by the URCommentPrompt component.
+      The data is stored locally until evt_SaveBtn is clicked, which then
+      calls comment-mgr.UpdateComment.
+  2. Data State management
+      comment-mgr saves the data to the database
+      and updates COMMENTVOJBS state, which triggers a re-render of the
+      URCommentThread component.
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
 import React, { useState, useEffect, useCallback } from 'react';

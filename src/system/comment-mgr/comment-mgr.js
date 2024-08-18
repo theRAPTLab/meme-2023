@@ -66,16 +66,6 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
   console.log('HOOK INitilizied!')
   COMMENT.Init();
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - inside hook
-  /** LOAD_COMMENT_DATACORE
-   *  Called by nc-logic.m_PromiseLoadDB
-   *  Primarily after LOADASSETS
-   *  Loads comments from the database into dc-comments
-   *  @param {Object} data
-   *  @param {Object} data.users
-   *  @param {Object} data.commenttypes
-   *  @param {Object} data.comments
-   */
-  // Comment AddOn Handlers
   /// STATE UPDATES and Message Handlers
   UDATA.Subscribe('DATA_UPDATED', MOD.LoadDBData);
   UDATA.Subscribe('COMMENTS_UPDATE', MOD.HandleCOMMENTS_UPDATE);
@@ -105,8 +95,14 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 // }); // end APP_READY Hook
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** Initializes ac-comment/dc-comment with database data read from the db
- */
+/** LOAD_COMMENT_DATACORE
+   *  Called by comment-mgr after DATA_UPDATED
+   *  Loads comments and related tables from the database into ac/dc-comments
+   *  @param {Object} data
+   *  @param {Object} data.users
+   *  @param {Object} data.commenttypes
+   *  @param {Object} data.comments
+   */
 MOD.LoadDBData = () => {
   const TEMPLATE = STATE.State('TEMPLATE');
   COMMENT.LoadTemplate(TEMPLATE.COMMENTTYPES);

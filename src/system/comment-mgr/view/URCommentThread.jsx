@@ -61,7 +61,7 @@ function URCommentThread({ uiref, cref, uid, x, y }) {
     UR.Subscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
 
     return () => {
-      UR.Unubscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
+      UR.Unsubscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
     };
   }, []);
 

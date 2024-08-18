@@ -75,6 +75,8 @@ let a_props = []; // all properties (strings)
 let a_mechs = []; // all mechanisms (pathId strings)
 let a_comments = []; // all comments
 let a_markedread = []; // ids of comments that have been read by students
+let a_urcomments = []; // all urcomments
+let a_urcomments_readby = []; // ids of urcomments that have been read by students
 //
 let a_components = []; // top-level props with no parents, derived
 let h_children = new Map(); // children hash of each prop by id (string)
@@ -112,6 +114,8 @@ PMCData.ClearModel = () => {
   a_mechs = [];
   a_comments = [];
   a_markedread = [];
+  a_urcomments = [];
+  a_urcomments_readby = [];
   a_resources = [];
   a_evidence = [];
 };
@@ -181,7 +185,7 @@ PMCData.InitializeModel = (model, admdb) => {
           break;
         case 'evidence':
           // HACK
-          // Only add evidence if it's selected/included for this classroom.
+          // Only load evidence if it's selected/included for this classroom.
           // If this evidence is referring to a resource that is hidden
           // (e.g. not in the current list of classroom resources), don't add it.
           // This lets us hide evidence link badges if the resource
@@ -211,6 +215,20 @@ PMCData.InitializeModel = (model, admdb) => {
     a_markedread = data.markedread.slice(0);
   } else {
     a_markedread = [];
+  }
+
+  // URComments
+  if (data.urcomments) {
+    a_urcomments = data.urcomments.map(c => {
+      return Object.assign({ collection_ref: String(c.collection_ref) }, c);
+    });
+  } else {
+    a_urcomments = [];
+  }
+  if (data.urcomments_readby) {
+    a_urcomments_readby = data.urcomments_readby.slice(0);
+  } else {
+    a_urcomments_readby = [];
   }
 
   // test serial write out, then serial read back in
@@ -321,6 +339,17 @@ PMCData.SyncAddedData = data => {
       a_markedread.push(value);
       UR.Publish('DATA_UPDATED');
     }
+
+    if (subkey === 'urcomments') {
+      const urcomment = PMCObj.URComment(value);
+      a_urcomments.push(urcomment);
+      UR.Publish('DATA_UPDATED');
+    }
+
+    if (subkey === 'urcomments_readby') {
+      a_urcomments_readby.push(value);
+      UR.Publish('DATA_UPDATED');
+    }
   });
 
   // old way
@@ -408,6 +437,20 @@ PMCData.SyncUpdatedData = data => {
 
     if (subkey === 'markedread') {
       // marked read really doesn't get updates
+    }
+
+    if (subkey === 'urcomments') {
+      const newURComment = PMCObj.URComment(value);
+      const i = a_urcomments.findIndex(c => c.id === value.id);
+      if (i < 0) throw Error('Trying to update non-existent urcomments');
+      const urcomment = Object.assign(a_urcomments[i], newURComment);
+      a_urcomments.splice(i, 1, urcomment);
+      dataWasUpdated = true;
+      UR.Publish('DATA_UPDATED');
+    }
+
+    if (subkey === 'urcomments_readby') {
+      // urcomments_readby really doesn't get updates
     }
   }); // syncitems
 
@@ -1349,7 +1392,217 @@ PMCData.SetEvidenceLinkTextFields = (evId, data) => {
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// URCOMENT //////////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Adds a new comment item to the database
+ *  @param {String} cref - TCollectionRef: id of the parent object the comment is pointing to
+ *  @param {Object:} commentData - TComment: a PMCObj.Comment-like object with NO id
+ *                                three optional parameters: text, criteriaId
+ *  @param {Function} cb - a callback function
+ */
+PMCData.UR_CommentAdd = (cref, commentData, cb) => {
+  if (cref === undefined || cref === '')
+    throw Error(`cref is required for a new comment object! refId="${cref}`);
+  if (commentData.id) throw Error('comment id should not be passed to a new comment object!');
+  const newComment = PMCObj.URComment({
+    // NOTE no `id` here initially with the add
+    collection_ref: cref,
+    comment_id: commentData.comment_id,
+    comment_id_parent: commentData.comment_id_parent,
+    comment_id_previous: commentData.comment_id_previous,
+    comment_type: commentData.comment_type,
+    comment_createtime: commentData.comment_createtime,
+    comment_modifytime: commentData.comment_modifytime,
+    comment_isMarkedDeleted: commentData.comment_isMarkedDeleted,
+    commenter_id: commentData.commenter_id,
+    commenter_text: commentData.commenter_text
+  });
+  UTILS.RLog(
+    'URCommentAdd',
+    `id:${newComment.id} "${commentData.commenter_text}" with type "${commentData.comment_type}" on "${cref}"`
+  );
+  const pmcDataId = ASET.selectedPMCDataId;
+  return PMCData.UR_DBQuery('add', {
+    'pmcData.urcomments': {
+      id: pmcDataId,
+      urcomments: newComment
+    }
+  }).then(rdata => {
+    if (cb && typeof cb === 'function') cb(rdata);
+  });
+};
+/**
+ *  Updates a single comment items
+ *  @param {String} cref - TCollectionRef: id of the parent object the comment is pointing to
+ *  @param {Object} commentData - TComment: a a PMCObj.Comment-like object with
+ *                                three optional parameters: text, criteriaId
+ *  @param {Function} cb - a callback function
+ *  */
+PMCData.UR_CommentUpdate = (cref, commentData, cb) => {
+  if (DBG) console.log('PMCData.UR_CommentUpdate', cref, commentData);
+  // merge into old comments
+  const origComment = PMCData.GetURComment(commentData.id);
+  if (origComment === undefined) {
+    // new comment
+    return PMCData.UR_CommentAdd(cref, commentData, cb);
+  }
+  // update existing comment
+  const updatedComment = Object.assign(origComment, commentData);
+  UTILS.RLog(
+    'URCommentUpdate',
+    `id:${updatedComment.id} "${updatedComment.text}" with type "${commentData.comment_type}" on "${cref}"`
+  );
+  const pmcDataId = ASET.selectedPMCDataId;
+  return PMCData.UR_DBQuery('update', {
+    'pmcData.urcomments': {
+      id: pmcDataId,
+      urcomments: updatedComment
+    }
+  }).then(rdata => {
+    if (cb && typeof cb === 'function') cb(rdata);
+  });
+};
+/**
+ *  Updates an array of comment items
+ *  @param {String} cref - TCollectionRef: id of the parent object the comment is pointing to
+ *  @param {Object} comments - TComment[]:an array of PMCObj.Comment-like object with
+ *                                three optional parameters: text, criteriaId
+ *  @param {Function} cb - a callback function
+ *  */
+PMCData.UR_CommentsUpdate = (cref, comments, cb) => {
+  if (!Array.isArray(comments))
+    throw Error(`comments is not an array: ${comments} ${typeof comments}`);
+  const count = comments.length;
+  let callback = undefined;
+  for (let i = 0; i++; i < count) {
+    if (i === count - 1) {
+      // last one so add the callback
+      callback = cb;
+    }
+    PMCData.UR_CommentUpdate(cref, comments[i], callback);
+  }
+};
+
+/**
+ *  Remove comment from the db
+ *  @param {String} commentId - id of the comment object (not refId)
+ */
+PMCData.UR_CommentDelete = commentId => {
+  const pmcDataId = ASET.selectedPMCDataId;
+  UTILS.RLog('URCommentDelete', `id:${commentId} from model "${pmcDataId}"`);
+  return PMCData.UR_DBQuery('remove', {
+    'pmcData.urcomments': {
+      id: pmcDataId,
+      urcomments: { id: commentId }
+    }
+  });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Retrieves the comment object in the database matching the comment id
+ *  @param {String} id - database id of the comment object (not refId)
+ *  @return {Array} Array of comment objects, or undefined if not found
+ */
+PMCData.GetURComment = id => {
+  return a_urcomments.find(c => c.id === id);
+};
+/**
+ *  Retrieves all of the comment objects in the database related to refId
+ *  @param {String} cref - id of Property(Number) or Mechanism(String)
+ *  @return {Array} Array of comment objects, or [] if none defined.
+ */
+PMCData.GetURComments = cref => {
+  return a_urcomments.filter(c => c.cref === cref);
+};
+/**
+ *  Retrieves ALL of the comment objects in the database.
+ *  @return {Array} Array of comment objects, or [] if none defined.
+ */
+PMCData.GetAllURComments = () => {
+  return a_urcomments;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Adds a new readby items to the database
+ *  @param {Object[]} readbys - {comment_id, commenter_ids} id of the author who read the comment
+ */
+PMCData.UR_MarkReadBy = readbys => {
+  if (DBG) console.log('PMCData.UR_MarkReadBy', readbys);
+  const newReadBys = readbys.map(r => {
+    UTILS.RLog('UR_MarkReadBy', `id:${r.comment_id} read by "${r.commenter_ids}"`);
+    return PMCObj.URCommentReadBy({
+      comment_id: r.comment_id,
+      commenter_ids: r.commenter_ids
+    });
+  });
+  const pmcDataId = ASET.selectedPMCDataId;
+  let promises = [];
+  // do this for each readby
+  newReadBys.forEach(newReadBy => {
+    const existingReadby = a_urcomments_readby.find(m => m.commentId === newReadBy.comment_id);
+    if (!existingReadby)
+      // if it's new, add it
+      // PMCData.UR_DBQuery calls UR_DBQuery which returns a promise from ursys.DBQuery
+      promises.push(PMCData.UR_DBQuery('add', {
+        'pmcData.urcomments_readby': {
+          id: pmcDataId,
+          urcomments_readby: newReadBy
+        }
+      }));
+    else {
+      // if it exists, update it
+      // combine the new commenter_ids with the existing ones
+      const new_commenter_ids = newReadBy.commenter_ids.filter(id => !existingReadby.commenter_ids.includes(id));
+      existingReadby.commenter_ids = [...existingReadby.commenter_ids, ...new_commenter_ids];
+      // PMCData.UR_DBQuery calls UR_DBQuery which returns a promise from ursys.DBQuery
+      promises.push(PMCData.UR_DBQuery('update', {
+        'pmcData.urcomments_readby': {
+          id: pmcDataId,
+          urcomments_readby: existingReadby
+        }
+      }));
+    }
+    return promises;
+  });
+};
+/// THESE ARE HANDLED BY ac/dc-comments
+// /**
+//  *  Checks if the comment referenced by commentId has been read by the author
+//  *  @param {Integer} comment_id - db id of the comment object
+//  *  @param {String} commenter_id - token
+//  */
+// PMCData.URHasBeenRead = (comment_id, commenter_id) => {
+//   return a_urcomments_readby.find(m => {
+//     return m.commentId === comment_id && m.commenter_ids.includes(commenter_id);
+//   });
+// };
+// /**
+//  *  Checks if the comment referenced by commentId has been read by the author
+//  *  Used to set StickyNoteButton status.
+//  *  @param {Array} comments - an array of Comment objects
+//  *  @param {String} commenter_id - token
+//  */
+// PMCData.URHasUnreadComments = (comments, commenter_id) => {
+//   if (!Array.isArray(comments)) throw Error('comments is not an array');
+//   return comments.find(c => !PMCData.URHasBeenRead(c.id, commenter_id));
+// };
+/**
+ *  Retrieves ALL of the readby objects in the database.
+ *  @return {Array} Array of comment objects, or [] if none defined.
+ */
+PMCData.GetAllURReadbys = () => {
+  return a_urcomments_readby;
+};
+
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// STICKIES //////////////////////////////////////////////////////////////////
+///
+/// Stickies are the original MEME comment system.
+/// That system has since been replaced by the URComment system
+/// migrated from Net.Create
+///
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Adds a new comment item to the database

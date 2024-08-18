@@ -31,6 +31,8 @@ const DBKEYS = [
   `pmcData.entities`,
   `pmcData.comments`,
   `pmcData.markedread`,
+  'pmcData.urcomments',
+  'pmcData.urcomments_readby',
   `pmcData.visuals`
 ];
 

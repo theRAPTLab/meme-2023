@@ -4,7 +4,10 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
+import { v4 as uuidv4 } from 'uuid';
 import UR from '../../system/ursys';
+import * as COMMENT from './ac-comment.ts';
+import PMC from '../../app-web/modules/data';
 
 /// CONSTANTS & DECLARATIONS //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -20,37 +23,26 @@ const UDATA = UR.NewConnection('comment-db');
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 MOD.GetCommentData = () => {
-  return {}; // add data after we figure out how to load
-  return PMC.URGetComments();
+  // Load the whole `urcomments` table.
+  const data = {};
+  // placeholder data.commenttypes = ADM.GetCommentTypes();
+  // placeholder data.users = ADM.GetAllUsers();
+  data.comments = PMC.GetAllURComments();
+  data.readby = PMC.GetAllURReadbys();
+  return data;
 }
 
 /**
- *
- * @returns {number} commentID
+ * URComment* objects need a unique ID when they are created.
+ * Since comments can be created asynchronously, we need to generate a new
+ * ID that is unique across any network users.
+ * @returns {Promise} Returns a new string comment ID
  */
-let ID_COUNTER = 0; // interim id count
 MOD.PromiseNewCommentID = () => {
-  // iterim new id generator
   return new Promise((resolve, reject) => {
-    resolve(ID_COUNTER++);
+    resolve(uuidv4()); // use uuid
   })
-  return new Promise((resolve, reject) => {
-    UDATA.NetCall('SRV_DBGETCOMMENTID').then(data => {
-      if (data.comment_id) {
-        if (DBG) console.log(PR, 'server allocated comment_id', data.comment_id);
-        resolve(data.comment_id);
-      } else {
-        if (UNISYS.IsStandaloneMode()) {
-          reject(
-            new Error(
-              'STANDALONE MODE: UI should prevent PromiseNewCommentID() from running!'
-            )
-          );
-        } else {
-          reject(new Error('unknown error' + JSON.stringify(data)));
-        }
-      }
-    });
+}
 
 MOD.DBUpdateComment = (cobj, cb) => {
   console.log('DBUpdateComment', cobj)
@@ -88,6 +80,8 @@ MOD.DBUpdateReadBy = (cref, uid) => {
     };
     readbys.push(readby);
   });
+  PMC.UR_MarkReadBy(readbys);
+}
 }
 
 /// EXPORT CLASS DEFINITION ///////////////////////////////////////////////////

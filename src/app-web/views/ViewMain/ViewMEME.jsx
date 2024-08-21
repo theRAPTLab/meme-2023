@@ -49,6 +49,9 @@ import ADM from '../../modules/data';
 import ASET from '../../modules/adm-settings';
 import DATAMAP from '../../../system/common-datamap';
 // MEME Comment Components
+import CMTMGR from '../../../system/comment-mgr/comment-mgr';
+import URCommentThreadMgr from '../../../system/comment-mgr/view/URCommentThreadMgr';
+import URCommentStatus from '../../../system/comment-mgr/view/URCommentStatus';
 import URCommentBtn from '../../../system/comment-mgr/view/URCommentBtn';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -398,6 +401,11 @@ class ViewMEME extends React.Component {
         x: 600, // stickynote hack moves it by -325
         y: 100
       });
+      const cref = CMTMGR.GetCREF('ENTITY', propId);
+      UR.Publish('CMTHOST_THREAD_OPEN', {
+        cref,
+        position: { x: 600, y: 100 }
+      });
     }
   }
 
@@ -412,6 +420,8 @@ class ViewMEME extends React.Component {
         x: 600, // stickynote hack moves it by -325
         y: 100
       });
+      const cref = CMTMGR.GetCREF('PROCESS', mech.id);
+      UR.Publish('CMTHOST_THREAD_OPEN', { cref, isOpen: true });
     }
   }
 
@@ -681,6 +691,10 @@ class ViewMEME extends React.Component {
           />
         </form>
         <div>by {modelAuthorGroupName} Group</div>
+        <URCommentStatus
+          message={'commentStatusMessage'}
+          handleMessageUpdate={'handleMessageUpdate'}
+        />
         <StickyNoteButton refId="9999" />
         <URCommentBtn cref="9999" />
         <button onClick={this.OnCloseModel}>
@@ -772,6 +786,7 @@ class ViewMEME extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const MAINVIEW = (
       <div style={{ backgroundColor: 'red' }} ref={this.refMain}>
+        <URCommentThreadMgr />
         <div className="view" ref={this.refView}>
           <Switch>
             <Route

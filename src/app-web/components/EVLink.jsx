@@ -114,6 +114,9 @@ import StickyNoteButton from './StickyNoteButton';
 import WRatingButton from './WRatingButton';
 import EVLinkButton from './EVLinkButton';
 import { Dropzone } from './Dropzone';
+// MEME Comment Components
+import CMTMGR from '../../system/comment-mgr/comment-mgr';
+import URCommentBtnAlias from '../../system/comment-mgr/view/URCommentBtnAlias';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -563,6 +566,7 @@ class EVLink extends React.Component {
     } = this.state;
     if (id === '') return '';
 
+    const cref = CMTMGR.GetCREF('EVLINK', id);
     let sourceType;
     let sourceLabel;
     // If we are listeningForSourceSelection, then leave sourceType and sourceLabel
@@ -700,6 +704,7 @@ class EVLink extends React.Component {
         {/* Buttons ------------------------------------------------------- */}
         <div className="rightbar">
           <StickyNoteButton refId={id} />
+          <URCommentBtnAlias cref={cref} />
           {RATING}
         </div>
       </div>
@@ -719,6 +724,7 @@ class EVLink extends React.Component {
           <ICNCountBadge count={evlink.numberLabel} size="medium" type="ev-light" />
           <div style={{ flexGrow: 1 }}></div>
           <StickyNoteButton refId={id} />
+          <URCommentBtnAlias cref={cref} />
           {!isBeingEdited && <ICNExpandSingleArrow expanded={isExpanded} />}
         </div>
         {/* Leave it out for now to save space

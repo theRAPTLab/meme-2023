@@ -391,7 +391,7 @@ function URComment({ cref, cid, uid }) {
           <div className="date">{modifytime_string || createtime_string}</div>
         </div>
         <div>
-          <div className="commentId">#{cid}</div>
+          <div className="commentId">#{comment.id}</div>
           <div>{TypeSelector}</div>
           <URCommentPrompt
             cref={cref}
@@ -423,7 +423,7 @@ function URComment({ cref, cid, uid }) {
           <div className="date">{modifytime_string || createtime_string}</div>
         </div>
         <div>
-          <div className="commentId">#{cid}</div>
+          <div className="commentId">#{comment.id}</div>
           <URCommentPrompt
             cref={cref}
             commentType={selected_comment_type}

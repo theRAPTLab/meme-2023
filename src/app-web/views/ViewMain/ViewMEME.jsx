@@ -50,7 +50,6 @@ import ASET from '../../modules/adm-settings';
 import DATAMAP from '../../../system/common-datamap';
 // MEME Comment Components
 import CMTMGR from '../../../system/comment-mgr/comment-mgr';
-import URCommentThreadMgr from '../../../system/comment-mgr/view/URCommentThreadMgr';
 import URCommentStatus from '../../../system/comment-mgr/view/URCommentStatus';
 import URCommentBtn from '../../../system/comment-mgr/view/URCommentBtn';
 
@@ -786,7 +785,6 @@ class ViewMEME extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const MAINVIEW = (
       <div style={{ backgroundColor: 'red' }} ref={this.refMain}>
-        <URCommentThreadMgr />
         <div className="view" ref={this.refView}>
           <Switch>
             <Route

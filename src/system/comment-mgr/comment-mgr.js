@@ -450,17 +450,17 @@ MOD.RemoveComment = (parms, cb) => {
     okmessage = 'Delete';
     cancelmessage = "Don't Delete";
   }
-  const dialog = (
-    <NCDialog
-      message={confirmMessage}
-      okmessage={okmessage}
-      onOK={event => m_ExecuteRemoveComment(event, parms, cb)}
-      cancelmessage={cancelmessage}
-      onCancel={m_CloseRemoveCommentDialog}
-    />
-  );
-  const container = document.getElementById(dialogContainerId);
-  ReactDOM.render(dialog, container);
+
+  const CMTSTATUS = STATE.State('CMTSTATUS');
+  CMTSTATUS.dialog = {
+    isOpen: true,
+    message: confirmMessage,
+    okmessage,
+    onOK: event => m_ExecuteRemoveComment(event, parms, cb),
+    cancelmessage,
+    onCancel: m_CloseRemoveCommentDialog
+  };
+  STATE.SetState('CMTSTATUS', CMTSTATUS);
 };
 /**
  * The db call is made AFTER ac/dc handles the removal and the logic of
@@ -479,8 +479,9 @@ function m_ExecuteRemoveComment(event, parms, cb) {
   if (typeof cb === 'function') cb();
 }
 function m_CloseRemoveCommentDialog() {
-  const container = document.getElementById(dialogContainerId);
-  ReactDOM.unmountComponentAtNode(container);
+  const CMTSTATUS = STATE.State('CMTSTATUS');
+  CMTSTATUS.dialog = { isOpen: false };
+  STATE.SetState('CMTSTATUS', CMTSTATUS);
 }
 
 /**

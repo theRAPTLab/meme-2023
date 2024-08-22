@@ -99,11 +99,11 @@ h3 {
 .appbar input::placeholder {
   color: #fff8;
 }
-.appbar button {
+.appbar > button {
   color: var(--clr-appbar);
   background-color: transparent;
 }
-.appbar button:hover {
+.appbar > button:hover {
   background-color: var(--clr-btn-hover);
 }
 

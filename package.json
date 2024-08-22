@@ -18,7 +18,9 @@
     "app": "node meme debugapp",
     "clean": "node meme clean",
     "clean:all": "node meme clean --all",
-    "test": "node meme test"
+    "test": "node meme test",
+    "package-turbo360": "node meme package-turbo360",
+    "deploy-turbo360": "node meme deploy-turbo360"
   },
   "keywords": [],
   "author": "Inquirium LLC; Dave Seah",

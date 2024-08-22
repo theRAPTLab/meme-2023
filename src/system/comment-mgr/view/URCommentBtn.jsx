@@ -27,6 +27,17 @@
     (handled by selection-mgr)
   This is handled via comment-mgr.LockComment.
 
+  commentBtnId
+  The commentBtnId is a unique id for each comment button.  It is used to
+  differentiate comment buttons on tables vs nodes/edges and ensures that
+  each comment button id is unique.
+  The structure is:
+    comment-button-<cref><uuiid>
+  e.g.
+    comment-button-v48      -- for a EVLink
+    comment-button-v48host  -- for a host
+
+
   USE:
 
     <URCommentBtn
@@ -76,7 +87,7 @@ import URCommentThread from './URCommentThread';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Initialize UNISYS DATA LINK for functional react component
 // nc const UDATAOwner = { name: 'URCommentThread' };
-const UDATAOwner = 'URCommentThread';
+const UDATAOwner = 'URCommenBtn';
 // nc const UDATA = UNISYS.NewDataLink(UDATAOwner);
 const UDATA = UR.NewConnection(UDATAOwner);
 /// Debug Flags
@@ -121,8 +132,8 @@ function URCommentBtn({ cref, uuiid }) {
       STATE.OffStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
       // nc UDATA.UnhandleMessage('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
       // nc UDATA.UnhandleMessage('COMMENT_SELECT', urmsg_COMMENT_SELECT);
-      UR.Unubscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
-      UR.Unubscribe('COMMENT_SELECT', urmsg_COMMENT_SELECT);
+      UR.Unsubscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
+      UR.Unsubscribe('COMMENT_SELECT', urmsg_COMMENT_SELECT);
       window.removeEventListener('resize', evt_OnResize);
     };
   }, []);

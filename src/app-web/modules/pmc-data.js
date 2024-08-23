@@ -785,6 +785,13 @@ PMCData.Mech = (evo, ew) => {
   const eobj = CoerceToEdgeObj(evo, ew);
   return m_graph.edge(eobj);
 };
+/** API.MODEL:
+ *  Return the mech object via the db id.
+ */
+PMCData.MechById = id => {
+  const path = PMCData.MechPathById(id);
+  return PMCData.Mech(path);
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Return the mech pathObj matching the db id.

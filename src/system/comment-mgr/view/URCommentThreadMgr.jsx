@@ -5,11 +5,11 @@
   URCommentThreadMgr handles the opening and closing of URCommentThreads
   being requested from three sources:
   * Evidence Links -- via URCOmmentBtnAlias
-  * SVG props      -- in class-vbadge via UR.Publish(`CMTHOST_THREAD_OPEN`) calls
-  * SVG Mechanisms -- in class-vbadge via UR.Publish(`CMTHOST_THREAD_OPEN`) calls
+  * SVG props      -- in class-vbadge via UR.Publish(`CTHREADMGR_THREAD_OPEN`) calls
+  * SVG Mechanisms -- in class-vbadge via UR.Publish(`CTHREADMGR_THREAD_OPEN`) calls
 
   URCommentBtnAlias is a visual component that passes clicks
-  to URCommentThreadMgr via UR.Publish(`CMTHOST_THREAD_OPEN`) calls
+  to URCommentThreadMgr via UR.Publish(`CTHREADMGR_THREAD_OPEN`) calls
 
 
   HOW IT WORKS
@@ -20,9 +20,9 @@
   * When the URCommentThread is closed, it will be removed from the URCommentThreadMgr
 
   UR MESSAGES
-  *  CMTHOST_THREAD_OPEN {cref, position}
-  *  CMTHOST_THREAD_CLOSE {cref}
-  *  CMTHOST_THREAD_CLOSE_ALL
+  *  CTHREADMGR_THREAD_OPEN {cref, position}
+  *  CTHREADMGR_THREAD_CLOSE {cref}
+  *  CTHREADMGR_THREAD_CLOSE_ALL
 
 
   NOTES
@@ -88,14 +88,14 @@ function URCommentThreadMgr(props) {
 
   /** Component Effect - register listeners on mount */
   useEffect(() => {
-    UR.Subscribe('CMTHOST_THREAD_OPEN', urmsg_THREAD_OPEN);
-    UR.Subscribe('CMTHOST_THREAD_CLOSE', urmsg_THREAD_CLOSE);
-    UR.Subscribe('CMTHOST_THREAD_CLOSE_ALL', urmsg_THREAD_CLOSE_ALL);
+    UR.Subscribe('CTHREADMGR_THREAD_OPEN', urmsg_THREAD_OPEN);
+    UR.Subscribe('CTHREADMGR_THREAD_CLOSE', urmsg_THREAD_CLOSE);
+    UR.Subscribe('CTHREADMGR_THREAD_CLOSE_ALL', urmsg_THREAD_CLOSE_ALL);
 
     return () => {
-      UR.Unsubscribe('CMTHOST_THREAD_OPEN', urmsg_THREAD_OPEN);
-      UR.Unsubscribe('CMTHOST_THREAD_CLOSE', urmsg_THREAD_CLOSE);
-      UR.Unsubscribe('CMTHOST_THREAD_CLOSE_ALL', urmsg_THREAD_CLOSE_ALL);
+      UR.Unsubscribe('CTHREADMGR_THREAD_OPEN', urmsg_THREAD_OPEN);
+      UR.Unsubscribe('CTHREADMGR_THREAD_CLOSE', urmsg_THREAD_CLOSE);
+      UR.Unsubscribe('CTHREADMGR_THREAD_CLOSE_ALL', urmsg_THREAD_CLOSE_ALL);
     };
   }, []);
 
@@ -106,7 +106,7 @@ function URCommentThreadMgr(props) {
   /// UR HANDLERS /////////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /**
-   * Handle CMTHOST_THREAD_OPEN message
+   * Handle CTHREADMGR_THREAD_OPEN message
    * 1. Register the button, and
    * 2. Open the URCommentBtn
    * @param {Object} data

@@ -567,6 +567,7 @@ class EVLink extends React.Component {
     if (id === '') return '';
 
     const cref = CMTMGR.GetCREF('EVLINK', id);
+
     let sourceType;
     let sourceLabel;
     // If we are listeningForSourceSelection, then leave sourceType and sourceLabel

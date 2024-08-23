@@ -31,10 +31,10 @@
   * ViewMEME
     * APPBAR -- Project comment via URCommentBtn
     * CONTROLBAR
-      -- OnAddPropComment via `CMTHOST_THREAD_OPEN`
-      -- OnAddMechComment via `CMTHOST_THREAD_OPEN`
+      -- OnAddPropComment via `CTHREADMGR_THREAD_OPEN`
+      -- OnAddMechComment via `CTHREADMGR_THREAD_OPEN`
   * EVLink -- via URCommentBtnAlias
-  * VBadge -- VBadge.SVGStickyButton.onClick via `CMTHOST_THREAD_OPEN`
+  * VBadge -- VBadge.SVGStickyButton.onClick via `CTHREADMGR_THREAD_OPEN`
 
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/

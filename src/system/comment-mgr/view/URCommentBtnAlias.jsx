@@ -89,7 +89,7 @@ function URCommentBtnAlias({ cref }) {
     const position = c_GetCommentThreadPosition();
     setIsOpen(isOpen);
     setPosition(position);
-    UR.Publish('CMTHOST_THREAD_OPEN', { cref, position });
+    UR.Publish('CTHREADMGR_THREAD_OPEN', { cref, position });
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function c_GetCommentThreadPosition() {

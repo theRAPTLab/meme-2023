@@ -1520,6 +1520,7 @@ PMCData.GetURComment = id => {
  */
 PMCData.GetURComments = cref => {
   return a_urcomments.filter(c => c.cref === cref);
+  return a_urcomments.filter(c => c.collection_ref === cref);
 };
 /**
  *  Retrieves ALL of the comment objects in the database.

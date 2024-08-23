@@ -391,7 +391,7 @@ PMCData.SyncUpdatedData = data => {
           break;
         case 'mech':
           // 1. Remove the old edge first.
-          const oldMechPathObj = PMCData.MechById(value.id);
+          const oldMechPathObj = PMCData.MechPathById(value.id);
           m_graph.removeEdge(oldMechPathObj);
 
           // 2. Then create the updated edge as a new edge
@@ -798,9 +798,8 @@ PMCData.Mech = (evo, ew) => {
  *  @param {Integer} id - The mech id of the db record (not a pathId)
  *  @return {Object} A pathObj {v,w}}
  */
-PMCData.MechById = id => {
-  const all_mechs = PMCData.AllMechs();
-  return all_mechs.find(pathObj => {
+PMCData.MechPathById = id => {
+  return a_mechs.find(pathObj => {
     const edgeAttr = PMCData.Mech(pathObj);
     if (edgeAttr.id === id) return pathObj;
   });

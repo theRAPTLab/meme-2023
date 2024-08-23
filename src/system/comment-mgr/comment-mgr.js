@@ -44,11 +44,14 @@ import React from 'react';
 import UR from '../../system/ursys';
 const STATE = require('./lib/client-state');
 import DATAMAP from '../../system/common-datamap';
+import DEFAULTS from '../../app-web/modules/defaults';
 import ADM from '../../app-web/modules/data';
 import DATA from '../../app-web/modules/data';
 
 import CMTDB from './comment-db';
 import * as COMMENT from './ac-comment.ts';
+
+const { CREF_PREFIX } = DEFAULTS;
 
 // const { EDITORTYPE } = require('system/util/enum');
 // const NCUI = require('./nc-ui');
@@ -180,10 +183,32 @@ MOD.GetNodeCREF = nodeId => `n${nodeId}`;
 MOD.GetEdgeCREF = edgeId => `e${edgeId}`;
 MOD.GetProjectCREF = projectId => `p${projectId}`;
 
+function InitCaps(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+MOD.CREFLABELS = new Map();
+MOD.CREFLABELS.set(CREF_PREFIX.PROJECT, 'Project');
+MOD.CREFLABELS.set(CREF_PREFIX.EVLINK, 'Evidence Link');
+MOD.CREFLABELS.set(CREF_PREFIX.ENTITY, InitCaps(DATAMAP.PMC_MODELTYPES.COMPONENT.label));
+MOD.CREFLABELS.set(CREF_PREFIX.PROCESS, InitCaps(DATAMAP.PMC_MODELTYPES.MECHANISM.label));
+MOD.CREFLABELS.set(CREF_PREFIX.OUTCOME, InitCaps(DATAMAP.PMC_MODELTYPES.OUTCOME.label));
+
+/**
+ *
+ * @param {*} type one of MOD.COMMENTTYPES
+ * @param {*} id
+ * @returns
+ */
+MOD.GetCREF = (type, id) => {
+  if (CREF_PREFIX[type]) return `${CREF_PREFIX[type]}${id}`;
+  throw new Error(`${PR}GetCREF: Invalid Comment Type ${type}`);
+}
+
 /// deconstructs "n32" into {type: "n", id: 32}
-MOD.DeconstructCref = cref => {
-  const type = cref.substring(0, 1);
-  const id = cref.substring(1);
+MOD.DeconstructCREF = cref => {
+  const type = String(cref).substring(0, 1);
+  const id = String(cref).substring(1);
   return { type, id };
 }
 
@@ -194,30 +219,35 @@ MOD.DeconstructCref = cref => {
  * @returns { typeLabel, sourceLabel } sourceLabel is undefined if the source has been deleted
  */
 MOD.GetCREFSourceLabel = cref => {
-  const { type, id } = MOD.DeconstructCref(cref);
-  let typeLabel;
-  let node, edge, nodes, sourceNode, targetNode;
+  const { type, id } = MOD.DeconstructCREF(cref);
+  let typeLabel = MOD.CREFLABELS.get(type);
   let sourceLabel; // undefined if not found
+  const REMOVED = 'removed';
   switch (type) {
-    case 'n':
-      typeLabel = 'Node';
-      node = STATE.State('NCDATA').nodes.find(n => n.id === Number(id));
-      if (!node) break; // node might be missing if comment references a node that was removed
-      if (node) sourceLabel = node.label;
+    case 'v':
+      // typeLabel = MOD.CREFLABELS.get(`EVLINK`); // not needed?
+      const evlink = DATA.PMC_GetEvLinkByEvId(Number(id));
+      sourceLabel = evlink ? evlink.numberLabel : REMOVED;
       break;
     case 'e':
-      typeLabel = 'Edge';
-      edge = STATE.State('NCDATA').edges.find(e => e.id === Number(id));
-      if (!edge) break; // edge might be missing if the comment references an edge that was removed
-      nodes = STATE.State('NCDATA').nodes;
-      sourceNode = nodes.find(n => n.id === Number(edge.source));
-      targetNode = nodes.find(n => n.id === Number(edge.target));
-      if (edge && sourceNode && targetNode)
-        sourceLabel = `${sourceNode.label}${ARROW_RIGHT}${targetNode.label}`;
+      // typeLabel = MOD.CREFLABELS.get(`ENTITY`); // not needed?
+      const entity = DATA.Prop(id);
+      sourceLabel = entity ? entity.name : REMOVED;
+      break;
+    case 'm':
+      const path = DATA.MechPathById(Number(id));
+      const mech = DATA.Mech(path);
+      sourceLabel = mech ? mech.name : REMOVED;
+      break;
+    case 'o':
+      // typeLabel = MOD.CREFLABELS.get(`OUTCOME`); // not needed?
+      const outcome = DATA.Prop(id);
+      sourceLabel = outcome ? outcome.name : REMOVED;
       break;
     case 'p':
-      typeLabel = 'Project';
-      sourceLabel = id;
+    default:
+      typeLabel = MOD.CREFLABELS.get(CREF_PREFIX.PROJECT);
+      sourceLabel = ADM.GetModelTitle();
       break;
   }
   return { typeLabel, sourceLabel };
@@ -226,7 +256,7 @@ MOD.GetCREFSourceLabel = cref => {
 /// Open the object that the comment refers to
 /// e.g. in Net.Create it's a node or edge object
 MOD.OpenReferent = cref => {
-  const { type, id } = MOD.DeconstructCref(cref);
+  const { type, id } = MOD.DeconstructCREF(cref);
   let edge;
   switch (type) {
     case 'n':
@@ -246,8 +276,7 @@ MOD.OpenReferent = cref => {
 
 /// Open comment using a comment id
 MOD.OpenComment = (cref, cid) => {
-  const { type, id } = MOD.DeconstructCref(cref);
-  let edge;
+  const { type, id } = MOD.DeconstructCREF(cref);
   switch (type) {
     case 'n':
       UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [parseInt(id)] }).then(() => {

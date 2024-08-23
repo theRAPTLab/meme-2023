@@ -4,7 +4,7 @@ import PMC from './data';
 import UR from '../../system/ursys';
 import VMech from './class-vmech';
 
-const { VPROP, COLOR, SVGSYMBOLS } = DEFAULTS;
+const { VPROP, COLOR, SVGSYMBOLS, CREF_PREFIX } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -193,7 +193,19 @@ class VBadge {
     // Set Current Read/Unreaad status
     let hasNoComments;
     let hasUnreadComments;
-    const comments = PMC.GetComments(isVMech ? vparent.data.id : vparent.id);
+
+    // DEPRECATED StickyNotes in favor of URCommentThreadMgr
+    // const comments = PMC.GetComments(isVMech ? vparent.data.id : vparent.id);
+
+    // URComment
+    let cref;
+    if (isVMech)
+      cref = CREF_PREFIX.PROCESS + vparent.data.id;  // CMTMGR.GetCREF('PROCESS', id);
+    else if (vparent.isOutcome)
+      cref = CREF_PREFIX.OUTCOME + vparent.id;  // CMTMGR.GetCREF('OUTCOME', id);
+    else
+      cref = CREF_PREFIX.ENTITY + vparent.id;  // CMTMGR.GetCREF('ENTITY', id);
+    const comments = PMC.GetURComments(cref);
     if (comments === undefined) {
       hasNoComments = true;
       hasUnreadComments = false;
@@ -205,7 +217,7 @@ class VBadge {
     if (hasNoComments) {
       this.gStickyButtons.chat.attr('display', 'none');
       this.gStickyButtons.chatBubble.attr('display', 'none');
-      this.gStickyButtons.chatBubbleOutline.attr('display', 'none'); // don't show outline ot keep interface clean
+      this.gStickyButtons.chatBubbleOutline.attr('display', 'none'); // don't show outline to keep interface clean
     } else if (hasUnreadComments) {
       this.gStickyButtons.chat.attr('display', 'inline');
       this.gStickyButtons.chatBubble.attr('display', 'none');
@@ -362,21 +374,32 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
     e.preventDefault();
     e.stopPropagation();
     if (DBG) console.log(`${e.target} clicked e=${e}`);
+
     // special handling for mechs
     // mech.id is actually a pathid, not the PMCData (db) id.
     // We want comments to reference the db id so that they are unique and persistent
     // e.g. when a mech is reversed, the id remains the same
     // e.g. when a mech is deleted, the id is deleted, so if a new mech with the same pathid
     //      is created, the comment isn't pulled up again.
-    let id = vparent.id;
-    if (m_IsVMech(vparent)) {
-      id = vparent.data.id;
-    }
-    UR.Publish('STICKY_OPEN', {
-      refId: id,
-      x: e.clientX,
-      y: e.clientY
-    });
+    const isVMech = m_IsVMech(vparent);
+    const id = isVMech ? vparent.data.id : vparent.id;
+
+    // DEPRECATED StickyNotes in favor of URCommentThreadMgr
+    // UR.Publish('STICKY_OPEN', {
+    //   refId: id,
+    //   x: e.clientX,
+    //   y: e.clientY
+    // });
+
+    // URComment
+    let cref;
+    if (isVMech)
+      cref = CREF_PREFIX.PROCESS + id;  // CMTMGR.GetCREF('PROCESS', id);
+    else if (vparent.isOutcome)
+      cref = CREF_PREFIX.OUTCOME + id;  // CMTMGR.GetCREF('OUTCOME', id);
+    else
+      cref = CREF_PREFIX.ENTITY + id;  // CMTMGR.GetCREF('ENTITY', id);
+    UR.Publish('CTHREADMGR_THREAD_OPEN', { cref, position: { x: e.clientX, y: e.clientY } });
   };
 
   // create vbadge sub elements

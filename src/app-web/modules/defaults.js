@@ -61,6 +61,13 @@ const DEFAULTS = {
   },
   TEXT: {
     ADD_EVIDENCE: 'New Evidence Link'
+  },
+  CREF_PREFIX: {
+    PROJECT: 'p',
+    EVLINK: 'v',
+    ENTITY: 'e',
+    PROCESS: 'm',
+    OUTCOME: 'o'
   }
 };
 

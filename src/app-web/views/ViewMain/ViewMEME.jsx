@@ -123,7 +123,8 @@ class ViewMEME extends React.Component {
     this.OnOutcomeAdd = this.OnOutcomeAdd.bind(this);
     this.OnPropAdd = this.OnPropAdd.bind(this);
     this.OnPropDelete = this.OnPropDelete.bind(this);
-    this.OnAddPropComment = this.OnAddPropComment.bind(this);
+    this.OnAddEntityComment = this.OnAddEntityComment.bind(this);
+    this.OnAddOutcomeComment = this.OnAddOutcomeComment.bind(this);
     this.OnAddMechComment = this.OnAddMechComment.bind(this);
     this.OnMechDelete = this.OnMechDelete.bind(this);
     this.DoPropEdit = this.DoPropEdit.bind(this);
@@ -390,18 +391,35 @@ class ViewMEME extends React.Component {
     });
   }
 
-  OnAddPropComment() {
+  OnAddEntityComment() {
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (selectedPropIds.length > 0) {
       let propId = selectedPropIds[0];
-      UR.Publish('STICKY_OPEN', {
-        refId: propId,
-        // FIXME: Set position according to parent prop?
-        x: 600, // stickynote hack moves it by -325
-        y: 100
-      });
+
+      // DEPRECATED StickyNotes in favor of URCommentThreadMgr
+      // UR.Publish('STICKY_OPEN', {
+      //   refId: propId,
+      //   // MEFIX: Set position according to parent prop?
+      //   x: 600, // stickynote hack moves it by -325
+      //   y: 100
+      // });
+
       const cref = CMTMGR.GetCREF('ENTITY', propId);
-      UR.Publish('CMTHOST_THREAD_OPEN', {
+      if (DBG) console.log('---- OnAddPropComment', cref);
+      UR.Publish('CTHREADMGR_THREAD_OPEN', {
+        cref,
+        position: { x: 600, y: 100 }
+      });
+    }
+  }
+
+  OnAddOutcomeComment() {
+    let selectedPropIds = DATA.VM_SelectedPropsIds();
+    if (selectedPropIds.length > 0) {
+      let propId = selectedPropIds[0];
+      const cref = CMTMGR.GetCREF('OUTCOME', propId);
+      if (DBG) console.log('---- OnAddOutcomeComment', cref);
+      UR.Publish('CTHREADMGR_THREAD_OPEN', {
         cref,
         position: { x: 600, y: 100 }
       });
@@ -413,14 +431,22 @@ class ViewMEME extends React.Component {
     if (selectedMechIds.length > 0) {
       let mechId = selectedMechIds[0];
       let mech = DATA.Mech(mechId);
-      UR.Publish('STICKY_OPEN', {
-        refId: mech.id,
-        // FIXME: Set position according to parent prop?
-        x: 600, // stickynote hack moves it by -325
-        y: 100
+
+      // DEPRECATED StickyNotes in favor of URCommentThreadMgr
+      // UR.Publish('STICKY_OPEN', {
+      //   refId: mech.id,
+      //   // MEFIX: Set position according to parent prop?
+      //   x: 600, // stickynote hack moves it by -325
+      //   y: 100
+      // });
+
+      // We're using the pmcData id, not the path object
+      const cref = CMTMGR.GetCREF('PROCESS', mech.id); // mech.id = '167'
+      if (DBG) console.log('---- OnAddMechComment', cref);
+      UR.Publish('CTHREADMGR_THREAD_OPEN', {
+        cref,
+        position: { x: 600, y: 100 }
       });
-      const cref = CMTMGR.GetCREF('PROCESS', mech.id);
-      UR.Publish('CMTHOST_THREAD_OPEN', { cref, isOpen: true });
     }
   }
 
@@ -772,9 +798,11 @@ class ViewMEME extends React.Component {
             isDBReadOnly
           }
           onClick={
-            componentIsSelected || outcomeIsSelected
-              ? this.OnAddPropComment
-              : this.OnAddMechComment
+            componentIsSelected
+              ? this.OnAddEntityComment
+              : outcomeIsSelected
+                ? this.OnAddOutcomeComment
+                : this.OnAddMechComment
           }
         >
           {CHATICON}

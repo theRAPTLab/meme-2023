@@ -26,22 +26,32 @@
   2. It then waits for the `DATA_UPDATED` UR message.
   3. When that is received, we request a LoadDBData from the PMC module.
 
+  Creating a Comment
+  Comments can be created in multiple places:
+  * ViewMEME
+    * APPBAR -- Project comment via URCommentBtn
+    * CONTROLBAR
+      -- OnAddPropComment via `CMTHOST_THREAD_OPEN`
+      -- OnAddMechComment via `CMTHOST_THREAD_OPEN`
+  * EVLink -- via URCommentBtnAlias
+  * VBadge -- VBadge.SVGStickyButton.onClick via `CMTHOST_THREAD_OPEN`
 
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
-const React = require('react');
-const ReactDOM = require('react-dom');
+import React from 'react';
 
 import UR from '../../system/ursys';
 const STATE = require('./lib/client-state');
+import DATAMAP from '../../system/common-datamap';
+import ADM from '../../app-web/modules/data';
+import DATA from '../../app-web/modules/data';
+
 import CMTDB from './comment-db';
 import * as COMMENT from './ac-comment.ts';
-import ADM from '../../app-web/modules/data';
 
 // const { EDITORTYPE } = require('system/util/enum');
 // const NCUI = require('./nc-ui');
-// const NCDialog = require('./components/NCDialog');
 
 /// CONSTANTS & DECLARATIONS //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -52,8 +62,6 @@ const PR = 'comment-mgr: ';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const MOD = {};
 const UDATA = UR.NewConnection('comment-mgr');
-
-const dialogContainerId = 'dialog-container'; // used to inject dialogs into NetCreate.jsx
 
 let UID; // user id, cached.  nc-logic updates this on INITIALIZE and SESSION
 
@@ -67,12 +75,12 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
   COMMENT.Init();
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - inside hook
   /// STATE UPDATES and Message Handlers
-  UDATA.Subscribe('DATA_UPDATED', MOD.LoadDBData);
-  UDATA.Subscribe('COMMENTS_UPDATE', MOD.HandleCOMMENTS_UPDATE);
-  UDATA.Subscribe('COMMENT_UPDATE', MOD.HandleCOMMENT_UPDATE);
-  UDATA.Subscribe('READBY_UPDATE', MOD.HandleREADBY_UPDATE);
+  UR.Subscribe('DATA_UPDATED', MOD.LoadDBData);
+  UR.Subscribe('COMMENTS_UPDATE', MOD.HandleCOMMENTS_UPDATE);
+  UR.Subscribe('COMMENT_UPDATE', MOD.HandleCOMMENT_UPDATE);
+  UR.Subscribe('READBY_UPDATE', MOD.HandleREADBY_UPDATE);
   // Net.Create Handlers
-  UDATA.Subscribe('EDIT_PERMISSIONS_UPDATE', m_UpdatePermissions);
+  UR.Subscribe('EDIT_PERMISSIONS_UPDATE', m_UpdatePermissions);
 
   // Currently not used
   // UDATA.OnAppStateChange('COMMENTCOLLECTION', COMMENTCOLLECTION => console.log('comment-mgr.COMMENTCOLLECTION state updated:', COMMENTCOLLECTION));

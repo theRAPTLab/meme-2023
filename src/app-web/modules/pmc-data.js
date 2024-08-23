@@ -1519,7 +1519,6 @@ PMCData.GetURComment = id => {
  *  @return {Array} Array of comment objects, or [] if none defined.
  */
 PMCData.GetURComments = cref => {
-  return a_urcomments.filter(c => c.cref === cref);
   return a_urcomments.filter(c => c.collection_ref === cref);
 };
 /**
@@ -1791,7 +1790,9 @@ PMCData.GetEvLinksByResourceId = rsrcId => {
 
 // Additional helper method to return the link count, as needed in the resource list (and maybe other places?)
 PMCData.GetEvLinksCountByResourceId = rsrcId => {
-  return h_evidenceByResource.get(rsrcId).length;
+  // REVIEW: After enabling a new resource while a project is open, the new resource is undefined?
+  // so we needt o gracefully handle this case
+  return h_evidenceByResource.get(rsrcId) ? h_evidenceByResource.get(rsrcId).length : 0;
 };
 
 /// DEBUG UTILS //////////////////////////////////////////////////////////////

@@ -225,27 +225,25 @@ MOD.GetCREFSourceLabel = cref => {
   const REMOVED = 'removed';
   switch (type) {
     case 'v':
-      // typeLabel = MOD.CREFLABELS.get(`EVLINK`); // not needed?
       const evlink = DATA.PMC_GetEvLinkByEvId(Number(id));
       sourceLabel = evlink ? evlink.numberLabel : REMOVED;
       break;
     case 'e':
-      // typeLabel = MOD.CREFLABELS.get(`ENTITY`); // not needed?
       const entity = DATA.Prop(id);
       sourceLabel = entity ? entity.name : REMOVED;
+      break;
+    case 'o':
+      const outcome = DATA.Prop(id);
+      sourceLabel = outcome ? outcome.name : REMOVED;
       break;
     case 'm':
       const path = DATA.MechPathById(Number(id));
       const mech = DATA.Mech(path);
       sourceLabel = mech ? mech.name : REMOVED;
       break;
-    case 'o':
-      // typeLabel = MOD.CREFLABELS.get(`OUTCOME`); // not needed?
-      const outcome = DATA.Prop(id);
-      sourceLabel = outcome ? outcome.name : REMOVED;
-      break;
     case 'p':
     default:
+      // REVIEW: Project is 9999, does not use 'p' currently.  Should it?
       typeLabel = MOD.CREFLABELS.get(CREF_PREFIX.PROJECT);
       sourceLabel = ADM.GetModelTitle();
       break;

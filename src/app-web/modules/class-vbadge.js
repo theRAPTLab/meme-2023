@@ -234,24 +234,29 @@ class VBadge {
     // Move gStickyButtons only AFTER setting display state, otherwise, the icon will get drawn at 0,0
     const evlinkBadgesOffsetX = this.evlinks ? this.evlinks.length * badgeXOffset : 0;
     if (isVMech) {
-      // left-justified
+      // VMech is left-justified
 
       // NEW sticky on left
-      this.gBadges.move(baseX + this.gStickyButtons.bbox().w + m_pad * 2, baseY);
-      // -- move sticky notes AFTER moving gBadges
+      if (hasComments) {
+        this.gBadges.move(baseX + this.gStickyButtons.bbox().w + m_pad * 2, baseY);
+      } else {
+        this.gBadges.move(baseX + evlinkBadgesOffsetX - m_pad / 2, baseY);
+      }
+      // -- move sticky notes AFTER moving gBadges for more predictable left-justified layout
       this.gStickyButtons.move(baseX + this.gStickyButtons.bbox().w / 2 + m_pad, baseY); // always move in case evlink badges change
 
       // ORIG sticky on right
       // this.gStickyButtons.move(baseX + xx + this.gStickyButtons.bbox().w + m_pad, baseY); // always move in case evlink badges change
     } else {
-      // right-justified
-      this.gStickyButtons.move(baseX + xx - this.gStickyButtons.bbox().w - m_pad, baseY); // always move in case evlink badges change
-    }
+      // VProp is right-justified
 
-    // adjust for width of vprop
-    if (!isVMech) {
-      let { w: bw } = this.gEvLinkBadges.bbox();
-      this.gBadges.move(baseX - bw - this.gStickyButtons.bbox().w - m_pad * 2, baseY);
+      // NEW sticky on left
+      this.gStickyButtons.move(baseX - badgeXOffset * 2, baseY); // always move in case evlink badges change
+      // -- move sticky notes BEDFORE moving gBadges for more predictable right-justified layout
+      this.gBadges.move(baseX - this.gStickyButtons.bbox().w - evlinkBadgesOffsetX, baseY);
+
+      // ORIG sticky on right
+      // this.gStickyButtons.move(baseX + xx - this.gStickyButtons.bbox().w - m_pad, baseY); // always move in case evlink badges change
     }
   }
 

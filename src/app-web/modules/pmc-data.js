@@ -1605,12 +1605,15 @@ PMCData.GetAllURReadbys = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// STICKIES //////////////////////////////////////////////////////////////////
 ///
+/// REVIEW: DEPRECATED
+///
 /// Stickies are the original MEME comment system.
 /// That system has since been replaced by the URComment system
 /// migrated from Net.Create
 ///
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
+ // REVIEW: DEPRECATED in faovr of URComment system
  *  Adds a new comment item to the database
  *  @param {String} refId - id of the parent object the comment is pointing to
  *  @param {Object} commentData - a PMCObj.Comment-like object with NO id
@@ -1642,6 +1645,7 @@ PMCData.DB_CommentAdd = (refId, commentData, cb) => {
   });
 };
 /**
+ // REVIEW: DEPRECATED in faovr of URComment system
  *  Updates a single comment items
  *  @param {String} refId - id of the parent object the comment is pointing to
  *  @param {Object} comment - a PMCObj.Comment-like object with
@@ -1676,6 +1680,7 @@ PMCData.DB_CommentUpdate = (refId, comment, cb) => {
   });
 };
 /**
+ // REVIEW: DEPRECATED in faovr of URComment system
  *  Updates an array of comment items
  *  @param {String} refId - id of the parent object the comment is pointing to
  *  @param {Object} comments - an array of PMCObj.Comment-like object with
@@ -1697,6 +1702,7 @@ PMCData.DB_CommentsUpdate = (refId, comments, cb) => {
 };
 
 /**
+ // REVIEW: DEPRECATED in faovr of URComment system
  *  Remove comment from the db
  *  @param {String} id - id of the comment object (not refId)
  */
@@ -1712,6 +1718,7 @@ PMCData.DB_CommentDelete = commentId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
+ // REVIEW: DEPRECATED in faovr of URComment system
  *  Retrieves the comment object in the database matching the comment id
  *  @param {String} id - database id of the comment object (not refId)
  *  @return {Array} Array of comment objects, or undefined if not found
@@ -1720,6 +1727,7 @@ PMCData.GetComment = id => {
   return a_comments.find(c => c.id === id);
 };
 /**
+ // REVIEW: DEPRECATED in faovr of URComment system
  *  Retrieves all of the comment objects in the database related to refId
  *  @param {String} refId - id of Property(Number) or Mechanism(String)
  *  @return {Array} Array of comment objects, or [] if none defined.
@@ -1729,6 +1737,7 @@ PMCData.GetComments = refId => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
+ // REVIEW: DEPRECATED in faovr of URComment system
  *  Adds a new markedread item to the database
  *  @param {String} commentId - id of the coment object that is being marked read
  *  @param {Object} author - id of the author who read the comment
@@ -1749,6 +1758,7 @@ PMCData.DB_MarkRead = (commentId, author) => {
   });
 };
 /**
+ // REVIEW: DEPRECATED in faovr of URComment system
  *  Checks if the comment referenced by commentId has been read by the author
  *  @param {Integer} commentId - db id of the comment object
  *  @param {String} author - token
@@ -1759,6 +1769,7 @@ PMCData.HasBeenRead = (commentId, author) => {
   });
 };
 /**
+ // REVIEW: DEPRECATED in faovr of URComment system
  *  Checks if the comment referenced by commentId has been read by the author
  *  Used to set StickyNoteButton status.
  *  @param {Array} comments - an array of Comment objects
@@ -1768,6 +1779,12 @@ PMCData.HasUnreadComments = (comments, author) => {
   if (!Array.isArray(comments)) throw Error('comments is not an array');
   return comments.find(c => !PMCData.HasBeenRead(c.id, author));
 };
+
+
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// RESOURCES /////////////////////////////////////////////////////////////////
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
  *  Given the passed resource ID, returns array of prop ids linked to the resource object.

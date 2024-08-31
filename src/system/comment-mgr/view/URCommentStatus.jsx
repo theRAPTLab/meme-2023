@@ -57,8 +57,12 @@ function URCommentStatus(props) {
 
   /** Component Effect - register listeners on mount */
   useEffect(() => {
-    STATE.OnStateChange('CMTSTATUS', state_CMTSTATUS);
-    STATE.OnStateChange('COMMENTCOLLECTION', () => setDummy(dummy => dummy + 1)); // respond to close
+    STATE.OnStateChange('CMTSTATUS', state_CMTSTATUS, UDATAOwner);
+    STATE.OnStateChange(
+      'COMMENTCOLLECTION',
+      () => setDummy(dummy => dummy + 1),
+      UDATAOwner
+    ); // respond to close
     UR.Subscribe('COMMENTS_UPDATE', urmsg_COMMENTS_UPDATE);
     UR.Subscribe('COMMENT_UPDATE', urmsg_COMMENT_UPDATE);
 

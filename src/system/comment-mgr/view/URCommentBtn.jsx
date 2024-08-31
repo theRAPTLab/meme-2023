@@ -117,8 +117,12 @@ function URCommentBtn({ cref, uuiid }) {
   useEffect(() => {
     // nc UDATA.OnAppStateChange('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
     // nc UDATA.OnAppStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
-    STATE.OnStateChange('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
-    STATE.OnStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
+    STATE.OnStateChange(
+      'COMMENTCOLLECTION',
+      urstate_UpdateCommentCollection,
+      UDATAOwner
+    );
+    STATE.OnStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs, UDATAOwner);
     // nc UDATA.HandleMessage('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
     // nc UDATA.HandleMessage('COMMENT_SELECT', urmsg_COMMENT_SELECT);
     UR.Subscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);

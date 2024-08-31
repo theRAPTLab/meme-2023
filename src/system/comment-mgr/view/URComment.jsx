@@ -90,7 +90,7 @@ function URComment({ cref, cid, uid }) {
     const urstate_UpdateCommentVObjs = () => c_LoadCommentVObj();
 
     // hook UNISYS state change and message handlers
-    STATE.OnStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
+    STATE.OnStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs, UDATAOwner);
     UR.Subscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
 
     // cleanup methods for functional component unmount

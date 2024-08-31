@@ -44,6 +44,8 @@ import CMTMGR from '../comment-mgr';
 const DBG = false;
 const PR = 'URCommentBtnAlias';
 
+const UDATAOwner = 'URCommentBtnAlias';
+
 /// REACT FUNCTIONAL COMPONENT ////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** URCommentBtnAlias
@@ -57,7 +59,11 @@ function URCommentBtnAlias({ cref }) {
 
   /** Component Effect - set up listeners on mount */
   useEffect(() => {
-    STATE.OnStateChange('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
+    STATE.OnStateChange(
+      'COMMENTCOLLECTION',
+      urstate_UpdateCommentCollection,
+      UDATAOwner
+    );
     window.addEventListener('resize', evt_OnResize);
 
     setPosition(c_GetCommentThreadPosition());

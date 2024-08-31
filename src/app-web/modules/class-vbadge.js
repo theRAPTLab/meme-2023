@@ -14,6 +14,8 @@ const { VPROP, COLOR, SVGSYMBOLS, CREF_PREFIX } = DEFAULTS;
 const m_minWidth = VPROP.MIN_WIDTH;
 const m_minHeight = VPROP.MIN_HEIGHT;
 const m_pad = 5; // was PAD.MIN, but that's too big.  5 works better
+const badgeRadius = m_minHeight - m_pad / 2;
+const badgeXOffset = badgeRadius + m_pad;
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -230,9 +232,17 @@ class VBadge {
     }
 
     // Move gStickyButtons only AFTER setting display state, otherwise, the icon will get drawn at 0,0
+    const evlinkBadgesOffsetX = this.evlinks ? this.evlinks.length * badgeXOffset : 0;
     if (isVMech) {
       // left-justified
-      this.gStickyButtons.move(baseX + xx + this.gStickyButtons.bbox().w + m_pad, baseY); // always move in case evlink badges change
+
+      // NEW sticky on left
+      this.gBadges.move(baseX + this.gStickyButtons.bbox().w + m_pad * 2, baseY);
+      // -- move sticky notes AFTER moving gBadges
+      this.gStickyButtons.move(baseX + this.gStickyButtons.bbox().w / 2 + m_pad, baseY); // always move in case evlink badges change
+
+      // ORIG sticky on right
+      // this.gStickyButtons.move(baseX + xx + this.gStickyButtons.bbox().w + m_pad, baseY); // always move in case evlink badges change
     } else {
       // right-justified
       this.gStickyButtons.move(baseX + xx - this.gStickyButtons.bbox().w - m_pad, baseY); // always move in case evlink badges change

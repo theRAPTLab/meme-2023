@@ -40,6 +40,7 @@ class VBadge {
     this.height = m_minHeight;
     this.evlinks = [];
     this.comments = [];
+    this.commentCount = 0; // cache the comment count for performance
 
     // create our own groups
     /**
@@ -231,6 +232,18 @@ class VBadge {
       this.gStickyButtons.unread.attr('display', 'none');
     }
 
+    // update count on draw b/c number of comments might change
+    if (comments && comments.length > 0) {
+      // don't update the label if the count hasn't changed.
+      // improves performance significantly
+      if (comments.length !== this.commentCount) {
+        // gLabel text can't be empty string, or dragging leads to race condition
+        this.gStickyButtons.gLabel.text(comments.length);  // BUG: If text is empty, dragging seeems to lead to a race condition
+        this.commentCount = comments.length;
+      }
+    }
+
+
     // Move gStickyButtons only AFTER setting display state, otherwise, the icon will get drawn at 0,0
     const evlinkBadgesOffsetX = this.evlinks ? this.evlinks.length * badgeXOffset : 0;
     if (isVMech) {
@@ -258,6 +271,13 @@ class VBadge {
       // ORIG sticky on right
       // this.gStickyButtons.move(baseX + xx - this.gStickyButtons.bbox().w - m_pad, baseY); // always move in case evlink badges change
     }
+
+    // DEPRECATED StickyNotes in favor of URCommentThreadMgr
+    // -- adjust for width of vprop
+    // if (!isVMech) {
+    //   let { w: bw } = this.gEvLinkBadges.bbox();
+    //   this.gBadges.move(baseX - bw - this.gStickyButtons.bbox().w - m_pad * 2, baseY);
+    // }
   }
 
   /**
@@ -384,6 +404,15 @@ VBadge.SVGRating = (evlink, gBadge) => {
  *  down to the gStickyButtons group.
  */
 VBadge.SVGStickyButton = (vparent, x, y) => {
+  // REVIEW: Should `cref` be defined globally?
+  let cref;
+  if (m_IsVMech(vparent))
+    cref = CREF_PREFIX.PROCESS + vparent.data.id;  // CMTMGR.GetCREF('PROCESS', id);
+  else if (vparent.isOutcome)
+    cref = CREF_PREFIX.OUTCOME + vparent.id;  // CMTMGR.GetCREF('OUTCOME', id);
+  else
+    cref = CREF_PREFIX.ENTITY + vparent.id;  // CMTMGR.GetCREF('ENTITY', id);
+
   const onClick = customEvent => {
     let e = customEvent.detail.event || customEvent; // class-vprop-dragdrop sends custom events, but vmech sends regular mouse events.
     e.preventDefault();
@@ -406,14 +435,6 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
     //   y: e.clientY
     // });
 
-    // URComment
-    let cref;
-    if (isVMech)
-      cref = CREF_PREFIX.PROCESS + id;  // CMTMGR.GetCREF('PROCESS', id);
-    else if (vparent.isOutcome)
-      cref = CREF_PREFIX.OUTCOME + id;  // CMTMGR.GetCREF('OUTCOME', id);
-    else
-      cref = CREF_PREFIX.ENTITY + id;  // CMTMGR.GetCREF('ENTITY', id);
     UR.Publish('CTHREADMGR_THREAD_OPEN', { cref, position: { x: e.clientX, y: e.clientY } });
   };
 
@@ -437,6 +458,18 @@ VBadge.SVGStickyButton = (vparent, x, y) => {
     .group()
     .use(SVGSYMBOLS.get('commentUnreadSelected'))
     .scale(scale);
+
+  const comments = PMC.GetURComments(cref);
+  if (comments && comments.length > 0) {
+    // gLabel text can't be empty string, or dragging leads to race condition
+    VBadge.commentCount = comments.length;
+    gStickyButtons.gLabel = gStickyButtons
+      .text(VBadge.commentCount) // BUG: If text is empty, dragging seeems to lead to a race condition
+      .font({ fill: COLOR.COMMENT_DARK, size: '12px', anchor: 'middle' })
+      // .dmove(5.5, 10)
+      .transform({ translate: [5.5, 10] }) // m_minHeight / 4, m_minHeight / 3)
+      .attr({ cursor: 'pointer' });
+  }
 
   // DEPRECATED StickyNotes in favor of URCommentThreadMgr
   // gStickyButtons.chat = gStickyButtons.group().use(SVGSYMBOLS.get('chatIcon'));

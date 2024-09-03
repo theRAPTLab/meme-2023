@@ -2,7 +2,10 @@ import DEFAULTS from './defaults';
 import ADM from './data';
 import PMC from './data';
 import UR from '../../system/ursys';
+import CMTMGR from '../../system/comment-mgr/comment-mgr';
 import VMech from './class-vmech';
+import RATINGS from '../components/WRatings';
+
 
 const { VPROP, COLOR, SVGSYMBOLS, CREF_PREFIX } = DEFAULTS;
 
@@ -15,7 +18,7 @@ const m_minWidth = VPROP.MIN_WIDTH;
 const m_minHeight = VPROP.MIN_HEIGHT;
 const m_pad = 5; // was PAD.MIN, but that's too big.  5 works better
 const badgeRadius = m_minHeight - m_pad / 2;
-const badgeXOffset = badgeRadius + m_pad;
+const badgeXOffset = badgeRadius * 1.75 + m_pad; // wide badge with rating embedded
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -67,9 +70,13 @@ class VBadge {
      *           +-- gStickyButtons (group)
      */
     this.gBadges = vparent.GetVBadgeParent().group().attr('id', 'gBadges');
-    this.gEvLinkBadges = this.gBadges.group().attr('id', 'gEvLinkBadges');
+    // oRig
+    //    this.gEvLinkBadges = this.gBadges.group().attr('id', 'gEvLinkBadges');
     this.gStickyButtons = VBadge.SVGStickyButton(vparent, this.cref, 0, 0);
     this.gBadges.add(this.gStickyButtons);
+    // try add stickys AFTEr evlnk -- changing the order CHANGES transforms!
+    this.gEvLinkBadges = this.gBadges.group().attr('id', 'gEvLinkBadges');
+
 
     this.gBadges.click(e => {
       this.OnClick(e);
@@ -220,25 +227,38 @@ class VBadge {
     } else {
       hasComments = comments.length > 0;
       const author = ADM.GetAuthorId();
-      hasUnreadComments = PMC.HasUnreadComments(comments, author);
+      const ccol = CMTMGR.GetCommentCollection(this.cref) || {};
+      hasUnreadComments = ccol.hasUnreadComments;
     }
-    if (!hasComments) {
-      this.gStickyButtons.chat.attr('display', 'none');
-      this.gStickyButtons.read.attr('display', 'none');
-      this.gStickyButtons.unread.attr('display', 'none'); // don't show outline to keep interface clean
-      this.gStickyButtons.gLabel.attr('display', 'none');
-    } else if (hasUnreadComments) {
-      this.gStickyButtons.chat.attr('display', 'none');
-      this.gStickyButtons.read.attr('display', 'none');
-      this.gStickyButtons.unread.attr('display', 'inline');
-      this.gStickyButtons.gLabel.attr('display', 'inline');
-    } else {
-      // all comments read
-      this.gStickyButtons.chat.attr('display', 'none');
-      this.gStickyButtons.read.attr('display', 'inline');
-      this.gStickyButtons.unread.attr('display', 'none');
-      this.gStickyButtons.gLabel.attr('display', 'inline');
-    }
+
+    const uistate = CMTMGR.GetCommentUIState(this.cref);
+    const commentThreadIsOpen = uistate && uistate.isOpen;
+    console.log('commentThreadIsOpen', commentThreadIsOpen, 'cref', this.cref);
+
+    // OPenComments is a secondary function?  Use CommentUIState instead for a more direct review?
+    // const openuiref = CMTMGR.GetOpenComments(this.cref);
+    // if (openuiref === this.cref) console.error('OPEN!!!', openuiref);
+    // else console.log('openuiref', openuiref, 'cref', this.cref);
+    // const commentThreadIsOpen = openuiref === this.cref;
+
+    // hide everything first
+    // this.gStickyButtons.unread.attr('display', 'none');
+    // this.gStickyButtons.read.attr('display', 'none');
+    // this.gStickyButtons.unreadSelected.attr('display', 'none');
+    // this.gStickyButtons.readSelected.attr('display', 'none');
+    // this.gStickyButtons.gLabel.attr('display', 'none');
+    // if (!hasComments) {
+    //   // no sticky buttons
+    // } else if (hasUnreadComments) {
+    //   if (commentThreadIsOpen) this.gStickyButtons.unreadSelected.attr('display', 'inline');
+    //   else this.gStickyButtons.unread.attr('display', 'inline');
+    //   this.gStickyButtons.gLabel.attr('display', 'inline');
+    // } else {
+    //   // all comments read
+    //   if (commentThreadIsOpen) this.gStickyButtons.readSelected.attr('display', 'inline');
+    //   else this.gStickyButtons.read.attr('display', 'inline');
+    //   this.gStickyButtons.gLabel.attr('display', 'inline');
+    // }
 
     // update count on draw b/c number of comments might change
     if (comments && comments.length > 0) {
@@ -246,11 +266,56 @@ class VBadge {
       // improves performance significantly
       if (comments.length !== this.commentCount) {
         // gLabel text can't be empty string, or dragging leads to race condition
-        this.gStickyButtons.gLabel.text(comments.length);  // BUG: If text is empty, dragging seeems to lead to a race condition
+        // this.gStickyButtons.gLabel.text(comments.length);  // BUG: If text is empty, dragging seeems to lead to a race condition
         this.commentCount = comments.length;
       }
     }
 
+    // clear every draw so we don't have a ton of extra svg objects being shown/hidden
+    // just the necessary ones.
+    const scale = 1.6;
+    this.gStickyButtons.clear();
+    if (!hasComments) {
+      // no sticky buttons
+    } else if (hasUnreadComments) {
+      // Unread
+      if (commentThreadIsOpen)
+        this.gStickyButtons.group()
+          .use(SVGSYMBOLS.get('commentUnreadSelected'))
+          .scale(scale);
+      else this.gStickyButtons.group()
+        .use(SVGSYMBOLS.get('commentUnread'))
+        .scale(scale);
+      this.gStickyButtons.gLabel = this.gStickyButtons
+        .text(this.commentCount) // BUG: If text is empty, dragging seeems to lead to a race condition
+        .font({ fill: COLOR.COMMENT_DARK, size: '12px', anchor: 'middle' })
+        .dmove(5.5, 10)
+        // .transform({ translate: [5.5, 10] }) // m_minHeight / 4, m_minHeight / 3)
+        .attr({ cursor: 'pointer' });
+    } else {
+      // Read
+      if (commentThreadIsOpen) {
+        this.gStickyButtons.group()
+          .use(SVGSYMBOLS.get('commentReadSelected'))
+          .scale(scale);
+        this.gStickyButtons.gLabel = this.gStickyButtons
+          .text(this.commentCount) // BUG: If text is empty, dragging seeems to lead to a race condition
+          .font({ fill: '#fff', size: '12px', anchor: 'middle' })
+          .dmove(5.5, 10)
+          // .transform({ translate: [5.5, 10] }) // m_minHeight / 4, m_minHeight / 3)
+          .attr({ cursor: 'pointer' });
+      } else {
+        this.gStickyButtons.group()
+          .use(SVGSYMBOLS.get('commentRead'))
+          .scale(scale);
+        this.gStickyButtons.gLabel = this.gStickyButtons
+          .text(this.commentCount) // BUG: If text is empty, dragging seeems to lead to a race condition
+          .font({ fill: COLOR.COMMENT_READ, size: '12px', anchor: 'middle' })
+          .dmove(5.5, 10)
+          // .transform({ translate: [5.5, 10] }) // m_minHeight / 4, m_minHeight / 3)
+          .attr({ cursor: 'pointer' });
+      }
+    }
 
     // Move gStickyButtons only AFTER setting display state, otherwise, the icon will get drawn at 0,0
     const evlinkBadgesOffsetX = this.evlinks ? this.evlinks.length * badgeXOffset : 0;
@@ -259,12 +324,14 @@ class VBadge {
 
       // NEW sticky on left
       if (hasComments) {
-        this.gBadges.move(baseX + this.gStickyButtons.bbox().w + m_pad * 2, baseY);
+        // -- move sticky notes AFTER moving gBadges for more predictable left-justified layout
+        this.gStickyButtons.move(baseX + this.gStickyButtons.bbox().w / 2, baseY); // always move in case evlink badges change
+        this.gBadges.move(baseX + this.gStickyButtons.bbox().w + m_pad, baseY);
       } else {
-        this.gBadges.move(baseX + evlinkBadgesOffsetX - m_pad / 2, baseY);
+        this.gBadges.move(baseX + evlinkBadgesOffsetX, baseY);
+        // -- move sticky notes AFTER moving gBadges for more predictable left-justified layout
+        this.gStickyButtons.move(baseX + this.gStickyButtons.bbox().w / 2 + m_pad, baseY); // always move in case evlink badges change
       }
-      // -- move sticky notes AFTER moving gBadges for more predictable left-justified layout
-      this.gStickyButtons.move(baseX + this.gStickyButtons.bbox().w / 2 + m_pad, baseY); // always move in case evlink badges change
 
       // ORIG sticky on right
       // this.gStickyButtons.move(baseX + xx + this.gStickyButtons.bbox().w + m_pad, baseY); // always move in case evlink badges change
@@ -272,9 +339,25 @@ class VBadge {
       // VProp is right-justified
 
       // NEW sticky on left
-      this.gStickyButtons.move(baseX - badgeXOffset * 2, baseY); // always move in case evlink badges change
+
+      // TRY evlink too far to the left, move it closer to sticky
+      this.gStickyButtons.move(baseX - badgeXOffset - badgeRadius - m_pad / 2, baseY + 1);
+
+      // HACK: Using transform breaks `click` handling!
+      // HACK: BUT it seems to fix the "jump on draw" issue
+      // this.gStickyButtons.transform({ translate: [baseX - badgeXOffset - badgeRadius, baseY + m_pad / 2] });
+
+
+      // WORKING (initial, but not secondary)
+      // this.gStickyButtons.move(baseX - badgeXOffset * 2, baseY);
+
+      // HACK Move them all manually?
+      // PROBLEM: each refresh ends up moving everyintg?
+      // this.gStickyButtons.transform({ translate: [baseX - badgeXOffset * 2, baseY] });
+      // this.gStickyButtons.unreadSelected.transform({ translate: [baseX - badgeXOffset * 2, baseY] }); // always move in case evlink badges change
+
       // -- move sticky notes BEDFORE moving gBadges for more predictable right-justified layout
-      this.gBadges.move(baseX - this.gStickyButtons.bbox().w - evlinkBadgesOffsetX, baseY);
+      this.gBadges.move(baseX - this.gStickyButtons.bbox().w - evlinkBadgesOffsetX + m_pad / 2, baseY + 4);
 
       // ORIG sticky on right
       // this.gStickyButtons.move(baseX + xx - this.gStickyButtons.bbox().w - m_pad, baseY); // always move in case evlink badges change
@@ -324,6 +407,9 @@ VBadge.Release = () => {
  *  Update instance from associated data id
  */
 VBadge.Update = evId => {
+  // REVIEW: text updates should happen here
+  // Draw() is called after Update() in the parent component
+
   // not updated yet
   // const vbadge = DATA.VM_VBadge(evId);
   // if (vbadge) vbadge.Update();
@@ -337,7 +423,6 @@ VBadge.Update = evId => {
  */
 VBadge.SVGEvLink = (evlink, vparent) => {
   const root = vparent.gRoot;
-  const radius = m_minHeight - m_pad / 2;
 
   const onClick = customEvent => {
     const e = customEvent.detail.event || customEvent; // class-vprop-dragdrop sends custom events, but vmech sends regular mouse events.
@@ -349,19 +434,30 @@ VBadge.SVGEvLink = (evlink, vparent) => {
 
   // create vbadge sub elements
   const gBadge = root.group().click(onClick);
-  gBadge.gCircle = gBadge.circle(radius).fill('#4db6ac');
-  gBadge.gCircle.attr({ cursor: 'pointer' });
+  gBadge.gRect = gBadge.rect(badgeRadius * 1.75, badgeRadius).radius(badgeRadius / 2).fill('#4db6ac');
+  gBadge.gRect.attr({ cursor: 'pointer' });
+
+  // ORIG circle badge
+  // gBadge.gCircle = gBadge.circle(radius).fill('#4db6ac');
+  // gBadge.gCircle.attr({ cursor: 'pointer' });
 
   gBadge.gLabel = gBadge
     .text(evlink.numberLabel)
     .font({ fill: '#fff', size: '12px', anchor: 'middle' })
-    .dmove(radius / 2, radius / 2 + 4)
+    .dmove(badgeRadius / 2, badgeRadius / 2 + 4)
     .attr({ cursor: 'pointer' });
 
-  gBadge.gRating = VBadge.SVGRating(evlink, gBadge).move(
-    1 + (3 - Math.max(1, Math.abs(evlink.rating))) * 4, // always shift at least 1 symbol, since no rating is 0
-    radius + 1
-  );
+  // gBadge.gRating = VBadge.SVGRating(evlink, gBadge).move(
+  //   1 + (3 - Math.max(1, Math.abs(evlink.rating))) * 4, // always shift at least 1 symbol, since no rating is 0
+  //   radius + 1
+  // );
+
+  gBadge.gRating = VBadge.SVGRating(evlink, gBadge)
+    .transform({ translate: [badgeRadius * 0.9, 4.5] });
+  //   .dmove(
+  //   radius * 0.9, // always shift at least 1 symbol, since no rating is 0
+  //   4.5
+  // );
 
   return gBadge;
 };
@@ -369,38 +465,71 @@ VBadge.SVGEvLink = (evlink, vparent) => {
 /// SVGRating  ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  Creates and returns the rating icon for a badge
+ *  Creates and returns the rating emoji icon for a badge
  */
 VBadge.SVGRating = (evlink, gBadge) => {
   const rating = evlink.rating;
-  let gRatings = gBadge.gRatings || gBadge.group(); // use existing group if it exists
-  gRatings.clear();
-  if (rating > 0) {
-    // positive
-    for (let i = 0; i < rating; i++) {
-      gRatings
-        .use(SVGSYMBOLS.get('ratingsPositive'))
-        .dmove(i * (5 + m_pad / 2), 0)
-        .scale(0.4);
-    }
-  } else if (rating < 0) {
-    // negative
-    for (let i = 0; i < -rating; i++) {
-      gRatings
-        .use(SVGSYMBOLS.get('ratingsNegative'))
-        .dmove(i * (5 + m_pad / 2), 0)
-        .scale(0.4);
-    }
-  } else {
-    // Not Rated
-    gRatings
-      .use(SVGSYMBOLS.get('ratingsNeutral'))
-      .move(m_pad / 2 - 1, 0)
-      .scale(0.4);
-  }
+  const gRatings = gBadge.group();
+  // gRatings.clear(); // reVIEW this i not necessary either
+
+  // this works as a tecnhique to transform groups, but it's not
+  // necessary here, and more important, we want to leave the
+  // rating transformation to the SVGEvLink parent
+  // gRatings.transform({ translate: [-1.25, 4.5] });
+
+  gRatings.group()
+    .circle(18).fill('#fff');
+
+  // REVIEW: transform 0,0 is redundant
+  // .circle(18).fill('#fff').transform({ translate: [0, 0] });
+  // .circle(18).fill('#fff').transform({ translate: [2, 1.5] });
+
+  gRatings.group()
+    .use(SVGSYMBOLS.get('ratingsAgreeStrongly'))
+    .scale(1)
+    // REVIEW: `draw` and `transform` both cause repeated draw moves
+    // REVIEW: Where should the draw routine update?`
+    .transform({ translate: [-1, -1] });
+  // .dmove(-1.5, -1.5);
 
   return gRatings;
 };
+// ORIG +/- RATING
+//
+// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// /**
+//  *  Creates and returns the rating icon for a badge
+//  */
+// VBadge.SVGRating = (evlink, gBadge) => {
+//   const rating = evlink.rating;
+//   let gRatings = gBadge.gRatings || gBadge.group(); // use existing group if it exists
+//   gRatings.clear();
+//   if (rating > 0) {
+//     // positive
+//     for (let i = 0; i < rating; i++) {
+//       gRatings
+//         .use(SVGSYMBOLS.get('ratingsPositive'))
+//         .dmove(i * (5 + m_pad / 2), 0)
+//         .scale(0.4);
+//     }
+//   } else if (rating < 0) {
+//     // negative
+//     for (let i = 0; i < -rating; i++) {
+//       gRatings
+//         .use(SVGSYMBOLS.get('ratingsNegative'))
+//         .dmove(i * (5 + m_pad / 2), 0)
+//         .scale(0.4);
+//     }
+//   } else {
+//     // Not Rated
+//     gRatings
+//       .use(SVGSYMBOLS.get('ratingsNeutral'))
+//       .move(m_pad / 2 - 1, 0)
+//       .scale(0.4);
+//   }
+
+//   return gRatings;
+// };
 
 /// SVGStickyButton  //////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -448,21 +577,27 @@ VBadge.SVGStickyButton = (vparent, cref, x, y) => {
 
   // Create SVG Icons
 
-  // URComment
-  const scale = 1.6;
-  gStickyButtons.chat = gStickyButtons.group().use(SVGSYMBOLS.get('commentUnread')).scale(scale);
-  gStickyButtons.read = gStickyButtons.group().use(SVGSYMBOLS.get('commentRead')).scale(scale);
-  gStickyButtons.unread = gStickyButtons
-    .group()
-    .use(SVGSYMBOLS.get('commentUnreadSelected'))
-    .scale(scale);
+  // REVIEW: Try drawing ONCE
 
-  gStickyButtons.gLabel = gStickyButtons
-    .text('-') // BUG: If text is empty, dragging seeems to lead to a race condition
-    .font({ fill: COLOR.COMMENT_DARK, size: '12px', anchor: 'middle' })
-    .dmove(5.5, 10)
-    // .transform({ translate: [5.5, 10] }) // m_minHeight / 4, m_minHeight / 3)
-    .attr({ cursor: 'pointer' });
+  // URComment
+  // const scale = 1.6;
+  // gStickyButtons.unread = gStickyButtons.group().use(SVGSYMBOLS.get('commentUnread')).scale(scale);
+  // gStickyButtons.read = gStickyButtons.group().use(SVGSYMBOLS.get('commentRead')).scale(scale);
+  // gStickyButtons.unreadSelected = gStickyButtons
+  //   .group()
+  //   .use(SVGSYMBOLS.get('commentUnreadSelected'))
+  //   .scale(scale);
+  // gStickyButtons.readSelected = gStickyButtons
+  //   .group()
+  //   .use(SVGSYMBOLS.get('commentReadSelected'))
+  //   .scale(scale);
+
+  // gStickyButtons.gLabel = gStickyButtons
+  //   .text('-') // BUG: If text is empty, dragging seeems to lead to a race condition
+  //   .font({ fill: COLOR.COMMENT_DARK, size: '12px', anchor: 'middle' })
+  //   .dmove(5.5, 10)
+  //   // .transform({ translate: [5.5, 10] }) // m_minHeight / 4, m_minHeight / 3)
+  //   .attr({ cursor: 'pointer' });
 
   // DEPRECATED StickyNotes in favor of URCommentThreadMgr
   // gStickyButtons.chat = gStickyButtons.group().use(SVGSYMBOLS.get('chatIcon'));

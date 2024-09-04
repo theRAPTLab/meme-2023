@@ -400,6 +400,9 @@ PMCView.DefineSymbols = svg => {
           'M11 6C11 6.55228 10.5523 7 10 7C9.44772 7 9 6.55228 9 6C9 5.44772 9.44772 5 10 5C10.5523 5 11 5.44772 11 6Z'
         )
         .fill(`#0BAC8F`);
+      // 24x24 invisible rect to prevent icon from
+      // shifting with each drag draw update
+      icon.path('M0 0h24v24H0z').fill('none');
       return icon;
     })()
   );
@@ -428,6 +431,9 @@ PMCView.DefineSymbols = svg => {
           'M11 6C11 6.55228 10.5523 7 10 7C9.44772 7 9 6.55228 9 6C9 5.44772 9.44772 5 10 5C10.5523 5 11 5.44772 11 6Z'
         )
         .fill(`#0088D4`);
+      // 24x24 invisible rect to prevent icon from
+      // shifting with each drag draw update
+      icon.path('M0 0h24v24H0z').fill('none');
       return icon;
     })()
   );
@@ -456,6 +462,9 @@ PMCView.DefineSymbols = svg => {
           'M5 9H11V10.4H5V9Z'
         )
         .fill(`#696969`);
+      // 24x24 invisible rect to prevent icon from
+      // shifting with each drag draw update
+      icon.path('M0 0h24v24H0z').fill('none');
       return icon;
     })()
   );
@@ -480,6 +489,9 @@ PMCView.DefineSymbols = svg => {
           'M6.5 11C6.5 10.1716 7.17157 9.5 8 9.5C8.82843 9.5 9.5 10.1716 9.5 11H11C11 9.34315 9.65685 8 8 8C6.34315 8 5 9.34315 5 11H6.5Z'
         )
         .fill({ color: `#E66922`, rule: 'evenodd' });
+      // 24x24 invisible rect to prevent icon from
+      // shifting with each drag draw update
+      icon.path('M0 0h24v24H0z').fill('none');
       return icon;
     })()
   );
@@ -504,6 +516,9 @@ PMCView.DefineSymbols = svg => {
       icon
         .circle(1).cx(10).cy(6)
         .fill(`#E9000E`);
+      // 24x24 invisible rect to prevent icon from
+      // shifting with each drag draw update
+      icon.path('M0 0h24v24H0z').fill('none');
       return icon;
     })()
   );

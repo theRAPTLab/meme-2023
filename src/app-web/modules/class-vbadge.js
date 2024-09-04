@@ -2,6 +2,8 @@ import DEFAULTS from './defaults';
 import ADM from './data';
 import PMC from './data';
 import UR from '../../system/ursys';
+const STATE = require('../../system/comment-mgr/lib/client-state');
+
 import CMTMGR from '../../system/comment-mgr/comment-mgr';
 import VMech from './class-vmech';
 import RATINGS from '../components/WRatings';
@@ -30,6 +32,7 @@ RATINGS_ICONS[2] = 'ratingsAgreeStrongly';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PKG = 'VBadge';
+const UDATAOwner = 'class-vbadge';
 
 /// MODULE HELPERS /////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -65,6 +68,9 @@ class VBadge {
     else
       this.cref = CREF_PREFIX.ENTITY + vparent.id;  // CMTMGR.GetCREF('ENTITY', id);
 
+    // Bind Methods
+    this.Refresh = this.Refresh.bind(this);
+
     // create our own groups
     /**
      *  vBadge
@@ -82,8 +88,16 @@ class VBadge {
 
     this.gBadges.click(e => { this.OnClick(e); });
 
+    STATE.OnStateChange('COMMENTCOLLECTION', () => this.Refresh(vparent), UDATAOwner);
+
     this.Update(vparent);
     this.Redraw(vparent);
+
+  }
+
+  Refresh(vparent) {
+    // COMMENTCOLLECTION changes force vBadge comment button to update with opened/closed status
+    this.Draw(vparent);
   }
 
   /**
@@ -159,9 +173,57 @@ class VBadge {
    *  @param {*} vparent class-vprop or class-vmech
    */
   Draw(vparent) {
-    // FIXME: Redraw if evlinks or stickynote state changed
-    if (false) Redraw(vparent);
-    // don't do anything!  rely on parent movement
+    // Set Current Read/Unreaad status
+    const comments = PMC.GetURComments(this.cref);
+    let hasComments;
+    let hasUnreadComments;
+    if (comments === undefined) {
+      hasComments = false;
+      hasUnreadComments = false;
+    } else {
+      hasComments = comments.length > 0;
+      const ccol = CMTMGR.GetCommentCollection(this.cref) || {};
+      hasUnreadComments = ccol.hasUnreadComments;
+    }
+
+    const uistate = CMTMGR.GetCommentUIState(this.cref);
+    const commentThreadIsOpen = uistate && uistate.isOpen;
+
+    // update count on draw b/c number of comments might change
+    if (comments && comments.length > 0) this.commentCount = comments.length;
+    this.gStickyButtons.gLabel
+      .text(this.commentCount) // BUG: If text is empty, dragging seeems to lead to a race condition
+
+    // update sticky button icons and comment count label
+    if (!hasComments) {
+      // no sticky buttons
+      this.gStickyButtons.attr({ display: 'none' });
+    } else {
+      // has sticky buttons
+      this.gStickyButtons.attr({ display: 'inline' });
+      if (hasUnreadComments) {
+        // Unread
+        if (commentThreadIsOpen) {
+          console.error('OPEN thread unread')
+          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentUnreadSelected'));
+          this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_LIGHT });
+        } else {
+          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentUnread'));
+          this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_DARK });
+        }
+      } else {
+        // Read
+        if (commentThreadIsOpen) {
+          console.error('OPEN thread READ!')
+          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentReadSelected'));
+          this.gStickyButtons.gLabel.font({ fill: '#fff' });
+        } else {
+          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentRead'));
+          this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_READ });
+        }
+      }
+    }
+
   }
 
   /**
@@ -218,76 +280,24 @@ class VBadge {
       this.gEvLinkBadges.move(badgeItemRadius * 0.8, -7);
     }
 
-    // Set Current Read/Unreaad status
-    let hasComments;
-    let hasUnreadComments;
-
-    // URComment
-    const comments = PMC.GetURComments(this.cref);
-    if (comments === undefined) {
-      hasComments = false;
-      hasUnreadComments = false;
-    } else {
-      hasComments = comments.length > 0;
-      const author = ADM.GetAuthorId();
-      const ccol = CMTMGR.GetCommentCollection(this.cref) || {};
-      hasUnreadComments = ccol.hasUnreadComments;
-    }
-
-    const uistate = CMTMGR.GetCommentUIState(this.cref);
-    const commentThreadIsOpen = uistate && uistate.isOpen;
-
-    /// UPDATE
-    /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // update count on draw b/c number of comments might change
-    if (comments && comments.length > 0) this.commentCount = comments.length;
-    this.gStickyButtons.gLabel
-      .text(this.commentCount) // BUG: If text is empty, dragging seeems to lead to a race condition
-
-    // update sticky button icons and comment count label
-    if (!hasComments) {
-      // no sticky buttons
-      console.error('clearing sticky buttons', this.cref);
-      this.gStickyButtons.attr({ display: 'none' });
-    } else {
-      // has sticky buttons
-      this.gStickyButtons.attr({ display: 'inline' });
-      if (hasUnreadComments) {
-        // Unread
-        if (commentThreadIsOpen) this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentUnreadSelected'));
-        else this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentUnread'));
-        this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_DARK });
-      } else {
-        // Read
-        if (commentThreadIsOpen) {
-          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentReadSelected'));
-          this.gStickyButtons.gLabel.font({ fill: '#fff' });
-        } else {
-          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentRead'));
-          this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_READ });
-        }
-      }
-    }
-
-    // update position of sticky note buttons and evlink badges in case of additions/removals of evlinks
+    // set initial position of sticky note buttons and evlink badges
     const evlinkBadgesOffsetX = this.evlinks ? this.evlinks.length * evlinkBadgeXOffset : 0;
     if (this.isVMech) {
       // VMech is left-justified
-      this.gBadges.move(baseX + badgeItemRadius, baseY);
+      this.gBadges.move(this.baseX + badgeItemRadius, this.baseY);
     } else {
       // VProp is right-justified
       // Has Comments: Shift badges left by one badge width + stickynote button width
-      if (hasComments) this.gBadges.move(baseX + evlinkBadgeXOffset - badgeItemRadius / 2, baseY + 4);
-      // No Comments: Shift badges right by one badge width
-      else this.gBadges.move(baseX + evlinkBadgeXOffset + badgeItemRadius / 2, baseY + 4);
+      this.gBadges.move(this.baseX + evlinkBadgeXOffset - badgeItemRadius / 2, this.baseY + 4);
     }
+
   }
 
   /**
    *  Release is called by VProp or VMech
    */
   Release() {
+    STATE.OffStateChange('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
     this.gStickyButtons.remove();
     this.gEvLinkBadges.remove();
     this.gBadges.remove();

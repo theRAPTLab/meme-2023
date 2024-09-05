@@ -125,7 +125,7 @@ button.danger {
   color: var(--clr-txt-reverse);
   background-color: #e9000e;
 }
-button.comment {
+button.comment-btn {
   color: var(--clr-txt);
   background-color: var(--clr-comment);
 }

@@ -792,7 +792,7 @@ class ViewMEME extends React.Component {
           {IcnAdd} Add property
         </button>
         <button
-          className="comment"
+          className="comment-btn"
           hidden={
             !(componentIsSelected || outcomeIsSelected || mechIsSelected) ||
             isDBReadOnly

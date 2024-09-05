@@ -133,7 +133,9 @@ function URCommentThreadMgr(props) {
       throw new Error(
         `URCommentThreadMgr: urmsg_THREAD_OPEN: missing position data ${data}`
       );
-
+    // 0. Open the window to the right of the click
+    data.position.x = parseInt(data.position.x) + 20;
+    data.position.y = parseInt(data.position.y) - 10;
     // 1. Register the button
     setCmtBtns(prevBtns => [...prevBtns, data]);
     // 2. Open the URCommentThread

@@ -113,11 +113,11 @@ class VBadge {
 
     // Convert click screen coordinates to svg coordinates
     const { offsetX, offsetY } = mouseEvent;
-    let svg = document.getElementById('modelSVG');
-    let pt = svg.createSVGPoint();
+    const svg = document.getElementById('modelSVG');
+    const pt = svg.createSVGPoint();
     pt.x = mouseEvent.clientX;
     pt.y = mouseEvent.clientY;
-    let svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
 
     // Which component got the click?
     if (this.gStickyButtons && this.gStickyButtons.inside(svgPt.x, svgPt.y)) {

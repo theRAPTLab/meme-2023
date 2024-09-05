@@ -449,6 +449,10 @@ VBadge.SVGStickyButton = (vparent, cref) => {
     e.preventDefault();
     e.stopPropagation();
     if (DBG) console.log(`${e.target} clicked e=${e}`);
+
+    // don't allow clicks if the sticky button is hidden
+    if (gStickyButtons.attr('visibility') === 'hidden') return;
+
     UR.Publish('CTHREADMGR_THREAD_OPEN', { cref, position: { x: e.clientX, y: e.clientY } });
   };
 

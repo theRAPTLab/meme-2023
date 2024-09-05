@@ -720,8 +720,8 @@ class ViewMEME extends React.Component {
           message={'commentStatusMessage'}
           handleMessageUpdate={'handleMessageUpdate'}
         />
-        <StickyNoteButton refId="9999" />
         <URCommentBtn cref="9999" />
+        {/* <StickyNoteButton refId="9999" /> */}
         <button onClick={this.OnCloseModel}>
           {studentName}&nbsp;:&nbsp;{studentGroup}
         </button>

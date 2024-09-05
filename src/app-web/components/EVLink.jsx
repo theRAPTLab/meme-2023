@@ -704,7 +704,7 @@ class EVLink extends React.Component {
         </div>
         {/* Buttons ------------------------------------------------------- */}
         <div className="rightbar">
-          <StickyNoteButton refId={id} />
+          {/* <StickyNoteButton refId={id} /> */}
           <URCommentBtnAlias cref={cref} />
           {RATING}
         </div>

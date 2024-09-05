@@ -53,6 +53,8 @@ class VBadge {
    * @param {object} vparent Parent component: class-vprop or class-vmech
    */
   constructor(vparent) {
+    this.baseRedrawNeeded = true;
+
     // Init Data
     this.width = m_minWidth;
     this.height = m_minHeight;
@@ -91,7 +93,7 @@ class VBadge {
     STATE.OnStateChange('COMMENTCOLLECTION', () => this.Refresh(vparent), UDATAOwner);
 
     this.Update(vparent);
-    this.Redraw(vparent);
+    this.DrawBase(vparent);
 
   }
 
@@ -136,6 +138,7 @@ class VBadge {
     }
   }
 
+  // REVIEW: vprop.PropSize might result in Draw being called twice here.
   SetDimensionsFromParent(vparent) {
     this.width = vparent.width;
     this.height = vparent.height;
@@ -157,82 +160,52 @@ class VBadge {
    */
   Update(vparent) {
     const id = vparent.id;
+
+    // did anything change?
+    const oldEvlinks = this.evlinks;
+    let updatedEvlinks;
     if (m_IsVMech(vparent)) {
       // parent is a VMech
-      this.evlinks = PMC.PMC_GetEvLinksByMechId(id);
+      updatedEvlinks = PMC.PMC_GetEvLinksByMechId(id);
     } else {
       // parent is VProp
-      this.evlinks = PMC.PMC_GetEvLinksByPropId(id);
+      updatedEvlinks = PMC.PMC_GetEvLinksByPropId(id);
     }
+    let redrawNeeded = this.baseRedrawNeeded;
+
+    // if the number of links have changed, then we need to redraw
+    if (oldEvlinks && updatedEvlinks && (oldEvlinks.length !== updatedEvlinks.length)) {
+      redrawNeeded = true;
+    }
+
+    this.baseRedrawNeeded = redrawNeeded;
+    this.evlinks = updatedEvlinks || [];
   }
 
   /**
-   *  Draw is called by VProp or VMech
-   *  No need to redraw unless the data has changed.
+   *  Main Draw method
+   *  Decides whether a complete redraw is necessary (to render base objects)
+   *  or just an update (to render data changes to existing objects).
    *  This will improve performance dramatically!
+   *
    *  @param {*} vparent class-vprop or class-vmech
    */
   Draw(vparent) {
-    // Set Current Read/Unreaad status
-    const comments = PMC.GetURComments(this.cref);
-    let hasComments;
-    let hasUnreadComments;
-    if (comments === undefined) {
-      hasComments = false;
-      hasUnreadComments = false;
-    } else {
-      hasComments = comments.length > 0;
-      const ccol = CMTMGR.GetCommentCollection(this.cref) || {};
-      hasUnreadComments = ccol.hasUnreadComments;
-    }
-
-    const uistate = CMTMGR.GetCommentUIState(this.cref);
-    const commentThreadIsOpen = uistate && uistate.isOpen;
-
-    // update count on draw b/c number of comments might change
-    if (comments && comments.length > 0) this.commentCount = comments.length;
-    this.gStickyButtons.gLabel
-      .text(this.commentCount) // BUG: If text is empty, dragging seeems to lead to a race condition
-
-    // update sticky button icons and comment count label
-    if (!hasComments) {
-      // no sticky buttons
-      this.gStickyButtons.attr({ display: 'none' });
-    } else {
-      // has sticky buttons
-      this.gStickyButtons.attr({ display: 'inline' });
-      if (hasUnreadComments) {
-        // Unread
-        if (commentThreadIsOpen) {
-          console.error('OPEN thread unread')
-          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentUnreadSelected'));
-          this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_LIGHT });
-        } else {
-          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentUnread'));
-          this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_DARK });
-        }
-      } else {
-        // Read
-        if (commentThreadIsOpen) {
-          console.error('OPEN thread READ!')
-          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentReadSelected'));
-          this.gStickyButtons.gLabel.font({ fill: '#fff' });
-        } else {
-          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentRead'));
-          this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_READ });
-        }
-      }
-    }
-
+    if (this.baseRedrawNeeded) this.DrawBase(vparent);
+    this.DrawUpdate(vparent);
   }
 
   /**
-   *  Redraw is only called when an update is needed
-   *  No need to redraw unless the data has changed.
-   *  This will improve performance dramatically!
+   *  `DrawBase` draws the core badge elements (sticky note buttons and evidence link badges)
+   *  setting the initial object positions and is only called when an update is needed.
+   *
+   *  Changes tracked:
+   *  - evlinks are added/removed
+   *  - evlink rating is changed
+   *
    *  @param {*} vparent class-vprop or class-vmech
    */
-  Redraw(vparent) {
+  DrawBase(vparent) {
     // draw badges from left to right
     let xOffset;
     let yOffset;
@@ -256,14 +229,18 @@ class VBadge {
       let baseElement = vparent.visBG; // position of the base prop rectangle
       x = baseElement.x();
       y = baseElement.y();
-      xOffset = this.width;
+      xOffset = m_minWidth;  // use original width here, not the current width because the prop increasese in size this.width;
       yOffset = -4;
       baseX = x + xOffset - m_pad;
       baseY = y + yOffset + m_pad * 2;
     }
 
+    // first reset positions
+    this.gBadges.move(-badgeItemRadius, 0);
+    this.gStickyButtons.move(0, -7);
+
     // draw evidence link badges
-    // -- first clear the group in case objects have changed
+    // -- Clear the group in case objects have changed
     this.gEvLinkBadges.clear();
     if (this.evlinks) {
       // First sort evlinks by numberLabel
@@ -276,22 +253,89 @@ class VBadge {
         badge.move(i * evlinkBadgeXOffset, -7);
         this.gEvLinkBadges.add(badge);
       });
-      // move evlink badges to the right of stickynote button
-      this.gEvLinkBadges.move(badgeItemRadius * 0.8, -7);
+      // -- Move evlink badges to the right of stickynote button
+      this.gEvLinkBadges.move(badgeItemRadius + m_pad, -7);
     }
 
     // set initial position of sticky note buttons and evlink badges
     const evlinkBadgesOffsetX = this.evlinks ? this.evlinks.length * evlinkBadgeXOffset : 0;
     if (this.isVMech) {
       // VMech is left-justified
-      this.gBadges.move(this.baseX + badgeItemRadius, this.baseY);
+      this.gBadges.move(baseX + badgeItemRadius, baseY);
     } else {
       // VProp is right-justified
       // Has Comments: Shift badges left by one badge width + stickynote button width
-      this.gBadges.move(this.baseX + evlinkBadgeXOffset - badgeItemRadius / 2, this.baseY + 4);
+      this.gBadges.move(baseX + evlinkBadgeXOffset - badgeItemRadius / 2, baseY + 4);
+    }
+
+    this.baseRedrawNeeded = false;
+  }
+
+
+  /**
+   *  `DrawUpdate` updates changed data and is called by VProp or VMech
+   *
+   *  Changes tracked:
+   *  - comment count change
+   *  - comment thread is opened/closed
+   *  - comment thread is marked read
+   *
+   *  @param {*} vparent class-vprop or class-vmech
+   */
+  DrawUpdate(vparent) {
+    // Set Current Read/Unreaad status
+    const comments = PMC.GetURComments(this.cref);
+    let hasComments;
+    let hasUnreadComments;
+    if (comments === undefined) {
+      hasComments = false;
+      hasUnreadComments = false;
+    } else {
+      hasComments = comments.length > 0;
+      const ccol = CMTMGR.GetCommentCollection(this.cref) || {};
+      hasUnreadComments = ccol.hasUnreadComments;
+    }
+
+    const uistate = CMTMGR.GetCommentUIState(this.cref);
+    const commentThreadIsOpen = uistate && uistate.isOpen;
+
+    // update count on draw b/c number of comments might change
+    if (comments && comments.length > 0) this.commentCount = comments.length;
+    this.gStickyButtons.gLabel
+      .text(this.commentCount) // BUG: If text is empty, dragging seeems to lead to a race condition
+
+    // update sticky button icons and comment count label
+    // this replicates what URCommentBtn usually handles
+    if (!hasComments) {
+      // no sticky buttons
+      this.gStickyButtons.attr({ visibility: 'hidden' });
+    } else {
+      // has sticky buttons
+      this.gStickyButtons.attr({ visibility: 'visible' });
+      if (hasUnreadComments) {
+        // Unread
+        if (commentThreadIsOpen) {
+          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentUnreadSelected'));
+          this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_LIGHT });
+        } else {
+          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentUnread'));
+          this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_DARK });
+        }
+      } else {
+        // Read
+        if (commentThreadIsOpen) {
+          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentReadSelected'));
+          this.gStickyButtons.gLabel.font({ fill: '#fff' });
+        } else {
+          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentRead'));
+          this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_READ });
+        }
+      }
     }
 
   }
+
+
 
   /**
    *  Release is called by VProp or VMech

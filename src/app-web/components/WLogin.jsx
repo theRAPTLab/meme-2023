@@ -57,9 +57,10 @@ class WLogin extends React.Component {
   componentWillUnmount() {}
 
   DoADMDataUpdate() {
+    const { loginId } = this.state;
     if (ADM.IsLoggedOut()) {
       this.setState({
-        loginId: '',
+        loginId, // keep the loginId in case another user is updating data
         loginDialogOpen: true
       });
     }

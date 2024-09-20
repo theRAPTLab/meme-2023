@@ -69,24 +69,24 @@ const UDATAOwner = 'URCommentVBtn';
  */
 function URCommentVBtn({ cref }) {
   const svgRef = useRef(null);
-  const drawRef = useRef(null);
-  const [redraw, setRedraw] = useState(0);
+  const [label, setLabel] = useState('');
+  const [css, setCss] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
 
   /// USEEFFECT ///////////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   useEffect(() => {
-    // init svg
     const draw = SVG(svgRef.current);
-    drawRef.current = draw;
+    c_DrawCommentIcon();
 
     // Handlers
-    // STATE.OnStateChange('COMMENTCOLLECTION', urstate_UpdateCollection, UDATAOwner);
+    STATE.OnStateChange('COMMENTCOLLECTION', urstate_UpdateCollection, UDATAOwner);
     STATE.OnStateChange('COMMENTVOBJS', urstate_UpdateVObj, UDATAOwner);
     // window.addEventListener('resize', evt_OnResize);
     // clean up on unmount
     return () => {
       draw.clear();
-      // STATE.OffStateChange('COMMENTCOLLECTION', urstate_UpdateCollection);
+      STATE.OffStateChange('COMMENTCOLLECTION', urstate_UpdateCollection);
       STATE.OffStateChange('COMMENTVOBJS', urstate_UpdateVObj, UDATAOwner);
       // window.removeEventListener('resize', evt_OnResize);
     };
@@ -94,6 +94,9 @@ function URCommentVBtn({ cref }) {
 
   /// UR HANDLERS /////////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  function urstate_UpdateCollection(COMMENTCOLLECTION) {
+    c_DrawCommentIcon();
+  }
   function urstate_UpdateVObj(COMMENTVOBJS) {
     setRedraw(redraw => redraw + 1); // Trigger re-render
   }
@@ -106,7 +109,7 @@ function URCommentVBtn({ cref }) {
     const windowWidth = Math.min(screen.width, window.innerWidth);
     let x;
     if (windowWidth - cmtbtnx < 500) {
-      x = cmtbtnx - 405;
+      x = cmtbtnx - 420;
     } else {
       x = cmtbtnx + 35;
     }
@@ -114,6 +117,48 @@ function URCommentVBtn({ cref }) {
     return { x, y };
   }
 
+  function c_DrawCommentIcon() {
+    const ccol = CMTMGR.GetCommentCollection(cref) || {};
+    const { hasReadComments, hasUnreadComments } = ccol;
+
+    const uistate = CMTMGR.GetCommentUIState(cref);
+    const isOpen = uistate ? uistate.isOpen : false;
+    setIsOpen(isOpen);
+
+    // css
+    let css = 'commentbtn ';
+    if (hasUnreadComments) css += 'hasUnreadComments ';
+    else if (hasReadComments) css += 'hasReadComments ';
+    css += isOpen ? 'isOpen ' : '';
+    setCss(css);
+
+    // commentCountLabel
+    const uid = CMTMGR.GetCurrentUserId();
+    const commentCount = CMTMGR.GetThreadedViewObjectsCount(cref, uid);
+    const commentCountLabel = commentCount > 0 ? commentCount : '';
+    setLabel(commentCountLabel);
+
+    // derive icon
+    let symbolName = 'commentUnread';
+    if (hasReadComments && !hasUnreadComments) {
+      // it's possible to have both read and unread comments
+      // if there's anything unread, we want to mark it unread
+      if (isOpen) symbolName = 'commentReadSelected';
+      else symbolName = 'commentRead';
+    } else {
+      // hasUnreadComments or no comments
+      if (isOpen) symbolName = 'commentUnreadSelected';
+      else symbolName = 'commentUnread';
+    }
+
+    const draw = SVG(svgRef.current);
+    draw.clear();
+    draw.use(SVGSYMBOLS.get(symbolName)).transform({
+      translate: [4, 0], // center within 32,32
+      origin: 'top left', // seems to default to 'center' if not specified
+      scale: 1.6
+    });
+  }
   /// COMPONENT UI HANDLERS ///////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** handle URCommentBtn click, which opens and closes the URCommentThread */
@@ -136,46 +181,6 @@ function URCommentVBtn({ cref }) {
    *  - the "read" status of all comments: unread (gold) or read (gray)
    *  - isOpen - click on the button to display threads in a new window
    */
-
-  // read state and isOen state
-  const ccol = CMTMGR.GetCommentCollection(cref) || {};
-  const { hasReadComments, hasUnreadComments } = ccol;
-  const uistate = CMTMGR.GetCommentUIState(cref);
-  const isOpen = uistate ? uistate.isOpen : false;
-  let css = 'commentbtn ';
-  if (hasUnreadComments) css += 'hasUnreadComments ';
-  else if (hasReadComments) css += 'hasReadComments ';
-  css += isOpen ? 'isOpen ' : '';
-
-  // label
-  const uid = CMTMGR.GetCurrentUserId();
-  const commentCount = CMTMGR.GetThreadedViewObjectsCount(cref, uid);
-  const label = commentCount > 0 ? commentCount : '';
-
-  // derive icon
-  let symbolName = 'commentUnread';
-  if (hasReadComments && !hasUnreadComments) {
-    // it's possible to have both read and unread comments
-    // if there's anything unread, we want to mark it unread
-    if (isOpen) symbolName = 'commentReadSelected';
-    else symbolName = 'commentRead';
-  } else {
-    // hasUnreadComments or no comments
-    if (isOpen) symbolName = 'commentUnreadSelected';
-    else symbolName = 'commentUnread';
-  }
-
-  // draw icon
-  const draw = drawRef.current;
-  if (draw) {
-    // on init, `draw` is first empty, so make sure it exists before drawing
-    draw.clear();
-    draw.use(SVGSYMBOLS.get(symbolName)).transform({
-      translate: [4, 0], // center within 32,32
-      origin: 'top left', // seems to default to 'center' if not specified
-      scale: 1.6
-    });
-  }
 
   return (
     <div id={cref} className={css} onClick={evt_OnClick}>

@@ -21,7 +21,7 @@
 
   UR MESSAGES
   *  CTHREADMGR_THREAD_OPEN {cref, position}
-  *  CTHREADMGR_THREAD_CLOSE {cref}
+  *  CTHREADMGR_THREAD_CLOSED {cref}
   *  CTHREADMGR_THREAD_CLOSE_ALL
 
 
@@ -97,14 +97,14 @@ function URCommentThreadMgr(props) {
     );
     STATE.OnStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs, UDATAOwner);
     UR.Subscribe('CTHREADMGR_THREAD_OPEN', urmsg_THREAD_OPEN);
-    UR.Subscribe('CTHREADMGR_THREAD_CLOSE', urmsg_THREAD_CLOSE);
+    UR.Subscribe('CTHREADMGR_THREAD_CLOSED', urmsg_THREAD_CLOSE);
     UR.Subscribe('CTHREADMGR_THREAD_CLOSE_ALL', urmsg_THREAD_CLOSE_ALL);
 
     return () => {
       STATE.OffStateChange('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
       STATE.OffStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
       UR.Unsubscribe('CTHREADMGR_THREAD_OPEN', urmsg_THREAD_OPEN);
-      UR.Unsubscribe('CTHREADMGR_THREAD_CLOSE', urmsg_THREAD_CLOSE);
+      UR.Unsubscribe('CTHREADMGR_THREAD_CLOSED', urmsg_THREAD_CLOSE);
       UR.Unsubscribe('CTHREADMGR_THREAD_CLOSE_ALL', urmsg_THREAD_CLOSE_ALL);
     };
   }, []);

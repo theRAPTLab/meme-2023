@@ -362,7 +362,8 @@ MOD.CloseCommentCollection = (uiref, cref, uid) => {
     return;
   }
   // OK to close
-  UDATA.LocalCall('CTHREADMGR_THREAD_CLOSE', { cref });
+  UDATA.LocalCall('CTHREADMGR_THREAD_CLOSED', { cref });
+  // Update the readby
   CMTDB.DBUpdateReadBy(cref, uid);
   COMMENT.CloseCommentCollection(uiref, cref, uid);
   m_SetAppStateCommentCollections();

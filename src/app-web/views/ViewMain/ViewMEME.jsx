@@ -51,7 +51,7 @@ import DATAMAP from '../../../system/common-datamap';
 // MEME Comment Components
 import CMTMGR from '../../../system/comment-mgr/comment-mgr';
 import URCommentStatus from '../../../system/comment-mgr/view/URCommentStatus';
-import URCommentBtn from '../../../system/comment-mgr/view/URCommentBtn';
+import URCommentVBtn from '../../../system/comment-mgr/view/URCommentVBtn';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -720,8 +720,8 @@ class ViewMEME extends React.Component {
           message={'commentStatusMessage'}
           handleMessageUpdate={'handleMessageUpdate'}
         />
-        <URCommentBtn cref="9999" />
         {/* <StickyNoteButton refId="9999" /> */}
+        <URCommentVBtn cref="projectcmt" />
         <button onClick={this.OnCloseModel}>
           {studentName}&nbsp;:&nbsp;{studentGroup}
         </button>

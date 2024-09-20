@@ -33,7 +33,7 @@
     * CONTROLBAR
       -- OnAddPropComment via `CTHREADMGR_THREAD_OPEN`
       -- OnAddMechComment via `CTHREADMGR_THREAD_OPEN`
-  * EVLink -- via URCommentBtnAlias
+  * EVLink -- via URCommentVBtn
   * VBadge -- VBadge.SVGStickyButton.onClick via `CTHREADMGR_THREAD_OPEN`
 
 

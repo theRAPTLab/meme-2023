@@ -4,17 +4,17 @@
 
   URCommentThreadMgr handles the opening and closing of URCommentThreads
   being requested from three sources:
-  * Evidence Links -- via URCOmmentBtnAlias
+  * Evidence Links -- via URCommentVBtn
   * SVG props      -- in class-vbadge via UR.Publish(`CTHREADMGR_THREAD_OPEN`) calls
   * SVG Mechanisms -- in class-vbadge via UR.Publish(`CTHREADMGR_THREAD_OPEN`) calls
 
-  URCommentBtnAlias is a visual component that passes clicks
+  URCommentVBtn is a visual component that passes clicks
   to URCommentThreadMgr via UR.Publish(`CTHREADMGR_THREAD_OPEN`) calls
 
 
   HOW IT WORKS
   When an EVLink, SVG prop, or SVG mechanism clicks on the
-  URCommentBtnAlias, URCommentThreadMgr will:
+  URCommentVBtn, URCommentThreadMgr will:
   * Add the requested Thread to the URCommentThreadMgr
   * Open the URCommentThread
   * When the URCommentThread is closed, it will be removed from the URCommentThreadMgr
@@ -58,7 +58,7 @@
   To get around this, URCommentThreadMgr essentially replaces the
   functionality of URCommentBtn with three pieces, acting as a middle
   man and breaking out the...
-  * visual display    -- URCommentBtnAlias
+  * visual display    -- URCommentVBtn
   * UI click requests -- UR messages
   * thread opening / closing requests -- URCommentThreadMgr
   ...into different functions handled by different components.

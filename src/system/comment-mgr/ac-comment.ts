@@ -33,13 +33,13 @@
       COMMENTUISTATE Map<uiref, {cref, isOpen}>
     
     
-    OPENCOMMENTBTNS
+    OPENCOMMENTS
     ------------
-    OPENCOMMENTBTNS keeps track of currently open comment buttons.  This is 
+    OPENCOMMENTS keeps track of currently open comment buttons.  This is 
     used prevent two comment buttons from opening the same comment collection,
     e.g. if the user opens a node and a node table comment at the same time.
     
-      OPENCOMMENTBTNS Map<cref, uiref>
+      OPENCOMMENTS Map<cref, uiref>
 
       
     COMMENTVOBJS
@@ -128,7 +128,7 @@ type TCommentVisualObjectsMap = Map<TCollectionRef, TCommentVisualObject[]>;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const COMMENTCOLLECTION: TCommentCollectionMap = new Map(); // Map<cref, ccol>
 const COMMENTUISTATE: TCommentUIStateMap = new Map(); // Map<uiref, {cref, isOpen}>
-const OPENCOMMENTBTNS: TOpenCommentsMap = new Map(); // Map<cref, uiref>
+const OPENCOMMENTS: TOpenCommentsMap = new Map(); // Map<cref, uiref>
 const COMMENTS_BEING_EDITED: TCommentsBeingEditedMap = new Map(); // Map<cid, cid>
 const COMMENTVOBJS: TCommentVisualObjectsMap = new Map(); // Map<cref, cvobj[]>
 
@@ -158,7 +158,7 @@ function LoadDB(data) {
   DCCOMMENTS.LoadDB(data);
   if (DBG) console.log('COMMENTCOLLECTION', COMMENTCOLLECTION);
   if (DBG) console.log('COMMENTUISTATE', COMMENTUISTATE);
-  if (DBG) console.log('OPENCOMMENTBTNS', OPENCOMMENTBTNS);
+  if (DBG) console.log('OPENCOMMENTS', OPENCOMMENTS);
   if (DBG) console.log('COMMENTVOBJS', COMMENTVOBJS);
 }
 
@@ -185,7 +185,7 @@ function GetCommentCollection(cref: TCollectionRef): TCommentCollection {
 function UpdateCommentUIState(uiref: TCommentUIRef, openState: TCommentOpenState) {
   if (!uiref) throw new Error('UpdateCommentUIState "uiref" must be defined!');
   COMMENTUISTATE.set(uiref, { cref: openState.cref, isOpen: openState.isOpen });
-  OPENCOMMENTBTNS.set(openState.cref, uiref);
+  OPENCOMMENTS.set(openState.cref, uiref);
 }
 
 function CloseCommentCollection(
@@ -195,7 +195,7 @@ function CloseCommentCollection(
 ) {
   // Set isOpen status
   COMMENTUISTATE.set(uiref, { cref, isOpen: false });
-  OPENCOMMENTBTNS.set(cref, undefined);
+  OPENCOMMENTS.set(cref, undefined);
 
   MarkRead(cref, uid);
 
@@ -259,7 +259,7 @@ function GetCommentUIState(uiref: TCommentUIRef): TCommentOpenState {
 /// OPEN COMMENTS
 
 function GetOpenComments(cref: TCollectionRef): TCommentUIRef {
-  return OPENCOMMENTBTNS.get(cref);
+  return OPENCOMMENTS.get(cref);
 }
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

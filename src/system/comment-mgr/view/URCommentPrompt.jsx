@@ -55,6 +55,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import CMTMGR from '../comment-mgr';
+import URCommentSVGBtn from '../../../system/comment-mgr/view/URCommentSVGBtn';
 
 /// CONSTANTS & DECLARATIONS //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -383,7 +384,16 @@ function URCommentPrompt({
         <div key={promptIndex} className="comment-item">
           <div className="label">
             <div className="comment-icon-inline">
-              {!isMarkedRead && !isMarkedDeleted && CMTMGR.COMMENTICON}
+              {!isMarkedRead && !isMarkedDeleted && (
+                <URCommentSVGBtn
+                  uiref="displayonly"
+                  hasUnreadComments={true}
+                  hasReadComments={false}
+                  selected={true}
+                  disabled={true}
+                  small={true}
+                />
+              )}
             </div>
             {prompt.prompt}
           </div>

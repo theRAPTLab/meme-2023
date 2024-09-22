@@ -7,6 +7,7 @@
 
   USE:
       <URCommentSVGBtn
+        uiref={cref}
         count={countRepliesToMe}
         hasUnreadComments={countRepliesToMe > 0}
         hasReadComments={countRepliesToMe === 0}
@@ -52,6 +53,10 @@ function URCommentSVGBtn({
     const draw = SVG(svgRef.current);
     c_DrawCommentIcon();
   }, []);
+
+  useEffect(() => {
+    c_DrawCommentIcon();
+  }, [count, hasUnreadComments, hasReadComments, selected]);
 
   /// COMPONENT HELPER METHODS ////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -22,6 +22,7 @@ import UR from '../../../system/ursys';
 const STATE = require('../lib/client-state');
 import CMTMGR from '../comment-mgr';
 import URCommentThreadMgr from '../../../system/comment-mgr/view/URCommentThreadMgr';
+import URCommentSVGBtn from '../../../system/comment-mgr/view/URCommentSVGBtn';
 import URDialog from './URDialog';
 
 /// CONSTANTS & DECLARATIONS //////////////////////////////////////////////////
@@ -211,29 +212,27 @@ function URCommentStatus(props) {
 
   const UnreadRepliesToMeButtonJSX = (
     <div>
-      <div
-        className={`commentbtn ${
-          countRepliesToMe ? 'hasNewComments' : 'hasReadComments'
-        }`}
+      <URCommentSVGBtn
+        uiref="unreadRepliesToMe"
+        count={countRepliesToMe}
+        hasUnreadComments={countRepliesToMe > 0}
+        hasReadComments={countRepliesToMe === 0}
+        selected={false}
         onClick={evt_ExpandPanel}
-      >
-        {CMTMGR.COMMENTICON}
-        <div className="comment-count">{countRepliesToMe}</div>
-      </div>
+      />
       <h3>&nbsp;unread replies to me</h3>
     </div>
   );
   const UnreadButtonJSX = (
     <div>
-      <div
-        className={`commentbtn ${
-          countUnread ? 'hasUnreadComments' : 'hasReadComments'
-        }`}
+      <URCommentSVGBtn
+        uiref="unread"
+        count={countUnread}
+        hasUnreadComments={countUnread > 0}
+        hasReadComments={countUnread === 0}
+        selected={false}
         onClick={evt_ExpandPanel}
-      >
-        {CMTMGR.COMMENTICON}
-        <div className="comment-count">{countUnread}</div>
-      </div>
+      />
       <h3>&nbsp;unread</h3>
     </div>
   );
@@ -255,7 +254,7 @@ function URCommentStatus(props) {
             className={`${uiIsExpanded ? ' expanded' : ''}`}
             onClick={evt_ExpandPanel}
           >
-            {UnreadRepliesToMeButtonJSX}&nbsp;&nbsp;{UnreadButtonJSX}
+            {UnreadRepliesToMeButtonJSX}&nbsp;{UnreadButtonJSX}
           </div>
           <div
             id="comment-panel"

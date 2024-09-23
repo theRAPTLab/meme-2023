@@ -198,6 +198,7 @@ svg#comment-icon {
   height: 30px;
   font-size: 12px;
   font-weight: bold;
+  letter-spacing: -0.08em;
   line-height: 30px;
   position: relative;
   text-align: center;

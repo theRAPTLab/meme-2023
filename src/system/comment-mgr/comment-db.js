@@ -44,6 +44,11 @@ MOD.PromiseNewCommentID = () => {
   })
 }
 
+/**
+ * The `cb` will include the new `id` if this is a new comment that was just added
+ * @param {*} cobj
+ * @param {*} cb
+ */
 MOD.DBUpdateComment = (cobj, cb) => {
   console.log('DBUpdateComment', cobj)
   const comment = { // TComment
@@ -59,7 +64,8 @@ MOD.DBUpdateComment = (cobj, cb) => {
     commenter_id: cobj.commenter_id,
     commenter_text: cobj.commenter_text
   };
-  PMC.UR_CommentUpdate(cobj.collection_ref, comment);
+  // The `cb` will include the new `id` if this is a new comment that was just added
+  PMC.UR_CommentUpdate(cobj.collection_ref, comment, cb);
 }
 /**
  * Note we mark MULTILPLE comments as read with each update

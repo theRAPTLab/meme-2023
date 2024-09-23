@@ -431,6 +431,7 @@ MOD.GetUnreadComments = () => {
  */
 MOD.AddComment = cobj => {
   // This just generates a new ID, but doesn't update the DB
+  // The id will be created in MOD.UpdateComment's callback.
   CMTDB.PromiseNewCommentID().then(newCommentID => {
     cobj.comment_id = newCommentID;
     COMMENT.AddComment(cobj); // creates a comment vobject
@@ -444,9 +445,16 @@ MOD.AddComment = cobj => {
  * @param {Object} cobj
  */
 MOD.UpdateComment = cobj => {
-  COMMENT.UpdateComment(cobj);
-  CMTDB.DBUpdateComment(cobj);
-  m_SetAppStateCommentVObjs();
+  // Use callback to update the comment id after db creates a new id
+  CMTDB.DBUpdateComment(cobj, data => {
+    // updated data id is going to be in data.pmcData.urcomments[0].id
+    if (!data.pmcData || !data.pmcData.urcomments || data.pmcData.urcomments.length < 1) {
+      throw new Error('comment-mgr: UpdateComment: No ID returned from DB');
+    }
+    cobj.id = data.pmcData.urcomments[0].id;
+    COMMENT.UpdateComment(cobj);
+    m_SetAppStateCommentVObjs();
+  });
 };
 /**
  * Removing a comment can affect multiple comments, so this is done

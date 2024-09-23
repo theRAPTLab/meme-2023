@@ -1424,6 +1424,7 @@ PMCData.UR_CommentAdd = (cref, commentData, cb) => {
     commenter_id: commentData.commenter_id,
     commenter_text: commentData.commenter_text
   });
+  // at this point newComment.id is still undefined
   UTILS.RLog(
     'URCommentAdd',
     `id:${newComment.id} "${commentData.commenter_text}" with type "${commentData.comment_type}" on "${cref}"`
@@ -1435,6 +1436,8 @@ PMCData.UR_CommentAdd = (cref, commentData, cb) => {
       urcomments: newComment
     }
   }).then(rdata => {
+    // at this point newComment.id is still undefined
+    // but `rdata` has it in rdata.pmcData.urcomments[0].id
     if (cb && typeof cb === 'function') cb(rdata);
   });
 };
@@ -1455,6 +1458,7 @@ PMCData.UR_CommentUpdate = (cref, commentData, cb) => {
   }
   // update existing comment
   const updatedComment = Object.assign(origComment, commentData);
+
   UTILS.RLog(
     'URCommentUpdate',
     `id:${updatedComment.id} "${updatedComment.text}" with type "${commentData.comment_type}" on "${cref}"`

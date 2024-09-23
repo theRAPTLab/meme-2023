@@ -141,20 +141,22 @@ function URCommentThreadMgr(props) {
     // 2. Open the URCommentThread
     CMTMGR.UpdateCommentUIState(data.cref, { cref: data.cref, isOpen: true });
   }
-
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function urmsg_THREAD_CLOSE(data) {
     if (DBG) console.log('urmsg_THREAD_CLOSE', data);
     setCmtBtns(prevBtns => prevBtns.filter(btn => btn.cref !== data.cref));
   }
-
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function urmsg_THREAD_CLOSE_ALL(data) {
     if (DBG) console.log('urmsg_THREAD_CLOSE_ALL', data);
     setCmtBtns([]);
   }
 
+  /// COMPONENT RENDER ////////////////////////////////////////////////////////
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   return (
     <div className="URCommentThreadMgr">
-      URCommentThreadMgrs:
       {cmtBtns.map(btn => (
         <URCommentThread
           key={btn.cref}

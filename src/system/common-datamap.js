@@ -292,10 +292,11 @@ function f_validateUpdate(value, key) {
   if (vtype !== 'object') throw Error(`${key}.update: requires OBJECTS with an id, not ${vtype}`);
   if (!DataMap.IsValidId(value.id)) throw Error(`${colkey}.update has invalid id ${value.id}`);
   if (subkey) {
-    if (typeof value[subkey] !== 'object') throw Error(`${key}.update expected sub object`);
+    if (typeof value[subkey] !== 'object') throw Error(`${key}.update expected sub object with subkey ${subkey} for value ${value}`);
     const subid = value[subkey].id;
-    if (!DataMap.IsValidId(subid))
+    if (!DataMap.IsValidId(subid)) {
       throw Error(`${key}.update invalid id ${subid} typeof ${typeof subid}`);
+    }
   }
   return true;
 }

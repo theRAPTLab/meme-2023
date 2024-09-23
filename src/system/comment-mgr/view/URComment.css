@@ -215,10 +215,6 @@ svg#comment-icon {
 .hasReadComments .comment-count {
   color: white;
 }
-/* .commentbtn {
-  display: inline-block;
-  cursor: pointer;
-} */
 .comment-intable svg#comment-icon {
   width: 20px;
   height: 20px;
@@ -544,6 +540,10 @@ svg#comment-icon {
   /* URCommentBtn & URCommentVBtn */
   display: inline-block;
   cursor: pointer;
+}
+.commentbtn.disabled {
+  /* URCommentBtn & URCommentVBtn */
+  cursor: default;
 }
 .commentbtn > .comment-count {
   position: absolute;

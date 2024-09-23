@@ -482,7 +482,7 @@ MOD.RemoveComment = (parms, cb) => {
     cancelmessage = 'Go Back to Editing';
   } else {
     // Are you sure you want to delete?
-    parms.isAdmin = SETTINGS.IsAdmin();
+    parms.isAdmin = UR.IsAdminLoggedIn();
     confirmMessage = parms.isAdmin
       ? `Are you sure you want to delete this comment #${parms.comment_id} and ALL related replies (admin only)?`
       : `Are you sure you want to delete this comment #${parms.comment_id}?`;

@@ -86,7 +86,7 @@
   line-height: 1.3rem;
   cursor: pointer;
   width: fit-content;
-  padding: 3px 7px;
+  padding: 1px 5px;
   float: right;
 }
 #comment-summary.expanded {
@@ -101,7 +101,6 @@
   width: 20px;
   height: 20px;
 }
-#comment-summary .comment-count,
 .comments-unread .comment-count {
   font-size: 10px;
   width: 20px;

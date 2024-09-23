@@ -715,16 +715,16 @@ class ViewMEME extends React.Component {
             onBlur={this.DoSaveModelTitle}
           />
         </form>
+        <URCommentVBtn cref="projectcmt" />
         <div>by {modelAuthorGroupName} Group</div>
+        {/* <StickyNoteButton refId="9999" /> */}
+        <button onClick={this.OnCloseModel}>
+          {studentName}&nbsp;:&nbsp;{studentGroup}
+        </button>
         <URCommentStatus
           message={'commentStatusMessage'}
           handleMessageUpdate={'handleMessageUpdate'}
         />
-        {/* <StickyNoteButton refId="9999" /> */}
-        <URCommentVBtn cref="projectcmt" />
-        <button onClick={this.OnCloseModel}>
-          {studentName}&nbsp;:&nbsp;{studentGroup}
-        </button>
         <button onClick={this.OnLogout}>Logout</button>
         <button onClick={this.OnHelp}>?</button>
         {APPBAR_RESOURCELIB}

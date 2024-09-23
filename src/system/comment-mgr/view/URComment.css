@@ -435,7 +435,7 @@ svg#comment-icon {
 .comment .commentbar button:hover,
 .comment .editbar button:hover {
   color: white;
-  background-color: rgb(255, 141, 65);
+  background-color: #b2000b;
 }
 .comment .commentbar button.secondary,
 .comment .editbar button.secondary {

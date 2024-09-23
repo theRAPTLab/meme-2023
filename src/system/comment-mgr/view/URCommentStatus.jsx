@@ -91,7 +91,7 @@ function URCommentStatus(props) {
   function urmsg_COMMENT_UPDATE(data) {
     const { comment, uaddr } = data;
 
-    const my_uaddr = UNISYS.SocketUADDR();
+    const my_uaddr = UR.SocketUADDR();
     const isNotMe = my_uaddr !== uaddr;
 
     if (comment && comment.commenter_text.length > 0) {

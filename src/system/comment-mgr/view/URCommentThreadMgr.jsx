@@ -124,14 +124,19 @@ function URCommentThreadMgr(props) {
    * @param {Object} data.position - Position of the button
    */
   function urmsg_THREAD_OPEN(data) {
+    if (DBG) console.log(PR, 'urmsg_THREAD_OPEN', data);
     // Validate
+    if (data.cref === undefined)
+      throw new Error(
+        `URCommentThreadMgr: urmsg_THREAD_OPEN: missing cref data ${JSON.stringify(data)}`
+      );
     if (
       data.position === undefined ||
       data.position.x === undefined ||
       data.position.y === undefined
     )
       throw new Error(
-        `URCommentThreadMgr: urmsg_THREAD_OPEN: missing position data ${data}`
+        `URCommentThreadMgr: urmsg_THREAD_OPEN: missing position data ${JSON.stringify(data)}`
       );
     // 0. Open the window to the right of the click
     data.position.x = parseInt(data.position.x) + 20;

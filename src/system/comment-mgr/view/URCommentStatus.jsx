@@ -59,18 +59,14 @@ function URCommentStatus(props) {
   /** Component Effect - register listeners on mount */
   useEffect(() => {
     STATE.OnStateChange('CMTSTATUS', state_CMTSTATUS, UDATAOwner);
-    STATE.OnStateChange(
-      'COMMENTCOLLECTION',
-      () => setDummy(dummy => dummy + 1),
-      UDATAOwner
-    ); // respond to close
-    UR.Subscribe('COMMENTS_UPDATE', urmsg_COMMENTS_UPDATE);
+    STATE.OnStateChange('COMMENTCOLLECTION', redraw, UDATAOwner); // respond to close
+    UR.Subscribe('COMMENTS_UPDATE', redraw);
     UR.Subscribe('COMMENT_UPDATE', urmsg_COMMENT_UPDATE);
 
     return () => {
-      STATE.OffStateChange('CMTSTATUS', state_CMTSTATUS);
-      STATE.OffStateChange('COMMENTCOLLECTION', () => setDummy(dummy => dummy + 1)); // respond to close
-      UR.Unsubscribe('COMMENTS_UPDATE', urmsg_COMMENTS_UPDATE);
+      STATE.OffStateChange('CMTSTATUS', state_CMTSTATUS, UDATAOwner);
+      STATE.OffStateChange('COMMENTCOLLECTION', redraw, UDATAOwner); // respond to close
+      UR.Unsubscribe('COMMENTS_UPDATE', redraw);
       UR.Unsubscribe('COMMENT_UPDATE', urmsg_COMMENT_UPDATE);
     };
   }, []);
@@ -82,7 +78,7 @@ function URCommentStatus(props) {
   }
 
   /** force re-render after COMMENTS_UPDATE from a new comment another user */
-  function urmsg_COMMENTS_UPDATE() {
+  function redraw() {
     // This is necessary to force a re-render of the comment summaries
     // when the comment collection changes on the net
     setDummy(dummy => dummy + 1); // Trigger re-render

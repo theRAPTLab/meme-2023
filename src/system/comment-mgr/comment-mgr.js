@@ -101,7 +101,7 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 // /** The APP_READY hook is fired after all initialization phases have finished
 //  *  and may also fire at other times with a valid info packet
 //  */
-// MOD.Hook('APP_READY', function (info) {
+// UR.Hook(__dirname, 'APP_READY', function (info) {
 //   if (DBG) console.log('comment-mgr APP_READY');
 // }); // end APP_READY Hook
 
@@ -125,12 +125,6 @@ MOD.LoadDBData = () => {
 
 // /// HELPER FUNCTIONS //////////////////////////////////////////////////////////
 // /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-MOD.COMMENTICON = (
-  <svg id="comment-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42 42">
-    <path d="M21,0C9.4,0,0,9.4,0,21c0,4.12,1.21,7.96,3.26,11.2l-2.26,9.8,11.56-1.78c2.58,1.14,5.44,1.78,8.44,1.78,11.6,0,21-9.4,21-21S32.6,0,21,0Z" />
-  </svg>
-);
 
 function m_SetAppStateCommentCollections() {
   const COMMENTCOLLECTION = COMMENT.GetCommentCollections();

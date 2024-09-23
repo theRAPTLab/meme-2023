@@ -120,6 +120,9 @@
 #comment-panel.expanded {
   display: block;
   height: fit-content;
+  /* pop out so so sidebars don't move */
+  position: absolute;
+  margin-left: -300px;
 }
 /* Comment Alert ----------------------------------------------------------- */
 #comment-alert {

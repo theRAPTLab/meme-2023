@@ -8,19 +8,19 @@
         * id is `cref` (instead of `uiref)`
         * comment state is derived from global state objects (not props)
 
-  A display button that calls URCommentThreadMgr to open comments.
+  A display button that calls URCommentCollectionMgr to open comments.
   It emulates the visual functionality of URCommentBtn but is not a parent
   of the URCommentThread and does not directly handle the opening and closing
   of URCommentThreads.  URCommentThreads are opened separately via
-  URCommentThreadMgr.
+  URCommentCollectionMgr.
 
   FUNCTIONALITY:
     URCommentVBtn does five things:
     1. Displays whether the comment thread is open (bordered) or closed (no border)
     2. Displays the number of comments in the thread
     3. Provides the position of the source component requesting the thread
-    4. Requests URCommentThreadMgr to open the comment thread
-    5. Requests URCommentThreadMgr to close the comment thread
+    4. Requests URCommentCollectionMgr to open the comment thread
+    5. Requests URCommentCollectionMgr to close the comment thread
     4. // REVIEW: isDisabled is not used -- where do we get that status forom?
 
   USE:
@@ -33,7 +33,7 @@
     * cref    -- collection reference (usu node id, edge id)
 
   USED BY:
-    * URCommentStatus > URCommentThreadMgr
+    * URCommentStatus > URCommentCollectionMgr
     * Navbar
     * ELink
 
@@ -141,7 +141,7 @@ function URCommentVBtn({ cref }) {
     } else {
       // is currently closed, so open it
       const position = c_GetCommentThreadPosition();
-      UR.Publish('CTHREADMGR_THREAD_OPEN', { cref, position });
+      CMTMGR.OpenCommentCollection(cref, position);
     }
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

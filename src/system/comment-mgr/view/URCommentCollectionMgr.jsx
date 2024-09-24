@@ -1,42 +1,26 @@
 /*//////////////////////////////// ABOUT \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*\
 
-  URCommentThreadMgr
+  URCommentCollectionMgr
 
-  URCommentThreadMgr handles the opening and closing of URCommentThreads
-  being requested from three sources:
-  * Evidence Links -- via URCommentVBtn
-  * SVG props      -- in class-vbadge via UR.Publish(`CTHREADMGR_THREAD_OPEN`) calls
-  * SVG Mechanisms -- in class-vbadge via UR.Publish(`CTHREADMGR_THREAD_OPEN`) calls
-
-  URCommentVBtn is a visual component that passes clicks
-  to URCommentThreadMgr via UR.Publish(`CTHREADMGR_THREAD_OPEN`) calls
-
-
-  HOW IT WORKS
-  When an EVLink, SVG prop, or SVG mechanism clicks on the
-  URCommentVBtn, URCommentThreadMgr will:
-  * Add the requested Thread to the URCommentThreadMgr
-  * Open the URCommentThread
-  * When the URCommentThread is closed, it will be removed from the URCommentThreadMgr
+  Comment collection components are dynamically created and destroyed in the
+  DOM as the user requests opening and closing comment collection windows.
+  The URCommentCollectionMgr handles the insertion and removal of these
+  components.
 
   UR MESSAGES
-  *  CTHREADMGR_THREAD_OPEN {cref, position}
-  *  CTHREADMGR_THREAD_CLOSED {cref}
-  *  CTHREADMGR_THREAD_CLOSE_ALL
-
-
-  NOTES
-  * Differences with URCommentBtn
+  *  CMT_COLLECTION_SHOW {cref, position}
+  *  CMT_COLLECTION_HIDE {cref}
+  *  CMT_COLLECTION_HIDE_ALL
 
   USE:
 
-    <URCommentThreadMgr message={message} handleMessageUpdate/>
+    <URCommentCollectionMgr message={message} handleMessageUpdate/>
 
 
   HISTORY
   Originally, URCommentBtn were designed to handle comment opening
-  requests from two types componets: nodes/edges and
-  NodeTables/EdgeTables in NetCreate.  Since the requests could come
+  in Net.Create from two types componets: nodes/edges and
+  NodeTables/EdgeTables.  Since the requests could come
   from different components, we had to keep track of which component
   was requesting the opening, so they could close the corresponding
   comment.  In order to do this, we used a reference that combined
@@ -55,12 +39,12 @@
   inside the Evidence Library and comments created inside the library
   end up hidden due to layers of overflow divs.
 
-  To get around this, URCommentThreadMgr essentially replaces the
+  To get around this, URCommentCollectionMgr essentially replaces the
   functionality of URCommentBtn with three pieces, acting as a middle
   man and breaking out the...
-  * visual display    -- URCommentVBtn
-  * UI click requests -- UR messages
-  * thread opening / closing requests -- URCommentThreadMgr
+  * visual display    -- URCommentSVGBtn
+  * UI click requests -- URCommentVBtn
+  * thread opening / closing requests -- URCommentCollectionMgr
   ...into different functions handled by different components.
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
@@ -75,85 +59,65 @@ import URCommentThread from '../../../system/comment-mgr/view/URCommentThread';
 
 /// CONSTANTS & DECLARATIONS //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// Debug Flags
 const DBG = true;
-const PR = 'URCommentThreadMgr';
+const PR = 'URCommentCollectionMgr';
 
-const UDATAOwner = 'URCommentThreadMgr';
+const UDATAOwner = 'URCommentCollectionMgr';
 
 /// REACT FUNCTIONAL COMPONENT ////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function URCommentThreadMgr(props) {
+function URCommentCollectionMgr(props) {
   const uid = CMTMGR.GetCurrentUserId();
   const [cmtBtns, setCmtBtns] = useState([]);
   const [dummy, setDummy] = useState(0); // Dummy state variable to force update
 
   /** Component Effect - register listeners on mount */
   useEffect(() => {
-    STATE.OnStateChange(
-      'COMMENTCOLLECTION',
-      urstate_UpdateCommentCollection,
-      UDATAOwner
-    );
-    STATE.OnStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs, UDATAOwner);
-    UR.Subscribe('CTHREADMGR_THREAD_OPEN', urmsg_THREAD_OPEN);
-    UR.Subscribe('CTHREADMGR_THREAD_CLOSED', urmsg_THREAD_CLOSE);
-    UR.Subscribe('CTHREADMGR_THREAD_CLOSE_ALL', urmsg_THREAD_CLOSE_ALL);
+    STATE.OnStateChange('COMMENTVOBJS', redraw, UDATAOwner);
+    UR.Subscribe('CMT_COLLECTION_SHOW', urmsg_COLLECTION_SHOW);
+    UR.Subscribe('CMT_COLLECTION_HIDE', urmsg_COLLECTION_HIDE);
+    UR.Subscribe('CMT_COLLECTION_HIDE_ALL', urmsg_COLLECTION_HIDE_ALL);
 
     return () => {
-      STATE.OffStateChange('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
-      STATE.OffStateChange('COMMENTVOBJS', urstate_UpdateCommentVObjs);
-      UR.Unsubscribe('CTHREADMGR_THREAD_OPEN', urmsg_THREAD_OPEN);
-      UR.Unsubscribe('CTHREADMGR_THREAD_CLOSED', urmsg_THREAD_CLOSE);
-      UR.Unsubscribe('CTHREADMGR_THREAD_CLOSE_ALL', urmsg_THREAD_CLOSE_ALL);
+      STATE.OffStateChange('COMMENTVOBJS', redraw);
+      UR.Unsubscribe('CMT_COLLECTION_SHOW', urmsg_COLLECTION_SHOW);
+      UR.Unsubscribe('CMT_COLLECTION_HIDE', urmsg_COLLECTION_HIDE);
+      UR.Unsubscribe('CMT_COLLECTION_HIDE_ALL', urmsg_COLLECTION_HIDE_ALL);
     };
   }, []);
-
 
   /// COMPONENT HELPER METHODS ////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   /// UR HANDLERS /////////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  function redraw(data) {
+    // This is necessary to force a re-render of the threads
+    // when the comment collection changes on the net
+    // especially when a new comment is added.
+    setDummy(dummy => dummy + 1); // Trigger re-render
+  }
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /**
-   * Handle CTHREADMGR_THREAD_OPEN message
+   * Handle urmsg_COLLECTION_SHOW message
    * 1. Register the button, and
    * 2. Open the URCommentBtn
    * @param {Object} data
    * @param {string} data.cref - Collection reference
    * @param {Object} data.position - Position of the button
    */
-  function urmsg_THREAD_OPEN(data) {
-    if (DBG) console.log(PR, 'urmsg_THREAD_OPEN', data);
-    // Validate
-    if (data.cref === undefined)
-      throw new Error(
-        `URCommentThreadMgr: urmsg_THREAD_OPEN: missing cref data ${JSON.stringify(data)}`
-      );
-    if (
-      data.position === undefined ||
-      data.position.x === undefined ||
-      data.position.y === undefined
-    )
-      throw new Error(
-        `URCommentThreadMgr: urmsg_THREAD_OPEN: missing position data ${JSON.stringify(data)}`
-      );
-    // 0. Open the window to the right of the click
-    data.position.x = parseInt(data.position.x) + 20;
-    data.position.y = parseInt(data.position.y) - 10;
-    // 1. Register the button
+  function urmsg_COLLECTION_SHOW(data) {
+    if (DBG) console.log(PR, 'CMT_COLLECTION_SHOW', data);
     setCmtBtns(prevBtns => [...prevBtns, data]);
-    // 2. Open the URCommentThread
-    CMTMGR.UpdateCommentUIState(data.cref, { cref: data.cref, isOpen: true });
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  function urmsg_THREAD_CLOSE(data) {
-    if (DBG) console.log('urmsg_THREAD_CLOSE', data);
+  function urmsg_COLLECTION_HIDE(data) {
+    if (DBG) console.log('CMT_COLLECTION_HIDE', data);
     setCmtBtns(prevBtns => prevBtns.filter(btn => btn.cref !== data.cref));
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  function urmsg_THREAD_CLOSE_ALL(data) {
-    if (DBG) console.log('urmsg_THREAD_CLOSE_ALL', data);
+  function urmsg_COLLECTION_HIDE_ALL(data) {
+    if (DBG) console.log('CMT_COLLECTION_HIDE_ALL', data);
     setCmtBtns([]);
   }
 
@@ -161,7 +125,7 @@ function URCommentThreadMgr(props) {
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   return (
-    <div className="URCommentThreadMgr">
+    <div className="URCommentCollectionMgr">
       {cmtBtns.map(btn => (
         <URCommentThread
           key={btn.cref}
@@ -178,4 +142,4 @@ function URCommentThreadMgr(props) {
 
 /// EXPORT REACT COMPONENT ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default URCommentThreadMgr;
+export default URCommentCollectionMgr;

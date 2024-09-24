@@ -406,10 +406,7 @@ class ViewMEME extends React.Component {
 
       const cref = CMTMGR.GetCREF('ENTITY', propId);
       if (DBG) console.log('---- OnAddPropComment', cref);
-      UR.Publish('CTHREADMGR_THREAD_OPEN', {
-        cref,
-        position: { x: 600, y: 100 }
-      });
+      CMTMGR.OpenCommentCollection(cref, { x: 600, y: 100 });
     }
   }
 
@@ -419,10 +416,7 @@ class ViewMEME extends React.Component {
       let propId = selectedPropIds[0];
       const cref = CMTMGR.GetCREF('OUTCOME', propId);
       if (DBG) console.log('---- OnAddOutcomeComment', cref);
-      UR.Publish('CTHREADMGR_THREAD_OPEN', {
-        cref,
-        position: { x: 600, y: 100 }
-      });
+      CMTMGR.OpenCommentCollection(cref, { x: 600, y: 100 });
     }
   }
 
@@ -443,10 +437,7 @@ class ViewMEME extends React.Component {
       // We're using the pmcData id, not the path object
       const cref = CMTMGR.GetCREF('PROCESS', mech.id); // mech.id = '167'
       if (DBG) console.log('---- OnAddMechComment', cref);
-      UR.Publish('CTHREADMGR_THREAD_OPEN', {
-        cref,
-        position: { x: 600, y: 100 }
-      });
+      CMTMGR.OpenCommentCollection(cref, { x: 600, y: 100 });
     }
   }
 

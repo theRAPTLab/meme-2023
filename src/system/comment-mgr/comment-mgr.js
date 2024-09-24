@@ -335,8 +335,31 @@ MOD.MarkAllRead = () => {
   m_SetAppStateCommentCollections();
 };
 
+/// COMMENT COLLECTIONS ///////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// Comment Collections
+MOD.OpenCommentCollection = (cref, position) => {
+  // Validate
+  if (cref === undefined)
+    throw new Error(
+      `comment-mgr.OpenCommentCollection: missing cref data ${JSON.stringify(cref)}`
+    );
+  if (
+    position === undefined ||
+    position.x === undefined ||
+    position.y === undefined
+  )
+    throw new Error(
+      `comment-mgr.OpenCommentCollection: missing position data ${JSON.stringify(position)}`
+    );
+  // 0. Position the window to the right of the click
+  const collectionPosition = {}
+  collectionPosition.x = parseInt(position.x) + 20;
+  collectionPosition.y = parseInt(position.y) - 10;
+  // 1. Update the state
+  MOD.UpdateCommentUIState(cref, { cref, isOpen: true });
+  // 2. Open the collection in the collection manager
+  UR.Publish('CMT_COLLECTION_SHOW', { cref, position: collectionPosition });
+};
 MOD.GetCommentCollection = uiref => {
   return COMMENT.GetCommentCollection(uiref);
 };
@@ -356,7 +379,7 @@ MOD.CloseCommentCollection = (uiref, cref, uid) => {
     return;
   }
   // OK to close
-  UDATA.LocalCall('CTHREADMGR_THREAD_CLOSED', { cref });
+  UDATA.LocalCall('CMT_COLLECTION_HIDE', { cref });
   // Update the readby
   CMTDB.DBUpdateReadBy(cref, uid);
   COMMENT.CloseCommentCollection(uiref, cref, uid);
@@ -368,8 +391,8 @@ MOD.GetCommentStats = () => {
   return COMMENT.GetCommentStats(uid);
 };
 
+/// COMMENT UI STATE //////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// Comment UI State
 MOD.GetCommentUIState = uiref => {
   return COMMENT.GetCommentUIState(uiref);
 };

@@ -21,7 +21,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import UR from '../../../system/ursys';
 const STATE = require('../lib/client-state');
 import CMTMGR from '../comment-mgr';
-import URCommentThreadMgr from '../../../system/comment-mgr/view/URCommentThreadMgr';
+import URCommentCollectionMgr from '../../../system/comment-mgr/view/URCommentCollectionMgr';
 import URCommentSVGBtn from '../../../system/comment-mgr/view/URCommentSVGBtn';
 import URDialog from './URDialog';
 
@@ -235,7 +235,7 @@ function URCommentStatus(props) {
 
   return (
     <>
-      <URCommentThreadMgr />
+      <URCommentCollectionMgr />
       <URDialog info={CMTSTATUS.dialog} />
       <div id="comment-bar">
         <div

@@ -453,7 +453,7 @@ VBadge.SVGStickyButton = (vparent, cref) => {
     // don't allow clicks if the sticky button is hidden
     if (gStickyButtons.attr('visibility') === 'hidden') return;
 
-    UR.Publish('CTHREADMGR_THREAD_OPEN', { cref, position: { x: e.clientX, y: e.clientY } });
+    CMTMGR.OpenCommentCollection(cref, { x: e.clientX, y: e.clientY });
   };
 
   // create vbadge sub elements

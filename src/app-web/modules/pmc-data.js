@@ -329,16 +329,16 @@ PMCData.SyncAddedData = data => {
       PMCData.BuildModel();
     }
 
-    if (subkey === 'comments') {
-      const comment = PMCObj.Comment(value);
-      a_comments.push(comment);
-      UR.Publish('DATA_UPDATED');
-    }
-
-    if (subkey === 'markedread') {
-      a_markedread.push(value);
-      UR.Publish('DATA_UPDATED');
-    }
+    // DEPRECATE: Old StickyNotes system.  comments are now URComments
+    // if (subkey === 'comments') {
+    //   const comment = PMCObj.Comment(value);
+    //   a_comments.push(comment);
+    //   UR.Publish('DATA_UPDATED');
+    // }
+    // if (subkey === 'markedread') {
+    //   a_markedread.push(value);
+    //   UR.Publish('DATA_UPDATED');
+    // }
 
     if (subkey === 'urcomments') {
       const urcomment = PMCObj.URComment(value);
@@ -428,19 +428,19 @@ PMCData.SyncUpdatedData = data => {
       }
     }
 
-    if (subkey === 'comments') {
-      const newComment = PMCObj.Comment(value);
-      const i = a_comments.findIndex(c => c.id === value.id);
-      if (i < 0) throw Error('Trying to update non-existent comments');
-      const comment = Object.assign(a_comments[i], newComment);
-      a_comments.splice(i, 1, comment);
-      dataWasUpdated = true;
-      UR.Publish('DATA_UPDATED');
-    }
-
-    if (subkey === 'markedread') {
-      // marked read really doesn't get updates
-    }
+    // DEPRECATE: Old StickyNotes system.  comments are now URComments
+    // if (subkey === 'comments') {
+    //   const newComment = PMCObj.Comment(value);
+    //   const i = a_comments.findIndex(c => c.id === value.id);
+    //   if (i < 0) throw Error('Trying to update non-existent comments');
+    //   const comment = Object.assign(a_comments[i], newComment);
+    //   a_comments.splice(i, 1, comment);
+    //   dataWasUpdated = true;
+    //   UR.Publish('DATA_UPDATED');
+    // }
+    // if (subkey === 'markedread') {
+    //   // marked read really doesn't get updates
+    // }
 
     if (subkey === 'urcomments') {
       const newURComment = PMCObj.URComment(value);

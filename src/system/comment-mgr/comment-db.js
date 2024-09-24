@@ -88,6 +88,14 @@ MOD.DBUpdateReadBy = (cref, uid) => {
   });
   PMC.UR_MarkReadBy(readbys);
 }
+/**
+ * Executes multiple database operations via a batch of commands:
+ * - `cobjs` will be updated
+ * - `commentIDs` will be deleted
+ * @param {Object[]} items [ ...cobj, ...commentID ]
+ * @param {function} cb callback
+ */
+MOD.DBRemoveComment = (items, cb) => {
 }
 
 /// EXPORT CLASS DEFINITION ///////////////////////////////////////////////////

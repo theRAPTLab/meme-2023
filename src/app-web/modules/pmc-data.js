@@ -343,7 +343,10 @@ PMCData.SyncAddedData = data => {
     if (subkey === 'urcomments') {
       const urcomment = PMCObj.URComment(value);
       a_urcomments.push(urcomment);
-      UR.Publish('DATA_UPDATED');
+      // DATA_UPDATED updates EVERYTHING.  We want to be more selective
+      // UR.Publish('DATA_UPDATED');
+      // COMMENT_UPDATE broadcasts ONLY comment updates across the network.
+      UR.Publish('COMMENT_UPDATE', { comment: urcomment })
     }
 
     if (subkey === 'urcomments_readby') {
@@ -446,7 +449,10 @@ PMCData.SyncUpdatedData = data => {
       const urcomment = Object.assign(a_urcomments[i], newURComment);
       a_urcomments.splice(i, 1, urcomment);
       dataWasUpdated = true;
-      UR.Publish('DATA_UPDATED');
+      // DATA_UPDATED updates EVERYTHING.  We want to be more selective
+      // UR.Publish('DATA_UPDATED');
+      // COMMENT_UPDATE broadcasts ONLY comment updates across the network.
+      UR.Publish('COMMENT_UPDATE', { comment: urcomment })
     }
 
     if (subkey === 'urcomments_readby') {

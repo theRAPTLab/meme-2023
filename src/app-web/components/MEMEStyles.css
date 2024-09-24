@@ -109,6 +109,9 @@ h3 {
 .appbar > button:hover {
   background-color: var(--clr-btn-hover);
 }
+.appbar > div > .commentbtn {
+  margin-top: 5px;
+}
 
 /* -- BUTTON --------------------------------- */
 button {

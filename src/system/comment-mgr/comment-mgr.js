@@ -471,10 +471,10 @@ MOD.UpdateComment = cobj => {
   // Use callback to update the comment id after db creates a new id
   CMTDB.DBUpdateComment(cobj, data => {
     // updated data id is going to be in data.pmcData.urcomments[0].id
-    if (!data.pmcData || !data.pmcData.urcomments || data.pmcData.urcomments.length < 1) {
-      throw new Error('comment-mgr: UpdateComment: No ID returned from DB');
+    if (!data["pmcData.urcomments"] || data["pmcData.urcomments"].length < 1) {
+      throw new Error(`comment-mgr: UpdateComment: No ID returned from DB. cobj: ${JSON.stringify(cobj)} data: ${JSON.stringify(data)}`);
     }
-    cobj.id = data.pmcData.urcomments[0].id;
+    cobj.id = data["pmcData.urcomments"][0].id;
     COMMENT.UpdateComment(cobj);
     m_SetAppStateCommentVObjs();
   });

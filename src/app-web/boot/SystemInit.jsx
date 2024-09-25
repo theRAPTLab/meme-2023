@@ -26,8 +26,7 @@ import { cssreset, cssur, cssuri } from '../modules/console-styles';
 import MEMEStyles from '../components/MEMEStyles';
 import { ThemeProvider } from 'styled-components';
 
-import { ConsoleStyler } from '@ursys/core';
-const PR = ConsoleStyler('SysInit', 'TagPink');
+const PR = tag => [`%c${tag}`, 'color:hotpink'];
 console.log(...PR('URSYS CORE was successfully loaded!'));
 
 /// DEBUG CONTROL /////////////////////////////////////////////////////////////

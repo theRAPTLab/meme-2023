@@ -16,6 +16,10 @@ module.exports = env => {
 
   return merge([
     {
+      stats: {
+        errorDetails: true,
+        colors: true
+      },
       module: {
         rules: [
           {

@@ -396,7 +396,7 @@ class ViewMEME extends React.Component {
     if (selectedPropIds.length > 0) {
       let propId = selectedPropIds[0];
 
-      // DEPRECATED StickyNotes in favor of URCommentThreadMgr
+      // DEPRECATED StickyNotes in favor of URCommentCollectionMgr
       // UR.Publish('STICKY_OPEN', {
       //   refId: propId,
       //   // MEFIX: Set position according to parent prop?
@@ -426,7 +426,7 @@ class ViewMEME extends React.Component {
       let mechId = selectedMechIds[0];
       let mech = DATA.Mech(mechId);
 
-      // DEPRECATED StickyNotes in favor of URCommentThreadMgr
+      // DEPRECATED StickyNotes in favor of URCommentCollectionMgr
       // UR.Publish('STICKY_OPEN', {
       //   refId: mech.id,
       //   // MEFIX: Set position according to parent prop?

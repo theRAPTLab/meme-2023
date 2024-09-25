@@ -63,6 +63,7 @@
   max-width: 400px;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--comment-commenter-font-color);
 }
 #comment-bar button.small {
   background-color: #fff6;
@@ -147,10 +148,12 @@
   transform: translateY(0);
   transition: all 5s ease-in;
 }
-.comment-status-body {
+#comment-alert .comment-status-body {
   position: absolute;
   top: 2px;
   right: 10px; /* float to the left of the main status */
+}
+.comment-status-body {
   margin-left: 1.3rem;
   padding-bottom: 0.5rem;
   overflow: hidden;

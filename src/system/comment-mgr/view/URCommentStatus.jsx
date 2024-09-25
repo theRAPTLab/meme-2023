@@ -183,11 +183,11 @@ function URCommentStatus(props) {
           href="#"
           onClick={event => evt_OpenComment(event, cref, comment.comment_id)}
         >{`#${comment.id}`}</a>
-        &nbsp;&ldquo;
         <div className="comment-text">
+          &nbsp;&ldquo;
           {String(comment.commenter_text.join('|')).trim()}
+          &rdquo;
         </div>
-        &rdquo;
       </div>
     );
   }

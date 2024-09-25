@@ -31,10 +31,10 @@
   * ViewMEME
     * APPBAR -- Project comment via URCommentBtn
     * CONTROLBAR
-      -- OnAddPropComment via `CTHREADMGR_THREAD_OPEN`
-      -- OnAddMechComment via `CTHREADMGR_THREAD_OPEN`
+      -- OnAddPropComment via `CMT_COLLECTION_SHOW`
+      -- OnAddMechComment via `CMT_COLLECTION_SHOW`
   * EVLink -- via URCommentVBtn
-  * VBadge -- VBadge.SVGStickyButton.onClick via `CTHREADMGR_THREAD_OPEN`
+  * VBadge -- VBadge.SVGStickyButton.onClick via `CMT_COLLECTION_SHOW`
 
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
@@ -250,47 +250,62 @@ MOD.GetCREFSourceLabel = cref => {
 MOD.OpenReferent = cref => {
   const { type, id } = MOD.DeconstructCREF(cref);
   let edge;
+  // FIXME: Handle opening
+  console.error('NOT IMPLEMENTED YET: OpenReferent', type, id);
   switch (type) {
-    case 'n':
-      UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [parseInt(id)] });
-      break;
-    case 'e':
-      edge = STATE.State('NCDATA').edges.find(e => e.id === Number(id));
-      UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [edge.source] }).then(() => {
-        UDATA.LocalCall('EDGE_SELECT', { edgeId: edge.id });
-      });
-      break;
+    // case 'n':
+    //   UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [parseInt(id)] });
+    //   break;
+    // case 'e':
+    //   edge = STATE.State('NCDATA').edges.find(e => e.id === Number(id));
+    //   UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [edge.source] }).then(() => {
+    //     UDATA.LocalCall('EDGE_SELECT', { edgeId: edge.id });
+    //   });
+    //   break;
     case 'p':
       // do something?
       break;
   }
 };
 
-/// Open comment using a comment id
+/// Open comment inside a collection using a comment id
 MOD.OpenComment = (cref, cid) => {
   const { type, id } = MOD.DeconstructCREF(cref);
+  console.error('NOT IMPLEMENTED YET: OpenComment', cref, cid)
   switch (type) {
-    case 'n':
-      UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [parseInt(id)] }).then(() => {
-        UDATA.LocalCall('COMMENT_SELECT', { cref }).then(() => {
-          const commentEl = document.getElementById(cid);
-          commentEl.scrollIntoView({ behavior: 'smooth' });
-        });
-      });
-      break;
-    case 'e':
-      edge = STATE.State('NCDATA').edges.find(e => e.id === Number(id));
-      UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [edge.source] }).then(() => {
-        UDATA.LocalCall('EDGE_SELECT', { edgeId: edge.id }).then(() => {
-          UDATA.LocalCall('COMMENT_SELECT', { cref }).then(() => {
-            const commentEl = document.getElementById(cid);
-            commentEl.scrollIntoView({ behavior: 'smooth' });
-          });
-        });
-      });
-      break;
+    // case 'n':
+    //   UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [parseInt(id)] }).then(() => {
+    //     UDATA.LocalCall('COMMENT_SELECT', { cref }).then(() => {
+    //       const commentEl = document.getElementById(cid);
+    //       commentEl.scrollIntoView({ behavior: 'smooth' });
+    //     });
+    //   });
+    //   break;
+    // case 'e':
+    //   edge = STATE.State('NCDATA').edges.find(e => e.id === Number(id));
+    //   UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [edge.source] }).then(() => {
+    //     UDATA.LocalCall('EDGE_SELECT', { edgeId: edge.id }).then(() => {
+    //       UDATA.LocalCall('COMMENT_SELECT', { cref }).then(() => {
+    //         const commentEl = document.getElementById(cid);
+    //         commentEl.scrollIntoView({ behavior: 'smooth' });
+    //       });
+    //     });
+    //   });
+    //   break;
     case 'p':
       // do something?
+      break;
+    case 'v':
+      return;
+      console.error('OpenComment scrolling into view', cref)
+      // TODO Use `CMT_COLLECTION_SHOW` instead of `COMMENT_SELECT`
+      // UDATA.LocalCall('COMMENT_SELECT', { cref }).then(() => {
+      UDATA.LocalCall('CMT_COLLECTION_SHOW', { cref }).then(() => {
+        console.error('OpenComment scrolling into view', cref, cid)
+        const commentEl = document.getElementById(cid);
+        if (!commentEl) throw new Error(`Comment Element ${cid} for ${cref} not found`);
+        commentEl.scrollIntoView({ behavior: 'smooth' });
+      });
       break;
     default:
       console.error('Opening Unknown Comment Type', type, cref, cid);
@@ -337,6 +352,36 @@ MOD.MarkAllRead = () => {
 
 /// COMMENT COLLECTIONS ///////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/*
+  The requests come from three sources:
+    * Evidence Links-- via URCommentVBtn
+    * SVG Props-- in class- vbadge via UR.Publish(`CMT_COLLECTION_SHOW`) calls
+    * SVG Mechanisms-- in class- vbadge via UR.Publish(`CMT_COLLECTION_SHOW`) calls
+
+
+  URCommentVBtn is a UI component that passes clicks
+  to URCommentCollectionMgr via UR.Publish(`CMT_COLLECTION_SHOW`) calls
+
+  URCommentSVGBtn is a purely visual component that renders SVG buttons
+  as symbols and displays the comment count and selection status.
+  It pases the click events to URCommentVBtn.
+
+  MAP
+    * URCommentStatus
+      > URCommentCollectionMgr
+        > URCommentThread
+          > URCommentVBtn
+            > URCommentSVGBtn
+
+
+  HOW IT WORKS
+  When an EVLink, SVG prop, or SVG mechanism clicks on the
+  URCommentVBtn, URCommentCollectionMgr will:
+  * Add the requested Thread to the URCommentCollectionMgr
+  * Open the URCommentThread
+  * When the URCommentThread is closed, it will be removed from the URCommentCollectionMgr
+
+  */
 MOD.OpenCommentCollection = (cref, position) => {
   // Validate
   if (cref === undefined)

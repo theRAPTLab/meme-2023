@@ -144,8 +144,16 @@ function URCommentVBtn({ cref }) {
       CMTMGR.OpenCommentCollection(cref, position);
     }
   }
+  /// DEPRECATED FOR NOW
+  /// -- URCommentCollectionMgr should handle window resize?
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   */
+  // /** handles window resize, which will adjust the URCommentThread window
+  //  *  position relative to the resized location of the URCommentBtn
+  //  */
+  // function evt_OnResize() {
+  //   const position = c_GetCommentThreadPosition();
+  //   setPosition(position);
+  // }
 
   /// COMPONENT RENDER ////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

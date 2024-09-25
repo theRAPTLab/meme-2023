@@ -94,6 +94,7 @@
     "@babel/polyfill": "^7.12.1",
     "@babel/preset-env": "^7.23.9",
     "@babel/preset-react": "^7.23.3",
+    "@babel/preset-typescript": "^7.24.7",
     "@electron/notarize": "^2.3.0",
     "@electron/osx-sign": "^1.0.5",
     "acorn": "^8.11.3",

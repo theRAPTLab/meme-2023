@@ -49,7 +49,7 @@ module.exports = env => {
             include: [path.resolve(__dirname, 'src')]
           },
           {
-            test: /\.(eot|svg|ttf|woff|woff2)$/,
+            test: /\.(eot|ttf|woff|woff2)$/,
             type: 'asset/resource',
             generator: {
               filename: 'font/[name]__[hash:base64:5][ext]'

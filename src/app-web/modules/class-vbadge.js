@@ -96,6 +96,16 @@ class VBadge {
 
   }
 
+  /**
+   *  Release is called by VProp or VMech
+   */
+  Release() {
+    STATE.OffStateChange('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
+    this.gStickyButtons.remove();
+    this.gEvLinkBadges.remove();
+    this.gBadges.remove();
+  }
+
   Refresh(vparent) {
     // COMMENTCOLLECTION changes force vBadge comment button to update with opened/closed status
     this.Draw(vparent);
@@ -205,7 +215,9 @@ class VBadge {
 
   /**
    *  `DrawBase` draws the core badge elements (sticky note buttons and evidence link badges)
-   *  setting the initial object positions and is only called when an update is needed.
+   *  setting the initial object positions and is ONLY called when an update is needed.
+   *
+   *  We want to limit the number of times we call this method because it is expensive.
    *
    *  Changes tracked:
    *  - evlinks are added/removed
@@ -343,17 +355,6 @@ class VBadge {
 
   }
 
-
-
-  /**
-   *  Release is called by VProp or VMech
-   */
-  Release() {
-    STATE.OffStateChange('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
-    this.gStickyButtons.remove();
-    this.gEvLinkBadges.remove();
-    this.gBadges.remove();
-  }
 }
 
 /// STATIC CLASS METHODS //////////////////////////////////////////////////////

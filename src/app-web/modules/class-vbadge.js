@@ -1,12 +1,10 @@
 import DEFAULTS from './defaults';
-import ADM from './data';
 import PMC from './data';
 import UR from '../../system/ursys';
 const STATE = require('../../system/comment-mgr/lib/client-state');
 
 import CMTMGR from '../../system/comment-mgr/comment-mgr';
 import VMech from './class-vmech';
-import RATINGS from '../components/WRatings';
 
 const { VPROP, COLOR, SVGSYMBOLS, CREF_PREFIX } = DEFAULTS;
 
@@ -59,6 +57,7 @@ class VBadge {
     this.width = m_minWidth;
     this.height = m_minHeight;
     this.evlinks = [];
+    this.oldRating = undefined; // track rating changes to optimize drawing
     this.comments = [];
     this.commentCount = 0;
     this.isVMech = m_IsVMech(vparent);
@@ -177,6 +176,15 @@ class VBadge {
     if (oldEvlinks && updatedEvlinks && (oldEvlinks.length !== updatedEvlinks.length)) {
       redrawNeeded = true;
     }
+
+    // if the ratings have changed, then we need to redraw
+    // REVIEW: For some reason this.evlinks and updatedEvlinks are already updated by the time
+    // class-vbadge.Update is called.  So we can't compare old and new ratings here.
+    oldEvlinks.forEach((oldEvlink, i) => {
+      if (oldEvlink.rating !== this.oldRating) {
+        redrawNeeded = true;
+      }
+    });
 
     this.baseRedrawNeeded = redrawNeeded;
     this.evlinks = updatedEvlinks || [];

@@ -270,6 +270,7 @@ class VBadge {
       // Then draw each badge
       evlinks.forEach((evlink, i) => {
         const badge = VBadge.SVGEvLink(evlink, vparent);
+        this.oldRating = evlink.rating;
         badge.move(i * evlinkBadgeXOffset, -7);
         this.gEvLinkBadges.add(badge);
       });

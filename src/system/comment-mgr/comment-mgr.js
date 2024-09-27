@@ -683,6 +683,7 @@ MOD.LockComment = comment_id => {
 }
 MOD.UnlockComment = comment_id => {
   console.warn('UnlockComment.  Skipping DB operation for now.')
+  return;
   UDATA.NetCall('SRV_DBUNLOCKCOMMENT', { commentID: comment_id }).then(() => {
     UDATA.NetCall('SRV_RELEASE_EDIT_LOCK', { editor: EDITORTYPE.COMMENT });
     UDATA.LocalCall('SELECTMGR_SET_MODE', { mode: 'normal' });

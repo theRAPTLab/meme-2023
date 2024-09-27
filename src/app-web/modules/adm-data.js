@@ -954,6 +954,8 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
     clonedPMCData.visuals = rfdc(sourcePMCData.visuals);
     clonedPMCData.comments = rfdc(sourcePMCData.comments);
     clonedPMCData.markedread = rfdc(sourcePMCData.markedread);
+    clonedPMCData.urcomments = rfdc(sourcePMCData.urcomments);
+    clonedPMCData.urcomments_readby = rfdc(sourcePMCData.urcomments_readby);
     // -- Check for missing resources
     ADMData.AnnounceMissingResources(sourceModelId, clonedGroupId);
 

@@ -3,9 +3,12 @@
   --clr-txt-reverse: white;
   --clr-txt-help: #696969;
   --clr-btn-primary: #4f66a0;
+  --clr-btn-primary-hover: #354263;
+  --clr-btn-danger: #e9000e;
+  --clr-btn-danger-hover: #b2000b;
   --clr-btn-cancel: #696969;
 
-  --clr-btn-hover: #0003;
+  --clr-btn-hover: #0003; /* appbar */
 
   --clr-entity: #0088d4; /* aka 'prop' */
   --clr-entity-dark: #004f7a; /* use for text on bg */
@@ -99,12 +102,15 @@ h3 {
 .appbar input::placeholder {
   color: #fff8;
 }
-.appbar button {
+.appbar > button {
   color: var(--clr-appbar);
   background-color: transparent;
 }
-.appbar button:hover {
+.appbar > button:hover {
   background-color: var(--clr-btn-hover);
+}
+.appbar > div > .commentbtn {
+  margin-top: 5px;
 }
 
 /* -- BUTTON --------------------------------- */
@@ -117,15 +123,21 @@ button.primary {
   color: var(--clr-txt-reverse);
   background-color: var(--clr-btn-primary);
 }
+button.primary:hover {
+  background-color: var(--clr-btn-primary-hover);
+}
 button.cancel {
   color: var(--clr-txt-reverse);
   background: var(--clr-btn-cancel);
 }
 button.danger {
   color: var(--clr-txt-reverse);
-  background-color: #e9000e;
+  background-color: var(--clr-btn-danger);
 }
-button.comment {
+button.danger:hover {
+  background-color: var(--clr-btn-danger-hover);
+}
+button.comment-btn {
   color: var(--clr-txt);
   background-color: var(--clr-comment);
 }
@@ -145,7 +157,7 @@ button.close {
   align-self: flex-end;
 }
 button:hover {
-  opacity: 0.8;
+  filter: brightness(85%) saturate(120%);
 }
 button:disabled {
   opacity: 0.5;

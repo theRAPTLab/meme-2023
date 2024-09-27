@@ -167,7 +167,7 @@ window.ur.Logout = () => {
 // - - - - - - - - - - - - - - - - - - - - -
 window.ur.tnewmodel = title => {
   // first create the pmcData
-  return UR.DBQuery('add', { pmcData: { entities: [], visuals: [], comments: [], markedread: [] } })
+  return UR.DBQuery('add', { pmcData: { entities: [], visuals: [], comments: [], markedread: [], urcomments: [], urcomments_readby: [] } })
     .then(rdata => {
       if (rdata.error) throw Error(rdata.error);
       //

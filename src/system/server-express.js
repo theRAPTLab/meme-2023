@@ -81,7 +81,10 @@ function Start() {
     // otherwise, we are running as straight node out of npm scripts, or
     // a generic Electron binary was used to load us (Electron works just
     // as a node interpreter ya know!
-    console.log(PR, `COMPILING WEBSERVER w/ WEBPACK - THIS MAY TAKE SEVERAL SECONDS...`);
+    console.log(
+      PR,
+      `COMPILING WEBSERVER w/ WEBPACK - THIS MAY TAKE SEVERAL SECONDS...`
+    );
     DOCROOT = path.resolve(__dirname, '../../built/web');
 
     // RUN WEBPACK THROUGH API
@@ -110,6 +113,19 @@ function Start() {
           console.log(PR, `SERVING '${DOCROOT}'`);
           console.log(PR, `LIVE RELOAD ENABLED`);
         });
+      }
+    });
+
+    // log errors - relies on stat config in webpack.base.config
+    compiler.hooks.done.tap('ErrorLoggingPlugin', stats => {
+      const info = stats.toJson();
+
+      if (stats.hasErrors()) {
+        console.error('Errors:', info.errors);
+      }
+
+      if (stats.hasWarnings()) {
+        console.warn('Warnings:', info.warnings);
       }
     });
 
@@ -156,7 +172,10 @@ function Start() {
   // configure headers to allow cross-domain requests of media elements
   app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept'
+    );
     next();
   });
 

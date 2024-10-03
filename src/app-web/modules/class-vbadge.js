@@ -321,7 +321,8 @@ class VBadge {
     const commentThreadIsOpen = uistate && uistate.isOpen;
 
     // update count on draw b/c number of comments might change
-    if (comments && comments.length > 0) this.commentCount = comments.length;
+    if (Array.isArray(comments)) this.commentCount = comments.filter(c => !c.comment_isMarkedDeleted).length;
+
     this.gStickyButtons.gLabel
       .text(this.commentCount) // BUG: If text is empty, dragging seeems to lead to a race condition
 

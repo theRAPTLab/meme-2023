@@ -102,7 +102,13 @@ MOD.DBRemoveComment = (queuedActions, cb) => {
   // but MEME's database requires a numeric id.  So we need to convert
   // the UUID string to the pmcData id.
   const ids = queuedActions
-    .filter(item => Object.hasOwn(item, 'id'))
+    .filter(item => {
+      return (
+        Object.hasOwn(item, 'id')
+        && item.id !== undefined // A newly created unsaved comment will not have an id,
+        // so don't bother to try remove it from the database
+      )
+    })
     .map(item => { return { id: item.id } });
   // FIXME: Need to add LOCK before DB update???
   PMC.UR_CommentsDelete(ids);

@@ -661,7 +661,6 @@ PMCData.BuildModel = () => {
   h_evidenceByMech.forEach((evArr, mechId) => {
     if (evArr && mechId !== null) {
       evArr.forEach(ev => {
-        console.log('pmc-data checking mechId', mechId);
         let mechIds = h_mechByResource.get(ev.rsrcId);
         if (mechIds === undefined) mechIds = [];
         if (!mechIds.includes(mechId)) mechIds.push(mechId);

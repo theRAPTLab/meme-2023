@@ -309,7 +309,7 @@ function f_validateRemove(value, key) {
   if (subkey) {
     if (typeof value[subkey] !== 'object') throw Error(`${key}.remove expects sub object with id`);
     if (!DataMap.IsValidId(value[subkey].id))
-      throw Error(`${key}.remove subobject must have valid id`);
+      throw Error(`${key}.remove subobject must have valid id.  Value is "${JSON.stringify(value)}" with subkey "${subkey}"`);
   }
   return true;
 }

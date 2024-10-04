@@ -55,7 +55,12 @@ function Init() {
   );
   // initialize app when DOM is completely resolved
   document.addEventListener('DOMContentLoaded', () => {
-    if (DBG) console.log('%cINIT %cDOMContentLoaded. Starting URSYS Lifecycle!', cssur, cssreset);
+    if (DBG)
+      console.log(
+        '%cINIT %cDOMContentLoaded. Starting URSYS Lifecycle!',
+        cssur,
+        cssreset
+      );
     // determine current scope of running app based on path
     // so URSYS will not execute lifecycle phases in any module
     // that exists outside those key directories
@@ -70,7 +75,11 @@ function Init() {
       await EXEC.SetupRun(); // RESET, START, REG_MESSAGE, APP_READY, RUN
       /* everything is done, system is running */
       if (DBG)
-        console.log('%cINIT %cURSYS Lifecycle Initialization Complete', 'color:blue', 'color:auto');
+        console.log(
+          '%cINIT %cURSYS Lifecycle Initialization Complete',
+          'color:blue',
+          'color:auto'
+        );
       if (DBG) console.groupEnd();
     })();
   });
@@ -85,7 +94,8 @@ function Init() {
 /*/
 /*/
 function m_PromiseRenderApp() {
-  if (DBG) console.log('%cINIT %cReactDOM.render() begin', 'color:blue', 'color:auto');
+  if (DBG)
+    console.log('%cINIT %cReactDOM.render() begin', 'color:blue', 'color:auto');
   return new Promise((resolve, reject) => {
     const container = document.getElementById('app-container');
     const root = createRoot(container);

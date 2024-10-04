@@ -375,7 +375,7 @@ VBadge.New = vparent => {
  *  De-allocate VProp instance by id.
  */
 VBadge.Release = () => {
-  console.error('I dont think this is aalled');
+  console.error('I dont think this is called');
   // const vbadge = DATA.VM_VBadge(evId);
   // DATA.VM_VBadgeDelete(evId);
   // return vbadge.Release();

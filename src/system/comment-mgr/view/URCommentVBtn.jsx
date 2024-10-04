@@ -111,7 +111,6 @@ function URCommentVBtn({ cref }) {
     const uid = CMTMGR.GetCurrentUserId();
     const commentCount = CMTMGR.GetCommentCollectionCount(cref);
     setCount(commentCount);
-    console.log(cref, 'c_Update', commentCount);
   }
   /// COMPONENT UI HANDLERS ///////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

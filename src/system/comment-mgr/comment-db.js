@@ -90,12 +90,38 @@ MOD.DBUpdateReadBy = (cref, uid) => {
 }
 /**
  * Executes multiple database operations via a batch of commands:
- * - `cobjs` will be updated
  * - `commentIDs` will be deleted
- * @param {Object[]} items [ ...cobj, ...commentID ]
+ * - `comments` will be updated
+ * Called from comment-mgr.m_ExecuteRemoveComment
+ * @param {TCommentQueueActions[]} queuedActions [ ...cobj, ...commentID ]
  * @param {function} cb callback
  */
-MOD.DBRemoveComment = (items, cb) => {
+MOD.DBRemoveComment = (queuedActions, cb) => {
+  // 1. Collect and process the `commentID` actions.
+  // The original NetCreate comment system used a unique string comment
+  // but MEME's database requires a numeric id.  So we need to convert
+  // the UUID string to the pmcData id.
+  const ids = queuedActions
+    .filter(item => Object.hasOwn(item, 'id'))
+    .map(item => { return { id: item.id } });
+  // FIXME: Need to add LOCK before DB update???
+  PMC.UR_CommentsDelete(ids);
+
+  // 2. Collect and process the `cobj` actions.
+  const cobjs = queuedActions
+    .filter(item => Object.hasOwn(item, 'comment'))
+    .map(item => item.comment);
+  if (cobjs.length > 0) {
+    // the first cobj should have the collection_ref
+    const cref = cobjs[0].collection_ref;
+    // the last CommentsUpdate should call the callback
+    PMC.UR_CommentsUpdate(cref, cobjs, cb);
+    return;
+  }
+
+  // If there weren't any cobj updates, we
+  // still need to call the callback to signal deletions
+  if (typeof cb === 'function') cb();
 }
 
 /// EXPORT CLASS DEFINITION ///////////////////////////////////////////////////

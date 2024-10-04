@@ -540,10 +540,10 @@ MOD.UpdateComment = cobj => {
  * @param {string} parms.collection_ref
  * @param {string} parms.comment_id
  * @param {string} parms.uid
+ * @param {boolean} parms.isAdmin
  * @param {boolean} parms.showCancelDialog
- * @param {function} cb CallBack
  */
-MOD.RemoveComment = (parms, cb) => {
+MOD.RemoveComment = parms => {
   let confirmMessage, okmessage, cancelmessage;
   if (parms.showCancelDialog) {
     // Are you sure you want to cancel?
@@ -552,7 +552,7 @@ MOD.RemoveComment = (parms, cb) => {
     cancelmessage = 'Go Back to Editing';
   } else {
     // Are you sure you want to delete?
-    parms.isAdmin = UR.IsAdminLoggedIn();
+    parms.isAdmin = MOD.IsAdmin();
     confirmMessage = parms.isAdmin
       ? `Are you sure you want to delete this comment #${parms.comment_id} and ALL related replies (admin only)?`
       : `Are you sure you want to delete this comment #${parms.comment_id}?`;
@@ -565,7 +565,7 @@ MOD.RemoveComment = (parms, cb) => {
     isOpen: true,
     message: confirmMessage,
     okmessage,
-    onOK: event => m_ExecuteRemoveComment(event, parms, cb),
+    onOK: event => m_ExecuteRemoveComment(event, parms),
     cancelmessage,
     onCancel: m_CloseRemoveCommentDialog
   };
@@ -580,12 +580,13 @@ MOD.RemoveComment = (parms, cb) => {
  * @param {Object} parms.comment_id
  * @param {Object} parms.uid
  */
-function m_ExecuteRemoveComment(event, parms, cb) {
+function m_ExecuteRemoveComment(event, parms) {
   const queuedActions = COMMENT.RemoveComment(parms);
-  CMTDB.DBRemoveComment(queuedActions);
-  m_SetAppStateCommentVObjs();
-  m_CloseRemoveCommentDialog();
-  if (typeof cb === 'function') cb();
+  CMTDB.DBRemoveComment(queuedActions, rdata => {
+    // update state after db finishes!
+    m_SetAppStateCommentVObjs();
+    m_CloseRemoveCommentDialog();
+  });
 }
 function m_CloseRemoveCommentDialog() {
   const CMTSTATUS = STATE.State('CMTSTATUS');
@@ -654,7 +655,13 @@ MOD.HandleCOMMENTS_UPDATE = dataArray => {
 MOD.HandleCOMMENT_UPDATE = data => {
   if (DBG) console.log('COMMENT_UPDATE======================', data);
   const { comment } = data;
-  m_UpdateComment(comment);
+  if (comment) {
+    m_UpdateComment(comment);
+  } else {
+    // syncAdd and syncUpdate will pass the updated comment
+    // but syncRemove does NOT, so allow for no comment
+    // console.log('comment-mgr: HandleCOMMENT_UPDATE: No comment data:', data);
+  }
   // and broadcast a state change
   m_SetAppStateCommentCollections();
   m_SetAppStateCommentVObjs();

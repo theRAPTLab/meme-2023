@@ -274,7 +274,7 @@ svg#comment-icon {
 
 .commentThread button {
   /* emulates nccomponent */
-  color: #333;
+  color: var(--comment-commenter-font-color);
   background-color: #fff6;
   border-radius: 5px;
   border-color: #0006;
@@ -292,6 +292,7 @@ svg#comment-icon {
 .comment {
   display: grid;
   grid-template-columns: 5em auto;
+  color: var(--comment-commenter-font-color);
   background-color: #fff5;
   margin-bottom: 5px;
   padding: 5px;

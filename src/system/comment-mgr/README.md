@@ -3,6 +3,8 @@
 A generalized implementation of a comment system using an UR Addon that can be
 used across a variety of applications (e.g. Net.Create and MEME).
 
+See [Whimsical: Comment Data Structures](https://whimsical.com/comment-data-structures-3zPhDYLVsEKt2gY7xyMMKS)
+
 ## Nomenclature
 
 `referent` -- the object the comment is referring to.  e.g. for Net.Create, the referrent might be a node id or edge id.  The `collection_ref` is the id that refers to the `referent`.  Historically called `source`, but deprecated because of conflation with edge source/target.

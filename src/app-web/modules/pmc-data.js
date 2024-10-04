@@ -510,16 +510,27 @@ PMCData.SyncRemovedData = data => {
       PMCData.BuildModel();
     }
 
-    if (subkey === 'comments') {
-      let i = a_comments.findIndex(c => c.id === value.id);
-      a_comments.splice(i, 1);
+    // DEPRECATE: Old StickyNotes system.  comments are now URComments
+    // if (subkey === 'comments') {
+    //   let i = a_comments.findIndex(c => c.id === value.id);
+    //   a_comments.splice(i, 1);
+    //   // no need to build model, just send a data update
+    //   UR.Publish('DATA_UPDATED');
+    // }
+    // if (subkey === 'markedread') {
+    //   // marked read really doesn't get removed
+    // }
+
+    if (subkey === 'urcomments') {
+      let i = a_urcomments.findIndex(c => c.id === value.id);
+      a_urcomments.splice(i, 1);
       // no need to build model, just send a data update
-      UR.Publish('DATA_UPDATED');
+      UR.Publish('COMMENT_UPDATE');
+    }
+    if (subkey === 'urcomments_readby') {
+      // urcomments_readby really doesn't get removed
     }
 
-    if (subkey === 'markedread') {
-      // marked read really doesn't get removed
-    }
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1491,7 +1502,7 @@ PMCData.UR_CommentsUpdate = (cref, comments, cb) => {
     throw Error(`comments is not an array: ${comments} ${typeof comments}`);
   const count = comments.length;
   let callback = undefined;
-  for (let i = 0; i++; i < count) {
+  for (let i = 0; i < count; i++) {
     if (i === count - 1) {
       // last one so add the callback
       callback = cb;
@@ -1501,7 +1512,28 @@ PMCData.UR_CommentsUpdate = (cref, comments, cb) => {
 };
 
 /**
- *  Remove comment from the db
+ *  Remove ARRAY comment from the db
+ *  @param {Object[]} commentIds - [...{id}] of the comment object (not refId)
+ */
+PMCData.UR_CommentsDelete = commentIds => {
+  const pmcDataId = ASET.selectedPMCDataId;
+  UTILS.RLog('URCommentsDelete', `id:${commentIds.join(',')} from model "${pmcDataId}"`);
+
+  // remove comments
+  commentIds.forEach(idObj => {
+    return PMCData.UR_DBQuery('remove', {
+      'pmcData.urcomments': {
+        id: pmcDataId,
+        urcomments: idObj
+      }
+    });
+  });
+
+  // update comment links
+};
+
+/**
+ *  Remove SINGLE comment from the db
  *  @param {String} commentId - id of the comment object (not refId)
  */
 PMCData.UR_CommentDelete = commentId => {
@@ -1517,6 +1549,7 @@ PMCData.UR_CommentDelete = commentId => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Retrieves the comment object in the database matching the comment id
+ *  NOTE: not `comment_id` but `id`
  *  @param {String} id - database id of the comment object (not refId)
  *  @return {Array} Array of comment objects, or undefined if not found
  */

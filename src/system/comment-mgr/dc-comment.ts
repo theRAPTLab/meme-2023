@@ -25,6 +25,8 @@
 
         commenter_id: any;
         commenter_text: string[];
+        
+        id: number;
       };
 
       
@@ -105,6 +107,8 @@ type TCommentPrompt = {
 
 export type TCollectionRef = any;
 export type TComment = {
+  id?: number; // gets added by pmcData after it's added to the db
+
   collection_ref: TCollectionRef; // aka 'cref'
   comment_id: TCommentID;
   comment_id_parent: any;
@@ -133,9 +137,13 @@ type TLokiData = {
 };
 
 export type TCommentQueueActions =
+  | TCommentQueueAction_ID
   | TCommentQueueAction_RemoveCommentID
   | TCommentQueueAction_RemoveCollectionRef
   | TCommentQueueAction_Update;
+type TCommentQueueAction_ID = {
+  id: number;
+};
 type TCommentQueueAction_RemoveCommentID = {
   commentID: TCommentID;
 };
@@ -487,6 +495,21 @@ function HandleUpdatedComments(cobjs: TComment[]) {
 }
 
 /**
+ * Safely delete a comment and queue it for deletion
+ * This is necessary to also return the `id`
+ * @param {string} cid comment_id
+ * @returns {Object} TCommentQueueActions
+ */
+function m_safeDeleteAndQueue(cid): TCommentQueueActions {
+  if (COMMENTS.has(cid)) {
+    const cmt = COMMENTS.get(cid);
+    const id = cmt ? cmt.id : undefined; // this should not happen
+    COMMENTS.delete(cid);
+    return { id, commentID: cid };
+  }
+  throw new Error(`Comment ${cid} not found.  This should not happen!`);
+}
+/**
  * @param {Object} parms
  * @param {Object} parms.collection_ref
  * @param {Object} parms.comment_id
@@ -497,7 +520,7 @@ function HandleUpdatedComments(cobjs: TComment[]) {
  */
 function RemoveComment(parms): TCommentQueueActions[] {
   const { collection_ref, comment_id, uid, isAdmin } = parms;
-  const queuedActions = [];
+  const queuedActions: TCommentQueueActions[] = [];
 
   // MAIN PROCESS: `xxxToDelete`
   // A. Determine the comment to remove
@@ -566,8 +589,7 @@ function RemoveComment(parms): TCommentQueueActions[] {
         childThreadIds.push(cobj.comment_id);
     });
     childThreadIds.forEach(cid => {
-      COMMENTS.delete(cid);
-      queuedActions.push({ commentID: cid });
+      queuedActions.push(m_safeDeleteAndQueue(cid));
     });
   }
 
@@ -576,8 +598,7 @@ function RemoveComment(parms): TCommentQueueActions[] {
     if (DBG) console.log(`deleteTargetAndNext`);
     const nextIds = m_GetNexts(cidToDelete);
     nextIds.forEach(cid => {
-      COMMENTS.delete(cid);
-      queuedActions.push({ commentID: cid });
+      queuedActions.push(m_safeDeleteAndQueue(cid));
     });
   }
 
@@ -603,8 +624,7 @@ function RemoveComment(parms): TCommentQueueActions[] {
   if (deleteTarget || deleteTargetAndNext || deleteRootAndChildren) {
     // DELETE TARGET
     if (DBG) console.log('deleteTarget or Root', cidToDelete);
-    COMMENTS.delete(cidToDelete);
-    queuedActions.push({ commentID: cidToDelete });
+    queuedActions.push(m_safeDeleteAndQueue(cidToDelete));
   } else if (markDeleted) {
     // MARK TARGET DELETED
     if (DBG) console.log('markDeleted', cidToDelete);
@@ -646,15 +666,13 @@ function RemoveComment(parms): TCommentQueueActions[] {
     const replyIds = m_GetReplies(rootId);
     replyIds.forEach(cid => {
       if (COMMENTS.has(cid)) {
-        COMMENTS.delete(cid);
-        queuedActions.push({ commentID: cid });
+        queuedActions.push(m_safeDeleteAndQueue(cid));
       }
     });
 
     // also delete the root
     if (COMMENTS.has(rootId)) {
-      COMMENTS.delete(rootId);
-      queuedActions.push({ commentID: rootId });
+      queuedActions.push(m_safeDeleteAndQueue(rootId));
     }
   }
 
@@ -669,8 +687,7 @@ function RemoveComment(parms): TCommentQueueActions[] {
       const cobj = COMMENTS.get(cid);
       if (cobj && cobj.comment_isMarkedDeleted) {
         // is already marked deleted so remove it
-        COMMENTS.delete(cid);
-        queuedActions.push({ commentID: cid });
+        queuedActions.push(m_safeDeleteAndQueue(cid));
       } else if (cobj && !cobj.comment_isMarkedDeleted) {
         // found an undeleted item, stop!
         break;

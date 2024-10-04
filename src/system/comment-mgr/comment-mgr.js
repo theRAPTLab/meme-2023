@@ -43,6 +43,7 @@ import React from 'react';
 
 import UR from '../../system/ursys';
 const STATE = require('./lib/client-state');
+import SESSION from '../../system/common-session';
 import DATAMAP from '../../system/common-datamap';
 import DEFAULTS from '../../app-web/modules/defaults';
 import ADM from '../../app-web/modules/data';
@@ -321,8 +322,7 @@ MOD.GetUserName = uid => {
   return COMMENT.GetUserName(uid);
 };
 MOD.IsAdmin = () => {
-  // nc return SETTINGS.IsAdmin();
-  return UR.IsAdminLoggedIn()
+  return SESSION.IsTeacher();
 }
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

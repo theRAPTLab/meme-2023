@@ -53,6 +53,7 @@ const PR = 'URComment';
 function URComment({ cref, cid, uid }) {
   const [element, setElement] = useState(null);
   const [state, setState] = useState({
+    id: undefined,
     commenter: '',
     createtime_string: '',
     modifytime_string: '',
@@ -124,6 +125,7 @@ function URComment({ cref, cid, uid }) {
     // set component state from retrieved data
     setState({
       // Data
+      id: comment.id, // human readable "#xxx" id matching pmcData id
       comment_id_parent: comment.comment_id_parent,
       commenter: CMTMGR.GetUserName(comment.commenter_id),
       selected_comment_type,
@@ -216,8 +218,10 @@ function URComment({ cref, cid, uid }) {
   /** handle delete button, which removes the comment associated with this
    *  commment from the comment manager */
   function evt_DeleteBtn() {
+    const { id } = state;
     CMTMGR.RemoveComment({
       collection_ref: cref,
+      id,
       comment_id: cid,
       uid
     });
@@ -226,7 +230,7 @@ function URComment({ cref, cid, uid }) {
   /** handle cancel button, which reverts the comment to its previous state,
    *  doing additional housekeeping to keep comment manager consistent */
   function evt_CancelBtn() {
-    const { commenter_text } = state;
+    const { commenter_text, id } = state;
     let savedCommentIsEmpty = true;
     commenter_text.forEach(t => {
       if (t !== '') savedCommentIsEmpty = false;
@@ -242,6 +246,7 @@ function URComment({ cref, cid, uid }) {
       CMTMGR.RemoveComment(
         {
           collection_ref: cref,
+          id,
           comment_id: cid,
           uid,
           showCancelDialog: true

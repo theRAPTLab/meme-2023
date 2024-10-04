@@ -539,6 +539,7 @@ MOD.UpdateComment = cobj => {
  * @param {Object} parms
  * @param {string} parms.collection_ref
  * @param {string} parms.comment_id
+ * @param {string} parms.id
  * @param {string} parms.uid
  * @param {boolean} parms.isAdmin
  * @param {boolean} parms.showCancelDialog
@@ -547,15 +548,15 @@ MOD.RemoveComment = parms => {
   let confirmMessage, okmessage, cancelmessage;
   if (parms.showCancelDialog) {
     // Are you sure you want to cancel?
-    confirmMessage = `Are you sure you want to cancel editing this comment #${parms.comment_id}?`;
+    confirmMessage = `Are you sure you want to cancel editing this comment #${parms.id}?`;
     okmessage = 'Cancel Editing and Delete';
     cancelmessage = 'Go Back to Editing';
   } else {
     // Are you sure you want to delete?
     parms.isAdmin = MOD.IsAdmin();
     confirmMessage = parms.isAdmin
-      ? `Are you sure you want to delete this comment #${parms.comment_id} and ALL related replies (admin only)?`
-      : `Are you sure you want to delete this comment #${parms.comment_id}?`;
+      ? `Are you sure you want to delete this comment #${parms.id} and ALL related replies (admin only)?`
+      : `Are you sure you want to delete this comment #${parms.id}?`;
     okmessage = 'Delete';
     cancelmessage = "Don't Delete";
   }

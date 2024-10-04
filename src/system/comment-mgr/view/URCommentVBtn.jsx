@@ -109,7 +109,7 @@ function URCommentVBtn({ cref }) {
 
     // commentCountLabel
     const uid = CMTMGR.GetCurrentUserId();
-    const commentCount = CMTMGR.GetThreadedViewObjectsCount(cref, uid);
+    const commentCount = CMTMGR.GetCommentCollectionCount(cref);
     setCount(commentCount);
     console.log(cref, 'c_Update', commentCount);
   }

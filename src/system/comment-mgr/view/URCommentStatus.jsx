@@ -101,7 +101,7 @@ function URCommentStatus(props) {
     ) {
       let source;
       if (status_comment.comment_id_parent) {
-        source = `${status_comment.commenter_id} re-[re-re-replied: `;
+        source = `${status_comment.commenter_id} replied: `;
       } else {
         source = `${status_comment.commenter_id} commented: `;
       }

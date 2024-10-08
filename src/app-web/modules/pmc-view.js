@@ -78,6 +78,29 @@ PMCView.InitializeViewgraph = container => {
   PMCView.DefineSymbols(m_svgroot);
 };
 /**
+ * Returns the current transform matrix after panning and zooming
+ * @returns
+ */
+PMCView.SVGtoScreenTransform = () => {
+  const point = m_svgroot.node.createSVGPoint();
+  const result = point.matrixTransform(m_svgroot.node.getScreenCTM().inverse());
+  return { x: result.x, y: result.y };
+}
+/**
+ * Convert an SVGpoint to screen coordinates
+ * Used to calculate where a svg comment button should be placed
+ * @param {number} x
+ * @param {number} y
+ * @returns
+ */
+PMCView.SVGtoScreen = (x, y) => {
+  const transform = PMCView.SVGtoScreenTransform();
+  return {
+    x: x - transform.x,
+    y: y - transform.y,
+  }
+}
+/**
  * Zoom out to display the full model
  */
 PMCView.PanZoomOut = (w, h) => {
@@ -124,10 +147,29 @@ PMCView.PanZoomSet = parm => {
   // cx and cy don't seem to do anything
   if (m_svgroot) {
     console.log('panzoomset', parm);
-    m_svgroot.viewbox(parm.x, parm.y, parm.w, parm.h, parm.cx, parm.cy);
+    m_svgroot
+      .animate()
+      .viewbox(parm.x, parm.y, parm.w, parm.h, parm.cx, parm.cy);
     m_svgroot.zoom(parm.z);
   }
 };
+
+PMCView.GetBBox = () => {
+  if (m_svgroot) {
+    // The zoomed and panned element is the `rect` inside
+    // of m_svgroot
+    console.log('m_svgroot.rect', m_svgroot.rect());
+    const bbox = {
+      // viewbox: m_svgroot.rect().viewbox(), // doesn't exist
+      bbox: m_svgroot.rect().bbox(),
+      rbox: m_svgroot.rect().rbox(),
+      x: m_svgroot.rect().x(),
+      attrx: m_svgroot.rect().attr('x'),
+    };
+    return bbox;
+  }
+}
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCView.TestGroups = () => {
   m_svgroot.clear();

@@ -114,22 +114,6 @@ function URCommentVBtn({ cref }) {
   }
   /// COMPONENT UI HANDLERS ///////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  function c_GetCommentThreadPosition() {
-    // REVIEW: Shouldn't this useRef?
-    // const btn = document.getElementById(cref);
-    const btn = btnRef.current;
-    const cmtbtnx = btn.getBoundingClientRect().left;
-    const windowWidth = Math.min(screen.width, window.innerWidth);
-    let x;
-    if (windowWidth - cmtbtnx < 500) {
-      x = cmtbtnx - 420;
-    } else {
-      x = cmtbtnx + 35;
-    }
-    const y = btn.getBoundingClientRect().top + window.scrollY;
-    return { x, y };
-  }
-  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** handle URCommentBtn click, which opens and closes the URCommentThread */
   function evt_OnClick(event) {
     event.stopPropagation();
@@ -139,8 +123,7 @@ function URCommentVBtn({ cref }) {
       CMTMGR.CloseCommentCollection(cref, cref, uid);
     } else {
       // is currently closed, so open it
-      const position = c_GetCommentThreadPosition();
-      CMTMGR.OpenCommentCollection(cref, position);
+      CMTMGR.OpenCommentCollectionByCref(cref);
     }
   }
   /// DEPRECATED FOR NOW

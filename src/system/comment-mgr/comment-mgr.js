@@ -245,7 +245,25 @@ MOD.GetCREFSourceLabel = cref => {
   }
   return { typeLabel, sourceLabel };
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Returns the comment window position for the comment button
+ * shifting the window to the left if it's too close to the edge of the screen.
+ */
+MOD.GetCommentCollectionPosition = cref => {
+  const btn = document.getElementById(cref);
+  const cmtbtnx = btn.getBoundingClientRect().left;
+  const windowWidth = Math.min(screen.width, window.innerWidth);
+  let x;
+  if (windowWidth - cmtbtnx < 500) {
+    x = cmtbtnx - 430;
+  } else {
+    x = cmtbtnx + 35;
+  }
+  const y = btn.getBoundingClientRect().top + window.scrollY;
+  return { x, y };
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Open the object that the comment refers to
 /// e.g. in Net.Create it's a node or edge object
 MOD.OpenReferent = cref => {
@@ -405,9 +423,24 @@ MOD.OpenCommentCollection = (cref, position) => {
   // 2. Open the collection in the collection manager
   UR.Publish('CMT_COLLECTION_SHOW', { cref, position: collectionPosition });
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+/**
+ * NOTE: This does not work for vBadge buttons
+ * @param {string} cref
+ */
+MOD.OpenCommentCollectionByCref = cref => {
+  const projectCmtPosition = MOD.GetCommentCollectionPosition(cref);
+  MOD.OpenCommentCollection(cref, {
+    x: projectCmtPosition.x + CMTBTNOFFSET,
+    y: projectCmtPosition.y + CMTBTNOFFSET
+  });
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.GetCommentCollection = uiref => {
   return COMMENT.GetCommentCollection(uiref);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Marks a comment as read, and closes the component.
  * Called by NCCommentBtn when clicking "Close"

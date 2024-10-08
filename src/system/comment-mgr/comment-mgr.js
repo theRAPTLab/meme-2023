@@ -275,12 +275,13 @@ MOD.OpenReferent = cref => {
   const { type, id } = MOD.DeconstructCREF(cref);
   switch (type) {
     case 'p': // project
+      // technically, clicking the project name shouldn't open the coment, but
+      // there's no other action possible
       MOD.OpenCommentCollectionByCref('projectcmt');
       break;
     case 'v': // evidence link
       const evlink = DATA.PMC_GetEvLinkByEvId(Number(id));
       UR.Publish('SHOW_EVIDENCE_LINK', { evId: evlink.id, rsrcId: evlink.rsrcId });
-      MOD.OpenCommentCollectionByCref(cref);
       break;
     case 'm': // mech
       const path = DATA.MechPathById(Number(id));

@@ -226,8 +226,11 @@ class VMech {
       this.sourceId = srcId;
       this.targetId = tgtId;
 
+      let labelHasChanged = false; // forces a badge update if label changes
+
       // update visual data fields
       const data = DATA.Mech(this.sourceId, this.targetId);
+      if (data.name !== this.data.name) labelHasChanged = true;
       this.data.name = data.name;
 
       // update label in case it changed
@@ -237,7 +240,7 @@ class VMech {
       this.pathLabelBox.width(this.horizText.length() + 10);
 
       // Update the VBadge horizText instead of the pathLabel
-      this.vBadge.Update(this);
+      this.vBadge.Update(this, labelHasChanged);
 
       // update visual paths
       const srcVProp = DATA.VM_VProp(srcId);

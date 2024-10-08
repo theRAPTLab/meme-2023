@@ -165,22 +165,25 @@ class VBadge {
 
   /**
    *  Update is called by VProp/VMech before Draw
-   * @param {*} vparent class-vprop or class-vmech
+   * @param {Object} vparent class-vprop or class-vmech
+   * @param {boolean} forceRedraw
    */
-  Update(vparent) {
+  Update(vparent, forceRedraw = false) {
     const id = vparent.id;
+    let redrawNeeded = this.baseRedrawNeeded;
 
     // did anything change?
     const oldEvlinks = this.evlinks;
     let updatedEvlinks;
     if (m_IsVMech(vparent)) {
       // parent is a VMech
+      // force redraw if the label has changed
+      if (forceRedraw) redrawNeeded = true;
       updatedEvlinks = PMC.PMC_GetEvLinksByMechId(id);
     } else {
       // parent is VProp
       updatedEvlinks = PMC.PMC_GetEvLinksByPropId(id);
     }
-    let redrawNeeded = this.baseRedrawNeeded;
 
     // if the number of links have changed, then we need to redraw
     if (oldEvlinks && updatedEvlinks && (oldEvlinks.length !== updatedEvlinks.length)) {

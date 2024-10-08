@@ -31,6 +31,8 @@ const DBKEYS = [
   `pmcData.entities`,
   `pmcData.comments`,
   `pmcData.markedread`,
+  'pmcData.urcomments',
+  'pmcData.urcomments_readby',
   `pmcData.visuals`
 ];
 
@@ -290,10 +292,11 @@ function f_validateUpdate(value, key) {
   if (vtype !== 'object') throw Error(`${key}.update: requires OBJECTS with an id, not ${vtype}`);
   if (!DataMap.IsValidId(value.id)) throw Error(`${colkey}.update has invalid id ${value.id}`);
   if (subkey) {
-    if (typeof value[subkey] !== 'object') throw Error(`${key}.update expected sub object`);
+    if (typeof value[subkey] !== 'object') throw Error(`${key}.update expected sub object with subkey ${subkey} for value ${value}`);
     const subid = value[subkey].id;
-    if (!DataMap.IsValidId(subid))
+    if (!DataMap.IsValidId(subid)) {
       throw Error(`${key}.update invalid id ${subid} typeof ${typeof subid}`);
+    }
   }
   return true;
 }
@@ -306,7 +309,7 @@ function f_validateRemove(value, key) {
   if (subkey) {
     if (typeof value[subkey] !== 'object') throw Error(`${key}.remove expects sub object with id`);
     if (!DataMap.IsValidId(value[subkey].id))
-      throw Error(`${key}.remove subobject must have valid id`);
+      throw Error(`${key}.remove subobject must have valid id.  Value is "${JSON.stringify(value)}" with subkey "${subkey}"`);
   }
   return true;
 }

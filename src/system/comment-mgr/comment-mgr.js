@@ -127,19 +127,20 @@ MOD.LoadDBData = () => {
   COMMENT.LoadDB(data);
 }
 
-// /// HELPER FUNCTIONS //////////////////////////////////////////////////////////
-// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// HELPER FUNCTIONS //////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 function m_SetAppStateCommentCollections() {
   const COMMENTCOLLECTION = COMMENT.GetCommentCollections();
   STATE.SetState('COMMENTCOLLECTION', COMMENTCOLLECTION);
 }
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function m_SetAppStateCommentVObjs() {
   const COMMENTVOBJS = COMMENT.GetCOMMENTVOBJS();
+  console.log('COMMENTVOBJS', COMMENTVOBJS)
   STATE.SetState('COMMENTVOBJS', COMMENTVOBJS);
 }
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function m_UpdateComment(comment) {
   const cobj = {
     id: comment.comment_id, // inject extra `id` to pass MEME validation checks
@@ -157,7 +158,7 @@ function m_UpdateComment(comment) {
   const uid = MOD.GetCurrentUserId();
   COMMENT.UpdateComment(cobj, uid);
 }
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function m_UpdatePermissions(data) {
   UDATA.NetCall('SRV_GET_EDIT_STATUS').then(data => {
     // disable comment button if someone is editing a comment
@@ -181,17 +182,18 @@ MOD.GetNodeCREF = nodeId => `n${nodeId}`;
 MOD.GetEdgeCREF = edgeId => `e${edgeId}`;
 MOD.GetProjectCREF = projectId => `p${projectId}`;
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function InitCaps(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.CREFLABELS = new Map();
 MOD.CREFLABELS.set(CREF_PREFIX.PROJECT, 'Project');
 MOD.CREFLABELS.set(CREF_PREFIX.EVLINK, 'Evidence Link');
 MOD.CREFLABELS.set(CREF_PREFIX.ENTITY, InitCaps(DATAMAP.PMC_MODELTYPES.COMPONENT.label));
 MOD.CREFLABELS.set(CREF_PREFIX.PROCESS, InitCaps(DATAMAP.PMC_MODELTYPES.MECHANISM.label));
 MOD.CREFLABELS.set(CREF_PREFIX.OUTCOME, InitCaps(DATAMAP.PMC_MODELTYPES.OUTCOME.label));
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *
  * @param {*} type one of MOD.COMMENTTYPES
@@ -202,14 +204,14 @@ MOD.GetCREF = (type, id) => {
   if (CREF_PREFIX[type]) return `${CREF_PREFIX[type]}${id}`;
   throw new Error(`${PR}GetCREF: Invalid Comment Type ${type}`);
 }
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// deconstructs "n32" into {type: "n", id: 32}
 MOD.DeconstructCREF = cref => {
   const type = String(cref).substring(0, 1);
   const id = String(cref).substring(1);
   return { type, id };
 }
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Generate a human friendly label based on the cref (e.g. `n21`, `e4`)
 * e.g. "n32" becomes {typeLabel "Node", sourceLabel: "32"}
@@ -440,7 +442,7 @@ MOD.MarkAllRead = () => {
   * Open the URCommentThread
   * When the URCommentThread is closed, it will be removed from the URCommentCollectionMgr
 
-  */
+*/
 MOD.OpenCommentCollection = (cref, position) => {
   // Validate
   if (cref === undefined)
@@ -521,7 +523,7 @@ MOD.GetCommentCollectionCount = cref => {
   const ccol = COMMENT.GetCommentCollection(cref);
   return ccol ? ccol.commentCount : '';
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.GetCommentStats = () => {
   const uid = MOD.GetCurrentUserId();
   return COMMENT.GetCommentStats(uid);
@@ -532,6 +534,7 @@ MOD.GetCommentStats = () => {
 MOD.GetCommentUIState = uiref => {
   return COMMENT.GetCommentUIState(uiref);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *
  * @param {string} uiref
@@ -581,6 +584,7 @@ MOD.GetUnreadRepliesToMe = uid => {
 MOD.GetUnreadComments = () => {
   return COMMENT.GetUnreadComments();
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *
  * @param {Object} cobj Comment Object
@@ -594,6 +598,7 @@ MOD.AddComment = cobj => {
     m_SetAppStateCommentVObjs();
   });
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Update the ac/dc comments, then save it to the db
  * This will also broadcast COMMENT_UPDATE so other clients on the network
@@ -612,6 +617,7 @@ MOD.UpdateComment = cobj => {
     m_SetAppStateCommentVObjs();
   });
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Removing a comment can affect multiple comments, so this is done
  * via a batch operation.  We queue up all of the comment changes
@@ -658,6 +664,7 @@ MOD.RemoveComment = parms => {
   };
   STATE.SetState('CMTSTATUS', CMTSTATUS);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * The db call is made AFTER ac/dc handles the removal and the logic of
  * relinking comments.  The db call is dumb, all the logic is in dc-comments.
@@ -675,12 +682,13 @@ function m_ExecuteRemoveComment(event, parms) {
     m_CloseRemoveCommentDialog();
   });
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function m_CloseRemoveCommentDialog() {
   const CMTSTATUS = STATE.State('CMTSTATUS');
   CMTSTATUS.dialog = { isOpen: false };
   STATE.SetState('CMTSTATUS', CMTSTATUS);
 }
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Requested when a node/edge is deleted
  * @param {string} cref
@@ -730,6 +738,7 @@ MOD.HandleCOMMENTS_UPDATE = dataArray => {
   m_SetAppStateCommentCollections();
   m_SetAppStateCommentVObjs();
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Respond to COMMENT_UPDATE Messages from the network
  * After the server/db saves the new/updated comment, COMMENT_UPDATE is
@@ -753,6 +762,7 @@ MOD.HandleCOMMENT_UPDATE = data => {
   m_SetAppStateCommentCollections();
   m_SetAppStateCommentVObjs();
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.HandleREADBY_UPDATE = data => {
   if (DBG) console.log('READBY_UPDATE======================');
   // Not used currently
@@ -777,6 +787,7 @@ MOD.LockComment = comment_id => {
     }
   );
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.UnlockComment = comment_id => {
   console.warn('UnlockComment.  Skipping DB operation for now.')
   return;

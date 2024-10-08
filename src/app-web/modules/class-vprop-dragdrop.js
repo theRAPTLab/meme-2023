@@ -173,7 +173,7 @@ const AddDragDropHandlers = vprop => {
       pt.y = mouseEvent.clientY;
       let svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
       if (DBG) console.log('Clicked at screen', pt, ' / SVG coordinate', svgPt);
-      
+
       // gStickyNoteButton is actually just a group object
       // but it does have a bbox with the right coordinates.
       // NOTE testing for 'inside' with the chat/chatBubble/chatOutline svg icons doesn't work

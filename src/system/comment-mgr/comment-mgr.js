@@ -51,6 +51,7 @@ import DATA from '../../app-web/modules/data';
 
 import CMTDB from './comment-db';
 import * as COMMENT from './ac-comment.ts';
+import PMCView from '../../app-web/modules/pmc-view.js';
 
 const { CREF_PREFIX } = DEFAULTS;
 
@@ -61,6 +62,8 @@ const { CREF_PREFIX } = DEFAULTS;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = true;
 const PR = 'comment-mgr: ';
+
+const CMTBTNOFFSET = 10;
 
 /// INITIALIZE MODULE /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -268,66 +271,104 @@ MOD.GetCommentCollectionPosition = cref => {
 /// e.g. in Net.Create it's a node or edge object
 MOD.OpenReferent = cref => {
   const { type, id } = MOD.DeconstructCREF(cref);
-  let edge;
-  // FIXME: Handle opening
-  console.error('NOT IMPLEMENTED YET: OpenReferent', type, id);
   switch (type) {
-    // case 'n':
-    //   UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [parseInt(id)] });
-    //   break;
-    // case 'e':
-    //   edge = STATE.State('NCDATA').edges.find(e => e.id === Number(id));
-    //   UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [edge.source] }).then(() => {
-    //     UDATA.LocalCall('EDGE_SELECT', { edgeId: edge.id });
-    //   });
-    //   break;
-    case 'p':
-      // do something?
+    case 'p': // project
+      MOD.OpenCommentCollectionByCref('projectcmt');
       break;
+    case 'v': // evidence link
+      const evlink = DATA.PMC_GetEvLinkByEvId(Number(id));
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: evlink.id, rsrcId: evlink.rsrcId });
+      MOD.OpenCommentCollectionByCref(cref);
+      break;
+    case 'm': // mech
+      const path = DATA.MechPathById(Number(id));
+      const vmech = DATA.VM_VMech(path);
+      DATA.VM_DeselectAllMechs();
+      DATA.VM_SelectOneMech(vmech);
+      UR.Publish('SVG_PANZOOMBBOX_SET', {
+        bbox: vmech.gRoot.bbox(),
+        cb: () => { } // no callback needed
+      });
+      return vmech;
+    case 'e': // entity
+    case 'o': // outcome
+    default:
+      const vprop = DATA.VM_VProp(id);
+      DATA.VM_DeselectAllProps();
+      DATA.VM_SelectProp(vprop);
+      UR.Publish('SVG_PANZOOMBBOX_SET', {
+        bbox: vprop.gRoot.bbox(),
+        cb: () => { } // no callback needed
+      });
+      return vprop;
   }
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Open comment inside a collection using a comment id
 MOD.OpenComment = (cref, cid) => {
   const { type, id } = MOD.DeconstructCREF(cref);
-  console.error('NOT IMPLEMENTED YET: OpenComment', cref, cid)
+  let parms;
+  MOD.CloseAllCommentCollectionsWithoutMarking()
   switch (type) {
-    // case 'n':
-    //   UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [parseInt(id)] }).then(() => {
-    //     UDATA.LocalCall('COMMENT_SELECT', { cref }).then(() => {
-    //       const commentEl = document.getElementById(cid);
-    //       commentEl.scrollIntoView({ behavior: 'smooth' });
-    //     });
-    //   });
-    //   break;
-    // case 'e':
-    //   edge = STATE.State('NCDATA').edges.find(e => e.id === Number(id));
-    //   UDATA.LocalCall('SOURCE_SELECT', { nodeIDs: [edge.source] }).then(() => {
-    //     UDATA.LocalCall('EDGE_SELECT', { edgeId: edge.id }).then(() => {
-    //       UDATA.LocalCall('COMMENT_SELECT', { cref }).then(() => {
-    //         const commentEl = document.getElementById(cid);
-    //         commentEl.scrollIntoView({ behavior: 'smooth' });
-    //       });
-    //     });
-    //   });
-    //   break;
-    case 'p':
-      // do something?
+    case 'p': // project
+      MOD.OpenCommentCollectionByCref('projectcmt');
       break;
-    case 'v':
-      return;
-      console.error('OpenComment scrolling into view', cref)
-      // TODO Use `CMT_COLLECTION_SHOW` instead of `COMMENT_SELECT`
-      // UDATA.LocalCall('COMMENT_SELECT', { cref }).then(() => {
-      UDATA.LocalCall('CMT_COLLECTION_SHOW', { cref }).then(() => {
-        console.error('OpenComment scrolling into view', cref, cid)
-        const commentEl = document.getElementById(cid);
-        if (!commentEl) throw new Error(`Comment Element ${cid} for ${cref} not found`);
-        commentEl.scrollIntoView({ behavior: 'smooth' });
-      });
+    case 'v': // evidence link
+      const evlink = DATA.PMC_GetEvLinkByEvId(Number(id));
+      UR.Publish('SHOW_EVIDENCE_LINK', { evId: evlink.id, rsrcId: evlink.rsrcId });
+      MOD.OpenCommentCollectionByCref(cref);
       break;
+    case 'm': // mech
+      const path = DATA.MechPathById(Number(id));
+      const vmech = DATA.VM_VMech(path);
+      DATA.VM_DeselectAllMechs();
+      DATA.VM_SelectOneMech(vmech);
+      parms = {
+        bbox: vmech.gRoot.bbox(),
+        cb: result => {
+          setTimeout(() => {
+            const path = DATA.MechPathById(Number(id));
+            const vmech = DATA.VM_VMech(path);
+            const { cx, cy } = vmech.gRoot.bbox(); // vmech is centered
+            const cmtbtnBBox = vmech.vBadge.gStickyButtons.bbox();
+            // the comment button xy is offset from the mech origin
+            // for some reason the comment button x doesn't account for
+            // the width of the label
+            const btnPosition = PMCView.SVGtoScreen( // cx, cy);
+              cx + vmech.horizText.length() / 2 + cmtbtnBBox.w, cy
+            );
+            const cmtPosition = {
+              x: btnPosition.x + CMTBTNOFFSET,
+              y: btnPosition.y - CMTBTNOFFSET
+            }
+            MOD.OpenCommentCollection(cref, cmtPosition);
+          }, 500);
+        }
+      }
+      UR.Publish('SVG_PANZOOMBBOX_SET', parms);
+      break;
+    case 'e': // entity
+    case 'o': // outcome
     default:
-      console.error('Opening Unknown Comment Type', type, cref, cid);
+      const vprop = DATA.VM_VProp(id);
+      DATA.VM_DeselectAllProps();
+      DATA.VM_SelectProp(vprop);
+      parms = {
+        bbox: vprop.vBadge.gBadges.bbox(),
+        cb: result => {
+          setTimeout(() => {
+            const vprop = DATA.VM_VProp(id);
+            const { x, y } = vprop.vBadge.gStickyButtons.bbox();
+            const btnPosition = PMCView.SVGtoScreen(x, y);
+            const cmtPosition = {
+              x: btnPosition.x + CMTBTNOFFSET,
+              y: btnPosition.y + CMTBTNOFFSET
+            }
+            MOD.OpenCommentCollection(cref, cmtPosition);
+          }, 500);
+        }
+      }
+      UR.Publish('SVG_PANZOOMBBOX_SET', parms);
       break;
   }
 };
@@ -463,7 +504,19 @@ MOD.CloseCommentCollection = (uiref, cref, uid) => {
   COMMENT.CloseCommentCollection(uiref, cref, uid);
   m_SetAppStateCommentCollections();
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Closes all comment collections without marking them as read.
+ * Used by comment status when user clicks on status updates to display
+ * updated comments.
+ * @param {*} uid
+ */
+MOD.CloseAllCommentCollectionsWithoutMarking = () => {
+  const uid = MOD.GetCurrentUserId();
+  UDATA.LocalCall('CMT_COLLECTION_HIDE_ALL');
+  COMMENT.CloseAllCommentCollections(uid);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.GetCommentCollectionCount = cref => {
   const ccol = COMMENT.GetCommentCollection(cref);
   return ccol ? ccol.commentCount : '';

@@ -203,6 +203,23 @@ function CloseCommentCollection(
   DeriveThreadedViewObjects(cref, uid);
 }
 
+/**
+ * Close comment collections WITHOUT marking them read
+ * Used by comment status when user is quickly opening
+ * comments for review
+ */
+function CloseAllCommentCollections(uid: TUserID) {
+  COMMENTUISTATE.forEach((state, uiref) => {
+    if (state.isOpen) {
+      // Set isOpen status
+      COMMENTUISTATE.set(uiref, { cref: state.cref, isOpen: false });
+      OPENCOMMENTS.set(state.cref, undefined);
+      // Update Derived Lists to update Marked status
+      DeriveThreadedViewObjects(state.cref, uid);
+    }
+  });
+}
+
 function MarkRead(cref: TCollectionRef, uid: TUserID) {
   // Mark Read
   const commentVObjs = COMMENTVOBJS.get(cref);
@@ -563,6 +580,7 @@ export {
   GetCommentCollection,
   UpdateCommentUIState,
   CloseCommentCollection,
+  CloseAllCommentCollections,
   MarkRead,
   GetCommentStats,
   // Comment UI State

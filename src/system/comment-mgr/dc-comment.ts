@@ -83,7 +83,8 @@ type TUserObject = {
 // REVIEW CType needs to be defined after we figure out how to handle templates
 //        Eventually we will dynamically define them.
 // Comment Template Type Slug
-export type CType = 'cmt' | 'tellmemore' | 'source' | 'demo';
+export type CType = 'cmt' | 'tellmemore' | 'source' | 'evidence' | 'clarity';
+
 type CPromptFormat =
   | 'text'
   | 'dropdown'
@@ -215,6 +216,41 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
         prompt: 'Comment', // prompt label
         help: 'Use this for any general comment.',
         feedback: ''
+      }
+    ]
+  },
+  {
+    slug: 'evidence',
+    label: 'Evidence',
+    prompts: [
+      {
+        format: 'dropdown',
+        prompt: 'Is this supported by evidence?', // prompt label
+        options: ['😀 Yes', '🤔 Some', '🥲 No'],
+        help: 'Select one.'
+      },
+      {
+        format: 'text',
+        prompt: 'What would you change?', // prompt label
+        help: 'Please be specific to help your friend.'
+      }
+    ]
+  },
+  {
+    slug: 'clarity',
+    label: 'Clarity',
+    prompts: [
+      {
+        format: 'discrete-slider',
+        prompt: 'How clear is this model to you?', // prompt label
+        options: ['★', '★', '★', '★', '★'],
+        help: 'More stars means more clear!',
+        feedback: 'We can also have help here'
+      },
+      {
+        format: 'text',
+        prompt: 'What made you pick that number?', // prompt label
+        help: 'Please be specific to help your friend.'
       }
     ]
   }

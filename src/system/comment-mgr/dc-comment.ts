@@ -83,7 +83,13 @@ type TUserObject = {
 // REVIEW CType needs to be defined after we figure out how to handle templates
 //        Eventually we will dynamically define them.
 // Comment Template Type Slug
-export type CType = 'cmt' | 'tellmemore' | 'source' | 'evidence' | 'clarity';
+export type CType =
+  | 'cmt'
+  | 'tellmemore'
+  | 'source'
+  | 'evidence'
+  | 'clarity'
+  | 'response';
 
 type CPromptFormat =
   | 'text'
@@ -251,6 +257,29 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
         format: 'text',
         prompt: 'What made you pick that number?', // prompt label
         help: 'Please be specific to help your friend.'
+      }
+    ]
+  },
+  {
+    slug: 'response',
+    label: 'Response',
+    prompts: [
+      {
+        format: 'radio',
+        prompt: 'Do you agree with this comment?', // prompt label
+        options: ['Yes', 'Somewhat', 'Not really', 'No'],
+        help: 'Select only one.'
+      },
+      {
+        format: 'radio',
+        prompt: 'Will you make any changes?', // prompt label
+        options: ['Yes', 'No'],
+        help: 'Select only one.'
+      },
+      {
+        format: 'text',
+        prompt: 'Why or why not?', // prompt label
+        help: 'Please be specific so your friend understands.'
       }
     ]
   }

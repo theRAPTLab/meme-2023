@@ -95,7 +95,7 @@ function URCommentThread({ uiref, cref, uid, x, y }) {
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** handles the "X" or "Close" button click, marks all comments "read" */
   function evt_OnClose() {
-    CMTMGR.CloseCommentCollection(uiref, cref, uid);
+    CMTMGR.CloseCommentCollectionAndMarkRead(uiref, cref, uid);
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** handles clicking on the name of the object being commented on

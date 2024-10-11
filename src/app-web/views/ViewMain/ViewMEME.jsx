@@ -58,6 +58,7 @@ import URCommentVBtn from '../../../system/comment-mgr/view/URCommentVBtn';
 const DBG = false;
 const PKG = 'ViewMEME:';
 
+const APPBARHEIGHT = 48; // See MEMEStyles.css --appbar-height
 const SIDEBARWIDTH = 292;
 
 /// PLACEDHOLDER for chat icon until we get comment system in place
@@ -242,7 +243,7 @@ class ViewMEME extends React.Component {
     const viewWidth = this.viewRect.width;
     const viewHeight = this.viewRect.height;
     const innerWidth = window.innerWidth - sidebarwidth;
-    const innerHeight = window.innerHeight;
+    const innerHeight = window.innerHeight - APPBARHEIGHT;
     if (DBG)
       console.log(
         'UpdateDimensions',

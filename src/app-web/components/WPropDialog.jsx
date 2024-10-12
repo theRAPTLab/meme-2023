@@ -152,7 +152,12 @@ class WPropDialog extends React.Component {
               <div>{propTypeDescription}</div>
               <label>
                 <span>Label:</span>
-                <input type="text" value={label} onChange={this.OnLabelChange} />
+                <input
+                  type="text"
+                  value={label}
+                  onChange={this.OnLabelChange}
+                  autoFocus
+                />
               </label>
               <label>
                 <span>Description:</span>

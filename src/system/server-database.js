@@ -145,7 +145,7 @@ DB.InitializeDatabase = (options = {}) => {
      */
 
     // determine template that will be used to source collection data if not present
-    const templateOrder = [ dataset, MEME_TEMPLATES.init, MEME_TEMPLATES.blank ];
+    const templateOrder = [dataset, MEME_TEMPLATES.init, MEME_TEMPLATES.blank];
     const template = templateOrder.find(x => f_CheckTemplate(x));
 
     console.log(PR, `data template if needed: ${template}`);
@@ -267,8 +267,8 @@ DB.InitializeDatabase = (options = {}) => {
       console.log(PR, `copying template resources from ${templateResources}`);
 
       const files = FS.readdirSync(templateResources);
-      files.forEach(file => 
-        FS.copyFileSync(PATH.join(templateResources, file), 
+      files.forEach(file =>
+        FS.copyFileSync(PATH.join(templateResources, file),
           PATH.join(PATHS.Resources, PATH.basename(file))));
     }
   }
@@ -479,7 +479,9 @@ DB.PKT_Add = pkt => {
           }
           // we're only handling entities with magic inserts
           // because these aren't automatically handled by loki
-          if (subkey === 'entities' || subkey === 'comments' || subkey === 'markedread') {
+          if (subkey === 'entities' || subkey === 'comments' || subkey === 'markedread'
+            || subkey === 'urcomments' || subkey === 'urcomments_readby'
+          ) {
             // HACKY ensure that entityids are not reused during a server run
             // so researchers can clearly see the user behaviors in the log
             let maxid = list.reduce((acc, cv) => {

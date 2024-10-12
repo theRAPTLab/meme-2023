@@ -68,6 +68,9 @@ function URCommentStatus(props) {
       STATE.OffStateChange('COMMENTCOLLECTION', redraw, UDATAOwner); // respond to close
       UR.Unsubscribe('COMMENTS_UPDATE', redraw);
       UR.Unsubscribe('COMMENT_UPDATE', urmsg_COMMENT_UPDATE);
+      clearTimeout(AppearTimer);
+      clearTimeout(DisappearTimer);
+      clearTimeout(ResetTimer);
     };
   }, []);
 

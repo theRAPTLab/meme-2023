@@ -311,7 +311,7 @@ MOD.OpenReferent = cref => {
 MOD.OpenComment = (cref, cid) => {
   const { type, id } = MOD.DeconstructCREF(cref);
   let parms;
-  MOD.CloseAllCommentCollectionsWithoutMarking()
+  MOD.CloseAllCommentCollectionsWithoutMarkingRead()
   switch (type) {
     case 'p': // project
       MOD.OpenCommentCollectionByCref('projectcmt');
@@ -458,13 +458,19 @@ MOD.OpenCommentCollection = (cref, position) => {
     throw new Error(
       `comment-mgr.OpenCommentCollection: missing position data ${JSON.stringify(position)}`
     );
-  // 0. Position the window to the right of the click
+  // 0. If the comment is already open, do nothing
+  const openComments = MOD.GetOpenComments(cref);
+  if (openComments) {
+    MOD.CloseCommentCollection(cref, cref, MOD.GetCurrentUserId());
+    return; // already open, close it
+  }
+  // 1. Position the window to the right of the click
   const collectionPosition = {}
   collectionPosition.x = parseInt(position.x) + 20;
   collectionPosition.y = parseInt(position.y) - 10;
-  // 1. Update the state
+  // 2. Update the state
   MOD.UpdateCommentUIState(cref, { cref, isOpen: true });
-  // 2. Open the collection in the collection manager
+  // 3. Open the collection in the collection manager
   UR.Publish('CMT_COLLECTION_SHOW', { cref, position: collectionPosition });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -486,13 +492,34 @@ MOD.GetCommentCollection = uiref => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- * Marks a comment as read, and closes the component.
- * Called by NCCommentBtn when clicking "Close"
- * @param {Object} uiref comment button id
+ * Closes the comment collection without marking it as read.
+ * Called by OpenCommentCollection if a comment is already open.
+ * @param {Object} uiref comment button id (note kept for Net.Create compatibility)
  * @param {Object} cref collection_ref
  * @param {Object} uid user id
  */
 MOD.CloseCommentCollection = (uiref, cref, uid) => {
+  if (!MOD.OKtoClose(cref)) {
+    // Comment is still being edited, prevent close
+    alert(
+      'This comment is still being edited!  Please Save or Cancel before closing the comment.'
+    );
+    return;
+  }
+  // OK to close
+  UDATA.LocalCall('CMT_COLLECTION_HIDE', { cref });
+  COMMENT.CloseCommentCollection(uiref, cref, uid);
+  m_SetAppStateCommentCollections();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Marks a comment as read, and closes the component.
+ * Called by NCCommentBtn when clicking "Close"
+ * @param {Object} uiref comment button id (note kept for Net.Create compatibility)
+ * @param {Object} cref collection_ref
+ * @param {Object} uid user id
+ */
+MOD.CloseCommentCollectionAndMarkRead = (uiref, cref, uid) => {
   if (!MOD.OKtoClose(cref)) {
     // Comment is still being edited, prevent close
     alert(
@@ -514,7 +541,7 @@ MOD.CloseCommentCollection = (uiref, cref, uid) => {
  * updated comments.
  * @param {*} uid
  */
-MOD.CloseAllCommentCollectionsWithoutMarking = () => {
+MOD.CloseAllCommentCollectionsWithoutMarkingRead = () => {
   const uid = MOD.GetCurrentUserId();
   UDATA.LocalCall('CMT_COLLECTION_HIDE_ALL');
   COMMENT.CloseAllCommentCollections(uid);

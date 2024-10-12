@@ -89,7 +89,7 @@ class VBadge {
 
     this.gBadges.click(e => { this.OnClick(e); });
 
-    STATE.OnStateChange('COMMENTCOLLECTION', () => this.Refresh(vparent), UDATAOwner);
+    STATE.OnStateChange('COMMENTCOLLECTION', this.urstate_UpdateCommentCollection, UDATAOwner);
 
     this.Update(vparent);
     this.DrawBase(vparent);
@@ -100,7 +100,7 @@ class VBadge {
    *  Release is called by VProp or VMech
    */
   Release() {
-    STATE.OffStateChange('COMMENTCOLLECTION', urstate_UpdateCommentCollection);
+    STATE.OffStateChange('COMMENTCOLLECTION', this.urstate_UpdateCommentCollection);
     this.gStickyButtons.remove();
     this.gEvLinkBadges.remove();
     this.gBadges.remove();
@@ -109,6 +109,10 @@ class VBadge {
   Refresh(vparent) {
     // COMMENTCOLLECTION changes force vBadge comment button to update with opened/closed status
     this.Draw(vparent);
+  }
+
+  urstate_UpdateCommentCollection() {
+    this.Refresh(vparent);
   }
 
   /**

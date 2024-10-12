@@ -56,6 +56,10 @@ function URCommentSVGBtn({
   useEffect(() => {
     const draw = SVG(svgRef.current);
     c_DrawCommentIcon();
+
+    return () => {
+      draw.remove();
+    };
   }, []);
 
   useEffect(() => {

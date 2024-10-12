@@ -71,6 +71,7 @@ class VBadge {
 
     // Bind Methods
     this.Refresh = this.Refresh.bind(this);
+    this.urstate_UpdateCommentCollection = this.urstate_UpdateCommentCollection.bind(this);
 
     // create our own groups
     /**

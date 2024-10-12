@@ -154,6 +154,11 @@ function LoadTemplate(commentTypes: Array<TCommentType>) {
  * @param {any} data JSON data
  */
 function LoadDB(data) {
+  COMMENTCOLLECTION.clear();
+  COMMENTUISTATE.clear();
+  OPENCOMMENTS.clear();
+  COMMENTS_BEING_EDITED.clear();
+  COMMENTVOBJS.clear();
   if (DBG) console.log(PR, 'LoadDB', data);
   DCCOMMENTS.LoadDB(data);
   if (DBG) console.log('COMMENTCOLLECTION', COMMENTCOLLECTION);

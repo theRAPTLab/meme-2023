@@ -267,7 +267,7 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
       {
         format: 'radio',
         prompt: 'Do you agree with this comment?', // prompt label
-        options: ['Yes', 'Somewhat', 'Not really', 'No'],
+        options: ['Yes', 'Somewhat', 'No'],
         help: 'Select only one.'
       },
       {

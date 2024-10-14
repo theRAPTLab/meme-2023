@@ -227,7 +227,7 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
   },
   {
     slug: 'evidence',
-    label: 'Evidence',
+    label: 'Evidence Critique or Suggestion',
     prompts: [
       {
         format: 'dropdown',
@@ -244,7 +244,7 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
   },
   {
     slug: 'clarity',
-    label: 'Clarity',
+    label: 'Clarity Critique or Suggestion',
     prompts: [
       {
         format: 'discrete-slider',
@@ -261,19 +261,36 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
     ]
   },
   {
+    slug: 'steps',
+    label: 'All the Steps Critique or Suggestion',
+    prompts: [
+      {
+        format: 'dropdown',
+        prompt: 'Does this include all of the useful steps?', // prompt label
+        options: ['😀 Yes', '🤔 Mostly', '🥲 No', '🥲 Too many'],
+        help: 'Select one.'
+      },
+      {
+        format: 'text',
+        prompt: 'What made you pick that number?', // prompt label
+        help: 'Please be specific to help your friend.'
+      }
+    ]
+  },
+  {
     slug: 'response',
     label: 'Response',
     prompts: [
       {
         format: 'radio',
-        prompt: 'Do you agree with this comment?', // prompt label
+        prompt: 'Do you agree with this comment, critique, or suggestion?', // prompt label
         options: ['Yes', 'Somewhat', 'No'],
         help: 'Select only one.'
       },
       {
         format: 'radio',
         prompt: 'Will you make any changes?', // prompt label
-        options: ['Yes', 'No'],
+        options: ['Yes', 'Some', 'No'],
         help: 'Select only one.'
       },
       {

@@ -295,6 +295,8 @@ function f_PackageWebTurbo360(template = '_blank') {
     process.exit(1);
   }
 
+  res = shell.rm('-rf', './dist/.git');
+
   console.log(PR, `installing ${CY}Turbo-360${TR} Node dependencies...`)
   shell.cd('./dist');
   res = shell.exec('npm i --omit=dev', { silent: true });

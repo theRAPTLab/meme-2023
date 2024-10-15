@@ -20,6 +20,7 @@ if (!fs.existsSync('./node_modules/ip')) {
 const path = require('path');
 const ip = require('ip');
 const process = require('process');
+const child_process = require('child_process');
 const shell = require('shelljs');
 const argv = require('minimist')(process.argv.slice(1));
 const { signAsync } = require('@electron/osx-sign');
@@ -71,6 +72,12 @@ switch (param1) {
     break;
   case 'appsign':
     f_SignApp();
+    break;
+  case 'package-turbo360':
+    f_PackageWebTurbo360(argv._[2]);
+    break;
+  case 'deploy-turbo360':
+    f_DeployWebTurbo360();
     break;
   case 'debugapp':
     f_DebugApp();
@@ -260,6 +267,93 @@ function f_PackageApp() {
     console.log(PR, `NOTE: default macos security requires ${CR}code signing${TR} to run app.`);
     console.log(PR, `use ${CY}npm run appsign${TR} to use default developer id (if installed)\n`);
   }
+}
+
+function f_PackageWebTurbo360(template = '_blank') {
+  console.log(`\n`);
+  console.log(PR, `packaging for ${CY}Turbo-360${TR}`);
+  console.log(PR, `erasing ./built and ./dist directories`);
+  shell.rm('-rf', './dist', './built');
+  console.log(PR, `compiling web into ./built`);
+
+  // Bundle the MEME web application
+  let res = shell.exec(
+    // note: to pass an enviroment setting to the webpack config script, add --env.MYSETTING='value'
+    // Using the 'dist' configuration (which is for Electron) to avoid the hard-coded 'development'
+    //  configuration and inclusion of Hot Module Reload
+    `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.dist.config.js`,
+    { silent: true }
+  );
+  u_checkError(res);
+
+  // Prepare a local copy of the Turbo360 NodeJS/Express base template
+  // See: https://github.com/Vertex-Labs/base-template
+  console.log(PR, `cloning latest ${CY}Turbo-360${TR} base template into ./dist`);
+  res = shell.exec('git clone https://github.com/Vertex-Labs/base-template-meme.git dist', { silent: true });
+  if (res.code !== 0) {
+    console.error(PR, `${CR}Unable to clone Turbo 360 Base Template - do you have access?${TR}:`);
+    process.exit(1);
+  }
+
+  console.log(PR, `installing ${CY}Turbo-360${TR} Node dependencies...`)
+  shell.cd('./dist');
+  res = shell.exec('npm i --omit=dev', { silent: true });
+  if (res.code !== 0) {
+    console.error(PR, `${CR}Unable to install Turbo 360 Base Template NodeJS dependencies${TR}`);
+    console.error(PR, `\t${res.stderr}`);
+    process.exit(1);
+  }
+  shell.cd(__dirname);
+
+  console.log(PR, `Copying web-app...`);
+  // Copy the created MEME web-app bundle into the template
+  fs.copySync('./built/web', './dist/public');
+  fs.moveSync('./dist/public/index.ejs', './dist/views/home.html');
+
+  console.log(PR, `Copying resources (using template: ${template})`);
+  fs.copySync(`./templates/${template}/resources`, './dist/public/resources');
+
+  console.log(PR, `${CY}Turbo-360 packaging complete${TR}`);
+  console.log(PR, `To deploy, type ${CY}npm run deploy-turbo360${TR} and follow the prompts`);
+}
+
+function f_DeployWebTurbo360() {
+  console.log(PR, `Deploying to ${CY}Turbo-360${TR}...`);
+
+  console.log(PR, 'Installing/updating Turbo-360 CLI tools');
+  let res = shell.exec('npm i -g @turbo360/cli', { silent: true });
+  if (res.code !== 0) {
+    console.error(PR, "Unable to globally install the Turbo-360 CLI tools")
+    console.error(PR, `\t${res.error}`);
+    process.exit(1);
+  }
+
+  console.log(PR, `Beginning Turbo-360 deployment...`);
+  shell.cd('./dist');
+
+  try {
+    child_process.execFileSync('turbo', [ 'connect'] , {stdio: 'inherit'});
+  } catch (err) {
+    console.error(PR, 'Unable to connect your local project to Turbo 360');
+    console.error(PR, `\t${err}`);
+    process.exit(1);
+  }
+
+  res = shell.exec('turbo deploy');
+  if (res.code !== 0) {
+    console.error(PR, 'There was an error during Turbo 360 server deployment:');
+    console.error(PR, `\t${res.error}`);
+    process.exit(1);
+  }
+
+  res = shell.exec('turbo deploy -t static');
+  if (res.code !== 0) {
+    console.error(PR, 'There was an error during Turbo 360 asset deployment');
+    console.error(PR, `\t${res.error}`);
+    process.exit(1);
+  }
+
+  shell.cd(__dirname);
 }
 
 async function f_SignApp() {

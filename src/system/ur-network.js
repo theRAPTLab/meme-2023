@@ -105,8 +105,10 @@ NETWORK.Connect = (datalink, opt) => {
     USRV_Preamble
   } = CENTRAL.GetVal('ur_session');
 
-  const wsHost = `${USRV_Host}${USRV_MsgPort ? `:${USRV_MsgPort}` : ''}`;
-  let wsURI = `${USRV_WSS ? 'wss' : 'ws'}://${wsHost}`;
+  // Build websocket path
+  const wsURI = new URL(((USRV_WSS) ? 'wss' : 'ws') + '://' + USRV_Host);
+  if (USRV_MsgPort) wsURI.port = USRV_MsgPort;
+
   NETSOCK.ws = new WebSocket(wsURI);
   if (DBG.connect) console.log(PR, 'OPEN SOCKET TO', wsURI);
 

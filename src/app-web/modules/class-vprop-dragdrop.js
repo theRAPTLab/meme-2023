@@ -109,11 +109,13 @@ const AddDragDropHandlers = vprop => {
   };
 
   /* attach mouse/touch events for testing selection hover/highlighting */
-  vprop.visBG.mouseenter(event => {
+  // Attach hover event to gRoot so that VBadge does not trigger mouseleave
+  // Original call was `vprop.visBG.mouseenter(...`
+  vprop.gRoot.mouseenter(event => {
     event.stopPropagation();
     DATA.VM_PropMouseEnter(vprop);
   });
-  vprop.visBG.mouseleave(event => {
+  vprop.gRoot.mouseleave(event => {
     event.stopPropagation();
     DATA.VM_PropMouseExit(vprop);
   });

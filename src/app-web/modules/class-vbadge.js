@@ -62,6 +62,7 @@ class VBadge {
     this.commentCount = 0;
     this.isVMech = m_IsVMech(vparent);
     this.cref = '';
+    this.hover = false;
     if (this.isVMech)
       this.cref = CREF_PREFIX.PROCESS + vparent.data.id;  // CMTMGR.GetCREF('PROCESS', id);
     else if (vparent.isOutcome)
@@ -331,7 +332,7 @@ class VBadge {
 
     // update sticky button icons and comment count label
     // this replicates what URCommentBtn usually handles
-    if (!hasComments) {
+    if (!hasComments && !this.hover) {
       // no sticky buttons
       this.gStickyButtons.attr({ visibility: 'hidden' });
     } else {
@@ -463,10 +464,6 @@ VBadge.SVGStickyButton = (vparent, cref) => {
     e.preventDefault();
     e.stopPropagation();
     if (DBG) console.log(`${e.target} clicked e=${e}`);
-
-    // don't allow clicks if the sticky button is hidden
-    if (gStickyButtons.attr('visibility') === 'hidden') return;
-
     CMTMGR.OpenCommentCollection(cref, { x: e.clientX, y: e.clientY });
   };
 

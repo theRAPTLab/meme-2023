@@ -127,7 +127,8 @@ const AddDragDropHandlers = vprop => {
   vprop.gRoot.on('dragstart.propmove', event => {
     event.stopPropagation();
     vprop.gRoot.attr('pointer-events', 'none');
-    DATA.VM_PropMouseExit(vprop);
+    // REVIEW: mouse leave should not be necessary during drag?
+    // DATA.VM_PropMouseExit(vprop);
     SaveEventCoordsToBox(event, vprop._extend.dragdrop.startPt);
     DragState(vprop).gRootXY = {
       x: vprop.gRoot.x(),

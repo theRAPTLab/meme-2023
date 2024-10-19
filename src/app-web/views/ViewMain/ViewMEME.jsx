@@ -783,6 +783,7 @@ class ViewMEME extends React.Component {
         >
           {IcnAdd} Add property
         </button>
+        {/* Comments are now displayed in VProp and VMech
         <button
           className="comment-btn"
           hidden={
@@ -799,7 +800,7 @@ class ViewMEME extends React.Component {
         >
           {CHATICON}
           &nbsp;&nbsp;Add Comment
-        </button>
+        </button> */}
       </div>
     );
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

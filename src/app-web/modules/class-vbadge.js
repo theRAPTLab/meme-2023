@@ -252,7 +252,7 @@ class VBadge {
       let baseElement = vparent.visBG; // position of the base prop rectangle
       x = baseElement.x();
       y = baseElement.y();
-      xOffset = m_minWidth;  // use original width here, not the current width because the prop increasese in size this.width;
+      xOffset = Math.max(m_minWidth, vparent.gDataName.length());
       yOffset = -4;
       baseX = x + xOffset - m_pad;
       baseY = y + yOffset + m_pad * 2;

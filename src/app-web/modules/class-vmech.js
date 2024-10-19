@@ -124,9 +124,9 @@ class VMech {
 
     // CLICK Handlers
     this.HandleSelect = this.HandleSelect.bind(this);
-    this.path.click(() => this.HandleSelect);
+    this.path.click(this.HandleSelect);
     // clicks are handled by pathLabelGroup
-    this.pathLabelGroup.click(() => this.HandleSelect);
+    this.pathLabelGroup.click(this.HandleSelect);
     // WARNING
     // Don't try to use this.vBadge.gBadges.click to handle clicks
     // It will overwrite the vBadge object's click handler

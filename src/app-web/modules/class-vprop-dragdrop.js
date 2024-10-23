@@ -109,11 +109,18 @@ const AddDragDropHandlers = vprop => {
   };
 
   /* attach mouse/touch events for testing selection hover/highlighting */
+  // Original call was `vprop.visBG.mouseenter(...`
+  // but using visBG results in a ton of mouseenter/mouseleave events
+  //
+  // mouseenter is attached to visBG, but mouseleave is attached to gRoot
+  // so that redraws of vbadge don't trigger repeated mouseenters.
+  // This is necessary for the click handlers to register.  Otherwise
+  // clicks are missed.
   vprop.visBG.mouseenter(event => {
     event.stopPropagation();
     DATA.VM_PropMouseEnter(vprop);
   });
-  vprop.visBG.mouseleave(event => {
+  vprop.gRoot.mouseleave(event => {
     event.stopPropagation();
     DATA.VM_PropMouseExit(vprop);
   });
@@ -125,7 +132,8 @@ const AddDragDropHandlers = vprop => {
   vprop.gRoot.on('dragstart.propmove', event => {
     event.stopPropagation();
     vprop.gRoot.attr('pointer-events', 'none');
-    DATA.VM_PropMouseExit(vprop);
+    // REVIEW: mouse leave should not be necessary during drag?
+    // DATA.VM_PropMouseExit(vprop);
     SaveEventCoordsToBox(event, vprop._extend.dragdrop.startPt);
     DragState(vprop).gRootXY = {
       x: vprop.gRoot.x(),
@@ -173,7 +181,7 @@ const AddDragDropHandlers = vprop => {
       pt.y = mouseEvent.clientY;
       let svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
       if (DBG) console.log('Clicked at screen', pt, ' / SVG coordinate', svgPt);
-      
+
       // gStickyNoteButton is actually just a group object
       // but it does have a bbox with the right coordinates.
       // NOTE testing for 'inside' with the chat/chatBubble/chatOutline svg icons doesn't work
@@ -192,10 +200,10 @@ const AddDragDropHandlers = vprop => {
 
     // If view only, skip the drop
     if (DATA.IsViewOnly()) return;
-    
+
     // it did move, so do drop target magic
     const dropId = DATA.VM_PropsMouseOver().pop();
-    const dropXY = `(${DragState(vprop).gRootXY.x},${DragState(vprop).gRootXY.y})`;
+    const dropXY = `(${DragState(vprop).gRootXY.x}, ${DragState(vprop).gRootXY.y})`;
 
     if (dropId) {
       // there is a drop target

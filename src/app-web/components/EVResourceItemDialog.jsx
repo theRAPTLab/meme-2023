@@ -107,34 +107,36 @@ class EVResourceItemDialog extends React.Component {
   }
 
   ContinueOpen(resource, noteRefId) {
-    const comments = DATA.GetComments(noteRefId);
-    if (comments.length < 1)
-      throw Error('There should be at least one comment saved as a Resource note!');
-    const note = comments[0].text;
-    const commentId = comments[0].id;
+    // DEPRECATED: The old system used comments to store the note data.
+    // const comments = DATA.GetComments(noteRefId);
+    // if (comments.length < 1)
+    //   throw Error('There should be at least one comment saved as a Resource note!');
+    // const note = comments[0].text;
+    // const commentId = comments[0].id;
 
-    const pmcDataId = ASET.selectedPMCDataId;
-    const intCommentId = Number(commentId);
-    UR.DBTryLock('pmcData.comments', [pmcDataId, intCommentId]).then(rdata => {
-      const { success, semaphore, uaddr, lockedBy } = rdata;
-      status += success
-        ? `${semaphore} lock acquired by ${uaddr} `
-        : `failed to acquired ${semaphore} lock `;
-      if (rdata.success) {
-        this.setState({ noteIsDisabled: false });
-      } else {
-        alert(
-          `Sorry, someone else (${rdata.lockedBy}) is editing this Resource Note right now.  Please try again later. (You can still ${DEFAULTS.TEXT.ADD_EVIDENCE}.)`
-        );
-      }
-    });
+    // const pmcDataId = ASET.selectedPMCDataId;
+    // const intCommentId = Number(commentId);
+    // UR.DBTryLock('pmcData.comments', [pmcDataId, intCommentId]).then(rdata => {
+    //   const { success, semaphore, uaddr, lockedBy } = rdata;
+    //   status += success
+    //     ? `${semaphore} lock acquired by ${uaddr} `
+    //     : `failed to acquired ${semaphore} lock `;
+    //   if (rdata.success) {
+    //     this.setState({ noteIsDisabled: false });
+    //   } else {
+    //     alert(
+    //       `Sorry, someone else (${rdata.lockedBy}) is editing this Resource Note right now.  Please try again later. (You can still ${DEFAULTS.TEXT.ADD_EVIDENCE}.)`
+    //     );
+    //   }
+    // });
 
     this.setState({
       isOpen: true,
       resource,
-      noteRefId,
-      note,
-      commentId
+      noteRefId
+      // DEPRECATED
+      // note,
+      // commentId
     });
     UTILS.RLog('ResourceOpen', resource.label);
   }

@@ -57,10 +57,20 @@ const DEFAULTS = {
     OUTCOME_HOV: '#84F',
     OUTCOME_LINK: '#6622FF66',
     OUTCOME_TOOLSPANEL_BG: '#F3E5F5',
-    STICKY_BUTTON: '#ffdd11'
+    STICKY_BUTTON: '#ffdd11',
+    COMMENT_DARK: '#D44127', // unread outline
+    COMMENT_LIGHT: '#FFE143', // unread fill
+    COMMENT_READ: '#696969', // read fill
   },
   TEXT: {
     ADD_EVIDENCE: 'New Evidence Link'
+  },
+  CREF_PREFIX: {
+    PROJECT: 'p',
+    EVLINK: 'v',
+    ENTITY: 'e',
+    PROCESS: 'm',
+    OUTCOME: 'o'
   }
 };
 

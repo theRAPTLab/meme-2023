@@ -265,6 +265,7 @@ MOD.GetCommentBtnPosition = cref => {
  * Returns the comment window position for the comment button
  * shifting the window to the left if it's too close to the edge of the screen.
  * or shifting it up if it's too close to the bottom of the screen.
+ * x,y is the position of the comment button, offsets are then caclulated
  */
 MOD.GetCommentCollectionPosition = ({ x, y }) => {
   const windowWidth = Math.min(screen.width, window.innerWidth);

@@ -62,6 +62,7 @@ class VBadge {
     this.commentCount = 0;
     this.isVMech = m_IsVMech(vparent);
     this.cref = '';
+    this.hover = false;
     if (this.isVMech)
       this.cref = CREF_PREFIX.PROCESS + vparent.data.id;  // CMTMGR.GetCREF('PROCESS', id);
     else if (vparent.isOutcome)
@@ -71,7 +72,6 @@ class VBadge {
 
     // Bind Methods
     this.Refresh = this.Refresh.bind(this);
-    this.urstate_UpdateCommentCollection = this.urstate_UpdateCommentCollection.bind(this);
 
     // create our own groups
     /**
@@ -90,7 +90,7 @@ class VBadge {
 
     this.gBadges.click(e => { this.OnClick(e); });
 
-    STATE.OnStateChange('COMMENTCOLLECTION', this.urstate_UpdateCommentCollection, UDATAOwner);
+    STATE.OnStateChange('COMMENTCOLLECTION', () => this.Refresh(vparent), UDATAOwner);
 
     this.Update(vparent);
     this.DrawBase(vparent);
@@ -101,7 +101,7 @@ class VBadge {
    *  Release is called by VProp or VMech
    */
   Release() {
-    STATE.OffStateChange('COMMENTCOLLECTION', this.urstate_UpdateCommentCollection);
+    STATE.OffStateChange('COMMENTCOLLECTION', () => this.Refresh(vparent));
     this.gStickyButtons.remove();
     this.gEvLinkBadges.remove();
     this.gBadges.remove();
@@ -110,10 +110,6 @@ class VBadge {
   Refresh(vparent) {
     // COMMENTCOLLECTION changes force vBadge comment button to update with opened/closed status
     this.Draw(vparent);
-  }
-
-  urstate_UpdateCommentCollection() {
-    this.Refresh(vparent);
   }
 
   /**
@@ -257,7 +253,7 @@ class VBadge {
       let baseElement = vparent.visBG; // position of the base prop rectangle
       x = baseElement.x();
       y = baseElement.y();
-      xOffset = m_minWidth;  // use original width here, not the current width because the prop increasese in size this.width;
+      xOffset = Math.max(m_minWidth, vparent.gDataName.length());
       yOffset = -4;
       baseX = x + xOffset - m_pad;
       baseY = y + yOffset + m_pad * 2;
@@ -336,7 +332,7 @@ class VBadge {
 
     // update sticky button icons and comment count label
     // this replicates what URCommentBtn usually handles
-    if (!hasComments) {
+    if (!hasComments && !this.hover && !commentThreadIsOpen) {
       // no sticky buttons
       this.gStickyButtons.attr({ visibility: 'hidden' });
     } else {
@@ -468,10 +464,6 @@ VBadge.SVGStickyButton = (vparent, cref) => {
     e.preventDefault();
     e.stopPropagation();
     if (DBG) console.log(`${e.target} clicked e=${e}`);
-
-    // don't allow clicks if the sticky button is hidden
-    if (gStickyButtons.attr('visibility') === 'hidden') return;
-
     CMTMGR.OpenCommentCollection(cref, { x: e.clientX, y: e.clientY });
   };
 

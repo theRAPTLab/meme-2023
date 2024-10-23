@@ -131,18 +131,20 @@ class VProp {
     this.HoverState(false, false);
   }
 
-  HoverState(visible, publishEvent = true) {
+  HoverState(visible, publishEvent = false) {
     if (typeof visible !== 'boolean') throw Error('must specific true or false');
 
     if (visible) {
       this.visualState.Select('hover');
       this.visualStyle.fill.color = this.isOutcome ? COL_HOVER_OUTCOME : COL_HOVER;
       this.visualStyle.fill.opacity = COL_HOVER_OPACITY;
+      this.vBadge.hover = true;
       if (publishEvent) UR.Publish('PROP_HOVER_START', { propId: this.id });
     } else {
       this.visualState.Deselect('hover');
       this.visualStyle.fill.color = this.isOutcome ? COL_BG_OUTCOME : COL_BG;
       this.visualStyle.fill.opacity = COL_BG_OPACITY;
+      this.vBadge.hover = false;
       if (publishEvent) UR.Publish('PROP_HOVER_END', { propId: this.id });
     }
     this.Draw();

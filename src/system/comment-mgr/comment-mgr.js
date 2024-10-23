@@ -252,21 +252,37 @@ MOD.GetCREFSourceLabel = cref => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
+ * Returns the position for the comment button
+ * Adjusting for window position is done via GetCommentCollectionPosition
+ */
+MOD.GetCommentBtnPosition = cref => {
+  const btn = document.getElementById(cref);
+  if (!btn) throw new Error(`${PR}GetCommentCollectionPosition: Button not found ${cref}`);
+  const bbox = btn.getBoundingClientRect();
+  return { x: bbox.left, y: bbox.top };
+}
+/**
  * Returns the comment window position for the comment button
  * shifting the window to the left if it's too close to the edge of the screen.
+ * or shifting it up if it's too close to the bottom of the screen.
+ * x,y is the position of the comment button, offsets are then caclulated
  */
-MOD.GetCommentCollectionPosition = cref => {
-  const btn = document.getElementById(cref);
-  const cmtbtnx = btn.getBoundingClientRect().left;
+MOD.GetCommentCollectionPosition = ({ x, y }) => {
   const windowWidth = Math.min(screen.width, window.innerWidth);
-  let x;
-  if (windowWidth - cmtbtnx < 500) {
-    x = cmtbtnx - 430;
+  const windowHeight = Math.min(screen.height, window.innerHeight);
+  let newX;
+  if (windowWidth - x < 500) {
+    newX = x - 410;
   } else {
-    x = cmtbtnx + 35;
+    newX = x + CMTBTNOFFSET * 2;
   }
-  const y = btn.getBoundingClientRect().top + window.scrollY;
-  return { x, y };
+  let newY = y + window.scrollY;
+  if (windowHeight - y < 150) {
+    newY = y - 150;
+  } else {
+    newY = y - CMTBTNOFFSET;
+  }
+  return { x: newX, y: newY };
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Open the object that the comment refers to
@@ -340,11 +356,7 @@ MOD.OpenComment = (cref, cid) => {
             const btnPosition = PMCView.SVGtoScreen( // cx, cy);
               cx + vmech.horizText.length() / 2 + cmtbtnBBox.w, cy
             );
-            const cmtPosition = {
-              x: btnPosition.x + CMTBTNOFFSET,
-              y: btnPosition.y - CMTBTNOFFSET
-            }
-            MOD.OpenCommentCollection(cref, cmtPosition);
+            MOD.OpenCommentCollection(cref, btnPosition);
           }, 500);
         }
       }
@@ -363,11 +375,7 @@ MOD.OpenComment = (cref, cid) => {
             const vprop = DATA.VM_VProp(id);
             const { x, y } = vprop.vBadge.gStickyButtons.bbox();
             const btnPosition = PMCView.SVGtoScreen(x, y);
-            const cmtPosition = {
-              x: btnPosition.x + CMTBTNOFFSET,
-              y: btnPosition.y + CMTBTNOFFSET
-            }
-            MOD.OpenCommentCollection(cref, cmtPosition);
+            MOD.OpenCommentCollection(cref, btnPosition);
           }, 500);
         }
       }
@@ -458,6 +466,8 @@ MOD.OpenCommentCollection = (cref, position) => {
     throw new Error(
       `comment-mgr.OpenCommentCollection: missing position data ${JSON.stringify(position)}`
     );
+  position.x = parseInt(position.x); // handle net call data
+  position.y = parseInt(position.y);
   // 0. If the comment is already open, do nothing
   const openComments = MOD.GetOpenComments(cref);
   if (openComments) {
@@ -465,9 +475,8 @@ MOD.OpenCommentCollection = (cref, position) => {
     return; // already open, close it
   }
   // 1. Position the window to the right of the click
-  const collectionPosition = {}
-  collectionPosition.x = parseInt(position.x) + 20;
-  collectionPosition.y = parseInt(position.y) - 10;
+  const collectionPosition = MOD.GetCommentCollectionPosition(position);
+
   // 2. Update the state
   MOD.UpdateCommentUIState(cref, { cref, isOpen: true });
   // 3. Open the collection in the collection manager
@@ -476,15 +485,19 @@ MOD.OpenCommentCollection = (cref, position) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /**
- * NOTE: This does not work for vBadge buttons
+ * Called by URCommentVBtn
+ * NOTE: This does not work for vBadge buttons.
+ * vBadge calls OpenCommentCollection directly.
+ * VBtns need an extra offset (Unliock vBadges)
  * @param {string} cref
  */
 MOD.OpenCommentCollectionByCref = cref => {
-  const projectCmtPosition = MOD.GetCommentCollectionPosition(cref);
-  MOD.OpenCommentCollection(cref, {
-    x: projectCmtPosition.x + CMTBTNOFFSET,
-    y: projectCmtPosition.y + CMTBTNOFFSET
-  });
+  const projectCmtPosition = MOD.GetCommentBtnPosition(cref);
+  MOD.OpenCommentCollection(cref,
+    {
+      x: projectCmtPosition.x + CMTBTNOFFSET,
+      y: projectCmtPosition.y + CMTBTNOFFSET
+    });
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.GetCommentCollection = uiref => {

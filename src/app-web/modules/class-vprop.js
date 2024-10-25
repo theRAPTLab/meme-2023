@@ -489,6 +489,10 @@ VProp.SizeComponents = () => {
   /// return struct { id, w, h } w/out padding
   function recursePropSize(propId) {
     const vprop = DATA.VM_VProp(propId);
+
+    // if we've been resized, force redraw of badges so that position of badges are updated
+    vprop.vBadge.Update(vprop, true);
+
     // first get base size of vprop's data
     const databbox = vprop.DataSize();
     databbox.h += PAD.MIN; // add vertical padding

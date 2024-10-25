@@ -171,15 +171,17 @@ class VBadge {
    */
   Update(vparent, forceRedraw = false) {
     const id = vparent.id;
-    let redrawNeeded = this.baseRedrawNeeded;
 
     // did anything change?
+
+    // force redraw if the label has changed
+    // force redraw if the vprop size has changed so that badges are moved to the right position
+    let redrawNeeded = this.baseRedrawNeeded || forceRedraw;
+
     const oldEvlinks = this.evlinks;
     let updatedEvlinks;
     if (m_IsVMech(vparent)) {
       // parent is a VMech
-      // force redraw if the label has changed
-      if (forceRedraw) redrawNeeded = true;
       updatedEvlinks = PMC.PMC_GetEvLinksByMechId(id);
     } else {
       // parent is VProp
@@ -260,7 +262,6 @@ class VBadge {
     }
 
     // first reset positions
-    this.gBadges.move(-badgeItemRadius, 0);
     this.gStickyButtons.move(0, -7);
 
     // draw evidence link badges
@@ -295,7 +296,6 @@ class VBadge {
 
     this.baseRedrawNeeded = false;
   }
-
 
   /**
    *  `DrawUpdate` updates changed data and is called by VProp or VMech
@@ -358,9 +358,7 @@ class VBadge {
         }
       }
     }
-
   }
-
 }
 
 /// STATIC CLASS METHODS //////////////////////////////////////////////////////

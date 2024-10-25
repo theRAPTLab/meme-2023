@@ -595,7 +595,7 @@ function recurseLayout(pos, id) {
   let widest = 0;
   children.forEach(cid => {
     const childVis = DATA.VM_VProp(cid);
-    widest = Math.max(widest, childVis.KidsSize()).w;
+    widest = Math.max(widest, childVis.KidsSize().w);
     recurseLayout({ x, y }, cid);
     const addH = childVis.PropSize().h + PAD.MIN;
     y += addH;

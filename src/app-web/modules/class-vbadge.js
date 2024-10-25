@@ -253,7 +253,7 @@ class VBadge {
       let baseElement = vparent.visBG; // position of the base prop rectangle
       x = baseElement.x();
       y = baseElement.y();
-      xOffset = Math.max(m_minWidth, vparent.gDataName.length());
+      xOffset = this.width;
       yOffset = -4;
       baseX = x + xOffset - m_pad;
       baseY = y + yOffset + m_pad * 2;
@@ -290,7 +290,7 @@ class VBadge {
     } else {
       // VProp is right-justified
       // Has Comments: Shift badges left by one badge width + stickynote button width
-      this.gBadges.move(baseX + evlinkBadgeXOffset - badgeItemRadius / 2, baseY + 4);
+      this.gBadges.move(baseX - evlinkBadgesOffsetX - badgeItemRadius - m_pad, baseY + 4);
     }
 
     this.baseRedrawNeeded = false;

@@ -108,7 +108,6 @@ function URCommentVBtn({ cref }) {
     setIsOpen(isOpen);
 
     // commentCountLabel
-    const uid = CMTMGR.GetCurrentUserId();
     const commentCount = CMTMGR.GetCommentCollectionCount(cref);
     setCount(commentCount);
   }

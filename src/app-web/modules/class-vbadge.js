@@ -171,15 +171,17 @@ class VBadge {
    */
   Update(vparent, forceRedraw = false) {
     const id = vparent.id;
-    let redrawNeeded = this.baseRedrawNeeded;
 
     // did anything change?
+
+    // force redraw if the label has changed
+    // force redraw if the vprop size has changed so that badges are moved to the right position
+    let redrawNeeded = this.baseRedrawNeeded || forceRedraw;
+
     const oldEvlinks = this.evlinks;
     let updatedEvlinks;
     if (m_IsVMech(vparent)) {
       // parent is a VMech
-      // force redraw if the label has changed
-      if (forceRedraw) redrawNeeded = true;
       updatedEvlinks = PMC.PMC_GetEvLinksByMechId(id);
     } else {
       // parent is VProp
@@ -253,14 +255,13 @@ class VBadge {
       let baseElement = vparent.visBG; // position of the base prop rectangle
       x = baseElement.x();
       y = baseElement.y();
-      xOffset = Math.max(m_minWidth, vparent.gDataName.length());
+      xOffset = this.width;
       yOffset = -4;
       baseX = x + xOffset - m_pad;
       baseY = y + yOffset + m_pad * 2;
     }
 
     // first reset positions
-    this.gBadges.move(-badgeItemRadius, 0);
     this.gStickyButtons.move(0, -7);
 
     // draw evidence link badges
@@ -290,12 +291,11 @@ class VBadge {
     } else {
       // VProp is right-justified
       // Has Comments: Shift badges left by one badge width + stickynote button width
-      this.gBadges.move(baseX + evlinkBadgeXOffset - badgeItemRadius / 2, baseY + 4);
+      this.gBadges.move(baseX - evlinkBadgesOffsetX - badgeItemRadius - m_pad, baseY + 4);
     }
 
     this.baseRedrawNeeded = false;
   }
-
 
   /**
    *  `DrawUpdate` updates changed data and is called by VProp or VMech
@@ -358,9 +358,7 @@ class VBadge {
         }
       }
     }
-
   }
-
 }
 
 /// STATIC CLASS METHODS //////////////////////////////////////////////////////

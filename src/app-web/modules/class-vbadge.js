@@ -290,7 +290,6 @@ class VBadge {
       this.gBadges.move(baseX + badgeItemRadius, baseY);
     } else {
       // VProp is right-justified
-      // Has Comments: Shift badges left by one badge width + stickynote button width
       this.gBadges.move(baseX - evlinkBadgesOffsetX - badgeItemRadius - m_pad, baseY + 4);
     }
 

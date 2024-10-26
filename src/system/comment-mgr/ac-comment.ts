@@ -159,6 +159,7 @@ function LoadDB(data) {
   OPENCOMMENTS.clear();
   COMMENTS_BEING_EDITED.clear();
   COMMENTVOBJS.clear();
+
   if (DBG) console.log(PR, 'LoadDB', data);
   DCCOMMENTS.LoadDB(data);
   if (DBG) console.log('COMMENTCOLLECTION', COMMENTCOLLECTION);

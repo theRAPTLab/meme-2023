@@ -476,7 +476,6 @@ VProp.GetBBox = () => {
 VProp.SizeComponents = () => {
   // first get the list of component ids to walk through
   const components = DATA.Components();
-
   // walk through every component
   components.forEach(compId => {
     recursePropSize(compId); // note: returns bbox, but we're not using it here

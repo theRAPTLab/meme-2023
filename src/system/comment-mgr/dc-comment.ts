@@ -376,6 +376,7 @@ function LoadDB(data: TLokiData) {
   ROOTS.clear();
   REPLY_ROOTS.clear();
   NEXT.clear();
+
   // Load Data!
   if (data.commenttypes) m_LoadCommentTypes(data.commenttypes);
   else m_LoadCommentTypes(DEFAULT_CommentTypes); // load default comments if db has none

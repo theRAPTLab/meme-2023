@@ -119,7 +119,6 @@ function URCommentStatus(props) {
         clearTimeout(ResetTimer);
         // clear it first, then appear (so that each new comment triggers the animation)
         setMessage(message);
-        setActiveCSS('');
         AppearTimer = setTimeout(() => {
           setActiveCSS('appear');
         }, 250);

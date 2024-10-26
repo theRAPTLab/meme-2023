@@ -64,14 +64,12 @@ class WModelSelect extends React.Component {
   }
 
   componentWillUnmount() {
-    console.error('ModelSElect unmounted!!!');
     UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Unsubscribe('MODEL_SELECT_OPEN', this.DoModelDialogOpen);
   }
 
   DoADMDataUpdate(data) {
     this.setState({
-      // modelSelectDialogOpen: !ADM.IsLoggedOut(),
       canViewOthers: ADM.CanViewOthers()
     });
   }

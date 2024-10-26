@@ -125,6 +125,13 @@ MOD.LoadDBData = () => {
   MOD.SetCurrentUserId(userStudentId);
   const data = CMTDB.GetCommentData();
   COMMENT.LoadDB(data);
+
+  // After loading db, derive the view objects
+  // This is needed to force update of the project comment count
+  const uid = MOD.GetCurrentUserId();
+  COMMENT.DeriveAllThreadedViewObjects(uid);
+  const COMMENTCOLLECTION = COMMENT.GetCommentCollections();
+  STATE.SetState('COMMENTCOLLECTION', COMMENTCOLLECTION)
 }
 
 /// HELPER FUNCTIONS //////////////////////////////////////////////////////////

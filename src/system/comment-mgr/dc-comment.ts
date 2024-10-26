@@ -83,7 +83,15 @@ type TUserObject = {
 // REVIEW CType needs to be defined after we figure out how to handle templates
 //        Eventually we will dynamically define them.
 // Comment Template Type Slug
-export type CType = 'cmt' | 'tellmemore' | 'source' | 'demo';
+export type CType =
+  | 'cmt'
+  | 'tellmemore'
+  | 'source'
+  | 'evidence'
+  | 'clarity'
+  | 'steps'
+  | 'response';
+
 type CPromptFormat =
   | 'text'
   | 'dropdown'
@@ -102,7 +110,7 @@ type TCommentPrompt = {
   prompt: string;
   options?: string[];
   help: string;
-  feedback: string;
+  feedback?: string;
 };
 
 export type TCollectionRef = any;
@@ -217,116 +225,82 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
         feedback: ''
       }
     ]
+  },
+  {
+    slug: 'evidence',
+    label: 'Evidence Critique or Suggestion',
+    prompts: [
+      {
+        format: 'dropdown',
+        prompt: 'Is this supported by evidence?', // prompt label
+        options: ['😀 Yes', '🤔 Some', '🥲 No'],
+        help: 'Select one.'
+      },
+      {
+        format: 'text',
+        prompt: 'What would you change?', // prompt label
+        help: 'Please be specific to help your friend.'
+      }
+    ]
+  },
+  {
+    slug: 'clarity',
+    label: 'Clarity Critique or Suggestion',
+    prompts: [
+      {
+        format: 'discrete-slider',
+        prompt: 'How clear is this model to you?', // prompt label
+        options: ['★', '★', '★', '★', '★'],
+        help: 'More stars means more clear!',
+        feedback: 'We can also have help here'
+      },
+      {
+        format: 'text',
+        prompt: 'What made you pick that number?', // prompt label
+        help: 'Please be specific to help your friend.'
+      }
+    ]
+  },
+  {
+    slug: 'steps',
+    label: 'All the Steps Critique or Suggestion',
+    prompts: [
+      {
+        format: 'dropdown',
+        prompt: 'Does this include all of the useful steps?', // prompt label
+        options: ['😀 Yes', '🤔 Mostly', '🥲 No', '🥲 Too many'],
+        help: 'Select one.'
+      },
+      {
+        format: 'text',
+        prompt: 'What made you pick that number?', // prompt label
+        help: 'Please be specific to help your friend.'
+      }
+    ]
+  },
+  {
+    slug: 'response',
+    label: 'Response',
+    prompts: [
+      {
+        format: 'radio',
+        prompt: 'Do you agree with this comment, critique, or suggestion?', // prompt label
+        options: ['Yes', 'Somewhat', 'No'],
+        help: 'Select only one.'
+      },
+      {
+        format: 'radio',
+        prompt: 'Will you make any changes?', // prompt label
+        options: ['Yes', 'Some', 'No'],
+        help: 'Select only one.'
+      },
+      {
+        format: 'text',
+        prompt: 'Why or why not?', // prompt label
+        help: 'Please be specific so your friend understands.'
+      }
+    ]
   }
-  // Temporarily moved into template 2024-07-30
-  // Move eventually to new templating system
-  //
-  // {
-  //   slug: 'demo',
-  //   label: 'Demo',
-  //   prompts: [
-  //     {
-  //       format: 'text',
-  //       prompt: 'Comment', // prompt label
-  //       help: 'Use this for any general comment.',
-  //       feedback: 'Just enter text'
-  //     },
-  //     {
-  //       format: 'dropdown',
-  //       prompt: 'How often did you use "Dropdown"', // prompt label
-  //       options: ['🥲 No', '🤔 A little', '😀 A lot'],
-  //       help: 'Select one.',
-  //       feedback: 'Single selection via dropdown menu'
-  //     },
-  //     {
-  //       format: 'checkbox',
-  //       prompt: 'What types of fruit did you "Checkbox"?', // prompt label
-  //       options: ['Apple Pie', 'Orange, Lime', 'Banana'],
-  //       help: 'Select as many as you want.',
-  //       feedback: 'Supports multiple selections'
-  //     },
-  //     {
-  //       format: 'radio',
-  //       prompt: 'What do you think "Radio"?', // prompt label
-  //       options: [
-  //         'It makes sense',
-  //         'I disagree',
-  //         "I don't know",
-  //         'Handle, comma, please'
-  //       ],
-  //       help: 'Select only one.',
-  //       feedback: 'Mutually exclusive single selections'
-  //     },
-  //     {
-  //       format: 'likert',
-  //       prompt: 'How did you like it "likert"?', // prompt label
-  //       options: ['💙', '💚', '💛', '🧡', '🩷'],
-  //       help: 'Select one of a series listed horizontally',
-  //       feedback: 'Select with a single click.  Supports emojis.'
-  //     },
-  //     {
-  //       format: 'discrete-slider',
-  //       prompt: 'Star Rating "discrete-slider"?', // prompt label
-  //       options: ['★', '★', '★', '★', '★'],
-  //       help: 'Select one of a series stacked horizontally',
-  //       feedback: 'Select with a single click.  Supports emojis.'
-  //     },
-  //     {
-  //       format: 'text',
-  //       prompt: 'Comment 2', // prompt label
-  //       help: 'Use this for any general comment.',
-  //       feedback: 'Just enter text'
-  //     },
-  //     {
-  //       format: 'text',
-  //       prompt: 'Comment 3', // prompt label
-  //       help: 'Use this for any general comment.',
-  //       feedback: 'Just enter text'
-  //     }
-  //   ]
-  // },
-  // {
-  //   slug: 'cmt',
-  //   label: 'Comment', // comment type label
-  //   prompts: [
-  //     {
-  //       format: 'text',
-  //       prompt: 'Comment', // prompt label
-  //       help: 'Use this for any general comment.',
-  //       feedback: ''
-  //     }
-  //   ]
-  // },
-  // {
-  //   slug: 'tellmemore',
-  //   label: 'Tell me more', // comment type label
-  //   prompts: [
-  //     {
-  //       format: 'text',
-  //       prompt: 'Please tell me more', // prompt label
-  //       help: 'Can you tell me more about ... ',
-  //       feedback: ''
-  //     }
-  //   ]
-  // },
-  // {
-  //   slug: 'source',
-  //   label: 'Source', // comment type label
-  //   prompts: [
-  //     {
-  //       format: 'text',
-  //       prompt: 'Is this well sourced?', // prompt label
-  //       help: 'Yes/No',
-  //       feedback: ''
-  //     },
-  //     {
-  //       format: 'text',
-  //       prompt: 'Changes', // prompt label
-  //       help: 'What about the sourcing could be improved?',
-  //       feedback: ''
-  //     }
-  //   ]
-  // }
 ];
 
 /// HELPER FUNCTIONS //////////////////////////////////////////////////////////

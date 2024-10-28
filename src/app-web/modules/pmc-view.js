@@ -317,6 +317,25 @@ PMCView.DefineDefs = svg => {
       })
       .attr({ id: 'arrowStartHeadSelected', orient: 'auto', refX: 0 })
   );
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /// Comment Icons from Evan O'Neil
+  /// https://drive.google.com/drive/folders/1fJ5WiLMVQxxaqghrCOFwegmnYoOvst7E
+  /// Safari SVG bug prevents us from using symbols for comment icons
+  /// Using a symbol for Safari/IOS SVG causes drags to fly off the screen
+  SVGDEFS.set(  // selected unread -- red outline yellow fill
+    'comment',
+    (() => {
+      const icon = svg.defs().group();
+      icon // fill
+        .path('M8 15C11.866 15 15 11.866 15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 9.15705 1.28072 10.2485 1.77778 11.21V15H8Z')
+        .addClass('svg-fill');
+      icon // outline
+        .path('M3.17778 10.8696V13.6H8C11.0928 13.6 13.6 11.0928 13.6 8C13.6 4.90721 11.0928 2.4 8 2.4C4.90721 2.4 2.4 4.90721 2.4 8C2.4 8.92813 2.62469 9.79968 3.02143 10.5671L3.17778 10.8696ZM15 8C15 11.866 11.866 15 8 15H1.77778V11.21C1.28072 10.2485 1 9.15705 1 8C1 4.13401 4.13401 1 8 1C11.866 1 15 4.13401 15 8Z')
+        .addClass('svg-outline');
+      icon.path('M0 0h24v24H0z').fill('none'); // anchors the symbol
+      return icon;
+    })()
+  );
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -561,81 +580,6 @@ PMCView.DefineSymbols = svg => {
       // 24x24 invisible rect to prevent icon from
       // shifting with each drag draw update
       icon.path('M0 0h24v24H0z').fill('none');
-      return icon;
-    })()
-  );
-
-  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /// Comment Icons from Evan
-  SVGSYMBOLS.set(
-    // selected unread -- red outline yellow fill
-    'commentUnreadSelected',
-    (() => {
-      const icon = svg.symbol();
-      // Evan O'Neil https://drive.google.com/drive/folders/1fJ5WiLMVQxxaqghrCOFwegmnYoOvst7E
-      icon // fill
-        .path(
-          'M8 15C11.866 15 15 11.866 15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 9.15705 1.28072 10.2485 1.77778 11.21V15H8Z'
-        )
-        .fill(COLOR.COMMENT_DARK);
-      icon // outline
-        .path('M3.17778 10.8696V13.6H8C11.0928 13.6 13.6 11.0928 13.6 8C13.6 4.90721 11.0928 2.4 8 2.4C4.90721 2.4 2.4 4.90721 2.4 8C2.4 8.92813 2.62469 9.79968 3.02143 10.5671L3.17778 10.8696ZM15 8C15 11.866 11.866 15 8 15H1.77778V11.21C1.28072 10.2485 1 9.15705 1 8C1 4.13401 4.13401 1 8 1C11.866 1 15 4.13401 15 8Z')
-        .fill(COLOR.COMMENT_DARK);
-      icon.path('M0 0h24v24H0z').fill('none'); // anchors the symbol
-      return icon;
-    })()
-  );
-  SVGSYMBOLS.set(
-    // unselected unread -- yellow outline yellow fill
-    'commentUnread',
-    (() => {
-      const icon = svg.symbol();
-      // Evan O'Neil https://drive.google.com/drive/folders/1fJ5WiLMVQxxaqghrCOFwegmnYoOvst7E
-      icon // fill
-        .path(
-          'M8 15C11.866 15 15 11.866 15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 9.15705 1.28072 10.2485 1.77778 11.21V15H8Z'
-        )
-        .fill(COLOR.COMMENT_LIGHT);
-      icon // outline
-        .path('M3.17778 10.8696V13.6H8C11.0928 13.6 13.6 11.0928 13.6 8C13.6 4.90721 11.0928 2.4 8 2.4C4.90721 2.4 2.4 4.90721 2.4 8C2.4 8.92813 2.62469 9.79968 3.02143 10.5671L3.17778 10.8696ZM15 8C15 11.866 11.866 15 8 15H1.77778V11.21C1.28072 10.2485 1 9.15705 1 8C1 4.13401 4.13401 1 8 1C11.866 1 15 4.13401 15 8Z')
-        .fill(COLOR.COMMENT_DARK);
-      icon.path('M0 0h24v24H0z').fill('none'); // anchors the symbol
-      return icon;
-    })()
-  );
-  SVGSYMBOLS.set(
-    // selected unread -- red outline yellow fill
-    'commentReadSelected',
-    (() => {
-      const icon = svg.symbol();
-      // Evan O'Neil https://drive.google.com/drive/folders/1fJ5WiLMVQxxaqghrCOFwegmnYoOvst7E
-      icon // fill
-        .path(
-          'M8 15C11.866 15 15 11.866 15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 9.15705 1.28072 10.2485 1.77778 11.21V15H8Z'
-        )
-        .fill(COLOR.COMMENT_READ);
-      icon // outline
-        .path('M3.17778 10.8696V13.6H8C11.0928 13.6 13.6 11.0928 13.6 8C13.6 4.90721 11.0928 2.4 8 2.4C4.90721 2.4 2.4 4.90721 2.4 8C2.4 8.92813 2.62469 9.79968 3.02143 10.5671L3.17778 10.8696ZM15 8C15 11.866 11.866 15 8 15H1.77778V11.21C1.28072 10.2485 1 9.15705 1 8C1 4.13401 4.13401 1 8 1C11.866 1 15 4.13401 15 8Z')
-        .fill(COLOR.COMMENT_READ);
-      icon.path('M0 0h24v24H0z').fill('none'); // anchors the symbol
-      return icon;
-    })()
-  );
-  SVGSYMBOLS.set(
-    // unselected read -- no outline gray fill
-    'commentRead',
-    (() => {
-      const icon = svg.symbol();
-      // Evan O'Neil https://drive.google.com/drive/folders/1fJ5WiLMVQxxaqghrCOFwegmnYoOvst7E
-      icon // fill
-        .path(
-          'M8 15C11.866 15 15 11.866 15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 9.15705 1.28072 10.2485 1.77778 11.21V15H8Z'
-        )
-        .fill('#fff');
-      icon // outline
-        .path('M3.17778 10.8696V13.6H8C11.0928 13.6 13.6 11.0928 13.6 8C13.6 4.90721 11.0928 2.4 8 2.4C4.90721 2.4 2.4 4.90721 2.4 8C2.4 8.92813 2.62469 9.79968 3.02143 10.5671L3.17778 10.8696ZM15 8C15 11.866 11.866 15 8 15H1.77778V11.21C1.28072 10.2485 1 9.15705 1 8C1 4.13401 4.13401 1 8 1C11.866 1 15 4.13401 15 8Z')
-        .fill(COLOR.COMMENT_READ);
-      icon.path('M0 0h24v24H0z').fill('none'); // anchors the symbol
       return icon;
     })()
   );

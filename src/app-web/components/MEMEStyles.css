@@ -35,6 +35,10 @@
   --clr-evlink-bg-hover: #e8faf7;
 
   --clr-comment: #ffe143;
+  --clr-comment-dark: #d44127;
+  --clr-comment-light: #ffe143;
+  --clr-comment-read-dark: #696969;
+  --clr-comment-read-light: #fff;
 
   --txt-size: 16px;
   --txt-size-lrg: 24px;
@@ -264,4 +268,33 @@ button.switch span {
 }
 .ev-title .ICNCountBadge {
   margin-right: 0.5rem;
+}
+
+/* -- SVG Comment ---------------------------- */
+.svgcmt-read .svg-fill {
+  fill: var(--clr-comment-read-light);
+}
+.svgcmt-read .svg-outline {
+  fill: var(--clr-comment-read-light);
+}
+
+.svgcmt-readSelected .svg-fill {
+  fill: var(--clr-comment-read-dark);
+}
+.svgcmt-readSelected .svg-outline {
+  fill: var(--clr-comment-read-dark);
+}
+
+.svgcmt-unread .svg-fill {
+  fill: var(--clr-comment-light);
+}
+.svgcmt-unread .svg-outline {
+  fill: var(--clr-comment-dark);
+}
+
+.svgcmt-unreadSelected .svg-fill {
+  fill: var(--clr-comment-dark);
+}
+.svgcmt-unreadSelected .svg-outline {
+  fill: var(--clr-comment-dark);
 }

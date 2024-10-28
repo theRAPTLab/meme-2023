@@ -54,14 +54,14 @@ class VProp {
     this.id = propId;
     this.data = Object.assign({}, DATA.Prop(propId)); // copy, not reference
     this.isOutcome = this.data.propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id;
-    this.gRoot = svgRoot.group(); // main reference group
+    this.gRoot = svgRoot.group().attr('class', 'gRoot'); // main reference group
     // this order is important
     this.visBG = this.gRoot.rect(this.width, this.height); // background
     this.visBG.attr({ cursor: 'pointer' });
-    this.gData = this.gRoot.group(); // main data properties
+    this.gData = this.gRoot.group().attr('class', 'gData'); // main data properties
     this.gDataName = this.gData.text(this.data.name.toUpperCase()); // label
     this.gDataName.attr('pointer-events', 'none');
-    this.gKids = this.gRoot.group(); // child components group
+    this.gKids = this.gRoot.group().attr('class', 'gKids') // child components group
     // other default properties
     this.width = m_minWidth;
     this.height = m_minHeight;

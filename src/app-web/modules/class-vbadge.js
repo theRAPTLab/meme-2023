@@ -6,7 +6,7 @@ const STATE = require('../../system/comment-mgr/lib/client-state');
 import CMTMGR from '../../system/comment-mgr/comment-mgr';
 import VMech from './class-vmech';
 
-const { VPROP, COLOR, SVGSYMBOLS, CREF_PREFIX } = DEFAULTS;
+const { VPROP, COLOR, SVGSYMBOLS, CREF_PREFIX, SVGDEFS } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -83,10 +83,9 @@ class VBadge {
      *           |
      *           +-- gEvLinkBadges (group)
      */
-    this.gBadges = vparent.GetVBadgeParent().group().attr('id', 'gBadges');
-    this.gStickyButtons = VBadge.SVGStickyButton(vparent, this.cref);
-    this.gBadges.add(this.gStickyButtons);
-    this.gEvLinkBadges = this.gBadges.group().attr('id', 'gEvLinkBadges');
+    this.gBadges = vparent.GetVBadgeParent().group().attr('class', 'gBadges');
+    this.gStickyButtons = VBadge.SVGStickyButton(this.gBadges, this.cref);
+    this.gEvLinkBadges = this.gBadges.group().attr('class', 'gEvLinkBadges');
 
     this.gBadges.click(e => { this.OnClick(e); });
 
@@ -340,19 +339,19 @@ class VBadge {
       if (hasUnreadComments) {
         // Unread
         if (commentThreadIsOpen) {
-          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentUnreadSelected'));
+          this.gStickyButtons.gIcon.attr('class', 'svgcmt-unreadSelected');
           this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_LIGHT });
         } else {
-          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentUnread'));
+          this.gStickyButtons.gIcon.attr('class', 'svgcmt-unread');
           this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_DARK });
         }
       } else {
         // Read
         if (commentThreadIsOpen) {
-          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentReadSelected'));
+          this.gStickyButtons.gIcon.attr('class', 'svgcmt-readSelected');
           this.gStickyButtons.gLabel.font({ fill: '#fff' });
         } else {
-          this.gStickyButtons.gIcon.use(SVGSYMBOLS.get('commentRead'));
+          this.gStickyButtons.gIcon.attr('class', 'svgcmt-read');
           this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_READ });
         }
       }
@@ -420,11 +419,11 @@ VBadge.SVGEvLink = (evlink, vparent) => {
   gEvLink.gLabel = gEvLink
     .text(evlink.numberLabel)
     .font({ fill: '#fff', size: '12px', anchor: 'middle' })
-    .dmove(badgeItemRadius / 2, badgeItemRadius / 2 + 4)
+    .move(badgeItemRadius / 2, badgeItemRadius / 2 + 4)
     .attr({ cursor: 'pointer' });
 
   gEvLink.gRating = new VBadge.SVGRating(evlink, gEvLink)
-    .dmove(badgeItemRadius * 0.9, 4.5);
+    .move(badgeItemRadius * 0.9, 4.5);
   return gEvLink;
 };
 
@@ -455,7 +454,7 @@ VBadge.SVGRating = (evlink, gEvLink) => {
  *  VProp's drag handler prevents click and mouseup events from propagating
  *  down to the gStickyButtons group, so we have to handle ourselves.
  */
-VBadge.SVGStickyButton = (vparent, cref) => {
+VBadge.SVGStickyButton = (gbadges, cref) => {
   const onClick = customEvent => {
     let e = customEvent.detail.event || customEvent; // class-vprop-dragdrop sends custom events, but vmech sends regular mouse events.
     e.preventDefault();
@@ -466,19 +465,17 @@ VBadge.SVGStickyButton = (vparent, cref) => {
 
   // create vbadge sub elements
   // 1. main gStickyButtons group
-  let gStickyButtons = vparent.gRoot
-    .group()
-    .attr({
-      id: 'gStickyNoteBtn',
-      cursor: 'pointer'
-    })
+  let gStickyButton = gbadges
+    .group().addClass('gStickyNoteBtn')
+    .attr({ cursor: 'pointer' })
     .click(onClick);
-  // 2. icon group
-  gStickyButtons.gIcon = gStickyButtons.group()
-    .use(SVGSYMBOLS.get('commentUnread'))
-    .scale(1.6);
+  // Using the svg defs requires using `clone`
+  gStickyButton.gIcon = gStickyButton.group()
+    .attr('class', 'svgcmt-read')
+    .add(SVGDEFS.get('comment').clone()).scale(1.6);
+
   // 3. comment count label group
-  gStickyButtons.gLabel = gStickyButtons.group()
+  gStickyButton.gLabel = gStickyButton
     // BUG: If text is empty (undefined or '' or even ' '), dragging leads to doubling the drag distance
     // BUG: Always set text to a non-empty string to avoid the bug
     .text('-')
@@ -486,7 +483,7 @@ VBadge.SVGStickyButton = (vparent, cref) => {
     .attr({ cursor: 'pointer' })
     .dmove(5.5, 10);
 
-  return gStickyButtons;
+  return gStickyButton;
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

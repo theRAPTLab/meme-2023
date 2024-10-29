@@ -32,7 +32,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { SVG } from '@svgdotjs/svg.js';
 import DEFAULTS from '../../../app-web/modules/defaults';
-const { SVGSYMBOLS } = DEFAULTS;
+const { SVGDEFS } = DEFAULTS;
 import './URComment.css';
 
 /// REACT FUNCTIONAL COMPONENT ////////////////////////////////////////////////
@@ -82,25 +82,29 @@ function URCommentSVGBtn({
     setLabel(commentCountLabel);
 
     // derive icon
-    let symbolName = 'commentUnread';
+    let symbolName = 'svgcmt--unread';
     if (hasReadComments && !hasUnreadComments) {
       // it's possible to have both read and unread comments
       // if there's anything unread, we want to mark it unread
-      if (selected) symbolName = 'commentReadSelected';
-      else symbolName = 'commentRead';
+      if (selected) symbolName = 'svgcmt-readSelected';
+      else symbolName = 'svgcmt-read-outlined';
     } else {
       // hasUnreadComments or no comments
-      if (selected) symbolName = 'commentUnreadSelected';
-      else symbolName = 'commentUnread';
+      if (selected) symbolName = 'svgcmt-unreadSelected';
+      else symbolName = 'svgcmt-unread';
     }
 
     const draw = SVG(svgRef.current);
     draw.clear();
-    draw.use(SVGSYMBOLS.get(symbolName)).transform({
-      translate: [4, 0], // center within 32,32
-      origin: 'top left', // seems to default to 'center' if not specified
-      scale: small ? 0.9 : 1.6
-    });
+    draw
+      .group()
+      .attr('class', 'svgcmt-read-outlined')
+      .add(SVGDEFS.get('comment').clone())
+      .transform({
+        translate: [4, 0], // center within 32,32
+        origin: 'top left', // seems to default to 'center' if not specified
+        scale: small ? 0.9 : 1.6
+      });
   }
 
   /// COMPONENT RENDER ////////////////////////////////////////////////////////

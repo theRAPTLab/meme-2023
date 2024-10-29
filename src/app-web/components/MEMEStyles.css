@@ -278,6 +278,13 @@ button.switch span {
   fill: var(--clr-comment-read-light);
 }
 
+.svgcmt-read-outlined .svg-fill {
+  fill: var(--clr-comment-read-light);
+}
+.svgcmt-read-outlined .svg-outline {
+  fill: var(--clr-comment-read-dark);
+}
+
 .svgcmt-readSelected .svg-fill {
   fill: var(--clr-comment-read-dark);
 }

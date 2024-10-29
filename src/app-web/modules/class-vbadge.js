@@ -5,8 +5,9 @@ const STATE = require('../../system/comment-mgr/lib/client-state');
 
 import CMTMGR from '../../system/comment-mgr/comment-mgr';
 import VMech from './class-vmech';
+import RATINGS from './class-ratings';
 
-const { VPROP, COLOR, SVGSYMBOLS, CREF_PREFIX, SVGDEFS } = DEFAULTS;
+const { VPROP, COLOR, SVGDEFS, CREF_PREFIX } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -18,13 +19,6 @@ const m_minHeight = VPROP.MIN_HEIGHT;
 const m_pad = 5; // was PAD.MIN, but that's too big.  5 works better
 const badgeItemRadius = m_minHeight - m_pad / 2; // each commentbtn/evlink badge
 const evlinkBadgeXOffset = badgeItemRadius * 1.75 + m_pad; // wide badge with rating embedded
-
-const RATINGS_ICONS = [];
-RATINGS_ICONS[-2] = 'ratingsDisagreeStrongly';
-RATINGS_ICONS[-1] = 'ratingsDisagree';
-RATINGS_ICONS[0] = 'ratingsNone';
-RATINGS_ICONS[1] = 'ratingsAgree';
-RATINGS_ICONS[2] = 'ratingsAgreeStrongly';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -419,11 +413,11 @@ VBadge.SVGEvLink = (evlink, vparent) => {
   gEvLink.gLabel = gEvLink
     .text(evlink.numberLabel)
     .font({ fill: '#fff', size: '12px', anchor: 'middle' })
-    .move(badgeItemRadius / 2, badgeItemRadius / 2 + 4)
+    .dmove(badgeItemRadius / 2, badgeItemRadius / 2 + 4)
     .attr({ cursor: 'pointer' });
 
   gEvLink.gRating = new VBadge.SVGRating(evlink, gEvLink)
-    .move(badgeItemRadius * 0.9, 4.5);
+    .dmove(badgeItemRadius * 0.9, 4.5);
   return gEvLink;
 };
 
@@ -440,7 +434,7 @@ VBadge.SVGRating = (evlink, gEvLink) => {
     .move(badgeItemRadius * 0.9, 4.5);
   gRatings.group().circle(18).fill('#fff');
   gRatings.group()
-    .use(SVGSYMBOLS.get(RATINGS_ICONS[rating === undefined ? 0 : rating]))
+    .add(RATINGS.getSVGIcon(rating))
     .move(1, 1);
   return gRatings;
 };

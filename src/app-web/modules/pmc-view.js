@@ -466,16 +466,14 @@ PMCView.DefineDefs = svg => {
 PMCView.DefineSymbols = svg => {
   const chatColor = COLOR.STICKY_BUTTON; // '#ffdd11'; // '#ffd300'; // yellow[800];
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /// StickyNote Icons
+  /// DEPRECATED StickyNote Icons
   SVGSYMBOLS.set(
     'chatIcon',
     (() => {
       const icon = svg.symbol();
       // from https://material.io/resources/icons/?icon=chat&style=baseline
       icon
-        .path(
-          'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z'
-        )
+        .path('M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z')
         .fill(chatColor);
       icon.path('M0 0h24v24H0z').fill('none');
       return icon;
@@ -500,15 +498,13 @@ PMCView.DefineSymbols = svg => {
       // from https://material.io/resources/icons/static/icons/baseline-chat_bubble_outline-24px.svg
       icon.path('M0 0h24v24H0V0z').fill('none');
       icon
-        .path(
-          'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z'
-        )
+        .path('M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z')
         .fill(chatColor);
       return icon;
     })()
   );
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  /// +/- Ratings Icons
+  /// DEPRECATED +/- Ratings Icons
   SVGSYMBOLS.set(
     'ratingsPositive',
     (() => {
@@ -525,9 +521,7 @@ PMCView.DefineSymbols = svg => {
       const icon = svg.symbol();
       // from https://fonts.gstatic.com/s/i/materialicons/clear/v1/24px.svg?download=true
       icon
-        .path(
-          'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'
-        )
+        .path('M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z')
         .fill(red[600]);
       icon.path('M0 0h24v24H0z').fill('none');
       return icon;
@@ -539,9 +533,7 @@ PMCView.DefineSymbols = svg => {
       const icon = svg.symbol();
       // from https://fonts.gstatic.com/s/i/materialicons/clear/v1/24px.svg?download=true
       icon
-        .path(
-          'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z'
-        )
+        .path('M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z')
         .fill(grey[600]);
       icon.path('M0 0h24v24H0z').fill('none');
       return icon;

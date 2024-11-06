@@ -668,7 +668,7 @@ class EVLink extends React.Component {
         isExpanded={isExpanded}
         disabled={!isBeingEdited}
         ratingLabel=""
-        ratingDefs={ratingDefs}
+        // ratingDefs={ratingDefs} Deprecated.  Ratings are now burnt in.
         OnRatingButtonClick={this.OnRatingButtonClick}
       />
     );

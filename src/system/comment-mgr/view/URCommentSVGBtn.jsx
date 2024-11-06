@@ -82,23 +82,23 @@ function URCommentSVGBtn({
     setLabel(commentCountLabel);
 
     // derive icon
-    let symbolName = 'svgcmt--unread';
+    let svgDefKey = 'svgcmt-unread';
     if (hasReadComments && !hasUnreadComments) {
       // it's possible to have both read and unread comments
       // if there's anything unread, we want to mark it unread
-      if (selected) symbolName = 'svgcmt-readSelected';
-      else symbolName = 'svgcmt-read-outlined';
+      if (selected) svgDefKey = 'svgcmt-readSelected';
+      else svgDefKey = 'svgcmt-read-outlined';
     } else {
       // hasUnreadComments or no comments
-      if (selected) symbolName = 'svgcmt-unreadSelected';
-      else symbolName = 'svgcmt-unread';
+      if (selected) svgDefKey = 'svgcmt-unreadSelected';
+      else svgDefKey = 'svgcmt-unread';
     }
 
     const draw = SVG(svgRef.current);
     draw.clear();
     draw
       .group()
-      .attr('class', 'svgcmt-read-outlined')
+      .attr('class', svgDefKey)
       .add(SVGDEFS.get('comment').clone())
       .transform({
         translate: [4, 0], // center within 32,32

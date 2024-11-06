@@ -81,13 +81,12 @@ function URCommentSVGBtn({
     const commentCountLabel = count > 0 ? count : '';
     setLabel(commentCountLabel);
 
-    // derive icon
     let svgDefKey = 'svgcmt-unread';
-    if (hasReadComments && !hasUnreadComments) {
+    if ((hasReadComments && !hasUnreadComments) || count === '' || count === 0) {
       // it's possible to have both read and unread comments
       // if there's anything unread, we want to mark it unread
       if (selected) svgDefKey = 'svgcmt-readSelected';
-      else svgDefKey = 'svgcmt-read-outlined';
+      else svgDefKey = 'svgcmt-read-outlined'; // only vprops use non-outlined
     } else {
       // hasUnreadComments or no comments
       if (selected) svgDefKey = 'svgcmt-unreadSelected';

@@ -569,7 +569,7 @@ MOD.CloseAllCommentCollectionsWithoutMarkingRead = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.GetCommentCollectionCount = cref => {
   const ccol = COMMENT.GetCommentCollection(cref);
-  return ccol ? ccol.commentCount : '';
+  return ccol ? ccol.commentCount : ''; // display blank if no comments
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.GetCommentStats = () => {

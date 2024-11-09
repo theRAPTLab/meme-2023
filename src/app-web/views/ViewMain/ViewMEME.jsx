@@ -48,6 +48,7 @@ import DATA from '../../modules/data';
 import ADM from '../../modules/data';
 import ASET from '../../modules/adm-settings';
 import DATAMAP from '../../../system/common-datamap';
+import RATINGS from '../../modules/class-ratings';
 // MEME Comment Components
 import CMTMGR from '../../../system/comment-mgr/comment-mgr';
 import URCommentStatus from '../../../system/comment-mgr/view/URCommentStatus';
@@ -218,6 +219,7 @@ class ViewMEME extends React.Component {
     const userStudentId = ADM.GetAuthorId();
     const userGroupId = ADM.GetGroupIdByStudent(userStudentId);
     const isModelAuthor = userGroupId === (model ? model.groupId : '');
+    RATINGS.updateDefinitions(ADM.GetRatingsDefinition(ADM.GetSelectedClassroomId()));
     this.setState({
       title,
       modelId,

@@ -40,6 +40,7 @@ import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WRatingsList.css';
 
+import WRatingIcon from './WRatingIcon';
 import WRatingButton from './WRatingButton';
 
 // import RATINGS from './WRatings';
@@ -62,94 +63,54 @@ function WRatingsList({
   // RatingsDef, // deprecated -- ratings are now burnt in.
   Mode,
   SelectedRating,
-  // UpdateField, // deprecated -- ratings are now burnt in.
+  UpdateField,
   OnRatingSelect
 }) {
-  const ratingsValues = RATINGS.getListOrder();
+  const ratingsDefs = RATINGS.getDefinitions();
   return (
     <div className="WRatingsList">
-      {ratingsValues.map(rating => (
-        <div
-          key={rating}
-          className={`rating transparent ${SelectedRating === rating ? 'primary' : ''}`}
-        >
-          <WRatingButton
-            rating={rating}
-            isExpanded={true}
-            disabled={SelectedRating === rating || Mode === 'inactive'}
-            ratingLabel=""
-            OnRatingButtonClick={OnRatingSelect}
-          />
-        </div>
-      ))}
+      {ratingsDefs.map(def => {
+        switch (Mode) {
+          case 'edit':
+            return (
+              <div
+                key={def.rating}
+                className={`rating transparent ${SelectedRating === def.rating ? 'primary' : ''}`}
+              >
+                <WRatingIcon rating={def.rating} />
+                <input
+                  value={def.label}
+                  placeholder="Label"
+                  onChange={e => UpdateField(def.rating, e.target.value)}
+                />
+              </div>
+            );
+          default:
+            return (
+              <div
+                key={def.rating}
+                className={`rating WRatingButton transparent ${SelectedRating === def.rating ? 'primary' : ''}`}
+              >
+                <WRatingButton
+                  rating={def.rating}
+                  isExpanded={true}
+                  disabled={SelectedRating === def.rating || Mode === 'inactive'}
+                  ratingLabel=""
+                  OnRatingButtonClick={OnRatingSelect}
+                />
+              </div>
+            );
+        }
+      })}
     </div>
   );
 }
-
-// Keep for reference
-// If we need to restore the ability to edit the labels in the admin
-// interface, we can use this code.
-// class DEPRECATEDWRatingsList extends React.Component {
-//   constructor(props) {
-//     super(props);
-//   }
-
-//   componentDidMount() {}
-
-//   componentWillUnmount() {}
-
-//   render() {
-//     const { SelectedRating, RatingsDef, Mode, UpdateField, OnRatingSelect } =
-//       this.props;
-
-//     let ratingsDef = RatingsDef;
-
-//     return (
-//       <div className="WRatingsList">
-//         {ratingsDef.map(def => {
-//           switch (Mode) {
-//             case 'edit':
-//               return (
-//                 <div className="rating transparent" key={def.rating}>
-//                   <div>{RATINGS.getIcon(def.rating)}</div>
-//                   <input
-//                     value={def.label}
-//                     placeholder="Label"
-//                     onChange={e => UpdateField(def.rating, e.target.value)}
-//                   />
-//                 </div>
-//               );
-//             case 'active':
-//               return (
-//                 <button
-//                   className={`rating transparent ${SelectedRating === String(def.rating) ? 'primary' : ''}`}
-//                   key={def.label}
-//                   onClick={e => OnRatingSelect(e, def.rating)}
-//                 >
-//                   <div>{RATINGS.getIcon(def.rating)}</div>
-//                   <div>{def.label}</div>
-//                 </button>
-//               );
-//             case 'inactive':
-//             default:
-//               return (
-//                 <div className="rating transparent" key={def.label}>
-//                   <div>{RATINGS.getIcon(def.rating)}</div>
-//                   <div>{def.label}</div>
-//                 </div>
-//               );
-//           }
-//         })}
-//       </div>
-//     );
-//   }
-// }
 
 WRatingsList.propTypes = {
   SelectedRating: PropTypes.string, // optional
   // RatingsDef: PropTypes.array, // deprecated -- ratings are now burnt in.
   Mode: PropTypes.string,
-  // UpdateField: PropTypes.func, // deprecated -- ratings are now burnt in.
+  UpdateField: PropTypes.func,
   OnRatingSelect: PropTypes.func // optional
 };
 
@@ -157,9 +118,9 @@ WRatingsList.defaultProps = {
   SelectedRating: '',
   // RatingsDef: [], // deprecated -- ratings are now burnt in.
   Mode: 'inactive',
-  // UpdateField: () => { // deprecated -- ratings are now burnt in.
-  //   console.error('Missing UpdateField handler');
-  // },
+  UpdateField: () => {
+    console.error('Missing UpdateField handler');
+  },
   OnRatingSelect: () => {
     console.error('OnRatingSelect handler not defined (but optional)');
   }

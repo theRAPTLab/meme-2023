@@ -1430,7 +1430,7 @@ ADMData.DB_RatingsUpdate = (classroomId, ratingsDef) => {
 
 /**
  * @param {Integer} classroomId
- * @return {Array} [ratingsDefition] -- Array of ratings defintion objects,
+ * @return {Array} [ratingsDefition] -- Array of ratings definition objects,
  *                                      Returns [] if not found
  */
 ADMData.GetRatingsDefinitionObject = classroomId => {

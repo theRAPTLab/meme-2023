@@ -670,7 +670,7 @@ class ViewMEME extends React.Component {
         <WPropDialog />
         {/* General Information Dialog */}
         <WInfoDialog />
-        <StickyNoteCollection />
+        {/* <StickyNoteCollection /> DEPRECATED for URComent */}
         <WRatingsDialog />
         <WMechDialog />
         <WScreenshotView />

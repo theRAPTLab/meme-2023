@@ -850,6 +850,7 @@ ADMData.DB_NewModel = (data, cb) => {
  * @param {string} date
  */
 ADMData.OnModelModificationUpdate = data => {
+  if (DBG) console.log('%cADM_MODEL_MODIFIED', 'background-color: #66F', data);
   if (data === undefined || data.modelId === undefined)
     throw Error('ADM_MODEL_MODIFIED called with no modelId');
   ADMData.DB_ModelModificationUpdate(data.modelId);

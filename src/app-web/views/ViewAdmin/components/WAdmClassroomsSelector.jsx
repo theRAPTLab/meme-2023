@@ -70,7 +70,8 @@ class WClassroomsSelector extends React.Component {
   DoClassroomListUpdate() {
     const classrooms = ADM.GetClassroomsByTeacher();
     const selectedClassroomId =
-      classrooms && classrooms.length > 0 ? classrooms[0].id : '';
+      this.state.selectedClassroomId ||
+      (classrooms && classrooms.length > 0 ? classrooms[0].id : '');
     this.setState({ classrooms }, () => ADM.SelectClassroom(selectedClassroomId));
   }
 

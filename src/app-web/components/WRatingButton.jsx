@@ -56,6 +56,7 @@ import './WRatingButton.css';
 
 // import RATINGS from './WRatings';  // deprecated -- ratings are now burnt in.
 import RATINGS from '../modules/class-ratings';
+import WRatingIcon from './WRatingIcon';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -69,35 +70,7 @@ function WRatingButton({
   disabled,
   OnRatingButtonClick // handler defined in WRatingsDialog
 }) {
-  const svgRef = useRef(null);
-  const size = 24;
   const label = RATINGS.getLabel(rating);
-
-  /// USEEFFECT ///////////////////////////////////////////////////////////////
-  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  useEffect(() => {
-    const draw = SVG(svgRef.current);
-    c_DrawRatingIcon();
-
-    return () => {
-      draw.remove();
-    };
-  }, []);
-
-  useEffect(() => {
-    c_DrawRatingIcon();
-  }, [rating, isExpanded, disabled]);
-
-  /// COMPONENT HELPER METHODS ////////////////////////////////////////////////
-  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  function c_DrawRatingIcon() {
-    const draw = SVG(svgRef.current);
-    draw.clear();
-    draw.group().add(RATINGS.getSVGIcon(rating)).transform({
-      origin: 'top left', // seems to default to 'center' if not specified
-      scale: 1.6
-    });
-  }
 
   /// COMPONENT RENDER ////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -107,8 +80,7 @@ function WRatingButton({
       onClick={e => OnRatingButtonClick(e, rating)}
       disabled={disabled}
     >
-      <svg ref={svgRef} width={size} height={size} />
-      &nbsp;&nbsp;
+      <WRatingIcon rating={rating} /> &nbsp;&nbsp;
       <div>{isExpanded ? label : ''}</div>
     </button>
   );

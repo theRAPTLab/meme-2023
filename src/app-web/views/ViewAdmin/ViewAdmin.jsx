@@ -11,6 +11,9 @@ import PropTypes from 'prop-types';
 import '../../components/MEMEStyles.css';
 import './ViewAdmin.css';
 
+// Need to import this to load the svg defs
+import PMCView from '../../modules/pmc-view.js';
+
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import UR from '../../../system/ursys';
@@ -41,6 +44,7 @@ class ViewAdmin extends React.Component {
   // constructor
   constructor(props) {
     super(props);
+    this.refSVGContainer = React.createRef();
     UR.ReactPreflight(ViewAdmin, module);
     this.cstrName = this.constructor.name;
 
@@ -52,6 +56,10 @@ class ViewAdmin extends React.Component {
   }
 
   componentDidMount() {
+    // LIFECYCLE: Initialize ViewGraph
+    // This is needed to initialize the SVG ratings icons
+    PMCView.InitializeViewgraph(this.refSVGContainer.current);
+
     if (DBG) console.log(`<${this.cstrName}> mounted`);
   }
 
@@ -81,6 +89,7 @@ class ViewAdmin extends React.Component {
         <WResourcesList />
         {/* General Information Dialog */}
         <WInfoDialog />
+        <svg id="svgDefs" ref={this.refSVGContainer} />
       </div>
     );
   }

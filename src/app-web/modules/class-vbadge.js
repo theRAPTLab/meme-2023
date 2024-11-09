@@ -78,7 +78,7 @@ class VBadge {
      *           +-- gEvLinkBadges (group)
      */
     this.gBadges = vparent.GetVBadgeParent().group().attr('class', 'gBadges');
-    this.gStickyButtons = VBadge.SVGStickyButton(this.gBadges, this.cref);
+    this.gStickyButtons = VBadge.SVGStickyButton(this.gBadges, this.cref, this.isVMech);
     this.gEvLinkBadges = this.gBadges.group().attr('class', 'gEvLinkBadges');
 
     this.gBadges.click(e => { this.OnClick(e); });
@@ -345,7 +345,7 @@ class VBadge {
           this.gStickyButtons.gIcon.attr('class', 'svgcmt-readSelected');
           this.gStickyButtons.gLabel.font({ fill: '#fff' });
         } else {
-          this.gStickyButtons.gIcon.attr('class', 'svgcmt-read');
+          this.gStickyButtons.gIcon.attr('class', this.isVMech ? 'svgcmt-read-outlined' : 'svgcmt-read');
           this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_READ });
         }
       }

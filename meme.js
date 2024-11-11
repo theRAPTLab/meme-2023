@@ -23,12 +23,14 @@ const process = require('process');
 const child_process = require('child_process');
 const shell = require('shelljs');
 const argv = require('minimist')(process.argv.slice(1));
+const dotenv = require('dotenv');
 const { signAsync } = require('@electron/osx-sign');
 const electronNotarize = require('@electron/notarize');
 require('dotenv').config();
 const PROMPTS = require('./src/system/util/prompts');
 const URSERVER = require('./src/system/server.js');
 const MTERM = require('./src/cli/meme-term');
+const { readFileSync, existsSync } = require('fs');
 
 if (!shell.which('git')) {
   shell.echo(`\x1b[30;41m You must have git installed to run the MEME devtool \x1b[0m`);
@@ -329,37 +331,47 @@ function f_DeployWebTurbo360() {
   shell.cd('./dist');
 
   try {
+    // TODO: Need to silence the error response .. only..
+    // TODO: Return an error if the user cancels without selecting a project ?
     child_process.execFileSync('npx turbo', [ 'connect'] , { stdio: 'inherit', shell: true });
   } catch (err) {
-    console.log('Error?', JSON.stringify(err))
     if (err.status !== 0) {
       f_HandleDeployError(res.code);
-      process.exit(1);  // TODO: Consider better exit code
+      process.exit(1);
     }
-
-    // console.error(PR, 'Unable to connect your local project to Turbo 360');
-    // console.error(PR, `\t${err}`);
-    // process.exit(1);
   }
+
+  // .env file contains the slug
+  if (!existsSync('.env')) {
+    console.log(PR, `You must connect your local project to a Turbo-360 project by selecting an option`);
+    process.exit(1);
+  }
+
+  const { TURBO_PROJECT = null, TURBO_PROJECT_SLUG = null }
+    = dotenv.parse(readFileSync('.env') ?? '');
 
   // Second, do the two deployment steps:
   // TODO: Consider adding the project that is being deployed
-  console.log(PR, `Deploying to ${CY}Turbo-360${TR}...`);
+  console.log(PR, `Deploying to ${CY}Turbo-360${TR} Project ${CY}${TURBO_PROJECT}${TR}`);
   console.log(PR, `Please wait, this process may take several minutes....`);
   try {
     res = shell.exec('npx turbo deploy', { silent: true });
     if (res.code !== 0) {
       f_HandleDeployError(res.code);
-      process.exit(1);  // TODO: Consider better exit code
+      process.exit(1);
     }
 
     res = shell.exec('npx turbo deploy -t static', { silent: true });
     if (res.code !== 0) {
       f_HandleDeployError(res.code);
-      process.exit(1); // TODO: Consider better exit code
+      process.exit(1);
     }
 
-    console.log('Deployment complete');
+    // TODO: Include the link to the staging link
+    const url = `https://${TURBO_PROJECT_SLUG}`;
+    console.log('\nDeployment complete, you can access the site using the following URLs:');
+    console.log(`\tAdmin Panel: ${url}/#/admin?danishpowers`);
+    console.log(`\tApplication: ${url}/#/`);
   } catch (err) {
     // Unexpected errors
     console.log(PR, `unexpected error during Turbo-360 deployment: ${err}`);

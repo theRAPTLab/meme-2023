@@ -324,7 +324,7 @@ class VBadge {
 
     // update sticky button icons and comment count label
     // this replicates what URCommentBtn usually handles
-    if (!hasComments && !this.hover && !commentThreadIsOpen) {
+    if (!hasComments && !this.hover && !commentThreadIsOpen && !vparent.visualState.IsSelected()) {
       // no sticky buttons
       this.gStickyButtons.attr({ visibility: 'hidden' });
     } else {

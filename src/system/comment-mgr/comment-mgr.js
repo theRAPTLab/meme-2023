@@ -274,7 +274,7 @@ MOD.GetCommentBtnPosition = cref => {
  * or shifting it up if it's too close to the bottom of the screen.
  * x,y is the position of the comment button, offsets are then caclulated
  */
-MOD.GetCommentCollectionPosition = ({ x, y }) => {
+MOD.GetCommentCollectionPosition = ({ x, y }, isExpanded) => {
   const windowWidth = Math.min(screen.width, window.innerWidth);
   const windowHeight = Math.min(screen.height, window.innerHeight);
   let newX;
@@ -284,8 +284,9 @@ MOD.GetCommentCollectionPosition = ({ x, y }) => {
     newX = x + CMTBTNOFFSET * 2;
   }
   let newY = y + window.scrollY;
-  if (windowHeight - y < 150) {
-    newY = y - 150;
+  if (windowHeight - y < 250) {
+    if (isExpanded) newY = y - 250;
+    else newY = y - 150;
   } else {
     newY = y - CMTBTNOFFSET;
   }
@@ -482,7 +483,8 @@ MOD.OpenCommentCollection = (cref, position) => {
     return; // already open, close it
   }
   // 1. Position the window to the right of the click
-  const collectionPosition = MOD.GetCommentCollectionPosition(position);
+  const commentThreadWindowIsExpanded = MOD.GetCommentCollectionCount(cref);
+  const collectionPosition = MOD.GetCommentCollectionPosition(position, commentThreadWindowIsExpanded);
 
   // 2. Update the state
   MOD.UpdateCommentUIState(cref, { cref, isOpen: true });

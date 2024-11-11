@@ -121,7 +121,8 @@ function URCommentThread({ uiref, cref, uid, x, y }) {
 
   // HACK: To keep the comment from going off screen:
   const windowHeight = Math.min(screen.height, window.innerHeight);
-  const commentMaxHeight = `${windowHeight - y - 100}px`;
+  // max 350 ensures that comments near the bottom of the screen
+  const commentMaxHeight = `${Math.max(350, windowHeight - y - 100)}px`;
 
   const { typeLabel, sourceLabel } = CMTMGR.GetCREFSourceLabel(cref);
 

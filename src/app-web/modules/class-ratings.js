@@ -6,7 +6,7 @@ const { SVGDEFS } = DEFAULTS;
 const DEFAULT_RATING = 0;
 const DEFAULT_DEFINITIONS = [
   {
-    label: 'code', // 'Strongly Agrees',
+    label: 'Strongly Agrees',
     rating: 2,
     svgdefKey: 'ratingsAgreeStrongly'
   },

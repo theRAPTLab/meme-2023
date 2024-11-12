@@ -547,8 +547,14 @@ svg#comment-icon {
   border: 1px solid;
   border-color: var(--comment-status-font-color);
 }
+.comment .prompt button.selected:disabled {
+  opacity: 0.9;
+}
 .comment .prompt button.notselected {
-  opacity: 0.5;
+  opacity: 0.1;
+}
+.comment .prompt button.notselected:hover {
+  opacity: 0.3;
 }
 
 /* URCommentCollectionMgr ----------------------------------------------------------- */

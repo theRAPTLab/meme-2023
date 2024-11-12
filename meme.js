@@ -288,8 +288,8 @@ function f_PackageWebTurbo360(template = '_blank') {
   );
   u_checkError(res);
 
-  // Prepare a local copy of the Turbo360 NodeJS/Express base template
-  // See: https://github.com/Vertex-Labs/base-template
+  // Prepare a local copy of the Turbo360 NodeJS/Express base template customized for MEME
+  // See: https://github.com/Vertex-Labs/base-template-meme
   console.log(PR, `cloning latest ${CY}Turbo-360${TR} base template into ./dist`);
   res = shell.exec('git clone https://github.com/Vertex-Labs/base-template-meme.git dist', { silent: true });
   if (res.code !== 0) {
@@ -331,8 +331,6 @@ function f_DeployWebTurbo360() {
   shell.cd('./dist');
 
   try {
-    // TODO: Need to silence the error response .. only..
-    // TODO: Return an error if the user cancels without selecting a project ?
     child_process.execFileSync('npx turbo', [ 'connect'] , { stdio: 'inherit', shell: true });
   } catch (err) {
     if (err.status !== 0) {
@@ -351,7 +349,6 @@ function f_DeployWebTurbo360() {
     = dotenv.parse(readFileSync('.env') ?? '');
 
   // Second, do the two deployment steps:
-  // TODO: Consider adding the project that is being deployed
   console.log(PR, `Deploying to ${CY}Turbo-360${TR} Project ${CY}${TURBO_PROJECT}${TR}`);
   console.log(PR, `Please wait, this process may take several minutes....`);
   try {
@@ -367,8 +364,7 @@ function f_DeployWebTurbo360() {
       process.exit(1);
     }
 
-    // TODO: Include the link to the staging link
-    const url = `https://${TURBO_PROJECT_SLUG}`;
+    const url = `https://${TURBO_PROJECT_SLUG}.turbo360-staging.com`;
     console.log('\nDeployment complete, you can access the site using the following URLs:');
     console.log(`\tAdmin Panel: ${url}/#/admin?danishpowers`);
     console.log(`\tApplication: ${url}/#/`);
@@ -384,7 +380,7 @@ function f_DeployWebTurbo360() {
   // Local function
   function f_HandleDeployError(exitCode) {
     if (exitCode) {
-      // TODO: This should ideally be exported from the CLI tool, or alternatively, the CLI tool
+      // FUTURE: This should ideally be exported from the CLI tool, or alternatively, the CLI tool
       //  should expose a programmatic interface rather than mediate this through the shell
       const TURBO360_ERRORS = {
         // General errors

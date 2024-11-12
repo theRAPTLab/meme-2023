@@ -52,12 +52,10 @@ function m_getSVGDefKey(rating) {
     if (defDefault && defDefault.svgdefKey) {
       svgdefKey = defDefault.svgdefKey;
     } else {
-      m_getDefinition(DEFAULT_RATING).svgdefKey;
+      svgdefKey = m_getDefinition(DEFAULT_RATING).svgdefKey;
     }
   }
   return svgdefKey;
-  // = def ? def.svgdefKey : null;
-  // return def ? def.svgdefKey : m_getDefinition(DEFAULT_RATING).svgdefKey;
 };
 
 
@@ -76,6 +74,8 @@ RATINGS.updateDefinitions = newDefs => {
 
 RATINGS.getSVGIcon = rating => {
   const svgdefKey = m_getSVGDefKey(rating);
+  const def = SVGDEFS.get(svgdefKey);
+  if (!def) console.error('No SVG definition found for rating:', rating, 'svgdefKey:', svgdefKey);
   return SVGDEFS.get(svgdefKey).clone();
 };
 

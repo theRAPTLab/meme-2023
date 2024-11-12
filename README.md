@@ -6,9 +6,9 @@ The software is designed to work in a classroom setting.  The core software runs
 
 **Note**: this software is a work in progress, and is provided as-is. While we have tested it succesfully in our own context, we make no warranty about how it will run in your context nor about its security (we recomend using de-identified data only if you are not using it in a secure environment). Please evaluate it on your own before implementing.
 
-See the [1.3.1](https://github.com/theRAPTLab/meme/releases/tag/v1.3.1-final) and [1.3.0 Release Notes](https://github.com/theRAPTLab/meme/releases/tag/v1.3.0-final) for information on the latest features.  You can also view all [Release Notes](https://github.com/theRAPTLab/meme/releases) by browsing Tags.
+See the [1.3.1](../../releases/tag/v1.3.1-final) and [1.3.0 Release Notes](../../releases/tag/v1.3.0-final) for information on the latest features.  You can also view all [Release Notes](../../releases) by browsing Tags.
 
-See the [Wiki Home](https://github.com/theRAPTLab/meme/wiki) for End User Instructions.
+See the [Wiki Home](../../wiki) for End User Instructions.
 
 Please visit [modelingandevidence.org](http://modelingandevidence.org) for more information about the MEME project.
 
@@ -31,13 +31,13 @@ Running the system involves building and packaging the application, and starting
 
 ### I.A. Check Out Local Server Code
 
-This assumes you've already installed NodeJS.  If you haven't, we recommend using [nvm](https://github.com/nvm-sh/nvm).  This will allow you to select different Node versions.  As of November 2019, we are currently using Node Version 10.9.0.
+This assumes you've already installed NodeJS.  If you haven't, we recommend using [nvm](https://github.com/nvm-sh/nvm).  This will allow you to select different Node versions.  As of June 11th, 2024, we are using the latest release of LTS/Hydrogen (v18.20.3).
 
 1. Check out the `dev` branch.
-1. If you're using `nvm`, type `nvm use` to auto-load the recommended Node version (10.9.0).  You may also need to type `nvm install` to install 10.9 if it's not already installed on your machine.
-2. `npm ci` -- You might need to install some packages before doing a clean.
-3. `npm run clean:all` -- Remove all existing database and node modules.
-4. `npm ci` -- Install node modules
+2. If you're using `nvm`, type `nvm use` to auto-load the recommended Node version (lts/hydrogen, currently 18.20.3).  You may also need to type `nvm install` to install this version if it's not already installed on your machine.
+3. `npm ci` -- You might need to install some packages before doing a clean.
+4. `npm run clean:all` -- Remove all existing database and node modules.
+5. `npm ci` -- Install node modules
 
 ### I.B. Download Resources
 
@@ -89,8 +89,8 @@ NOTE: Because the `meme.app` Electron app is not signed and notarized, you may h
 
 
 For more technical information about creating and managing the dataset, see:
-* [Dataset Editing for Curriculum Development](https://github.com/theRAPTLab/meme/wiki/Dataset-Editing-for-Curriculum-Development).
-* [Dataset Management](https://github.com/theRAPTLab/meme/wiki/Dataset-Management)
+* [Dataset Editing for Curriculum Development](../../wiki/Dataset-Editing-for-Curriculum-Development).
+* [Dataset Management](../../wiki/Dataset-Management)
 
 
 
@@ -223,8 +223,8 @@ The snapshot time corresponds to the snapshot log, e.g. `2020-0209-log-124525.lo
 ## Getting Ready
 
 * Managing Datasets
-  * [Dataset Editing for Curriculum Development](https://github.com/theRAPTLab/meme/wiki/Dataset-Editing-for-Curriculum-Development)
-  * [Dataset Management](https://github.com/theRAPTLab/meme/wiki/Dataset-Management)
+  * [Dataset Editing for Curriculum Development](../../wiki/Dataset-Editing-for-Curriculum-Development)
+  * [Dataset Management](../../wiki/Dataset-Management)
 * Deploying
-  * [Deploy Electron](https://github.com/theRAPTLab/meme/wiki/Deploy-Electron)
-  * Digital Ocean Deployment [deploying on digital ocean](https://github.com/theRAPTLab/meme/wiki/Digital-Ocean-Deployment)*(Placeholder only)*
+  * [Deploy Electron](../../wiki/Deploy-Electron)
+  * Digital Ocean Deployment [deploying on digital ocean](../../wiki/Digital-Ocean-Deployment)*(Placeholder only)*

@@ -280,9 +280,6 @@ function f_PackageWebTurbo360(template = '_blank') {
 
   // Bundle the MEME web application
   let res = shell.exec(
-    // note: to pass an enviroment setting to the webpack config script, add --env.MYSETTING='value'
-    // Using the 'dist' configuration (which is for Electron) to avoid the hard-coded 'development'
-    //  configuration and inclusion of Hot Module Reload
     `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.dist.config.js`,
     { silent: true }
   );
@@ -291,19 +288,28 @@ function f_PackageWebTurbo360(template = '_blank') {
   // Prepare a local copy of the Turbo360 NodeJS/Express base template customized for MEME
   // See: https://github.com/Vertex-Labs/base-template-meme
   console.log(PR, `cloning latest ${CY}Turbo-360${TR} base template into ./dist`);
-  res = shell.exec('git clone https://github.com/Vertex-Labs/base-template-meme.git dist', { silent: true });
+  res = shell.exec(
+    'git clone https://github.com/Vertex-Labs/base-template-meme.git dist',
+    { silent: true }
+  );
   if (res.code !== 0) {
-    console.error(PR, `${CR}Unable to clone Turbo 360 Base Template - do you have access?${TR}:`);
+    console.error(
+      PR,
+      `${CR}Unable to clone Turbo 360 Base Template - do you have access?${TR}:`
+    );
     process.exit(1);
   }
 
   res = shell.rm('-rf', './dist/.git');
 
-  console.log(PR, `installing ${CY}Turbo-360${TR} Node dependencies...`)
+  console.log(PR, `installing ${CY}Turbo-360${TR} Node dependencies...`);
   shell.cd('./dist');
   res = shell.exec('npm i --omit=dev', { silent: true });
   if (res.code !== 0) {
-    console.error(PR, `${CR}Unable to install Turbo 360 Base Template NodeJS dependencies${TR}`);
+    console.error(
+      PR,
+      `${CR}Unable to install Turbo 360 Base Template NodeJS dependencies${TR}`
+    );
     console.error(PR, `\t${res.stderr}`);
     process.exit(1);
   }
@@ -318,7 +324,10 @@ function f_PackageWebTurbo360(template = '_blank') {
   fs.copySync(`./templates/${template}/resources`, './dist/public/resources');
 
   console.log(PR, `${CY}Turbo-360 packaging complete${TR}`);
-  console.log(PR, `To deploy, type ${CY}npm run deploy-turbo360${TR} and follow the prompts`);
+  console.log(
+    PR,
+    `To deploy, type ${CY}npm run deploy-turbo360${TR} and follow the prompts`
+  );
 }
 
 function f_DeployWebTurbo360() {
@@ -331,7 +340,10 @@ function f_DeployWebTurbo360() {
   shell.cd('./dist');
 
   try {
-    child_process.execFileSync('npx turbo', [ 'connect'] , { stdio: 'inherit', shell: true });
+    child_process.execFileSync('npx turbo', ['connect'], {
+      stdio: 'inherit',
+      shell: true
+    });
   } catch (err) {
     if (err.status !== 0) {
       f_HandleDeployError(res.code);
@@ -340,16 +352,23 @@ function f_DeployWebTurbo360() {
   }
 
   // .env file contains the slug
-  if (!existsSync('.env')) {
-    console.log(PR, `You must connect your local project to a Turbo-360 project by selecting an option`);
+  if (!fs.existsSync('.env')) {
+    console.log(
+      PR,
+      `You must connect your local project to a Turbo-360 project by selecting an option`
+    );
     process.exit(1);
   }
 
-  const { TURBO_PROJECT = null, TURBO_PROJECT_SLUG = null }
-    = dotenv.parse(readFileSync('.env') ?? '');
+  const { TURBO_PROJECT = null, TURBO_PROJECT_SLUG = null } = dotenv.parse(
+    fs.readFileSync('.env') ?? ''
+  );
 
   // Second, do the two deployment steps:
-  console.log(PR, `Deploying to ${CY}Turbo-360${TR} Project ${CY}${TURBO_PROJECT}${TR}`);
+  console.log(
+    PR,
+    `Deploying to ${CY}Turbo-360${TR} Project ${CY}${TURBO_PROJECT}${TR}`
+  );
   console.log(PR, `Please wait, this process may take several minutes....`);
   try {
     res = shell.exec('npx turbo deploy', { silent: true });
@@ -365,15 +384,16 @@ function f_DeployWebTurbo360() {
     }
 
     const url = `https://${TURBO_PROJECT_SLUG}.turbo360-staging.com`;
-    console.log('\nDeployment complete, you can access the site using the following URLs:');
+    console.log(
+      '\nDeployment complete, you can access the site using the following URLs:'
+    );
     console.log(`\tAdmin Panel: ${url}/#/admin?danishpowers`);
     console.log(`\tApplication: ${url}/#/`);
   } catch (err) {
     // Unexpected errors
     console.log(PR, `unexpected error during Turbo-360 deployment: ${err}`);
     process.exit(-1);
-  }
-  finally {
+  } finally {
     shell.cd(__dirname);
   }
 
@@ -391,7 +411,7 @@ function f_DeployWebTurbo360() {
         // Deploy-specific errors
         PROJECT_NOT_CONNECTED: { exitCode: 100 },
         PROJECT_NOT_FOUND: { exitCode: 101 },
-        NOT_AUTHORIZED: { exitCode: 102 },
+        NOT_AUTHORIZED: { exitCode: 102 }
       };
 
       // Non-zero exit code, interpret it
@@ -401,21 +421,33 @@ function f_DeployWebTurbo360() {
           break;
 
         case TURBO360_ERRORS.PROJECT_NOT_CONNECTED:
-          console.log(PR, `Your local codebase must be connected to a ${CY}Turbo-360${TR} project to continue.`);
+          console.log(
+            PR,
+            `Your local codebase must be connected to a ${CY}Turbo-360${TR} project to continue.`
+          );
           break;
 
         case TURBO360_ERRORS.PROJECT_NOT_FOUND:
         case TURBO360_ERRORS.NOT_AUTHORIZED:
-          console.log(PR, `The specified ${CY}Turbo-360${TR} project does not exist or you do not have access to it.`);
+          console.log(
+            PR,
+            `The specified ${CY}Turbo-360${TR} project does not exist or you do not have access to it.`
+          );
           break;
 
         default:
           // All other errors
-          console.log(PR, `Unexpected error while performing the ${CY}Turbo-360${TR} deployment: ${exitCode}.`);
+          console.log(
+            PR,
+            `Unexpected error while performing the ${CY}Turbo-360${TR} deployment: ${exitCode}.`
+          );
           break;
       }
 
-      console.log(PR, `\tPlease review the ${CY}Turbo-360${TR} deployment notes in ${CY}README-Turbo360.md${TR}`);
+      console.log(
+        PR,
+        `\tPlease review the ${CY}Turbo-360${TR} deployment notes in ${CY}README-Turbo360.md${TR}`
+      );
     }
   }
 }

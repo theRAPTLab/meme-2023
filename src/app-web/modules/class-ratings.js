@@ -52,7 +52,9 @@ function m_getSVGDefKey(rating) {
     if (defDefault && defDefault.svgdefKey) {
       svgdefKey = defDefault.svgdefKey;
     } else {
-      svgdefKey = m_getDefinition(DEFAULT_RATING).svgdefKey;
+      const def = m_getDefinition(DEFAULT_RATING);
+      console.log('...def is', def, def.svgdefKey)
+      svgdefKey = def.svgdefKey;
     }
   }
   return svgdefKey;

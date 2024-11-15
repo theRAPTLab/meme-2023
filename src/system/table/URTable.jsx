@@ -11,7 +11,7 @@ Emulates the API of Handsontable.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React, { useState, useEffect, useRef } from 'react';
-import HDATE from 'system/util/hdate';
+// import HDATE from 'system/util/hdate';
 
 /// CONSTANTS & DECLARATIONS //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -164,35 +164,35 @@ function URTable({ isOpen, data, columns }) {
     return sortedData;
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  function m_SortByHDate(key, tdata, order) {
-    const sortedData = [...tdata].sort((a, b) => {
-      const akey = HDATE.Parse(a[key]); // parseResult
-      const bkey = HDATE.Parse(b[key]);
-      // if ANY is defined, it's automatically greater than undefined
-      if (akey.length > 0 && bkey.length < 1) return order;
-      if (akey.length < 1 && bkey.length > 0) return order * -1;
-      if (akey.length < 1 && bkey.length < 1) return 0;
-      // two valid dates, compare them!
-      const da = akey[0].start.knownValues;
-      const db = bkey[0].start.knownValues;
-      let dateorder;
-      if (da.year !== db.year) {
-        dateorder = da.year - db.year;
-      } else if (da.month !== db.month) {
-        dateorder = da.month - db.month;
-      } else if (da.day !== db.day) {
-        dateorder = da.day - db.day;
-      } else if (da.hour !== db.hour) {
-        dateorder = da.hour - db.hour;
-      } else if (da.minute !== db.minute) {
-        dateorder = da.minute - db.minute;
-      } else if (da.second !== db.second) {
-        dateorder = da.second - db.second;
-      }
-      return dateorder * order;
-    });
-    return sortedData;
-  }
+  // function m_SortByHDate(key, tdata, order) {
+  //   const sortedData = [...tdata].sort((a, b) => {
+  //     const akey = HDATE.Parse(a[key]); // parseResult
+  //     const bkey = HDATE.Parse(b[key]);
+  //     // if ANY is defined, it's automatically greater than undefined
+  //     if (akey.length > 0 && bkey.length < 1) return order;
+  //     if (akey.length < 1 && bkey.length > 0) return order * -1;
+  //     if (akey.length < 1 && bkey.length < 1) return 0;
+  //     // two valid dates, compare them!
+  //     const da = akey[0].start.knownValues;
+  //     const db = bkey[0].start.knownValues;
+  //     let dateorder;
+  //     if (da.year !== db.year) {
+  //       dateorder = da.year - db.year;
+  //     } else if (da.month !== db.month) {
+  //       dateorder = da.month - db.month;
+  //     } else if (da.day !== db.day) {
+  //       dateorder = da.day - db.day;
+  //     } else if (da.hour !== db.hour) {
+  //       dateorder = da.hour - db.hour;
+  //     } else if (da.minute !== db.minute) {
+  //       dateorder = da.minute - db.minute;
+  //     } else if (da.second !== db.second) {
+  //       dateorder = da.second - db.second;
+  //     }
+  //     return dateorder * order;
+  //   });
+  //   return sortedData;
+  // }
   /// BUILT-IN TABLE METHODS //////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /**
@@ -213,7 +213,7 @@ function URTable({ isOpen, data, columns }) {
       switch (col.type) {
         case 'markdown':
           return value.html;
-        case 'hdate':
+        // case 'hdate':
         case 'number':
         case 'text':
         default:
@@ -235,9 +235,9 @@ function URTable({ isOpen, data, columns }) {
     } else {
       // Run built-in sorters
       switch (columndefs[sortColumnIdx].type) {
-        case 'hdate':
-          sortedData = m_SortByHDate(key, tdata, sortOrder);
-          break;
+        // case 'hdate':
+        //   sortedData = m_SortByHDate(key, tdata, sortOrder);
+        //   break;
         case 'markdown':
           sortedData = m_SortByMarkdown(key, tdata, sortOrder);
           break;

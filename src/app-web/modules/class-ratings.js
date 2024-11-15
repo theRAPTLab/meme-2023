@@ -76,7 +76,6 @@ RATINGS.getDefaultDefinitions = () => DEFAULT_DEFINITIONS;
 
 RATINGS.updateDefinitions = newDefs => {
   DEFINITIONS = [];
-  console.log('...updating definitions', JSON.stringify(newDefs));
   newDefs.forEach(def => DEFINITIONS.push(def));
 };
 

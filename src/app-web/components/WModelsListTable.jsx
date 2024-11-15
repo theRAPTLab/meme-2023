@@ -20,11 +20,8 @@ const IcnTrash = <FontAwesomeIcon icon={faTrashCan} />;
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import Handsontable from 'handsontable/base';
-import { HotTable } from '@handsontable/react';
-import { registerAllModules } from 'handsontable/registry';
-import 'handsontable/dist/handsontable.full.min.css';
-registerAllModules();
+
+import URTable from '../../system/table/URTable';
 
 import SESSION from '../../system/common-session';
 import ADM from '../modules/data';
@@ -47,17 +44,11 @@ function HumanDate(timestamp) {
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function RenderTableButton(value, fn) {
-  const btn = document.createElement('button');
-  btn.className = 'transparent';
-  btn.addEventListener('click', fn);
-  if (typeof value === 'object') {
-    // render icon or other jsx
-    const root = createRoot(btn);
-    root.render(value);
-  } else {
-    btn.innerHTML = value;
-  }
-  return btn;
+  return (
+    <button className="transparent" onClick={fn}>
+      {value}
+    </button>
+  );
 }
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
@@ -80,10 +71,12 @@ class WModelsListTable extends React.Component {
    * @param {object} value { id, title }
    */
   RendererTitle(hotInstance, td, row, column, prop, value, cellProperties) {
+
+  RendererTitle(value) {
     const { isAdmin, OnModelSelect } = this.props;
-    td.innerText = '';
-    if (isAdmin) td.innerText = value.title;
-    else td.appendChild(RenderTableButton(value.title, e => OnModelSelect(value.id)));
+    if (isAdmin) return value.title;
+    else
+      return RenderTableButton(value.title + value.id, e => OnModelSelect(value.id));
   }
 
   /**
@@ -91,14 +84,18 @@ class WModelsListTable extends React.Component {
    * @param {number} value model.id
    */
   RendererAction(hotInstance, td, row, column, prop, value, cellProperties) {
+  RendererAction(value) {
     const { isAdmin, OnModelMove, OnModelClone, OnModelDelete } = this.props;
     const showAdminOnlyView = SESSION.IsTeacher() || isAdmin;
-    td.innerText = '';
-    if (showAdminOnlyView)
-      td.appendChild(RenderTableButton('MOVE', e => OnModelMove(value)));
-    td.appendChild(RenderTableButton('CLONE', e => OnModelClone(value)));
-    if (showAdminOnlyView && value)
-      td.appendChild(RenderTableButton(IcnTrash, e => OnModelDelete(value)));
+    return (
+      <>
+        {showAdminOnlyView && RenderTableButton('MOVE', e => OnModelMove(value))}
+        {RenderTableButton('CLONE', e => OnModelClone(value))}
+        {showAdminOnlyView &&
+          value &&
+          RenderTableButton(IcnTrash, e => OnModelDelete(value))}
+      </>
+    );
   }
 
   OnSortClick(id) {
@@ -200,21 +197,7 @@ class WModelsListTable extends React.Component {
 
     return (
       <div className="WModelsListTable">
-        <HotTable
-          data={TABLEDATA}
-          columns={COLUMNDEFS}
-          rowHeaders={false}
-          colHeaders={true}
-          height="auto"
-          columnSorting={true}
-          colWidths={COLWIDTHS}
-          manualColumnResize={true}
-          disableVisualSelection={true}
-          autoWrapRow={true}
-          autoWrapCol={true}
-          readOnly={true}
-          licenseKey="non-commercial-and-evaluation" // for non-commercial use only
-        />
+        <URTable isOpen={true} data={TABLEDATA} columns={COLUMNDEFS} />
       </div>
     );
   }

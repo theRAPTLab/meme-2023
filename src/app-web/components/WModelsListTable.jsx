@@ -9,7 +9,6 @@ Displays a list of all the models in a table format.
 /// LIBRARIES /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WModelsListTable.css';
@@ -20,9 +19,7 @@ const IcnTrash = <FontAwesomeIcon icon={faTrashCan} />;
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 import URTable from '../../system/table/URTable';
-
 import SESSION from '../../system/common-session';
 import ADM from '../modules/data';
 
@@ -67,11 +64,8 @@ class WModelsListTable extends React.Component {
 
   /**
    * Click on the title to open the model
-   * Handsontable renderer for the 'title' column
    * @param {object} value { id, title }
    */
-  RendererTitle(hotInstance, td, row, column, prop, value, cellProperties) {
-
   RendererTitle(value) {
     const { isAdmin, OnModelSelect } = this.props;
     if (isAdmin) return value.title;
@@ -83,7 +77,6 @@ class WModelsListTable extends React.Component {
    * Displays "Move", "Clone", and "Delete" buttons
    * @param {number} value model.id
    */
-  RendererAction(hotInstance, td, row, column, prop, value, cellProperties) {
   RendererAction(value) {
     const { isAdmin, OnModelMove, OnModelClone, OnModelDelete } = this.props;
     const showAdminOnlyView = SESSION.IsTeacher() || isAdmin;

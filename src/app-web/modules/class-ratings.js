@@ -43,34 +43,26 @@ function m_getDefinition(rating) {
 function m_getDefaultDefinition(rating) {
   return DEFAULT_DEFINITIONS.find(r => r.rating === Number(rating));
 }
+// safely retrieve a value from definitions
+// fall back to the DEFAULT_DEFINITIONS if not found
+// fall back to the default rating if still not found
+function m_getDefinitionByKey(rating, key) {
+  const def = m_getDefinition(rating);
+  if (def && def[key]) return def[key];
+  const defDefault = m_getDefaultDefinition(rating);
+  if (defDefault && defDefault[key]) return defDefault[key];
+  const fallback = m_getDefaultDefinition(DEFAULT_RATING)[key];
+  if (!fallback) throw error(`No default value found for rating: '${rating}; key: '${key}'`);
+  return fallback;
+}
+
 function m_getSVGDefKey(rating) {
   // use the current definition, but fall back to default definition if key is not found
   // When migrating from older versions of MEME, the svgdefKey may not be defined
   // The original version relied on <img> tags. It's been replaced by SVG icons.
   // If svgdefKey is not defined, try to use the DEFAULT_DEFINITIONS svgdefKey
   // If that also fails, use the default rating svgdefKey
-  let svgdefKey;
-  const def = m_getDefinition(rating);
-  if (def && def.svgdefKey) {
-    // rating is defined and svgdefKey is defined, use it
-    console.log('___found valid svgdefKey for rating:', rating, 'svgdefKey:', def.svgdefKey);
-    svgdefKey = def.svgdefKey;
-  } else {
-    // rating is defined, but svgdefKey is not defined
-    const defDefault = m_getDefaultDefinition(rating);
-    if (defDefault && defDefault.svgdefKey) {
-      // fall back to default rating's svgdefKey
-      console.warn('___falling back to default svgdefKey for rating:', rating, 'svgdefKey:', defDefault.svgdefKey);
-      svgdefKey = defDefault.svgdefKey;
-    }
-  }
-  // still cannot find a valid svgdefKey, use the default rating
-  if (!svgdefKey) {
-    console.error('___default rating also fails -- back to default default:', rating, 'svgdefKey:', m_getDefaultDefinition(DEFAULT_RATING).svgdefKey);
-    svgdefKey = m_getDefaultDefinition(DEFAULT_RATING).svgdefKey;
-  }
-  if (!svgdefKey) throw error(`No default svgdefKey found for rating: ${rating}`);
-  return svgdefKey;
+  return m_getDefinitionByKey(rating, 'svgdefKey');
 };
 
 
@@ -96,8 +88,7 @@ RATINGS.getSVGIcon = rating => {
 };
 
 RATINGS.getLabel = rating => {
-  const def = m_getDefinition(rating);
-  return def ? def.label : m_getDefinition(DEFAULT_RATING).label;
+  return m_getDefinitionByKey(rating, 'label');
 };
 
 RATINGS.getListOrder = () => {

@@ -113,36 +113,38 @@ class WModelsListTable extends React.Component {
     const COLUMNDEFS = [
       {
         title: 'TITLE',
+        data: 'title',
+        type: 'text',
+        width: 300, // in px
         renderer: this.RendererTitle,
-        columnSorting: {
-          compareFunctionFactory: (sortOrder, columnMeta) => {
-            const order = sortOrder === 'asc' ? 1 : -1;
-            return (a, b) => {
-              if (a.title < b.title) return order * -1;
-              if (a.title > b.title) return order;
-              return 0;
-            };
-          }
-        },
-        data: 'title'
+        sorter: (key, tdata, order) => {
+          const sortedData = [...tdata].sort((a, b) => {
+            // NOTE tdata is NOT a one dimensional array
+            if (a[key].title < b[key].title) return order;
+            if (a[key].title > b[key].title) return order * -1;
+            return 0;
+          });
+          return sortedData;
+        }
       },
       {
         title: 'UPDATED',
+        data: 'dateModified',
         type: 'text',
-        data: 'dateModified'
+        width: 300 // in px
       },
       {
         title: 'CREATED',
+        data: 'dateCreated',
         type: 'text',
-        data: 'dateCreated'
+        width: 300 // in px
       },
       {
-        title: '-',
+        title: '',
+        data: 'id',
+        width: 300, // in px
         renderer: this.RendererAction,
-        columnSorting: {
-          headerAction: false
-        },
-        data: 'id'
+        sortDisabled: true
       }
     ];
     if (showAdminOnlyView) {

@@ -67,7 +67,7 @@ Used also on https://github.com/netcreateorg/netcreate-itest/
         title: string
         data: string
         type: 'text' | 'number' | 'timestamp' | 'markdown' | 'hdate'
-        width: number
+        width: number in px
         renderer: (value: any) => JSX.Element
         sorter: (key: string, tdata: any[], order: number) => any[]
         sortDisabled: boolean
@@ -147,7 +147,7 @@ function URTable({ isOpen, data, columns }) {
     setTableData(data);
     // default to ascending when a column is first clicked
     const defaultSortOrders = {};
-    data.forEach((item, idx) => (defaultSortOrders[idx] = -1));
+    columns.forEach((item, idx) => (defaultSortOrders[idx] = -1));
     setPreviousColSortOrder(defaultSortOrders);
   }, []);
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

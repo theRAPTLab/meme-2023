@@ -25,21 +25,6 @@ import ADM from '../modules/data';
 
 /// UTILITY METHODS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function HumanDate(timestamp) {
-  if (timestamp === undefined || timestamp === '') return '<no date>';
-  const date = new Date(timestamp);
-  const timestring = date.toLocaleTimeString('en-Us', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  });
-  const datestring = date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric'
-  });
-  return `${datestring} ${timestring}`;
-}
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function RenderTableButton(value, fn) {
   return (
     <button className="transparent" onClick={fn}>
@@ -69,8 +54,7 @@ class WModelsListTable extends React.Component {
   RendererTitle(value) {
     const { isAdmin, OnModelSelect } = this.props;
     if (isAdmin) return value.title;
-    else
-      return RenderTableButton(value.title + value.id, e => OnModelSelect(value.id));
+    else return RenderTableButton(value.title, e => OnModelSelect(value.id));
   }
 
   /**
@@ -114,8 +98,7 @@ class WModelsListTable extends React.Component {
       {
         title: 'TITLE',
         data: 'title',
-        type: 'text',
-        width: 300, // in px
+        type: 'custom',
         renderer: this.RendererTitle,
         sorter: (key, tdata, order) => {
           const sortedData = [...tdata].sort((a, b) => {
@@ -130,19 +113,16 @@ class WModelsListTable extends React.Component {
       {
         title: 'UPDATED',
         data: 'dateModified',
-        type: 'text',
-        width: 300 // in px
+        type: 'timestamp'
       },
       {
         title: 'CREATED',
         data: 'dateCreated',
-        type: 'text',
-        width: 300 // in px
+        type: 'timestamp'
       },
       {
         title: '',
         data: 'id',
-        width: 300, // in px
         renderer: this.RendererAction,
         sortDisabled: true
       }
@@ -185,8 +165,8 @@ class WModelsListTable extends React.Component {
         id: model.id,
         title: model.title,
         groupLabel: model.groupLabel,
-        dateModified: HumanDate(model.dateModified),
-        dateCreated: HumanDate(model.dateCreated)
+        dateModified: model.dateModified,
+        dateCreated: model.dateCreated
       };
     });
 

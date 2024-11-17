@@ -66,7 +66,7 @@ Used also on https://github.com/netcreateorg/netcreate-itest/
       Column Definition
         title: string
         data: string
-        type: 'text' | 'number' | 'date' | 'markdown' | 'hdate'
+        type: 'text' | 'number' | 'timestamp' | 'markdown' | 'hdate'
         width: number
         renderer: (value: any) => JSX.Element
         sorter: (key: string, tdata: any[], order: number) => any[]
@@ -145,10 +145,9 @@ function URTable({ isOpen, data, columns }) {
   /// Init table data
   useEffect(() => {
     setTableData(data);
-
     // default to ascending when a column is first clicked
     const defaultSortOrders = {};
-    data.forEach((item, idx) => (defaultSortOrders[idx] = 1));
+    data.forEach((item, idx) => (defaultSortOrders[idx] = -1));
     setPreviousColSortOrder(defaultSortOrders);
   }, []);
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -180,6 +179,21 @@ function URTable({ isOpen, data, columns }) {
   }, [_sortColumnIdx, _sortOrder, _previousColSortOrder]);
 
   /// UTILITIES ///////////////////////////////////////////////////////////////
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  function u_HumanDate(timestamp) {
+    if (timestamp === undefined || timestamp === '') return '<no date>';
+    const date = new Date(timestamp);
+    const timestring = date.toLocaleTimeString('en-Us', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+    const datestring = date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+    return `${datestring} ${timestring}`;
+  }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   const u_CalculateColumnWidths = () => {
     // if table is not drawn yet, skip
@@ -240,9 +254,9 @@ function URTable({ isOpen, data, columns }) {
     if (_sortColumnIdx === index) {
       // if already selected, toggle the sort order
       let newSortOrder;
-      if (_sortOrder === 0) newSortOrder = 1;
-      else if (_sortOrder > 0) newSortOrder = -1;
-      else newSortOrder = 0;
+      if (_sortOrder === 0) newSortOrder = -1;
+      else if (_sortOrder > 0) newSortOrder = 0;
+      else newSortOrder = 1;
       setSortOrder(newSortOrder);
     } else {
       // otherwise default to the previous order
@@ -349,6 +363,8 @@ function URTable({ isOpen, data, columns }) {
         case 'markdown':
           return value.html;
         // case 'hdate':
+        case 'timestamp':
+          return u_HumanDate(value);
         case 'number':
         case 'text':
         default:
@@ -376,10 +392,10 @@ function URTable({ isOpen, data, columns }) {
         case 'markdown':
           sortedData = m_SortByMarkdown(key, tdata, _sortOrder);
           break;
-        case 'date':
         case 'number':
           sortedData = m_SortByNumber(key, tdata, _sortOrder);
           break;
+        case 'timestamp': // timestamp is a string
         case 'text':
         default:
           sortedData = m_SortByText(key, tdata, _sortOrder);

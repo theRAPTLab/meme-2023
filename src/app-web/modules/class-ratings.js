@@ -8,27 +8,27 @@ const DEFAULT_RATING = 0;
 // Make sure DEFAULT_DEFINITIONS[DEFAULT_RATING] returns a valid svgdefKey!!!
 const DEFAULT_DEFINITIONS = [
   {
-    label: 'Default Strongly Agrees',
+    label: 'Strongly Agrees',
     rating: 2,
     svgdefKey: 'ratingsAgreeStrongly'
   },
   {
-    label: 'Default Agrees',
+    label: 'Agrees',
     rating: 1,
     svgdefKey: 'ratingsAgree'
   },
   {
-    label: 'Default None',
+    label: 'None',
     rating: 0,
     svgdefKey: 'ratingsNone'
   },
   {
-    label: 'Default Disagrees',
+    label: 'Disagrees',
     rating: -1,
     svgdefKey: 'ratingsDisagree'
   },
   {
-    label: 'Default Strongly Disagrees',
+    label: 'Strongly Disagrees',
     rating: -2,
     svgdefKey: 'ratingsDisagreeStrongly'
   }

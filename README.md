@@ -6,9 +6,9 @@ The software is designed to work in a classroom setting.  The core software runs
 
 **Note**: this software is a work in progress, and is provided as-is. While we have tested it succesfully in our own context, we make no warranty about how it will run in your context nor about its security (we recomend using de-identified data only if you are not using it in a secure environment). Please evaluate it on your own before implementing.
 
-See the [1.3.1](https://github.com/theRAPTLab/meme/releases/tag/v1.3.1-final) and [1.3.0 Release Notes](https://github.com/theRAPTLab/meme/releases/tag/v1.3.0-final) for information on the latest features.  You can also view all [Release Notes](https://github.com/theRAPTLab/meme/releases) by browsing Tags.
+See the [1.3.1](../../releases/tag/v1.3.1-final) and [1.3.0 Release Notes](../../releases/tag/v1.3.0-final) for information on the latest features.  You can also view all [Release Notes](../../releases) by browsing Tags.
 
-See the [Wiki Home](https://github.com/theRAPTLab/meme/wiki) for End User Instructions.
+See the [Wiki Home](../../wiki) for End User Instructions.
 
 Please visit [modelingandevidence.org](http://modelingandevidence.org) for more information about the MEME project.
 
@@ -89,8 +89,8 @@ NOTE: Because the `meme.app` Electron app is not signed and notarized, you may h
 
 
 For more technical information about creating and managing the dataset, see:
-* [Dataset Editing for Curriculum Development](https://github.com/theRAPTLab/meme/wiki/Dataset-Editing-for-Curriculum-Development).
-* [Dataset Management](https://github.com/theRAPTLab/meme/wiki/Dataset-Management)
+* [Dataset Editing for Curriculum Development](../../wiki/Dataset-Editing-for-Curriculum-Development).
+* [Dataset Management](../../wiki/Dataset-Management)
 
 
 
@@ -223,8 +223,8 @@ The snapshot time corresponds to the snapshot log, e.g. `2020-0209-log-124525.lo
 ## Getting Ready
 
 * Managing Datasets
-  * [Dataset Editing for Curriculum Development](https://github.com/theRAPTLab/meme/wiki/Dataset-Editing-for-Curriculum-Development)
-  * [Dataset Management](https://github.com/theRAPTLab/meme/wiki/Dataset-Management)
+  * [Dataset Editing for Curriculum Development](../../wiki/Dataset-Editing-for-Curriculum-Development)
+  * [Dataset Management](../../wiki/Dataset-Management)
 * Deploying
-  * [Deploy Electron](https://github.com/theRAPTLab/meme/wiki/Deploy-Electron)
-  * Digital Ocean Deployment [deploying on digital ocean](https://github.com/theRAPTLab/meme/wiki/Digital-Ocean-Deployment)*(Placeholder only)*
+  * [Deploy Electron](../../wiki/Deploy-Electron)
+  * Digital Ocean Deployment [deploying on digital ocean](../../wiki/Digital-Ocean-Deployment)*(Placeholder only)*

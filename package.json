@@ -18,7 +18,9 @@
     "app": "node meme debugapp",
     "clean": "node meme clean",
     "clean:all": "node meme clean --all",
-    "test": "node meme test"
+    "test": "node meme test",
+    "package-turbo360": "node meme package-turbo360",
+    "deploy-turbo360": "node meme deploy-turbo360"
   },
   "keywords": [],
   "author": "Inquirium LLC; Dave Seah",
@@ -40,6 +42,7 @@
     "@svgdotjs/svg.draggable.js": "^3.0.3",
     "@svgdotjs/svg.js": "^3.2.0",
     "@svgdotjs/svg.panzoom.js": "^2.1.2",
+    "@turbo360/cli": "^0.2.13",
     "adm-zip": "^0.4.14",
     "ajv": "^6.10.2",
     "babel-polyfill": "^6.26.0",

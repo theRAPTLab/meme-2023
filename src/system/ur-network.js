@@ -98,8 +98,17 @@ NETWORK.Connect = (datalink, opt) => {
 
   // create websocket
   // uses values that were embedded in index.ejs on load
-  const { USRV_Host, USRV_MsgPort } = CENTRAL.GetVal('ur_session');
-  let wsURI = `ws://${USRV_Host}:${USRV_MsgPort}`;
+  const {
+    USRV_WSS,
+    USRV_Host,
+    USRV_MsgPort,
+    USRV_Preamble
+  } = CENTRAL.GetVal('ur_session');
+
+  // Build websocket path
+  const wsURI = new URL(((USRV_WSS) ? 'wss' : 'ws') + '://' + USRV_Host);
+  if (USRV_MsgPort) wsURI.port = USRV_MsgPort;
+
   NETSOCK.ws = new WebSocket(wsURI);
   if (DBG.connect) console.log(PR, 'OPEN SOCKET TO', wsURI);
 
@@ -107,6 +116,12 @@ NETWORK.Connect = (datalink, opt) => {
   NETWORK.AddListener('open', event => {
     if (DBG.connect) console.log(PR, '...OPEN', event.target.url);
     m_status = M2_CONNECTED;
+
+    // If a preamble has been defined, send it upon opening the connection
+    if (USRV_Preamble) {
+      NETSOCK.ws.send(USRV_Preamble);
+    }
+
     // message handling continues in 'message' handler
     // the first message is assumed to be registration data
   });

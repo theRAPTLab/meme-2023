@@ -234,8 +234,11 @@ function GetTemplateValues(req) {
     USRV_Host: hostname,
     USRV_IP: IP.address(),
     USRV_MsgPort: 2929,
-    USRV_Start: USRV_START
+    USRV_Start: USRV_START,
+    USRV_WSS: false,
+    USRV_Preamble: undefined
   };
+
   return params;
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

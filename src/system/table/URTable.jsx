@@ -286,7 +286,6 @@ function URTable({ isOpen, data, columns }) {
     return sortedData;
   }
   function m_SortCaseInsensitive(key, tdata, order) {
-    console.error('sort case insensitive', key, tdata, order);
     const sortedData = [...tdata].sort((a, b) => {
       if (!a[key] && !b[key]) return 0;
       if (!a[key]) return 1; // Move undefined or '' to the bottom regardless of sort order

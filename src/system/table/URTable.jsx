@@ -344,18 +344,18 @@ function URTable({ isOpen, data, columns }) {
   /// BUILT-IN TABLE METHODS //////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /**
-   *
-   * @param {*} value
-   * @param {*} col
-   * @param {*} idx
+   * Executes the renderer for a given column
+   * @param {string} key tdata object key
+   * @param {Object} tdata full table data object so you can access other keys
+   * @param {Object} coldef column definition
    * @returns The final value to be rendered in the table cell
    */
-  function m_ExecuteRenderer(value, col, idx) {
-    const customRenderer = col.renderer;
+  function m_ExecuteRenderer(key, tdata, coldef) {
+    const customRenderer = coldef.renderer;
     if (customRenderer) {
       if (typeof customRenderer !== 'function')
-        throw new Error('Invalid renderer for', col);
-      return customRenderer(value);
+        throw new Error('Invalid renderer for', coldef);
+      return customRenderer(key, tdata, coldef);
     } else {
       // Run built-in renderers
       switch (col.type) {
@@ -469,8 +469,8 @@ function URTable({ isOpen, data, columns }) {
         <tbody>
           {_tabledata.map((tdata, idx) => (
             <tr key={idx} style={{ opacity: 1 }}>
-              {_columndefs.map((col, idx) => (
-                <td key={idx}>{m_ExecuteRenderer(tdata[col.data], col, idx)}</td>
+              {_columndefs.map((coldef, idx) => (
+                <td key={idx}>{m_ExecuteRenderer(coldef.data, tdata, coldef)}</td>
               ))}
             </tr>
           ))}

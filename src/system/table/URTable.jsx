@@ -66,12 +66,11 @@ Used also on https://github.com/netcreateorg/netcreate-itest/
       Column Definition
         title: string
         data: string
-        type: 'text' | 'number' | 'timestamp' | 'markdown' | 'hdate'
+        type: 'text' | 'text-case-insensitive' | 'number' | 'timestamp' | 'markdown' | 'hdate'
         width: number in px
         renderer: (value: any) => JSX.Element
         sorter: (key: string, tdata: any[], order: number) => any[]
         sortDisabled: boolean
-
 
   Example usage:
 
@@ -286,14 +285,14 @@ function URTable({ isOpen, data, columns }) {
     });
     return sortedData;
   }
-  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  function m_SortByMarkdown(key, tdata, order) {
+  function m_SortCaseInsensitive(key, tdata, order) {
+    console.error('sort case insensitive', key, tdata, order);
     const sortedData = [...tdata].sort((a, b) => {
-      // NC's markdown format from NCNodeTable will pass:
-      // { html, raw}
-      // We will sort by the raw text
-      if (a[key].raw < b[key].raw) return order;
-      if (a[key].raw > b[key].raw) return order * -1;
+      if (!a[key] && !b[key]) return 0;
+      if (!a[key]) return 1; // Move undefined or '' to the bottom regardless of sort order
+      if (!b[key]) return -1; // Move undefined or '' the bottom regardless of sort order
+      if (a[key].toLowerCase() < b[key].toLowerCase()) return order;
+      if (a[key].toLowerCase() > b[key].toLowerCase()) return order * -1;
       return 0;
     });
     return sortedData;
@@ -367,6 +366,7 @@ function URTable({ isOpen, data, columns }) {
           return u_HumanDate(value);
         case 'number':
         case 'text':
+        case 'text-case-insensitive':
         default:
           return value;
       }
@@ -394,6 +394,9 @@ function URTable({ isOpen, data, columns }) {
           break;
         case 'number':
           sortedData = m_SortByNumber(key, tdata, _sortOrder);
+          break;
+        case 'text-case-insensitive':
+          sortedData = m_SortCaseInsensitive(key, tdata, _sortOrder);
           break;
         case 'timestamp': // timestamp is a string
         case 'text':
@@ -444,15 +447,15 @@ function URTable({ isOpen, data, columns }) {
       <table>
         <thead>
           <tr>
-            {_columndefs.map((col, idx) => (
+            {_columndefs.map((coldef, idx) => (
               <th
                 key={idx}
                 className={_sortColumnIdx === idx ? 'selected' : ''}
                 width={`${_columnWidths[idx]}`}
               >
                 <div onClick={e => ui_SetSelectedColumn(e, idx)}>
-                  {col.title}&nbsp;
-                  {jsx_SortBtn(col, idx)}
+                  {coldef.title}&nbsp;
+                  {jsx_SortBtn(coldef, idx)}
                 </div>
                 <div
                   className="resize-handle"

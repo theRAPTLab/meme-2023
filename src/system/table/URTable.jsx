@@ -298,6 +298,19 @@ function URTable({ isOpen, data, columns }) {
     return sortedData;
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Net.Create Sort function
+  // function m_SortByMarkdown(key, tdata, order) {
+  //   const sortedData = [...tdata].sort((a, b) => {
+  //     // NC's markdown format from NCNodeTable will pass:
+  //     // { html, raw}
+  //     // We will sort by the raw text
+  //     if (a[key].raw < b[key].raw) return order;
+  //     if (a[key].raw > b[key].raw) return order * -1;
+  //     return 0;
+  //   });
+  //   return sortedData;
+  // }
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function m_SortByNumber(key, tdata, order) {
     const sortedData = [...tdata].sort((a, b) => {
       const akey = Number(a[key]);
@@ -312,6 +325,7 @@ function URTable({ isOpen, data, columns }) {
     return sortedData;
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Net.Create Sort function
   // function m_SortByHDate(key, tdata, order) {
   //   const sortedData = [...tdata].sort((a, b) => {
   //     const akey = HDATE.Parse(a[key]); // parseResult
@@ -358,10 +372,11 @@ function URTable({ isOpen, data, columns }) {
       return customRenderer(key, tdata, coldef);
     } else {
       // Run built-in renderers
-      switch (col.type) {
-        case 'markdown':
-          return value.html;
-        // case 'hdate':
+      const value = tdata[key];
+      switch (coldef.type) {
+        // case 'markdown': // Net.Create
+        //   return value.html;
+        // case 'hdate': // Net.Create
         case 'timestamp':
           return u_HumanDate(value);
         case 'number':

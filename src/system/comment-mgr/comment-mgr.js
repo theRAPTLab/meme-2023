@@ -332,9 +332,21 @@ MOD.OpenReferent = cref => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Open comment inside a collection using a comment id
-MOD.OpenComment = (cref, cid) => {
+/// NOTE this is NOT used by SVGButtons
+MOD.OpenCommentStatusComment = (cref, cid) => {
   const { type, id } = MOD.DeconstructCREF(cref);
   let parms;
+
+  // if a comment is being edited...
+  // - don't close all comments
+  // - don't open a new one
+  if (MOD.GetCommentsAreBeingEdited()) {
+    UR.Publish('DIALOG_OPEN', {
+      text: `Please finish editing your comment before opening a different comment!`
+    });
+    return
+  }
+
   MOD.CloseAllCommentCollectionsWithoutMarkingRead()
   switch (type) {
     case 'p': // project
@@ -601,6 +613,20 @@ MOD.GetOpenComments = cref => COMMENT.GetOpenComments(cref);
 
 // /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // /// Editable Comments (comments being ddited)
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Editable Comments (comments being edited)
+MOD.SetCommentBeingEdited = cid => {
+  COMMENT.SetCommentBeingEdited(cid);
+}
+
+/// Are ANY comments being edited?
+/// Returns True if ANY comment is being edited
+/// Used by comment status when user clicks on a comment id to view a saved comment
+/// to prevent closing the comment collection if a comment is being edited.
+MOD.GetCommentsAreBeingEdited = () => {
+  let isBeingEdited = false;
+  return COMMENT.GetCommentsAreBeingEdited()
+}
 
 MOD.OKtoClose = cref => {
   const cvobjs = MOD.GetThreadedViewObjects(cref);

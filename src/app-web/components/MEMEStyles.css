@@ -57,11 +57,11 @@
 
   --dialog-border-radius: 8px;
   --dialog-shadow: 0px 4px 27.7px 0px rgba(0, 0, 0, 0.25);
-  --z-dialog: 1000;
   --z-resource-list: 1250;
   --z-help: 1600;
   --z-model-select: 2999;
   --z-login: 3000;
+  --z-dialog: 3010;
   /* URcomment z-index: 2000 - 2500; */
 }
 

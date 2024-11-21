@@ -163,7 +163,7 @@ function URCommentStatus(props) {
   function evt_OpenComment(event, cref, cid) {
     event.preventDefault();
     event.stopPropagation();
-    CMTMGR.OpenComment(cref, cid);
+    CMTMGR.OpenCommentStatusComment(cref, cid);
   }
 
   /// RENDER HELPERS //////////////////////////////////////////////////////////

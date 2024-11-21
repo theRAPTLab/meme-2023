@@ -300,6 +300,12 @@ function m_DeRegisterCommentBeingEdited(cid: TCommentID) {
 function GetCommentBeingEdited(cid: TCommentID): TCommentID {
   return COMMENTS_BEING_EDITED.get(cid);
 }
+function SetCommentBeingEdited(cid: TCommentID) {
+  m_RegisterCommentBeingEdited(cid);
+}
+function GetCommentsAreBeingEdited(): boolean {
+  return COMMENTS_BEING_EDITED.size > 0;
+}
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// UNREAD COMMENTS
@@ -595,6 +601,8 @@ export {
   GetOpenComments,
   // Editable Comments
   GetCommentBeingEdited,
+  SetCommentBeingEdited,
+  GetCommentsAreBeingEdited,
   // Unread Comments
   GetUnreadRepliesToMe,
   GetUnreadComments,

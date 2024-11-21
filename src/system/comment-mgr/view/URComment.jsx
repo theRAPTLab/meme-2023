@@ -172,7 +172,7 @@ function URComment({ cref, cid, uid }) {
       ...prevState,
       uViewMode
     }));
-
+    CMTMGR.SetCommentBeingEdited(cid);
     CMTMGR.LockComment(cid);
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

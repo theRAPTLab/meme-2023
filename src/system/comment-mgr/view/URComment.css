@@ -302,6 +302,9 @@ svg#comment-icon {
   background-color: #fff8;
 }
 
+.comment.unread {
+  border: 3px solid var(--comment-bg-new);
+}
 .comment.deleted {
   background-color: #0000000a;
 }
@@ -348,6 +351,8 @@ svg#comment-icon {
   color: #0008;
   font-size: var(--comment-font-size-medium);
   font-weight: var(--comment-font-weight-medium);
+  line-height: 14px;
+  padding-bottom: 3px;
 }
 .comment .label {
   margin-top: 10px;

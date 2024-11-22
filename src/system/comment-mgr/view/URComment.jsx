@@ -441,7 +441,7 @@ function URComment({ cref, cid, uid }) {
       <div
         id={cid}
         ref={setElement}
-        className={`comment ${comment.comment_isMarkedDeleted ? 'deleted' : ''}`}
+        className={`comment ${comment.comment_isMarkedDeleted ? 'deleted' : ''} ${cvobj.isMarkedRead ? '' : 'unread'}`}
       >
         <div>
           <div className="commenter">{commenter}</div>

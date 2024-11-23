@@ -172,7 +172,7 @@ function URComment({ cref, cid, uid }) {
       ...prevState,
       uViewMode
     }));
-    CMTMGR.SetCommentBeingEdited(cid);
+    CMTMGR.RegisterCommentBeingEdited(cid);
     CMTMGR.LockComment(cid);
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -185,6 +185,7 @@ function URComment({ cref, cid, uid }) {
     comment.commenter_text = [...commenter_text]; // clone, not byref
     comment.commenter_id = uid;
     CMTMGR.UpdateComment(comment);
+    CMTMGR.DeRegisterCommentBeingEdited(cid);
     CMTMGR.UnlockComment(cid);
     setState(prevState => ({
       ...prevState,
@@ -236,7 +237,10 @@ function URComment({ cref, cid, uid }) {
       if (t !== '') savedCommentIsEmpty = false;
     });
 
-    const cb = () => CMTMGR.UnlockComment(cid);
+    const cb = () => {
+      CMTMGR.DeRegisterCommentBeingEdited(cid);
+      CMTMGR.UnlockComment(cid);
+    };
 
     if (savedCommentIsEmpty) {
       // "Cancel" will always remove the comment if the comment is empty

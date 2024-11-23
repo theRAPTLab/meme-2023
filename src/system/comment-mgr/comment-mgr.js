@@ -611,12 +611,13 @@ MOD.UpdateCommentUIState = (uiref, openState) => {
 /// Open Comments
 MOD.GetOpenComments = cref => COMMENT.GetOpenComments(cref);
 
-// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// /// Editable Comments (comments being ddited)
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Editable Comments (comments being edited)
-MOD.SetCommentBeingEdited = cid => {
-  COMMENT.SetCommentBeingEdited(cid);
+MOD.RegisterCommentBeingEdited = cid => {
+  COMMENT.RegisterCommentBeingEdited(cid);
+}
+MOD.DeRegisterCommentBeingEdited = cid => {
+  return COMMENT.DeRegisterCommentBeingEdited(cid);
 }
 
 /// Are ANY comments being edited?

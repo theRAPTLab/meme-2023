@@ -290,19 +290,16 @@ function GetOpenComments(cref: TCollectionRef): TCommentUIRef {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// EDITABLE COMMENTS
 
-function m_RegisterCommentBeingEdited(cid: TCommentID) {
+function RegisterCommentBeingEdited(cid: TCommentID) {
   COMMENTS_BEING_EDITED.set(cid, cid);
 }
-function m_DeRegisterCommentBeingEdited(cid: TCommentID) {
+function DeRegisterCommentBeingEdited(cid: TCommentID) {
   COMMENTS_BEING_EDITED.delete(cid);
 }
-
 function GetCommentBeingEdited(cid: TCommentID): TCommentID {
   return COMMENTS_BEING_EDITED.get(cid);
 }
-function SetCommentBeingEdited(cid: TCommentID) {
-  m_RegisterCommentBeingEdited(cid);
-}
+/// ANY comment is being edited
 function GetCommentsAreBeingEdited(): boolean {
   return COMMENTS_BEING_EDITED.size > 0;
 }
@@ -453,7 +450,7 @@ function AddComment(data: {
       COMMENTVOBJS
     );
   cvobj.isBeingEdited = true;
-  m_RegisterCommentBeingEdited(comment.comment_id);
+  RegisterCommentBeingEdited(comment.comment_id);
 
   commentVObjs = commentVObjs.map(c =>
     c.comment_id === cvobj.comment_id ? cvobj : c
@@ -600,8 +597,9 @@ export {
   // Open Comments
   GetOpenComments,
   // Editable Comments
+  RegisterCommentBeingEdited,
+  DeRegisterCommentBeingEdited,
   GetCommentBeingEdited,
-  SetCommentBeingEdited,
   GetCommentsAreBeingEdited,
   // Unread Comments
   GetUnreadRepliesToMe,

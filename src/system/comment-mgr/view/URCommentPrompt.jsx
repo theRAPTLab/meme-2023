@@ -292,7 +292,6 @@ function URCommentPrompt({
           {inputJSX}
           <div className="feedback">{prompt.feedback}</div>
           <div className="error">{errorMessage}</div>
-          <hr />
         </div>
       );
     });

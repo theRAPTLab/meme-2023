@@ -420,8 +420,10 @@ function URComment({ cref, cid, uid }) {
           <div className="date">{modifytime_string || createtime_string}</div>
         </div>
         <div>
-          <div className="commentId">#{comment.id}</div>
-          <div>{TypeSelector}</div>
+          <div className="commentTypeBar">
+            <div className="commentTypeLabel">{TypeSelector}</div>
+            <div className="commentId">#{comment.id}</div>
+          </div>
           <URCommentPrompt
             cref={cref}
             commentType={selected_comment_type}
@@ -452,10 +454,12 @@ function URComment({ cref, cid, uid }) {
           <div className="date">{modifytime_string || createtime_string}</div>
         </div>
         <div>
-          <div className="commentId">#{comment.id}</div>
-          <div>
-            <span className="date">TYPE: </span>
-            <span className="type">{SelectedTypeLabel}</span>
+          <div className="commentTypeBar">
+            <div className="commentTypeLabel">
+              <span className="date">TYPE: </span>
+              <span className="type">{SelectedTypeLabel}</span>
+            </div>
+            <div className="commentId">#{comment.id}</div>
           </div>
           <URCommentPrompt
             cref={cref}

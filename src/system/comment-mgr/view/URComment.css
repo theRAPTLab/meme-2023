@@ -347,7 +347,8 @@ svg#comment-icon {
 .comment .label,
 .comment .help /* .help uses nccomponent */,
 .comment .commentId,
-.comment-status-body .commenter {
+.comment-status-body .commenter,
+.comment .commentTypeBar .commentTypeLabel {
   color: #0008;
   font-size: var(--comment-font-size-medium);
   font-weight: var(--comment-font-weight-medium);
@@ -355,7 +356,7 @@ svg#comment-icon {
   padding-bottom: 3px;
 }
 .comment .label {
-  margin-top: 10px;
+  margin-top: 2px;
 }
 .commentThread .comment .help {
   /* override nccomponent */
@@ -370,6 +371,13 @@ svg#comment-icon {
   overflow-y: auto;
 }
 
+.comment .commentTypeBar {
+  display: flex;
+  column-gap: 5px;
+}
+.comment .commentTypeBar .commentTypeLabel {
+  flex-grow: 1;
+}
 .comment .comment-item {
   margin-bottom: 5px;
 }
@@ -395,7 +403,6 @@ svg#comment-icon {
 
 .comment .commentId {
   color: #0004;
-  float: right;
 }
 
 .comment .editmenu {
@@ -426,11 +433,6 @@ svg#comment-icon {
   cursor: pointer;
 }
 
-.commentbar,
-.editbar {
-  padding-top: 5px;
-}
-
 .commentbar {
   display: flex;
   flex-direction: row-reverse;
@@ -440,6 +442,7 @@ svg#comment-icon {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+  padding-top: 5px;
 }
 
 .comment .commentbar button,
@@ -454,6 +457,7 @@ svg#comment-icon {
 .comment .editbar button {
   margin-left: 15px; /* emulate nccomponent */
 }
+
 .comment .commentbar button:hover,
 .comment .editbar button:hover {
   color: white;
@@ -481,6 +485,9 @@ svg#comment-icon {
 .comment .commentbar button {
   /* visibility: hidden; */
   display: none;
+}
+.comment:hover .commentbar {
+  padding-top: 5px;
 }
 .comment:hover .commentbar button {
   /* visibility: visible; */

@@ -484,7 +484,7 @@ function UpdateComment(cobj: TComment, uid: TUserID) {
   DCCOMMENTS.MarkCommentUnread(cvobj.comment_id, uid);
 
   cvobj.isBeingEdited = false;
-  m_DeRegisterCommentBeingEdited(cobj.comment_id);
+  DeRegisterCommentBeingEdited(cobj.comment_id);
   cvobj.modifytime_string = GetDateString(cobj.comment_modifytime);
   commentVObjs = commentVObjs.map(c =>
     c.comment_id === cvobj.comment_id ? cvobj : c

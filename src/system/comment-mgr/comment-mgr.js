@@ -663,7 +663,6 @@ MOD.GetUnreadComments = () => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *
  * @param {Object} cobj Comment Object
  */
 MOD.AddComment = cobj => {
@@ -725,7 +724,9 @@ MOD.UpdateComment = cobj => {
  *
  * Removing is a two step process:
  * 1. Show confirmation dialog
- * 2. Execute the remova
+ * 2. Execute the removal
+ *
+ * Also used by "Cancel" button to remove a comment being edited
  * @param {Object} parms
  * @param {string} parms.collection_ref
  * @param {string} parms.comment_id
@@ -733,6 +734,7 @@ MOD.UpdateComment = cobj => {
  * @param {string} parms.uid
  * @param {boolean} parms.isAdmin
  * @param {boolean} parms.showCancelDialog
+ * @param {boolean} parms.skipDialog
  */
 MOD.RemoveComment = parms => {
   let confirmMessage, okmessage, cancelmessage;
@@ -741,7 +743,7 @@ MOD.RemoveComment = parms => {
     confirmMessage = `Are you sure you want to cancel editing this comment #${parms.id}?`;
     okmessage = 'Cancel Editing and Delete';
     cancelmessage = 'Go Back to Editing';
-  } else {
+  } else { // show delete confirmaiton dialog
     // Are you sure you want to delete?
     parms.isAdmin = MOD.IsAdmin();
     confirmMessage = parms.isAdmin
@@ -752,15 +754,24 @@ MOD.RemoveComment = parms => {
   }
 
   const CMTSTATUS = STATE.State('CMTSTATUS');
-  CMTSTATUS.dialog = {
-    isOpen: true,
-    message: confirmMessage,
-    okmessage,
-    onOK: event => m_ExecuteRemoveComment(event, parms),
-    cancelmessage,
-    onCancel: m_CloseRemoveCommentDialog
-  };
+  if (parms.skipDialog) {
+    m_ExecuteRemoveComment(event, parms);
+  } else {
+    CMTSTATUS.dialog = {
+      isOpen: true,
+      message: confirmMessage,
+      okmessage,
+      onOK: event => m_ExecuteRemoveComment(event, parms),
+      cancelmessage,
+      onCancel: m_CloseRemoveCommentDialog
+    };
+  }
   STATE.SetState('CMTSTATUS', CMTSTATUS);
+
+  MOD.DeRegisterCommentBeingEdited(parms.comment_id);
+  MOD.UnlockComment(parms.comment_id);
+
+  UR.Publish('COMMENTHREAD_UPDATE_EDIT_STATUS');
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**

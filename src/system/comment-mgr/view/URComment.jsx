@@ -226,45 +226,45 @@ function URComment({ cref, cid, uid }) {
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** handle cancel button, which reverts the comment to its previous state,
-   *  doing additional housekeeping to keep comment manager consistent */
+   *  doing additional housekeeping to keep comment manager consistent
+   *  If the comment is empty and it's a new comment, just remove it
+   * */
   function evt_CancelBtn() {
     const { commenter_text, id } = state;
-    let savedCommentIsEmpty = true;
-    commenter_text.forEach(t => {
-      if (t !== '') savedCommentIsEmpty = false;
+
+    let previouslyHadText = false;
+    CMTMGR.GetComment(cid).commenter_text.forEach(t => {
+      if (t !== '') previouslyHadText = true;
     });
 
-    const cb = () => {
-      CMTMGR.DeRegisterCommentBeingEdited(cid);
-      CMTMGR.UnlockComment(cid);
-    };
-
-    if (savedCommentIsEmpty) {
-      // "Cancel" will always remove the comment if the comment is empty
-      // - usually because it's a newly created comment
-      // - but also if the user clears all the text fields
-      // We don't care if the user entered any text
-      CMTMGR.RemoveComment(
-        {
-          collection_ref: cref,
-          id,
-          comment_id: cid,
-          uid,
-          showCancelDialog: true
-        },
-        cb
-      );
-    } else {
-      // revert to previous text if current text is empty
+    if (previouslyHadText) {
+      // revert to previous text
+      CMTMGR.UICancelComment(cid);
       const comment = CMTMGR.GetComment(cid);
       setState(prevState => ({
         ...prevState,
+        modifytime_string: comment.modifytime_string,
+        selected_comment_type: comment.comment_type,
         commenter_text: [...comment.commenter_text], // restore previous text clone, not by ref
+        comment_error: '',
         uViewMode: CMTMGR.VIEWMODE.VIEW
       }));
-
-      cb();
+    } else {
+      // Remove the temporary comment and unlock
+      CMTMGR.RemoveComment({
+        collection_ref: cref,
+        id,
+        comment_id: cid,
+        uid,
+        skipDialog: true
+      });
+      setState({
+        commenter_text: [],
+        uViewMode: CMTMGR.VIEWMODE.VIEW
+      });
     }
+
+    return;
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** handle select button, which updates the comment type associated with this

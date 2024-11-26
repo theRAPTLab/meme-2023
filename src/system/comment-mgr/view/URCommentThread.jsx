@@ -22,6 +22,7 @@
                  comment button
 
 
+
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -51,6 +52,7 @@ const PR = 'URCommentThread';
  */
 function URCommentThread({ uiref, cref, uid, x, y }) {
   const [isDisabled, setIsDisabled] = useState(false);
+  const [forceRender, setForceRender] = useState(0); // Dummy state variable to force update
 
   /** Component Effect - set up listeners on mount */
   useEffect(() => {
@@ -58,12 +60,23 @@ function URCommentThread({ uiref, cref, uid, x, y }) {
       setIsDisabled(data.commentBeingEditedByMe);
     }
 
+    UR.Subscribe('COMMENTHREAD_UPDATE_EDIT_STATUS', urmsg_ForceRender);
     UR.Subscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
 
     return () => {
+      UR.Unsubscribe('COMMENTHREAD_UPDATE_EDIT_STATUS', urmsg_ForceRender);
       UR.Unsubscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
     };
   }, []);
+
+  /// UR HANDLERS /////////////////////////////////////////////////////////////
+  /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  function urmsg_ForceRender() {
+    // This is necessary to force a re-render of "Click to add a Comment"
+    // text area if the comment edit is cancelled and placeholder
+    // comment is removed
+    setForceRender(forceRender => forceRender + 1); // Trigger re-render
+  }
 
   /// COMPONENT UI HANDLERS ///////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -126,6 +139,10 @@ function URCommentThread({ uiref, cref, uid, x, y }) {
 
   const { typeLabel, sourceLabel } = CMTMGR.GetCREFSourceLabel(cref);
 
+  // This is the text area that the user clicks to add a comment
+  // emulates Google Doc comments
+  const showAddCommentClickTarget = !CMTMGR.GetCommentsAreBeingEdited();
+
   return (
     <Draggable>
       <div
@@ -155,7 +172,7 @@ function URCommentThread({ uiref, cref, uid, x, y }) {
               key={cvobj.comment_id}
             />
           ))}
-          {!isDisabled && uid && (
+          {showAddCommentClickTarget && !isDisabled && uid && (
             <textarea
               className="add"
               placeholder="Click to add a Comment..."

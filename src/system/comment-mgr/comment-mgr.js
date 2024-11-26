@@ -676,6 +676,27 @@ MOD.AddComment = cobj => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// User clicks Edit on a comment
+MOD.UIEditComment = cid => {
+  MOD.RegisterCommentBeingEdited(cid);
+  MOD.LockComment(cid);
+  UR.Publish('COMMENTHREAD_UPDATE_EDIT_STATUS');
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// User clicks Cancel on a comment
+MOD.UICancelComment = cid => {
+  MOD.DeRegisterCommentBeingEdited(cid);
+  MOD.UnlockComment(cid);
+  UR.Publish('COMMENTHREAD_UPDATE_EDIT_STATUS');
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// User clicks Save coment
+MOD.UISaveComment = comment => {
+  MOD.UpdateComment(comment);
+  MOD.DeRegisterCommentBeingEdited(comment.comment_id);
+  MOD.UnlockComment(comment.comment_id);
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Update the ac/dc comments, then save it to the db
  * This will also broadcast COMMENT_UPDATE so other clients on the network

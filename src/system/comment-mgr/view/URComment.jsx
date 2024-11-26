@@ -172,8 +172,7 @@ function URComment({ cref, cid, uid }) {
       ...prevState,
       uViewMode
     }));
-    CMTMGR.RegisterCommentBeingEdited(cid);
-    CMTMGR.LockComment(cid);
+    CMTMGR.UIEditComment(cid);
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** handle save button, which saves the state to comment manager.
@@ -184,9 +183,7 @@ function URComment({ cref, cid, uid }) {
     comment.comment_type = selected_comment_type;
     comment.commenter_text = [...commenter_text]; // clone, not byref
     comment.commenter_id = uid;
-    CMTMGR.UpdateComment(comment);
-    CMTMGR.DeRegisterCommentBeingEdited(cid);
-    CMTMGR.UnlockComment(cid);
+    CMTMGR.UISaveComment(comment);
     setState(prevState => ({
       ...prevState,
       uViewMode: CMTMGR.VIEWMODE.VIEW
@@ -470,7 +467,7 @@ function URComment({ cref, cid, uid }) {
             viewMode={CMTMGR.VIEWMODE.VIEW}
             errorMessage={comment_error}
           />
-          {uid && (
+          {uid && !uIsDisabled && (
             <div className="commentbar">
               {!uIsDisabled && !comment.comment_isMarkedDeleted && ReplyBtn}
               {(!uIsDisabled &&

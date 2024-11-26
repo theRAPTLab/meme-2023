@@ -41,7 +41,8 @@
   --clr-comment-read-light: #fff;
 
   --txt-size: 16px;
-  --txt-size-lrg: 24px;
+  --txt-size-xlrg: 24px;
+  --txt-size-lrg: 18px;
   --txt-size-med: 14px;
   --txt-size-sm: 12px;
   --txt-size-tiny: 10px; /* use for display only */
@@ -225,7 +226,7 @@ button.switch span {
   box-shadow: var(--dialog-shadow);
 }
 .dialog h3 {
-  font-size: var(--txt-size-lrg);
+  font-size: var(--txt-size-xlrg);
   font-weight: var(--txt-weight-semibold);
 }
 

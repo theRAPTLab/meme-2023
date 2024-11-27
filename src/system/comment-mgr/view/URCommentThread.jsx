@@ -27,7 +27,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Draggable from 'react-draggable';
-// nc import UNISYS from 'unisys/client';
 import UR from '../../../system/ursys';
 import CMTMGR from '../comment-mgr';
 import URComment from './URComment';
@@ -36,9 +35,7 @@ const STATE = require('../lib/client-state');
 /// CONSTANTS & DECLARATIONS //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Initialize UNISYS DATA LINK for react component
-// nc const UDATAOwner = { name: 'URCommentThread' };
 const UDATAOwner = 'URCommentThread';
-// nc const UDATA = UNISYS.NewDataLink(UDATAOwner);
 const UDATA = UR.NewConnection(UDATAOwner);
 /// Debug Flags
 const DBG = false;
@@ -75,6 +72,7 @@ function URCommentThread({ uiref, cref, uid, x, y }) {
     // This is necessary to force a re-render of "Click to add a Comment"
     // text area if the comment edit is cancelled and placeholder
     // comment is removed
+    // Current disabled state is refreshed with each render
     setForceRender(forceRender => forceRender + 1); // Trigger re-render
   }
 

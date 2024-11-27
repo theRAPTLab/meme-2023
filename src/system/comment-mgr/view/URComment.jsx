@@ -469,14 +469,11 @@ function URComment({ cref, cid, uid }) {
           />
           {uid && !uIsDisabled && (
             <div className="commentbar">
-              {!uIsDisabled && !comment.comment_isMarkedDeleted && ReplyBtn}
-              {(!uIsDisabled &&
-                isAllowedToEditOwnComment &&
+              {!comment.comment_isMarkedDeleted && ReplyBtn}
+              {(isAllowedToEditOwnComment &&
                 !comment.comment_isMarkedDeleted &&
                 EditBtn) || <div></div>}
-              {(((!uIsDisabled &&
-                isAllowedToEditOwnComment &&
-                !comment.comment_isMarkedDeleted) ||
+              {(((isAllowedToEditOwnComment && !comment.comment_isMarkedDeleted) ||
                 isAdmin) &&
                 DeleteBtn) || <div></div>}
             </div>

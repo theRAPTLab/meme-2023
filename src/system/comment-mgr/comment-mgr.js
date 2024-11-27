@@ -49,7 +49,7 @@ import DEFAULTS from '../../app-web/modules/defaults';
 import ADM from '../../app-web/modules/data';
 import DATA from '../../app-web/modules/data';
 
-import CMTDB from './comment-db';
+import * as CMTDB from './comment-db';
 import * as COMMENT from './ac-comment.ts';
 import PMCView from '../../app-web/modules/pmc-view.js';
 
@@ -86,12 +86,7 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
   UR.Subscribe('COMMENTS_UPDATE', MOD.HandleCOMMENTS_UPDATE);
   UR.Subscribe('COMMENT_UPDATE', MOD.HandleCOMMENT_UPDATE);
   UR.Subscribe('READBY_UPDATE', MOD.HandleREADBY_UPDATE);
-  // Net.Create Handlers
-  UR.Subscribe('EDIT_PERMISSIONS_UPDATE', m_UpdatePermissions);
 
-  // Currently not used
-  // UDATA.OnAppStateChange('COMMENTCOLLECTION', COMMENTCOLLECTION => console.log('comment-mgr.COMMENTCOLLECTION state updated:', COMMENTCOLLECTION));
-  // UDATA.OnAppStateChange('COMMENTVOBJS', COMMENTVOBJS => console.error('comment-mgr.COMMENTVOBJS state updated', COMMENTVOBJS));
 }); // end INITIALIZE Hook
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** CONFIGURE fires after LOADASSETS, so this is a good place to put TEMPLATE
@@ -166,12 +161,6 @@ function m_UpdateComment(comment) {
   COMMENT.UpdateComment(cobj, uid);
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function m_UpdatePermissions(data) {
-  UDATA.NetCall('SRV_GET_EDIT_STATUS').then(data => {
-    // disable comment button if someone is editing a comment
-    UDATA.LocalCall('COMMENT_UPDATE_PERMISSIONS', data);
-  });
-}
 // /// API METHODS ///////////////////////////////////////////////////////////////
 // /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -622,10 +611,10 @@ MOD.DeRegisterCommentBeingEdited = cid => {
 
 /// Are ANY comments being edited?
 /// Returns True if ANY comment is being edited
-/// Used by comment status when user clicks on a comment id to view a saved comment
-/// to prevent closing the comment collection if a comment is being edited.
+/// * Used by comment status when user clicks on a comment id to view a saved comment
+///   to prevent closing the comment collection if a comment is being edited.
+/// * Also used by URCommentThread to determine whether "Click to add" is displayed
 MOD.GetCommentsAreBeingEdited = () => {
-  let isBeingEdited = false;
   return COMMENT.GetCommentsAreBeingEdited()
 }
 
@@ -663,7 +652,7 @@ MOD.GetUnreadComments = () => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- * @param {Object} cobj Comment Object
+ * @param {Object} cobj TComment Object
  */
 MOD.AddComment = cobj => {
   // This just generates a new ID, but doesn't update the DB
@@ -675,25 +664,31 @@ MOD.AddComment = cobj => {
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// User clicks Edit on a comment
-MOD.UIEditComment = cid => {
-  MOD.RegisterCommentBeingEdited(cid);
-  MOD.LockComment(cid);
-  UR.Publish('COMMENTHREAD_UPDATE_EDIT_STATUS');
+/** User clicks Edit on a comment
+ *  @param {TCommentID} comment_id
+ */
+MOD.UIEditComment = comment_id => {
+  MOD.RegisterCommentBeingEdited(comment_id);
+  MOD.LockComment(comment_id);
+  UR.Publish('COMMENT_UPDATE_PERMISSIONS');
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// User clicks Cancel on a comment
-MOD.UICancelComment = cid => {
-  MOD.DeRegisterCommentBeingEdited(cid);
-  MOD.UnlockComment(cid);
-  UR.Publish('COMMENTHREAD_UPDATE_EDIT_STATUS');
+/** User clicks Cancel on a comment
+ *  @param {TCommentID} comment_id
+ */
+MOD.UICancelComment = comment_id => {
+  MOD.DeRegisterCommentBeingEdited(comment_id);
+  MOD.UnlockComment(comment_id);
+  UR.Publish('COMMENT_UPDATE_PERMISSIONS');
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// User clicks Save coment
-MOD.UISaveComment = comment => {
-  MOD.UpdateComment(comment);
-  MOD.DeRegisterCommentBeingEdited(comment.comment_id);
-  MOD.UnlockComment(comment.comment_id);
+/** User clicks Save coment
+ *  @param {TComment} cobj
+*/
+MOD.UISaveComment = cobj => {
+  MOD.UpdateComment(cobj);
+  MOD.DeRegisterCommentBeingEdited(cobj.comment_id);
+  MOD.UnlockComment(cobj.comment_id);
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -887,22 +882,34 @@ MOD.HandleREADBY_UPDATE = data => {
 /// DB CALLS //////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.LockComment = comment_id => {
-  console.log('%sLockComment.  Skipping DB operation for now.', 'color:yellow')
-  return;
-  UDATA.NetCall('SRV_DBLOCKCOMMENT', { commentID: comment_id }).then(
-    () => {
-      UDATA.NetCall('SRV_REQ_EDIT_LOCK', { editor: EDITORTYPE.COMMENT });
-      UDATA.LocalCall('SELECTMGR_SET_MODE', { mode: 'comment_edit' });
+  const comment = COMMENT.GetComment(comment_id);
+  if (!comment || comment.id === undefined) {
+    // New Comment, lokiObjID has not been created yet no need to lock
+    if (DBG) console.log(PR, 'LockComment: Probably new comment, Comment not found for comment_id', comment_id);
+    // But update permissions to indicate edit state
+    UR.Publish('COMMENT_UPDATE_PERMISSIONS', { commentBeingEditedByMe: true });
+    return;
+  }
+  const lokiObjID = comment.id;
+  CMTDB.DBLockComment(lokiObjID, data => {
+    if (data.result === 'success') {
+      UR.Publish('COMMENT_UPDATE_PERMISSIONS', { commentBeingEditedByMe: true });
     }
-  );
+  });
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.UnlockComment = comment_id => {
-  console.warn('UnlockComment.  Skipping DB operation for now.')
-  return;
-  UDATA.NetCall('SRV_DBUNLOCKCOMMENT', { commentID: comment_id }).then(() => {
-    UDATA.NetCall('SRV_RELEASE_EDIT_LOCK', { editor: EDITORTYPE.COMMENT });
-    UDATA.LocalCall('SELECTMGR_SET_MODE', { mode: 'normal' });
+  const comment = COMMENT.GetComment(comment_id);
+  if (!comment) {
+    // New Comment, no need to unlock
+    if (DBG) console.log(PR, 'UnlockComment: Probably new comment, Comment not found for comment_id', comment_id);
+    return;
+  }
+  const lokiObjID = comment.id;
+  CMTDB.DBUnlockComment(lokiObjID, data => {
+    if (data.result === 'success') {
+      UR.Publish('COMMENT_UPDATE_PERMISSIONS', { commentBeingEditedByMe: false });
+    }
   });
 }
 

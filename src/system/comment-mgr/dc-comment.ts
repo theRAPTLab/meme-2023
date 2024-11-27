@@ -99,6 +99,8 @@ type CPromptFormat =
   | 'radio'
   | 'likert'
   | 'discrete-slider';
+
+export type TDBRecordId = number;
 export type TCommentID = string;
 export type TCommentType = {
   slug: CType;
@@ -115,7 +117,7 @@ type TCommentPrompt = {
 
 export type TCollectionRef = any;
 export type TComment = {
-  id?: number; // gets added by pmcData after it's added to the db
+  id?: TDBRecordId; // gets added by pmcData after it's added to the db
 
   collection_ref: TCollectionRef; // aka 'cref'
   comment_id: TCommentID;

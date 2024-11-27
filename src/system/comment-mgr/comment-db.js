@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import UR from '../../system/ursys';
 import * as COMMENT from './ac-comment.ts';
 import PMC from '../../app-web/modules/data';
+import ASET from '../../app-web/modules/adm-settings';
 
 /// CONSTANTS & DECLARATIONS //////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -16,13 +17,12 @@ const PR = 'comment-db: ';
 
 /// INITIALIZE MODULE /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const MOD = {};
 const UDATA = UR.NewConnection('comment-db');
 
 /// API METHODS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-MOD.GetCommentData = () => {
+function GetCommentData() {
   // Load the whole `urcomments` table.
   const data = {};
   // placeholder data.commenttypes = ADM.GetCommentTypes();
@@ -32,24 +32,64 @@ MOD.GetCommentData = () => {
   return data;
 }
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * URComment* objects need a unique ID when they are created.
  * Since comments can be created asynchronously, we need to generate a new
  * ID that is unique across any network users.
  * @returns {Promise} Returns a new string comment ID
  */
-MOD.PromiseNewCommentID = () => {
+function PromiseNewCommentID() {
   return new Promise((resolve, reject) => {
     resolve(uuidv4()); // use uuid
   })
 }
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function DBLockComment(lokiObjID, cb) {
+  const pmcDataId = ASET.selectedPMCDataId;
+  UR.DBTryLock('pmcData.urcomments', [pmcDataId, lokiObjID]).then(rdata => {
+    const { success, semaphore, uaddr, lockedBy } = rdata;
+    status += success
+      ? `${semaphore} lock acquired by ${uaddr} `
+      : `failed to acquired ${semaphore} lock `;
+    if (rdata.success) {
+      if (typeof cb === 'function') cb({ result: 'success' });
+      return;
+    } else {
+      alert(
+        `Sorry, someone else (${rdata.lockedBy}) is editing this Comment right now.  Please try again later.`
+      );
+    }
+    if (typeof cb === 'function') cb({ result: 'failed' });
+  });
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function DBUnlockComment(lokiObjID, cb) {
+  const pmcDataId = ASET.selectedPMCDataId;
+  UR.DBTryRelease('pmcData.urcomments', [pmcDataId, lokiObjID]).then(rdata => {
+    const { success, semaphore, uaddr, lockedBy } = rdata;
+    status += success
+      ? `${semaphore} lock released by ${uaddr} `
+      : `failed to release ${semaphore} lock `;
+    if (rdata.success) {
+      if (typeof cb === 'function') cb({ result: 'success' });
+    } else {
+      alert(
+        `Sorry, comment lock could not be released by (${rdata.lockedBy}).  Please try again later. ${JSON.stringify(rdata)} ${JSON.stringify(COMMENTGetCommentBeingEdited())}`
+      );
+    }
+    if (typeof cb === 'function') cb({ result: 'failed' });
+  });
+}
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * The `cb` will include the new `id` if this is a new comment that was just added
- * @param {*} cobj
- * @param {*} cb
+ * @param {TComment} cobj
+ * @param {function} cb
  */
-MOD.DBUpdateComment = (cobj, cb) => {
+function DBUpdateComment(cobj, cb) {
   console.log('DBUpdateComment', cobj)
   const comment = { // TComment
     // id: xxxx // don't inject `id` here yet!  Rely on pmc-objects to auto-add an id
@@ -67,12 +107,13 @@ MOD.DBUpdateComment = (cobj, cb) => {
   // The `cb` will include the new `id` if this is a new comment that was just added
   PMC.UR_CommentUpdate(cobj.collection_ref, comment, cb);
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Note we mark MULTILPLE comments as read with each update
- * @param {*} cref
- * @param {*} uid
+ * @param {TCollectionRef} cref
+ * @param {TUserID} uid
  */
-MOD.DBUpdateReadBy = (cref, uid) => {
+function DBUpdateReadBy(cref, uid) {
   // Get existing readby
   const cvobjs = COMMENT.GetThreadedViewObjects(cref, uid);
   const readbys = [];
@@ -88,6 +129,7 @@ MOD.DBUpdateReadBy = (cref, uid) => {
   });
   PMC.UR_MarkReadBy(readbys);
 }
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Executes multiple database operations via a batch of commands:
  * - `commentIDs` will be deleted
@@ -96,7 +138,7 @@ MOD.DBUpdateReadBy = (cref, uid) => {
  * @param {TCommentQueueActions[]} queuedActions [ ...cobj, ...commentID ]
  * @param {function} cb callback
  */
-MOD.DBRemoveComment = (queuedActions, cb) => {
+function DBRemoveComment(queuedActions, cb) {
   // 1. Collect and process the `commentID` actions.
   // The original NetCreate comment system used a unique string comment
   // but MEME's database requires a numeric id.  So we need to convert
@@ -132,4 +174,12 @@ MOD.DBRemoveComment = (queuedActions, cb) => {
 
 /// EXPORT CLASS DEFINITION ///////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export default MOD;
+export {
+  GetCommentData,
+  PromiseNewCommentID,
+  DBLockComment,
+  DBUnlockComment,
+  DBUpdateComment,
+  DBUpdateReadBy,
+  DBRemoveComment
+};

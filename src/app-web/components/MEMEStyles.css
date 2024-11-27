@@ -215,6 +215,9 @@ button.switch span {
   align-items: center;
   justify-content: center;
 }
+.dialog-container.hidden {
+  display: none;
+}
 .dialog {
   display: flex;
   flex-direction: column;

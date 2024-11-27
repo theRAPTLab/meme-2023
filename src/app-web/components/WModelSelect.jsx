@@ -228,62 +228,62 @@ class WModelSelect extends React.Component {
     );
 
     return (
-      modelSelectDialogOpen && (
-        <div className="WModelSelect dialog-container">
-          <div className="dialog">
-            {TITLEBAR}
-            <h1>Hi {ADM.GetLoggedInUserName()}!</h1>
-            <hr />
-            <div>
-              {CreateNewModelButton}
-              <h2>{ADM.GetStudentGroupName()} Group&rsquo;s Models</h2>
-              <WModelsListTable
-                models={myModels}
-                isAdmin={false}
-                showGroup={false}
-                OnModelSelect={this.OnModelEdit}
-                OnModelClone={this.OnModelClone}
-                OnModelMove={this.OnModelMove}
-                OnModelDelete={this.OnModelDelete}
-              />
-              {canViewOthers && (
-                <>
-                  <h2>My Class&rsquo; Models</h2>
-                  <WModelsListTable
-                    models={ourModels}
-                    isAdmin={false}
-                    showGroup
-                    OnModelSelect={this.OnModelView}
-                    OnModelClone={this.OnModelClone}
-                    OnModelMove={this.OnModelMove}
-                    OnModelDelete={this.OnModelDelete}
-                  />
-                </>
-              )}
-              {isTeacher && (
-                <>
-                  <h2>Deleted Models</h2>
-                  <WModelsListTable
-                    models={deletedModels}
-                    isAdmin
-                    showGroup
-                    OnModelSelect={this.OnModelView}
-                    OnModelClone={this.OnModelClone}
-                    OnModelMove={this.OnModelMove}
-                    OnModelDelete={this.OnModelDelete}
-                  />
-                </>
-              )}
-              <WGroupSelector
-                open={targetSelectDialogOpen}
-                type={targetSelectionType}
-                OnClose={this.OnTargetSelectClose}
-                OnSelect={targetSelectCallback}
-              />
-            </div>
+      <div
+        className={`WModelSelect dialog-container ${modelSelectDialogOpen ? '' : 'hidden'}`}
+      >
+        <div className="dialog">
+          {TITLEBAR}
+          <h1>Hi {ADM.GetLoggedInUserName()}!</h1>
+          <hr />
+          <div>
+            {CreateNewModelButton}
+            <h2>{ADM.GetStudentGroupName()} Group&rsquo;s Models</h2>
+            <WModelsListTable
+              models={myModels}
+              isAdmin={false}
+              showGroup={false}
+              OnModelSelect={this.OnModelEdit}
+              OnModelClone={this.OnModelClone}
+              OnModelMove={this.OnModelMove}
+              OnModelDelete={this.OnModelDelete}
+            />
+            {canViewOthers && (
+              <>
+                <h2>My Class&rsquo; Models</h2>
+                <WModelsListTable
+                  models={ourModels}
+                  isAdmin={false}
+                  showGroup
+                  OnModelSelect={this.OnModelView}
+                  OnModelClone={this.OnModelClone}
+                  OnModelMove={this.OnModelMove}
+                  OnModelDelete={this.OnModelDelete}
+                />
+              </>
+            )}
+            {isTeacher && (
+              <>
+                <h2>Deleted Models</h2>
+                <WModelsListTable
+                  models={deletedModels}
+                  isAdmin
+                  showGroup
+                  OnModelSelect={this.OnModelView}
+                  OnModelClone={this.OnModelClone}
+                  OnModelMove={this.OnModelMove}
+                  OnModelDelete={this.OnModelDelete}
+                />
+              </>
+            )}
+            <WGroupSelector
+              open={targetSelectDialogOpen}
+              type={targetSelectionType}
+              OnClose={this.OnTargetSelectClose}
+              OnSelect={targetSelectCallback}
+            />
           </div>
         </div>
-      )
+      </div>
     );
   }
 }

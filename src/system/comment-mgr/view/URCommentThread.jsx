@@ -48,21 +48,14 @@ const PR = 'URCommentThread';
  *  when the thread is closed.
  */
 function URCommentThread({ uiref, cref, uid, x, y }) {
-  const [isDisabled, setIsDisabled] = useState(false);
   const [forceRender, setForceRender] = useState(0); // Dummy state variable to force update
 
   /** Component Effect - set up listeners on mount */
   useEffect(() => {
-    function urmsg_UpdatePermissions(data) {
-      setIsDisabled(data.commentBeingEditedByMe);
-    }
-
-    UR.Subscribe('COMMENTHREAD_UPDATE_EDIT_STATUS', urmsg_ForceRender);
-    UR.Subscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
+    UR.Subscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_ForceRender);
 
     return () => {
-      UR.Unsubscribe('COMMENTHREAD_UPDATE_EDIT_STATUS', urmsg_ForceRender);
-      UR.Unsubscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_UpdatePermissions);
+      UR.Unsubscribe('COMMENT_UPDATE_PERMISSIONS', urmsg_ForceRender);
     };
   }, []);
 
@@ -122,6 +115,7 @@ function URCommentThread({ uiref, cref, uid, x, y }) {
   /// COMPONENT RENDER ////////////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   const commentVObjs = CMTMGR.GetThreadedViewObjects(cref, uid);
+  const isDisabled = CMTMGR.GetCommentsAreBeingEdited();
 
   /// SUB COMPONENTS
   const CloseBtn = (

@@ -771,7 +771,7 @@ MOD.RemoveComment = parms => {
   MOD.DeRegisterCommentBeingEdited(parms.comment_id);
   MOD.UnlockComment(parms.comment_id);
 
-  UR.Publish('COMMENTHREAD_UPDATE_EDIT_STATUS');
+  UR.Publish('COMMENT_UPDATE_PERMISSIONS');
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**

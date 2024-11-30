@@ -68,18 +68,7 @@ function DBLockComment(lokiObjID, cb) {
 function DBUnlockComment(lokiObjID, cb) {
   const pmcDataId = ASET.selectedPMCDataId;
   UR.DBTryRelease('pmcData.urcomments', [pmcDataId, lokiObjID]).then(rdata => {
-    const { success, semaphore, uaddr, lockedBy } = rdata;
-    status += success
-      ? `${semaphore} lock released by ${uaddr} `
-      : `failed to release ${semaphore} lock `;
-    if (rdata.success) {
-      if (typeof cb === 'function') cb({ result: 'success' });
-    } else {
-      alert(
-        `Sorry, comment lock could not be released by (${rdata.lockedBy}).  Please try again later. ${JSON.stringify(rdata)} ${JSON.stringify(COMMENTGetCommentBeingEdited())}`
-      );
-    }
-    if (typeof cb === 'function') cb({ result: 'failed' });
+    if (typeof cb === 'function') cb({ result: 'success' });
   });
 }
 

@@ -686,9 +686,9 @@ MOD.UICancelComment = comment_id => {
  *  @param {TComment} cobj
 */
 MOD.UISaveComment = cobj => {
-  MOD.UpdateComment(cobj);
-  MOD.DeRegisterCommentBeingEdited(cobj.comment_id);
   MOD.UnlockComment(cobj.comment_id);
+  MOD.DeRegisterCommentBeingEdited(cobj.comment_id);
+  MOD.UpdateComment(cobj);
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -885,7 +885,7 @@ MOD.LockComment = comment_id => {
   const comment = COMMENT.GetComment(comment_id);
   if (!comment || comment.id === undefined) {
     // New Comment, lokiObjID has not been created yet no need to lock
-    if (DBG) console.log(PR, 'LockComment: Probably new comment, Comment not found for comment_id', comment_id);
+    if (DBG) console.log(PR, 'LockComment: Probably new comment.  No need to lock.  Comment not found for comment_id', comment_id);
     // But update permissions to indicate edit state
     UR.Publish('COMMENT_UPDATE_PERMISSIONS', { commentBeingEditedByMe: true });
     return;
@@ -900,16 +900,16 @@ MOD.LockComment = comment_id => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.UnlockComment = comment_id => {
   const comment = COMMENT.GetComment(comment_id);
-  if (!comment) {
+  if (!comment || comment.id === undefined) {
     // New Comment, no need to unlock
-    if (DBG) console.log(PR, 'UnlockComment: Probably new comment, Comment not found for comment_id', comment_id);
+    if (DBG) console.log(PR, 'UnlockComment: Probably new comment.  No need to unlock.  Comment not found for comment_id', comment_id);
+    // But update permissions to indicate edit state
+    UR.Publish('COMMENT_UPDATE_PERMISSIONS', { commentBeingEditedByMe: false });
     return;
   }
   const lokiObjID = comment.id;
   CMTDB.DBUnlockComment(lokiObjID, data => {
-    if (data.result === 'success') {
-      UR.Publish('COMMENT_UPDATE_PERMISSIONS', { commentBeingEditedByMe: false });
-    }
+    UR.Publish('COMMENT_UPDATE_PERMISSIONS', { commentBeingEditedByMe: false });
   });
 }
 

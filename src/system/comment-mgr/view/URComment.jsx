@@ -382,24 +382,6 @@ function URComment({ cref, cid, uid }) {
   //   </select>
   // );
 
-  // Pre-select first option in Dropdowns
-  //   If a prompt is a dropdown, we need to select the first option as the default
-  //   We need to do this before URCommentPrompt is rendered because so we don't
-  //   inadvertently trigger another state update.
-  if (SelectedType) {
-    // walk down all the prompts
-    SelectedType.prompts.forEach((prompt, i) => {
-      if (prompt.format === 'dropdown') {
-        if (commenter_text[i] === undefined) {
-          if (prompt && prompt.options && prompt.options.length > 0)
-            // set the first option as the default
-            commenter_text[i] = prompt.options[0];
-          else throw new Error('Could not find a valid option for dropdown');
-        }
-      }
-    });
-  }
-
   const cvobj = CMTMGR.GetCommentVObj(cref, cid);
 
   let CommentComponent;

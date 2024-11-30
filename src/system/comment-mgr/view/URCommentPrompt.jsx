@@ -190,6 +190,18 @@ function URCommentPrompt({
           );
           break;
         case 'dropdown':
+          if (!prompt.options.includes(commenterText[promptIndex])) {
+            // currently selected value does not match an item in the dropdown
+            // fall back to the first item in the dropdown
+            if (prompt.options.length > 0)
+              commenterText[promptIndex] = prompt.options[0];
+            else {
+              console.warn(
+                `Dropdown for ${commentType} has no options!  Check definition!`
+              );
+              commenterText[promptIndex] = ''; // fall back to an empty string
+            }
+          }
           inputJSX = (
             <select
               value={commenterText[promptIndex] || ''}

@@ -107,6 +107,15 @@ function URComment({ cref, cid, uid }) {
   /** Declare helper method to load viewdata from comment manager into the
    *  component state */
   function c_LoadCommentVObj() {
+    // If the comment is being edited, skip the update, else we'd lose the edit
+    if (state.uIsBeingEdited) {
+      if (DBG)
+        console.log(
+          `COMMENTVOBJS Update!  ${cid} is being edited skipping update!!!`
+        );
+      return;
+    }
+
     const cvobj = CMTMGR.GetCommentVObj(cref, cid);
     const comment = CMTMGR.GetComment(cid);
 

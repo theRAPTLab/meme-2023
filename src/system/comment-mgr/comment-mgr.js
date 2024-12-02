@@ -854,17 +854,44 @@ MOD.HandleCOMMENTS_UPDATE = dataArray => {
  */
 MOD.HandleCOMMENT_UPDATE = data => {
   if (DBG) console.log('COMMENT_UPDATE======================', data);
-  const { comment } = data;
-  if (comment) {
-    m_UpdateComment(comment);
-  } else {
-    // syncAdd and syncUpdate will pass the updated comment
-    // but syncRemove does NOT, so allow for no comment
-    // console.log('comment-mgr: HandleCOMMENT_UPDATE: No comment data:', data);
+
+  // If a new comment is sent over the network
+  // and the incoming comment conflicts with a comment being edited
+  // then re-link the editing comment to point to the incoming comment
+
+  const { comment: incomingComment } = data;
+  const editingCommentId = COMMENT.GetCommentsBeingEdited().values().next().value;
+  const editingComment = COMMENT.GetComment(editingCommentId);
+
+  if (editingComment) {
+    // conflict if both think they're the root
+    if ((incomingComment.comment_id_parent === "" && incomingComment.comment_id_previous === "") &&
+      (editingComment.comment_id_parent === "" && editingComment.comment_id_previous === "")) {
+      if (DBG) console.error('CONFLICT! both think they are root')
+      // Re-link the comment to the incoming
+      editingComment.comment_id_previous = incomingComment.comment_id;
+    }
+    // conflict if previous of both are the same
+    if (incomingComment.comment_id_previous === editingComment.comment_id_previous) {
+      if (DBG) console.error('CONFLICT! both think they are reply to same previous')
+      // Re-link the comment to the incoming
+      editingComment.comment_id_previous = incomingComment.comment_id;
+    }
+    // conflict if parent of both are the same and previous are blank (new reply root)
+    if (incomingComment.comment_id_parent === editingComment.comment_id_parent &&
+      incomingComment.comment_id_previous === "" && editingComment.comment_id_previous === ""
+    ) {
+      if (DBG) console.error('CONFLICT! both think they are reply to same parent')
+      // Re-link the comment to the incoming
+      editingComment.comment_id_previous = incomingComment.comment_id
+    }
   }
-  // and broadcast a state change
-  m_SetAppStateCommentCollections();
-  m_SetAppStateCommentVObjs();
+
+  const updatedComments = [
+    { comment: incomingComment },
+    { comment: editingComment }
+  ];
+  MOD.HandleCOMMENTS_UPDATE(updatedComments);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.HandleREADBY_UPDATE = data => {

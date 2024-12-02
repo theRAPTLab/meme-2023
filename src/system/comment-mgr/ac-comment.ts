@@ -304,6 +304,10 @@ function GetCommentsAreBeingEdited(): boolean {
   return COMMENTS_BEING_EDITED.size > 0;
 }
 
+function GetCommentsBeingEdited(): TCommentsBeingEditedMap {
+  return COMMENTS_BEING_EDITED;
+}
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// UNREAD COMMENTS
 
@@ -601,6 +605,7 @@ export {
   DeRegisterCommentBeingEdited,
   GetCommentBeingEdited,
   GetCommentsAreBeingEdited,
+  GetCommentsBeingEdited,
   // Unread Comments
   GetUnreadRepliesToMe,
   GetUnreadComments,

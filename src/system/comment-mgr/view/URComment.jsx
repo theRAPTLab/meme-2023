@@ -148,7 +148,8 @@ function URComment({ cref, cid, uid }) {
       uIsSelected: cvobj.isSelected,
       uIsBeingEdited: cvobj.isBeingEdited,
       uIsEditable: cvobj.isEditable,
-      uAllowReply: cvobj.allowReply
+      uAllowReply: cvobj.allowReply,
+      uIsDisabled: CMTMGR.GetCommentsAreBeingEdited() // if I'm not editing, but someone else is, disable edit
     });
 
     // Lock edit upon creation of a new comment or a new reply

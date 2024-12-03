@@ -65,6 +65,10 @@
              r2    "r3 Third Comment"                    r4
              r4    "r4 Fourth Comment"                   
 
+      "thread" -- a sequence starting with the first
+                  e.g. [r1, r2, r3, r4]
+                  e.g. [r2.1, r2.2, r2.3]
+      
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
 
 const DBG = false;
@@ -398,7 +402,7 @@ function GetDefaultCommentType(): TCommentType {
 function GetCOMMENTS(): TCommentMap {
   return COMMENTS;
 }
-function GetComment(cid): TComment {
+function GetComment(cid: TCommentID): TComment {
   return COMMENTS.get(cid);
 }
 
@@ -463,10 +467,11 @@ function UpdateComment(cobj: TComment) {
 function m_UpdateComment(cobj: TComment) {
   // Fake modify date until we get DB roundtrip
   cobj.comment_modifytime = new Date().getTime();
-  console.log(
-    'REVIEW: UpdateComment...modify time should use loki time???',
-    cobj.comment_modifytime
-  );
+  // console.log(
+  //   'REVIEW: UpdateComment...modify time should use loki time???',
+  //   cobj.comment_id,
+  //   cobj.comment_modifytime
+  // );
   COMMENTS.set(cobj.comment_id, cobj);
 }
 /**

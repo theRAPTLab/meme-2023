@@ -114,6 +114,8 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
    *  @param {Object} data.comments
    */
 MOD.LoadDBData = () => {
+  if (DBG) console.log('DATA_UPDATED======================');
+
   const TEMPLATE = STATE.State('TEMPLATE');
   COMMENT.LoadTemplate(TEMPLATE.COMMENTTYPES);
   const userStudentId = ADM.GetAuthorId();
@@ -143,6 +145,7 @@ function m_SetAppStateCommentVObjs() {
   STATE.SetState('COMMENTVOBJS', COMMENTVOBJS);
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Handle URMessage COMMENT_UPDATE
 function m_UpdateComment(comment) {
   const cobj = {
     id: comment.comment_id, // inject extra `id` to pass MEME validation checks

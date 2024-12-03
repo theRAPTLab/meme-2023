@@ -480,7 +480,7 @@ function UpdateComment(cobj: TComment, uid: TUserID) {
   const cvobj = GetCommentVObj(cobj.collection_ref, cobj.comment_id);
   if (cvobj === undefined)
     throw new Error(
-      `ac-comment.UpdateComment could not find cobj ${cobj.comment_id}.  Maybe it hasn't been created yet? ${COMMENTVOBJS}`
+      `ac-comment.UpdateComment could not find cvobj ${cobj.comment_id}.  Maybe it hasn't been created yet? ${COMMENTVOBJS}`
     );
 
   // mark it unread

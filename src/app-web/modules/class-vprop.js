@@ -54,14 +54,14 @@ class VProp {
     this.id = propId;
     this.data = Object.assign({}, DATA.Prop(propId)); // copy, not reference
     this.isOutcome = this.data.propType === DATAMAP.PMC_MODELTYPES.OUTCOME.id;
-    this.gRoot = svgRoot.group(); // main reference group
+    this.gRoot = svgRoot.group().attr('class', 'gRoot'); // main reference group
     // this order is important
     this.visBG = this.gRoot.rect(this.width, this.height); // background
     this.visBG.attr({ cursor: 'pointer' });
-    this.gData = this.gRoot.group(); // main data properties
+    this.gData = this.gRoot.group().attr('class', 'gData'); // main data properties
     this.gDataName = this.gData.text(this.data.name.toUpperCase()); // label
     this.gDataName.attr('pointer-events', 'none');
-    this.gKids = this.gRoot.group(); // child components group
+    this.gKids = this.gRoot.group().attr('class', 'gKids') // child components group
     // other default properties
     this.width = m_minWidth;
     this.height = m_minHeight;
@@ -131,18 +131,20 @@ class VProp {
     this.HoverState(false, false);
   }
 
-  HoverState(visible, publishEvent = true) {
+  HoverState(visible, publishEvent = false) {
     if (typeof visible !== 'boolean') throw Error('must specific true or false');
 
     if (visible) {
       this.visualState.Select('hover');
       this.visualStyle.fill.color = this.isOutcome ? COL_HOVER_OUTCOME : COL_HOVER;
       this.visualStyle.fill.opacity = COL_HOVER_OPACITY;
+      this.vBadge.hover = true;
       if (publishEvent) UR.Publish('PROP_HOVER_START', { propId: this.id });
     } else {
       this.visualState.Deselect('hover');
       this.visualStyle.fill.color = this.isOutcome ? COL_BG_OUTCOME : COL_BG;
       this.visualStyle.fill.opacity = COL_BG_OPACITY;
+      this.vBadge.hover = false;
       if (publishEvent) UR.Publish('PROP_HOVER_END', { propId: this.id });
     }
     this.Draw();
@@ -474,7 +476,6 @@ VProp.GetBBox = () => {
 VProp.SizeComponents = () => {
   // first get the list of component ids to walk through
   const components = DATA.Components();
-
   // walk through every component
   components.forEach(compId => {
     recursePropSize(compId); // note: returns bbox, but we're not using it here
@@ -487,6 +488,10 @@ VProp.SizeComponents = () => {
   /// return struct { id, w, h } w/out padding
   function recursePropSize(propId) {
     const vprop = DATA.VM_VProp(propId);
+
+    // if we've been resized, force redraw of badges so that position of badges are updated
+    vprop.vBadge.Update(vprop, true);
+
     // first get base size of vprop's data
     const databbox = vprop.DataSize();
     databbox.h += PAD.MIN; // add vertical padding
@@ -593,7 +598,7 @@ function recurseLayout(pos, id) {
   let widest = 0;
   children.forEach(cid => {
     const childVis = DATA.VM_VProp(cid);
-    widest = Math.max(widest, childVis.KidsSize()).w;
+    widest = Math.max(widest, childVis.KidsSize().w);
     recurseLayout({ x, y }, cid);
     const addH = childVis.PropSize().h + PAD.MIN;
     y += addH;

@@ -24,25 +24,13 @@ import './WAdmRatingsView.css';
 import UR from '../../../../system/ursys';
 import ADM from '../../../modules/data';
 import ADMObj from '../../../modules/adm-objects';
-import RATINGS from '../../../components/WRatings';
+import RATINGS from '../../../modules/class-ratings';
 import WRatingsList from '../../../components/WRatingsList';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PKG = 'AdminRatingsView';
-
-// Replaced by WRatings.jsx
-//
-// const defaults = [
-//   { label: 'Rocks!!', rating: 3 },
-//   { label: 'Medium support', rating: 2 },
-//   { label: 'Weak support', rating: 1 },
-//   { label: 'Not rated / Irrelevant', rating: 0 },
-//   { label: 'Disagrees a little', rating: -1 },
-//   { label: 'Kinda disagrees!', rating: -2 },
-//   { label: 'Really disagrees!', rating: -3 }
-// ];
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -56,6 +44,7 @@ class WRatingsView extends React.Component {
     this.OnEditClick = this.OnEditClick.bind(this);
     this.OnSave = this.OnSave.bind(this);
     this.OnCancel = this.OnCancel.bind(this);
+    // this.OnRevert = this.OnRevert.bind(this);
     this.DoClose = this.DoClose.bind(this);
     this.DoUpdateField = this.DoUpdateField.bind(this);
 
@@ -108,6 +97,10 @@ class WRatingsView extends React.Component {
     } else {
       ratingsDef = ratingsDefObj.definitions;
     }
+
+    // update state
+    RATINGS.updateDefinitions(ratingsDef);
+
     const origRatingsDef = JSON.parse(JSON.stringify(ratingsDef)); // deep clone
     this.setState({
       ratingsDef,
@@ -137,10 +130,17 @@ class WRatingsView extends React.Component {
     );
   }
 
+  // REVIEW: Revert doesn't revert immediately, but only after load
+  // OnRevert() {
+  //   const ratingsDef = RATINGS.getDefaultDefinitions();
+  //   console.log('revert', ratingsDef);
+  //   ADM.DB_RatingsUpdate(this.state.classroomId, ratingsDef);
+  //   this.setState({ ratingsDef });
+  //   this.DoClose();
+  // }
+
   DoClose() {
-    this.setState({
-      isInEditMode: false
-    });
+    this.setState({ isInEditMode: false });
   }
 
   DoUpdateField(rating, label) {
@@ -169,6 +169,9 @@ class WRatingsView extends React.Component {
             UpdateField={this.DoUpdateField}
           />
           <div className="controlbar">
+            {/* <button className="close" onClick={this.OnRevert}>
+              Revert to Default
+            </button> */}
             <button className="close" onClick={this.OnCancel}>
               Cancel
             </button>
@@ -184,7 +187,11 @@ class WRatingsView extends React.Component {
       <div className="WAdmRatingsView dialog">
         <h3>RATINGS DEFINITIONS</h3>
         <WRatingsList RatingsDef={ratingsDef} Mode="inactive" />
-        <button className="edit" onClick={this.OnEditClick} hidden={isInEditMode}>
+        <button
+          className="edit"
+          onClick={this.OnEditClick}
+          hidden={isInEditMode || classroomId < 0}
+        >
           Edit Ratings
         </button>
         {DIALOG}

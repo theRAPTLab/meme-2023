@@ -19,7 +19,7 @@
   justify-content: space-between;
 }
 .WHelpView .toolbar button {
-  font-size: var(--txt-size-lrg);
+  font-size: var(--txt-size-xlrg);
 }
 .WHelpView .content {
   overflow-y: auto;

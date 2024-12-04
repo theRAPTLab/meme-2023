@@ -4,10 +4,10 @@ Ratings List
 
 The WRatingsList is part of a positive/neutral/negative rating system.
 
-RatingsDialog displays a dialog showing the available types of ratings and
+WRatingsDialog displays a dialog showing the available types of ratings and
 lets the user select a rating.
 
-The RatingsList component actually renders each rating item, including the
+The WRatingsList component actually renders each rating item, including the
 positive/negative icons and the label.
 
 The Ratings List has three Modes:
@@ -27,8 +27,8 @@ and setting the mode.
 
 The parent also needs to hand data updates (UpdateField).
 
-Ratings List does not handle its own showing/hiding.  AdmRatingsView and
-RatingsDialog does that.
+WRatingsList does not handle its own showing/hiding.  WAdmRatingsView and
+WRatingsDialog does that.
 
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * /////////////////////////////////////*/
@@ -40,7 +40,11 @@ import PropTypes from 'prop-types';
 import './MEMEStyles.css';
 import './WRatingsList.css';
 
-import RATINGS from './WRatings';
+import WRatingIcon from './WRatingIcon';
+import WRatingButton from './WRatingButton';
+
+// import RATINGS from './WRatings';
+import RATINGS from '../modules/class-ratings';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -53,65 +57,58 @@ const PKG = 'WRatingsList:';
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-class WRatingsList extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  componentDidMount() {}
-
-  componentWillUnmount() {}
-
-  render() {
-    const { SelectedRating, RatingsDef, Mode, UpdateField, OnRatingSelect } =
-      this.props;
-
-    let ratingsDef = RatingsDef;
-
-    return (
-      <div className="WRatingsList">
-        {ratingsDef.map(def => {
-          switch (Mode) {
-            case 'edit':
-              return (
-                <div className="rating transparent" key={def.rating}>
-                  <div>{RATINGS.getIcon(def.rating)}</div>
-                  <input
-                    value={def.label}
-                    placeholder="Label"
-                    onChange={e => UpdateField(def.rating, e.target.value)}
-                  />
-                </div>
-              );
-            case 'active':
-              return (
-                <button
-                  className={`rating transparent ${SelectedRating === String(def.rating) ? 'primary' : ''}`}
-                  key={def.label}
-                  onClick={e => OnRatingSelect(e, def.rating)}
-                >
-                  <div>{RATINGS.getIcon(def.rating)}</div>
-                  <div>{def.label}</div>
-                </button>
-              );
-            case 'inactive':
-            default:
-              return (
-                <div className="rating transparent" key={def.label}>
-                  <div>{RATINGS.getIcon(def.rating)}</div>
-                  <div>{def.label}</div>
-                </div>
-              );
-          }
-        })}
-      </div>
-    );
-  }
+/// REACT FUNCTIONAL COMPONENT ////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function WRatingsList({
+  // RatingsDef, // deprecated -- ratings are now burnt in.
+  Mode,
+  SelectedRating,
+  UpdateField,
+  OnRatingSelect
+}) {
+  const ratingsDefs = RATINGS.getDefinitions();
+  return (
+    <div className="WRatingsList">
+      {ratingsDefs.map(def => {
+        switch (Mode) {
+          case 'edit':
+            return (
+              <div
+                key={def.rating}
+                className={`rating transparent ${SelectedRating === def.rating ? 'primary' : ''}`}
+              >
+                <WRatingIcon rating={def.rating} />
+                <input
+                  value={def.label}
+                  placeholder="Label"
+                  onChange={e => UpdateField(def.rating, e.target.value)}
+                />
+              </div>
+            );
+          default:
+            return (
+              <div
+                key={def.rating}
+                className={`rating WRatingButton transparent ${SelectedRating === def.rating ? 'primary' : ''}`}
+              >
+                <WRatingButton
+                  rating={def.rating}
+                  isExpanded={true}
+                  disabled={SelectedRating === def.rating || Mode === 'inactive'}
+                  ratingLabel=""
+                  OnRatingButtonClick={OnRatingSelect}
+                />
+              </div>
+            );
+        }
+      })}
+    </div>
+  );
 }
 
 WRatingsList.propTypes = {
   SelectedRating: PropTypes.string, // optional
-  RatingsDef: PropTypes.array,
+  // RatingsDef: PropTypes.array, // deprecated -- ratings are now burnt in.
   Mode: PropTypes.string,
   UpdateField: PropTypes.func,
   OnRatingSelect: PropTypes.func // optional
@@ -119,7 +116,7 @@ WRatingsList.propTypes = {
 
 WRatingsList.defaultProps = {
   SelectedRating: '',
-  RatingsDef: [],
+  // RatingsDef: [], // deprecated -- ratings are now burnt in.
   Mode: 'inactive',
   UpdateField: () => {
     console.error('Missing UpdateField handler');

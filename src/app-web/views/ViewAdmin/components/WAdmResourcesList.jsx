@@ -237,7 +237,11 @@ class WResourcesList extends React.Component {
               />
             </div>
             <div className="controlbar">
-              <button className="close" onClick={this.OnDialogCloseClick}>
+              <button
+                className="close"
+                onClick={this.OnDialogCloseClick}
+                type="button"
+              >
                 Cancel
               </button>
               <button className="primary" type="submit">

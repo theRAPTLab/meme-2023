@@ -503,7 +503,9 @@ class WMechDialog extends React.Component {
                   <span aria-hidden="true">One-way</span>
                   <span aria-hidden="true">Two-way</span>
                 </button>
-                <button onClick={this.OnReverse}>Reverse Direction</button>
+                <button onClick={this.OnReverse} type="button">
+                  Reverse Direction
+                </button>
               </div>
               <div className="dialog-row control-bar">
                 <div className="labelbox">
@@ -516,7 +518,7 @@ class WMechDialog extends React.Component {
                     rows="2"
                   />
                 </div>
-                <button className="close" onClick={this.OnClose}>
+                <button className="close" onClick={this.OnClose} type="button">
                   Cancel
                 </button>
                 <button

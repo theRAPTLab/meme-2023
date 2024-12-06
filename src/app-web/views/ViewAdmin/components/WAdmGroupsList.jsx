@@ -217,7 +217,9 @@ class WGroupsList extends React.Component {
               />
             </label>
             <div className="controlbar">
-              <button onClick={this.OnAddGroupDialogClose}>Cancel</button>
+              <button onClick={this.OnAddGroupDialogClose} type="button">
+                Cancel
+              </button>
               <button className="primary" type="submit">
                 Save
               </button>
@@ -250,7 +252,9 @@ class WGroupsList extends React.Component {
               <p className="error">{addStudentDialogInvalidMsg}</p>
             )}
             <div className="controlbar">
-              <button onClick={this.OnAddStudentDialogClose}>Cancel</button>
+              <button onClick={this.OnAddStudentDialogClose} type="button">
+                Cancel
+              </button>
               <button
                 className="primary"
                 type="submit"

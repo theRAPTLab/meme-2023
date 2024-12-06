@@ -164,7 +164,7 @@ class WPropDialog extends React.Component {
                 <textarea value={description} onChange={this.OnDescriptionChange} />
               </label>
               <div className="controlbar">
-                <button className="cancel" onClick={this.DoClose}>
+                <button className="cancel" type="button" onClick={this.DoClose}>
                   Cancel
                 </button>
                 <button className="primary" type="submit">

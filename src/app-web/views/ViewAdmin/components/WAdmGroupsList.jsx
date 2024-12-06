@@ -133,6 +133,7 @@ class WGroupsList extends React.Component {
     e.stopPropagation();
     const names = this.state.addStudentDialogName.split(',').map(name => name.trim());
     ADM.AddStudents(this.state.addStudentDialogGroupId, names);
+    this.setState({ addStudentDialogName: '' }); // clear old names
     this.OnAddStudentDialogClose();
   }
 

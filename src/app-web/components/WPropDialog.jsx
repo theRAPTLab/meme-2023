@@ -113,6 +113,20 @@ class WPropDialog extends React.Component {
 
     const { propId, propType, label, description, isProperty } = this.state;
 
+    function ShowVProp(data) {
+      // Select the new prop
+      const entity = data['pmcData.entities'][0];
+      if (!entity || !entity.id) throw new Error(`Add Prop Failed ${data}`);
+
+      const vprop = DATA.VM_VProp(String(entity.id)); // vprop id is a string
+      DATA.VM_DeselectAllProps();
+      DATA.VM_SelectProp(vprop);
+      UR.Publish('SVG_PANZOOMBBOX_SET', {
+        bbox: vprop.gRoot.bbox(),
+        cb: () => {} // no callback needed
+      });
+    }
+
     if (DBG) console.log('create prop');
     if (isProperty) {
       // Add a property to the selected component
@@ -122,17 +136,24 @@ class WPropDialog extends React.Component {
         if (DBG) console.log('...setting parent of', label, 'to', parentPropId);
         // Create new prop
         const propObj = { name: label, propType, description, parent: parentPropId };
-        DATA.PMC_PropAdd(propObj);
+        DATA.PMC_PropAdd(propObj).then(data => {
+          ShowVProp(data);
+        });
       }
     } else if (propId !== '') {
       // Update existing prop
       const propObj = { name: label, propType, description };
-      DATA.PMC_PropUpdate(propId, propObj);
+      DATA.PMC_PropUpdate(propId, propObj).then(data => {
+        ShowVProp(data);
+      });
     } else {
       // Create new prop
       const propObj = { name: label, propType, description };
-      DATA.PMC_PropAdd(propObj);
+      DATA.PMC_PropAdd(propObj).then(data => {
+        ShowVProp(data);
+      });
     }
+
     this.DoClose();
   }
 

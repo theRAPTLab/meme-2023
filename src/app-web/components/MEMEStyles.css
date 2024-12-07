@@ -240,6 +240,10 @@ button.switch span {
   justify-content: flex-end;
   column-gap: 10px;
 }
+.controlbar .addProcessBtn /* See ViewMeme "Add process" button */ {
+  color: var(--clr-mech-bg);
+  background-color: var(--clr-mech);
+}
 
 /* -- Label Box ------------------------------ */
 .labelbox {

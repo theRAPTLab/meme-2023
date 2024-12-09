@@ -121,10 +121,12 @@ class WPropDialog extends React.Component {
       const vprop = DATA.VM_VProp(String(entity.id)); // vprop id is a string
       DATA.VM_DeselectAllProps();
       DATA.VM_SelectProp(vprop);
-      UR.Publish('SVG_PANZOOMBBOX_SET', {
-        bbox: vprop.gRoot.bbox(),
-        cb: () => {} // no callback needed
-      });
+
+      // Just select it, don't pan/zoom to it per Joshua #41
+      // UR.Publish('SVG_PANZOOMBBOX_SET', {
+      //   bbox: vprop.gRoot.bbox(),
+      //   cb: () => {} // no callback needed
+      // });
     }
 
     if (DBG) console.log('create prop');

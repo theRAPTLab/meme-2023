@@ -258,7 +258,9 @@ VM.VM_SelectProp = vprop => {
 VM.VM_PropMouseEnter = vprop => {
   map_rollover.set(vprop.Id());
   const topPropId = VM.VM_PropsMouseOver().pop();
-  if (vprop.Id() === topPropId) vprop.HoverState(true);
+  if (vprop.Id() === topPropId) {
+    vprop.HoverState(true, true); // publishEvent = true for vprops
+  }
 };
 /** internal function:
  * Called by drag/drop when a mouseexit event occurs

@@ -131,6 +131,12 @@ class VProp {
     this.HoverState(false, false);
   }
 
+  /**
+   *
+   * @param {boolean} visible
+   * @param {boolean} publishEvent If true, send out a UR.Publish hover event so that ToolsPanel updates hover state
+   *                               If false, suppress the Publish event, e.g. we got the Hover state from ToolsPanel to avoid endless loop
+   */
   HoverState(visible, publishEvent = false) {
     if (typeof visible !== 'boolean') throw Error('must specific true or false');
 

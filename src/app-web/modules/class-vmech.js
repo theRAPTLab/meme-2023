@@ -134,14 +134,15 @@ class VMech {
     // click handler for sticky button and evidence badges.
 
     // HOVER
-    this.path.mouseenter(() => this.HoverState(true));
-    this.path.mouseleave(() => this.HoverState(false));
+    const publishEvent = true;
+    this.path.mouseenter(() => this.HoverState(true, publishEvent));
+    this.path.mouseleave(() => this.HoverState(false, publishEvent));
     // Hover over the label to display the comment button
     // but don't unhover until the mouse leaves the pathLabelGroup
     // This prevents flickering when moving from the badge to the sticky button
     // Don't track horizText.mouseleave -- rely on pathLabelBox's mouseleave to remove hover
-    this.horizText.mouseenter(() => this.HoverState(true, false));
-    this.pathLabelGroup.mouseleave(() => this.HoverState(false, false));
+    this.horizText.mouseenter(() => this.HoverState(true, publishEvent));
+    this.pathLabelGroup.mouseleave(() => this.HoverState(false, publishEvent));
     this.HoverStart = this.HoverStart.bind(this);
     this.HoverEnd = this.HoverEnd.bind(this);
     UR.Subscribe('MECH_HOVER_START', this.HoverStart);
@@ -184,16 +185,17 @@ class VMech {
     const publishEvent = false;
     if (mechId === this.id) this.HoverState(true, publishEvent);
   }
-
   HoverEnd(data) {
     const mechId = CoerceToPathId(data.mechId);
-    if (mechId === this.id) this.HoverState(false, false);
+    const publishEvent = false;
+    if (mechId === this.id) this.HoverState(false, publishEvent);
   }
 
   /**
    *
    * @param {boolean} visible
    * @param {boolean} publishEvent If true, send out a UR.Publish hover event so that ToolsPanel updates hover state
+   *                               -- this is necessary for vprops and vmechs (e.g. diagram objects)
    *                               If false, suppress the Publish event, e.g. we got the Hover state from ToolsPanel to avoid endless loop
    */
   HoverState(visible, publishEvent = false) {

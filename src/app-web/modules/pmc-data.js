@@ -1097,7 +1097,8 @@ PMCData.PMC_MechDelete = mechId => {
   const evlinks = PMCData.PMC_GetEvLinksByMechId(mechId);
   if (evlinks)
     evlinks.forEach(evlink => {
-      PMCData.SetEvidenceLinkMechId(evlink.id, undefined);
+      // REVIEW: Use `null` to clear out `mechId`
+      PMCData.SetEvidenceLinkMechId(evlink.id, null);
     });
 
   // Then remove mech
@@ -1377,6 +1378,15 @@ PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
     UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Mechanism "${mechId}"`);
   return PMCData.PMC_EvidenceUpdate(evId, newData);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PMCData.UnlinkEvidenceLink = evId => {
+  const newData = {
+    propId: null,
+    mechId: null
+  };
+  PMCData.PMC_EvidenceUpdate(evId, newData);
+  UTILS.RLog('UnlinkEvidenceLink', `UnlinkS evidence "${evId}"`);
+}
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkNote = (evId, note) => {
   const newData = {

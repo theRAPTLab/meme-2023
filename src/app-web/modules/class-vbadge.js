@@ -181,8 +181,9 @@ class VBadge {
       updatedEvlinks = PMC.PMC_GetEvLinksByPropId(id);
     }
 
-    // if the number of links have changed, then we need to redraw
-    if (oldEvlinks && updatedEvlinks && (oldEvlinks.length !== updatedEvlinks.length)) {
+    // if the number of links have changed or been removed, then we need to redraw
+    if (oldEvlinks && updatedEvlinks && (oldEvlinks.length !== updatedEvlinks.length) ||
+      (oldEvlinks && !updatedEvlinks)) {
       redrawNeeded = true;
     }
 

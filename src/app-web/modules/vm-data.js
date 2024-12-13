@@ -366,11 +366,10 @@ VM.VM_DeselectAllProps = () => {
   if (DBG) vm_DumpSelection('DeselectAllProps');
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** API.VIEWMODEL:
- *  Deselect all vmechs. The vmechs will be updated in its
- *  appearance to reflect its new state
+/** Utility function
+ *  This is so we can deselect without triggering a UR event.
  */
-VM.VM_DeselectAllMechs = () => {
+function DeselectAllMechs() {
   // tell all vprops to clear themselves
   selected_vmechs.forEach(vmid => {
     const vmech = VM.VM_VMech(vmid);
@@ -379,6 +378,15 @@ VM.VM_DeselectAllMechs = () => {
   });
   // clear selection viewmodel
   selected_vmechs.clear();
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.VIEWMODEL:
+ *  Deselect all vmechs. The vmechs will be updated in its
+ *  appearance to reflect its new state
+ */
+VM.VM_DeselectAllMechs = () => {
+  DeselectAllMechs();
+  UR.Publish('SELECTION_CHANGED');
   if (DBG) console.log(`global selection`, selected_vmechs);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -388,8 +396,9 @@ VM.VM_DeselectAllMechs = () => {
  */
 VM.VM_DeselectAll = () => {
   console.warn(`VM_DeselectAll() is deprecated. Use more specific selection manager calls.`);
-  VM.VM_DeselectAllProps();
-  VM.VM_DeselectAllMechs();
+  DeselectAllProps();
+  DeselectAllMechs();
+  UR.Publish('SELECTION_CHANGED');
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
@@ -397,7 +406,7 @@ VM.VM_DeselectAll = () => {
  */
 VM.VM_SelectOneMech = vmech => {
   // set appropriate vprop flags
-  VM.VM_DeselectAllMechs();
+  DeselectAllMechs();
   vmech.visualState.Select();
   vmech.Draw();
   // update viewmodel

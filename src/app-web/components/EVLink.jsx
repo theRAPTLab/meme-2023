@@ -473,8 +473,10 @@ class EVLink extends React.Component {
     if (this.state.isBeingEdited) {
       this.setState({ listenForSourceSelection: true }, () => {
         // Deselect the prop first, otherwise the deleted prop will remain selected
-        DATA.VM_DeselectAllProps();
+        DATA.VM_DeselectAll();
         let evlink = this.props.evlink;
+        // Clear the evlink
+        DATA.UnlinkEvidenceLink(evlink.id);
         UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', {
           evId: evlink.id,
           rsrcId: evlink.rsrcId
@@ -500,7 +502,7 @@ class EVLink extends React.Component {
     if (this.state.listenForSourceSelection) {
       let sourceId;
       // Assume mechs are harder to select so check for them first.
-      let selectedMechIds = DATA.VM_SelectedMechIds();
+      const selectedMechIds = DATA.VM_SelectedMechIds();
       if (DBG) console.log(PKG, 'selection changed mechsIds:', selectedMechIds);
       if (selectedMechIds.length > 0) {
         // Get the last selection

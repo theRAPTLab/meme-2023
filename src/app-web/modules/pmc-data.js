@@ -525,7 +525,7 @@ PMCData.SyncRemovedData = data => {
       let i = a_urcomments.findIndex(c => c.id === value.id);
       a_urcomments.splice(i, 1);
       // no need to build model, just send a data update
-      UR.Publish('COMMENT_UPDATE');
+      UR.Publish('COMMENTS_UPDATE', [{ commentID: value.comment_id }]);
     }
     if (subkey === 'urcomments_readby') {
       // urcomments_readby really doesn't get removed

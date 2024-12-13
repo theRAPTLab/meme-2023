@@ -122,7 +122,9 @@ function URComment({ cref, cid, uid }) {
     // When deleting, COMMENTVOBJS state change will trigger a load and render
     // before the component is unmounted.  So catch it and skip the state update.
     if (!cvobj || !comment) {
-      console.error('c_LoadCommentVObj: comment or cvobj not found!');
+      console.log(
+        'c_LoadCommentVObj: comment or cvobj not found!  Usually because it has been deleted.'
+      );
       return;
     }
 

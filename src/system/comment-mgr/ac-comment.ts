@@ -334,6 +334,8 @@ function GetUnreadComments(): TComment[] {
 /// COMMENT THREAD VIEW OBJECTS
 
 function DeriveAllThreadedViewObjects(uid: TUserID) {
+  COMMENTCOLLECTION.clear();
+  COMMENTVOBJS.clear();
   const crefs = DCCOMMENTS.GetCrefs();
   crefs.forEach(cref => DeriveThreadedViewObjects(cref, uid));
 }
@@ -426,6 +428,9 @@ function GetCOMMENTVOBJS(): TCommentVisualObjectsMap {
 
 function GetCommentVObj(cref: TCollectionRef, cid: TCommentID): TCommentVisualObject {
   const thread = COMMENTVOBJS.get(cref);
+  if (thread === undefined)
+    // fail gracefully if thread not found -- this can happen if the comment has been deleted
+    return;
   const cvobj = thread.find(c => c.comment_id === cid);
   return cvobj;
 }
@@ -549,8 +554,9 @@ function RemoveAllCommentsForCref(parms: {
  * Does NOT trigger a database update
  * (Contrast this with RemoveComment above)
  */
-function HandleRemovedComments(comment_ids: TCommentID[]) {
+function HandleRemovedComments(comment_ids: TCommentID[], uid: TUserID) {
   DCCOMMENTS.HandleRemovedComments(comment_ids);
+  DeriveAllThreadedViewObjects(uid);
 }
 
 /// PASS-THROUGH METHODS //////////////////////////////////////////////////////

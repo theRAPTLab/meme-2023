@@ -48,12 +48,18 @@ import DATA from '../../modules/data';
 import ADM from '../../modules/data';
 import ASET from '../../modules/adm-settings';
 import DATAMAP from '../../../system/common-datamap';
+import RATINGS from '../../modules/class-ratings';
+// MEME Comment Components
+import CMTMGR from '../../../system/comment-mgr/comment-mgr';
+import URCommentStatus from '../../../system/comment-mgr/view/URCommentStatus';
+import URCommentVBtn from '../../../system/comment-mgr/view/URCommentVBtn';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PKG = 'ViewMEME:';
 
+const APPBARHEIGHT = 48; // See MEMEStyles.css --appbar-height
 const SIDEBARWIDTH = 292;
 
 /// PLACEDHOLDER for chat icon until we get comment system in place
@@ -119,7 +125,8 @@ class ViewMEME extends React.Component {
     this.OnOutcomeAdd = this.OnOutcomeAdd.bind(this);
     this.OnPropAdd = this.OnPropAdd.bind(this);
     this.OnPropDelete = this.OnPropDelete.bind(this);
-    this.OnAddPropComment = this.OnAddPropComment.bind(this);
+    this.OnAddEntityComment = this.OnAddEntityComment.bind(this);
+    this.OnAddOutcomeComment = this.OnAddOutcomeComment.bind(this);
     this.OnAddMechComment = this.OnAddMechComment.bind(this);
     this.OnMechDelete = this.OnMechDelete.bind(this);
     this.DoPropEdit = this.DoPropEdit.bind(this);
@@ -212,6 +219,7 @@ class ViewMEME extends React.Component {
     const userStudentId = ADM.GetAuthorId();
     const userGroupId = ADM.GetGroupIdByStudent(userStudentId);
     const isModelAuthor = userGroupId === (model ? model.groupId : '');
+    RATINGS.updateDefinitions(ADM.GetRatingsDefinition(ADM.GetSelectedClassroomId()));
     this.setState({
       title,
       modelId,
@@ -237,7 +245,7 @@ class ViewMEME extends React.Component {
     const viewWidth = this.viewRect.width;
     const viewHeight = this.viewRect.height;
     const innerWidth = window.innerWidth - sidebarwidth;
-    const innerHeight = window.innerHeight;
+    const innerHeight = window.innerHeight - APPBARHEIGHT;
     if (DBG)
       console.log(
         'UpdateDimensions',
@@ -386,16 +394,32 @@ class ViewMEME extends React.Component {
     });
   }
 
-  OnAddPropComment() {
+  OnAddEntityComment() {
     let selectedPropIds = DATA.VM_SelectedPropsIds();
     if (selectedPropIds.length > 0) {
       let propId = selectedPropIds[0];
-      UR.Publish('STICKY_OPEN', {
-        refId: propId,
-        // FIXME: Set position according to parent prop?
-        x: 600, // stickynote hack moves it by -325
-        y: 100
-      });
+
+      // DEPRECATED StickyNotes in favor of URCommentCollectionMgr
+      // UR.Publish('STICKY_OPEN', {
+      //   refId: propId,
+      //   // MEFIX: Set position according to parent prop?
+      //   x: 600, // stickynote hack moves it by -325
+      //   y: 100
+      // });
+
+      const cref = CMTMGR.GetCREF('ENTITY', propId);
+      if (DBG) console.log('---- OnAddPropComment', cref);
+      CMTMGR.OpenCommentCollection(cref, { x: 600, y: 100 });
+    }
+  }
+
+  OnAddOutcomeComment() {
+    let selectedPropIds = DATA.VM_SelectedPropsIds();
+    if (selectedPropIds.length > 0) {
+      let propId = selectedPropIds[0];
+      const cref = CMTMGR.GetCREF('OUTCOME', propId);
+      if (DBG) console.log('---- OnAddOutcomeComment', cref);
+      CMTMGR.OpenCommentCollection(cref, { x: 600, y: 100 });
     }
   }
 
@@ -404,12 +428,19 @@ class ViewMEME extends React.Component {
     if (selectedMechIds.length > 0) {
       let mechId = selectedMechIds[0];
       let mech = DATA.Mech(mechId);
-      UR.Publish('STICKY_OPEN', {
-        refId: mech.id,
-        // FIXME: Set position according to parent prop?
-        x: 600, // stickynote hack moves it by -325
-        y: 100
-      });
+
+      // DEPRECATED StickyNotes in favor of URCommentCollectionMgr
+      // UR.Publish('STICKY_OPEN', {
+      //   refId: mech.id,
+      //   // MEFIX: Set position according to parent prop?
+      //   x: 600, // stickynote hack moves it by -325
+      //   y: 100
+      // });
+
+      // We're using the pmcData id, not the path object
+      const cref = CMTMGR.GetCREF('PROCESS', mech.id); // mech.id = '167'
+      if (DBG) console.log('---- OnAddMechComment', cref);
+      CMTMGR.OpenCommentCollection(cref, { x: 600, y: 100 });
     }
   }
 
@@ -639,7 +670,7 @@ class ViewMEME extends React.Component {
         <WPropDialog />
         {/* General Information Dialog */}
         <WInfoDialog />
-        <StickyNoteCollection />
+        {/* <StickyNoteCollection /> DEPRECATED for URComent */}
         <WRatingsDialog />
         <WMechDialog />
         <WScreenshotView />
@@ -678,11 +709,16 @@ class ViewMEME extends React.Component {
             onBlur={this.DoSaveModelTitle}
           />
         </form>
+        <URCommentVBtn cref="projectcmt" />
         <div>by {modelAuthorGroupName} Group</div>
-        <StickyNoteButton refId="9999" />
+        {/* <StickyNoteButton refId="9999" /> */}
         <button onClick={this.OnCloseModel}>
           {studentName}&nbsp;:&nbsp;{studentGroup}
         </button>
+        <URCommentStatus
+          message={'commentStatusMessage'}
+          handleMessageUpdate={'handleMessageUpdate'}
+        />
         <button onClick={this.OnLogout}>Logout</button>
         <button onClick={this.OnHelp}>?</button>
         {APPBAR_RESOURCELIB}
@@ -749,21 +785,24 @@ class ViewMEME extends React.Component {
         >
           {IcnAdd} Add property
         </button>
+        {/* Comments are now displayed in VProp and VMech
         <button
-          className="comment"
+          className="comment-btn"
           hidden={
             !(componentIsSelected || outcomeIsSelected || mechIsSelected) ||
             isDBReadOnly
           }
           onClick={
-            componentIsSelected || outcomeIsSelected
-              ? this.OnAddPropComment
-              : this.OnAddMechComment
+            componentIsSelected
+              ? this.OnAddEntityComment
+              : outcomeIsSelected
+                ? this.OnAddOutcomeComment
+                : this.OnAddMechComment
           }
         >
           {CHATICON}
           &nbsp;&nbsp;Add Comment
-        </button>
+        </button> */}
       </div>
     );
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -2,6 +2,7 @@
   height: 100% !important;
   top: 0px !important;
   bottom: 0px !important;
+  z-index: var(--z-model-select);
 }
 
 .WModelSelect .dialog {

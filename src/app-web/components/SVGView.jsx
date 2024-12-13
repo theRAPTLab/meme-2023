@@ -30,6 +30,8 @@ class SVGView extends React.Component {
     // bindings
     this.DoAppLoop = this.DoAppLoop.bind(this);
     this.DoPanZoomOut = this.DoPanZoomOut.bind(this);
+    this.DoPanZoomSet = this.DoPanZoomSet.bind(this);
+    this.DoPanZoomBBoxSet = this.DoPanZoomBBoxSet.bind(this);
     this.DoPanZoomReset = this.DoPanZoomReset.bind(this);
     // LIFECYCLE: Initialize DataGraph
 
@@ -39,6 +41,8 @@ class SVGView extends React.Component {
     // Look for Data Updates
     UR.Subscribe('DATA_UPDATED', this.DoAppLoop);
     UR.Subscribe('SVG_PANZOOM_OUT', this.DoPanZoomOut);
+    UR.Subscribe('SVG_PANZOOM_SET', this.DoPanZoomSet);
+    UR.Subscribe('SVG_PANZOOMBBOX_SET', this.DoPanZoomBBoxSet);
     UR.Subscribe('SVG_PANZOOM_RESET', this.DoPanZoomReset);
   }
 
@@ -70,11 +74,59 @@ class SVGView extends React.Component {
   componentWillUnmount() {
     UR.Unsubscribe('DATA_UPDATED', this.DoAppLoop);
     UR.Unsubscribe('SVG_PANZOOM_OUT', this.DoPanZoomOut);
+    UR.Unsubscribe('SVG_PANZOOM_SET', this.DoPanZoomSet);
+    UR.Unsubscribe('SVG_PANZOOMBBOX_SET', this.DoPanZoomBBoxSet);
     UR.Unsubscribe('SVG_PANZOOM_RESET', this.DoPanZoomReset);
   }
 
   DoPanZoomOut() {
-    PMCView.PanZoomOut(this.props.viewWidth,this.props.viewHeight);
+    PMCView.PanZoomOut(this.props.viewWidth, this.props.viewHeight);
+  }
+
+  /**
+   * Pans and zooms to the xy point to the center of the view
+   * @param {Object} data
+   * @param {number} data.x left position of vprop
+   * @param {number} data.y top position of vprop
+   * @param {number} data.z optional zoom
+   */
+  DoPanZoomSet(data) {
+    const parms = {
+      x: data.x || 100,
+      y: data.y || 100,
+      w: this.props.viewWidth,
+      h: this.props.viewHeight,
+      z: data.zoom || 1
+    };
+    PMCView.PanZoomSet(parms);
+  }
+
+  /**
+   * Pans and zooms the bbox object to the center of the view
+   * with a callback that returns the moved bounding box.
+   * The callback is used to open a comment AFTER the parent
+   * object has been panned and zoomed
+   * @param {Object} data
+   * @param {number} data.bbox.x
+   * @param {number} data.bbox.y
+   * @param {number} data.bbox.width
+   * @param {number} data.bbox.height
+   * @param {number} data.bbox.zoom
+   * @param {number} data.cb
+   */
+  DoPanZoomBBoxSet(data) {
+    const { bbox, cb } = data;
+    const x = bbox.x + bbox.width / 2 - this.props.viewWidth / 2;
+    const y = bbox.y + bbox.height / 2 - this.props.viewHeight / 2;
+    const parms = {
+      x,
+      y,
+      w: this.props.viewWidth,
+      h: this.props.viewHeight,
+      z: bbox.zoom || 1
+    };
+    PMCView.PanZoomSet(parms);
+    if (cb && typeof cb === 'function') cb(PMCView.GetBBox());
   }
 
   DoPanZoomReset() {

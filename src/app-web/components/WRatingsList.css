@@ -6,12 +6,19 @@
 
 .WRatingsList > .rating {
   display: grid;
-  grid-template-columns: 100px auto;
+  grid-template-columns: 50px auto;
   justify-content: start;
   align-items: center;
   column-gap: 10px;
   margin-bottom: 5px;
+  padding: 5px;
   width: 300px;
+}
+.WRatingsList > .rating.WRatingButton {
+  grid-template-columns: auto;
+}
+.WRatingsList > .rating:hover {
+  background-color: var(--clr-btn-hover);
 }
 
 .WRatingsList button.primary {

@@ -29,7 +29,7 @@ module.exports = env => {
             // exclude: /node_modules/
           },
           {
-            test: /\.jsx?$/,
+            test: /\.(jsx?|tsx?)$/,
             use: {
               loader: 'babel-loader'
             },

@@ -3,9 +3,12 @@
   --clr-txt-reverse: white;
   --clr-txt-help: #696969;
   --clr-btn-primary: #4f66a0;
+  --clr-btn-primary-hover: #354263;
+  --clr-btn-danger: #e9000e;
+  --clr-btn-danger-hover: #b2000b;
   --clr-btn-cancel: #696969;
 
-  --clr-btn-hover: #0003;
+  --clr-btn-hover: #0003; /* appbar */
 
   --clr-entity: #0088d4; /* aka 'prop' */
   --clr-entity-dark: #004f7a; /* use for text on bg */
@@ -32,9 +35,14 @@
   --clr-evlink-bg-hover: #e8faf7;
 
   --clr-comment: #ffe143;
+  --clr-comment-dark: #d44127;
+  --clr-comment-light: #ffe143;
+  --clr-comment-read-dark: #696969;
+  --clr-comment-read-light: #fff;
 
   --txt-size: 16px;
-  --txt-size-lrg: 24px;
+  --txt-size-xlrg: 24px;
+  --txt-size-lrg: 18px;
   --txt-size-med: 14px;
   --txt-size-sm: 12px;
   --txt-size-tiny: 10px; /* use for display only */
@@ -46,13 +54,16 @@
   --clr-appbar: var(--clr-txt-reverse);
   --clr-appbar-bg: #4f66a0;
   --clr-appbar-bg-other: #999;
-  --appbar-height: 48px;
+  --appbar-height: 48px; /* used in ViewMEME.jsx */
 
   --dialog-border-radius: 8px;
   --dialog-shadow: 0px 4px 27.7px 0px rgba(0, 0, 0, 0.25);
-  --z-dialog: 1000;
   --z-resource-list: 1250;
   --z-help: 1600;
+  --z-model-select: 2999;
+  --z-login: 3000;
+  --z-dialog: 3010;
+  /* URcomment z-index: 2000 - 2500; */
 }
 
 body {
@@ -61,7 +72,7 @@ body {
 }
 
 h3 {
-  font-size: var(--clr-txt);
+  font-size: var(--txt-size);
   font-weight: var(--txt-weight);
 }
 
@@ -99,12 +110,15 @@ h3 {
 .appbar input::placeholder {
   color: #fff8;
 }
-.appbar button {
+.appbar > button {
   color: var(--clr-appbar);
   background-color: transparent;
 }
-.appbar button:hover {
+.appbar > button:hover {
   background-color: var(--clr-btn-hover);
+}
+.appbar > div > .commentbtn {
+  margin-top: 5px;
 }
 
 /* -- BUTTON --------------------------------- */
@@ -117,15 +131,21 @@ button.primary {
   color: var(--clr-txt-reverse);
   background-color: var(--clr-btn-primary);
 }
+button.primary:hover {
+  background-color: var(--clr-btn-primary-hover);
+}
 button.cancel {
   color: var(--clr-txt-reverse);
   background: var(--clr-btn-cancel);
 }
 button.danger {
   color: var(--clr-txt-reverse);
-  background-color: #e9000e;
+  background-color: var(--clr-btn-danger);
 }
-button.comment {
+button.danger:hover {
+  background-color: var(--clr-btn-danger-hover);
+}
+button.comment-btn {
   color: var(--clr-txt);
   background-color: var(--clr-comment);
 }
@@ -145,7 +165,7 @@ button.close {
   align-self: flex-end;
 }
 button:hover {
-  opacity: 0.8;
+  filter: brightness(85%) saturate(120%);
 }
 button:disabled {
   opacity: 0.5;
@@ -195,6 +215,9 @@ button.switch span {
   align-items: center;
   justify-content: center;
 }
+.dialog-container.hidden {
+  display: none;
+}
 .dialog {
   display: flex;
   flex-direction: column;
@@ -206,6 +229,7 @@ button.switch span {
   box-shadow: var(--dialog-shadow);
 }
 .dialog h3 {
+  font-size: var(--txt-size-xlrg);
   font-weight: var(--txt-weight-semibold);
 }
 
@@ -250,4 +274,40 @@ button.switch span {
 }
 .ev-title .ICNCountBadge {
   margin-right: 0.5rem;
+}
+
+/* -- SVG Comment ---------------------------- */
+.svgcmt-read .svg-fill {
+  fill: var(--clr-comment-read-light);
+}
+.svgcmt-read .svg-outline {
+  fill: var(--clr-comment-read-light);
+}
+
+.svgcmt-read-outlined .svg-fill {
+  fill: var(--clr-comment-read-light);
+}
+.svgcmt-read-outlined .svg-outline {
+  fill: var(--clr-comment-read-dark);
+}
+
+.svgcmt-readSelected .svg-fill {
+  fill: var(--clr-comment-read-dark);
+}
+.svgcmt-readSelected .svg-outline {
+  fill: var(--clr-comment-read-dark);
+}
+
+.svgcmt-unread .svg-fill {
+  fill: var(--clr-comment-light);
+}
+.svgcmt-unread .svg-outline {
+  fill: var(--clr-comment-dark);
+}
+
+.svgcmt-unreadSelected .svg-fill {
+  fill: var(--clr-comment-dark);
+}
+.svgcmt-unreadSelected .svg-outline {
+  fill: var(--clr-comment-dark);
 }

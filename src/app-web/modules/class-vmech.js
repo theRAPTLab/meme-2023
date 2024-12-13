@@ -91,7 +91,7 @@ class VMech {
     });
 
     // The pathLabelGroup contains:
-    // 1. pathLabelBox -- a rectangle background
+    // 1. pathLabelBox -- a transparent rectangle bg to cover the path
     // 2. horizText -- the visible mechanism label, displayed horizontally, not along the path
     // 3. VBadges -- evidence link badge(s) + sticky note button
     this.pathLabelGroup = svgRoot.nested(); // we use `nested` so we can set x,y
@@ -121,20 +121,27 @@ class VMech {
     // shared modes
     this.visualState = new VisualState(this.id);
     this.displayMode = {};
-    // event hack for may 1
+
+    // CLICK Handlers
     this.HandleSelect = this.HandleSelect.bind(this);
     this.path.click(this.HandleSelect);
-    this.pathLabel.click(this.HandleSelect);
+    // clicks are handled by pathLabelGroup
     this.pathLabelGroup.click(this.HandleSelect);
+    // WARNING
+    // Don't try to use this.vBadge.gBadges.click to handle clicks
+    // It will overwrite the vBadge object's click handler
+    // Clicks are handled by the vBadge object, which has its own
+    // click handler for sticky button and evidence badges.
 
-    // hack hover
-    // Don't track pathLabelGroup mouseenter/leave because it causes crazy flickers as you move across the group components
-    // Don't track horizText.mouseleave -- rely on pathLabelBox's mouseleave to remove hover
+    // HOVER
     this.path.mouseenter(() => this.HoverState(true));
     this.path.mouseleave(() => this.HoverState(false));
-    this.horizText.mouseenter(() => this.HoverState(true));
-    this.pathLabelBox.mouseenter(() => this.HoverState(true));
-    this.pathLabelBox.mouseleave(() => this.HoverState(false));
+    // Hover over the label to display the comment button
+    // but don't unhover until the mouse leaves the pathLabelGroup
+    // This prevents flickering when moving from the badge to the sticky button
+    // Don't track horizText.mouseleave -- rely on pathLabelBox's mouseleave to remove hover
+    this.horizText.mouseenter(() => this.HoverState(true, false));
+    this.pathLabelGroup.mouseleave(() => this.HoverState(false, false));
     this.HoverStart = this.HoverStart.bind(this);
     this.HoverEnd = this.HoverEnd.bind(this);
     UR.Subscribe('MECH_HOVER_START', this.HoverStart);
@@ -178,8 +185,9 @@ class VMech {
     if (mechId === this.id) this.HoverState(true, publishEvent);
   }
 
-  HoverEnd() {
-    this.HoverState(false, false);
+  HoverEnd(data) {
+    const mechId = CoerceToPathId(data.mechId);
+    if (mechId === this.id) this.HoverState(false, false);
   }
 
   /**
@@ -188,14 +196,16 @@ class VMech {
    * @param {boolean} publishEvent If true, send out a UR.Publish hover event so that ToolsPanel updates hover state
    *                               If false, suppress the Publish event, e.g. we got the Hover state from ToolsPanel to avoid endless loop
    */
-  HoverState(visible, publishEvent = true) {
+  HoverState(visible, publishEvent = false) {
     if (typeof visible !== 'boolean') throw Error('must specific true or false');
 
     if (visible) {
       this.visualState.Select('hover');
+      this.vBadge.hover = true;
       if (publishEvent) UR.Publish('MECH_HOVER_START', { mechId: CoerceToEdgeObj(this.id) });
     } else {
       this.visualState.Deselect('hover');
+      this.vBadge.hover = false;
       if (publishEvent) UR.Publish('MECH_HOVER_END', { mechId: CoerceToEdgeObj(this.id) });
     }
     this.Draw();
@@ -215,7 +225,7 @@ class VMech {
       const data = DATA.Mech(this.sourceId, this.targetId);
       this.data.name = data.name;
 
-      // If uisng HORIZONTAL TEXT, Update the VBadge horizText instead of the pathLabel
+      // If using HORIZONTAL TEXT, Update the VBadge horizText instead of the pathLabel
       this.vBadge.Update(this);
 
       // no change in srcId or tgtId so return
@@ -226,18 +236,23 @@ class VMech {
       this.sourceId = srcId;
       this.targetId = tgtId;
 
+      let labelHasChanged = false; // forces a badge update if label changes
+
       // update visual data fields
       const data = DATA.Mech(this.sourceId, this.targetId);
+      if (data.name !== this.data.name) labelHasChanged = true;
       this.data.name = data.name;
 
       // update label in case it changed
       // pathLabel needs to have content, hence the period.  A space results in the positioning getting set at 0,0
       this.pathLabel.children()[0].text('.'); // used for positining pathLabelGroup
       this.horizText.children()[0].text(this.data.name);
-      this.pathLabelBox.width(this.horizText.length() + 10);
+      // we want to slightly overlap the sticky button so that
+      // the hover state doesn't flicker when moving from the badge to the sticky button
+      this.pathLabelBox.width(this.horizText.length() + 20);
 
       // Update the VBadge horizText instead of the pathLabel
-      this.vBadge.Update(this);
+      this.vBadge.Update(this, labelHasChanged);
 
       // update visual paths
       const srcVProp = DATA.VM_VProp(srcId);

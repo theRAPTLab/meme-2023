@@ -1,10 +1,13 @@
 import DEFAULTS from './defaults';
-import ADM from './data';
 import PMC from './data';
 import UR from '../../system/ursys';
-import VMech from './class-vmech';
+const STATE = require('../../system/comment-mgr/lib/client-state');
 
-const { VPROP, COLOR, SVGSYMBOLS } = DEFAULTS;
+import CMTMGR from '../../system/comment-mgr/comment-mgr';
+import VMech from './class-vmech';
+import RATINGS from './class-ratings';
+
+const { VPROP, COLOR, SVGDEFS, CREF_PREFIX } = DEFAULTS;
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -14,11 +17,20 @@ const { VPROP, COLOR, SVGSYMBOLS } = DEFAULTS;
 const m_minWidth = VPROP.MIN_WIDTH;
 const m_minHeight = VPROP.MIN_HEIGHT;
 const m_pad = 5; // was PAD.MIN, but that's too big.  5 works better
+const badgeItemRadius = m_minHeight - m_pad / 2; // each commentbtn/evlink badge
+const evlinkBadgeXOffset = badgeItemRadius * 1.75 + m_pad; // wide badge with rating embedded
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 const PKG = 'VBadge';
+const UDATAOwner = 'class-vbadge';
+
+/// MODULE HELPERS /////////////////////////////////////////////////////////////
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function m_IsVMech(parent) {
+  return parent instanceof VMech;
+}
 
 /// CLASS DECLARATION /////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,11 +45,27 @@ class VBadge {
    * @param {object} vparent Parent component: class-vprop or class-vmech
    */
   constructor(vparent) {
+    this.baseRedrawNeeded = true;
+
     // Init Data
     this.width = m_minWidth;
     this.height = m_minHeight;
     this.evlinks = [];
+    this.oldRating = undefined; // track rating changes to optimize drawing
     this.comments = [];
+    this.commentCount = 0;
+    this.isVMech = m_IsVMech(vparent);
+    this.cref = '';
+    this.hover = false;
+    if (this.isVMech)
+      this.cref = CREF_PREFIX.PROCESS + vparent.data.id;  // CMTMGR.GetCREF('PROCESS', id);
+    else if (vparent.isOutcome)
+      this.cref = CREF_PREFIX.OUTCOME + vparent.id;  // CMTMGR.GetCREF('OUTCOME', id);
+    else
+      this.cref = CREF_PREFIX.ENTITY + vparent.id;  // CMTMGR.GetCREF('ENTITY', id);
+
+    // Bind Methods
+    this.Refresh = this.Refresh.bind(this);
 
     // create our own groups
     /**
@@ -45,20 +73,36 @@ class VBadge {
      *    |
      *    +-- gBadges (group)
      *           |
-     *           +- gEvLinkBadges (group)
-     *           |
      *           +-- gStickyButtons (group)
+     *           |
+     *           +-- gEvLinkBadges (group)
      */
-    this.gBadges = vparent.GetVBadgeParent().group().attr('id', 'gBadges');
-    this.gEvLinkBadges = this.gBadges.group().attr('id', 'gEvLinkBadges');
-    this.gStickyButtons = VBadge.SVGStickyButton(vparent, 0, 0);
-    this.gBadges.add(this.gStickyButtons);
+    this.gBadges = vparent.GetVBadgeParent().group().attr('class', 'gBadges');
+    this.gStickyButtons = VBadge.SVGStickyButton(this.gBadges, this.cref, this.isVMech);
+    this.gEvLinkBadges = this.gBadges.group().attr('class', 'gEvLinkBadges');
 
-    this.gBadges.click(e => {
-      this.OnClick(e);
-    });
+    this.gBadges.click(e => { this.OnClick(e); });
+
+    STATE.OnStateChange('COMMENTCOLLECTION', () => this.Refresh(vparent), UDATAOwner);
 
     this.Update(vparent);
+    this.DrawBase(vparent);
+
+  }
+
+  /**
+   *  Release is called by VProp or VMech
+   */
+  Release() {
+    STATE.OffStateChange('COMMENTCOLLECTION', () => this.Refresh(vparent));
+    this.gStickyButtons.remove();
+    this.gEvLinkBadges.remove();
+    this.gBadges.remove();
+  }
+
+  Refresh(vparent) {
+    // COMMENTCOLLECTION changes force vBadge comment button to update with opened/closed status
+    this.Draw(vparent);
   }
 
   /**
@@ -72,11 +116,11 @@ class VBadge {
 
     // Convert click screen coordinates to svg coordinates
     const { offsetX, offsetY } = mouseEvent;
-    let svg = document.getElementById('modelSVG');
-    let pt = svg.createSVGPoint();
+    const svg = document.getElementById('modelSVG');
+    const pt = svg.createSVGPoint();
     pt.x = mouseEvent.clientX;
     pt.y = mouseEvent.clientY;
-    let svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
 
     // Which component got the click?
     if (this.gStickyButtons && this.gStickyButtons.inside(svgPt.x, svgPt.y)) {
@@ -97,6 +141,7 @@ class VBadge {
     }
   }
 
+  // REVIEW: vprop.PropSize might result in Draw being called twice here.
   SetDimensionsFromParent(vparent) {
     this.width = vparent.width;
     this.height = vparent.height;
@@ -114,35 +159,80 @@ class VBadge {
 
   /**
    *  Update is called by VProp/VMech before Draw
-   * @param {*} vparent class-vprop or class-vmech
+   * @param {Object} vparent class-vprop or class-vmech
+   * @param {boolean} forceRedraw
    */
-  Update(vparent) {
+  Update(vparent, forceRedraw = false) {
     const id = vparent.id;
+
+    // did anything change?
+
+    // force redraw if the label has changed
+    // force redraw if the vprop size has changed so that badges are moved to the right position
+    let redrawNeeded = this.baseRedrawNeeded || forceRedraw;
+
+    const oldEvlinks = this.evlinks;
+    let updatedEvlinks;
     if (m_IsVMech(vparent)) {
       // parent is a VMech
-      this.evlinks = PMC.PMC_GetEvLinksByMechId(id);
+      updatedEvlinks = PMC.PMC_GetEvLinksByMechId(id);
     } else {
       // parent is VProp
-      this.evlinks = PMC.PMC_GetEvLinksByPropId(id);
+      updatedEvlinks = PMC.PMC_GetEvLinksByPropId(id);
     }
+
+    // if the number of links have changed, then we need to redraw
+    if (oldEvlinks && updatedEvlinks && (oldEvlinks.length !== updatedEvlinks.length)) {
+      redrawNeeded = true;
+    }
+
+    // if the ratings have changed, then we need to redraw
+    // REVIEW: For some reason this.evlinks and updatedEvlinks are already updated by the time
+    // class-vbadge.Update is called.  So we can't compare old and new ratings here.
+    oldEvlinks.forEach((oldEvlink, i) => {
+      if (oldEvlink.rating !== this.oldRating) {
+        redrawNeeded = true;
+      }
+    });
+
+    this.baseRedrawNeeded = redrawNeeded;
+    this.evlinks = updatedEvlinks || [];
   }
 
   /**
-   *  Draw is called by VProp or VMech
-   * @param {*} vparent class-vprop or class-vmech
+   *  Main Draw method
+   *  Decides whether a complete redraw is necessary (to render base objects)
+   *  or just an update (to render data changes to existing objects).
+   *  This will improve performance dramatically!
+   *
+   *  @param {*} vparent class-vprop or class-vmech
    */
   Draw(vparent) {
+    if (this.baseRedrawNeeded) this.DrawBase(vparent);
+    this.DrawUpdate(vparent);
+  }
+
+  /**
+   *  `DrawBase` draws the core badge elements (sticky note buttons and evidence link badges)
+   *  setting the initial object positions and is ONLY called when an update is needed.
+   *
+   *  We want to limit the number of times we call this method because it is expensive.
+   *
+   *  Changes tracked:
+   *  - evlinks are added/removed
+   *  - evlink rating is changed
+   *
+   *  @param {*} vparent class-vprop or class-vmech
+   */
+  DrawBase(vparent) {
     // draw badges from left to right
-
-    const isVMech = m_IsVMech(vparent);
-
     let xOffset;
     let yOffset;
     let x;
     let y;
     let baseX;
     let baseY;
-    if (isVMech) {
+    if (this.isVMech) {
       // VMech
       x = 0;
       y = 0;
@@ -164,11 +254,11 @@ class VBadge {
       baseY = y + yOffset + m_pad * 2;
     }
 
-    // counter offset for each badge
-    let xx = 0;
+    // first reset positions
+    this.gStickyButtons.move(0, -7);
 
     // draw evidence link badges
-    // -- first clear the group in case objects have changed
+    // -- Clear the group in case objects have changed
     this.gEvLinkBadges.clear();
     if (this.evlinks) {
       // First sort evlinks by numberLabel
@@ -176,70 +266,90 @@ class VBadge {
         return a.numberLabel > b.numberLabel ? 1 : -1;
       });
       // Then draw each badge
-      evlinks.forEach(evlink => {
+      evlinks.forEach((evlink, i) => {
         const badge = VBadge.SVGEvLink(evlink, vparent);
+        this.oldRating = evlink.rating;
+        badge.move(i * evlinkBadgeXOffset, -7);
         this.gEvLinkBadges.add(badge);
-        if (isVMech) {
-          // Draw left-justified
-          badge.move(baseX + xx + badge.width(), baseY);
-        } else {
-          // Draw right-justified
-          badge.move(baseX + xx - badge.width() - m_pad, baseY);
-        }
-        xx += badge.width() + m_pad;
       });
+      // -- Move evlink badges to the right of stickynote button
+      this.gEvLinkBadges.move(badgeItemRadius + m_pad, -7);
     }
 
-    // Set Current Read/Unreaad status
-    let hasNoComments;
-    let hasUnreadComments;
-    const comments = PMC.GetComments(isVMech ? vparent.data.id : vparent.id);
-    if (comments === undefined) {
-      hasNoComments = true;
-      hasUnreadComments = false;
+    // set initial position of sticky note buttons and evlink badges
+    const evlinkBadgesOffsetX = this.evlinks ? this.evlinks.length * evlinkBadgeXOffset : 0;
+    if (this.isVMech) {
+      // VMech is left-justified
+      this.gBadges.move(baseX + badgeItemRadius, baseY);
     } else {
-      hasNoComments = comments.length < 1;
-      const author = ADM.GetAuthorId();
-      hasUnreadComments = PMC.HasUnreadComments(comments, author);
-    }
-    if (hasNoComments) {
-      this.gStickyButtons.chat.attr('display', 'none');
-      this.gStickyButtons.chatBubble.attr('display', 'none');
-      this.gStickyButtons.chatBubbleOutline.attr('display', 'none'); // don't show outline ot keep interface clean
-    } else if (hasUnreadComments) {
-      this.gStickyButtons.chat.attr('display', 'inline');
-      this.gStickyButtons.chatBubble.attr('display', 'none');
-      this.gStickyButtons.chatBubbleOutline.attr('display', 'none');
-    } else {
-      // all comments read
-      this.gStickyButtons.chat.attr('display', 'none');
-      this.gStickyButtons.chatBubble.attr('display', 'inline');
-      this.gStickyButtons.chatBubbleOutline.attr('display', 'none');
+      // VProp is right-justified
+      this.gBadges.move(baseX - evlinkBadgesOffsetX - badgeItemRadius - m_pad, baseY + 4);
     }
 
-    // Move gStickyButtons only AFTER setting display state, otherwise, the icon will get drawn at 0,0
-    if (isVMech) {
-      // left-justified
-      this.gStickyButtons.move(baseX + xx + this.gStickyButtons.bbox().w + m_pad, baseY); // always move in case evlink badges change
-    } else {
-      // right-justified
-      this.gStickyButtons.move(baseX + xx - this.gStickyButtons.bbox().w - m_pad, baseY); // always move in case evlink badges change
-    }
-
-    // adjust for width of vprop
-    if (!isVMech) {
-      let { w: bw } = this.gEvLinkBadges.bbox();
-      this.gBadges.move(baseX - bw - this.gStickyButtons.bbox().w - m_pad * 2, baseY);
-    }
+    this.baseRedrawNeeded = false;
   }
 
   /**
-   *  Release is called by VProp or VMech
+   *  `DrawUpdate` updates changed data and is called by VProp or VMech
+   *
+   *  Changes tracked:
+   *  - comment count change
+   *  - comment thread is opened/closed
+   *  - comment thread is marked read
+   *
+   *  @param {*} vparent class-vprop or class-vmech
    */
-  Release() {
-    this.gStickyButtons.remove();
-    this.gEvLinkBadges.remove();
-    this.gBadges.remove();
+  DrawUpdate(vparent) {
+    // Set Current Read/Unreaad status
+    const comments = PMC.GetURComments(this.cref);
+    let hasComments;
+    let hasUnreadComments;
+    if (comments === undefined) {
+      hasComments = false;
+      hasUnreadComments = false;
+    } else {
+      hasComments = comments.length > 0;
+      const ccol = CMTMGR.GetCommentCollection(this.cref) || {};
+      hasUnreadComments = ccol.hasUnreadComments;
+    }
+
+    const uistate = CMTMGR.GetCommentUIState(this.cref);
+    const commentThreadIsOpen = uistate && uistate.isOpen;
+
+    // update count on draw b/c number of comments might change
+    if (Array.isArray(comments)) this.commentCount = comments.filter(c => !c.comment_isMarkedDeleted).length;
+
+    this.gStickyButtons.gLabel
+      .text(this.commentCount) // BUG: If text is empty, dragging seeems to lead to a race condition
+
+    // update sticky button icons and comment count label
+    // this replicates what URCommentBtn usually handles
+    if (!hasComments && !this.hover && !commentThreadIsOpen && !vparent.visualState.IsSelected()) {
+      // no sticky buttons
+      this.gStickyButtons.attr({ visibility: 'hidden' });
+    } else {
+      // has sticky buttons
+      this.gStickyButtons.attr({ visibility: 'visible' });
+      if (hasUnreadComments) {
+        // Unread
+        if (commentThreadIsOpen) {
+          this.gStickyButtons.gIcon.attr('class', 'svgcmt-unreadSelected');
+          this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_LIGHT });
+        } else {
+          this.gStickyButtons.gIcon.attr('class', 'svgcmt-unread');
+          this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_DARK });
+        }
+      } else {
+        // Read
+        if (commentThreadIsOpen) {
+          this.gStickyButtons.gIcon.attr('class', 'svgcmt-readSelected');
+          this.gStickyButtons.gLabel.font({ fill: '#fff' });
+        } else {
+          this.gStickyButtons.gIcon.attr('class', this.isVMech ? 'svgcmt-read-outlined' : 'svgcmt-read');
+          this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_READ });
+        }
+      }
+    }
   }
 }
 
@@ -259,7 +369,7 @@ VBadge.New = vparent => {
  *  De-allocate VProp instance by id.
  */
 VBadge.Release = () => {
-  console.error('I dont think this is aalled');
+  console.error('I dont think this is called');
   // const vbadge = DATA.VM_VBadge(evId);
   // DATA.VM_VBadgeDelete(evId);
   // return vbadge.Release();
@@ -269,6 +379,10 @@ VBadge.Release = () => {
  *  Update instance from associated data id
  */
 VBadge.Update = evId => {
+  console.error('VBadge.Update');
+  // REVIEW: text updates should happen here
+  // Draw() is called after Update() in the parent component
+
   // not updated yet
   // const vbadge = DATA.VM_VBadge(evId);
   // if (vbadge) vbadge.Update();
@@ -282,7 +396,6 @@ VBadge.Update = evId => {
  */
 VBadge.SVGEvLink = (evlink, vparent) => {
   const root = vparent.gRoot;
-  const radius = m_minHeight - m_pad / 2;
 
   const onClick = customEvent => {
     const e = customEvent.detail.event || customEvent; // class-vprop-dragdrop sends custom events, but vmech sends regular mouse events.
@@ -293,117 +406,79 @@ VBadge.SVGEvLink = (evlink, vparent) => {
   };
 
   // create vbadge sub elements
-  const gBadge = root.group().click(onClick);
-  gBadge.gCircle = gBadge.circle(radius).fill('#4db6ac');
-  gBadge.gCircle.attr({ cursor: 'pointer' });
+  const gEvLink = root.group().attr({ id: 'gEvLink' }).click(onClick);
+  gEvLink.gRect = gEvLink.rect(badgeItemRadius * 1.75, badgeItemRadius).radius(badgeItemRadius / 2).fill('#4db6ac');
+  gEvLink.gRect.attr({ cursor: 'pointer' });
 
-  gBadge.gLabel = gBadge
+  gEvLink.gLabel = gEvLink
     .text(evlink.numberLabel)
     .font({ fill: '#fff', size: '12px', anchor: 'middle' })
-    .dmove(radius / 2, radius / 2 + 4)
+    .dmove(badgeItemRadius / 2, badgeItemRadius / 2 + 4)
     .attr({ cursor: 'pointer' });
 
-  gBadge.gRating = VBadge.SVGRating(evlink, gBadge).move(
-    1 + (3 - Math.max(1, Math.abs(evlink.rating))) * 4, // always shift at least 1 symbol, since no rating is 0
-    radius + 1
-  );
-
-  return gBadge;
+  gEvLink.gRating = new VBadge.SVGRating(evlink, gEvLink)
+    .dmove(badgeItemRadius * 0.9, 4.5);
+  return gEvLink;
 };
 
 /// SVGRating  ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  Creates and returns the rating icon for a badge
+ *  Creates and returns the rating emoji icon for a badge
  */
-VBadge.SVGRating = (evlink, gBadge) => {
+VBadge.SVGRating = (evlink, gEvLink) => {
   const rating = evlink.rating;
-  let gRatings = gBadge.gRatings || gBadge.group(); // use existing group if it exists
-  gRatings.clear();
-  if (rating > 0) {
-    // positive
-    for (let i = 0; i < rating; i++) {
-      gRatings
-        .use(SVGSYMBOLS.get('ratingsPositive'))
-        .dmove(i * (5 + m_pad / 2), 0)
-        .scale(0.4);
-    }
-  } else if (rating < 0) {
-    // negative
-    for (let i = 0; i < -rating; i++) {
-      gRatings
-        .use(SVGSYMBOLS.get('ratingsNegative'))
-        .dmove(i * (5 + m_pad / 2), 0)
-        .scale(0.4);
-    }
-  } else {
-    // Not Rated
-    gRatings
-      .use(SVGSYMBOLS.get('ratingsNeutral'))
-      .move(m_pad / 2 - 1, 0)
-      .scale(0.4);
-  }
-
+  const gRatings = gEvLink
+    .group()
+    .attr({ id: 'gRatings' })
+    .move(badgeItemRadius * 0.9, 4.5);
+  gRatings.group().circle(18).fill('#fff');
+  gRatings.group()
+    .add(RATINGS.getSVGIcon(rating))
+    .move(1, 1);
   return gRatings;
 };
 
 /// SVGStickyButton  //////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- *  Creates and returns a sticky button group object with three buttons to turn on/off
+ *  Creates and returns a comment button group object to turn on/off
  *
  *  Click Events
  *  VProp's drag handler prevents click and mouseup events from propagating
- *  down to the gStickyButtons group.
+ *  down to the gStickyButtons group, so we have to handle ourselves.
  */
-VBadge.SVGStickyButton = (vparent, x, y) => {
+VBadge.SVGStickyButton = (gbadges, cref) => {
   const onClick = customEvent => {
     let e = customEvent.detail.event || customEvent; // class-vprop-dragdrop sends custom events, but vmech sends regular mouse events.
     e.preventDefault();
     e.stopPropagation();
     if (DBG) console.log(`${e.target} clicked e=${e}`);
-    // special handling for mechs
-    // mech.id is actually a pathid, not the PMCData (db) id.
-    // We want comments to reference the db id so that they are unique and persistent
-    // e.g. when a mech is reversed, the id remains the same
-    // e.g. when a mech is deleted, the id is deleted, so if a new mech with the same pathid
-    //      is created, the comment isn't pulled up again.
-    let id = vparent.id;
-    if (m_IsVMech(vparent)) {
-      id = vparent.data.id;
-    }
-    UR.Publish('STICKY_OPEN', {
-      refId: id,
-      x: e.clientX,
-      y: e.clientY
-    });
+    CMTMGR.OpenCommentCollection(cref, { x: e.clientX, y: e.clientY });
   };
 
   // create vbadge sub elements
-  let gStickyButtons = vparent.gRoot
-    .group()
-    .move(x, y)
-    .attr({
-      id: 'gStickyNoteBtn',
-      cursor: 'pointer'
-    })
+  // 1. main gStickyButtons group
+  let gStickyButton = gbadges
+    .group().addClass('gStickyNoteBtn')
+    .attr({ cursor: 'pointer' })
     .click(onClick);
+  // Using the svg defs requires using `clone`
+  gStickyButton.gIcon = gStickyButton.group()
+    .attr('class', 'svgcmt-read')
+    .add(SVGDEFS.get('comment').clone()).scale(1.6);
 
-  // Create SVG Icons
-  gStickyButtons.chat = gStickyButtons.group().use(SVGSYMBOLS.get('chatIcon'));
-  gStickyButtons.chatBubble = gStickyButtons.group().use(SVGSYMBOLS.get('chatBubble'));
-  gStickyButtons.chatBubbleOutline = gStickyButtons
-    .group()
-    .use(SVGSYMBOLS.get('chatBubbleOutline'));
+  // 3. comment count label group
+  gStickyButton.gLabel = gStickyButton
+    // BUG: If text is empty (undefined or '' or even ' '), dragging leads to doubling the drag distance
+    // BUG: Always set text to a non-empty string to avoid the bug
+    .text('-')
+    .font({ fill: COLOR.COMMENT_DARK, size: '12px', anchor: 'middle' })
+    .attr({ cursor: 'pointer' })
+    .dmove(5.5, 10);
 
-  return gStickyButtons;
+  return gStickyButton;
 };
-
-/// MODULE HELPERS /////////////////////////////////////////////////////////////
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function m_IsVMech(parent) {
-  return parent instanceof VMech;
-}
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

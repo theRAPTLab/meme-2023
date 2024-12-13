@@ -133,7 +133,9 @@ class WTeacherSelector extends React.Component {
             onChange={e => this.setState({ selectedTeacherName: e.target.value })}
           />
           <div className="controlbar">
-            <button onClick={this.OnAddTeacherDialogClose}>Cancel</button>
+            <button onClick={this.OnAddTeacherDialogClose} type="button">
+              Cancel
+            </button>
             <button type="submit">Save</button>
           </div>
         </form>

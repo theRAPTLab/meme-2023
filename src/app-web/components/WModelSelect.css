@@ -10,6 +10,7 @@
   height: 100%;
   padding: 24px;
   background-color: white;
+  box-shadow: none; /* Prevents shadow showing on shorter screens */
 }
 
 .WModelSelect .dialog > .titlebar {

@@ -785,6 +785,16 @@ class ViewMEME extends React.Component {
         >
           {IcnAdd} Add property
         </button>
+        {(componentIsSelected || outcomeIsSelected) && (
+          <button
+            className="addProcessBtn"
+            onClick={this.OnMechAdd}
+            hidden={isViewOnly}
+          >
+            Add {DATAMAP.PMC_MODELTYPES.MECHANISM.label}
+          </button>
+        )}
+
         {/* Comments are now displayed in VProp and VMech
         <button
           className="comment-btn"

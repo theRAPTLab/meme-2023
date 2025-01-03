@@ -114,6 +114,9 @@ import StickyNoteButton from './StickyNoteButton';
 import WRatingButton from './WRatingButton';
 import EVLinkButton from './EVLinkButton';
 import { Dropzone } from './Dropzone';
+// MEME Comment Components
+import CMTMGR from '../../system/comment-mgr/comment-mgr';
+import URCommentVBtn from '../../system/comment-mgr/view/URCommentVBtn';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -194,6 +197,7 @@ class EVLink extends React.Component {
   }
 
   DoDataUpdate() {
+    if (DBG) console.log(PKG, this.props.evlink.id, 'DoDataUpdate');
     // The same EvidenceLink can be displayed in both the Resource Library
     // and a Resource View.  If one is updated, the other needs to update itself
     // via the DATA_UPDATED call because `note` is only set by props
@@ -414,6 +418,7 @@ class EVLink extends React.Component {
   }
 
   DoEvidenceLinkOpen(data) {
+    if (DBG) console.log(PKG, 'DoEvidenceLinkOpen');
     if (this.props.evlink.id === data.evId) {
       if (DBG) console.log(PKG, 'Expanding', data.evId);
 
@@ -468,8 +473,10 @@ class EVLink extends React.Component {
     if (this.state.isBeingEdited) {
       this.setState({ listenForSourceSelection: true }, () => {
         // Deselect the prop first, otherwise the deleted prop will remain selected
-        DATA.VM_DeselectAllProps();
+        DATA.VM_DeselectAll();
         let evlink = this.props.evlink;
+        // Clear the evlink
+        DATA.UnlinkEvidenceLink(evlink.id);
         UR.Publish('REQUEST_SELECT_EVLINK_SOURCE', {
           evId: evlink.id,
           rsrcId: evlink.rsrcId
@@ -479,6 +486,7 @@ class EVLink extends React.Component {
   }
 
   DoEnableSourceSelect(data) {
+    if (DBG) console.log(PKG, 'DoEnableSourceSelect');
     // Other EvidenceLink has triggered a set target (usually from ResourceView)
     // so we need to listen too
     if (data.evId === this.props.evlink.id) {
@@ -490,10 +498,11 @@ class EVLink extends React.Component {
 
   // User has selected a different component/property/mechanism as the source
   DoSelectionChange() {
+    if (DBG) console.log(PKG, 'DoSelectionChange');
     if (this.state.listenForSourceSelection) {
       let sourceId;
       // Assume mechs are harder to select so check for them first.
-      let selectedMechIds = DATA.VM_SelectedMechIds();
+      const selectedMechIds = DATA.VM_SelectedMechIds();
       if (DBG) console.log(PKG, 'selection changed mechsIds:', selectedMechIds);
       if (selectedMechIds.length > 0) {
         // Get the last selection
@@ -562,6 +571,8 @@ class EVLink extends React.Component {
       listenForSourceSelection
     } = this.state;
     if (id === '') return '';
+
+    const cref = CMTMGR.GetCREF('EVLINK', id);
 
     let sourceType;
     let sourceLabel;
@@ -659,7 +670,7 @@ class EVLink extends React.Component {
         isExpanded={isExpanded}
         disabled={!isBeingEdited}
         ratingLabel=""
-        ratingDefs={ratingDefs}
+        // ratingDefs={ratingDefs} Deprecated.  Ratings are now burnt in.
         OnRatingButtonClick={this.OnRatingButtonClick}
       />
     );
@@ -679,7 +690,6 @@ class EVLink extends React.Component {
 
     ///////////////////////////////////////////////////////////////////////////
     /// MAIN VIEWS
-
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // hover: isHovered -- restore?  not currently used.
     const VIEW_COLLAPSED = (
@@ -699,7 +709,7 @@ class EVLink extends React.Component {
         </div>
         {/* Buttons ------------------------------------------------------- */}
         <div className="rightbar">
-          <StickyNoteButton refId={id} />
+          <URCommentVBtn cref={cref} />
           {RATING}
         </div>
       </div>
@@ -718,7 +728,7 @@ class EVLink extends React.Component {
         <div className="titlebar">
           <ICNCountBadge count={evlink.numberLabel} size="medium" type="ev-light" />
           <div style={{ flexGrow: 1 }}></div>
-          <StickyNoteButton refId={id} />
+          <URCommentVBtn cref={cref} />
           {!isBeingEdited && <ICNExpandSingleArrow expanded={isExpanded} />}
         </div>
         {/* Leave it out for now to save space

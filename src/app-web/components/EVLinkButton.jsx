@@ -119,6 +119,7 @@ class EVLinkButton extends React.Component {
         onClick={this.OnClick}
         className={`EVLinkButton ${btnClass} ${isExpanded ? 'expanded' : ''}`}
         disabled={isDisabled}
+        type="button"
       >
         {icon}
         <span>{label}</span>

@@ -5,7 +5,7 @@
   bottom: 0;
   right: 0;
   background-color: #4f64a0;
-  z-index: var(--z-help);
+  z-index: var(--z-login);
 
   display: flex;
   flex-direction: column;
@@ -24,7 +24,7 @@
   row-gap: 12px;
 }
 .WLogin.dialog h1 {
-  font-size: var(--txt-size-lrg);
+  font-size: var(--txt-size-xlrg);
   font-weight: var(--txt-weight-bold);
   margin-block-end: 0;
 }

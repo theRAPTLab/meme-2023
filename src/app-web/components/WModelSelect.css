@@ -2,6 +2,7 @@
   height: 100% !important;
   top: 0px !important;
   bottom: 0px !important;
+  z-index: var(--z-model-select);
 }
 
 .WModelSelect .dialog {
@@ -9,6 +10,7 @@
   height: 100%;
   padding: 24px;
   background-color: white;
+  box-shadow: none; /* Prevents shadow showing on shorter screens */
 }
 
 .WModelSelect .dialog > .titlebar {

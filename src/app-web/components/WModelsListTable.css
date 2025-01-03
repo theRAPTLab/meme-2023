@@ -1,5 +1,5 @@
-.WModelsListTable .handsontable td {
-  font-size: var(--txt-size-tiny);
+.WModelsListTable td {
+  font-size: var(--txt-size-lrg);
   vertical-align: baseline;
 }
 

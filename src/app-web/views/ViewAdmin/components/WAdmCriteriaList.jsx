@@ -69,6 +69,7 @@ class WCriteriaList extends React.Component {
             <button
               className="transparent"
               onClick={() => OnDeleteCriteriaClick(crit.id)}
+              type="button"
             >
               {IcnTrash}
             </button>

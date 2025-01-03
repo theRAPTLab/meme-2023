@@ -206,6 +206,7 @@ class WCriteriaView extends React.Component {
             className="close"
             onClick={this.OnEditCancel}
             hidden={!isInEditMode}
+            type="button"
           >
             Close
           </button>
@@ -213,6 +214,7 @@ class WCriteriaView extends React.Component {
             className="primary"
             onClick={this.OnEditSave}
             hidden={!isInEditMode}
+            type="submit"
           >
             Save
           </button>

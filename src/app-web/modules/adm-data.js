@@ -850,6 +850,7 @@ ADMData.DB_NewModel = (data, cb) => {
  * @param {string} date
  */
 ADMData.OnModelModificationUpdate = data => {
+  if (DBG) console.log('%cADM_MODEL_MODIFIED', 'background-color: #66F', data);
   if (data === undefined || data.modelId === undefined)
     throw Error('ADM_MODEL_MODIFIED called with no modelId');
   ADMData.DB_ModelModificationUpdate(data.modelId);
@@ -954,6 +955,8 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
     clonedPMCData.visuals = rfdc(sourcePMCData.visuals);
     clonedPMCData.comments = rfdc(sourcePMCData.comments);
     clonedPMCData.markedread = rfdc(sourcePMCData.markedread);
+    clonedPMCData.urcomments = rfdc(sourcePMCData.urcomments);
+    clonedPMCData.urcomments_readby = rfdc(sourcePMCData.urcomments_readby);
     // -- Check for missing resources
     ADMData.AnnounceMissingResources(sourceModelId, clonedGroupId);
 
@@ -1428,7 +1431,7 @@ ADMData.DB_RatingsUpdate = (classroomId, ratingsDef) => {
 
 /**
  * @param {Integer} classroomId
- * @return {Array} [ratingsDefition] -- Array of ratings defintion objects,
+ * @return {Array} [ratingsDefition] -- Array of ratings definition objects,
  *                                      Returns [] if not found
  */
 ADMData.GetRatingsDefinitionObject = classroomId => {

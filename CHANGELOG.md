@@ -2,7 +2,7 @@
 
 - [Unreleased](#unreleased)
 
-- [1.4.0-final](#140-final) - 2025-01-02 - IU Winter 2025 Pilot
+- [1.4.0-final](#140-final) - 2025-01-03 - IU Winter 2025 Study
 - [1.4.0-alpha](#140-alpha) - 2024-01-26 - Unreleased version focusing on Electron Build Updates.
 - [1.3.2-final](#132-final) - 2024-05-21 - Final version used during Spring 2021 Implementation
 - [Final-version-used-during-Spring-2021-Implementation](#final-version-used-during-spring-2021-Implementation) - 2021-06-09 -
@@ -27,8 +27,8 @@
 ---
 
 ## [1.4.0-final](../../releases/tag/v1.4.0-final)
-2025-01-02
-IU Winter 2025 Pilot
+2025-01-03
+IU Winter 2025 Study
 
 ### Main Changes
 * New custom UI components (remove MUI)

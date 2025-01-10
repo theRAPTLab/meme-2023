@@ -240,7 +240,7 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
         format: 'dropdown',
         prompt: 'Is this supported by evidence?', // prompt label
         options: ['😀 Yes', '🤔 Some', '🥲 No'],
-        help: 'Select one.'
+        helpIgnore: 'Select one.'
       },
       {
         format: 'text',
@@ -257,12 +257,16 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
         format: 'discrete-slider',
         prompt: 'How clear is this model to you?', // prompt label
         options: ['★', '★', '★', '★', '★'],
-        help: 'More stars means more clear!',
-        feedback: 'We can also have help here'
+        help: 'More stars means more clear!'
       },
       {
         format: 'text',
         prompt: 'What made you pick that number?', // prompt label
+        help: 'Please be specific to help your friend.'
+      },
+      {
+        format: 'text',
+        prompt: 'What do you think they should change?', // prompt label
         help: 'Please be specific to help your friend.'
       }
     ]
@@ -275,11 +279,17 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
         format: 'dropdown',
         prompt: 'Does this include all of the useful steps?', // prompt label
         options: ['😀 Yes', '🤔 Mostly', '🥲 No', '🥲 Too many'],
-        help: 'Select one.'
+        helpIgnore: 'Select one.'
+      },
+      {
+        format: 'dropdown',
+        prompt: 'Are there any unnecessary / extra steps?', // prompt label
+        options: ['😀 No', '🤔 Some', '🥲 Yes'],
+        helpIgnore: 'Select one.'
       },
       {
         format: 'text',
-        prompt: 'What made you pick that number?', // prompt label
+        prompt: 'What changes do you think would make this better?', // prompt label
         help: 'Please be specific to help your friend.'
       }
     ]

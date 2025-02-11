@@ -91,6 +91,7 @@ export type CType =
   | 'evidence'
   | 'organized'
   | 'accurate'
+  | 'simplified'
   | 'cmt'
   | 'tellmemore'
   | 'source'
@@ -237,46 +238,46 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
   },
   {
     slug: 'evidence',
-    label: 'Evidence Suggestion or Compliment',
+    label: 'Evidence and Facts',
     prompts: [
       {
         format: 'dropdown',
-        prompt: 'Is this supported by evidence?', // prompt label
+        prompt: 'Is this based on evidence and facts?', // prompt label
         options: ['😀 Yes', '🤔 Some', '🥲 No'],
         helpIgnore: 'Select one.'
       },
       {
         format: 'text',
         prompt: 'What would you change?', // prompt label
-        help: 'Please be specific to help your classmates.'
+        help: "Please list specific evidence or facts, and how you'd change the model."
       }
     ]
   },
   {
     slug: 'organized',
-    label: 'Organized Suggestion or Compliment',
+    label: 'Organized and Makes Sense',
     prompts: [
       {
         format: 'discrete-slider',
-        prompt: 'How well organized is this model?', // prompt label
+        prompt: 'How organized and understandable is this model?', // prompt label
         options: ['★', '★', '★', '★', '★'],
         help: 'More stars means more organized!'
       },
       {
         format: 'text',
         prompt: 'What made you pick that number?', // prompt label
-        help: 'Please be specific to help your classmates.'
+        help: 'Please be specific about what part is not understandable.'
       },
       {
         format: 'text',
         prompt: 'What do you think they should change?', // prompt label
-        help: 'Please be specific to help your classmates.'
+        help: 'Please be specific about what you would add or change.'
       }
     ]
   },
   {
     slug: 'accurate',
-    label: 'Accurate Suggestion or Compliment',
+    label: 'Accurate',
     prompts: [
       {
         format: 'dropdown',
@@ -287,7 +288,24 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
       {
         format: 'text',
         prompt: 'What changes do you think would make this better?', // prompt label
-        help: 'Please be specific to help your classmate.'
+        help: 'Please be specific what you would change to be more accurate.'
+      }
+    ]
+  },
+  {
+    slug: 'simplified',
+    label: 'Simplfied',
+    prompts: [
+      {
+        format: 'dropdown',
+        prompt: "Is this simple and doesn't have extra information?", // prompt label
+        options: ['😀 Yes', '🤔 Some', '🥲 No'],
+        helpIgnore: 'Select one.'
+      },
+      {
+        format: 'text',
+        prompt: 'What changes do you think would make this better?', // prompt label
+        help: 'Please be specific what you would remove to make this simpler.'
       }
     ]
   },
@@ -310,7 +328,7 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
       {
         format: 'text',
         prompt: 'Why or why not?', // prompt label
-        help: 'Please be specific so your friend understands.'
+        help: 'Please be specific so your classmate understands.'
       }
     ]
   }

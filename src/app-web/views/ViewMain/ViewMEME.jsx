@@ -610,6 +610,11 @@ class ViewMEME extends React.Component {
     UR.Publish('STICKY_CLOSE');
     UR.Publish('RATING_CLOSE');
     ADM.CloseModel();
+    this.setState({
+      componentIsSelected: false,
+      outcomeIsSelected: false,
+      mechIsSelected: false
+    });
   }
 
   OnLogout() {
@@ -617,6 +622,11 @@ class ViewMEME extends React.Component {
     UR.Publish('STICKY_CLOSE');
     UR.Publish('RATING_CLOSE');
     ADM.Logout();
+    this.setState({
+      componentIsSelected: false,
+      outcomeIsSelected: false,
+      mechIsSelected: false
+    });
   }
 
   OnHelp() {

@@ -23,6 +23,7 @@ import DEFAULTS from '../modules/defaults';
 import DATA from '../modules/data';
 import ADM from '../modules/data';
 import DATAMAP from '../../system/common-datamap';
+import UTILS from '../modules/utils';
 
 const { COLOR, CoerceToEdgeObj } = DEFAULTS;
 
@@ -157,6 +158,16 @@ class MEPanelTools extends React.Component {
   RenderComponentsList(propIds, filterByPropType) {
     let relevantProps = propIds.filter(id => {
       const prop = DATA.Prop(id);
+      if (prop === undefined) {
+        // Catch error if a component has not been correctly deleted, so a mech
+        // is left with a stray propId.
+        console.error('ToolsPanel.RenderComponentsList skipping missing propId', id);
+        UTILS.RLog(
+          'ERROR!!!',
+          `MEPanelTools.RenderComponentsList could not find prop with id '${id}' typeof ${typeof id}`
+        );
+        return '';
+      }
       if (filterByPropType === DATAMAP.PMC_MODELTYPES.COMPONENT.id) {
         return (
           prop.propType === DATAMAP.PMC_MODELTYPES.COMPONENT.id ||

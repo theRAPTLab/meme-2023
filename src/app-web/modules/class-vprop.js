@@ -5,6 +5,7 @@ import DATAMAP from '../../system/common-datamap';
 import { AddDragDropHandlers } from './class-vprop-dragdrop';
 import { VisualState } from './classes-visual';
 import VBadge from './class-vbadge';
+import UTILS from '../modules/utils';
 
 // testing mousedown
 import UR from '../../system/ursys';
@@ -59,7 +60,14 @@ class VProp {
     this.visBG = this.gRoot.rect(this.width, this.height); // background
     this.visBG.attr({ cursor: 'pointer' });
     this.gData = this.gRoot.group().attr('class', 'gData'); // main data properties
-    this.gDataName = this.gData.text(this.data.name.toUpperCase()); // label
+    this.gDataName = this.gData.text(
+      this.data.name ? this.data.name.toUpperCase() : 'not found'
+    ); // label
+    if (this.data.name === undefined)
+      UTILS.RLog(
+        'ERROR!!!',
+        `class-vprop.constructor could not find data.name for id '${propId}' typeof ${typeof propId}`
+      );
     this.gDataName.attr('pointer-events', 'none');
     this.gKids = this.gRoot.group().attr('class', 'gKids') // child components group
     // other default properties
@@ -409,7 +417,12 @@ class VProp {
   Update() {
     // update data by copying
     const data = DATA.Prop(this.id);
-    this.data.name = data.name;
+    this.data.name = data ? data.name : 'not found';
+    if (this.data.name === undefined)
+      UTILS.RLog(
+        'ERROR!!!',
+        `class-vprop.Update could not find data.name for id '${this.id}' typeof ${typeof this.id}`
+      );
 
     // Update the text in case it changed
     this.gDataName.text(this.data.name.toUpperCase());

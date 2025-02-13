@@ -771,6 +771,10 @@ PMCData.Prop = nodeId => {
   const prop = m_graph.node(nodeId);
   if (prop) return prop;
   console.error(`no prop with id '${nodeId}' typeof ${typeof nodeId} exists`);
+  UTILS.RLog(
+    'ERROR!!!',
+    `no prop with id '${nodeId}' typeof ${typeof nodeId} exists`
+  );
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:

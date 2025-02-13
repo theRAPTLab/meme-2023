@@ -11,6 +11,7 @@ import UTILS from '../modules/utils';
 import UR from '../../system/ursys';
 
 const { VPROP, PAD, COLOR } = DEFAULTS;
+const NOTFOUND = '<ERROR: property name not found>';
 
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -61,7 +62,7 @@ class VProp {
     this.visBG.attr({ cursor: 'pointer' });
     this.gData = this.gRoot.group().attr('class', 'gData'); // main data properties
     this.gDataName = this.gData.text(
-      this.data.name ? this.data.name.toUpperCase() : 'not found'
+      this.data.name ? this.data.name.toUpperCase() : NOTFOUND
     ); // label
     if (this.data.name === undefined)
       UTILS.RLog(
@@ -432,7 +433,7 @@ class VProp {
   Update() {
     // update data by copying
     const data = DATA.Prop(this.id);
-    this.data.name = data ? data.name : 'not found';
+    this.data.name = data ? data.name : NOTFOUND;
     if (this.data.name === undefined)
       UTILS.RLog(
         'ERROR!!!',

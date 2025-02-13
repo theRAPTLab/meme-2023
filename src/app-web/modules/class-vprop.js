@@ -69,7 +69,7 @@ class VProp {
         `class-vprop.constructor could not find data.name for id '${propId}' typeof ${typeof propId}`
       );
     this.gDataName.attr('pointer-events', 'none');
-    this.gKids = this.gRoot.group().attr('class', 'gKids') // child components group
+    this.gKids = this.gRoot.group().attr('class', 'gKids'); // child components group
     // other default properties
     this.width = m_minWidth;
     this.height = m_minHeight;
@@ -261,7 +261,8 @@ class VProp {
    * @returns { id, w, h }
    */
   KidsSize(wObj, h) {
-    if (wObj === undefined) return { id: this.id, w: this.kidsWidth, h: this.kidsHeight };
+    if (wObj === undefined)
+      return { id: this.id, w: this.kidsWidth, h: this.kidsHeight };
     if (typeof wObj === 'object') {
       const { w: ww, h: hh } = wObj;
       if (typeof ww !== 'number') throw Error(`x ${ww} is not an number`, ww);
@@ -318,8 +319,22 @@ class VProp {
   FindEdgePointConnectionTo(targetId) {
     const target = DATA.VM_VProp(targetId);
     if (!target) throw Error(`VProp with targetId '${targetId}' doesn't exist`);
-    const { x: Aleft, y: Atop, x2: Aright, y2: Abot, cx: Acx, cy: Acy } = this.ScreenBBox();
-    const { x: Bleft, y: Btop, x2: Bright, y2: Bbot, cx: Bcx, cy: Bcy } = target.ScreenBBox();
+    const {
+      x: Aleft,
+      y: Atop,
+      x2: Aright,
+      y2: Abot,
+      cx: Acx,
+      cy: Acy
+    } = this.ScreenBBox();
+    const {
+      x: Bleft,
+      y: Btop,
+      x2: Bright,
+      y2: Bbot,
+      cx: Bcx,
+      cy: Bcy
+    } = target.ScreenBBox();
     // find shortest distance between THIS and TARGET
     // eliminate negative values
     const distances = [
@@ -445,7 +460,8 @@ class VProp {
  */
 VProp.New = (id, svgRoot) => {
   if (DATA.VM_VProp(id)) throw Error(`${id} is already allocated`);
-  if (svgRoot.constructor.name !== 'Svg') throw Error(`arg2 must be SVGJS draw instance`);
+  if (svgRoot.constructor.name !== 'Svg')
+    throw Error(`arg2 must be SVGJS draw instance`);
   const vprop = new VProp(id, svgRoot);
   DATA.VM_VPropSet(id, vprop);
   return vprop;
@@ -475,7 +491,10 @@ VProp.Update = id => {
  *  @return {x, y, x2, y2, w, h, cx, cy }
  */
 VProp.GetBBox = () => {
-  let x = 0, y = 0, x2 = 0, y2 = 0;
+  let x = 0,
+    y = 0,
+    x2 = 0,
+    y2 = 0;
   const components = DATA.Components();
   components.forEach(compId => {
     const vprop = DATA.VM_VProp(compId);
@@ -585,7 +604,10 @@ VProp.LayoutComponents = () => {
     } else {
       // use layout X,Y
       if (DBG.layout)
-        console.log(`%c${id} drawn in default layout at ${xCounter},${yCounter}`, cssblue);
+        console.log(
+          `%c${id} drawn in default layout at ${xCounter},${yCounter}`,
+          cssblue
+        );
       recurseLayout({ x: xCounter, y: yCounter }, id);
     }
     const compHeight = compVis.PropSize().h;
@@ -609,7 +631,10 @@ function recurseLayout(pos, id) {
   let { x, y } = pos; // x-y is the location to draw the component
   const LDBG = DBG.layout;
   const compVis = DATA.VM_VProp(id);
-  if (LDBG) console.group(`moving ${compVis.id} from ${compVis.X()},${compVis.Y()} to ${x},${y}`);
+  if (LDBG)
+    console.group(
+      `moving ${compVis.id} from ${compVis.X()},${compVis.Y()} to ${x},${y}`
+    );
   compVis.Move(x, y); // draw compVis where it should go in screen space
   y += compVis.DataSize().h + PAD.MIN;
   x += PAD.MIN;
@@ -638,7 +663,8 @@ VProp.StaticMethod = (method, methodName) => {
   }
   /* eslint-disable-next-line no-param-reassign */
   methodName = methodName || method.name;
-  if (VProp[methodName]) throw Error(`VProp already has static method '${methodName}'`);
+  if (VProp[methodName])
+    throw Error(`VProp already has static method '${methodName}'`);
 
   /* IF WE GOT THIS FAR LET'S DO IT */
   VProp[methodName] = method;

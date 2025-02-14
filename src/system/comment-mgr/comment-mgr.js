@@ -221,7 +221,7 @@ MOD.GetCREFSourceLabel = cref => {
   const { type, id } = MOD.DeconstructCREF(cref);
   let typeLabel = MOD.CREFLABELS.get(type);
   let sourceLabel; // undefined if not found
-  const REMOVED = 'removed';
+  const REMOVED = undefined; // URCommentStatus will hide status updates if the comment has been removed
   switch (type) {
     case 'v':
       const evlink = DATA.PMC_GetEvLinkByEvId(Number(id));
@@ -237,7 +237,7 @@ MOD.GetCREFSourceLabel = cref => {
       break;
     case 'm':
       const path = DATA.MechPathById(Number(id));
-      const mech = DATA.Mech(path);
+      const mech = path ? DATA.Mech(path) : undefined; // gracefully fail if mech was removed
       sourceLabel = mech ? mech.name : REMOVED;
       break;
     case 'p':

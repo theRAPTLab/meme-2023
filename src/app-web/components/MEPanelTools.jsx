@@ -55,7 +55,8 @@ class MEPanelTools extends React.Component {
       selectedPropId: '',
       selectedMechId: '', // edgeObj e.g. {w,v}
       hoveredPropId: '',
-      hoveredMechId: '' // edgeObj e.g. {w,v}
+      hoveredMechId: '', // edgeObj e.g. {w,v}
+      propOrMechDialogIsOpen: false
     };
 
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
@@ -110,9 +111,13 @@ class MEPanelTools extends React.Component {
     if (selectedMechIds.length > 0) {
       selectedMechId = CoerceToEdgeObj(selectedMechIds[0]);
     }
+
+    // If prop or mech dialog is open, don't allow clicks
+    const propOrMechDialogIsOpen = DATA.VM_PropOrMechDialogIsOpen();
     this.setState({
       selectedPropId,
-      selectedMechId
+      selectedMechId,
+      propOrMechDialogIsOpen
     });
   }
 
@@ -185,7 +190,7 @@ class MEPanelTools extends React.Component {
 
   // This supports recursive calls to handle nested components.
   RenderComponentsListItem(propId, isSub = false) {
-    const { selectedPropId, hoveredPropId } = this.state;
+    const { selectedPropId, hoveredPropId, propOrMechDialogIsOpen } = this.state;
     const { theme: classes } = this.props;
     const prop = DATA.Prop(propId);
     if (prop === undefined) {
@@ -206,7 +211,8 @@ class MEPanelTools extends React.Component {
         : 'clr-item-entity';
     const cssSelected = selectedPropId === propId ? 'selected' : '';
     const cssHovered = hoveredPropId === propId ? 'hovered' : '';
-    const cssClasses = `${cssSub} ${cssClr} ${cssSelected} ${cssHovered}`;
+    const cssIsDisabled = propOrMechDialogIsOpen ? 'disabled' : '';
+    const cssClasses = `${cssSub} ${cssClr} ${cssSelected} ${cssHovered} ${cssIsDisabled}`;
 
     return (
       <div
@@ -231,8 +237,8 @@ class MEPanelTools extends React.Component {
   }
 
   RenderMechanismsList(mechIds) {
-    const { selectedMechId, hoveredMechId } = this.state;
-    const { theme: classes } = this.props;
+    const { selectedMechId, hoveredMechId, propOrMechDialogIsOpen } = this.state;
+    const { theme: classes, isDisabled } = this.props;
     let i = 0;
     return mechIds.map(mechId => {
       const mech = DATA.Mech(mechId);
@@ -251,7 +257,8 @@ class MEPanelTools extends React.Component {
           : '';
       const cssHovered =
         hoveredMechId.v === mechId.v && hoveredMechId.w === mechId.w ? 'hovered' : '';
-      const cssClasses = `item clr-item-mech ${cssSelected} ${cssHovered}`;
+      const cssIsDisabled = propOrMechDialogIsOpen || isDisabled ? 'disabled' : '';
+      const cssClasses = `item clr-item-mech ${cssSelected} ${cssHovered} ${cssIsDisabled}`;
 
       return (
         <div

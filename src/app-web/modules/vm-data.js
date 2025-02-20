@@ -275,7 +275,7 @@ VM.VM_PropMouseEnter = vprop => {
 VM.VM_PropMouseExit = vprop => {
   if (vprop.posMode.isDragging) return;
   map_rollover.delete(vprop.Id());
-  vprop.HoverState(false);
+  vprop.HoverState(false, true); // publishEvent = true for vprops
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.UI:

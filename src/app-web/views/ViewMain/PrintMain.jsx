@@ -40,6 +40,9 @@ import ASET from '../../modules/adm-settings';
 import DATAMAP from '../../../system/common-datamap';
 import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 
+// Override ViewMEME.css
+import './PrintMain.css';
+
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
@@ -152,11 +155,18 @@ class PrintMain extends React.Component {
     const innerHeight = window.innerHeight - this.toolRect.height;
 
     // debugging: double-refresh issue
-    console.log('%cUpdateDimensions Fired', cssdraw);
+    console.log(`%cUpdateDimensions Fired ${viewWidth} ${viewHeight}`, cssdraw);
+    // HACK: For print view, ignore window height so that the graph will show the full size
+    // REVIEW: The proper solution is to a) remove MUI, b) redo the rendering
     this.setState({
-      viewWidth: Math.min(viewWidth, innerWidth),
-      viewHeight: Math.min(viewHeight, innerHeight)
+      viewWidth: 1024,
+      viewHeight: 1024
     });
+    // Orig code:
+    // this.setState({
+    //   viewWidth: Math.min(viewWidth, innerWidth),
+    //   viewHeight: Math.min(viewHeight, innerHeight)
+    // });
   }
 
   OnCloseModel() {

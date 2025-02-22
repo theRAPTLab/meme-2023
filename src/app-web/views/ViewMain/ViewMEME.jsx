@@ -833,7 +833,7 @@ class ViewMEME extends React.Component {
     );
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const MAINVIEW = (
-      <div style={{ backgroundColor: 'red' }} ref={this.refMain}>
+      <div ref={this.refMain}>
         <div className="view" ref={this.refView}>
           <Switch>
             <Route

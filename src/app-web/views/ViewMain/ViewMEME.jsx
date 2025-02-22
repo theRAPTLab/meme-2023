@@ -173,7 +173,8 @@ class ViewMEME extends React.Component {
       addEdgeTarget: '', // Add Mech Dialog
       componentIsSelected: false, // A component or component property has been selected by user.  Used for pro-centric actions.
       outcomeIsSelected: false, // A outcome or outcome property has been selected by user.  Used for pro-centric actions.
-      mechIsSelected: false // A mechanism is slected by user.  Used for mech-centric actions.
+      mechIsSelected: false, // A mechanism is slected by user.  Used for mech-centric actions.
+      suppressControlBar: false // used to hide Add/Edit buttons when dialogs are open
     };
   }
 
@@ -336,7 +337,8 @@ class ViewMEME extends React.Component {
       : DATAMAP.PMC_MODELTYPES.OUTCOME.id;
     UR.Publish('PROPDIALOG_OPEN', { isProperty: true, propType });
     this.setState({
-      addPropOpen: true
+      addPropOpen: true,
+      suppressControlBar: true
     });
   }
 
@@ -354,14 +356,18 @@ class ViewMEME extends React.Component {
         isProperty: false
       });
       this.setState({
-        addPropOpen: true
+        addPropOpen: true,
+        suppressControlBar: true
       });
     }
   }
 
   OnPropDialogClose() {
     if (DBG) console.log('close');
-    this.setState({ addPropOpen: false });
+    this.setState({
+      addPropOpen: false,
+      suppressControlBar: false
+    });
   }
 
   // User selected component/prop and clicked on "() Delete"
@@ -449,7 +455,7 @@ class ViewMEME extends React.Component {
     // Deselect any mechanisms that might be currently selected so that user can select props
     DATA.VM_DeselectAllMechs();
     this.setState({
-      suppressSelection: true // used to hide Add/Edit buttons
+      suppressControlBar: true // used to hide Add/Edit buttons
     });
     UR.Publish('MECHDIALOG:ADD');
   }
@@ -460,7 +466,7 @@ class ViewMEME extends React.Component {
     if (selectedMechIds.length > 0) {
       DATA.VM_DeselectAll(); // deselect so mech buttons disappear
       this.setState({
-        suppressSelection: true, // used to hide Add/Edit buttons
+        suppressControlBar: true, // used to hide Add/Edit buttons
         addEdgeOpen: true
       });
       let mechId = selectedMechIds[0];
@@ -480,7 +486,7 @@ class ViewMEME extends React.Component {
 
   DoMechClosed() {
     this.setState({
-      suppressSelection: false,
+      suppressControlBar: false,
       addEdgeOpen: false
     });
   }
@@ -649,7 +655,7 @@ class ViewMEME extends React.Component {
       componentIsSelected,
       outcomeIsSelected,
       mechIsSelected,
-      suppressSelection
+      suppressControlBar
     } = this.state;
 
     // we need to use the model author here, not the currently logged in student.
@@ -752,7 +758,7 @@ class ViewMEME extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /// Component/Mech add/edit/delete buttons that respond to selection events
     const CONTROLBAR = (
-      <div className="controlbar" hidden={suppressSelection}>
+      <div className="controlbar" hidden={suppressControlBar}>
         <button
           className="danger"
           hidden={

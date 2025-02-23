@@ -40,9 +40,6 @@ import ASET from '../../modules/adm-settings';
 import DATAMAP from '../../../system/common-datamap';
 import { cssreact, cssdraw, cssalert } from '../../modules/console-styles';
 
-// Override ViewMEME.css
-import './PrintMain.css';
-
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
@@ -91,6 +88,13 @@ class PrintMain extends React.Component {
   }
 
   componentDidMount() {
+    // Hack to allow print to show full height
+    // Without this, the list of properties is cut off
+    // We can't use PrintMain.css because modifying `#app-container` affects ViewMEME as well
+    // and causes scrolling problems.
+    const appcontainer = document.getElementById('app-container');
+    appcontainer.style.overflow = 'visible';
+
     // if (DBG) console.log(`%ccomponentDidMount()`, cssreact);
     //
     // child components need to know the dimensions

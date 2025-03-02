@@ -238,7 +238,7 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
   },
   {
     slug: 'evidence',
-    label: 'Evidence and Facts',
+    label: 'Backed up by enough good evidence',
     prompts: [
       {
         format: 'dropdown',
@@ -255,7 +255,7 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
   },
   {
     slug: 'organized',
-    label: 'Organized and Makes Sense',
+    label: 'Organized and understandable',
     prompts: [
       {
         format: 'discrete-slider',
@@ -276,36 +276,37 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
     ]
   },
   {
-    slug: 'accurate',
-    label: 'Accurate',
+    slug: 'onTopic',
+    label: 'On topic and answers the question',
     prompts: [
       {
         format: 'dropdown',
-        prompt: 'Is this accurate?', // prompt label
+        prompt: 'Is this on topic, and does it answer the question?', // prompt label
         options: ['😀 Yes', '🤔 Some', '🥲 No'],
         helpIgnore: 'Select one.'
       },
       {
         format: 'text',
-        prompt: 'What changes do you think would make this better?', // prompt label
-        help: 'Please be specific what you would change to be more accurate.'
+        prompt: 'Is this on topic and answers the question?', // prompt label
+        help: 'Please be specific what you would change.'
       }
     ]
   },
   {
-    slug: 'simplified',
-    label: 'Simplfied',
+    slug: 'explains',
+    label: 'Explains all the steps, in the right order, with no contradictions',
     prompts: [
       {
         format: 'dropdown',
-        prompt: "Is this simple and doesn't have extra information?", // prompt label
+        prompt:
+          'Does this explain all the steps, in the right order, with no contracictions?', // prompt label
         options: ['😀 Yes', '🤔 Some', '🥲 No'],
         helpIgnore: 'Select one.'
       },
       {
         format: 'text',
-        prompt: 'What changes do you think would make this better?', // prompt label
-        help: 'Please be specific what you would remove to make this simpler.'
+        prompt: 'What would you change to make this better?', // prompt label
+        help: 'Please be specific what you would change.'
       }
     ]
   },

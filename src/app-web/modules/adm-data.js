@@ -1224,6 +1224,11 @@ ADMData.LoadModel = modelId => {
   PMCData.ClearModel();
   UR.Publish('SVG_PANZOOM_RESET');
   ADMData.SetSelectedModelId(modelId, model.pmcDataId); // Remember the selected modelId locally
+  // If a teacher, then classroomId is ambiguous
+  // but while loading a model, we can implicitly look up classroom via the groupId
+  if (!ASET.selectedClassroomId) {
+    ASET.selectedClassroomId = ADMData.GetClassroomIdByGroup(model.groupId);
+  }
   ADMData.DB_RefreshPMCData(data => PMCData.InitializeModel(model, data));
 };
 

@@ -123,7 +123,8 @@ ADMData.SyncAddedData = data => {
           UR.Publish('ADM_DATA_UPDATED', data);
         } else {
           // Usually this fires before DB_NewModel's then() so the model is already added
-          if (DBG) console.error(`SyncAddedData: Model ${value.id} already added, skipping`);
+          if (DBG)
+            console.error(`SyncAddedData: Model ${value.id} already added, skipping`);
         }
         break;
       case 'criteria': {
@@ -249,7 +250,9 @@ ADMData.SyncUpdatedData = data => {
         break;
       }
       case 'ratingsDefinitions': {
-        const index = adm_db.ratingsDefinitions.findIndex(r => r.classroomId === value.id);
+        const index = adm_db.ratingsDefinitions.findIndex(
+          r => r.classroomId === value.id
+        );
         const ratingsDefinition = ADMObj.RatingsDefinition(value);
         adm_db.ratingsDefinitions.splice(index, 1, ratingsDefinition);
         UR.Publish('ADM_DATA_UPDATED', data);
@@ -601,7 +604,8 @@ ADMData.AddStudents = (groupId, students) => {
   const cleanedArr = studentsArr.filter(s => s !== '');
 
   const group = ADMData.GetGroup(groupId);
-  if (group === undefined) throw Error(`${PKG}.AddStudent could not find group ${groupId}`);
+  if (group === undefined)
+    throw Error(`${PKG}.AddStudent could not find group ${groupId}`);
   const oldStudents = group.students;
 
   const newStudents = oldStudents.concat(cleanedArr);
@@ -627,7 +631,8 @@ ADMData.AddStudents = (groupId, students) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.DeleteStudent = (groupId, student) => {
   const group = ADMData.GetGroup(groupId);
-  if (group === undefined) throw Error(`${PKG}.AddStudent could not find group ${groupId}`);
+  if (group === undefined)
+    throw Error(`${PKG}.AddStudent could not find group ${groupId}`);
   const updatedStudents = group.students.filter(stu => student !== stu);
   ADMData.DB_UpdateGroup(groupId, { students: updatedStudents });
 
@@ -697,21 +702,23 @@ ADMData.Logout = () => {
   const urs = window.URSESSION;
   if (!urs) throw Error('unexpected missing URSESSION global');
   if (!urs.SESSION_Key) throw Error('missing URSESSION session key');
-  return UR.NetCall('NET:SRV_SESSION_LOGOUT', { key: urs.SESSION_Key }).then(rdata => {
-    console.log('logout', rdata);
-    if (rdata.error) throw Error(rdata.error);
-    console.log('removing session data from URSESSION');
-    if (urs.SESSION_Token && urs.SESSION_Key) {
-      urs.SESSION_Token = '';
-      urs.SESSION_Key = '';
-      SESSION.Clear();
-      ASET.selectedStudentId = '';
-      ADMData.SelectClassroom('');
-      UR.Publish('ADM_DATA_UPDATED');
-      return rdata;
+  return UR.NetCall('NET:SRV_SESSION_LOGOUT', { key: urs.SESSION_Key }).then(
+    rdata => {
+      console.log('logout', rdata);
+      if (rdata.error) throw Error(rdata.error);
+      console.log('removing session data from URSESSION');
+      if (urs.SESSION_Token && urs.SESSION_Key) {
+        urs.SESSION_Token = '';
+        urs.SESSION_Key = '';
+        SESSION.Clear();
+        ASET.selectedStudentId = '';
+        ADMData.SelectClassroom('');
+        UR.Publish('ADM_DATA_UPDATED');
+        return rdata;
+      }
+      throw Error('URSESSION key or token was not set');
     }
-    throw Error('URSESSION key or token was not set');
-  });
+  );
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.IsLoggedOut = () => {
@@ -822,7 +829,10 @@ ADMData.DB_NewModel = (data, cb) => {
         adm_db.models.push(model);
       } else {
         // Usually SyncAddedData fires before this so the model is already added
-        if (DBG) console.error(`DB_NewModel model id ${model.id} already exits. Skipping add.`);
+        if (DBG)
+          console.error(
+            `DB_NewModel model id ${model.id} already exits. Skipping add.`
+          );
       }
       UTILS.RLog('ModelCreate');
       cb(rdata2);
@@ -940,12 +950,16 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
 
     const sourceModel = data.models.find(m => m.id === sourceModelId);
     if (sourceModel === undefined)
-      throw new Error(`ADMData.CloneModel could not find the source model ${sourceModelId}`);
+      throw new Error(
+        `ADMData.CloneModel could not find the source model ${sourceModelId}`
+      );
 
     const sourcePMCDataId = sourceModel.pmcDataId;
     const sourcePMCData = data.pmcData.find(d => d.id === sourcePMCDataId);
     if (sourcePMCData === undefined)
-      throw new Error(`ADMData.CloneModel could not find the sourcePMCData ${sourcePMCDataId}`);
+      throw new Error(
+        `ADMData.CloneModel could not find the sourcePMCData ${sourcePMCDataId}`
+      );
     if (DBG) console.log(PKG, '...sourcePMCData is', sourcePMCData);
 
     // -- Create the new pmcData
@@ -989,7 +1003,9 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
           adm_db.models.push(rdataModel);
         } else if (DBG) {
           // Usually SyncAddedData fires before this so the model is already added
-          console.error(`CloneModel model id ${rdataModel.id} already exits. Skipping add.`);
+          console.error(
+            `CloneModel model id ${rdataModel.id} already exits. Skipping add.`
+          );
         }
         UTILS.RLog('ModelClone');
         if (DBG) console.log(PKG, '... => cloned to', clonedGroupId);
@@ -1024,7 +1040,10 @@ ADMData.CloneModelBulk = async (modelId, selections) => {
  */
 ADMData.AnnounceMissingResources = (sourceModelId, targetGroupId) => {
   const sourceModel = ADMData.GetModelById(sourceModelId);
-  const missingResources = ADMData.GetMissingResources(sourceModel.groupId, targetGroupId);
+  const missingResources = ADMData.GetMissingResources(
+    sourceModel.groupId,
+    targetGroupId
+  );
   if (missingResources.length > 0) {
     const targetClassroomName = ADMData.GetClassroomNameByGroup(targetGroupId);
     let missingResourceTitles = '';
@@ -1148,7 +1167,8 @@ ADMData.GenerateModelTitle = (title, groupId) => {
   const existingTitles = ADMData.GetModelTitlesByGroup(groupId);
   // make sure 'COPY' doesn't already exist as well.  recurse if necessary.
   let newtitle = existingTitles.includes(title) ? `${title} COPY` : title;
-  if (existingTitles.includes(newtitle)) newtitle = ADMData.GenerateModelTitle(newtitle, groupId);
+  if (existingTitles.includes(newtitle))
+    newtitle = ADMData.GenerateModelTitle(newtitle, groupId);
   return newtitle;
 };
 
@@ -1283,7 +1303,10 @@ ADMData.GetCriteriaByModel = (modelId = ASET.selectedModelId) => {
   return ADMData.GetCriteriaByGroup(model.groupId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.GetCriteriaLabel = (criteriaId, classroomId = ADMData.GetSelectedClassroomId()) => {
+ADMData.GetCriteriaLabel = (
+  criteriaId,
+  classroomId = ADMData.GetSelectedClassroomId()
+) => {
   let criteriaArr = ADMData.GetCriteriaByClassroom(classroomId);
   let criteria = criteriaArr.find(crit => crit.id === criteriaId);
   return criteria ? criteria.label : '';
@@ -1365,8 +1388,12 @@ ADMData.DB_SentenceStarterUpdate = sentenceStarter => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Returns a single sentenceStarter object, if not found, undefined
 // (We used to support multiple sentence starters per classroom)
-ADMData.GetSentenceStartersByClassroom = (classroomId = ADMData.GetSelectedClassroomId()) => {
-  const sentenceStarter = adm_db.sentenceStarters.filter(ss => ss.classroomId === classroomId);
+ADMData.GetSentenceStartersByClassroom = (
+  classroomId = ADMData.GetSelectedClassroomId()
+) => {
+  const sentenceStarter = adm_db.sentenceStarters.filter(
+    ss => ss.classroomId === classroomId
+  );
   let result;
   if (Array.isArray(sentenceStarter)) {
     result = sentenceStarter[0];
@@ -1435,7 +1462,9 @@ ADMData.DB_RatingsUpdate = (classroomId, ratingsDef) => {
  *                                      Returns [] if not found
  */
 ADMData.GetRatingsDefinitionObject = classroomId => {
-  return adm_db.ratingsDefinitions.find(ratings => ratings.classroomId === classroomId);
+  return adm_db.ratingsDefinitions.find(
+    ratings => ratings.classroomId === classroomId
+  );
 };
 
 /**
@@ -1535,7 +1564,9 @@ ADMData.GetMissingResources = (origGroupId, newGroupId) => {
   const originalResources = ADMData.GetResourcesForClassroom(origClassroomId);
   const clonedResources = ADMData.GetResourcesForClassroom(newClassroomId);
   const clonedResourceIds = clonedResources.map(r => r.id);
-  let missingResources = originalResources.filter(r => !clonedResourceIds.includes(r.id));
+  let missingResources = originalResources.filter(
+    r => !clonedResourceIds.includes(r.id)
+  );
   return missingResources;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1564,7 +1595,9 @@ ADMData.DB_ClassroomResourceUpdate = classroomResource => {
  *  @param {INteger} classroomId - The classroom this resource is being enabled/disabled for
  */
 ADMData.DB_ClassroomResourceSet = (rsrcId, checked, classroomId) => {
-  let classroomResource = adm_db.classroomResources.find(rsrc => rsrc.classroomId === classroomId);
+  let classroomResource = adm_db.classroomResources.find(
+    rsrc => rsrc.classroomId === classroomId
+  );
   if (classroomResource === undefined) {
     // New Classrooms don't have a classroomResource defined by default.
     classroomResource = ADMObj.ClassroomResource({ classroomId });
@@ -1576,7 +1609,9 @@ ADMData.DB_ClassroomResourceSet = (rsrcId, checked, classroomId) => {
     classroomResource.resources.push(rsrcId);
   } else {
     // Remove resource
-    classroomResource.resources = classroomResource.resources.filter(rsrc => rsrc !== rsrcId);
+    classroomResource.resources = classroomResource.resources.filter(
+      rsrc => rsrc !== rsrcId
+    );
   }
 
   // Update the DB

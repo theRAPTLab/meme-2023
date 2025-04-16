@@ -164,23 +164,7 @@ PMCData.InitializeModel = (model, admdb) => {
   if (DBG) console.log('loaded data', data);
   if (DBG) console.log('data.entities start processing');
   if (data.entities) {
-    /* catch freeze due to nodes being parents to each other */
-    let dbgEntity;
-    let timeout;
-    /* local function to catch freeze */
-    function u_timeout() {
-      clearTimeout(timeout);
-      timeout = undefined;
-      console.error('stuck processing loop');
-      const { type, id, obj } = dbgEntity;
-      console.log(`last entity ${type} id:${id}`, obj);
-      const match = data.entities.find(e => e.parent === id);
-      if (match && match.length > 0) console.log(`referred to as parentb by`, match);
-    }
-    /* end catch freeze */
     data.entities.forEach(obj => {
-      dbgEntity = obj;
-      timeout = setTimeout(u_timeout, 5000);
       if (DBG) console.log(obj.type, obj.id, obj);
       switch (obj.type) {
         case 'prop':
@@ -190,6 +174,9 @@ PMCData.InitializeModel = (model, admdb) => {
             description: obj.description
           });
           if (obj.parent) {
+            const p = g.parent(obj.parent);
+            if (p.parent === obj.id)
+              throw Error(`Circular parent ${obj.id} -> ${obj.parent}`);
             g.setParent(obj.id, obj.parent);
           }
           break;
@@ -220,7 +207,6 @@ PMCData.InitializeModel = (model, admdb) => {
       }
     });
   }
-  clearTimeout(timeout);
   if (DBG) console.log('data.entities processed');
 
   // Comments

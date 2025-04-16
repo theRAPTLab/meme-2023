@@ -175,7 +175,7 @@ PMCData.InitializeModel = (model, admdb) => {
           });
           if (obj.parent) {
             const p = g.parent(obj.parent);
-            if (p.parent === obj.id)
+            if (p && p.parent === obj.id)
               throw Error(`Circular parent ${obj.id} -> ${obj.parent}`);
             g.setParent(obj.id, obj.parent);
           }

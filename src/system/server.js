@@ -49,7 +49,8 @@ URSYS.Initialize = async (options = {}) => {
   }
   LOGGER.Write(LPR, `initializing network`);
   if (options.memehost) console.log(PR, `${CC}MEMEHOST${TR} ${options.memehost}`);
-  if (process.env.DATASET) console.log(PR, `${CC}DATASET=${TR} ${process.env.DATASET}`);
+  if (process.env.DATASET)
+    console.log(PR, `${CC}DATASET=${TR} ${process.env.DATASET}`);
   console.log(PR, `${CS}STARTING UR SOCKET SERVER${CR}`);
   URSYS.RegisterHandlers();
   UDB.InitializeDatabase(options);

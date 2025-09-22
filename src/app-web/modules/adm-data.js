@@ -5,6 +5,7 @@ import UTILS from './utils';
 import DATAMAP from '../../system/common-datamap';
 import PMCData from './pmc-data'; // this is a bit problematicn (circular ref)
 import ADMObj from './adm-objects';
+import ADMUnits from './adm-units';
 import ASET from './adm-settings';
 
 const rfdc = require('rfdc')();
@@ -31,19 +32,18 @@ let adm_db; // set in InitializeData
 /// URSYS HOOKS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 UR.Hook(__dirname, 'LOAD_ASSETS', () => {
-  // return promise to enable asynchronous loading. This ensures
-  // that LOAD_ASSETS phase completes before allowing subsequent
-  // phases to run
-  return new Promise((resolve, reject) => {
-    console.log(PKG, 'LOAD_ASSETS');
-    UR.NetCall('NET:SRV_DBGET', {}).then(data => {
-      if (data.error) {
-        reject(new Error(`server says '${data.error}'`));
-        return;
-      }
-      ADMData.InitializeData(data);
-      resolve();
-    });
+  return Promise.all([
+    UR.NetCall('NET:SRV_DBGET', {}),
+    UR.NetCall('NET:SRV_UNITSGET', {})
+  ]).then(([data, unitsdata]) => {
+    if (data.error) {
+      throw new Error(`NET:SRV_DBGET:server says '${data.error}'`);
+    }
+    if (unitsdata.error) {
+      throw new Error(`NET:SRV_UNITSGET:server says '${unitsdata.error}'`);
+    }
+    ADMData.InitializeData(data);
+    ADMUnits.SetUnits(unitsdata);
   });
 });
 
@@ -1232,6 +1232,10 @@ ADMData.LoadModel = modelId => {
   if (!ASET.selectedClassroomId) {
     ASET.selectedClassroomId = ADMData.GetClassroomIdByGroup(model.groupId);
   }
+  // Load Unit Definitions
+  const unitId = model.unitId;
+  const unit = ADMUnits.GetUnit(unitId);
+  if (unit === undefined) console.warn(PKG, 'LoadModel could not find unit', unitId);
   ADMData.DB_RefreshPMCData(data => PMCData.InitializeModel(model, data));
 };
 
@@ -1633,6 +1637,26 @@ ADMData.DB_ClassroomResourceSet = (rsrcId, checked, classroomId) => {
   /* old code
   UR.Publish('ADM_DATA_UPDATED');
   */
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// UNITS
+///
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetUnits = () => {
+  return ADMUnits.GetUnits();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Return [{id, label}] of all units
+ADMData.GetUnitsList = () => {
+  return ADMUnits.GetUnitsList();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetResources = unitId => {
+  return ADMUnits.GetResources(unitId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetRatings = unitId => {
+  return ADMUnits.GetRatings(unitId);
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

@@ -220,7 +220,13 @@ class ViewMEME extends React.Component {
     const userStudentId = ADM.GetAuthorId();
     const userGroupId = ADM.GetGroupIdByStudent(userStudentId);
     const isModelAuthor = userGroupId === (model ? model.groupId : '');
-    RATINGS.updateDefinitions(ADM.GetRatingsDefinition(ADM.GetSelectedClassroomId()));
+    // Load Ratings from new Unit Definitions
+    if (model) {
+      const unitId = model.unitId;
+      const ratingsDefs = ADM.GetRatings(unitId);
+      RATINGS.updateDefinitions(ratingsDefs);
+    }
+
     this.setState({
       title,
       modelId,

@@ -55,7 +55,8 @@ class WModelSelect extends React.Component {
       teacherName: '',
       targetSelectDialogOpen: false,
       targetSelectionType: '',
-      targetSelectCallback: undefined
+      targetSelectCallback: undefined,
+      unitSelectDialogOpen: false
     };
   }
 
@@ -103,7 +104,11 @@ class WModelSelect extends React.Component {
   }
 
   OnNewModel() {
-    ADM.NewModel(() => this.OnModelDialogClose());
+    this.setState({ unitSelectDialogOpen: true });
+  }
+  OnUnitSelect(unitId) {
+    ADM.NewModel(unitId, () => this.OnModelDialogClose());
+    this.setState({ unitSelectDialogOpen: false });
   }
 
   OnModelEdit(modelId) {
@@ -189,7 +194,8 @@ class WModelSelect extends React.Component {
       studentId,
       groupName,
       classroomName,
-      teacherName
+      teacherName,
+      unitSelectDialogOpen
     } = this.state;
     const isTeacher = SESSION.IsTeacher();
     let myModels = isTeacher ? ADM.GetModelsByTeacher() : ADM.GetModelsByStudent();
@@ -224,6 +230,24 @@ class WModelSelect extends React.Component {
         <button className="transparent" onClick={this.OnLogout}>
           Logout
         </button>
+      </div>
+    );
+
+    const UNITS = ADM.GetUnitsList();
+    const UNIT_DIALOG = (
+      <div className="dialog-container">
+        <div className="WInfoDialog WUnitSelectDialog">
+          <h2>Select a Unit</h2>
+          <ul>
+            {UNITS.map(unit => (
+              <li key={unit.id}>
+                <button onClick={() => this.OnUnitSelect(unit.id)}>
+                  {unit.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
 
@@ -283,6 +307,7 @@ class WModelSelect extends React.Component {
             />
           </div>
         </div>
+        {unitSelectDialogOpen && UNIT_DIALOG}
       </div>
     );
   }

@@ -131,10 +131,15 @@ PMCData.InitializeModel = (model, admdb) => {
   if (!admdb)
     console.error(`PMCData.InitializeModel() arg2 must be an instance of adm_db`);
 
-  const { id, groupId, pmcDataId } = model;
-  if (id === undefined || groupId === undefined || pmcDataId === undefined) {
+  const { id, unitId, groupId, pmcDataId } = model;
+  if (
+    id === undefined ||
+    unitId === undefined ||
+    groupId === undefined ||
+    pmcDataId === undefined
+  ) {
     console.error(
-      `PMCData.InitializeModel called with either bad id (${id}) or bad groupId (${groupId}) or bad pmcDataId (${pmcDataId})`
+      `PMCData.InitializeModel called with either bad id (${id}) or bad unitId (${unitId}) or bad groupId (${groupId}) or bad pmcDataId (${pmcDataId})`
     );
   }
 

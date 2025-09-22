@@ -816,6 +816,7 @@ ADMData.DB_NewModel = (data, cb) => {
   }).then(rdata => {
     if (rdata.error) throw Error(rdata.error);
     const mdata = {};
+    mdata.unitId = data.unitId;
     mdata.groupId = data.groupId;
     mdata.pmcDataId = rdata.pmcData[0].id;
     mdata.title = data.title;
@@ -907,11 +908,13 @@ ADMData.DB_ModelTitleUpdate = (modelId, title) => {
  *  This will add a new model to the db and then open the new model
  *  It uses the currently selected GroupID.
  *  See Whimsical diagram for call chain: https://whimsical.com/QrZ56UaiRq1nyxbJDawywy
+ *  @param {String} unitId - Unit ID
  *  @param {Function} cb - Callback function
  */
-ADMData.NewModel = cb => {
+ADMData.NewModel = (unitId, cb) => {
   const data = {
-    groupId: ADMData.GetSelectedGroupId()
+    groupId: ADMData.GetSelectedGroupId(),
+    unitId: unitId !== undefined ? unitId : ''
   };
   ADMData.DB_NewModel(data, rdata => {
     if (rdata && rdata.models && rdata.models.length > 0) {

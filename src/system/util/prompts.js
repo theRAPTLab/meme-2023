@@ -73,6 +73,7 @@ PROMPTS.TERM_DB = TERM.FgBlue; // server-database
 PROMPTS.TERM_NET = TERM.FgBlue; // server-network
 PROMPTS.TERM_EXP = TERM.FgMagenta; // server-express
 PROMPTS.TERM_WPACK = TERM.FgGreen; // webpack configurations
+PROMPTS.TERM_UNITS = TERM.FgCyan; // server-units
 PROMPTS.CW = TERM.FgGreen; // webpack configurations
 PROMPTS.CY = TERM.FgYellow;
 PROMPTS.TERM = TERM;

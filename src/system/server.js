@@ -15,6 +15,7 @@ const UDB = require('./server-database');
 const LOGGER = require('./server-logger');
 const EXPRESS = require('./server-express');
 const ARCHIVE = require('./server-archive');
+const UNITMGR = require('./server-units');
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -55,6 +56,7 @@ URSYS.Initialize = async (options = {}) => {
   URSYS.RegisterHandlers();
   UDB.InitializeDatabase(options);
   UNET.InitializeNetwork(options);
+  await UNITMGR.InitializeUnits();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Server message handlers. All messages with the prefix 'NET:SRV_' are always

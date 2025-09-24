@@ -46,6 +46,12 @@ ADMUnits.GetResources = unitId => {
   return rfdc(unit.resources || []);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMUnits.GetResource = (unitId, resourceId) => {
+  const unit = ADMUnits.GetUnit(unitId);
+  if (!unit) throw Error(`GetResource: unknown unitId '${unitId}'`);
+  return rfdc(unit.resources.find(item => item.id === resourceId));
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMUnits.GetRatings = unitId => {
   const unit = ADMUnits.GetUnit(unitId);
   if (!unit) throw Error(`GetResources: unknown unitId '${unitId}'`);

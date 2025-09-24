@@ -144,7 +144,8 @@ PMCData.InitializeModel = (model, admdb) => {
   }
 
   // get essentials
-  const { resources, pmcData, classroomResources } = admdb;
+  // UNITS
+  const { pmcData, classroomResources } = admdb;
 
   // Resources
   a_resources = resources || [];

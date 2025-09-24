@@ -220,6 +220,7 @@ class ViewMEME extends React.Component {
     const userStudentId = ADM.GetAuthorId();
     const userGroupId = ADM.GetGroupIdByStudent(userStudentId);
     const isModelAuthor = userGroupId === (model ? model.groupId : '');
+
     // Load Ratings from new Unit Definitions
     if (model) {
       const unitId = model.unitId;
@@ -667,8 +668,9 @@ class ViewMEME extends React.Component {
     // we need to use the model author here, not the currently logged in student.
     const model = ADM.GetModelById(modelId);
     const classroomId = model ? ADM.GetClassroomIdByGroup(model.groupId) : '';
-    const resources =
-      classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
+
+    // Unit
+    const resources = classroomId !== '' ? ADM.GetResources(model.unitId) : [];
 
     const isViewOnly = ADM.IsViewOnly();
     const isDBReadOnly = ADM.IsDBReadOnly();

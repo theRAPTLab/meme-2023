@@ -1236,7 +1236,11 @@ ADMData.LoadModel = modelId => {
   const unitId = model.unitId;
   const unit = ADMUnits.GetUnit(unitId);
   if (unit === undefined) console.warn(PKG, 'LoadModel could not find unit', unitId);
-  ADMData.DB_RefreshPMCData(data => PMCData.InitializeModel(model, data));
+  // - Update Resources
+  const resources = unit.resources; // passed to PMCData.InitializeModel below
+
+  // `resources` is now passed directly to PMCData.InitializeModel
+  ADMData.DB_RefreshPMCData(data => PMCData.InitializeModel(model, data, resources));
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1538,9 +1542,9 @@ ADMData.AllResources = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Returns the resource object matching the rsrccId.
 ADMData.Resource = rsrcId => {
-  return adm_db.resources.find(item => {
-    return item.id === rsrcId;
-  });
+  // Unit Call
+  const unitId = ADMData.GetSelectedUnitId();
+  return ADMUnits.GetResource(unitId, rsrcId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**

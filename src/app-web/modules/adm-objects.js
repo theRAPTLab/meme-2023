@@ -138,18 +138,20 @@ ADMObj.Resource = (data = {}) => {
   };
 };
 
-/**
- *  @return {Object} Returns a new classroom resource data object
- */
-ADMObj.ClassroomResource = data => {
-  if (data.classroomId === undefined)
-    throw Error('ClassroomResource requires a classroomId!');
-  return {
-    id: data.id,
-    classroomId: data.classroomId,
-    resources: data.resources || []
-  };
-};
+// DEPRECATED -- We now use unit resources
+//
+///**
+// *  @return {Object} Returns a new classroom resource data object
+// */
+// ADMObj.ClassroomResource = data => {
+//   if (data.classroomId === undefined)
+//     throw Error('ClassroomResource requires a classroomId!');
+//   return {
+//     id: data.id,
+//     classroomId: data.classroomId,
+//     resources: data.resources || []
+//   };
+// };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1101,7 +1101,15 @@ ADMData.DeleteModel = modelId => {
 ADMData.GetModelById = (modelId = ASET.selectedModelId) => {
   return adm_db.models.find(model => model.id === modelId);
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetSelectedModel = () => {
+  return ADMData.GetModelById(ASET.selectedModelId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetSelectedUnitId = () => {
+  const model = ADMData.GetSelectedModel();
+  return model ? model.unitId : '';
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetModelsByClassroom = classroomId => {
   const groupIdsInClassroom = ADMData.GetGroupIdsByClassroom(classroomId);

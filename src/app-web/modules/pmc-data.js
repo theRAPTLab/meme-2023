@@ -126,7 +126,7 @@ PMCData.ClearModel = () => {
  * This should be only be called by ADMData.InitializeModel().
  * NEVER CALL THIS FUNCTION DIRECTLY
  */
-PMCData.InitializeModel = (model, admdb) => {
+PMCData.InitializeModel = (model, admdb, resources) => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
   if (!admdb)
     console.error(`PMCData.InitializeModel() arg2 must be an instance of adm_db`);
@@ -145,7 +145,7 @@ PMCData.InitializeModel = (model, admdb) => {
 
   // get essentials
   // UNITS
-  const { pmcData, classroomResources } = admdb;
+  const { pmcData } = admdb;
 
   // Resources
   a_resources = resources || [];
@@ -193,14 +193,8 @@ PMCData.InitializeModel = (model, admdb) => {
             });
           break;
         case 'evidence':
-          // HACK
-          // Only load evidence if it's selected/included for this classroom.
-          // If this evidence is referring to a resource that is hidden
-          // (e.g. not in the current list of classroom resources), don't add it.
-          // This lets us hide evidence link badges if the resource
-          // has been hidden, without necessarily changing the data?
-          // See also BuildModel() for how evidence is built up
-          if (thisClassroomResources.resources.includes(obj.rsrcId)) {
+          // UNIT Safe Appraoch
+          if (resources.find(res => res.id === obj.rsrcId)) {
             obj.comments = obj.comments || [];
             a_evidence.push(obj);
           }

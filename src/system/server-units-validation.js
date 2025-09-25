@@ -40,7 +40,10 @@ const resourceSchema = {
     id: { type: 'integer', minimum: 1 },
     label: { type: 'string', minLength: 1 },
     notes: { type: 'string' },
-    type: { type: 'string', enum: ['pdf', 'image', 'video', 'text'] },
+    type: {
+      type: 'string',
+      enum: ['simulation', 'assumption', 'idea', 'report', 'question', 'other']
+    },
     url: { type: 'string', minLength: 1 }
   },
   required: ['id', 'label', 'type', 'url'],

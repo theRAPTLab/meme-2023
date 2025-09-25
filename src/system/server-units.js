@@ -95,24 +95,23 @@ function PKT_GetUnits(pkt) {
 }
 /// YAML LOAD METHODS //////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-async function LoadYamlFileAsync(filePath) {
+function LoadYamlFileAsync(filePath) {
   return new Promise((resolve, reject) => {
     fs.readFile(filePath, 'utf8', (err, data) => {
       if (err) {
-        reject(
-          new Error(`Failed to read YAML file
-   ${filePath}: ${err.message}`)
-        );
+        reject(new Error(`Failed to read YAML file ${filePath}: ${err.message}`));
         return;
       }
 
       try {
-        const parsed = yaml.load(data);
+        // Load with schema: SAFE_SCHEMA
+        // prevents loading of unsafe types like !!js/function, !!js/regexp
+        // !!binary, !!timestamp
+        const parsed = yaml.load(data, { schema: yaml.SAFE_SCHEMA });
         resolve(parsed);
       } catch (parseError) {
         reject(
-          new Error(`Failed to parse YAML
-  file ${filePath}: ${parseError.message}`)
+          new Error(`Failed to parse YAML file ${filePath}: ${parseError.message}`)
         );
       }
     });

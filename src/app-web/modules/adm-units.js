@@ -60,8 +60,14 @@ ADMUnits.GetResource = (unitId, resourceId) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMUnits.GetRatings = unitId => {
   const unit = ADMUnits.GetUnit(unitId);
-  if (!unit) throw Error(`GetResources: unknown unitId '${unitId}'`);
+  if (!unit) throw Error(`GetRatings: unknown unitId '${unitId}'`);
   return rfdc(unit.ratings || []);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMUnits.GetCommentTypes = unitId => {
+  const unit = ADMUnits.GetUnit(unitId);
+  if (!unit) throw Error(`GetCommentTypes: unknown unitId '${unitId}'`);
+  return rfdc(unit.commentTypes || []);
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

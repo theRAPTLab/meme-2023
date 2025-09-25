@@ -115,8 +115,10 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 MOD.LoadDBData = () => {
   if (DBG) console.log('DATA_UPDATED======================');
 
-  const TEMPLATE = STATE.State('TEMPLATE');
-  COMMENT.LoadTemplate(TEMPLATE.COMMENTTYPES);
+  // UNIT Approach
+  const commentTypes = ADM.GetCommentTypes();
+  COMMENT.LoadTemplate(commentTypes);
+
   const userStudentId = ADM.GetAuthorId();
   MOD.SetCurrentUserId(userStudentId);
   const data = CMTDB.GetCommentData();

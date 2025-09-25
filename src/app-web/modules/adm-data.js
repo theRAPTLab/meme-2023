@@ -1691,6 +1691,10 @@ ADMData.GetResources = (unitId = ASET.selectedUnitId) => {
 ADMData.GetRatings = (unitId = ASET.selectedUnitId) => {
   return ADMUnits.GetRatings(unitId);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetCommentTypes = (unitId = ASET.selectedUnitId) => {
+  return ADMUnits.GetCommentTypes(unitId);
+};
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -127,12 +127,35 @@ function LoadYamlFileAsync(filePath) {
   });
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function ValidateUnitId(unitId) {
+  // Valid unitId: letters, numbers, hyphens, underscores only
+  // Must start with letter or underscore (valid JS identifier rules)
+  const validPattern = /^[a-zA-Z_][a-zA-Z0-9_-]*$/;
+
+  if (!validPattern.test(unitId)) {
+    return {
+      valid: false,
+      error: `Invalid unitId '${unitId}': must contain only letters, numbers, hyphens, and underscores, and start with a letter or underscore`
+    };
+  }
+
+  return { valid: true };
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 async function LoadUnitIds() {
   try {
     const items = await fs.promises.readdir(unitPath, { withFileTypes: true });
     const unitIds = items
       .filter(item => item.isDirectory() && !item.name.startsWith('.'))
-      .map(item => item.name);
+      .map(item => item.name)
+      .filter(unitId => {
+        const validation = ValidateUnitId(unitId);
+        if (!validation.valid) {
+          console.error(PR, `${CC}Skipping invalid unit folder: ${validation.error}${CR}`);
+          return false;
+        }
+        return true;
+      });
     return unitIds;
   } catch (error) {
     throw new Error(`Failed to read units directory: ${error.message}`);

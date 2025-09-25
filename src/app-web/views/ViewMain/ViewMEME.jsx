@@ -221,9 +221,8 @@ class ViewMEME extends React.Component {
 
     // Load Ratings from new Unit Definitions
     if (model) {
-      const unitId = model.unitId;
-      unitLabel = ADM.GetUnitLabel(unitId);
-      const ratingsDefs = ADM.GetRatings(unitId);
+      unitLabel = ADM.GetUnitLabel();
+      const ratingsDefs = ADM.GetRatings();
       RATINGS.updateDefinitions(ratingsDefs);
     }
 

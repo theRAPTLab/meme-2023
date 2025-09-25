@@ -149,12 +149,6 @@ PMCData.InitializeModel = (model, admdb, resources) => {
 
   // Resources
   a_resources = resources || [];
-  // Look up current classroom's resources for filtering later
-  // so that resources that are currently hidden are not displayed
-  // especially VBadges
-  const thisClassroomResources = classroomResources.find(
-    c => c.classroomId === ASET.selectedClassroomId
-  );
 
   /*/
   The model data format changed in october 2019 to better separate pmcdata from model

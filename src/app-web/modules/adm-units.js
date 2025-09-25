@@ -40,6 +40,12 @@ ADMUnits.GetUnit = unitId => {
   return rfdc(UNITS[unitId]);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMUnits.GetUnitLabel = unitId => {
+  if (unitId === undefined) throw Error('GetUnitLabel requires a unitId!');
+  if (!UNITS[unitId]) throw Error(`GetUnitLabel: unknown unitId '${unitId}'`);
+  return UNITS[unitId].label || unitId;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMUnits.GetResources = unitId => {
   const unit = ADMUnits.GetUnit(unitId);
   if (!unit) throw Error(`GetResources: unknown unitId '${unitId}'`);

@@ -107,11 +107,6 @@ class ViewMEME extends React.Component {
     this.refMain = React.createRef();
     this.refView = React.createRef();
 
-    this.state = {
-      viewHeight: 0,
-      viewWidth: 0
-    };
-
     this.DoDataUpdate = this.DoDataUpdate.bind(this);
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
@@ -160,11 +155,13 @@ class ViewMEME extends React.Component {
       title: '',
       modelId: '',
       modelAuthorGroupName: '',
+      unitLabel: '',
       isModelAuthor: true,
       studentId: '',
       studentName: '',
       studentGroup: '',
       viewHeight: 0, // need to init this to prevent error with first render of resourceList
+      viewWidth: 0,
       toolsPanelIsOpen: true,
       resourceLibraryIsOpen: true,
       addPropOpen: false,
@@ -220,10 +217,12 @@ class ViewMEME extends React.Component {
     const userStudentId = ADM.GetAuthorId();
     const userGroupId = ADM.GetGroupIdByStudent(userStudentId);
     const isModelAuthor = userGroupId === (model ? model.groupId : '');
+    let unitLabel = '';
 
     // Load Ratings from new Unit Definitions
     if (model) {
       const unitId = model.unitId;
+      unitLabel = ADM.GetUnitLabel(unitId);
       const ratingsDefs = ADM.GetRatings(unitId);
       RATINGS.updateDefinitions(ratingsDefs);
     }
@@ -232,6 +231,7 @@ class ViewMEME extends React.Component {
       title,
       modelId,
       modelAuthorGroupName,
+      unitLabel,
       isModelAuthor,
       studentId: userStudentId,
       studentName: ADM.GetLoggedInUserName(),
@@ -652,6 +652,7 @@ class ViewMEME extends React.Component {
       modelAuthorGroupName,
       isModelAuthor,
       title,
+      unitLabel,
       studentId,
       studentName,
       studentGroup,
@@ -899,6 +900,7 @@ class ViewMEME extends React.Component {
         <div className="ViewMEME" style={{ gridTemplateColumns: gridColumns }}>
           <div className="leftsidebar">
             {PANELTOOLS}
+            <div className="unitlabel">UNIT: {unitLabel}</div>
             <WDescriptionPopup />
           </div>
           <div className="main">

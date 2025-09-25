@@ -1655,6 +1655,10 @@ ADMData.GetUnitsList = () => {
   return ADMUnits.GetUnitsList();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetUnitLabel = unitId => {
+  return ADMUnits.GetUnitLabel(unitId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetResources = unitId => {
   return ADMUnits.GetResources(unitId);
 };

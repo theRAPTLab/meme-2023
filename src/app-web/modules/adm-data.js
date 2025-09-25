@@ -1240,7 +1240,8 @@ ADMData.LoadModel = modelId => {
     throw Error(`${PKG}.LoadModel could not find a valid modelId ${modelId}`);
   PMCData.ClearModel();
   UR.Publish('SVG_PANZOOM_RESET');
-  ADMData.SetSelectedModelId(modelId, model.pmcDataId); // Remember the selected modelId locally
+  const unitId = model.unitId;
+  ADMData.SetSelectedModelId(modelId, unitId, model.pmcDataId); // Remember the selected modelId locally
   // If a teacher, then classroomId is ambiguous
   // but while loading a model, we can implicitly look up classroom via the groupId
   if (!ASET.selectedClassroomId) {
@@ -1248,7 +1249,6 @@ ADMData.LoadModel = modelId => {
   }
 
   // Load Unit Definitions
-  const unitId = model.unitId;
   const unit = ADMUnits.GetUnit(unitId);
   if (unit === undefined) console.warn(PKG, 'LoadModel could not find unit', unitId);
   // - Update Ratings
@@ -1262,12 +1262,13 @@ ADMData.LoadModel = modelId => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This does not load the model, it just sets the currently selected model id
-ADMData.SetSelectedModelId = (modelId, pmcDataId) => {
+ADMData.SetSelectedModelId = (modelId, unitId, pmcDataId) => {
   // verify it's valid
   if (adm_db.models.find(mdl => mdl.id === modelId) === undefined) {
     console.error(PKG, 'SetSelectedModelId could not find valid modelId', modelId);
   }
   ASET.selectedModelId = modelId;
+  ASET.selectedUnitId = unitId;
   ASET.selectedPMCDataId = pmcDataId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1277,6 +1278,7 @@ ADMData.GetSelectedModelId = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.CloseModel = () => {
   ASET.selectedModelId = '';
+  ASET.selectedUnitId = '';
   UR.Publish('ADM_DATA_UPDATED');
   UR.Publish('MODEL_SELECT_OPEN');
 };
@@ -1678,15 +1680,15 @@ ADMData.GetUnitsList = () => {
   return ADMUnits.GetUnitsList();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.GetUnitLabel = unitId => {
+ADMData.GetUnitLabel = (unitId = ASET.selectedUnitId) => {
   return ADMUnits.GetUnitLabel(unitId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.GetResources = unitId => {
+ADMData.GetResources = (unitId = ASET.selectedUnitId) => {
   return ADMUnits.GetResources(unitId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ADMData.GetRatings = unitId => {
+ADMData.GetRatings = (unitId = ASET.selectedUnitId) => {
   return ADMUnits.GetRatings(unitId);
 };
 

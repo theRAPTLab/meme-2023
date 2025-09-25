@@ -671,7 +671,7 @@ class ViewMEME extends React.Component {
     const classroomId = model ? ADM.GetClassroomIdByGroup(model.groupId) : '';
 
     // Unit
-    const resources = classroomId !== '' ? ADM.GetResources(model.unitId) : [];
+    const resources = classroomId !== '' ? ADM.GetResources() : [];
 
     const isViewOnly = ADM.IsViewOnly();
     const isDBReadOnly = ADM.IsDBReadOnly();

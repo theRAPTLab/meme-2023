@@ -18,6 +18,7 @@ const yaml = require('js-yaml');
 
 const LOGGER = require('./server-logger');
 const UNET = require('./server-network');
+const VALIDATION = require('./server-units-validation');
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -60,11 +61,19 @@ async function LoadUnits() {
         );
 
         if (yamlFiles.length > 0) {
-          const yamlFilePath = path.join(unitDir, yamlFiles[0]);
-          const unitData = await LoadYAMLFile(yamlFilePath);
+          const unitData = await LoadAndMergeYAMLFiles(unitDir, yamlFiles, unitId);
           if (unitData) {
-            UNITSMAP.set(unitId, unitData);
-            console.log(PR, `Loaded unit: ${unitId} from ${yamlFiles[0]}`);
+            // Validate unit data structure
+            try {
+              VALIDATION.ValidateUnit(unitData, unitId);
+              UNITSMAP.set(unitId, unitData);
+              console.log(PR, `Loaded unit: ${unitId} from ${yamlFiles.length} YAML file(s)`);
+            } catch (validationError) {
+              console.error(
+                PR,
+                `${CC}Validation failed for unit ${unitId}: ${validationError.message}${CR}`
+              );
+            }
           }
         } else {
           console.log(PR, `${CC}No YAML file found for: ${unitId}${CR}`);
@@ -138,6 +147,52 @@ async function LoadYAMLFile(filePath) {
     console.error(PR, `Error loading YAML file: ${error.message}`);
     return null;
   }
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+async function LoadAndMergeYAMLFiles(unitDir, yamlFiles, unitId) {
+  let mergedData = {};
+
+  for (const yamlFile of yamlFiles) {
+    const yamlFilePath = path.join(unitDir, yamlFile);
+    const data = await LoadYAMLFile(yamlFilePath);
+
+    if (data) {
+      console.log(PR, `  Loading ${yamlFile} for unit: ${unitId}`);
+      mergedData = MergeUnitData(mergedData, data, yamlFile, unitId);
+    }
+  }
+
+  return Object.keys(mergedData).length > 0 ? mergedData : null;
+}
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function MergeUnitData(target, source, fileName, unitId) {
+  const merged = { ...target };
+
+  for (const [key, value] of Object.entries(source)) {
+    if (key === 'label') {
+      // Only set label if not already set (first file wins)
+      if (!merged.label) {
+        merged.label = value;
+      }
+    } else if (Array.isArray(value)) {
+      // Merge arrays (resources, ratings, commentTypes, criteria)
+      if (!merged[key]) {
+        merged[key] = [];
+      }
+      merged[key] = [...merged[key], ...value];
+    } else if (typeof value === 'object' && value !== null) {
+      // Merge objects recursively
+      if (!merged[key]) {
+        merged[key] = {};
+      }
+      merged[key] = { ...merged[key], ...value };
+    } else {
+      // Simple values - source wins (later files override)
+      merged[key] = value;
+    }
+  }
+
+  return merged;
 }
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////

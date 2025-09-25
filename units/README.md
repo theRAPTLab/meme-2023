@@ -50,8 +50,20 @@ Resources are an array consisting of 5 items:
 - `id` -- numeric id used for the footnote
 - `label` -- human readable label for the evidence
 - `notes` -- a short descriptive string displayed below the label in the library
-- `type` -- a string description for humans, e.g. `report, simulation, idea, assumption, question, or other'` (this is not programmatic)
+- `type` -- determines the icon displayed, e.g. `idea`
 - `url` -- A filename reference or a URL.
+
+Valid `types`
+```
+const RESOURCE_TYPES = {
+  simulation: ImageIcon,
+  assumption: IdeaIcon,
+  idea: IdeaIcon,
+  report: DescriptionIcon,
+  question: ContactSupportIcon,
+  other: DescriptionIcon
+};
+```
 
 Note on use:
 - The `id` is used as the footnote reference.

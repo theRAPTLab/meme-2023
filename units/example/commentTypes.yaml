@@ -1,16 +1,16 @@
 commentTypes:
   - slug: 'cmt'
-    label: 'Split Comment'
+    label: 'Comment'
     prompts:
       - format: 'text'
-        prompt: 'Split Comment'
+        prompt: 'Comment'
         help: 'Use this for any general comment.'
         feedback: ''
   - slug: 'evidence'
-    label: 'Split Backed up by enough good evidence'
+    label: 'Backed up by enough good evidence'
     prompts:
       - format: 'dropdown'
-        prompt: 'Split Is this based on evidence and facts?'
+        prompt: 'Is this based on evidence and facts?'
         options:
           - 'Yes'
           - 'Some'

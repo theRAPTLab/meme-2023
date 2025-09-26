@@ -195,6 +195,8 @@ class EVResourceItemDialog extends React.Component {
   render() {
     const { isOpen, resource, note, noteIsDisabled } = this.state;
 
+    const unitId = ASET.selectedUnitId;
+
     // don't render if resource hasn't been defined yet
     if (resource === undefined || resource.id === undefined) return '';
     const linksCount = DATA.GetEvLinksCountByResourceId(resource.id);

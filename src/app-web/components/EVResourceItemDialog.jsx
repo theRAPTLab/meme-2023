@@ -229,7 +229,7 @@ class EVResourceItemDialog extends React.Component {
           id="resourceFrame"
           src={
             resource.url && !resource.url.startsWith('http')
-              ? `/resources/${resource.url}`
+              ? `/units/${unitId}/resources/${resource.url}`
               : resource.url
           }
           title="resource"

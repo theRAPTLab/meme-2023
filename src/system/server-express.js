@@ -196,6 +196,9 @@ function Start() {
   // serve resource files
   app.use('/resources', express.static(PATHS.Resources));
 
+  // serve unit files (including unit resources)
+  app.use('/units', express.static(PATHS.Units));
+
   // and everything else...
   app.use('/', express.static(DOCROOT));
 

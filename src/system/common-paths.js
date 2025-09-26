@@ -47,6 +47,7 @@ const MEME_TEMPLATES = {
 
 const PATHS = {
   Resources: PATH.join(m_rootFolder, 'resources'),
+  Units: PATH.join(m_rootFolder, 'units'),
   Database: (dataset = 'meme') => PATH.join(m_dataFolder, 'db', `${dataset}.loki`),
   DatabaseBackups: PATH.join(m_dataFolder, 'db', 'backups'),
   Template: template => {

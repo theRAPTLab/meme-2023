@@ -28,6 +28,10 @@
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
 const Ajv = require('ajv');
+/// CONSTANTS /////////////////////////////////////////////////////////////////
+///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const PROMPTS = require('./util/prompts');
+const { CCRIT: CC, CR } = PROMPTS;
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 
@@ -139,9 +143,8 @@ VALIDATION.ValidateUnit = function (unitData, unitId = 'unknown') {
           : err.schemaPath;
         return `${field}: ${err.message}`;
       })
-      .join(', ');
-
-    throw new Error(`Unit validation failed for '${unitId}': ${errors}`);
+      .join('\n');
+    throw new Error(`${CC}${errors}${CR}`);
   }
 
   // Additional validation for individual arrays
@@ -154,8 +157,8 @@ VALIDATION.ValidateUnit = function (unitData, unitId = 'unknown') {
             err =>
               `resource[${index}].${err.instancePath.substring(1) || err.dataPath}: ${err.message}`
           )
-          .join(', ');
-        throw new Error(`Unit validation failed for '${unitId}': ${errors}`);
+          .join('\n');
+        throw new Error(`${CC}${errors}${CR}`);
       }
     });
   }
@@ -169,8 +172,8 @@ VALIDATION.ValidateUnit = function (unitData, unitId = 'unknown') {
             err =>
               `rating[${index}].${err.instancePath.substring(1) || err.dataPath}: ${err.message}`
           )
-          .join(', ');
-        throw new Error(`Unit validation failed for '${unitId}': ${errors}`);
+          .join('\n');
+        throw new Error(`${CC}${errors}${CR}`);
       }
     });
   }
@@ -184,8 +187,8 @@ VALIDATION.ValidateUnit = function (unitData, unitId = 'unknown') {
             err =>
               `commentType[${index}].${err.instancePath.substring(1) || err.dataPath}: ${err.message}`
           )
-          .join(', ');
-        throw new Error(`Unit validation failed for '${unitId}': ${errors}`);
+          .join('\n');
+        throw new Error(`${CC}${errors}${CR}`);
       }
     });
   }

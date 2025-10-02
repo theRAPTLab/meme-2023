@@ -67,11 +67,14 @@ async function LoadUnits() {
             try {
               VALIDATION.ValidateUnit(unitData, unitId);
               UNITSMAP.set(unitId, unitData);
-              console.log(PR, `Loaded unit: ${unitId} from ${yamlFiles.length} YAML file(s)`);
+              console.log(
+                PR,
+                `Loaded unit: ${unitId} from ${yamlFiles.length} YAML file(s)`
+              );
             } catch (validationError) {
               console.error(
                 PR,
-                `${CC}Validation failed for unit ${unitId}: ${validationError.message}${CR}`
+                `${CC}Validation failed for unit ${unitId}:\n${validationError.message}${CR}`
               );
             }
           }

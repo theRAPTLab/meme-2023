@@ -29,6 +29,14 @@ ADMUnits.GetUnitsList = () => {
   return list;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Return the first unitId in the list
+ADMUnits.GetUnitDefaultId = () => {
+  if (Object.keys(UNITS).length === 0) {
+    throw Error('GetUnitDefaultId: no units defined!');
+  }
+  return Object.keys(UNITS)[0];
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMUnits.SetUnits = units => {
   if (typeof units !== 'object') throw Error('SetUnits requires an object!');
   UNITS = rfdc(units);

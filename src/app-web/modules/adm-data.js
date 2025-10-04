@@ -104,6 +104,10 @@ ADMData.SyncAddedData = data => {
       case 'classrooms': {
         const classroom = ADMObj.Classroom(value);
         adm_db.classrooms.push(classroom);
+
+        // When admin adds a classroom, we need to update selectedUnitId
+        ASET.selectedUnitId = classroom.unitId;
+
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       }
@@ -196,6 +200,12 @@ ADMData.SyncUpdatedData = data => {
         const classroom = ADMData.GetClassroom(value.id);
         classroom.name = value.name;
         classroom.canViewOthers = value.canViewOthers;
+        classroom.unitId = value.unitId;
+
+        // When admin changes the classroom, we need to update selectedUnitId
+        ASET.selectedUnitId = value.unitId;
+        const classroomi = adm_db.classrooms.findIndex(c => c.id === value.id);
+        adm_db.classrooms.splice(classroomi, 1, classroom);
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       }
@@ -385,6 +395,37 @@ ADMData.GetTeacherNameByStudent = (studentId = ASET.selectedStudentId) => {
 ADMData.SelectTeacher = teacherId => {
   ASET.selectedTeacherId = teacherId;
   UR.Publish('TEACHER_SELECT', { teacherId });
+
+  // When a teacher is selected, autoselect the Classroom
+  const classrooms = ADMData.GetClassroomsByTeacher(teacherId);
+  if (classrooms.lengh === 0) {
+    //   1. If the teacher has no classrooms, clear the classroom selection
+    ASET.selectedClassroomId = '';
+  } else {
+    //   2. If selectedClassroomId is already set and valid, keep it
+    if (
+      ASET.selectedClassroomId &&
+      classrooms.find(c => c.id === ASET.selectedClassroomId)
+    ) {
+      return;
+    } else {
+      //   3. Otherwise, select the first classroom of the teacher
+      const selectedClassroomId = classrooms.length > 0 ? classrooms[0].id : '';
+      ASET.selectedClassroomId = selectedClassroomId;
+    }
+  }
+
+  // After classroom is selected, select the Unit
+  const selectedClassroom = ADMData.GetClassroom(ASET.selectedClassroomId);
+  if (selectedClassroom && selectedClassroom.unitId) {
+    ASET.selectedUnitId = selectedClassroom.unitId;
+  } else {
+    // selectedUnitId has not been set yet, so grab default
+    ASET.selectedUnitId = ADMData.GetUnitDefaultId();
+  }
+  UR.Publish('CLASSROOM_SELECT', {
+    classroomId: ASET.selectedClassroomId
+  });
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -393,12 +434,15 @@ ADMData.SelectTeacher = teacherId => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Creates a new classroom and then selects the classroom
+ *  Selects the first unit by default
  *  @param {String} name - New classroom name
  */
 ADMData.DB_AddClassroom = name => {
+  const unitId = ADMData.GetUnitDefaultId();
   const classroom = ADMObj.Classroom({
     teacherId: ASET.selectedTeacherId,
-    name
+    name,
+    unitId
   });
   return UR.DBQuery('add', { classrooms: classroom }).then(rdata => {
     if (rdata.error) throw Error(rdata.error);
@@ -496,12 +540,20 @@ ADMData.CanViewOthers = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomIdByStudent()) => {
   ASET.selectedClassroomId = classroomId;
+  const selectedUnitId = ADMData.GetClassroomSelectedUnitId(classroomId);
+  ASET.selectedUnitId = selectedUnitId;
+  if (classroomId === '' || classroomId === undefined) {
+    console.warn('SelectClassroom: no classroomId defined');
+  }
   UR.Publish('CLASSROOM_SELECT', { classroomId });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetSelectedClassroomId = () => {
   return ASET.selectedClassroomId;
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetClassroomSelectedUnitId = classroomId => {
+  const classroom = ADMData.GetClassroom(classroomId);
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// GROUPS ////////////////////////////////////////////////////////////////////
@@ -1278,7 +1330,6 @@ ADMData.GetSelectedModelId = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.CloseModel = () => {
   ASET.selectedModelId = '';
-  ASET.selectedUnitId = '';
   UR.Publish('ADM_DATA_UPDATED');
   UR.Publish('MODEL_SELECT_OPEN');
 };
@@ -1667,17 +1718,33 @@ ADMData.GetMissingResources = (origGroupId, newGroupId) => {
 //   UR.Publish('ADM_DATA_UPDATED');
 //   */
 // };
+
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// UNITS
+/// UNITS /////////////////////////////////////////////////////////////////////
 ///
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetUnits = () => {
   return ADMUnits.GetUnits();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Called by WAdmClassroomSelector when a classroom is selected
+/// Updates the classroom record with the selected unitId
+ADMData.SelectUnit = (classroomId, unitId) => {
+  ASET.selectedUnitId = unitId;
+  ADMData.DB_UpdateClassroom(classroomId, { unitId });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.HasUnit = unitId => {
+  return ADMUnits.HasUnit(unitId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Return [{id, label}] of all units
 ADMData.GetUnitsList = () => {
   return ADMUnits.GetUnitsList();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetUnitDefaultId = () => {
+  return ADMUnits.GetUnitDefaultId();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetUnitLabel = (unitId = ASET.selectedUnitId) => {

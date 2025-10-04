@@ -32,7 +32,6 @@ PMCObj.Evidence = data => {
   };
 };
 
-
 /**
  *  @return {Object} Returns a new comment data object
  */
@@ -67,8 +66,10 @@ PMCObj.MarkedRead = data => {
  *  @return {Object} Returns a new urcomment data object
  */
 PMCObj.URComment = data => {
-  if (data.collection_ref === undefined) throw Error('Comment requires a collection_ref!');
-  if (data.commenter_id === undefined) throw Error('Comment requires an commenter_id!');
+  if (data.collection_ref === undefined)
+    throw Error('Comment requires a collection_ref!');
+  if (data.commenter_id === undefined)
+    throw Error('Comment requires an commenter_id!');
   return {
     id: data.id, // loki db id, needs to be retained with db data
     collection_ref: data.collection_ref,
@@ -88,14 +89,16 @@ PMCObj.URComment = data => {
  * @return {Object} Returns a new comment readby object
  */
 PMCObj.URCommentReadBy = data => {
-  if (data.comment_id === undefined) throw Error('URCommentReadBy requires a comment_id!');
-  if (data.commenter_ids === undefined) throw Error('URCommentReadBy requires commenter_ids!');
+  if (data.comment_id === undefined)
+    throw Error('URCommentReadBy requires a comment_id!');
+  if (data.commenter_ids === undefined)
+    throw Error('URCommentReadBy requires commenter_ids!');
   return {
     id: data.id, // loki db id, needs to be retained with db data
     comment_id: data.comment_id,
     commenter_ids: data.commenter_ids
   };
-}
+};
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export default PMCObj;

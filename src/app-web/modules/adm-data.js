@@ -554,6 +554,8 @@ ADMData.GetSelectedClassroomId = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetClassroomSelectedUnitId = classroomId => {
   const classroom = ADMData.GetClassroom(classroomId);
+  return classroom ? classroom.unitId : '';
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// GROUPS ////////////////////////////////////////////////////////////////////

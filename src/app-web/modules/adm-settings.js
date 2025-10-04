@@ -21,6 +21,7 @@ class ADMSettings {
 
   // utility
   clear() {
+    if (DBG) console.log('ADMSettings.clear');
     this.sTeacherId = ''; // an id
     this.sStudentId = ''; // a login token (string)
     this.sModelId = ''; // an id
@@ -45,7 +46,7 @@ class ADMSettings {
   }
 
   get selectedStudentId() {
-    if (DBG) console.error('get sStudentId', this.sStudentId, typeof this.sStudentId);
+    if (DBG) console.log('get sStudentId', this.sStudentId, typeof this.sStudentId);
     return this.sStudentId;
   }
 
@@ -102,6 +103,7 @@ class ADMSettings {
   }
 
   set selectedUnitId(id) {
+    if (DBG) console.log(`ADMSettings.selectedUnitId '${id}'`);
     this.sUnitId = id;
   }
 

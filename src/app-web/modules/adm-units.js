@@ -44,14 +44,21 @@ ADMUnits.SetUnits = units => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMUnits.GetUnit = unitId => {
   if (unitId === undefined) throw Error('GetUnit requires a unitId!');
-  if (!UNITS[unitId]) throw Error(`GetUnit: unknown unitId '${unitId}'`);
+  if (!UNITS[unitId])
+    throw Error(`GetUnit: unknown unitId '${unitId}' UNITS: ${Object.keys(UNITS)}`);
   return rfdc(UNITS[unitId]);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMUnits.HasUnit = unitId => {
+  if (unitId === undefined) throw Error('HasUnit requires a unitId!');
+  return UNITS[unitId] !== undefined;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMUnits.GetUnitLabel = unitId => {
   if (unitId === undefined) throw Error('GetUnitLabel requires a unitId!');
-  if (!UNITS[unitId]) throw Error(`GetUnitLabel: unknown unitId '${unitId}'`);
-  return UNITS[unitId].label || unitId;
+  // Display the "Unit Not Found" if no label is defined so errors can be displayed
+  if (!UNITS[unitId]) return `Unit '${unitId}' Not Found`;
+  else return UNITS[unitId].label;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMUnits.GetResources = unitId => {

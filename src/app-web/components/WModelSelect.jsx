@@ -210,9 +210,15 @@ class WModelSelect extends React.Component {
       <span>READ ONLY MODE</span>
     ) : undefined;
 
+    const unitId = ASET.selectedUnitId;
+    const unitLabel = unitId ? ADM.GetUnitLabel(unitId) : 'No Unit Selected';
     const CreateNewModelButton = ADM.IsDBReadOnly() ? undefined : (
-      <button onClick={this.OnNewModel} className="primary">
-        Create New Model
+      <button
+        onClick={this.OnNewModel}
+        className="primary"
+        disabled={!ADM.HasUnit(unitId)}
+      >
+        Create New Model: {unitLabel}
       </button>
     );
 
@@ -228,7 +234,6 @@ class WModelSelect extends React.Component {
         </button>
       </div>
     );
-
 
     return (
       <div

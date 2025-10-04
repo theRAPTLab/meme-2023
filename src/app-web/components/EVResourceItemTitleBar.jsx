@@ -63,7 +63,7 @@ class EVResourceItemTitleBar extends React.Component {
     const linksCount = DATA.GetEvLinksCountByResourceId(resource.id);
     return (
       <div className="EVResourceItemTitleBar">
-        <ICNCountBadge count={resource.referenceLabel} size="large" type="ev-dark" />
+        <ICNCountBadge count={resource.id} size="large" type="ev-dark" />
         <div>
           <div className="label">{resource.label}</div>
           <div className="notes">{resource.notes}</div>

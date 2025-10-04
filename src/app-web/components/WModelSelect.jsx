@@ -18,6 +18,7 @@ import './WModelSelect.css';
 import UR from '../../system/ursys';
 import SESSION from '../../system/common-session';
 import ADM from '../modules/data';
+import ASET from '../modules/adm-settings';
 import WModelsListTable from './WModelsListTable';
 import WGroupSelector from '../views/ViewAdmin/components/WAdmGroupSelector';
 import UTILS from '../modules/utils';
@@ -55,8 +56,7 @@ class WModelSelect extends React.Component {
       teacherName: '',
       targetSelectDialogOpen: false,
       targetSelectionType: '',
-      targetSelectCallback: undefined,
-      unitSelectDialogOpen: false
+      targetSelectCallback: undefined
     };
   }
 
@@ -104,11 +104,8 @@ class WModelSelect extends React.Component {
   }
 
   OnNewModel() {
-    this.setState({ unitSelectDialogOpen: true });
-  }
-  OnUnitSelect(unitId) {
+    const unitId = ASET.selectedUnitId;
     ADM.NewModel(unitId, () => this.OnModelDialogClose());
-    this.setState({ unitSelectDialogOpen: false });
   }
 
   OnModelEdit(modelId) {
@@ -194,8 +191,7 @@ class WModelSelect extends React.Component {
       studentId,
       groupName,
       classroomName,
-      teacherName,
-      unitSelectDialogOpen
+      teacherName
     } = this.state;
     const isTeacher = SESSION.IsTeacher();
     let myModels = isTeacher ? ADM.GetModelsByTeacher() : ADM.GetModelsByStudent();
@@ -233,23 +229,6 @@ class WModelSelect extends React.Component {
       </div>
     );
 
-    const UNITS = ADM.GetUnitsList();
-    const UNIT_DIALOG = (
-      <div className="dialog-container">
-        <div className="WInfoDialog WUnitSelectDialog">
-          <h2>Select a Unit</h2>
-          <ul>
-            {UNITS.map(unit => (
-              <li key={unit.id}>
-                <button onClick={() => this.OnUnitSelect(unit.id)}>
-                  {unit.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    );
 
     return (
       <div
@@ -307,7 +286,6 @@ class WModelSelect extends React.Component {
             />
           </div>
         </div>
-        {unitSelectDialogOpen && UNIT_DIALOG}
       </div>
     );
   }

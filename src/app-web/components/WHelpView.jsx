@@ -29,7 +29,6 @@ import UR from '../../system/ursys';
 import ADM from '../modules/data';
 import DEFAULTS from '../modules/defaults';
 import UTILS from '../modules/utils';
-import WCriteriaList from '../views/ViewAdmin/components/WAdmCriteriaList';
 import DATAMAP from '../../system/common-datamap';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
@@ -129,7 +128,6 @@ Moreland, Vickery, Murphy & Stiso.
 
   render() {
     const { isOpen, helptext, credittext } = this.state;
-    const criteria = ADM.GetCriteriaByModel(); // always use the current model's criteria
 
     if (!isOpen) {
       return '';
@@ -144,16 +142,6 @@ Moreland, Vickery, Murphy & Stiso.
               </button>
             </div>
             <div className="content">
-              <div>
-                <h6>Criteria for a Good Model</h6>
-                <p>
-                  <em>
-                    Don't forget that it's good to point out both the strengths of a
-                    model, and the areas we think can be improved.
-                  </em>
-                </p>
-              </div>
-              <WCriteriaList Criteria={criteria} IsInEditMode={false} />
               <MDReactComponent className="help-text" skipHtml>
                 {helptext}
               </MDReactComponent>

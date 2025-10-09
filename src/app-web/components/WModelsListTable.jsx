@@ -40,7 +40,6 @@ class WModelsListTable extends React.Component {
     super();
     this.RendererTitle = this.RendererTitle.bind(this);
     this.RendererAction = this.RendererAction.bind(this);
-    this.OnSortClick = this.OnSortClick.bind(this);
   }
 
   componentDidMount() {}
@@ -76,13 +75,6 @@ class WModelsListTable extends React.Component {
     );
   }
 
-  OnSortClick(id) {
-    this.setState(state => ({
-      order: state.orderBy === id && state.order === 'asc' ? 'desc' : 'asc',
-      orderBy: id
-    }));
-  }
-
   render() {
     const {
       models,
@@ -102,6 +94,7 @@ class WModelsListTable extends React.Component {
         type: 'text-case-insensitive',
         renderer: this.RendererTitle
       },
+
       {
         title: 'UPDATED',
         data: 'dateModified',
@@ -161,7 +154,13 @@ class WModelsListTable extends React.Component {
 
     return (
       <div className="WModelsListTable">
-        <URTable isOpen={true} data={TABLEDATA} columns={COLUMNDEFS} />
+        <URTable
+          isOpen={true}
+          data={TABLEDATA}
+          columns={COLUMNDEFS}
+          sortColumnData={'dateModified'}
+          sortOrder={1}
+        />
       </div>
     );
   }

@@ -68,7 +68,10 @@ const ratingSchema = {
 const promptSchema = {
   type: 'object',
   properties: {
-    format: { type: 'string', enum: ['text', 'dropdown', 'checkbox', 'radio'] },
+    format: {
+      type: 'string',
+      enum: ['text', 'dropdown', 'checkbox', 'radio', 'likert', 'discrete-slider']
+    },
     prompt: { type: 'string', minLength: 1 },
     help: { type: 'string' },
     helpIgnore: { type: 'string' },

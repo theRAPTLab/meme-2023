@@ -29,6 +29,7 @@ class WClassroomsSelector extends React.Component {
     super(props);
 
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
+    this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
     this.OnClassroomSelect = this.OnClassroomSelect.bind(this);
     this.OnClassroomUnitSelect = this.OnClassroomUnitSelect.bind(this);
@@ -39,9 +40,11 @@ class WClassroomsSelector extends React.Component {
     this.OnClassroomEdit = this.OnClassroomEdit.bind(this);
 
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+    UR.Subscribe('TEACHER_SELECT', this.DoTeacherSelect);
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
 
     this.state = {
+      selectedTeacherId: '',
       selectedClassroomId: '',
       selectedClassroomName: '',
       selectedClassroomUnitId: '',
@@ -55,6 +58,7 @@ class WClassroomsSelector extends React.Component {
 
   componentWillUnmount() {
     UR.Unsubscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
+    UR.Unsubscribe('TEACHER_SELECT', this.DoTeacherSelect);
     UR.Unsubscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
   }
 
@@ -64,6 +68,13 @@ class WClassroomsSelector extends React.Component {
       canViewOthers: ADM.CanViewOthers()
     });
   }
+
+  // Called by TEACHER_SELECT
+  DoTeacherSelect(data) {
+    const selectedTeacher = ADM.GetTeacher(data.teacherId);
+    this.setState({ selectedTeacherId: data.teacherId });
+  }
+
   // Update the state and inform subscribers (groupList, models, criteria, resources
   // {classroomId}
   DoClassroomSelect(data) {
@@ -148,6 +159,7 @@ class WClassroomsSelector extends React.Component {
 
   render() {
     const {
+      selectedTeacherId,
       selectedClassroomId,
       selectedClassroomName,
       selectedClassroomUnitId,
@@ -183,6 +195,7 @@ class WClassroomsSelector extends React.Component {
           value={selectedClassroomUnitId}
           onChange={this.OnClassroomUnitSelect}
           className="select"
+          disabled={selectedTeacherId === '' || selectedClassroomId === ''}
         >
           <option value="">Select a Unit</option>
           {UNITS.map(unit => (
@@ -204,6 +217,7 @@ class WClassroomsSelector extends React.Component {
             value={selectedClassroomId}
             onChange={this.OnClassroomSelect}
             className="select"
+            disabled={selectedTeacherId === ''}
           >
             <option value="">Select a Classroom</option>
             {classrooms.map(classroom => (

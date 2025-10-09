@@ -123,8 +123,8 @@ const DBG = false;
 
 const SORTORDER = new Map();
 SORTORDER.set(0, '▲▼');
-SORTORDER.set(1, '▲');
-SORTORDER.set(-1, '▼');
+SORTORDER.set(1, '▲'); // descending
+SORTORDER.set(-1, '▼'); // ascending
 
 /// FUNCTIONAL COMPONENT DECLARATION //////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

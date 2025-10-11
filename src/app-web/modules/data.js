@@ -28,7 +28,8 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
   ULINK.NetSubscribe('NET:SYSTEM_DBSYNC', data => {
     const cmd = data.cmd;
     if (!cmd) throw Error('SYSTEM_DBSYNC packet missing cmd property');
-    if (!DATAMAP.ValidateCommand(cmd)) throw Error(`SYSTEM_DBSYNC unrecognized command '${cmd}'`);
+    if (!DATAMAP.ValidateCommand(cmd))
+      throw Error(`SYSTEM_DBSYNC unrecognized command '${cmd}'`);
     switch (cmd) {
       case 'add':
         ADM.SyncAddedData(data);
@@ -173,7 +174,16 @@ window.ur.Logout = () => {
 // - - - - - - - - - - - - - - - - - - - - -
 window.ur.tnewmodel = title => {
   // first create the pmcData
-  return UR.DBQuery('add', { pmcData: { entities: [], visuals: [], comments: [], markedread: [], urcomments: [], urcomments_readby: [] } })
+  return UR.DBQuery('add', {
+    pmcData: {
+      entities: [],
+      visuals: [],
+      comments: [],
+      markedread: [],
+      urcomments: [],
+      urcomments_readby: []
+    }
+  })
     .then(rdata => {
       if (rdata.error) throw Error(rdata.error);
       //

@@ -270,7 +270,7 @@ class WClassroomsSelector extends React.Component {
             Reload Units
           </button>
           <i className="help">
-            &nbsp;Force reload units after adding/updating unit definitions
+            &nbsp;Force reload of ALL units after adding/updating unit definitions
           </i>
           <p className="help danger">
             Be careful reloading units. Removing unit parameters can lead to corrupted

@@ -1034,8 +1034,12 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
     clonedPMCData.markedread = rfdc(sourcePMCData.markedread);
     clonedPMCData.urcomments = rfdc(sourcePMCData.urcomments);
     clonedPMCData.urcomments_readby = rfdc(sourcePMCData.urcomments_readby);
-    // -- Check for missing resources
-    ADMData.AnnounceMissingResources(sourceModelId, clonedGroupId);
+
+    // With units, AnnounceMissingResources is no longer needed
+    // because the list of resources is now directly linked to the model's unit
+    // so the cloned model and the original model will always have the same resources.
+    // // -- Check for missing resources
+    // ADMData.AnnounceMissingResources(sourceModelId, clonedGroupId);
 
     if (DBG) console.log(PKG, '...cloned pmcData is', clonedPMCData);
     // 2. Create a new model with the cloned pmcData
@@ -1052,6 +1056,7 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
       // -- Create a new model and copy over the values
       const model = ADMObj.Model({
         groupId: clonedGroupId,
+        unitId: origModel.unitId,
         pmcDataId: rdata.pmcData[0].id,
         title: ADMData.GenerateModelTitle(origModel.title, clonedGroupId)
       }); // set creation date

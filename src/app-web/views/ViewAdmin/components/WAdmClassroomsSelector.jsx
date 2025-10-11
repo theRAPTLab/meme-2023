@@ -66,6 +66,9 @@ class WClassroomsSelector extends React.Component {
   DoADMDataUpdate(data) {
     if (DBG) console.log('WAdmClassroomsSelector: ADM_DATA_UPDATED', data);
     this.setState({
+      selectedClassroomUnitId: ADM.GetClassroomSelectedUnitId(
+        this.state.selectedClassroomId
+      ),
       canViewOthers: ADM.CanViewOthers()
     });
   }

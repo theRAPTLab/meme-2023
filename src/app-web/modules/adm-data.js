@@ -44,6 +44,11 @@ UR.Hook(__dirname, 'LOAD_ASSETS', () => {
     }
     ADMData.InitializeData(data); // NOTE this needs to come first
     ADMUnits.SetUnits(unitsdata); // else ADMData.GetModelById will fail
+
+    // If units have changed and the classroom's unitId is no longer valid,
+    // we need to gracefully change the selectedUnitId to a valid unit
+    // This ensures that each classroom has a valid default unit
+    ADMData.SetDefaultUnitForClassrooms();
   });
 });
 
@@ -1755,9 +1760,21 @@ ADMData.SelectUnit = (classroomId, unitId) => {
 /// Force an update of classroom record when units are reloaded
 ADMData.SyncUpdatedUnits = data => {
   ADMUnits.SetUnits(data.units);
+  // If units have changed and the classroom's unitId is no longer valid,
+  // we need to gracefully change the selectedUnitId to a valid unit
+  // This ensures that each classroom has a valid default unit
+  ADMData.SetDefaultUnitForClassrooms();
   UR.Publish('ADM_DATA_UPDATED');
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.SetDefaultUnitForClassrooms = () => {
+  const defaultUnitId = ADMUnits.GetUnitDefaultId();
+  adm_db.classrooms.forEach(c => {
+    if (c.unitId === undefined || c.unitId === '' || !ADMUnits.HasUnit(c.unitId)) {
+      ADMData.DB_UpdateClassroom(c.id, { unitId: defaultUnitId });
+    }
+  });
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.HasUnit = unitId => {
   return ADMUnits.HasUnit(unitId);

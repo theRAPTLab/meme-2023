@@ -1095,29 +1095,32 @@ ADMData.CloneModelBulk = async (modelId, selections) => {
     });
   }
 };
-/**
- * This will display a dialog listing any resources used in the sourceModel's classroom
- * that are missing from the targetGroup's classroom.
- * @param {String} sourceModelId
- * @param {String} targetGroupId
- */
-ADMData.AnnounceMissingResources = (sourceModelId, targetGroupId) => {
-  const sourceModel = ADMData.GetModelById(sourceModelId);
-  const missingResources = ADMData.GetMissingResources(
-    sourceModel.groupId,
-    targetGroupId
-  );
-  if (missingResources.length > 0) {
-    const targetClassroomName = ADMData.GetClassroomNameByGroup(targetGroupId);
-    let missingResourceTitles = '';
-    missingResources.forEach(r => {
-      missingResourceTitles += `* id: "${r.id}" label: "${r.label}"\n`;
-    });
-    UR.Publish('DIALOG_OPEN', {
-      text: `Model is cloned/moved, but note that the following resources need to be activated for classroom "${targetClassroomName}":\n\n ${missingResourceTitles}`
-    });
-  }
-};
+// DEPRECATED -- Unit resources are now linked directly to the model's unit
+//               so there is no longer a disconnect between classrooms
+//
+// /**
+//  * This will display a dialog listing any resources used in the sourceModel's classroom
+//  * that are missing from the targetGroup's classroom.
+//  * @param {String} sourceModelId
+//  * @param {String} targetGroupId
+//  */
+// ADMData.AnnounceMissingResources = (sourceModelId, targetGroupId) => {
+//   const sourceModel = ADMData.GetModelById(sourceModelId);
+//   const missingResources = ADMData.GetMissingResources(
+//     sourceModel.groupId,
+//     targetGroupId
+//   );
+//   if (missingResources.length > 0) {
+//     const targetClassroomName = ADMData.GetClassroomNameByGroup(targetGroupId);
+//     let missingResourceTitles = '';
+//     missingResources.forEach(r => {
+//       missingResourceTitles += `* id: "${r.id}" label: "${r.label}"\n`;
+//     });
+//     UR.Publish('DIALOG_OPEN', {
+//       text: `Model is cloned/moved, but note that the following resources need to be activated for classroom "${targetClassroomName}":\n\n ${missingResourceTitles}`
+//     });
+//   }
+// };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -1128,7 +1131,12 @@ ADMData.AnnounceMissingResources = (sourceModelId, targetGroupId) => {
 ADMData.MoveModel = (modelId, selections) => {
   if (selections.selectedGroupId === undefined)
     console.error('ADM.MoveModel: No target group selected.');
-  ADMData.AnnounceMissingResources(modelId, selections.selectedGroupId);
+
+  // With units, AnnounceMissingResources is no longer needed
+  // because the list of resources is now directly linked to the model's unit
+  // so the new model and the original model will always have the same resources.
+  // ADMData.AnnounceMissingResources(modelId, selections.selectedGroupId);
+
   // -- Update the DB
   ADMData.DB_RefreshPMCData(data => {
     UR.DBQuery('update', {
@@ -1640,27 +1648,30 @@ ADMData.Resource = rsrcId => {
 //   return classroomResources || [];
 // };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * Returns an array of resource titles present in origGroupId's classroom that are
- * missing from the newGroupId's classroom.
- * This is generally used by ADMData.CloneModel to note when a model is
- * being moved to a classroom that does not have the same set of resources
- * activated.
- * @param {String} origGroupId if of the clone source model's group
- * @param {String} newGroupId group id of the cloned model destination
- * @return {Array} Array of classroom resource objects
- */
-ADMData.GetMissingResources = (origGroupId, newGroupId) => {
-  const origClassroomId = ADMData.GetClassroomIdByGroup(origGroupId);
-  const newClassroomId = ADMData.GetClassroomIdByGroup(newGroupId);
-  const originalResources = ADMData.GetResourcesForClassroom(origClassroomId);
-  const clonedResources = ADMData.GetResourcesForClassroom(newClassroomId);
-  const clonedResourceIds = clonedResources.map(r => r.id);
-  let missingResources = originalResources.filter(
-    r => !clonedResourceIds.includes(r.id)
-  );
-  return missingResources;
-};
+// DEPRECATED -- Unit resources are now linked directly to the model's unit
+//               so there is no longer a disconnect between classrooms
+//
+// /**
+//  * Returns an array of resource titles present in origGroupId's classroom that are
+//  * missing from the newGroupId's classroom.
+//  * This is generally used by ADMData.CloneModel to note when a model is
+//  * being moved to a classroom that does not have the same set of resources
+//  * activated.
+//  * @param {String} origGroupId if of the clone source model's group
+//  * @param {String} newGroupId group id of the cloned model destination
+//  * @return {Array} Array of classroom resource objects
+//  */
+// ADMData.GetMissingResources = (origGroupId, newGroupId) => {
+//   const origClassroomId = ADMData.GetClassroomIdByGroup(origGroupId);
+//   const newClassroomId = ADMData.GetClassroomIdByGroup(newGroupId);
+//   const originalResources = ADMData.GetResourcesForClassroom(origClassroomId);
+//   const clonedResources = ADMData.GetResourcesForClassroom(newClassroomId);
+//   const clonedResourceIds = clonedResources.map(r => r.id);
+//   let missingResources = originalResources.filter(
+//     r => !clonedResourceIds.includes(r.id)
+//   );
+//   return missingResources;
+// };
 // DEPRECATED -- We now use unit resources
 //
 // /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

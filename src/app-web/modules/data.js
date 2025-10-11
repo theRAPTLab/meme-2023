@@ -50,6 +50,12 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
     }
     if (DBG) console.log(`SYSTEM_DBSYNC '${cmd}'\n`, data);
   });
+  //
+  // Subscribe to units updates from server
+  ULINK.NetSubscribe('NET:SYSTEM_UNITS_UPDATED', data => {
+    // Trigger local ADM_DATA_UPDATED so all UI components refresh
+    ADM.SyncUpdatedUnits(data);
+  });
 });
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////

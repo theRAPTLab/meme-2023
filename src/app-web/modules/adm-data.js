@@ -1736,6 +1736,13 @@ ADMData.SelectUnit = (classroomId, unitId) => {
   ADMData.DB_UpdateClassroom(classroomId, { unitId });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Force an update of classroom record when units are reloaded
+ADMData.SyncUpdatedUnits = data => {
+  ADMUnits.SetUnits(data.units);
+  UR.Publish('ADM_DATA_UPDATED');
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.HasUnit = unitId => {
   return ADMUnits.HasUnit(unitId);
 };

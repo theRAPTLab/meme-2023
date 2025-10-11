@@ -38,6 +38,7 @@ class WClassroomsSelector extends React.Component {
       this.OnClassesModelsVisibilityChange.bind(this);
     this.OnAddClassroomDialogClose = this.OnAddClassroomDialogClose.bind(this);
     this.OnClassroomEdit = this.OnClassroomEdit.bind(this);
+    this.OnReloadUnits = this.OnReloadUnits.bind(this);
 
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('TEACHER_SELECT', this.DoTeacherSelect);
@@ -157,6 +158,16 @@ class WClassroomsSelector extends React.Component {
     });
   }
 
+  OnReloadUnits() {
+    UR.NetCall('NET:SRV_RELOAD_UNITS', {}).then(response => {
+      if (response.success) {
+        if (DBG) console.log('Units reloaded:', response.unitIds);
+      } else {
+        console.error('Failed to reload units');
+      }
+    });
+  }
+
   render() {
     const {
       selectedTeacherId,
@@ -251,7 +262,20 @@ class WClassroomsSelector extends React.Component {
             <span aria-hidden="true">Show</span>
           </button>
           &nbsp;
-          <label>Students can view class' models?</label>
+          <i className="help">Students can view class' models?</i>
+        </div>
+        <br />
+        <div>
+          <button type="button" className="med" onClick={this.OnReloadUnits}>
+            Reload Units
+          </button>
+          <i className="help">
+            &nbsp;Force reload units after adding/updating unit definitions
+          </i>
+          <p className="help danger">
+            Be careful reloading units. Removing unit parameters can lead to corrupted
+            projects.
+          </p>
         </div>
         {DIALOG}
       </div>

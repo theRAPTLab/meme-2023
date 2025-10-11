@@ -42,6 +42,17 @@ UNITMGR.InitializeUnits = async function () {
   // register handlers
   UNET.NetSubscribe('NET:SRV_UNITSGET', PKT_GetUnits);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+UNITMGR.PKT_ReloadUnits = async function (pkt) {
+  const unitIds = await LoadUnits();
+  LOGGER.Write(LPR, `Reload Units ${unitIds}`);
+
+  const units = Object.fromEntries(UNITSMAP);
+  // Broadcast to all clients that units have been updated
+  UNET.NetPublish('NET:SYSTEM_UNITS_UPDATED', { units });
+
+  return { success: true, unitIds };
+};
 
 /// INITIALIZATION METHODS ////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -154,7 +165,10 @@ async function LoadUnitIds() {
       .filter(unitId => {
         const validation = ValidateUnitId(unitId);
         if (!validation.valid) {
-          console.error(PR, `${CC}Skipping invalid unit folder: ${validation.error}${CR}`);
+          console.error(
+            PR,
+            `${CC}Skipping invalid unit folder: ${validation.error}${CR}`
+          );
           return false;
         }
         return true;

@@ -87,6 +87,9 @@ h3 {
   font-size: var(--txt-size-sm);
   font-weight: var(--txt-weight-med);
 }
+.help.danger {
+  color: var(--clr-btn-danger);
+}
 
 /* -- APPBAR --------------------------------- */
 .appbar {
@@ -154,6 +157,12 @@ button.transparent {
   border: none;
   color: var(--clr-btn-primary);
   background-color: transparent;
+}
+button.med {
+  padding: 2px 4px;
+  font-size: var(--txt-size-tiny);
+  height: 16px;
+  line-height: 14px;
 }
 button.sm {
   padding: 0 1px;

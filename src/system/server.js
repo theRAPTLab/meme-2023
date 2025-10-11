@@ -79,6 +79,8 @@ URSYS.RegisterHandlers = () => {
   // server utilities
   UNET.NetSubscribe('NET:SRV_REFLECT', URSYS.PKT_Reflect);
   UNET.NetSubscribe('NET:SRV_SERVICE_LIST', URSYS.PKT_Services);
+
+  UNET.NetSubscribe('NET:SRV_RELOAD_UNITS', UNITMGR.PKT_ReloadUnits);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

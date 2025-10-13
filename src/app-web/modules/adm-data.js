@@ -44,14 +44,20 @@ UR.Hook(__dirname, 'LOAD_ASSETS', () => {
     }
     ADMData.InitializeData(data); // NOTE this needs to come first
     ADMUnits.SetUnits(unitsdata); // else ADMData.GetModelById will fail
-
-    // If units have changed and the classroom's unitId is no longer valid,
-    // we need to gracefully change the selectedUnitId to a valid unit
-    // This ensures that each classroom has a valid default unit
-    ADMData.SetDefaultUnitForClassrooms();
   });
 });
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+UR.Hook(__dirname, 'DOM_READY', () => {
+  // If units have changed and the classroom's unitId is no longer valid,
+  // we need to gracefully change the selectedUnitId to a valid unit
+  // This ensures that each classroom has a valid default unit
+  // even without any admin interaction.
+  //
+  // NOTE: The DB_UpdateClassroom calls require the SESSION access key
+  // to be defined, which may not be the case at app startup.
+  // So we call this after DOM_READY when SESSION has been set.
+  ADMData.SetDefaultUnitForClassrooms();
+});
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

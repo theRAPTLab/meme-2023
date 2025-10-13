@@ -65,10 +65,16 @@ class WClassroomsSelector extends React.Component {
 
   DoADMDataUpdate(data) {
     if (DBG) console.log('WAdmClassroomsSelector: ADM_DATA_UPDATED', data);
+
+    // If selected unit is no longer valid trigger a save
+    const unitId = ADM.GetClassroomSelectedUnitId(this.state.selectedClassroomId);
+    if (unitId !== this.state.selectedClassroomUnitId) {
+      // unitId has changed, update it, force database update
+      this.OnClassroomUnitSelect({ target: { value: unitId } });
+    }
+
     this.setState({
-      selectedClassroomUnitId: ADM.GetClassroomSelectedUnitId(
-        this.state.selectedClassroomId
-      ),
+      selectedClassroomUnitId: unitId,
       canViewOthers: ADM.CanViewOthers()
     });
   }

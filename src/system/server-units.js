@@ -12,10 +12,11 @@
 
 ///	LOAD LIBRARIES ////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const fs = require('fs');
 const path = require('path');
+const fs = require('fs-extra');
 const yaml = require('js-yaml');
 
+const PATHS = require('./common-paths').PATHS;
 const LOGGER = require('./server-logger');
 const UNET = require('./server-network');
 const VALIDATION = require('./server-units-validation');

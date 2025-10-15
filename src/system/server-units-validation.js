@@ -10,7 +10,7 @@
   - criteria: Evaluation criteria
 
   Units are defined in the /units directory, each in its own subdirectory
-  with a single YAML file.  Resources (e.g. PDFs) are stored in a subfolder
+  with a YAML file(s).  Resources (e.g. PDFs) are stored in a subfolder
   within the unit directory.
 
   Example unit structure:
@@ -22,6 +22,27 @@
             evidence.html
         unit2/
           unit2.yaml
+          resources/
+            evidence.pdf
+
+  Multiple YAML files can be used in a unit directory to separate concerns,
+  e.g. unit1.yaml, resources.yaml, ratings.yaml, commentTypes.yaml
+  All YAML files are merged together when loading a unit, with later files
+  overriding earlier ones in case of conflicts.  For example, if you want
+  to use the same commentTypes in multiple units, you could create a
+  shared commentTypes.yaml file and include it in each unit directory.
+
+  Example unit structure:
+      units/
+        algae/
+          library.yaml
+          ecosystemCommentTypes.yaml
+          resources/
+            evidence.pdf
+            evidence.html
+        fish/
+          fishresources.yaml
+          ecosystemCommentTypes.yaml
           resources/
             evidence.pdf
 

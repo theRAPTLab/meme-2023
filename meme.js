@@ -241,6 +241,9 @@ function f_PackageApp() {
   fs.ensureDirSync(path.join(distOutput, 'data'));
   fs.ensureDirSync(path.join(distOutput, 'resources'));
 
+  const unitsPath = path.join(__dirname, 'units');
+  fs.copySync(unitsPath, path.join(distOutput, 'units'));
+
   // For macOS - include a shell script to remove the quarantine flag
   // Note: this is a workaround because the application will run with "translocation" - which will
   //  application bundle in a read-only folder that is in a randomized path. Runtime file write

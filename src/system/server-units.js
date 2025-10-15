@@ -27,7 +27,7 @@ const { TERM_UNITS: CS, CCRIT: CC, CR, TR } = PROMPTS;
 const LPR = 'UNITS';
 const PR = `${CS}${PROMPTS.Pad(LPR)}${CR}`;
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const unitPath = path.join(__dirname, '../../units');
+const unitPath = PATHS.Units;
 
 const UNITSMAP = new Map(); // unitId -> unit object
 

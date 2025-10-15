@@ -27,13 +27,18 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
-const Ajv = require('ajv');
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PROMPTS = require('./util/prompts');
 const { CCRIT: CC, CR } = PROMPTS;
 
-const ajv = new Ajv({ allErrors: true, strict: false });
+// Lazy-loaded AJV instance and validators
+// This prevents Electron renderer errors by only loading AJV when validation is needed
+let ajv = null;
+let validateUnit = null;
+let validateResource = null;
+let validateRating = null;
+let validateCommentType = null;
 
 /// SCHEMA DEFINITIONS ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -125,10 +130,21 @@ const unitSchema = {
 /// COMPILE VALIDATORS ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-const validateResource = ajv.compile(resourceSchema);
-const validateRating = ajv.compile(ratingSchema);
-const validateCommentType = ajv.compile(commentTypeSchema);
-const validateUnit = ajv.compile(unitSchema);
+/**
+ * Initialize AJV and compile validators on first use
+ * This lazy initialization prevents Electron renderer errors
+ */
+function initializeValidators() {
+  if (ajv !== null) return; // Already initialized
+
+  const Ajv = require('ajv');
+  ajv = new Ajv();
+
+  validateResource = ajv.compile(resourceSchema);
+  validateRating = ajv.compile(ratingSchema);
+  validateCommentType = ajv.compile(commentTypeSchema);
+  validateUnit = ajv.compile(unitSchema);
+}
 
 /// API MODULE ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -136,6 +152,9 @@ const validateUnit = ajv.compile(unitSchema);
 const VALIDATION = {};
 
 VALIDATION.ValidateUnit = function (unitData, unitId = 'unknown') {
+  // Lazy-load AJV on first validation call
+  initializeValidators();
+
   const isValid = validateUnit(unitData);
 
   if (!isValid) {

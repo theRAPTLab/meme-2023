@@ -247,7 +247,13 @@ function createWindow() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+//
+// Add delay to prevent "Unable to load preload script" race condition
+// When Electron starts immediately after webpack build, preload script may not be flushed to disk yet
+app.on('ready', () => {
+  // 1000 ms delay minimum
+  setTimeout(createWindow, 1000);
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

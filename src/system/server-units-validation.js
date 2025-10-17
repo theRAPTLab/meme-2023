@@ -48,18 +48,15 @@
 
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * //////////////////////////////////////*/
 
+const Ajv = require('ajv');
+
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PROMPTS = require('./util/prompts');
 const { CCRIT: CC, CR } = PROMPTS;
 
-// Lazy-loaded AJV instance and validators
-// This prevents Electron renderer errors by only loading AJV when validation is needed
-let ajv = null;
-let validateUnit = null;
-let validateResource = null;
-let validateRating = null;
-let validateCommentType = null;
+const ajv = new Ajv({ allErrors: true, strict: false });
+
 
 /// SCHEMA DEFINITIONS ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -151,21 +148,8 @@ const unitSchema = {
 /// COMPILE VALIDATORS ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-/**
- * Initialize AJV and compile validators on first use
- * This lazy initialization prevents Electron renderer errors
- */
-function initializeValidators() {
-  if (ajv !== null) return; // Already initialized
 
-  const Ajv = require('ajv');
-  ajv = new Ajv();
 
-  validateResource = ajv.compile(resourceSchema);
-  validateRating = ajv.compile(ratingSchema);
-  validateCommentType = ajv.compile(commentTypeSchema);
-  validateUnit = ajv.compile(unitSchema);
-}
 
 /// API MODULE ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -173,8 +157,6 @@ function initializeValidators() {
 const VALIDATION = {};
 
 VALIDATION.ValidateUnit = function (unitData, unitId = 'unknown') {
-  // Lazy-load AJV on first validation call
-  initializeValidators();
 
   const isValid = validateUnit(unitData);
 

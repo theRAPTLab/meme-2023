@@ -280,8 +280,10 @@ DB.InitializeDatabase = (options = {}) => {
       const files = FS.readdirSync(templateResources);
       files.forEach(file =>
         FS.copyFileSync(
-          PATH.join(templateResources, file),
-          PATH.join(PATHS.Resources, PATH.basename(file))
+          PATH.join(templateResources, file)
+
+          // DEPRECATED Resources are now in units
+          // PATH.join(PATHS.Resources, PATH.basename(file))
         )
       );
     }

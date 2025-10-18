@@ -183,6 +183,7 @@ const App = styled(styles)(props => {
         <b>Note:</b> This software is provided as-is. Please test it thoroughly before using in a
         learning environment.
       </Typography>
+      {/* DEPRECATED with removal of MUI
       <div>
         <div className={classes.importZone}>
           <img
@@ -237,7 +238,7 @@ const App = styled(styles)(props => {
           <br />
           Quit and restart app to restore active database.
         </div>
-      </div>
+      </div> */}
     </div>
   );
 });

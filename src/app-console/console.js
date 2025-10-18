@@ -31,7 +31,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-import { withTheme } from 'styled-components';
 import { ipcRenderer } from 'electron';
 import path from 'path';
 
@@ -39,7 +38,7 @@ const remote = require('electron').remote;
 
 const AssetPath = asset => path.join(__static, asset);
 
-const styles = theme => ({
+const classes = {
   // theme will have properties for dynamic style definition
   menuButton: {
     marginLeft: -12,
@@ -71,9 +70,8 @@ const styles = theme => ({
   }
 });
 
-const App = styled(styles)(props => {
-  const { classes } = props;
   const { main, client } = remote.getGlobal('serverinfo');
+const App = props => {
   const [dragExport, setDragExport] = useState(false);
   const [imported, setImported] = useState(false);
   const [loadStatus, setLoadStatus] = useState('initializing server');
@@ -243,7 +241,7 @@ const App = styled(styles)(props => {
       </div> */}
     </div>
   );
-});
+};
 
 // console.warn(
 //   '\nMEME DEVS:\nYou can ignore the Security Warning below, as it is to scare you into reading about Electron security\n'

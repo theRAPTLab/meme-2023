@@ -22,11 +22,16 @@ const PROMPTS = require('../system/util/prompts');
 const AssetPath = asset => path.join(__dirname, 'static', asset);
 
 const PR = PROMPTS.Pad('ElectronHost');
-// this is available through electron remote in console.js
-global.serverinfo = {
+// Serverinfo - exposed to renderer via IPC instead of deprecated remote.getGlobal()
+const serverinfo = {
   main: `http://localhost:3000`,
   client: `http://${ip.address()}:3000`
 };
+
+// IPC handler to provide serverinfo to renderer process
+ipcMain.on('get-serverinfo', (event) => {
+  event.returnValue = serverinfo;
+});
 
 // our modules
 // const UR = require('../ur');

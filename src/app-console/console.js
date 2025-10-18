@@ -34,7 +34,6 @@ import Paper from '@mui/material/Paper';
 import { ipcRenderer } from 'electron';
 import path from 'path';
 
-const remote = require('electron').remote;
 
 const AssetPath = asset => path.join(__static, asset);
 
@@ -68,10 +67,11 @@ const classes = {
   disableZone: {
     display: 'none'
   }
-});
+};
 
-  const { main, client } = remote.getGlobal('serverinfo');
 const App = props => {
+  // Get serverinfo from window.UR (set by preload script)
+  const { main, client } = window.UR.serverinfo;
   const [dragExport, setDragExport] = useState(false);
   const [imported, setImported] = useState(false);
   const [loadStatus, setLoadStatus] = useState('initializing server');

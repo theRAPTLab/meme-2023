@@ -10,7 +10,14 @@
 
 // import appserver
 // Import parts of electron to use
-const { app, BrowserWindow, MessagePort, dialog, Menu, ipcMain } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  MessagePort,
+  dialog,
+  Menu,
+  ipcMain
+} = require('electron');
 const ip = require('ip');
 const fs = require('fs-extra');
 const os = require('os');
@@ -163,11 +170,18 @@ function createWindow() {
      */
     ipcMain.on('dragfromdesktop', (ipcEvent, files) => {
       if (!files || files.length !== 1) {
-        ipcEvent.returnValue = { error: `unexpected multiple files: ${files.length}` };
+        ipcEvent.returnValue = {
+          error: `unexpected multiple files: ${files.length}`
+        };
         return;
       }
       const file = files[0];
-      console.log('check ft', file.type, 'file.name.ends', file.name.endsWith('MEME.ZIP'));
+      console.log(
+        'check ft',
+        file.type,
+        'file.name.ends',
+        file.name.endsWith('MEME.ZIP')
+      );
       if (!(file.type === 'application/zip' && file.name.endsWith('.MEME.ZIP'))) {
         const error = `INVALID FILE. Must be zip with extension .MEME.ZIP`;
         ipcEvent.sender.send('mainalert', error);
@@ -218,7 +232,11 @@ function createWindow() {
           }
           // reinitialize the server
           console.log('loaded manifest', manifest);
-          const tempdb = { archivepath: archivePath, dbfile: manifest.db, appmode: 'readonly' };
+          const tempdb = {
+            archivepath: archivePath,
+            dbfile: manifest.db,
+            appmode: 'readonly'
+          };
           URSERVER.Initialize({ tempdb });
           ipcEvent.returnValue = { zippath: zipPath, ...tempdb, manifest };
           return;

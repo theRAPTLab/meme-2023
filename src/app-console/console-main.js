@@ -52,13 +52,20 @@ if (process.platform === 'win32') {
 function createWindow() {
   // Create the browser window.
   console.log(`${PR} creating mainwindow with console-preload.js`);
+  const preloadPath = path.join(__dirname, 'console-preload.js');
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
     show: false,
     webPreferences: {
       nodeIntegration: false, // 'true' enables nodejs features
-      preload: path.join(__dirname, 'console-preload.js') // path.join is required
+      // In newer versions of Electron, the preload script runs in
+      // a sandboxed context by default, where Node.js built-in modules like path are
+      // NOT available unless you explicitly enable them. The solution is to enable
+      // the context bridge properly or disable sandbox for the preload script.
+      contextIsolation: false, // Allow preload script to access Node.js built-ins like 'path'
+      sandbox: false, // Disable sandbox to allow Node.js modules in preload
+      preload: preloadPath
     }
   });
 
@@ -252,13 +259,7 @@ function createWindow() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-//
-// Add delay to prevent "Unable to load preload script" race condition
-// When Electron starts immediately after webpack build, preload script may not be flushed to disk yet
-app.on('ready', () => {
-  // 1000 ms delay minimum
-  setTimeout(createWindow, 1000);
-});
+app.on('ready', createWindow);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

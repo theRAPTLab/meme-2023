@@ -25,7 +25,7 @@ https://github.com/electron/electron/blob/v3.1.13/docs/api/ipc-renderer.md
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ///////////////////////////////////////////*/
 
 import React, { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import AppBar from '@mui/material/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
 import Toolbar from '@mui/material/Toolbar';
@@ -245,7 +245,11 @@ const App = styled(styles)(props => {
 // console.warn(
 //   '\nMEME DEVS:\nYou can ignore the Security Warning below, as it is to scare you into reading about Electron security\n'
 // );
-ReactDOM.render(<App />, document.querySelector('#app-console'), () => {
-  console.log('Loaded Electron MainWindow Entry Point @ console.js');
-  console.log('Starting console-app modules');
-});
+
+// React 18 createRoot API
+const container = document.querySelector('#app-console');
+const root = createRoot(container);
+root.render(<App />);
+
+console.log('Loaded Electron MainWindow Entry Point @ console.js');
+console.log('Starting console-app modules');

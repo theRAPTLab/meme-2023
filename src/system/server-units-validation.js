@@ -148,6 +148,10 @@ const unitSchema = {
 /// COMPILE VALIDATORS ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+const validateResource = ajv.compile(resourceSchema);
+const validateRating = ajv.compile(ratingSchema);
+const validateCommentType = ajv.compile(commentTypeSchema);
+const validateUnit = ajv.compile(unitSchema);
 
 
 

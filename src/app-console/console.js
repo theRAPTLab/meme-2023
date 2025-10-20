@@ -34,7 +34,6 @@ import Paper from '@mui/material/Paper';
 import { ipcRenderer } from 'electron';
 import path from 'path';
 
-
 const AssetPath = asset => path.join(__static, asset);
 
 const classes = {
@@ -42,6 +41,13 @@ const classes = {
   menuButton: {
     marginLeft: -12,
     marginRight: 20
+  },
+  dragDropContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    padding: '2em 1em'
   },
   exportZone: {
     float: 'left',
@@ -183,8 +189,12 @@ const App = props => {
         <b>Note:</b> This software is provided as-is. Please test it thoroughly before
         using in a learning environment.
       </Typography>
-      {/* DEPRECATED with removal of MUI
-      <div>
+      <div style={{ padding: '1em 0 1em 24px', color: 'red' }}>
+        NOTE: As of Oct 2025, with the introduction of Units, import/export of MZIP
+        archives is only partially functional. Please contact the MEME team before
+        using these features.
+      </div>
+      <div style={{ ...classes.dragDropContainer }}>
         <div className={classes.importZone}>
           <img
             src={AssetPath('mzip-import.png')}
@@ -211,7 +221,7 @@ const App = props => {
           <br />
           LOAD MZIP ARCHIVE
           <br />
-          click or drag file over
+          click to select a zip
         </div>
         <div className={classes.exportZone} hidden={imported}>
           <img
@@ -238,7 +248,7 @@ const App = props => {
           <br />
           Quit and restart app to restore active database.
         </div>
-      </div> */}
+      </div>
     </div>
   );
 };

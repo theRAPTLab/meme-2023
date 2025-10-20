@@ -52,7 +52,12 @@ class WModelsListTable extends React.Component {
    */
   RendererTitle(key, tdata, coldef) {
     const { isAdmin, OnModelSelect } = this.props;
+
+    // if unit is not valid, just render as text
+    const hasValidUnit = tdata['hasValidUnit'];
+
     if (isAdmin) return tdata[key];
+    else if (!hasValidUnit) return `${tdata[key]} (unit not found)`;
     else return RenderTableButton(tdata[key], e => OnModelSelect(tdata.id));
   }
 
@@ -158,6 +163,7 @@ class WModelsListTable extends React.Component {
         id: model.id,
         title: model.title,
         unit: ADM.GetUnitLabel(model.unitId),
+        hasValidUnit: ADM.HasUnit(model.unitId),
         groupLabel: model.groupLabel,
         dateModified: model.dateModified,
         dateCreated: model.dateCreated

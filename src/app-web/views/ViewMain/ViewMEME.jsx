@@ -107,11 +107,6 @@ class ViewMEME extends React.Component {
     this.refMain = React.createRef();
     this.refView = React.createRef();
 
-    this.state = {
-      viewHeight: 0,
-      viewWidth: 0
-    };
-
     this.DoDataUpdate = this.DoDataUpdate.bind(this);
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
@@ -160,11 +155,13 @@ class ViewMEME extends React.Component {
       title: '',
       modelId: '',
       modelAuthorGroupName: '',
+      unitLabel: '',
       isModelAuthor: true,
       studentId: '',
       studentName: '',
       studentGroup: '',
       viewHeight: 0, // need to init this to prevent error with first render of resourceList
+      viewWidth: 0,
       toolsPanelIsOpen: true,
       resourceLibraryIsOpen: true,
       addPropOpen: false,
@@ -220,11 +217,20 @@ class ViewMEME extends React.Component {
     const userStudentId = ADM.GetAuthorId();
     const userGroupId = ADM.GetGroupIdByStudent(userStudentId);
     const isModelAuthor = userGroupId === (model ? model.groupId : '');
-    RATINGS.updateDefinitions(ADM.GetRatingsDefinition(ADM.GetSelectedClassroomId()));
+    let unitLabel = '';
+
+    // Load Ratings from new Unit Definitions
+    if (model) {
+      unitLabel = ADM.GetUnitLabel();
+      const ratingsDefs = ADM.GetRatings();
+      RATINGS.updateDefinitions(ratingsDefs);
+    }
+
     this.setState({
       title,
       modelId,
       modelAuthorGroupName,
+      unitLabel,
       isModelAuthor,
       studentId: userStudentId,
       studentName: ADM.GetLoggedInUserName(),
@@ -645,6 +651,7 @@ class ViewMEME extends React.Component {
       modelAuthorGroupName,
       isModelAuthor,
       title,
+      unitLabel,
       studentId,
       studentName,
       studentGroup,
@@ -661,8 +668,9 @@ class ViewMEME extends React.Component {
     // we need to use the model author here, not the currently logged in student.
     const model = ADM.GetModelById(modelId);
     const classroomId = model ? ADM.GetClassroomIdByGroup(model.groupId) : '';
-    const resources =
-      classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
+
+    // Unit
+    const resources = classroomId !== '' ? ADM.GetResources() : [];
 
     const isViewOnly = ADM.IsViewOnly();
     const isDBReadOnly = ADM.IsDBReadOnly();
@@ -891,6 +899,7 @@ class ViewMEME extends React.Component {
         <div className="ViewMEME" style={{ gridTemplateColumns: gridColumns }}>
           <div className="leftsidebar">
             {PANELTOOLS}
+            <div className="unitlabel">UNIT: {unitLabel}</div>
             <WDescriptionPopup />
           </div>
           <div className="main">

@@ -1,0 +1,25 @@
+label: 'Example Unit'
+
+resources:
+  - id: 1
+    label: 'Ammonia Test Kit'
+    notes: 'PDF of chart.'
+    type: 'report'
+    url: 'demo.pdf'
+  - id: 2
+    label: 'Simulation'
+    notes: 'Ecosystem netlogo simulation'
+    type: 'simulation'
+    url: 'Y3_macroscopicsimulation.html'
+
+ratings:
+  - label: 'Yes!'
+    rating: 1
+    svgdefKey: 'ratingsAgree'
+  - label: 'Meh'
+    rating: 0
+    svgdefKey: 'ratingsNone'
+  - label: 'No!'
+    rating: -1
+    svgdefKey: 'ratingsDisagree'
+# commentTypes are defined in `commentTypes.yaml` in this folder

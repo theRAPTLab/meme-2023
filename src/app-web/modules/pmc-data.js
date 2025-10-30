@@ -126,29 +126,29 @@ PMCData.ClearModel = () => {
  * This should be only be called by ADMData.InitializeModel().
  * NEVER CALL THIS FUNCTION DIRECTLY
  */
-PMCData.InitializeModel = (model, admdb) => {
+PMCData.InitializeModel = (model, admdb, resources) => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
   if (!admdb)
     console.error(`PMCData.InitializeModel() arg2 must be an instance of adm_db`);
 
-  const { id, groupId, pmcDataId } = model;
-  if (id === undefined || groupId === undefined || pmcDataId === undefined) {
+  const { id, unitId, groupId, pmcDataId } = model;
+  if (
+    id === undefined ||
+    unitId === undefined ||
+    groupId === undefined ||
+    pmcDataId === undefined
+  ) {
     console.error(
-      `PMCData.InitializeModel called with either bad id (${id}) or bad groupId (${groupId}) or bad pmcDataId (${pmcDataId})`
+      `PMCData.InitializeModel called with either bad id (${id}) or bad unitId (${unitId}) or bad groupId (${groupId}) or bad pmcDataId (${pmcDataId})`
     );
   }
 
   // get essentials
-  const { resources, pmcData, classroomResources } = admdb;
+  // UNITS
+  const { pmcData } = admdb;
 
   // Resources
   a_resources = resources || [];
-  // Look up current classroom's resources for filtering later
-  // so that resources that are currently hidden are not displayed
-  // especially VBadges
-  const thisClassroomResources = classroomResources.find(
-    c => c.classroomId === ASET.selectedClassroomId
-  );
 
   /*/
   The model data format changed in october 2019 to better separate pmcdata from model
@@ -187,14 +187,8 @@ PMCData.InitializeModel = (model, admdb) => {
             });
           break;
         case 'evidence':
-          // HACK
-          // Only load evidence if it's selected/included for this classroom.
-          // If this evidence is referring to a resource that is hidden
-          // (e.g. not in the current list of classroom resources), don't add it.
-          // This lets us hide evidence link badges if the resource
-          // has been hidden, without necessarily changing the data?
-          // See also BuildModel() for how evidence is built up
-          if (thisClassroomResources.resources.includes(obj.rsrcId)) {
+          // UNIT Safe Appraoch
+          if (resources.find(res => res.id === obj.rsrcId)) {
             obj.comments = obj.comments || [];
             a_evidence.push(obj);
           }

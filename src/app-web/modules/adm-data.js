@@ -5,6 +5,7 @@ import UTILS from './utils';
 import DATAMAP from '../../system/common-datamap';
 import PMCData from './pmc-data'; // this is a bit problematicn (circular ref)
 import ADMObj from './adm-objects';
+import ADMUnits from './adm-units';
 import ASET from './adm-settings';
 
 const rfdc = require('rfdc')();
@@ -31,22 +32,32 @@ let adm_db; // set in InitializeData
 /// URSYS HOOKS ///////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 UR.Hook(__dirname, 'LOAD_ASSETS', () => {
-  // return promise to enable asynchronous loading. This ensures
-  // that LOAD_ASSETS phase completes before allowing subsequent
-  // phases to run
-  return new Promise((resolve, reject) => {
-    console.log(PKG, 'LOAD_ASSETS');
-    UR.NetCall('NET:SRV_DBGET', {}).then(data => {
-      if (data.error) {
-        reject(new Error(`server says '${data.error}'`));
-        return;
-      }
-      ADMData.InitializeData(data);
-      resolve();
-    });
+  return Promise.all([
+    UR.NetCall('NET:SRV_DBGET', {}),
+    UR.NetCall('NET:SRV_UNITSGET', {})
+  ]).then(([data, unitsdata]) => {
+    if (data.error) {
+      throw new Error(`NET:SRV_DBGET:server says '${data.error}'`);
+    }
+    if (unitsdata.error) {
+      throw new Error(`NET:SRV_UNITSGET:server says '${unitsdata.error}'`);
+    }
+    ADMData.InitializeData(data); // NOTE this needs to come first
+    ADMUnits.SetUnits(unitsdata); // else ADMData.GetModelById will fail
   });
 });
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+UR.Hook(__dirname, 'DOM_READY', () => {
+  // If units have changed and the classroom's unitId is no longer valid,
+  // we need to gracefully change the selectedUnitId to a valid unit
+  // This ensures that each classroom has a valid default unit
+  // even without any admin interaction.
+  //
+  // NOTE: The DB_UpdateClassroom calls require the SESSION access key
+  // to be defined, which may not be the case at app startup.
+  // So we call this after DOM_READY when SESSION has been set.
+  ADMData.SetDefaultUnitForClassrooms();
+});
 /// MODULE DECLARATION ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -104,6 +115,10 @@ ADMData.SyncAddedData = data => {
       case 'classrooms': {
         const classroom = ADMObj.Classroom(value);
         adm_db.classrooms.push(classroom);
+
+        // When admin adds a classroom, we need to update selectedUnitId
+        ASET.selectedUnitId = classroom.unitId;
+
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       }
@@ -145,12 +160,14 @@ ADMData.SyncAddedData = data => {
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       }
-      case 'classroomResources': {
-        const res = ADMObj.ClassroomResource(value);
-        adm_db.classroomResources.push(res);
-        UR.Publish('ADM_DATA_UPDATED', data);
-        break;
-      }
+      // DEPRECATED -- We now use unit resources
+      //
+      // case 'classroomResources': {
+      //   const res = ADMObj.ClassroomResource(value);
+      //   adm_db.classroomResources.push(res);
+      //   UR.Publish('ADM_DATA_UPDATED', data);
+      //   break;
+      // }
       case 'ratingsDefinitions': {
         const ratingsDefinition = ADMObj.RatingsDefinition(value);
         adm_db.ratingsDefinitions.push(ratingsDefinition);
@@ -194,6 +211,12 @@ ADMData.SyncUpdatedData = data => {
         const classroom = ADMData.GetClassroom(value.id);
         classroom.name = value.name;
         classroom.canViewOthers = value.canViewOthers;
+        classroom.unitId = value.unitId;
+
+        // When admin changes the classroom, we need to update selectedUnitId
+        ASET.selectedUnitId = value.unitId;
+        const classroomi = adm_db.classrooms.findIndex(c => c.id === value.id);
+        adm_db.classrooms.splice(classroomi, 1, classroom);
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       }
@@ -241,14 +264,16 @@ ADMData.SyncUpdatedData = data => {
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       }
-      case 'classroomResources': {
-        // classroomResources always updates the whole object, so we can just replace it
-        const res = ADMObj.ClassroomResource(value);
-        const resi = adm_db.classroomResources.findIndex(c => c.id === res.id);
-        adm_db.classroomResources.splice(resi, 1, res);
-        UR.Publish('ADM_DATA_UPDATED', data);
-        break;
-      }
+      // DEPRECATED -- We now use unit resources
+      //
+      // case 'classroomResources': {
+      //   // classroomResources always updates the whole object, so we can just replace it
+      //   const res = ADMObj.ClassroomResource(value);
+      //   const resi = adm_db.classroomResources.findIndex(c => c.id === res.id);
+      //   adm_db.classroomResources.splice(resi, 1, res);
+      //   UR.Publish('ADM_DATA_UPDATED', data);
+      //   break;
+      // }
       case 'ratingsDefinitions': {
         const index = adm_db.ratingsDefinitions.findIndex(
           r => r.classroomId === value.id
@@ -293,14 +318,16 @@ ADMData.SyncRemovedData = data => {
         UR.Publish('ADM_DATA_UPDATED', data);
         break;
       }
-      case 'classroomResources': {
-        value.forEach(val => {
-          const i = adm_db.classroomResources.findIndex(r => r.id === val.id);
-          adm_db.classroomResources.splice(i, 1);
-        });
-        UR.Publish('ADM_DATA_UPDATED', data);
-        break;
-      }
+      // DEPRECATED -- We now use unit resources
+      //
+      // case 'classroomResources': {
+      //   value.forEach(val => {
+      //     const i = adm_db.classroomResources.findIndex(r => r.id === val.id);
+      //     adm_db.classroomResources.splice(i, 1);
+      //   });
+      //   UR.Publish('ADM_DATA_UPDATED', data);
+      //   break;
+      // }
       default:
     }
   });
@@ -379,6 +406,37 @@ ADMData.GetTeacherNameByStudent = (studentId = ASET.selectedStudentId) => {
 ADMData.SelectTeacher = teacherId => {
   ASET.selectedTeacherId = teacherId;
   UR.Publish('TEACHER_SELECT', { teacherId });
+
+  // When a teacher is selected, autoselect the Classroom
+  const classrooms = ADMData.GetClassroomsByTeacher(teacherId);
+  if (classrooms.lengh === 0) {
+    //   1. If the teacher has no classrooms, clear the classroom selection
+    ASET.selectedClassroomId = '';
+  } else {
+    //   2. If selectedClassroomId is already set and valid, keep it
+    if (
+      ASET.selectedClassroomId &&
+      classrooms.find(c => c.id === ASET.selectedClassroomId)
+    ) {
+      return;
+    } else {
+      //   3. Otherwise, select the first classroom of the teacher
+      const selectedClassroomId = classrooms.length > 0 ? classrooms[0].id : '';
+      ASET.selectedClassroomId = selectedClassroomId;
+    }
+  }
+
+  // After classroom is selected, select the Unit
+  const selectedClassroom = ADMData.GetClassroom(ASET.selectedClassroomId);
+  if (selectedClassroom && selectedClassroom.unitId) {
+    ASET.selectedUnitId = selectedClassroom.unitId;
+  } else {
+    // selectedUnitId has not been set yet, so grab default
+    ASET.selectedUnitId = ADMData.GetUnitDefaultId();
+  }
+  UR.Publish('CLASSROOM_SELECT', {
+    classroomId: ASET.selectedClassroomId
+  });
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -387,12 +445,15 @@ ADMData.SelectTeacher = teacherId => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *  Creates a new classroom and then selects the classroom
+ *  Selects the first unit by default
  *  @param {String} name - New classroom name
  */
 ADMData.DB_AddClassroom = name => {
+  const unitId = ADMData.GetUnitDefaultId();
   const classroom = ADMObj.Classroom({
     teacherId: ASET.selectedTeacherId,
-    name
+    name,
+    unitId
   });
   return UR.DBQuery('add', { classrooms: classroom }).then(rdata => {
     if (rdata.error) throw Error(rdata.error);
@@ -490,11 +551,21 @@ ADMData.CanViewOthers = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.SelectClassroom = (classroomId = ADMData.GetClassroomIdByStudent()) => {
   ASET.selectedClassroomId = classroomId;
+  const selectedUnitId = ADMData.GetClassroomSelectedUnitId(classroomId);
+  ASET.selectedUnitId = selectedUnitId;
+  if (classroomId === '' || classroomId === undefined) {
+    console.warn('SelectClassroom: no classroomId defined');
+  }
   UR.Publish('CLASSROOM_SELECT', { classroomId });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetSelectedClassroomId = () => {
   return ASET.selectedClassroomId;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetClassroomSelectedUnitId = classroomId => {
+  const classroom = ADMData.GetClassroom(classroomId);
+  return classroom ? classroom.unitId : '';
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -816,6 +887,7 @@ ADMData.DB_NewModel = (data, cb) => {
   }).then(rdata => {
     if (rdata.error) throw Error(rdata.error);
     const mdata = {};
+    mdata.unitId = data.unitId;
     mdata.groupId = data.groupId;
     mdata.pmcDataId = rdata.pmcData[0].id;
     mdata.title = data.title;
@@ -907,11 +979,13 @@ ADMData.DB_ModelTitleUpdate = (modelId, title) => {
  *  This will add a new model to the db and then open the new model
  *  It uses the currently selected GroupID.
  *  See Whimsical diagram for call chain: https://whimsical.com/QrZ56UaiRq1nyxbJDawywy
+ *  @param {String} unitId - Unit ID
  *  @param {Function} cb - Callback function
  */
-ADMData.NewModel = cb => {
+ADMData.NewModel = (unitId, cb) => {
   const data = {
-    groupId: ADMData.GetSelectedGroupId()
+    groupId: ADMData.GetSelectedGroupId(),
+    unitId: unitId !== undefined ? unitId : ''
   };
   ADMData.DB_NewModel(data, rdata => {
     if (rdata && rdata.models && rdata.models.length > 0) {
@@ -971,8 +1045,12 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
     clonedPMCData.markedread = rfdc(sourcePMCData.markedread);
     clonedPMCData.urcomments = rfdc(sourcePMCData.urcomments);
     clonedPMCData.urcomments_readby = rfdc(sourcePMCData.urcomments_readby);
-    // -- Check for missing resources
-    ADMData.AnnounceMissingResources(sourceModelId, clonedGroupId);
+
+    // With units, AnnounceMissingResources is no longer needed
+    // because the list of resources is now directly linked to the model's unit
+    // so the cloned model and the original model will always have the same resources.
+    // // -- Check for missing resources
+    // ADMData.AnnounceMissingResources(sourceModelId, clonedGroupId);
 
     if (DBG) console.log(PKG, '...cloned pmcData is', clonedPMCData);
     // 2. Create a new model with the cloned pmcData
@@ -989,6 +1067,7 @@ ADMData.CloneModel = (sourceModelId, clonedGroupId, cb) => {
       // -- Create a new model and copy over the values
       const model = ADMObj.Model({
         groupId: clonedGroupId,
+        unitId: origModel.unitId,
         pmcDataId: rdata.pmcData[0].id,
         title: ADMData.GenerateModelTitle(origModel.title, clonedGroupId)
       }); // set creation date
@@ -1032,29 +1111,32 @@ ADMData.CloneModelBulk = async (modelId, selections) => {
     });
   }
 };
-/**
- * This will display a dialog listing any resources used in the sourceModel's classroom
- * that are missing from the targetGroup's classroom.
- * @param {String} sourceModelId
- * @param {String} targetGroupId
- */
-ADMData.AnnounceMissingResources = (sourceModelId, targetGroupId) => {
-  const sourceModel = ADMData.GetModelById(sourceModelId);
-  const missingResources = ADMData.GetMissingResources(
-    sourceModel.groupId,
-    targetGroupId
-  );
-  if (missingResources.length > 0) {
-    const targetClassroomName = ADMData.GetClassroomNameByGroup(targetGroupId);
-    let missingResourceTitles = '';
-    missingResources.forEach(r => {
-      missingResourceTitles += `* id: "${r.id}" label: "${r.label}"\n`;
-    });
-    UR.Publish('DIALOG_OPEN', {
-      text: `Model is cloned/moved, but note that the following resources need to be activated for classroom "${targetClassroomName}":\n\n ${missingResourceTitles}`
-    });
-  }
-};
+// DEPRECATED -- Unit resources are now linked directly to the model's unit
+//               so there is no longer a disconnect between classrooms
+//
+// /**
+//  * This will display a dialog listing any resources used in the sourceModel's classroom
+//  * that are missing from the targetGroup's classroom.
+//  * @param {String} sourceModelId
+//  * @param {String} targetGroupId
+//  */
+// ADMData.AnnounceMissingResources = (sourceModelId, targetGroupId) => {
+//   const sourceModel = ADMData.GetModelById(sourceModelId);
+//   const missingResources = ADMData.GetMissingResources(
+//     sourceModel.groupId,
+//     targetGroupId
+//   );
+//   if (missingResources.length > 0) {
+//     const targetClassroomName = ADMData.GetClassroomNameByGroup(targetGroupId);
+//     let missingResourceTitles = '';
+//     missingResources.forEach(r => {
+//       missingResourceTitles += `* id: "${r.id}" label: "${r.label}"\n`;
+//     });
+//     UR.Publish('DIALOG_OPEN', {
+//       text: `Model is cloned/moved, but note that the following resources need to be activated for classroom "${targetClassroomName}":\n\n ${missingResourceTitles}`
+//     });
+//   }
+// };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -1065,7 +1147,12 @@ ADMData.AnnounceMissingResources = (sourceModelId, targetGroupId) => {
 ADMData.MoveModel = (modelId, selections) => {
   if (selections.selectedGroupId === undefined)
     console.error('ADM.MoveModel: No target group selected.');
-  ADMData.AnnounceMissingResources(modelId, selections.selectedGroupId);
+
+  // With units, AnnounceMissingResources is no longer needed
+  // because the list of resources is now directly linked to the model's unit
+  // so the new model and the original model will always have the same resources.
+  // ADMData.AnnounceMissingResources(modelId, selections.selectedGroupId);
+
   // -- Update the DB
   ADMData.DB_RefreshPMCData(data => {
     UR.DBQuery('update', {
@@ -1098,7 +1185,15 @@ ADMData.DeleteModel = modelId => {
 ADMData.GetModelById = (modelId = ASET.selectedModelId) => {
   return adm_db.models.find(model => model.id === modelId);
 };
-
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetSelectedModel = () => {
+  return ADMData.GetModelById(ASET.selectedModelId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetSelectedUnitId = () => {
+  const model = ADMData.GetSelectedModel();
+  return model ? model.unitId : '';
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetModelsByClassroom = classroomId => {
   const groupIdsInClassroom = ADMData.GetGroupIdsByClassroom(classroomId);
@@ -1223,23 +1318,35 @@ ADMData.LoadModel = modelId => {
     throw Error(`${PKG}.LoadModel could not find a valid modelId ${modelId}`);
   PMCData.ClearModel();
   UR.Publish('SVG_PANZOOM_RESET');
-  ADMData.SetSelectedModelId(modelId, model.pmcDataId); // Remember the selected modelId locally
+  const unitId = model.unitId;
+  ADMData.SetSelectedModelId(modelId, unitId, model.pmcDataId); // Remember the selected modelId locally
   // If a teacher, then classroomId is ambiguous
   // but while loading a model, we can implicitly look up classroom via the groupId
   if (!ASET.selectedClassroomId) {
     ASET.selectedClassroomId = ADMData.GetClassroomIdByGroup(model.groupId);
   }
-  ADMData.DB_RefreshPMCData(data => PMCData.InitializeModel(model, data));
+
+  // Load Unit Definitions
+  const unit = ADMUnits.GetUnit(unitId);
+  if (unit === undefined) console.warn(PKG, 'LoadModel could not find unit', unitId);
+  // - Update Ratings
+  //   => Updated in ViewMEME.DoDataUpdate()
+  // - Update Resources
+  const resources = unit.resources; // passed to PMCData.InitializeModel below
+
+  // `resources` is now passed directly to PMCData.InitializeModel
+  ADMData.DB_RefreshPMCData(data => PMCData.InitializeModel(model, data, resources));
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This does not load the model, it just sets the currently selected model id
-ADMData.SetSelectedModelId = (modelId, pmcDataId) => {
+ADMData.SetSelectedModelId = (modelId, unitId, pmcDataId) => {
   // verify it's valid
   if (adm_db.models.find(mdl => mdl.id === modelId) === undefined) {
     console.error(PKG, 'SetSelectedModelId could not find valid modelId', modelId);
   }
   ASET.selectedModelId = modelId;
+  ASET.selectedUnitId = unitId;
   ASET.selectedPMCDataId = pmcDataId;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1487,42 +1594,44 @@ ADMData.GetRatingsDefinition = classroomId => {
 /// RESOURCES
 ///
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- *  @param {Object} data - ADMObj.ClassroomResource-like object
- */
-ADMData.DB_ResourceAdd = data => {
-  const res = ADMObj.Resource(data);
-  return UR.DBQuery('add', { resources: res }).then(rdata => {
-    // Set the referenceLabel to match the id
-    const referenceLabel = rdata.resources[0].id;
-    // And save it
-    ADMData.DB_ResourceUpdate({
-      id: rdata.resources[0].id,
-      referenceLabel
-    });
-    return rdata;
-  });
-};
-/**
- *
- *  @param {Object} respource - ADMObj.Resource object
- */
-ADMData.DB_ResourceUpdate = resource => {
-  return UR.DBQuery('update', {
-    resources: resource
-  });
-};
-/**
- *  @param {Integer} resourceId
- */
-ADMData.DB_ResourceDelete = resourceId => {
-  // First remove the resource from all classrooms
-  adm_db.classrooms.forEach(c => {
-    ADMData.DB_ClassroomResourceSet(resourceId, false, c.id);
-  });
-  // Then remove the resource completely
-  return UR.DBQuery('remove', { resources: { id: resourceId } });
-};
+// DEPRECATED -- We now use unit resources
+//
+// /**
+//  *  @param {Object} data - ADMObj.ClassroomResource-like object
+//  */
+// ADMData.DB_ResourceAdd = data => {
+//   const res = ADMObj.Resource(data);
+//   return UR.DBQuery('add', { resources: res }).then(rdata => {
+//     // Set the referenceLabel to match the id
+//     const referenceLabel = rdata.resources[0].id;
+//     // And save it
+//     ADMData.DB_ResourceUpdate({
+//       id: rdata.resources[0].id,
+//       referenceLabel
+//     });
+//     return rdata;
+//   });
+// };
+// /**
+//  *
+//  *  @param {Object} respource - ADMObj.Resource object
+//  */
+// ADMData.DB_ResourceUpdate = resource => {
+//   return UR.DBQuery('update', {
+//     resources: resource
+//   });
+// };
+// /**
+//  *  @param {Integer} resourceId
+//  */
+// ADMData.DB_ResourceDelete = resourceId => {
+//   // First remove the resource from all classrooms
+//   adm_db.classrooms.forEach(c => {
+//     ADMData.DB_ClassroomResourceSet(resourceId, false, c.id);
+//   });
+//   // Then remove the resource completely
+//   return UR.DBQuery('remove', { resources: { id: resourceId } });
+// };
 
 // Returns all of the resource objects.
 ADMData.AllResources = () => {
@@ -1531,105 +1640,175 @@ ADMData.AllResources = () => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Returns the resource object matching the rsrccId.
 ADMData.Resource = rsrcId => {
-  return adm_db.resources.find(item => {
-    return item.id === rsrcId;
-  });
+  // Unit Call
+  const unitId = ADMData.GetSelectedUnitId();
+  return ADMUnits.GetResource(unitId, rsrcId);
+};
+// DEPRECATED -- We now use unit resources
+//
+// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// /**
+//  * Returns an array of the subset of all resources that have been made available to the classroom
+//  * returns `resources` not `classroomResources`
+//  * @param {string} classroomId
+//  * @return {Array} Array of classroom resource ids, e.g. `['rs1', 'rs2']`, [] if not found
+//  */
+// ADMData.GetResourcesForClassroom = classroomId => {
+//   const classroomResource = adm_db.classroomResources.find(
+//     rsrc => rsrc.classroomId === classroomId
+//   );
+//   const classroomResourceIds = classroomResource ? classroomResource.resources : [];
+//   const classroomResources = classroomResourceIds.map(rsrcId => {
+//     return ADMData.Resource(rsrcId);
+//   });
+//   return classroomResources || [];
+// };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// DEPRECATED -- Unit resources are now linked directly to the model's unit
+//               so there is no longer a disconnect between classrooms
+//
+// /**
+//  * Returns an array of resource titles present in origGroupId's classroom that are
+//  * missing from the newGroupId's classroom.
+//  * This is generally used by ADMData.CloneModel to note when a model is
+//  * being moved to a classroom that does not have the same set of resources
+//  * activated.
+//  * @param {String} origGroupId if of the clone source model's group
+//  * @param {String} newGroupId group id of the cloned model destination
+//  * @return {Array} Array of classroom resource objects
+//  */
+// ADMData.GetMissingResources = (origGroupId, newGroupId) => {
+//   const origClassroomId = ADMData.GetClassroomIdByGroup(origGroupId);
+//   const newClassroomId = ADMData.GetClassroomIdByGroup(newGroupId);
+//   const originalResources = ADMData.GetResourcesForClassroom(origClassroomId);
+//   const clonedResources = ADMData.GetResourcesForClassroom(newClassroomId);
+//   const clonedResourceIds = clonedResources.map(r => r.id);
+//   let missingResources = originalResources.filter(
+//     r => !clonedResourceIds.includes(r.id)
+//   );
+//   return missingResources;
+// };
+// DEPRECATED -- We now use unit resources
+//
+// /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// /**
+//  *  @param {Object} data - ADMObj.ClassroomResource-like object
+//  */
+// ADMData.DB_ClassroomResourceAdd = data => {
+//   const res = ADMObj.ClassroomResource({
+//     classroomId: data.classroomId || ASET.selectedClassroomId,
+//     resources: data.resources
+//   });
+//   return UR.DBQuery('add', { classroomResources: res });
+// };
+// /**
+//  *
+//  *  @param {Object} classroomResource - ADMObj.ClassroomResource object
+//  */
+// ADMData.DB_ClassroomResourceUpdate = classroomResource => {
+//   return UR.DBQuery('update', {
+//     classroomResources: classroomResource
+//   });
+// };
+// /**
+//  *  @param {Integer} rsrcId - id of the parent resources
+//  *  @param {Boolean} checked - Whether the resource is selected or unselected
+//  *  @param {INteger} classroomId - The classroom this resource is being enabled/disabled for
+//  */
+// ADMData.DB_ClassroomResourceSet = (rsrcId, checked, classroomId) => {
+//   let classroomResource = adm_db.classroomResources.find(
+//     rsrc => rsrc.classroomId === classroomId
+//   );
+//   if (classroomResource === undefined) {
+//     // New Classrooms don't have a classroomResource defined by default.
+//     classroomResource = ADMObj.ClassroomResource({ classroomId });
+//   }
+
+//   // Update the resource list
+//   if (checked) {
+//     // Add resource
+//     classroomResource.resources.push(rsrcId);
+//   } else {
+//     // Remove resource
+//     classroomResource.resources = classroomResource.resources.filter(
+//       rsrc => rsrc !== rsrcId
+//     );
+//   }
+
+//   // Update the DB
+//   if (classroomResource.id !== undefined) {
+//     ADMData.DB_ClassroomResourceUpdate(classroomResource);
+//   } else {
+//     // new classroomResource
+//     ADMData.DB_ClassroomResourceAdd(classroomResource);
+//   }
+
+//   /* old code
+//   UR.Publish('ADM_DATA_UPDATED');
+//   */
+// };
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// UNITS /////////////////////////////////////////////////////////////////////
+///
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetUnits = () => {
+  return ADMUnits.GetUnits();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * Returns an array of the subset of all resources that have been made available to the classroom
- * returns `resources` not `classroomResources`
- * @param {string} classroomId
- * @return {Array} Array of classroom resource ids, e.g. `['rs1', 'rs2']`, [] if not found
- */
-ADMData.GetResourcesForClassroom = classroomId => {
-  const classroomResource = adm_db.classroomResources.find(
-    rsrc => rsrc.classroomId === classroomId
-  );
-  const classroomResourceIds = classroomResource ? classroomResource.resources : [];
-  const classroomResources = classroomResourceIds.map(rsrcId => {
-    return ADMData.Resource(rsrcId);
-  });
-  return classroomResources || [];
+/// Called by WAdmClassroomSelector when a classroom is selected
+/// Updates the classroom record with the selected unitId
+ADMData.SelectUnit = (classroomId, unitId) => {
+  ASET.selectedUnitId = unitId;
+  ADMData.DB_UpdateClassroom(classroomId, { unitId });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * Returns an array of resource titles present in origGroupId's classroom that are
- * missing from the newGroupId's classroom.
- * This is generally used by ADMData.CloneModel to note when a model is
- * being moved to a classroom that does not have the same set of resources
- * activated.
- * @param {String} origGroupId if of the clone source model's group
- * @param {String} newGroupId group id of the cloned model destination
- * @return {Array} Array of classroom resource objects
- */
-ADMData.GetMissingResources = (origGroupId, newGroupId) => {
-  const origClassroomId = ADMData.GetClassroomIdByGroup(origGroupId);
-  const newClassroomId = ADMData.GetClassroomIdByGroup(newGroupId);
-  const originalResources = ADMData.GetResourcesForClassroom(origClassroomId);
-  const clonedResources = ADMData.GetResourcesForClassroom(newClassroomId);
-  const clonedResourceIds = clonedResources.map(r => r.id);
-  let missingResources = originalResources.filter(
-    r => !clonedResourceIds.includes(r.id)
-  );
-  return missingResources;
-};
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- *  @param {Object} data - ADMObj.ClassroomResource-like object
- */
-ADMData.DB_ClassroomResourceAdd = data => {
-  const res = ADMObj.ClassroomResource({
-    classroomId: data.classroomId || ASET.selectedClassroomId,
-    resources: data.resources
-  });
-  return UR.DBQuery('add', { classroomResources: res });
-};
-/**
- *
- *  @param {Object} classroomResource - ADMObj.ClassroomResource object
- */
-ADMData.DB_ClassroomResourceUpdate = classroomResource => {
-  return UR.DBQuery('update', {
-    classroomResources: classroomResource
-  });
-};
-/**
- *  @param {Integer} rsrcId - id of the parent resources
- *  @param {Boolean} checked - Whether the resource is selected or unselected
- *  @param {INteger} classroomId - The classroom this resource is being enabled/disabled for
- */
-ADMData.DB_ClassroomResourceSet = (rsrcId, checked, classroomId) => {
-  let classroomResource = adm_db.classroomResources.find(
-    rsrc => rsrc.classroomId === classroomId
-  );
-  if (classroomResource === undefined) {
-    // New Classrooms don't have a classroomResource defined by default.
-    classroomResource = ADMObj.ClassroomResource({ classroomId });
-  }
-
-  // Update the resource list
-  if (checked) {
-    // Add resource
-    classroomResource.resources.push(rsrcId);
-  } else {
-    // Remove resource
-    classroomResource.resources = classroomResource.resources.filter(
-      rsrc => rsrc !== rsrcId
-    );
-  }
-
-  // Update the DB
-  if (classroomResource.id !== undefined) {
-    ADMData.DB_ClassroomResourceUpdate(classroomResource);
-  } else {
-    // new classroomResource
-    ADMData.DB_ClassroomResourceAdd(classroomResource);
-  }
-
-  /* old code
+/// Force an update of classroom record when units are reloaded
+ADMData.SyncUpdatedUnits = data => {
+  ADMUnits.SetUnits(data.units);
+  // If units have changed and the classroom's unitId is no longer valid,
+  // we need to gracefully change the selectedUnitId to a valid unit
+  // This ensures that each classroom has a valid default unit
+  ADMData.SetDefaultUnitForClassrooms();
   UR.Publish('ADM_DATA_UPDATED');
-  */
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.SetDefaultUnitForClassrooms = () => {
+  const defaultUnitId = ADMUnits.GetUnitDefaultId();
+  adm_db.classrooms.forEach(c => {
+    if (c.unitId === undefined || c.unitId === '' || !ADMUnits.HasUnit(c.unitId)) {
+      ADMData.DB_UpdateClassroom(c.id, { unitId: defaultUnitId });
+    }
+  });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.HasUnit = unitId => {
+  return ADMUnits.HasUnit(unitId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Return [{id, label}] of all units
+ADMData.GetUnitsList = () => {
+  return ADMUnits.GetUnitsList();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetUnitDefaultId = () => {
+  return ADMUnits.GetUnitDefaultId();
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetUnitLabel = (unitId = ASET.selectedUnitId) => {
+  return ADMUnits.GetUnitLabel(unitId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetResources = (unitId = ASET.selectedUnitId) => {
+  return ADMUnits.GetResources(unitId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetRatings = (unitId = ASET.selectedUnitId) => {
+  return ADMUnits.GetRatings(unitId);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetCommentTypes = (unitId = ASET.selectedUnitId) => {
+  return ADMUnits.GetCommentTypes(unitId);
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

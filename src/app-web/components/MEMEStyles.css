@@ -87,6 +87,9 @@ h3 {
   font-size: var(--txt-size-sm);
   font-weight: var(--txt-weight-med);
 }
+.help.danger {
+  color: var(--clr-btn-danger);
+}
 
 /* -- APPBAR --------------------------------- */
 .appbar {
@@ -154,6 +157,12 @@ button.transparent {
   border: none;
   color: var(--clr-btn-primary);
   background-color: transparent;
+}
+button.med {
+  padding: 2px 4px;
+  font-size: var(--txt-size-tiny);
+  height: 16px;
+  line-height: 14px;
 }
 button.sm {
   padding: 0 1px;
@@ -245,6 +254,15 @@ button.switch span {
   background-color: var(--clr-mech);
 }
 
+/* -- Unit Label ----------------------------- */
+.unitlabel {
+  position: absolute;
+  bottom: -0.25rem;
+  left: 0.25rem;
+  padding: 0.5rem;
+  font-size: var(--txt-size-tiny);
+  background-color: #fffc;
+}
 /* -- Label Box ------------------------------ */
 .labelbox {
   display: flex;

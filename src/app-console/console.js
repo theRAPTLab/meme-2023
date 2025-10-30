@@ -25,25 +25,29 @@ https://github.com/electron/electron/blob/v3.1.13/docs/api/ipc-renderer.md
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ///////////////////////////////////////////*/
 
 import React, { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import AppBar from '@mui/material/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-import { withTheme } from 'styled-components';
 import { ipcRenderer } from 'electron';
 import path from 'path';
 
-const remote = require('electron').remote;
-
 const AssetPath = asset => path.join(__static, asset);
 
-const styles = theme => ({
+const classes = {
   // theme will have properties for dynamic style definition
   menuButton: {
     marginLeft: -12,
     marginRight: 20
+  },
+  dragDropContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    padding: '2em 1em'
   },
   exportZone: {
     float: 'left',
@@ -69,11 +73,11 @@ const styles = theme => ({
   disableZone: {
     display: 'none'
   }
-});
+};
 
-const App = styled(styles)(props => {
-  const { classes } = props;
-  const { main, client } = remote.getGlobal('serverinfo');
+const App = props => {
+  // Get serverinfo from window.UR (set by preload script)
+  const { main, client } = window.UR.serverinfo;
   const [dragExport, setDragExport] = useState(false);
   const [imported, setImported] = useState(false);
   const [loadStatus, setLoadStatus] = useState('initializing server');
@@ -152,7 +156,8 @@ const App = styled(styles)(props => {
         Connection Instructions:
       </Typography>
       <Typography style={{ padding: '1em 0 1em 24px' }}>
-        <b>Reminder:</b> please open MEME only using Chrome or it may not work properly.
+        <b>Reminder:</b> please open MEME only using Chrome or it may not work
+        properly.
         <br />
         <br />
         Admin: open <b>{main}/#/admin</b>
@@ -163,27 +168,33 @@ const App = styled(styles)(props => {
         About:
       </Typography>
       <Typography style={{ padding: '1em 0 1em 24px' }}>
-        The Model and Evidence Mapping Environment (<b>MEME</b>) was developed as part of the
-        Scaffolding Explanations and Epistemic Development for Systems (<b>SEEDS</b>) project, a
-        collaborative project that was funded by the National Science Foundation under{' '}
+        The Model and Evidence Mapping Environment (<b>MEME</b>) was developed as part
+        of the Scaffolding Explanations and Epistemic Development for Systems (
+        <b>SEEDS</b>) project, a collaborative project that was funded by the National
+        Science Foundation under{' '}
         <a
           target="_blank"
           href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=1761019&HistoricalAwards=false"
         >
           award 1761019
         </a>{' '}
-        to Joshua Danish, Ravit Duncan, Cindy Hmelo-Silver and Clark Chinn. More information can be
-        found at{' '}
+        to Joshua Danish, Ravit Duncan, Cindy Hmelo-Silver and Clark Chinn. More
+        information can be found at{' '}
         <a target="_blank" href="http://modelingandevidence.org">
           http://modelingandevidence.org
         </a>
         .
         <br />
         <br />
-        <b>Note:</b> This software is provided as-is. Please test it thoroughly before using in a
-        learning environment.
+        <b>Note:</b> This software is provided as-is. Please test it thoroughly before
+        using in a learning environment.
       </Typography>
-      <div>
+      <div style={{ padding: '1em 0 1em 24px', color: 'red' }}>
+        NOTE: As of Oct 2025, with the introduction of Units, import/export of MZIP
+        archives is only partially functional. Please contact the MEME team before
+        using these features.
+      </div>
+      <div style={{ ...classes.dragDropContainer }}>
         <div className={classes.importZone}>
           <img
             src={AssetPath('mzip-import.png')}
@@ -210,7 +221,7 @@ const App = styled(styles)(props => {
           <br />
           LOAD MZIP ARCHIVE
           <br />
-          click or drag file over
+          click to select a zip
         </div>
         <div className={classes.exportZone} hidden={imported}>
           <img
@@ -240,12 +251,16 @@ const App = styled(styles)(props => {
       </div>
     </div>
   );
-});
+};
 
 // console.warn(
 //   '\nMEME DEVS:\nYou can ignore the Security Warning below, as it is to scare you into reading about Electron security\n'
 // );
-ReactDOM.render(<App />, document.querySelector('#app-console'), () => {
-  console.log('Loaded Electron MainWindow Entry Point @ console.js');
-  console.log('Starting console-app modules');
-});
+
+// React 18 createRoot API
+const container = document.querySelector('#app-console');
+const root = createRoot(container);
+root.render(<App />);
+
+console.log('Loaded Electron MainWindow Entry Point @ console.js');
+console.log('Starting console-app modules');

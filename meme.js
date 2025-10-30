@@ -30,7 +30,9 @@ const URSERVER = require('./src/system/server.js');
 const MTERM = require('./src/cli/meme-term');
 
 if (!shell.which('git')) {
-  shell.echo(`\x1b[30;41m You must have git installed to run the MEME devtool \x1b[0m`);
+  shell.echo(
+    `\x1b[30;41m You must have git installed to run the MEME devtool \x1b[0m`
+  );
   shell.exit(0);
 }
 
@@ -92,7 +94,9 @@ function f_RunDevServer(memehost) {
   console.log(`\n`);
   console.log(PR, `running Development Server`);
   // git branch information
-  const { error, stdout } = shell.exec('git symbolic-ref --short -q HEAD', { silent: true });
+  const { error, stdout } = shell.exec('git symbolic-ref --short -q HEAD', {
+    silent: true
+  });
   if (error) console.log(PR, `on ${CY}detached${TR} head`);
   if (stdout) console.log(PR, `on branch ${CY}${stdout.trim()}${TR}`);
 
@@ -119,7 +123,10 @@ function f_RunDevServer(memehost) {
 function f_RunElectron() {
   console.log(`\n`);
   console.log(PR, `running ${CY}Electron Host with Live Reload${TR}`);
-  console.log(PR, `compiling electron renderprocess files with webpack.console.config`);
+  console.log(
+    PR,
+    `compiling electron renderprocess files with webpack.console.config`
+  );
   let res = shell.exec(
     // note: to pass an enviroment setting to the webpack config script, add --env.MYSETTING='value'
     `${PATH_WEBPACK}/webpack.js --mode development --config ./src/config/webpack.console.config.js`,
@@ -206,9 +213,13 @@ function f_PackageApp() {
   // FUTURE: Pass the platform and architecture from the script parameters to allow for
   //  cross-platform builds
   const platformConfig = f_GetPlatformConfig();
-  const { platform, arch, packageOutput, distOutput, appPath } = f_GetPlatformConfig();
+  const { platform, arch, packageOutput, distOutput, appPath } =
+    f_GetPlatformConfig();
 
-  console.log(PR, `using electron-packager to write '${appPath}' to ${packageOutput}`);
+  console.log(
+    PR,
+    `using electron-packager to write '${appPath}' to ${packageOutput}`
+  );
   res = shell.exec(
     `npx electron-packager . meme --platform ${platform} ` +
       `--arch ${arch} --out ../dist --overwrite ` +
@@ -219,7 +230,10 @@ function f_PackageApp() {
 
   // Rename the output folder if appropriate
   if (packageOutput !== distOutput) {
-    console.log(PR, `renaming package folder to friendly platform name: ${distOutput}`);
+    console.log(
+      PR,
+      `renaming package folder to friendly platform name: ${distOutput}`
+    );
     fs.renameSync(packageOutput, distOutput);
   }
 
@@ -241,6 +255,9 @@ function f_PackageApp() {
   fs.ensureDirSync(path.join(distOutput, 'data'));
   fs.ensureDirSync(path.join(distOutput, 'resources'));
 
+  const unitsPath = path.join(__dirname, 'units');
+  fs.copySync(unitsPath, path.join(distOutput, 'units'));
+
   // For macOS - include a shell script to remove the quarantine flag
   // Note: this is a workaround because the application will run with "translocation" - which will
   //  application bundle in a read-only folder that is in a randomized path. Runtime file write
@@ -257,8 +274,14 @@ function f_PackageApp() {
 
   console.log(PR, `electron app written to ${CY}${distOutput}${TR}`);
   if (platformConfig.platform === 'darwin') {
-    console.log(PR, `NOTE: default macos security requires ${CR}code signing${TR} to run app.`);
-    console.log(PR, `use ${CY}npm run appsign${TR} to use default developer id (if installed)\n`);
+    console.log(
+      PR,
+      `NOTE: default macos security requires ${CR}code signing${TR} to run app.`
+    );
+    console.log(
+      PR,
+      `use ${CY}npm run appsign${TR} to use default developer id (if installed)\n`
+    );
   }
 }
 
@@ -288,7 +311,10 @@ async function f_SignApp() {
     console.log(PR, `\tAPPLE_ID: Your Apple ID`);
     console.log(PR, `\tAPPLE_PASSWORD: An Apple app-specific password`);
     console.log(PR, `\tAPPLE_TEAM_ID: Your Apple Team ID`);
-    console.log(PR, `instructions on obtaining these values can be found in README-signing.md`);
+    console.log(
+      PR,
+      `instructions on obtaining these values can be found in README-signing.md`
+    );
 
     return;
   }
@@ -310,7 +336,10 @@ async function f_SignApp() {
     return;
   }
 
-  console.log(PR, `using electron/notarize to submit the package to Apple for Notarization`);
+  console.log(
+    PR,
+    `using electron/notarize to submit the package to Apple for Notarization`
+  );
   console.log(PR, `please be patient, this ${CY}may take several minutes${TR}...`);
 
   try {
@@ -332,7 +361,10 @@ async function f_SignApp() {
     `the app has been successfully signed and notarized. You may receive an email from Apple indicating that the notarization was successful`
   );
 
-  console.log(PR, `use script ${CY}npm run app${TR} to run with console debug output\n`);
+  console.log(
+    PR,
+    `use script ${CY}npm run app${TR} to run with console debug output\n`
+  );
 }
 
 function f_DebugApp() {
@@ -371,7 +403,10 @@ function f_DebugApp() {
 function f_DocServe() {
   const loc = `${CY}localhost:4001${TR}`;
 
-  console.log(PR, `point your browser to "${loc}" to read JSDoc-generate documentation.`);
+  console.log(
+    PR,
+    `point your browser to "${loc}" to read JSDoc-generate documentation.`
+  );
   console.log(
     PR,
     `you can edit source and the documentation will live-update (browser refresh required).`

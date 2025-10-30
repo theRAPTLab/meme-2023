@@ -340,6 +340,7 @@ function m_LoadUsers(dbUsers: TUserObject[]) {
   dbUsers.forEach(u => USERS.set(u.id, u.name));
 }
 function m_LoadCommentTypes(commentTypes: TCommentType[]) {
+  COMMENTTYPES.clear();
   commentTypes.forEach(t => COMMENTTYPES.set(t.slug, t));
 }
 function m_LoadComments(comments: TComment[]) {
@@ -375,7 +376,7 @@ function LoadTemplate(commentTypes: Array<TCommentType>) {
 function LoadDB(data: TLokiData) {
   if (DBG) console.log(PR, 'LoadDB');
   USERS.clear();
-  COMMENTTYPES.clear();
+  // COMMENTTYPES.clear(); // CommentTypes are loaded via Units
   COMMENTS.clear();
   READBY.clear();
   ROOTS.clear();
@@ -383,8 +384,6 @@ function LoadDB(data: TLokiData) {
   NEXT.clear();
 
   // Load Data!
-  if (data.commenttypes) m_LoadCommentTypes(data.commenttypes);
-  else m_LoadCommentTypes(DEFAULT_CommentTypes); // load default comments if db has none
   if (data.users) m_LoadUsers(data.users);
   if (data.comments) m_LoadComments(data.comments);
   if (data.readby) m_LoadReadBy(data.readby);

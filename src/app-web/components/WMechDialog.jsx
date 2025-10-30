@@ -92,6 +92,7 @@ class WMechDialog extends React.Component {
   DoAdd() {
     if (DBG) console.log(PKG, 'Add Mech!');
     DATA.VM_SetSelectionLimit(2); // Allow up to 2 props to be selected.
+    DATA.VM_SetPropOrMechDialogIsOpen(true);
     this.setState(
       {
         isOpen: true,
@@ -148,6 +149,7 @@ class WMechDialog extends React.Component {
             },
             () => this.DoSelectSourceAndTarget(sourceId, targetId) // show the selected props
           );
+          DATA.VM_SetPropOrMechDialogIsOpen(true);
         } else {
           alert(
             `Sorry, someone else (${rdata.lockedBy}) is editing this ${DATAMAP.PMC_MODELTYPES.MECHANISM.label} right now.  Please try again later.`
@@ -171,6 +173,7 @@ class WMechDialog extends React.Component {
       UR.DBTryRelease('pmcData.entities', [pmcDataId, intMechId]);
     }
     DATA.VM_SetSelectionLimit(1); // Go back to allowing only one.
+    DATA.VM_SetPropOrMechDialogIsOpen(false);
     UR.Publish('MECHDIALOG_CLOSED');
   }
 

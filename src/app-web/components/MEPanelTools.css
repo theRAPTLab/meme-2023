@@ -29,9 +29,9 @@
   font-size: var(--txt-size-sm);
   font-weight: var(--txt-weight-semibold);
 }
-.MEPanelTools .entitiesPanel button,
-.MEPanelTools .processesPanel button,
-.MEPanelTools .outcomesPanel button {
+.MEPanelTools .entitiesPanel > button,
+.MEPanelTools .processesPanel > button,
+.MEPanelTools .outcomesPanel > button {
   color: var(--clr-txt-reverse);
   margin-top: 8px;
 }
@@ -39,21 +39,21 @@
   color: var(--clr-entity);
   background-color: var(--clr-entity-bg);
 }
-.MEPanelTools .entitiesPanel button {
+.MEPanelTools .entitiesPanel > button {
   background-color: var(--clr-entity);
 }
 .MEPanelTools .processesPanel {
   color: var(--clr-mech);
   background-color: var(--clr-mech-bg);
 }
-.MEPanelTools .processesPanel button {
+.MEPanelTools .processesPanel > button {
   background-color: var(--clr-mech);
 }
 .MEPanelTools .outcomesPanel {
   color: var(--clr-outcome);
   background-color: var(--clr-outcome-bg);
 }
-.MEPanelTools .outcomesPanel button {
+.MEPanelTools .outcomesPanel > button {
   background-color: var(--clr-outcome);
 }
 
@@ -65,6 +65,10 @@
   flex-direction: column;
   row-gap: 8px;
   line-height: var(--txt-size-med);
+}
+.MEPanelTools .WDisclosure .disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .MEPanelTools .subItem {

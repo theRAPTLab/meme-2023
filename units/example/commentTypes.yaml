@@ -1,0 +1,22 @@
+commentTypes:
+  - slug: 'cmt'
+    label: 'Comment'
+    prompts:
+      - format: 'text'
+        prompt: 'Comment'
+        help: 'Use this for any general comment.'
+        feedback: ''
+  - slug: 'evidence'
+    label: 'Backed up by enough good evidence'
+    prompts:
+      - format: 'dropdown'
+        prompt: 'Is this based on evidence and facts?'
+        options:
+          - 'Yes'
+          - 'Some'
+          - 'No'
+        helpIgnore: 'Select one.'
+      - format: 'text'
+        prompt: 'What would you change?'
+        help: "Please list specific evidence or facts, and how you'd change the model."
+        feedback: ''

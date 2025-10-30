@@ -88,6 +88,10 @@ type TUserObject = {
 //        Eventually we will dynamically define them.
 // Comment Template Type Slug
 export type CType =
+  | 'evidence'
+  | 'organized'
+  | 'accurate'
+  | 'simplified'
   | 'cmt'
   | 'tellmemore'
   | 'source'
@@ -234,53 +238,74 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
   },
   {
     slug: 'evidence',
-    label: 'Evidence Critique or Suggestion',
+    label: 'Evidence and Facts',
     prompts: [
       {
         format: 'dropdown',
-        prompt: 'Is this supported by evidence?', // prompt label
+        prompt: 'Is this based on evidence and facts?', // prompt label
         options: ['😀 Yes', '🤔 Some', '🥲 No'],
-        help: 'Select one.'
+        helpIgnore: 'Select one.'
       },
       {
         format: 'text',
         prompt: 'What would you change?', // prompt label
-        help: 'Please be specific to help your friend.'
+        help: "Please list specific evidence or facts, and how you'd change the model."
       }
     ]
   },
   {
-    slug: 'clarity',
-    label: 'Clarity Critique or Suggestion',
+    slug: 'organized',
+    label: 'Organized and Makes Sense',
     prompts: [
       {
         format: 'discrete-slider',
-        prompt: 'How clear is this model to you?', // prompt label
+        prompt: 'How organized and understandable is this model?', // prompt label
         options: ['★', '★', '★', '★', '★'],
-        help: 'More stars means more clear!',
-        feedback: 'We can also have help here'
+        help: 'More stars means more organized!'
       },
       {
         format: 'text',
         prompt: 'What made you pick that number?', // prompt label
-        help: 'Please be specific to help your friend.'
+        help: 'Please be specific about what part is not understandable.'
+      },
+      {
+        format: 'text',
+        prompt: 'What do you think they should change?', // prompt label
+        help: 'Please be specific about what you would add or change.'
       }
     ]
   },
   {
-    slug: 'steps',
-    label: 'All the Steps Critique or Suggestion',
+    slug: 'accurate',
+    label: 'Accurate',
     prompts: [
       {
         format: 'dropdown',
-        prompt: 'Does this include all of the useful steps?', // prompt label
-        options: ['😀 Yes', '🤔 Mostly', '🥲 No', '🥲 Too many'],
-        help: 'Select one.'
+        prompt: 'Is this accurate?', // prompt label
+        options: ['😀 Yes', '🤔 Some', '🥲 No'],
+        helpIgnore: 'Select one.'
       },
       {
         format: 'text',
-        prompt: 'What made you pick that number?', // prompt label
-        help: 'Please be specific to help your friend.'
+        prompt: 'What changes do you think would make this better?', // prompt label
+        help: 'Please be specific what you would change to be more accurate.'
+      }
+    ]
+  },
+  {
+    slug: 'simplified',
+    label: 'Simplfied',
+    prompts: [
+      {
+        format: 'dropdown',
+        prompt: "Is this simple and doesn't have extra information?", // prompt label
+        options: ['😀 Yes', '🤔 Some', '🥲 No'],
+        helpIgnore: 'Select one.'
+      },
+      {
+        format: 'text',
+        prompt: 'What changes do you think would make this better?', // prompt label
+        help: 'Please be specific what you would remove to make this simpler.'
       }
     ]
   },
@@ -303,7 +328,7 @@ const DEFAULT_CommentTypes: Array<TCommentType> = [
       {
         format: 'text',
         prompt: 'Why or why not?', // prompt label
-        help: 'Please be specific so your friend understands.'
+        help: 'Please be specific so your classmate understands.'
       }
     ]
   }
@@ -315,6 +340,7 @@ function m_LoadUsers(dbUsers: TUserObject[]) {
   dbUsers.forEach(u => USERS.set(u.id, u.name));
 }
 function m_LoadCommentTypes(commentTypes: TCommentType[]) {
+  COMMENTTYPES.clear();
   commentTypes.forEach(t => COMMENTTYPES.set(t.slug, t));
 }
 function m_LoadComments(comments: TComment[]) {
@@ -350,7 +376,7 @@ function LoadTemplate(commentTypes: Array<TCommentType>) {
 function LoadDB(data: TLokiData) {
   if (DBG) console.log(PR, 'LoadDB');
   USERS.clear();
-  COMMENTTYPES.clear();
+  // COMMENTTYPES.clear(); // CommentTypes are loaded via Units
   COMMENTS.clear();
   READBY.clear();
   ROOTS.clear();
@@ -358,8 +384,6 @@ function LoadDB(data: TLokiData) {
   NEXT.clear();
 
   // Load Data!
-  if (data.commenttypes) m_LoadCommentTypes(data.commenttypes);
-  else m_LoadCommentTypes(DEFAULT_CommentTypes); // load default comments if db has none
   if (data.users) m_LoadUsers(data.users);
   if (data.comments) m_LoadComments(data.comments);
   if (data.readby) m_LoadReadBy(data.readby);

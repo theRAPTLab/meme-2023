@@ -7,6 +7,7 @@
 \*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ * ////////////////////////////////////////*/
 
 const path = require('path');
+const { ipcRenderer } = require('electron');
 
 function GetWorkingDirectory(subpath) {
   return path.resolve(__dirname, subpath);
@@ -15,8 +16,13 @@ function GetAppName() {
   return '[UR]';
 }
 process.once('loaded', () => {
+  // Get serverinfo from the main process via a synchronous message
+  // This replaces the deprecated remote.getGlobal() call
+  const serverinfo = ipcRenderer.sendSync('get-serverinfo');
+
   const UR = {
-    GetWorkingDirectory
+    GetWorkingDirectory,
+    serverinfo  // Expose serverinfo to renderer
   };
 
   // make available to all other electron BrowserWindow instances

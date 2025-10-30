@@ -18,6 +18,7 @@ import './WModelSelect.css';
 import UR from '../../system/ursys';
 import SESSION from '../../system/common-session';
 import ADM from '../modules/data';
+import ASET from '../modules/adm-settings';
 import WModelsListTable from './WModelsListTable';
 import WGroupSelector from '../views/ViewAdmin/components/WAdmGroupSelector';
 import UTILS from '../modules/utils';
@@ -103,7 +104,8 @@ class WModelSelect extends React.Component {
   }
 
   OnNewModel() {
-    ADM.NewModel(() => this.OnModelDialogClose());
+    const unitId = ASET.selectedUnitId;
+    ADM.NewModel(unitId, () => this.OnModelDialogClose());
   }
 
   OnModelEdit(modelId) {
@@ -208,9 +210,15 @@ class WModelSelect extends React.Component {
       <span>READ ONLY MODE</span>
     ) : undefined;
 
+    const unitId = ASET.selectedUnitId;
+    const unitLabel = unitId ? ADM.GetUnitLabel(unitId) : 'No Unit Selected';
     const CreateNewModelButton = ADM.IsDBReadOnly() ? undefined : (
-      <button onClick={this.OnNewModel} className="primary">
-        Create New Model
+      <button
+        onClick={this.OnNewModel}
+        className="primary"
+        disabled={!ADM.HasUnit(unitId)}
+      >
+        Create New Model: {unitLabel}
       </button>
     );
 

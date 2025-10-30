@@ -19,7 +19,7 @@ import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
 const IcnTrash = <FontAwesomeIcon icon={faTrashCan} />;
 
 /// Change eto pull from the same array as being used elsewhere (resourceView and resourceItem)
-const resourceTypeList = 'report, simulation, idea, assuption, question, or other';
+const resourceTypeList = 'report, simulation, idea, assumption, question, or other';
 
 /// COMPONENTS ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

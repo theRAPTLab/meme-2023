@@ -5,6 +5,8 @@
   "main": "console/console-main.js",
   "dependencies": {
     "adm-zip": "^0.4.14",
+    "ajv": "^6.12.6",
+    "ajv-formats": "^3.0.1",
     "cookie-parser": "^1.4.4",
     "ejs": "^2.7.1",
     "express": "^4.17.1",

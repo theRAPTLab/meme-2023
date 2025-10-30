@@ -46,7 +46,9 @@ const MEME_TEMPLATES = {
 };
 
 const PATHS = {
-  Resources: PATH.join(m_rootFolder, 'resources'),
+  // DEPRECATED Resources are now in units
+  // Resources: PATH.join(m_rootFolder, 'resources'),
+  Units: PATH.join(m_rootFolder, 'units'),
   Database: (dataset = 'meme') => PATH.join(m_dataFolder, 'db', `${dataset}.loki`),
   DatabaseBackups: PATH.join(m_dataFolder, 'db', 'backups'),
   Template: template => {
@@ -62,8 +64,12 @@ const PATHS = {
   Screenshot: PATH.join(m_dataFolder, 'screenshots')
 };
 
+// DEPRECATED Resources are now in units
 // Ensure certain directories exist (others are created dynamically/by other routines)
-FS.ensureDirSync(PATHS.Resources);
+// FS.ensureDirSync(PATHS.Resources);
+
+// Ensure certain directories exist (others are created dynamically/by other routines)
+FS.ensureDirSync(PATHS.Units);
 
 /// EXPORT MODULE DEFINITION //////////////////////////////////////////////////
 /// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

@@ -31,9 +31,10 @@ UTILS.RLog = (event, params) => {
   const groupId = ASET.selectedGroupId;
   const group = ADATA.GetGroupNameByStudent(username);
   const modelId = ASET.selectedModelId;
+  const unitId = ASET.selectedUnitId;
   const model = ADATA.GetModelById(modelId);
   const modelName = ADATA.GetModelTitle(modelId);
-  const items = [username, group, groupId, modelName, modelId, cleanedParams];
+  const items = [username, group, groupId, modelName, modelId, unitId, cleanedParams];
   UR.NetPublish('NET:SRV_LOG_EVENT', { event, items });
 };
 

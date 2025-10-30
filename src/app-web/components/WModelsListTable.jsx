@@ -40,7 +40,6 @@ class WModelsListTable extends React.Component {
     super();
     this.RendererTitle = this.RendererTitle.bind(this);
     this.RendererAction = this.RendererAction.bind(this);
-    this.OnSortClick = this.OnSortClick.bind(this);
   }
 
   componentDidMount() {}
@@ -53,7 +52,12 @@ class WModelsListTable extends React.Component {
    */
   RendererTitle(key, tdata, coldef) {
     const { isAdmin, OnModelSelect } = this.props;
+
+    // if unit is not valid, just render as text
+    const hasValidUnit = tdata['hasValidUnit'];
+
     if (isAdmin) return tdata[key];
+    else if (!hasValidUnit) return `${tdata[key]} (unit not found)`;
     else return RenderTableButton(tdata[key], e => OnModelSelect(tdata.id));
   }
 
@@ -76,13 +80,6 @@ class WModelsListTable extends React.Component {
     );
   }
 
-  OnSortClick(id) {
-    this.setState(state => ({
-      order: state.orderBy === id && state.order === 'asc' ? 'desc' : 'asc',
-      orderBy: id
-    }));
-  }
-
   render() {
     const {
       models,
@@ -102,6 +99,7 @@ class WModelsListTable extends React.Component {
         type: 'text-case-insensitive',
         renderer: this.RendererTitle
       },
+
       {
         title: 'UPDATED',
         data: 'dateModified',
@@ -119,21 +117,32 @@ class WModelsListTable extends React.Component {
         sortDisabled: true
       }
     ];
+    const unit = {
+      title: 'UNIT',
+      data: 'unit',
+      type: 'text-case-insensitive'
+    };
     if (showAdminOnlyView) {
       COLUMNDEFS.splice(1, 0, {
         title: 'CLASSROOM:GROUP',
         type: 'text',
         data: 'groupLabel'
       });
+      COLUMNDEFS.splice(0, 0, unit);
     } else if (showGroup) {
-      COLUMNDEFS.splice(1, 0, {
+      // student view of other groups' models
+      COLUMNDEFS.splice(0, 0, {
         title: 'GROUP',
         type: 'text',
         data: 'groupLabel'
       });
+      COLUMNDEFS.splice(2, 0, unit);
+    } else {
+      // student view, no group column, but do show unit
+      COLUMNDEFS.splice(1, 0, unit);
     }
 
-    const COLWIDTHS = [200, 110, 110, 200];
+    const COLWIDTHS = [100, 200, 110, 110, 200];
     if (showAdminOnlyView || showGroup) COLWIDTHS.splice(1, 0, 110);
 
     // modify or derive any values before rendering
@@ -153,6 +162,8 @@ class WModelsListTable extends React.Component {
       return {
         id: model.id,
         title: model.title,
+        unit: ADM.GetUnitLabel(model.unitId),
+        hasValidUnit: ADM.HasUnit(model.unitId),
         groupLabel: model.groupLabel,
         dateModified: model.dateModified,
         dateCreated: model.dateCreated
@@ -161,7 +172,13 @@ class WModelsListTable extends React.Component {
 
     return (
       <div className="WModelsListTable">
-        <URTable isOpen={true} data={TABLEDATA} columns={COLUMNDEFS} />
+        <URTable
+          isOpen={true}
+          data={TABLEDATA}
+          columns={COLUMNDEFS}
+          sortColumnData={'dateModified'}
+          sortOrder={1} // descending
+        />
       </div>
     );
   }

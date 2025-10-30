@@ -88,6 +88,13 @@ class PrintMain extends React.Component {
   }
 
   componentDidMount() {
+    // Hack to allow print to show full height
+    // Without this, the list of properties is cut off
+    // We can't use PrintMain.css because modifying `#app-container` affects ViewMEME as well
+    // and causes scrolling problems.
+    const appcontainer = document.getElementById('app-container');
+    appcontainer.style.overflow = 'visible';
+
     // if (DBG) console.log(`%ccomponentDidMount()`, cssreact);
     //
     // child components need to know the dimensions
@@ -152,11 +159,18 @@ class PrintMain extends React.Component {
     const innerHeight = window.innerHeight - this.toolRect.height;
 
     // debugging: double-refresh issue
-    console.log('%cUpdateDimensions Fired', cssdraw);
+    console.log(`%cUpdateDimensions Fired ${viewWidth} ${viewHeight}`, cssdraw);
+    // HACK: For print view, ignore window height so that the graph will show the full size
+    // REVIEW: The proper solution is to a) remove MUI, b) redo the rendering
     this.setState({
-      viewWidth: Math.min(viewWidth, innerWidth),
-      viewHeight: Math.min(viewHeight, innerHeight)
+      viewWidth: 1024,
+      viewHeight: 1024
     });
+    // Orig code:
+    // this.setState({
+    //   viewWidth: Math.min(viewWidth, innerWidth),
+    //   viewHeight: Math.min(viewHeight, innerHeight)
+    // });
   }
 
   OnCloseModel() {

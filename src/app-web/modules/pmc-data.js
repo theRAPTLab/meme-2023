@@ -126,26 +126,29 @@ PMCData.ClearModel = () => {
  * This should be only be called by ADMData.InitializeModel().
  * NEVER CALL THIS FUNCTION DIRECTLY
  */
-PMCData.InitializeModel = (model, admdb) => {
+PMCData.InitializeModel = (model, admdb, resources) => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
-  if (!admdb) console.error(`PMCData.InitializeModel() arg2 must be an instance of adm_db`);
+  if (!admdb)
+    console.error(`PMCData.InitializeModel() arg2 must be an instance of adm_db`);
 
-  const { id, groupId, pmcDataId } = model;
-  if (id === undefined || groupId === undefined || pmcDataId === undefined) {
+  const { id, unitId, groupId, pmcDataId } = model;
+  if (
+    id === undefined ||
+    unitId === undefined ||
+    groupId === undefined ||
+    pmcDataId === undefined
+  ) {
     console.error(
-      `PMCData.InitializeModel called with either bad id (${id}) or bad groupId (${groupId}) or bad pmcDataId (${pmcDataId})`
+      `PMCData.InitializeModel called with either bad id (${id}) or bad unitId (${unitId}) or bad groupId (${groupId}) or bad pmcDataId (${pmcDataId})`
     );
   }
 
   // get essentials
-  const { resources, pmcData, classroomResources } = admdb;
+  // UNITS
+  const { pmcData } = admdb;
 
   // Resources
   a_resources = resources || [];
-  // Look up current classroom's resources for filtering later
-  // so that resources that are currently hidden are not displayed
-  // especially VBadges
-  const thisClassroomResources = classroomResources.find(c => c.classroomId === ASET.selectedClassroomId);
 
   /*/
   The model data format changed in october 2019 to better separate pmcdata from model
@@ -184,14 +187,8 @@ PMCData.InitializeModel = (model, admdb) => {
             });
           break;
         case 'evidence':
-          // HACK
-          // Only load evidence if it's selected/included for this classroom.
-          // If this evidence is referring to a resource that is hidden
-          // (e.g. not in the current list of classroom resources), don't add it.
-          // This lets us hide evidence link badges if the resource
-          // has been hidden, without necessarily changing the data?
-          // See also BuildModel() for how evidence is built up
-          if (thisClassroomResources.resources.includes(obj.rsrcId)) {
+          // UNIT Safe Appraoch
+          if (resources.find(res => res.id === obj.rsrcId)) {
             obj.comments = obj.comments || [];
             a_evidence.push(obj);
           }
@@ -257,7 +254,8 @@ PMCData.InitializeModel = (model, admdb) => {
         return;
       }
       if (!vprop) {
-        if (DBG) console.warn(`InitializeModel data.visuals: skipping missing prop ${id}`);
+        if (DBG)
+          console.warn(`InitializeModel data.visuals: skipping missing prop ${id}`);
         return;
       }
       if (DBG) console.log(`init vprop ${id} to ${pos.x}, ${pos.y}`);
@@ -310,7 +308,17 @@ PMCData.SyncAddedData = data => {
           });
           break;
         case 'evidence':
-          const { id, propId, mechId, rsrcId, numberLabel, rating, why, note, imageURL } = value;
+          const {
+            id,
+            propId,
+            mechId,
+            rsrcId,
+            numberLabel,
+            rating,
+            why,
+            note,
+            imageURL
+          } = value;
           a_evidence.push({
             id,
             propId,
@@ -346,7 +354,7 @@ PMCData.SyncAddedData = data => {
       // DATA_UPDATED updates EVERYTHING.  We want to be more selective
       // UR.Publish('DATA_UPDATED');
       // COMMENT_UPDATE broadcasts ONLY comment updates across the network.
-      UR.Publish('COMMENT_UPDATE', { comment: urcomment })
+      UR.Publish('COMMENT_UPDATE', { comment: urcomment });
     }
 
     if (subkey === 'urcomments_readby') {
@@ -407,7 +415,17 @@ PMCData.SyncUpdatedData = data => {
           dataWasUpdated = true;
           break;
         case 'evidence':
-          const { id, propId, mechId, rsrcId, numberLabel, rating, why, note, imageURL } = value;
+          const {
+            id,
+            propId,
+            mechId,
+            rsrcId,
+            numberLabel,
+            rating,
+            why,
+            note,
+            imageURL
+          } = value;
           const evlink = {
             id,
             propId,
@@ -452,7 +470,7 @@ PMCData.SyncUpdatedData = data => {
       // DATA_UPDATED updates EVERYTHING.  We want to be more selective
       // UR.Publish('DATA_UPDATED');
       // COMMENT_UPDATE broadcasts ONLY comment updates across the network.
-      UR.Publish('COMMENT_UPDATE', { comment: urcomment })
+      UR.Publish('COMMENT_UPDATE', { comment: urcomment });
     }
 
     if (subkey === 'urcomments_readby') {
@@ -530,7 +548,6 @@ PMCData.SyncRemovedData = data => {
     if (subkey === 'urcomments_readby') {
       // urcomments_readby really doesn't get removed
     }
-
   });
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -734,7 +751,8 @@ PMCData.Components = () => {
  *  @returns {Array} - an array of nodeId strings, or empty array
  */
 PMCData.Children = nodeId => {
-  if (typeof nodeId !== 'string') throw Error('PMCData.Children expected a string id');
+  if (typeof nodeId !== 'string')
+    throw Error('PMCData.Children expected a string id');
   return h_children.get(nodeId) || [];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -771,6 +789,10 @@ PMCData.Prop = nodeId => {
   const prop = m_graph.node(nodeId);
   if (prop) return prop;
   console.error(`no prop with id '${nodeId}' typeof ${typeof nodeId} exists`);
+  UTILS.RLog(
+    'ERROR!!!',
+    `no prop with id '${nodeId}' typeof ${typeof nodeId} exists`
+  );
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.MODEL:
@@ -928,7 +950,9 @@ PMCData.PMC_PropDelete = propId => {
 
   // 5. Delete any children
   // h_children uses string ids
-  PMCData.Children(String(numericId)).forEach(cid => PMCData.PMC_PropDelete(Number(cid)));
+  PMCData.Children(String(numericId)).forEach(cid =>
+    PMCData.PMC_PropDelete(Number(cid))
+  );
 
   // 6. Log it
   UTILS.RLog('PropertyDelete', propId);
@@ -976,11 +1000,17 @@ PMCData.PMC_MechAdd = (sourceId, targetId, label, description, bidirectional) =>
   }
   // Validate: Make sure source and target still exist before saving
   if (!PMCData.HasProp(sourceId)) {
-    console.error('PMCData.PMC_MechAdd trying to add non existent source prop', sourceId);
+    console.error(
+      'PMCData.PMC_MechAdd trying to add non existent source prop',
+      sourceId
+    );
     return;
   }
   if (!PMCData.HasProp(targetId)) {
-    console.error('PMCData.PMC_MechAdd trying to add non existent target prop', targetId);
+    console.error(
+      'PMCData.PMC_MechAdd trying to add non existent target prop',
+      targetId
+    );
     return;
   }
   const pmcDataId = ASET.selectedPMCDataId;
@@ -1031,11 +1061,17 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
   }
   // Validate: Make sure source and target still exist before saving
   if (!PMCData.HasProp(sourceId)) {
-    console.error('PMCData.PMC_MechAdd trying to add non existent source prop', sourceId);
+    console.error(
+      'PMCData.PMC_MechAdd trying to add non existent source prop',
+      sourceId
+    );
     return;
   }
   if (!PMCData.HasProp(targetId)) {
-    console.error('PMCData.PMC_MechAdd trying to add non existent target prop', targetId);
+    console.error(
+      'PMCData.PMC_MechAdd trying to add non existent target prop',
+      targetId
+    );
     return;
   }
   const pmcDataId = ASET.selectedPMCDataId;
@@ -1055,7 +1091,10 @@ PMCData.PMC_MechUpdate = (origMech, newMech) => {
     }
   }).then(() => {
     // If source or target changed,  move evidence and comments
-    if (origMech.sourceId !== newMech.sourceId || origMech.targetId !== newMech.targetId) {
+    if (
+      origMech.sourceId !== newMech.sourceId ||
+      origMech.targetId !== newMech.targetId
+    ) {
       const origMechId = CoerceToPathId(origMech.sourceId, origMech.targetId);
       const newMechId = CoerceToPathId(newMech.sourceId, newMech.targetId);
 
@@ -1107,7 +1146,8 @@ PMCData.PMC_MechDelete = mechId => {
   const mech = PMCData.Mech(mechId);
 
   if (DBG) {
-    if (typeof mechId !== 'number') console.log('coercing mechId to Number from', typeof mechId);
+    if (typeof mechId !== 'number')
+      console.log('coercing mechId to Number from', typeof mechId);
   }
 
   UTILS.RLog('MechanismDelete', mechId);
@@ -1202,7 +1242,9 @@ PMCData.PMC_AddEvidenceLink = (evObjData, cb) => {
             if (typeof cb === 'function') {
               cb(id);
             } else {
-              throw Error('PMC_AddEvidenceLink callback cb is not a function!  Skipping...');
+              throw Error(
+                'PMC_AddEvidenceLink callback cb is not a function!  Skipping...'
+              );
             }
             break;
         }
@@ -1229,7 +1271,11 @@ PMCData.PMC_GetResourceIndex = rsrcId => {
 PMCData.PMC_DuplicateEvidenceLink = (evId, cb) => {
   // First get the old link
   const oldev = PMCData.PMC_GetEvLinkByEvId(evId);
-  const newev = Object.assign({}, oldev, { id: undefined, propId: undefined, mechId: undefined });
+  const newev = Object.assign({}, oldev, {
+    id: undefined,
+    propId: undefined,
+    mechId: undefined
+  });
   UTILS.RLog('EvidenceDuplicate', oldev.note);
   // Create new evlink
   PMCData.PMC_AddEvidenceLink(newev, id => {
@@ -1313,7 +1359,8 @@ PMCData.PMC_EvidenceUpdate = (evId, newData) => {
 
   // data validation to make sure Object assign doesn't die.
   if (typeof ev !== 'object') throw Error('ev is not an object', typeof ev);
-  if (typeof newData !== 'object') throw Error('newData is not an object', typeof newData);
+  if (typeof newData !== 'object')
+    throw Error('newData is not an object', typeof newData);
 
   // Clean Data
   /* This data is being sent to the database, so all ids referring to
@@ -1359,7 +1406,10 @@ PMCData.SetEvidenceLinkPropId = (evId, propId) => {
   };
   if (propId !== undefined)
     // Only log when setting, not when programmatically clearing
-    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Property "${propId}"`);
+    UTILS.RLog(
+      'EvidenceSetTarget',
+      `Attaching evidence "${evId}" to Property "${propId}"`
+    );
   return PMCData.PMC_EvidenceUpdate(evId, newData);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1375,7 +1425,10 @@ PMCData.SetEvidenceLinkMechId = (evId, mechId) => {
   };
   if (mechId !== undefined)
     // Only log when setting, not when programmatically clearing
-    UTILS.RLog('EvidenceSetTarget', `Attaching evidence "${evId}" to Mechanism "${mechId}"`);
+    UTILS.RLog(
+      'EvidenceSetTarget',
+      `Attaching evidence "${evId}" to Mechanism "${mechId}"`
+    );
   return PMCData.PMC_EvidenceUpdate(evId, newData);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1386,7 +1439,7 @@ PMCData.UnlinkEvidenceLink = evId => {
   };
   PMCData.PMC_EvidenceUpdate(evId, newData);
   UTILS.RLog('UnlinkEvidenceLink', `UnlinkS evidence "${evId}"`);
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.SetEvidenceLinkNote = (evId, note) => {
   const newData = {
@@ -1419,7 +1472,10 @@ PMCData.SetEvidenceLinkTextFields = (evId, data) => {
     note: data.note,
     why: data.why
   };
-  UTILS.RLog('EvidenceSetTextFields', `Saving note "${data.note}" and why "${data.why}"`);
+  UTILS.RLog(
+    'EvidenceSetTextFields',
+    `Saving note "${data.note}" and why "${data.why}"`
+  );
   return PMCData.PMC_EvidenceUpdate(evId, newData);
 };
 
@@ -1436,7 +1492,8 @@ PMCData.SetEvidenceLinkTextFields = (evId, data) => {
 PMCData.UR_CommentAdd = (cref, commentData, cb) => {
   if (cref === undefined || cref === '')
     throw Error(`cref is required for a new comment object! refId="${cref}`);
-  if (commentData.id) throw Error('comment id should not be passed to a new comment object!');
+  if (commentData.id)
+    throw Error('comment id should not be passed to a new comment object!');
   const newComment = PMCObj.URComment({
     // NOTE no `id` here initially with the add
     collection_ref: cref,
@@ -1526,7 +1583,10 @@ PMCData.UR_CommentsUpdate = (cref, comments, cb) => {
  */
 PMCData.UR_CommentsDelete = commentIds => {
   const pmcDataId = ASET.selectedPMCDataId;
-  UTILS.RLog('URCommentsDelete', `id:${commentIds.join(',')} from model "${pmcDataId}"`);
+  UTILS.RLog(
+    'URCommentsDelete',
+    `id:${commentIds.join(',')} from model "${pmcDataId}"`
+  );
 
   // remove comments
   commentIds.forEach(idObj => {
@@ -1598,28 +1658,39 @@ PMCData.UR_MarkReadBy = readbys => {
   let promises = [];
   // do this for each readby
   newReadBys.forEach(newReadBy => {
-    const existingReadby = a_urcomments_readby.find(m => m.commentId === newReadBy.comment_id);
+    const existingReadby = a_urcomments_readby.find(
+      m => m.commentId === newReadBy.comment_id
+    );
     if (!existingReadby)
       // if it's new, add it
       // PMCData.UR_DBQuery calls UR_DBQuery which returns a promise from ursys.DBQuery
-      promises.push(PMCData.UR_DBQuery('add', {
-        'pmcData.urcomments_readby': {
-          id: pmcDataId,
-          urcomments_readby: newReadBy
-        }
-      }));
+      promises.push(
+        PMCData.UR_DBQuery('add', {
+          'pmcData.urcomments_readby': {
+            id: pmcDataId,
+            urcomments_readby: newReadBy
+          }
+        })
+      );
     else {
       // if it exists, update it
       // combine the new commenter_ids with the existing ones
-      const new_commenter_ids = newReadBy.commenter_ids.filter(id => !existingReadby.commenter_ids.includes(id));
-      existingReadby.commenter_ids = [...existingReadby.commenter_ids, ...new_commenter_ids];
+      const new_commenter_ids = newReadBy.commenter_ids.filter(
+        id => !existingReadby.commenter_ids.includes(id)
+      );
+      existingReadby.commenter_ids = [
+        ...existingReadby.commenter_ids,
+        ...new_commenter_ids
+      ];
       // PMCData.UR_DBQuery calls UR_DBQuery which returns a promise from ursys.DBQuery
-      promises.push(PMCData.UR_DBQuery('update', {
-        'pmcData.urcomments_readby': {
-          id: pmcDataId,
-          urcomments_readby: existingReadby
-        }
-      }));
+      promises.push(
+        PMCData.UR_DBQuery('update', {
+          'pmcData.urcomments_readby': {
+            id: pmcDataId,
+            urcomments_readby: existingReadby
+          }
+        })
+      );
     }
     return promises;
   });
@@ -1653,7 +1724,6 @@ PMCData.GetAllURReadbys = () => {
   return a_urcomments_readby;
 };
 
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// STICKIES //////////////////////////////////////////////////////////////////
 ///
@@ -1674,7 +1744,8 @@ PMCData.GetAllURReadbys = () => {
 PMCData.DB_CommentAdd = (refId, commentData, cb) => {
   if (refId === undefined || refId === '')
     throw Error(`refId is required for a new comment object! refId="${refId}`);
-  if (commentData.id) throw Error('comment id should not be passed to a new comment object!');
+  if (commentData.id)
+    throw Error('comment id should not be passed to a new comment object!');
   const newComment = PMCObj.Comment({
     refId: commentData.refId,
     author: commentData.author,
@@ -1832,8 +1903,6 @@ PMCData.HasUnreadComments = (comments, author) => {
   return comments.find(c => !PMCData.HasBeenRead(c.id, author));
 };
 
-
-
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// RESOURCES /////////////////////////////////////////////////////////////////
 
@@ -1861,7 +1930,9 @@ PMCData.GetEvLinksByResourceId = rsrcId => {
 PMCData.GetEvLinksCountByResourceId = rsrcId => {
   // REVIEW: After enabling a new resource while a project is open, the new resource is undefined?
   // so we needt o gracefully handle this case
-  return h_evidenceByResource.get(rsrcId) ? h_evidenceByResource.get(rsrcId).length : 0;
+  return h_evidenceByResource.get(rsrcId)
+    ? h_evidenceByResource.get(rsrcId).length
+    : 0;
 };
 
 /// DEBUG UTILS //////////////////////////////////////////////////////////////

@@ -15,6 +15,7 @@ const UDB = require('./server-database');
 const LOGGER = require('./server-logger');
 const EXPRESS = require('./server-express');
 const ARCHIVE = require('./server-archive');
+const UNITMGR = require('./server-units');
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 ///	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -49,11 +50,13 @@ URSYS.Initialize = async (options = {}) => {
   }
   LOGGER.Write(LPR, `initializing network`);
   if (options.memehost) console.log(PR, `${CC}MEMEHOST${TR} ${options.memehost}`);
-  if (process.env.DATASET) console.log(PR, `${CC}DATASET=${TR} ${process.env.DATASET}`);
+  if (process.env.DATASET)
+    console.log(PR, `${CC}DATASET=${TR} ${process.env.DATASET}`);
   console.log(PR, `${CS}STARTING UR SOCKET SERVER${CR}`);
   URSYS.RegisterHandlers();
   UDB.InitializeDatabase(options);
   UNET.InitializeNetwork(options);
+  await UNITMGR.InitializeUnits();
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** Server message handlers. All messages with the prefix 'NET:SRV_' are always
@@ -76,6 +79,8 @@ URSYS.RegisterHandlers = () => {
   // server utilities
   UNET.NetSubscribe('NET:SRV_REFLECT', URSYS.PKT_Reflect);
   UNET.NetSubscribe('NET:SRV_SERVICE_LIST', URSYS.PKT_Services);
+
+  UNET.NetSubscribe('NET:SRV_RELOAD_UNITS', UNITMGR.PKT_ReloadUnits);
 };
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

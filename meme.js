@@ -253,7 +253,8 @@ function f_PackageApp() {
   const templatesPath = path.join(__dirname, 'templates');
   fs.copySync(templatesPath, path.join(distOutput, 'templates'));
   fs.ensureDirSync(path.join(distOutput, 'data'));
-  fs.ensureDirSync(path.join(distOutput, 'resources'));
+  // DEPRECATED. Resources are now within units
+  // fs.ensureDirSync(path.join(distOutput, 'resources'));
 
   const unitsPath = path.join(__dirname, 'units');
   fs.copySync(unitsPath, path.join(distOutput, 'units'));

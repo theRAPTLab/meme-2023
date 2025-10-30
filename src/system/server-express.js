@@ -163,8 +163,10 @@ function Start() {
 
   // RESUME WITH COMMON SERVER SETUP //
 
+  // DEPRECATED Resources are now in units
   // make sure resource path exists
-  fs.ensureDirSync(PATHS.Resources);
+  // fs.ensureDirSync(PATHS.Resources);
+
   // make sure upload path exists
   fs.ensureDirSync(UPLOADPATH);
   // configure cookies middleware (appears in req.cookies)
@@ -193,8 +195,12 @@ function Start() {
     }
   });
 
-  // serve resource files
-  app.use('/resources', express.static(PATHS.Resources));
+  // DEPRECATED Resources are now in units
+  // // serve resource files
+  // app.use('/resources', express.static(PATHS.Resources));
+
+  // serve unit files (including unit resources)
+  app.use('/units', express.static(PATHS.Units));
 
   // and everything else...
   app.use('/', express.static(DOCROOT));

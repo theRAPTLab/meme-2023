@@ -61,6 +61,7 @@ class WPropDialog extends React.Component {
         description: data.description || '',
         isProperty: data.isProperty
       });
+      DATA.VM_SetPropOrMechDialogIsOpen(true);
       return;
     }
     const pmcDataId = ASET.selectedPMCDataId;
@@ -82,6 +83,7 @@ class WPropDialog extends React.Component {
           description: data.description || '',
           isProperty: data.isProperty
         });
+        DATA.VM_SetPropOrMechDialogIsOpen(true);
       } else {
         alert(
           `Sorry, someone else (${rdata.lockedBy}) is editing this ${data.propType} right now.  Please try again later.`
@@ -96,6 +98,7 @@ class WPropDialog extends React.Component {
     const pmcDataId = ASET.selectedPMCDataId;
     const intPropId = Number(this.state.propId);
     UR.DBTryRelease('pmcData.entities', [pmcDataId, intPropId]);
+    DATA.VM_SetPropOrMechDialogIsOpen(false);
     UR.Publish('PROPDIALOG_CLOSE');
   }
 

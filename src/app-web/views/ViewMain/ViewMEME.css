@@ -23,7 +23,7 @@ body {
   background-color: #eee;
 }
 .ViewMEME {
-  background-color: red; /* should not show */
+  /* for debugging resize: background-color: red; should not show */
   display: grid;
   /* grid-template: auto / 292px auto 292px; overridden by ViewMEME */
   height: 100%;

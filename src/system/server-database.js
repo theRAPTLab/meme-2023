@@ -97,11 +97,17 @@ DB.InitializeDatabase = (options = {}) => {
     FS.ensureDirSync(PATHS.DatabaseBackups);
     FS.copyFile(db_file, PATH.join(PATHS.DatabaseBackups, db_bkup), err => {
       if (err) {
-        LOGGER.Write(LPR, `*** ERROR *** could not make snapshot of '${dataset}.loki'`);
+        LOGGER.Write(
+          LPR,
+          `*** ERROR *** could not make snapshot of '${dataset}.loki'`
+        );
         LOGGER.Write(LPR, err);
       } else {
         LOGGER.Write(LPR, `database snapshot was saved to '${db_bkup}'`);
-        LOGGER.Write(LPR, `note: the snapshot contains data from the end of the LAST run`);
+        LOGGER.Write(
+          LPR,
+          `note: the snapshot contains data from the end of the LAST run`
+        );
       }
     });
   }
@@ -154,8 +160,9 @@ DB.InitializeDatabase = (options = {}) => {
     // collections so we can detect the absence of our collections and
     // add (and configure) them now.
     // loop over all collections, initializing if necessary
-    const loadedCollections = DATAMAP.Collections()
-      .map(name => f_LoadCollection(name, template));
+    const loadedCollections = DATAMAP.Collections().map(name =>
+      f_LoadCollection(name, template)
+    );
 
     const init = loadedCollections.every(x => x);
 
@@ -187,7 +194,6 @@ DB.InitializeDatabase = (options = {}) => {
 
       return false;
     }
-
   } // end f_LoadDataset
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   function f_AutosaveStatus() {
@@ -215,7 +221,9 @@ DB.InitializeDatabase = (options = {}) => {
     // if running devserver, always overwrite
     if (options.memehost === 'devserver') {
       // output a message of dataset had been overridden at the begining of f_LoadDataset
-      const overridden = process.env.DATASET ? `(ENV.DATASET='${process.env.DATASET}')` : '';
+      const overridden = process.env.DATASET
+        ? `(ENV.DATASET='${process.env.DATASET}')`
+        : '';
       console.log(PR, `resetting dataset '${col}.db' ${overridden}`);
       // clear the collection, then load dpath into it.
       collection.clear();
@@ -228,7 +236,10 @@ DB.InitializeDatabase = (options = {}) => {
       console.log(PR, `${options.memehost} fresh init: '${dataset}/${col}.db'`);
       collection.insert(require(dpath));
     } else {
-      console.log(PR, `${options.memehost}: '${col}' has ${collection.count()} elements`);
+      console.log(
+        PR,
+        `${options.memehost}: '${col}' has ${collection.count()} elements`
+      );
     }
 
     return isInit;
@@ -268,8 +279,13 @@ DB.InitializeDatabase = (options = {}) => {
 
       const files = FS.readdirSync(templateResources);
       files.forEach(file =>
-        FS.copyFileSync(PATH.join(templateResources, file),
-          PATH.join(PATHS.Resources, PATH.basename(file))));
+        FS.copyFileSync(
+          PATH.join(templateResources, file)
+
+          // DEPRECATED Resources are now in units
+          // PATH.join(PATHS.Resources, PATH.basename(file))
+        )
+      );
     }
   }
 }; // Initialize Database
@@ -370,7 +386,11 @@ DB.PKT_Release = pkt => {
     if (acc === '') return `${match.uaddr}`;
     return `${acc},${match.uaddr}`;
   }, '');
-  if (DBG) console.log(PR, `${uaddr} denied release semaphore "${semaphore} by ${lockedBy}"`);
+  if (DBG)
+    console.log(
+      PR,
+      `${uaddr} denied release semaphore "${semaphore} by ${lockedBy}"`
+    );
   return { semaphore, uaddr, success: false, lockedBy };
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -479,8 +499,12 @@ DB.PKT_Add = pkt => {
           }
           // we're only handling entities with magic inserts
           // because these aren't automatically handled by loki
-          if (subkey === 'entities' || subkey === 'comments' || subkey === 'markedread'
-            || subkey === 'urcomments' || subkey === 'urcomments_readby'
+          if (
+            subkey === 'entities' ||
+            subkey === 'comments' ||
+            subkey === 'markedread' ||
+            subkey === 'urcomments' ||
+            subkey === 'urcomments_readby'
           ) {
             // HACKY ensure that entityids are not reused during a server run
             // so researchers can clearly see the user behaviors in the log
@@ -502,8 +526,13 @@ DB.PKT_Add = pkt => {
           results.pmcDataId = colid;
         });
       if (DBG) {
-        if (!found.count()) error += `could not match id:${colid} in ${colkey}.${subkey}`;
-        else console.log(PR, `PKT_Add: found id:${colid} in collection:${colkey}.${subkey}`);
+        if (!found.count())
+          error += `could not match id:${colid} in ${colkey}.${subkey}`;
+        else
+          console.log(
+            PR,
+            `PKT_Add: found id:${colid} in collection:${colkey}.${subkey}`
+          );
       }
     } // if subkey
     if (DBG) console.log(PR, `added '${colkey}': ${JSON.stringify(results[reskey])}`);
@@ -586,8 +615,13 @@ DB.PKT_Update = pkt => {
         if (DBG) console.log(PR, `updated: ${reskey} ${JSON.stringify(retval)}`);
       });
     if (DBG) {
-      if (!found.count()) error += `could not match id:${colid} in ${colkey}.${subkey}`;
-      else console.log(PR, `PKT_Update: found id:${colid} in collection:${colkey}.${subkey}`);
+      if (!found.count())
+        error += `could not match id:${colid} in ${colkey}.${subkey}`;
+      else
+        console.log(
+          PR,
+          `PKT_Update: found id:${colid} in collection:${colkey}.${subkey}`
+        );
     }
   }); // queries forEach
 
@@ -638,10 +672,15 @@ DB.PKT_Remove = pkt => {
     const found = dbc.chain().find({ id: { $eq: colid } }); // e.g. pmcdata model
     if (found.count() === 0) {
       error += `remove could not find matching ${colid} in ${colkey} collection.`;
-      if (DBG) console.log(PR, `PKT_Remove: could not find record ${colid} i ${colkey} to remove.`);
+      if (DBG)
+        console.log(
+          PR,
+          `PKT_Remove: could not find record ${colid} i ${colkey} to remove.`
+        );
       return;
     }
-    if (DBG) console.log(PR, `remove found match for id:${colid} in collection:${colkey}`);
+    if (DBG)
+      console.log(PR, `remove found match for id:${colid} in collection:${colkey}`);
     if (!subkey) {
       // IS NORMAL REMOVE - pure database remove
       // eslint-disable-next-line no-shadow
@@ -669,7 +708,11 @@ DB.PKT_Remove = pkt => {
           const b_delete = subid === element.id;
           if (b_delete) {
             removed.push(element);
-            if (DBG) console.log(PR, `.. removing ${JSON.stringify(element).substring(0, 40)}`);
+            if (DBG)
+              console.log(
+                PR,
+                `.. removing ${JSON.stringify(element).substring(0, 40)}`
+              );
           }
           return !b_delete;
         }); // filter subrecord
@@ -680,7 +723,11 @@ DB.PKT_Remove = pkt => {
         // if there are no removed items, that is a problem
         if (!removed.length) {
           error += `no matching subkey id ${subid} in subrecord ${JSON.stringify(record[subkey])}`;
-          if (DBG) console.log(PR, `PKT_Remove: no matching id ${subid} in ${colkey}.${subkey}`);
+          if (DBG)
+            console.log(
+              PR,
+              `PKT_Remove: no matching id ${subid} in ${colkey}.${subkey}`
+            );
           return; // exit update(), process afterwards
         }
 
@@ -693,12 +740,19 @@ DB.PKT_Remove = pkt => {
             removed.forEach(r => {
               if (entity.propId === r.id) {
                 if (DBG)
-                  console.log(PR, `.. evidence ${entity.id} removed propId ${entity.propId}`);
+                  console.log(
+                    PR,
+                    `.. evidence ${entity.id} removed propId ${entity.propId}`
+                  );
                 entity.propId = undefined;
                 updated.push(entity);
               } // if propId
               if (entity.parent === r.id) {
-                if (DBG) console.log(PR, `.. prop ${entity.id} removed parent ${entity.parent}`);
+                if (DBG)
+                  console.log(
+                    PR,
+                    `.. prop ${entity.id} removed parent ${entity.parent}`
+                  );
                 entity.parent = undefined;
                 updated.push(entity);
               } // if parent
@@ -706,12 +760,20 @@ DB.PKT_Remove = pkt => {
                 let changed = false;
                 if (entity.source === r.id) {
                   changed = true;
-                  if (DBG) console.log(PR, `.. mech ${entity.id} removed source ${entity.source}`);
+                  if (DBG)
+                    console.log(
+                      PR,
+                      `.. mech ${entity.id} removed source ${entity.source}`
+                    );
                   entity.source = undefined;
                 }
                 if (entity.target === r.id) {
                   changed = true;
-                  if (DBG) console.log(PR, `.. mech ${entity.id} removed target ${entity.target}`);
+                  if (DBG)
+                    console.log(
+                      PR,
+                      `.. mech ${entity.id} removed target ${entity.target}`
+                    );
                   entity.target = undefined;
                 }
                 if (changed) updated.push(entity);
@@ -739,7 +801,8 @@ DB.PKT_Remove = pkt => {
   }
   // otherwise send update to network
   m_DatabaseChangeEvent('remove', results);
-  if (updated.length) m_DatabaseChangeEvent('update', { 'pmcData.entities': updated });
+  if (updated.length)
+    m_DatabaseChangeEvent('update', { 'pmcData.entities': updated });
   // return
   return results;
 };
@@ -770,7 +833,10 @@ function m_GetValidDBFilePath(dataset) {
   // validate dataset name
   let regex = /^([A-z0-9-_+./])*$/; // Allow _ - + . /, so nested pathways are allowed
   if (!regex.test(dataset)) {
-    console.error(PR, `Trying to initialize database with bad dataset name: ${dataset}`);
+    console.error(
+      PR,
+      `Trying to initialize database with bad dataset name: ${dataset}`
+    );
   }
 
   return PATHS.Database(dataset);
@@ -780,14 +846,20 @@ function m_GetValidDBFilePath(dataset) {
 function u_CopyLokiId(input) {
   if (!Array.isArray(input)) {
     if (input.id && typeof input.id !== 'number')
-      console.log(PR, `WARNING: replacing bogus string id '${input.id}' with ${input.$loki}`);
+      console.log(
+        PR,
+        `WARNING: replacing bogus string id '${input.id}' with ${input.$loki}`
+      );
     input.id = input.$loki;
     // console.log(PR, '*** array output.id', input.id);
     return;
   }
   input.forEach(item => {
     if (item.id && typeof item.id !== 'number')
-      console.log(PR, `WARNING: replacing bogus string id '${item.id}' with ${item.$loki}`);
+      console.log(
+        PR,
+        `WARNING: replacing bogus string id '${item.id}' with ${item.$loki}`
+      );
     item.id = item.$loki;
     // console.log(PR, '*** non-array output.id', item.id);
   });

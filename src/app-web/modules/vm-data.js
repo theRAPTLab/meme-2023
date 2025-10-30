@@ -12,6 +12,7 @@ const map_vmechs = new Map(); // our mechanism viewmodel data stored by pathid
 const selected_vprops = new Set();
 const selected_vmechs = new Set();
 const map_rollover = new Map();
+let propOrMechDialogIsOpen = false;
 
 let max_selections = 1; // Limit the number of objects that can be selected simultaneously
 
@@ -21,6 +22,12 @@ const DBG = false;
 const PKG = 'VMDATA';
 const { CoerceToPathId, CoerceToEdgeObj } = DEFAULTS;
 const VM = {};
+
+VM.VM_SetPropOrMechDialogIsOpen = bool => {
+  propOrMechDialogIsOpen = bool;
+  UR.Publish('SELECTION_CHANGED');
+};
+VM.VM_PropOrMechDialogIsOpen = () => propOrMechDialogIsOpen;
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** URSYS: DATABASE SYNC
@@ -268,7 +275,7 @@ VM.VM_PropMouseEnter = vprop => {
 VM.VM_PropMouseExit = vprop => {
   if (vprop.posMode.isDragging) return;
   map_rollover.delete(vprop.Id());
-  vprop.HoverState(false);
+  vprop.HoverState(false, true); // publishEvent = true for vprops
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.UI:

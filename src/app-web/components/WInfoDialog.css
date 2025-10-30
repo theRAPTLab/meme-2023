@@ -14,3 +14,14 @@
   width: 100%;
   margin-top: 1rem;
 }
+
+.WInfoDialog.WUnitSelectDialog ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.WInfoDialog.WUnitSelectDialog ul button {
+  width: 100%;
+  margin-bottom: 0.25rem;
+}

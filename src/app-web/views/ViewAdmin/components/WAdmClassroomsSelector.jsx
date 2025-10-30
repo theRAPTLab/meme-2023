@@ -15,6 +15,7 @@ import './WAdmClassroomsSelector.css';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import UR from '../../../../system/ursys';
 import ADM from '../../../modules/data';
+import ASET from '../../../modules/adm-settings';
 
 /// DECLARATIONS //////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -28,24 +29,26 @@ class WClassroomsSelector extends React.Component {
     super(props);
 
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
-    this.DoClassroomListUpdate = this.DoClassroomListUpdate.bind(this);
     this.DoTeacherSelect = this.DoTeacherSelect.bind(this);
     this.DoClassroomSelect = this.DoClassroomSelect.bind(this);
     this.OnClassroomSelect = this.OnClassroomSelect.bind(this);
-    this.OnAddClasssroomName = this.OnAddClasssroomName.bind(this);
+    this.OnClassroomUnitSelect = this.OnClassroomUnitSelect.bind(this);
+    this.OnAddClasssroom = this.OnAddClasssroom.bind(this);
     this.OnClassesModelsVisibilityChange =
       this.OnClassesModelsVisibilityChange.bind(this);
     this.OnAddClassroomDialogClose = this.OnAddClassroomDialogClose.bind(this);
     this.OnClassroomEdit = this.OnClassroomEdit.bind(this);
+    this.OnReloadUnits = this.OnReloadUnits.bind(this);
 
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
     UR.Subscribe('TEACHER_SELECT', this.DoTeacherSelect);
     UR.Subscribe('CLASSROOM_SELECT', this.DoClassroomSelect);
 
     this.state = {
-      classrooms: [],
+      selectedTeacherId: '',
       selectedClassroomId: '',
       selectedClassroomName: '',
+      selectedClassroomUnitId: '',
       addClassroomDialogOpen: false,
       updateExistingClassroom: false,
       canViewOthers: false
@@ -61,40 +64,46 @@ class WClassroomsSelector extends React.Component {
   }
 
   DoADMDataUpdate(data) {
-    this.DoClassroomListUpdate();
+    if (DBG) console.log('WAdmClassroomsSelector: ADM_DATA_UPDATED', data);
+
+    // If selected unit is no longer valid trigger a save
+    const unitId = ADM.GetClassroomSelectedUnitId(this.state.selectedClassroomId);
+    if (unitId !== this.state.selectedClassroomUnitId) {
+      // unitId has changed, update it, force database update
+      this.OnClassroomUnitSelect({ target: { value: unitId } });
+    }
+
     this.setState({
+      selectedClassroomUnitId: unitId,
       canViewOthers: ADM.CanViewOthers()
     });
   }
 
-  DoClassroomListUpdate() {
-    const classrooms = ADM.GetClassroomsByTeacher();
-    const selectedClassroomId =
-      this.state.selectedClassroomId ||
-      (classrooms && classrooms.length > 0 ? classrooms[0].id : '');
-    this.setState({ classrooms }, () => ADM.SelectClassroom(selectedClassroomId));
-  }
-
+  // Called by TEACHER_SELECT
   DoTeacherSelect(data) {
-    if (DBG)
-      console.log(
-        'AdmClassroomsSelector: loading classrooms with teacher',
-        data.teacherId
-      );
-    this.DoClassroomListUpdate(data.teacherId);
-    ADM.SelectClassroom('');
+    const selectedTeacher = ADM.GetTeacher(data.teacherId);
+    this.setState({ selectedTeacherId: data.teacherId });
   }
 
   // Update the state and inform subscribers (groupList, models, criteria, resources
+  // {classroomId}
   DoClassroomSelect(data) {
-    if (DBG) console.error('AdmClassroomsSelector: Setting classroom to', data);
+    if (DBG) console.log('AdmClassroomsSelector: Setting classroom to', data);
     const classroom = ADM.GetClassroom(data.classroomId);
     if (classroom) {
       classroom.canViewOthers = classroom.canViewOthers || false; // clean data to prevent props error
       this.setState({
         selectedClassroomId: classroom.id,
         selectedClassroomName: classroom.name,
+        selectedClassroomUnitId: classroom.unitId,
         canViewOthers: classroom.canViewOthers
+      });
+    } else {
+      // clear if no classroom is defined
+      this.setState({
+        selectedClassroomId: '',
+        selectedClassroomName: '',
+        selectedClassroomUnitId: ''
       });
     }
   }
@@ -105,6 +114,7 @@ class WClassroomsSelector extends React.Component {
     if (classroomId === 'new') {
       this.setState({
         selectedClassroomName: '',
+        selectedClassroomUnitId: '',
         addClassroomDialogOpen: true,
         updateExistingClassroom: false
       });
@@ -113,7 +123,13 @@ class WClassroomsSelector extends React.Component {
     }
   }
 
-  OnAddClasssroomName(e) {
+  OnClassroomUnitSelect(e) {
+    const unitId = e.target.value;
+    this.setState({ selectedClassroomUnitId: unitId });
+    ADM.SelectUnit(this.state.selectedClassroomId, unitId);
+  }
+
+  OnAddClasssroom(e) {
     e.preventDefault();
     e.stopPropagation();
     let name = this.state.selectedClassroomName;
@@ -151,11 +167,22 @@ class WClassroomsSelector extends React.Component {
     });
   }
 
+  OnReloadUnits() {
+    UR.NetCall('NET:SRV_RELOAD_UNITS', {}).then(response => {
+      if (response.success) {
+        if (DBG) console.log('Units reloaded:', response.unitIds);
+      } else {
+        console.error('Failed to reload units');
+      }
+    });
+  }
+
   render() {
     const {
-      classrooms,
+      selectedTeacherId,
       selectedClassroomId,
       selectedClassroomName,
+      selectedClassroomUnitId,
       addClassroomDialogOpen,
       canViewOthers
     } = this.state;
@@ -164,7 +191,7 @@ class WClassroomsSelector extends React.Component {
       <div className="dialog">
         <h3>ADD CLASSROOM</h3>
         <p>Add a classroom by name, e.g. "Period 1" or "Science 1A"</p>
-        <form onSubmit={this.OnAddClasssroomName}>
+        <form onSubmit={this.OnAddClasssroom}>
           <input
             autoFocus
             type="text"
@@ -181,6 +208,27 @@ class WClassroomsSelector extends React.Component {
       </div>
     );
 
+    const UNITS = ADM.GetUnitsList();
+    const UNIT_SELECTOR = (
+      <div>
+        <select
+          value={selectedClassroomUnitId}
+          onChange={this.OnClassroomUnitSelect}
+          className="select"
+          disabled={selectedTeacherId === '' || selectedClassroomId === ''}
+        >
+          <option value="">Select a Unit</option>
+          {UNITS.map(unit => (
+            <option key={unit.id} value={unit.id}>
+              {unit.label}
+            </option>
+          ))}
+        </select>
+        &nbsp; unit <i className="help"> newly-created models will use this unit</i>
+      </div>
+    );
+
+    const classrooms = ADM.GetClassroomsByTeacher(ASET.selectedTeacherId);
     return (
       <div className="WAdmClassroomsSelector dialog">
         <h3>CLASSROOMS</h3>
@@ -189,6 +237,7 @@ class WClassroomsSelector extends React.Component {
             value={selectedClassroomId}
             onChange={this.OnClassroomSelect}
             className="select"
+            disabled={selectedTeacherId === ''}
           >
             <option value="">Select a Classroom</option>
             {classrooms.map(classroom => (
@@ -206,6 +255,8 @@ class WClassroomsSelector extends React.Component {
             Edit
           </button>
         </div>
+        {UNIT_SELECTOR}
+        <br />
         <div>
           <button
             type="button"
@@ -220,7 +271,20 @@ class WClassroomsSelector extends React.Component {
             <span aria-hidden="true">Show</span>
           </button>
           &nbsp;
-          <label>Students can view class' models?</label>
+          <i className="help">Students can view class' models?</i>
+        </div>
+        <br />
+        <div>
+          <button type="button" className="med" onClick={this.OnReloadUnits}>
+            Reload Units
+          </button>
+          <i className="help">
+            &nbsp;Force reload of ALL units after adding/updating unit definitions
+          </i>
+          <p className="help danger">
+            Be careful reloading units. Removing unit parameters can lead to corrupted
+            projects.
+          </p>
         </div>
         {DIALOG}
       </div>

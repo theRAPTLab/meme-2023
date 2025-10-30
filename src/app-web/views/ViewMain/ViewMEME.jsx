@@ -107,11 +107,6 @@ class ViewMEME extends React.Component {
     this.refMain = React.createRef();
     this.refView = React.createRef();
 
-    this.state = {
-      viewHeight: 0,
-      viewWidth: 0
-    };
-
     this.DoDataUpdate = this.DoDataUpdate.bind(this);
     this.DoADMDataUpdate = this.DoADMDataUpdate.bind(this);
     this.UpdateDimensions = this.UpdateDimensions.bind(this);
@@ -160,11 +155,13 @@ class ViewMEME extends React.Component {
       title: '',
       modelId: '',
       modelAuthorGroupName: '',
+      unitLabel: '',
       isModelAuthor: true,
       studentId: '',
       studentName: '',
       studentGroup: '',
       viewHeight: 0, // need to init this to prevent error with first render of resourceList
+      viewWidth: 0,
       toolsPanelIsOpen: true,
       resourceLibraryIsOpen: true,
       addPropOpen: false,
@@ -173,7 +170,8 @@ class ViewMEME extends React.Component {
       addEdgeTarget: '', // Add Mech Dialog
       componentIsSelected: false, // A component or component property has been selected by user.  Used for pro-centric actions.
       outcomeIsSelected: false, // A outcome or outcome property has been selected by user.  Used for pro-centric actions.
-      mechIsSelected: false // A mechanism is slected by user.  Used for mech-centric actions.
+      mechIsSelected: false, // A mechanism is slected by user.  Used for mech-centric actions.
+      suppressControlBar: false // used to hide Add/Edit buttons when dialogs are open
     };
   }
 
@@ -219,11 +217,20 @@ class ViewMEME extends React.Component {
     const userStudentId = ADM.GetAuthorId();
     const userGroupId = ADM.GetGroupIdByStudent(userStudentId);
     const isModelAuthor = userGroupId === (model ? model.groupId : '');
-    RATINGS.updateDefinitions(ADM.GetRatingsDefinition(ADM.GetSelectedClassroomId()));
+    let unitLabel = '';
+
+    // Load Ratings from new Unit Definitions
+    if (model) {
+      unitLabel = ADM.GetUnitLabel();
+      const ratingsDefs = ADM.GetRatings();
+      RATINGS.updateDefinitions(ratingsDefs);
+    }
+
     this.setState({
       title,
       modelId,
       modelAuthorGroupName,
+      unitLabel,
       isModelAuthor,
       studentId: userStudentId,
       studentName: ADM.GetLoggedInUserName(),
@@ -336,7 +343,8 @@ class ViewMEME extends React.Component {
       : DATAMAP.PMC_MODELTYPES.OUTCOME.id;
     UR.Publish('PROPDIALOG_OPEN', { isProperty: true, propType });
     this.setState({
-      addPropOpen: true
+      addPropOpen: true,
+      suppressControlBar: true
     });
   }
 
@@ -354,14 +362,18 @@ class ViewMEME extends React.Component {
         isProperty: false
       });
       this.setState({
-        addPropOpen: true
+        addPropOpen: true,
+        suppressControlBar: true
       });
     }
   }
 
   OnPropDialogClose() {
     if (DBG) console.log('close');
-    this.setState({ addPropOpen: false });
+    this.setState({
+      addPropOpen: false,
+      suppressControlBar: false
+    });
   }
 
   // User selected component/prop and clicked on "() Delete"
@@ -449,7 +461,7 @@ class ViewMEME extends React.Component {
     // Deselect any mechanisms that might be currently selected so that user can select props
     DATA.VM_DeselectAllMechs();
     this.setState({
-      suppressSelection: true // used to hide Add/Edit buttons
+      suppressControlBar: true // used to hide Add/Edit buttons
     });
     UR.Publish('MECHDIALOG:ADD');
   }
@@ -460,7 +472,7 @@ class ViewMEME extends React.Component {
     if (selectedMechIds.length > 0) {
       DATA.VM_DeselectAll(); // deselect so mech buttons disappear
       this.setState({
-        suppressSelection: true, // used to hide Add/Edit buttons
+        suppressControlBar: true, // used to hide Add/Edit buttons
         addEdgeOpen: true
       });
       let mechId = selectedMechIds[0];
@@ -480,7 +492,7 @@ class ViewMEME extends React.Component {
 
   DoMechClosed() {
     this.setState({
-      suppressSelection: false,
+      suppressControlBar: false,
       addEdgeOpen: false
     });
   }
@@ -610,6 +622,11 @@ class ViewMEME extends React.Component {
     UR.Publish('STICKY_CLOSE');
     UR.Publish('RATING_CLOSE');
     ADM.CloseModel();
+    this.setState({
+      componentIsSelected: false,
+      outcomeIsSelected: false,
+      mechIsSelected: false
+    });
   }
 
   OnLogout() {
@@ -617,6 +634,11 @@ class ViewMEME extends React.Component {
     UR.Publish('STICKY_CLOSE');
     UR.Publish('RATING_CLOSE');
     ADM.Logout();
+    this.setState({
+      componentIsSelected: false,
+      outcomeIsSelected: false,
+      mechIsSelected: false
+    });
   }
 
   OnHelp() {
@@ -629,6 +651,7 @@ class ViewMEME extends React.Component {
       modelAuthorGroupName,
       isModelAuthor,
       title,
+      unitLabel,
       studentId,
       studentName,
       studentGroup,
@@ -639,14 +662,15 @@ class ViewMEME extends React.Component {
       componentIsSelected,
       outcomeIsSelected,
       mechIsSelected,
-      suppressSelection
+      suppressControlBar
     } = this.state;
 
     // we need to use the model author here, not the currently logged in student.
     const model = ADM.GetModelById(modelId);
     const classroomId = model ? ADM.GetClassroomIdByGroup(model.groupId) : '';
-    const resources =
-      classroomId !== '' ? ADM.GetResourcesForClassroom(classroomId) : [];
+
+    // Unit
+    const resources = classroomId !== '' ? ADM.GetResources() : [];
 
     const isViewOnly = ADM.IsViewOnly();
     const isDBReadOnly = ADM.IsDBReadOnly();
@@ -742,7 +766,7 @@ class ViewMEME extends React.Component {
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /// Component/Mech add/edit/delete buttons that respond to selection events
     const CONTROLBAR = (
-      <div className="controlbar" hidden={suppressSelection}>
+      <div className="controlbar" hidden={suppressControlBar}>
         <button
           className="danger"
           hidden={
@@ -817,7 +841,7 @@ class ViewMEME extends React.Component {
     );
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const MAINVIEW = (
-      <div style={{ backgroundColor: 'red' }} ref={this.refMain}>
+      <div ref={this.refMain}>
         <div className="view" ref={this.refView}>
           <Switch>
             <Route
@@ -875,6 +899,7 @@ class ViewMEME extends React.Component {
         <div className="ViewMEME" style={{ gridTemplateColumns: gridColumns }}>
           <div className="leftsidebar">
             {PANELTOOLS}
+            <div className="unitlabel">UNIT: {unitLabel}</div>
             <WDescriptionPopup />
           </div>
           <div className="main">

@@ -10,7 +10,14 @@
 
 // import appserver
 // Import parts of electron to use
-const { app, BrowserWindow, MessagePort, dialog, Menu, ipcMain } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  MessagePort,
+  dialog,
+  Menu,
+  ipcMain
+} = require('electron');
 const ip = require('ip');
 const fs = require('fs-extra');
 const os = require('os');
@@ -22,11 +29,16 @@ const PROMPTS = require('../system/util/prompts');
 const AssetPath = asset => path.join(__dirname, 'static', asset);
 
 const PR = PROMPTS.Pad('ElectronHost');
-// this is available through electron remote in console.js
-global.serverinfo = {
+// Serverinfo - exposed to renderer via IPC instead of deprecated remote.getGlobal()
+const serverinfo = {
   main: `http://localhost:3000`,
   client: `http://${ip.address()}:3000`
 };
+
+// IPC handler to provide serverinfo to renderer process
+ipcMain.on('get-serverinfo', (event) => {
+  event.returnValue = serverinfo;
+});
 
 // our modules
 // const UR = require('../ur');
@@ -47,13 +59,20 @@ if (process.platform === 'win32') {
 function createWindow() {
   // Create the browser window.
   console.log(`${PR} creating mainwindow with console-preload.js`);
+  const preloadPath = path.join(__dirname, 'console-preload.js');
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
     show: false,
     webPreferences: {
       nodeIntegration: false, // 'true' enables nodejs features
-      preload: path.join(__dirname, 'console-preload.js') // path.join is required
+      // In newer versions of Electron, the preload script runs in
+      // a sandboxed context by default, where Node.js built-in modules like path are
+      // NOT available unless you explicitly enable them. The solution is to enable
+      // the context bridge properly or disable sandbox for the preload script.
+      contextIsolation: false, // Allow preload script to access Node.js built-ins like 'path'
+      sandbox: false, // Disable sandbox to allow Node.js modules in preload
+      preload: preloadPath
     }
   });
 
@@ -151,11 +170,18 @@ function createWindow() {
      */
     ipcMain.on('dragfromdesktop', (ipcEvent, files) => {
       if (!files || files.length !== 1) {
-        ipcEvent.returnValue = { error: `unexpected multiple files: ${files.length}` };
+        ipcEvent.returnValue = {
+          error: `unexpected multiple files: ${files.length}`
+        };
         return;
       }
       const file = files[0];
-      console.log('check ft', file.type, 'file.name.ends', file.name.endsWith('MEME.ZIP'));
+      console.log(
+        'check ft',
+        file.type,
+        'file.name.ends',
+        file.name.endsWith('MEME.ZIP')
+      );
       if (!(file.type === 'application/zip' && file.name.endsWith('.MEME.ZIP'))) {
         const error = `INVALID FILE. Must be zip with extension .MEME.ZIP`;
         ipcEvent.sender.send('mainalert', error);
@@ -206,7 +232,11 @@ function createWindow() {
           }
           // reinitialize the server
           console.log('loaded manifest', manifest);
-          const tempdb = { archivepath: archivePath, dbfile: manifest.db, appmode: 'readonly' };
+          const tempdb = {
+            archivepath: archivePath,
+            dbfile: manifest.db,
+            appmode: 'readonly'
+          };
           URSERVER.Initialize({ tempdb });
           ipcEvent.returnValue = { zippath: zipPath, ...tempdb, manifest };
           return;

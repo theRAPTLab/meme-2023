@@ -78,7 +78,7 @@ let UID; // user id, cached.  nc-logic updates this on INITIALIZE and SESSION
  */
 // MOD.Hook('INITIALIZE', () => {
 UR.Hook(__dirname, 'INITIALIZE', () => {
-  console.log('HOOK INitilizied!')
+  console.log('HOOK Initialized!');
   COMMENT.Init();
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - inside hook
   /// STATE UPDATES and Message Handlers
@@ -86,7 +86,6 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
   UR.Subscribe('COMMENTS_UPDATE', MOD.HandleCOMMENTS_UPDATE);
   UR.Subscribe('COMMENT_UPDATE', MOD.HandleCOMMENT_UPDATE);
   UR.Subscribe('READBY_UPDATE', MOD.HandleREADBY_UPDATE);
-
 }); // end INITIALIZE Hook
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** CONFIGURE fires after LOADASSETS, so this is a good place to put TEMPLATE
@@ -106,18 +105,20 @@ UR.Hook(__dirname, 'INITIALIZE', () => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** LOAD_COMMENT_DATACORE
-   *  Called by comment-mgr after DATA_UPDATED
-   *  Loads comments and related tables from the database into ac/dc-comments
-   *  @param {Object} data
-   *  @param {Object} data.users
-   *  @param {Object} data.commenttypes
-   *  @param {Object} data.comments
-   */
+ *  Called by comment-mgr after DATA_UPDATED
+ *  Loads comments and related tables from the database into ac/dc-comments
+ *  @param {Object} data
+ *  @param {Object} data.users
+ *  @param {Object} data.commenttypes
+ *  @param {Object} data.comments
+ */
 MOD.LoadDBData = () => {
   if (DBG) console.log('DATA_UPDATED======================');
 
-  const TEMPLATE = STATE.State('TEMPLATE');
-  COMMENT.LoadTemplate(TEMPLATE.COMMENTTYPES);
+  // UNIT Approach
+  const commentTypes = ADM.GetCommentTypes();
+  COMMENT.LoadTemplate(commentTypes);
+
   const userStudentId = ADM.GetAuthorId();
   MOD.SetCurrentUserId(userStudentId);
   const data = CMTDB.GetCommentData();
@@ -128,8 +129,8 @@ MOD.LoadDBData = () => {
   const uid = MOD.GetCurrentUserId();
   COMMENT.DeriveAllThreadedViewObjects(uid);
   const COMMENTCOLLECTION = COMMENT.GetCommentCollections();
-  STATE.SetState('COMMENTCOLLECTION', COMMENTCOLLECTION)
-}
+  STATE.SetState('COMMENTCOLLECTION', COMMENTCOLLECTION);
+};
 
 /// HELPER FUNCTIONS //////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -141,7 +142,7 @@ function m_SetAppStateCommentCollections() {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function m_SetAppStateCommentVObjs() {
   const COMMENTVOBJS = COMMENT.GetCOMMENTVOBJS();
-  console.log('COMMENTVOBJS', COMMENTVOBJS)
+  console.log('COMMENTVOBJS', COMMENTVOBJS);
   STATE.SetState('COMMENTVOBJS', COMMENTVOBJS);
 }
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -189,9 +190,18 @@ function InitCaps(str) {
 MOD.CREFLABELS = new Map();
 MOD.CREFLABELS.set(CREF_PREFIX.PROJECT, 'Project');
 MOD.CREFLABELS.set(CREF_PREFIX.EVLINK, 'Evidence Link');
-MOD.CREFLABELS.set(CREF_PREFIX.ENTITY, InitCaps(DATAMAP.PMC_MODELTYPES.COMPONENT.label));
-MOD.CREFLABELS.set(CREF_PREFIX.PROCESS, InitCaps(DATAMAP.PMC_MODELTYPES.MECHANISM.label));
-MOD.CREFLABELS.set(CREF_PREFIX.OUTCOME, InitCaps(DATAMAP.PMC_MODELTYPES.OUTCOME.label));
+MOD.CREFLABELS.set(
+  CREF_PREFIX.ENTITY,
+  InitCaps(DATAMAP.PMC_MODELTYPES.COMPONENT.label)
+);
+MOD.CREFLABELS.set(
+  CREF_PREFIX.PROCESS,
+  InitCaps(DATAMAP.PMC_MODELTYPES.MECHANISM.label)
+);
+MOD.CREFLABELS.set(
+  CREF_PREFIX.OUTCOME,
+  InitCaps(DATAMAP.PMC_MODELTYPES.OUTCOME.label)
+);
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  *
@@ -202,26 +212,26 @@ MOD.CREFLABELS.set(CREF_PREFIX.OUTCOME, InitCaps(DATAMAP.PMC_MODELTYPES.OUTCOME.
 MOD.GetCREF = (type, id) => {
   if (CREF_PREFIX[type]) return `${CREF_PREFIX[type]}${id}`;
   throw new Error(`${PR}GetCREF: Invalid Comment Type ${type}`);
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// deconstructs "n32" into {type: "n", id: 32}
 MOD.DeconstructCREF = cref => {
   const type = String(cref).substring(0, 1);
   const id = String(cref).substring(1);
   return { type, id };
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Generate a human friendly label based on the cref (e.g. `n21`, `e4`)
-* e.g. "n32" becomes {typeLabel "Node", sourceLabel: "32"}
-* @param {string} cref
+ * e.g. "n32" becomes {typeLabel "Node", sourceLabel: "32"}
+ * @param {string} cref
  * @returns { typeLabel, sourceLabel } sourceLabel is undefined if the source has been deleted
  */
 MOD.GetCREFSourceLabel = cref => {
   const { type, id } = MOD.DeconstructCREF(cref);
   let typeLabel = MOD.CREFLABELS.get(type);
   let sourceLabel; // undefined if not found
-  const REMOVED = 'removed';
+  const REMOVED = undefined; // URCommentStatus will hide status updates if the comment has been removed
   switch (type) {
     case 'v':
       const evlink = DATA.PMC_GetEvLinkByEvId(Number(id));
@@ -237,7 +247,7 @@ MOD.GetCREFSourceLabel = cref => {
       break;
     case 'm':
       const path = DATA.MechPathById(Number(id));
-      const mech = DATA.Mech(path);
+      const mech = path ? DATA.Mech(path) : undefined; // gracefully fail if mech was removed
       sourceLabel = mech ? mech.name : REMOVED;
       break;
     case 'p':
@@ -256,10 +266,11 @@ MOD.GetCREFSourceLabel = cref => {
  */
 MOD.GetCommentBtnPosition = cref => {
   const btn = document.getElementById(cref);
-  if (!btn) throw new Error(`${PR}GetCommentCollectionPosition: Button not found ${cref}`);
+  if (!btn)
+    throw new Error(`${PR}GetCommentCollectionPosition: Button not found ${cref}`);
   const bbox = btn.getBoundingClientRect();
   return { x: bbox.left, y: bbox.top };
-}
+};
 /**
  * Returns the comment window position for the comment button
  * shifting the window to the left if it's too close to the edge of the screen.
@@ -283,7 +294,7 @@ MOD.GetCommentCollectionPosition = ({ x, y }, isExpanded) => {
     newY = y - CMTBTNOFFSET;
   }
   return { x: newX, y: newY };
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Open the object that the comment refers to
 /// e.g. in Net.Create it's a node or edge object
@@ -306,7 +317,7 @@ MOD.OpenReferent = cref => {
       DATA.VM_SelectOneMech(vmech);
       UR.Publish('SVG_PANZOOMBBOX_SET', {
         bbox: vmech.gRoot.bbox(),
-        cb: () => { } // no callback needed
+        cb: () => {} // no callback needed
       });
       return vmech;
     case 'e': // entity
@@ -317,7 +328,7 @@ MOD.OpenReferent = cref => {
       DATA.VM_SelectProp(vprop);
       UR.Publish('SVG_PANZOOMBBOX_SET', {
         bbox: vprop.gRoot.bbox(),
-        cb: () => { } // no callback needed
+        cb: () => {} // no callback needed
       });
       return vprop;
   }
@@ -336,10 +347,10 @@ MOD.OpenCommentStatusComment = (cref, cid) => {
     UR.Publish('DIALOG_OPEN', {
       text: `Please finish editing your comment before opening a different comment!`
     });
-    return
+    return;
   }
 
-  MOD.CloseAllCommentCollectionsWithoutMarkingRead()
+  MOD.CloseAllCommentCollectionsWithoutMarkingRead();
   switch (type) {
     case 'p': // project
       MOD.OpenCommentCollectionByCref('projectcmt');
@@ -365,13 +376,15 @@ MOD.OpenCommentStatusComment = (cref, cid) => {
             // the comment button xy is offset from the mech origin
             // for some reason the comment button x doesn't account for
             // the width of the label
-            const btnPosition = PMCView.SVGtoScreen( // cx, cy);
-              cx + vmech.horizText.length() / 2 + cmtbtnBBox.w, cy
+            const btnPosition = PMCView.SVGtoScreen(
+              // cx, cy);
+              cx + vmech.horizText.length() / 2 + cmtbtnBBox.w,
+              cy
             );
             MOD.OpenCommentCollection(cref, btnPosition);
           }, 500);
         }
-      }
+      };
       UR.Publish('SVG_PANZOOMBBOX_SET', parms);
       break;
     case 'e': // entity
@@ -390,7 +403,7 @@ MOD.OpenCommentStatusComment = (cref, cid) => {
             MOD.OpenCommentCollection(cref, btnPosition);
           }, 500);
         }
-      }
+      };
       UR.Publish('SVG_PANZOOMBBOX_SET', parms);
       break;
   }
@@ -398,14 +411,14 @@ MOD.OpenCommentStatusComment = (cref, cid) => {
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// User Id
-MOD.SetCurrentUserId = uid => UID = uid;
+MOD.SetCurrentUserId = uid => (UID = uid);
 MOD.GetCurrentUserId = () => UID; // called by other comment classes
 MOD.GetUserName = uid => {
   return COMMENT.GetUserName(uid);
 };
 MOD.IsAdmin = () => {
   return SESSION.IsTeacher();
-}
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// Comment Type
@@ -470,11 +483,7 @@ MOD.OpenCommentCollection = (cref, position) => {
     throw new Error(
       `comment-mgr.OpenCommentCollection: missing cref data ${JSON.stringify(cref)}`
     );
-  if (
-    position === undefined ||
-    position.x === undefined ||
-    position.y === undefined
-  )
+  if (position === undefined || position.x === undefined || position.y === undefined)
     throw new Error(
       `comment-mgr.OpenCommentCollection: missing position data ${JSON.stringify(position)}`
     );
@@ -488,7 +497,10 @@ MOD.OpenCommentCollection = (cref, position) => {
   }
   // 1. Position the window to the right of the click
   const commentThreadWindowIsExpanded = MOD.GetCommentCollectionCount(cref);
-  const collectionPosition = MOD.GetCommentCollectionPosition(position, commentThreadWindowIsExpanded);
+  const collectionPosition = MOD.GetCommentCollectionPosition(
+    position,
+    commentThreadWindowIsExpanded
+  );
 
   // 2. Update the state
   MOD.UpdateCommentUIState(cref, { cref, isOpen: true });
@@ -506,12 +518,11 @@ MOD.OpenCommentCollection = (cref, position) => {
  */
 MOD.OpenCommentCollectionByCref = cref => {
   const projectCmtPosition = MOD.GetCommentBtnPosition(cref);
-  MOD.OpenCommentCollection(cref,
-    {
-      x: projectCmtPosition.x + CMTBTNOFFSET,
-      y: projectCmtPosition.y + CMTBTNOFFSET
-    });
-}
+  MOD.OpenCommentCollection(cref, {
+    x: projectCmtPosition.x + CMTBTNOFFSET,
+    y: projectCmtPosition.y + CMTBTNOFFSET
+  });
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.GetCommentCollection = uiref => {
   return COMMENT.GetCommentCollection(uiref);
@@ -607,10 +618,10 @@ MOD.GetOpenComments = cref => COMMENT.GetOpenComments(cref);
 /// Editable Comments (comments being edited)
 MOD.RegisterCommentBeingEdited = cid => {
   COMMENT.RegisterCommentBeingEdited(cid);
-}
+};
 MOD.DeRegisterCommentBeingEdited = cid => {
   return COMMENT.DeRegisterCommentBeingEdited(cid);
-}
+};
 
 /// Are ANY comments being edited?
 /// Returns True if ANY comment is being edited
@@ -618,8 +629,8 @@ MOD.DeRegisterCommentBeingEdited = cid => {
 ///   to prevent closing the comment collection if a comment is being edited.
 /// * Also used by URCommentThread to determine whether "Click to add" is displayed
 MOD.GetCommentsAreBeingEdited = () => {
-  return COMMENT.GetCommentsAreBeingEdited()
-}
+  return COMMENT.GetCommentsAreBeingEdited();
+};
 
 MOD.OKtoClose = cref => {
   const cvobjs = MOD.GetThreadedViewObjects(cref);
@@ -646,10 +657,10 @@ MOD.GetCommentVObj = (cref, cid) => {
 /// Comments
 MOD.GetComment = cid => {
   return COMMENT.GetComment(cid);
-}
+};
 MOD.GetUnreadRepliesToMe = uid => {
   return COMMENT.GetUnreadRepliesToMe(uid);
-}
+};
 MOD.GetUnreadComments = () => {
   return COMMENT.GetUnreadComments();
 };
@@ -674,7 +685,7 @@ MOD.UIEditComment = comment_id => {
   MOD.RegisterCommentBeingEdited(comment_id);
   MOD.LockComment(comment_id);
   UR.Publish('COMMENT_UPDATE_PERMISSIONS');
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** User clicks Cancel on a comment
  *  @param {TCommentID} comment_id
@@ -683,16 +694,16 @@ MOD.UICancelComment = comment_id => {
   MOD.DeRegisterCommentBeingEdited(comment_id);
   MOD.UnlockComment(comment_id);
   UR.Publish('COMMENT_UPDATE_PERMISSIONS');
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** User clicks Save coment
  *  @param {TComment} cobj
-*/
+ */
 MOD.UISaveComment = cobj => {
   MOD.UnlockComment(cobj.comment_id);
   MOD.DeRegisterCommentBeingEdited(cobj.comment_id);
   MOD.UpdateComment(cobj);
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Update the ac/dc comments, then save it to the db
@@ -704,10 +715,12 @@ MOD.UpdateComment = cobj => {
   // Use callback to update the comment id after db creates a new id
   CMTDB.DBUpdateComment(cobj, data => {
     // updated data id is going to be in data.pmcData.urcomments[0].id
-    if (!data["pmcData.urcomments"] || data["pmcData.urcomments"].length < 1) {
-      throw new Error(`comment-mgr: UpdateComment: No ID returned from DB. cobj: ${JSON.stringify(cobj)} data: ${JSON.stringify(data)}`);
+    if (!data['pmcData.urcomments'] || data['pmcData.urcomments'].length < 1) {
+      throw new Error(
+        `comment-mgr: UpdateComment: No ID returned from DB. cobj: ${JSON.stringify(cobj)} data: ${JSON.stringify(data)}`
+      );
     }
-    cobj.id = data["pmcData.urcomments"][0].id;
+    cobj.id = data['pmcData.urcomments'][0].id;
     COMMENT.UpdateComment(cobj);
     m_SetAppStateCommentVObjs();
   });
@@ -741,7 +754,8 @@ MOD.RemoveComment = parms => {
     confirmMessage = `Are you sure you want to cancel editing this comment #${parms.id}?`;
     okmessage = 'Cancel Editing and Delete';
     cancelmessage = 'Go Back to Editing';
-  } else { // show delete confirmaiton dialog
+  } else {
+    // show delete confirmaiton dialog
     // Are you sure you want to delete?
     parms.isAdmin = MOD.IsAdmin();
     confirmMessage = parms.isAdmin
@@ -868,32 +882,35 @@ MOD.HandleCOMMENT_UPDATE = data => {
 
   if (editingComment) {
     // conflict if both think they're the root
-    if ((incomingComment.comment_id_parent === "" && incomingComment.comment_id_previous === "") &&
-      (editingComment.comment_id_parent === "" && editingComment.comment_id_previous === "")) {
-      if (DBG) console.error('CONFLICT! both think they are root')
+    if (
+      incomingComment.comment_id_parent === '' &&
+      incomingComment.comment_id_previous === '' &&
+      editingComment.comment_id_parent === '' &&
+      editingComment.comment_id_previous === ''
+    ) {
+      if (DBG) console.error('CONFLICT! both think they are root');
       // Re-link the comment to the incoming
       editingComment.comment_id_previous = incomingComment.comment_id;
     }
     // conflict if previous of both are the same
     if (incomingComment.comment_id_previous === editingComment.comment_id_previous) {
-      if (DBG) console.error('CONFLICT! both think they are reply to same previous')
+      if (DBG) console.error('CONFLICT! both think they are reply to same previous');
       // Re-link the comment to the incoming
       editingComment.comment_id_previous = incomingComment.comment_id;
     }
     // conflict if parent of both are the same and previous are blank (new reply root)
-    if (incomingComment.comment_id_parent === editingComment.comment_id_parent &&
-      incomingComment.comment_id_previous === "" && editingComment.comment_id_previous === ""
+    if (
+      incomingComment.comment_id_parent === editingComment.comment_id_parent &&
+      incomingComment.comment_id_previous === '' &&
+      editingComment.comment_id_previous === ''
     ) {
-      if (DBG) console.error('CONFLICT! both think they are reply to same parent')
+      if (DBG) console.error('CONFLICT! both think they are reply to same parent');
       // Re-link the comment to the incoming
-      editingComment.comment_id_previous = incomingComment.comment_id
+      editingComment.comment_id_previous = incomingComment.comment_id;
     }
   }
 
-  const updatedComments = [
-    { comment: incomingComment },
-    { comment: editingComment }
-  ];
+  const updatedComments = [{ comment: incomingComment }, { comment: editingComment }];
   MOD.HandleCOMMENTS_UPDATE(updatedComments);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -915,7 +932,12 @@ MOD.LockComment = comment_id => {
   const comment = COMMENT.GetComment(comment_id);
   if (!comment || comment.id === undefined) {
     // New Comment, lokiObjID has not been created yet no need to lock
-    if (DBG) console.log(PR, 'LockComment: Probably new comment.  No need to lock.  Comment not found for comment_id', comment_id);
+    if (DBG)
+      console.log(
+        PR,
+        'LockComment: Probably new comment.  No need to lock.  Comment not found for comment_id',
+        comment_id
+      );
     // But update permissions to indicate edit state
     UR.Publish('COMMENT_UPDATE_PERMISSIONS', { commentBeingEditedByMe: true });
     return;
@@ -926,13 +948,18 @@ MOD.LockComment = comment_id => {
       UR.Publish('COMMENT_UPDATE_PERMISSIONS', { commentBeingEditedByMe: true });
     }
   });
-}
+};
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MOD.UnlockComment = comment_id => {
   const comment = COMMENT.GetComment(comment_id);
   if (!comment || comment.id === undefined) {
     // New Comment, no need to unlock
-    if (DBG) console.log(PR, 'UnlockComment: Probably new comment.  No need to unlock.  Comment not found for comment_id', comment_id);
+    if (DBG)
+      console.log(
+        PR,
+        'UnlockComment: Probably new comment.  No need to unlock.  Comment not found for comment_id',
+        comment_id
+      );
     // But update permissions to indicate edit state
     UR.Publish('COMMENT_UPDATE_PERMISSIONS', { commentBeingEditedByMe: false });
     return;
@@ -941,7 +968,7 @@ MOD.UnlockComment = comment_id => {
   CMTDB.DBUnlockComment(lokiObjID, data => {
     UR.Publish('COMMENT_UPDATE_PERMISSIONS', { commentBeingEditedByMe: false });
   });
-}
+};
 
 /// EXPORT CLASS DEFINITION ///////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

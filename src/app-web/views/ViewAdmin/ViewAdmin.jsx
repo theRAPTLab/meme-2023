@@ -19,12 +19,12 @@ import PMCView from '../../modules/pmc-view.js';
 import UR from '../../../system/ursys';
 import WTeacherSelector from './components/WAdmTeacherSelector';
 import WClassroomsSelector from './components/WAdmClassroomsSelector';
-import WCriteriaView from './components/WAdmCriteriaView';
-import WSentenceStarters from './components/WAdmSentenceStarters';
+// import WCriteriaView from './components/WAdmCriteriaView';
+// import WSentenceStarters from './components/WAdmSentenceStarters';
 import WGroupsList from './components/WAdmGroupsList';
 import WModelsList from './components/WAdmModelsList';
-import WResourcesList from './components/WAdmResourcesList';
-import WRatingsView from './components/WAdmRatingsView';
+// import WResourcesList from './components/WAdmResourcesList';
+// import WRatingsView from './components/WAdmRatingsView';
 import WInfoDialog from '../../components/WInfoDialog';
 /// MODULES ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -78,15 +78,16 @@ class ViewAdmin extends React.Component {
         <div>
           <WTeacherSelector />
           <WClassroomsSelector />
+          {/* Moved to Units
           <WRatingsView />
           <WCriteriaView />
-          <WSentenceStarters />
+          <WSentenceStarters /> */}
         </div>
         <div>
           <WGroupsList />
           <WModelsList />
         </div>
-        <WResourcesList />
+        {/* Moved to Units <WResourcesList /> */}
         {/* General Information Dialog */}
         <WInfoDialog />
         <svg id="svgDefs" ref={this.refSVGContainer} />

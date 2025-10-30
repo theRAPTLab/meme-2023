@@ -21,9 +21,11 @@ class ADMSettings {
 
   // utility
   clear() {
+    if (DBG) console.log('ADMSettings.clear');
     this.sTeacherId = ''; // an id
     this.sStudentId = ''; // a login token (string)
     this.sModelId = ''; // an id
+    this.sUnitId = ''; // an id
     this.sPMCDataId = ''; // an id
     //
     this.sClassroomId = ''; // set from login token
@@ -38,12 +40,13 @@ class ADMSettings {
   }
 
   get selectedClassroomId() {
-    if (DBG) console.log('get classroomId', this.sClassroomId, typeof this.sClassroomId);
+    if (DBG)
+      console.log('get classroomId', this.sClassroomId, typeof this.sClassroomId);
     return this.sClassroomId;
   }
 
   get selectedStudentId() {
-    if (DBG) console.error('get sStudentId', this.sStudentId, typeof this.sStudentId);
+    if (DBG) console.log('get sStudentId', this.sStudentId, typeof this.sStudentId);
     return this.sStudentId;
   }
 
@@ -52,13 +55,23 @@ class ADMSettings {
     return this.sModelId;
   }
 
+  get selectedUnitId() {
+    if (DBG) console.log('sUnitId', this.sUnitId, typeof this.sUnitId);
+    return this.sUnitId;
+  }
+
   get selectedPMCDataId() {
     if (DBG) console.log('sPMCDataId', this.sPMCDataId, typeof this.sPMCDataId);
     return this.sPMCDataId;
   }
 
   get selectedGroupId() {
-    if (DBG) console.log('get sStudentGroupId', this.sStudentGroupId, typeof this.sStudentGroupId);
+    if (DBG)
+      console.log(
+        'get sStudentGroupId',
+        this.sStudentGroupId,
+        typeof this.sStudentGroupId
+      );
     return this.sStudentGroupId;
   }
 
@@ -89,10 +102,14 @@ class ADMSettings {
     this.sModelId = id;
   }
 
+  set selectedUnitId(id) {
+    if (DBG) console.log(`ADMSettings.selectedUnitId '${id}'`);
+    this.sUnitId = id;
+  }
+
   set selectedPMCDataId(id) {
     this.sPMCDataId = id;
   }
-
 } // class
 
 /// CREATE INSTANCE ///////////////////////////////////////////////////////////

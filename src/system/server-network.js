@@ -91,7 +91,35 @@ UNET.StartNetwork = () => {
       m_SocketClientAck(socket); // tell client HELLO with new UADDR
       // subscribe socket to handlers
       socket.on('message', json => m_SocketOnMessage(socket, json));
-      socket.on('close', () => m_SocketDelete(socket));
+      socket.on('close', (code, reason) => {
+        // Enhanced logging to diagnose close reasons
+        const closeReasons = {
+          1000: 'Normal closure',
+          1001: 'Going away (page navigation/tab close)',
+          1002: 'Protocol error',
+          1003: 'Unsupported data',
+          1005: 'No status code present',
+          1006: 'Abnormal closure (network issue)',
+          1007: 'Invalid frame payload data',
+          1008: 'Policy violation',
+          1009: 'Message too big',
+          1010: 'Missing extension',
+          1011: 'Internal server error',
+          1012: 'Service restart',
+          1013: 'Try again later',
+          1014: 'Bad gateway',
+          1015: 'TLS handshake failure'
+        };
+        const codeDesc = closeReasons[code] || 'Unknown';
+        const reasonStr = reason ? reason.toString() : '';
+        if (DBG.client) {
+          console.log(
+            PR,
+            `Socket ${socket.UADDR} closing - Code: ${code} (${codeDesc})${reasonStr ? `, Reason: ${reasonStr}` : ''}`
+          );
+        }
+        m_SocketDelete(socket);
+      });
     }); // end on 'connection'
   });
 }; // end StartNetwork()

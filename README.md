@@ -51,6 +51,9 @@ You should build and run the local server first just to make sure everything is 
 1. `npm run dev`
 2. Point your browser at `http://localhost:3000/` -- You should see the MEME login screen.
 
+NOTE `npm run dev` will rebuild the database with each run, so you start with an empty database.
+
+If you want to retain data, use `npm start`.
 
 ### I.D. Start Production Server
 

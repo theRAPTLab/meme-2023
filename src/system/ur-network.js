@@ -99,7 +99,13 @@ NETWORK.Connect = (datalink, opt) => {
   // create websocket
   // uses values that were embedded in index.ejs on load
   const { USRV_Host, USRV_MsgPort } = CENTRAL.GetVal('ur_session');
-  let wsURI = `ws://${USRV_Host}:${USRV_MsgPort}`;
+  let wsURI;
+  if (window.location.protocol === 'https:') {
+    // use secure websocket if running on https, redirects port to /ws-port/
+    // used with `meme-app-config` repo `nginx-ssl.conf.j2` on DigitalOcean droplets with SSL
+    wsURI = `wss://${window.location.host}/ws-port/${USRV_MsgPort}/`;
+  } else wsURI = `ws://${USRV_Host}:${USRV_MsgPort}`;
+
   NETSOCK.ws = new WebSocket(wsURI);
   if (DBG.connect) console.log(PR, 'OPEN SOCKET TO', wsURI);
 

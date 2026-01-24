@@ -1,4 +1,5 @@
 import DEFAULTS from './defaults';
+import JSZip from 'jszip';
 import UR from '../../system/ursys';
 import SESSION from '../../system/common-session';
 import UTILS from './utils';

@@ -1812,6 +1812,87 @@ ADMData.GetCommentTypes = (unitId = ASET.selectedUnitId) => {
   return ADMUnits.GetCommentTypes(unitId);
 };
 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Downloads the entire adm_db as a JSON file
+ */
+ADMData.DownloadDatabase = () => {
+  if (!adm_db) {
+    console.error('ADMData.DownloadDatabase: adm_db is not initialized');
+    return;
+  }
+  const data = JSON.stringify(adm_db, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  a.href = url;
+  a.download = `meme-db-${timestamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+/**
+ *  Download all data with each model saved as an individual file
+ *  and zipped to a single file
+ */
+ADMData.DownloadModels = () => {
+  if (!adm_db) {
+    console.error('ADMData.DownloadModels: adm_db is not initialized');
+    return;
+  }
+
+  const zip = new JSZip();
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+
+  adm_db.models.forEach(model => {
+    const group = ADMData.GetGroup(model.groupId);
+    const classroom = group ? ADMData.GetClassroom(group.classroomId) : undefined;
+    const teacher = classroom ? ADMData.GetTeacher(classroom.teacherId) : undefined;
+    const unitLabel = classroom ? ADMData.GetUnitLabel(classroom.unitId) : '';
+    const pmcData = adm_db.pmcData.find(p => p.id === model.pmcDataId);
+
+    const modelExport = {
+      modelName: model.title,
+      unitName: unitLabel,
+      classroomName: classroom ? classroom.name : '',
+      teacherName: teacher ? teacher.name : '',
+      groupName: group ? group.name : '',
+      students: group ? group.students : [],
+      dateModified: model.dateModified,
+      data: pmcData
+        ? {
+            entities: pmcData.entities || [],
+            visuals: pmcData.visuals || [],
+            comments: pmcData.urcomments || [],
+            markedread: pmcData.urcomments_readby || []
+          }
+        : null
+      // These are not really necessary, but we can include them if we want
+      // since they are the same for all models in a classroom
+      // resources: classroom ? ADMData.GetResources(classroom.unitId) : [],
+      // ratings: classroom ? ADMData.GetRatings(classroom.unitId) : []
+    };
+
+    const clean = s => s.replace(/[/\\?%*:|"<>]/g, '-');
+    const filename = `${timestamp}-${clean(modelExport.classroomName)}-${clean(modelExport.groupName)}-${clean(modelExport.modelName)}.json`;
+
+    zip.file(filename, JSON.stringify(modelExport, null, 2));
+  });
+
+  zip.generateAsync({ type: 'blob' }).then(content => {
+    const url = URL.createObjectURL(content);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `meme-models-${timestamp}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+};
+
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if (!window.ur) window.ur = {};

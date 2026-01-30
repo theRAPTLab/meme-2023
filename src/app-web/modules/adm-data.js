@@ -1844,7 +1844,14 @@ ADMData.DownloadModels = () => {
   }
 
   const zip = new JSZip();
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  const timestamp = new Date(now - offset)
+    .toISOString()
+    .slice(0, 19)
+    .replace('T', '_')
+    .replace(/[:]/g, '');
+  const usedNames = new Set();
 
   adm_db.models.forEach(model => {
     const group = ADMData.GetGroup(model.groupId);

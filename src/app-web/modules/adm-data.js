@@ -1883,7 +1883,18 @@ ADMData.DownloadModels = () => {
     };
 
     const clean = s => s.replace(/[/\\?%*:|"<>]/g, '-');
-    const filename = `${timestamp}-${clean(modelExport.classroomName)}-${clean(modelExport.groupName)}-${clean(modelExport.modelName)}.json`;
+    const truncate = (s, max = 30) => (s.length > max ? s.substring(0, max) : s);
+    const ct = (s, max) => clean(truncate(s, max));
+
+    const filenameBase = `${timestamp}-${ct(modelExport.teacherName)}-${ct(modelExport.classroomName)}-${ct(modelExport.groupName)}-${ct(modelExport.modelName, 60)}`;
+    let filename = `${filenameBase}.json`;
+
+    // Deduplicate filenames
+    let counter = 1;
+    while (usedNames.has(filename)) {
+      filename = `${filenameBase} (${counter++}).json`;
+    }
+    usedNames.add(filename);
 
     zip.file(filename, JSON.stringify(modelExport, null, 2));
   });

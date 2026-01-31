@@ -102,6 +102,27 @@ function URComment({ cref, cid, uid }) {
     };
   }, [state.uIsBeingEdited]); // run when uIsBeingEdited changes
 
+  /** Component Effect - open TypeSelector when a NEW comment is created */
+  useEffect(() => {
+    if (state.uViewMode === CMTMGR.VIEWMODE.EDIT) {
+      // Check if it's a new comment (no text yet)
+      const isNew = state.commenter_text.every(t => t === '' || t === undefined);
+      if (isNew) {
+        const element = document.getElementById(`typeselector-${cid}`);
+        if (element) {
+          element.focus();
+          if (typeof element.showPicker === 'function') {
+            try {
+              element.showPicker();
+            } catch (e) {
+              console.warn(`${PR}: TypeSelector showPicker failed`, e);
+            }
+          }
+        }
+      }
+    }
+  }, [state.uViewMode]);
+
   /// COMPONENT HELPER METHODS ////////////////////////////////////////////////
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** Declare helper method to load viewdata from comment manager into the
@@ -363,7 +384,11 @@ function URComment({ cref, cid, uid }) {
     </button>
   );
   const TypeSelector = (
-    <select value={selected_comment_type} onChange={evt_TypeSelector}>
+    <select
+      id={`typeselector-${cid}`}
+      value={selected_comment_type}
+      onChange={evt_TypeSelector}
+    >
       {[...commentTypes.entries()].map(type => (
         <option key={type[0]} value={type[0]}>
           {type[1].label}

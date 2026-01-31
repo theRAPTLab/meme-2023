@@ -79,22 +79,35 @@ function URCommentPrompt({
 }) {
   const commentTypes = CMTMGR.GetCommentTypes();
 
-  /** Component Effect - set the focus to the first empty field on
-   *  entering edit mode, or selecting a new comment type
-   */
   useEffect(() => {
     if (viewMode === CMTMGR.VIEWMODE.EDIT) {
-      // find the first empty `text` prompt
+      // find the first empty `text` prompt or the first `dropdown`
       let foundIndex = -1;
-      commentTypes.get(commentType).prompts.find((prompt, promptIndex) => {
-        if (prompt.format === 'text' && !commenterText[promptIndex]) {
+      const prompts = commentTypes.get(commentType).prompts;
+      prompts.find((prompt, promptIndex) => {
+        const isText = prompt.format === 'text';
+        const isDropdown = prompt.format === 'dropdown';
+        if ((isText && !commenterText[promptIndex]) || isDropdown) {
           foundIndex = promptIndex;
           return true;
         }
       });
-      // set focus to the found empty 'text' prompt
-      const foundTextArea = document.getElementById(u_TextareaId(cref, foundIndex));
-      if (foundTextArea) foundTextArea.focus();
+      // set focus to the found element
+      const element = document.getElementById(u_PromptElementId(cref, foundIndex));
+      if (element) {
+        element.focus();
+        // if it's a select element, try to trigger the picker
+        if (
+          element.tagName === 'SELECT' &&
+          typeof element.showPicker === 'function'
+        ) {
+          try {
+            element.showPicker();
+          } catch (e) {
+            console.warn(`${PR}: showPicker() failed`, e);
+          }
+        }
+      }
     }
   }, [viewMode, commentType]);
 
@@ -113,7 +126,7 @@ function URCommentPrompt({
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** Converts `index` into "prompt-<index>" for use in HTML id attributes */
-  function u_TextareaId(cref, index) {
+  function u_PromptElementId(cref, index) {
     return `prompt-${cref}-${index}`;
   }
   /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -182,7 +195,7 @@ function URCommentPrompt({
         case 'text':
           inputJSX = (
             <textarea
-              id={u_TextareaId(cref, promptIndex)}
+              id={u_PromptElementId(cref, promptIndex)}
               autoFocus
               onChange={event => onChange(promptIndex, event)}
               value={commenterText[promptIndex] || ''}
@@ -204,6 +217,7 @@ function URCommentPrompt({
           }
           inputJSX = (
             <select
+              id={u_PromptElementId(cref, promptIndex)}
               value={commenterText[promptIndex] || ''}
               onChange={event => onChange(promptIndex, event)}
             >

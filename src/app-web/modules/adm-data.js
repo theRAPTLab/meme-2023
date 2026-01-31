@@ -1996,7 +1996,7 @@ ADMData.ConvertPMCToMarkdown = pmcData => {
 
     path.add(parentId);
     let result = '';
-    const children = props.filter(p => p.parent === parentId);
+    const children = props.filter(p => p.parent == parentId);
 
     children.forEach(child => {
       const indent = '  '.repeat(depth);
@@ -2013,7 +2013,7 @@ ADMData.ConvertPMCToMarkdown = pmcData => {
   const topCmp = props.filter(
     p =>
       p.propType === 'cmp' &&
-      (!p.parent || !props.find(parent => parent.id === p.parent))
+      (!p.parent || !props.find(parent => parent.id == p.parent))
   );
   if (topCmp.length === 0) output += 'None\n';
   topCmp.forEach(node => {
@@ -2027,7 +2027,7 @@ ADMData.ConvertPMCToMarkdown = pmcData => {
   const topOut = props.filter(
     p =>
       p.propType === 'out' &&
-      (!p.parent || !props.find(parent => parent.id === p.parent))
+      (!p.parent || !props.find(parent => parent.id == p.parent))
   );
   if (topOut.length === 0) output += 'None\n';
   topOut.forEach(node => {
@@ -2040,8 +2040,8 @@ ADMData.ConvertPMCToMarkdown = pmcData => {
   output += '### PROCESSES\n';
   if (mechs.length === 0) output += 'None\n';
   mechs.forEach(mech => {
-    const source = props.find(p => p.id === mech.source);
-    const target = props.find(p => p.id === mech.target);
+    const source = props.find(p => p.id == mech.source);
+    const target = props.find(p => p.id == mech.target);
     const sName = source ? source.name : `[${mech.source}]`;
     const tName = target ? target.name : `[${mech.target}]`;
     const arrow = mech.bidirectional ? '<-->' : '-->';
@@ -2054,7 +2054,7 @@ ADMData.ConvertPMCToMarkdown = pmcData => {
   if (evidence.length === 0) output += 'None\n';
   evidence.forEach(ev => {
     const ref =
-      props.find(p => p.id === ev.propId) || mechs.find(m => m.id === ev.mechId);
+      props.find(p => p.id == ev.propId) || mechs.find(m => m.id == ev.mechId);
     const refName = ref ? ref.name : `[ref:${ev.propId || ev.mechId}]`;
     output += `- ${refName} [Resource: ${ev.rsrcId}]: ${ev.note || ''}\n`;
   });
@@ -2101,7 +2101,7 @@ ADMData.ConvertCommentsToMarkdown = (comments, entities, markedread) => {
         const match = ref.match(/^([a-z]+)(\d+)$/i);
         if (match) {
           const id = parseInt(match[2], 10);
-          const ent = entities.find(e => e.id === id);
+          const ent = entities.find(e => e.id == id);
           if (ent) refLabel = `${ent.name} (${ref})`;
         }
       }
@@ -2189,6 +2189,16 @@ ADMData.ConvertPMCToMermaid = pmcData => {
 
   const escape = s => s.replace(/"/g, "'").replace(/\n/g, '<br/>');
 
+  const getShape = (propType, str) => {
+    switch (propType) {
+      case 'cmp': // entity
+        return `([${str}])`;
+      case 'out': // outcome
+      default:
+        return `(${str})`;
+    }
+  };
+
   const renderRecursive = (parentId, depth) => {
     if (depth > 10) return `    %% [Error: Nesting depth exceeded limit (10)]\n`;
     if (path.has(parentId))
@@ -2196,22 +2206,20 @@ ADMData.ConvertPMCToMermaid = pmcData => {
 
     path.add(parentId);
     let result = '';
-    const children = props.filter(p => p.parent === parentId);
+    const children = props.filter(p => p.parent == parentId);
 
     children.forEach(child => {
       const name = `<b>${escape(child.name)}</b>`;
       const desc = child.description ? `<br/>${escape(child.description)}` : '';
       const content = `"${name}${desc}"`;
 
-      const subChildren = props.filter(p => p.parent === child.id);
+      const subChildren = props.filter(p => p.parent == child.id);
       if (subChildren.length > 0) {
-        result += `    subgraph ${child.id} [${content}]\n`;
-        result += renderRecursive(child.id, depth + 1);
-        result += `    end\n`;
+        result += `    subgraph ${child.id}[${content}]\n`; // subgraphs are always rectangular
+        result += `        ${renderRecursive(child.id, depth + 1)}`;
+        result += `        end\n`;
       } else {
-        const shape =
-          child.propType === 'out' ? `(["${name}${desc}"])` : `["${name}${desc}"]`;
-        result += `    ${child.id}${shape}\n`;
+        result += `        ${child.id}${getShape(child.propType, content)}\n`;
       }
     });
 
@@ -2220,24 +2228,22 @@ ADMData.ConvertPMCToMermaid = pmcData => {
   };
 
   // Render top-level (no parent or parent not in props)
-  const topLevel = props.filter(
-    p => !p.parent || !props.find(parent => parent.id === p.parent)
-  );
+  const topLevel = props.filter(p => {
+    return !p.parent || !props.find(parent => parent.id == p.parent);
+  });
 
   topLevel.forEach(node => {
     const name = `<b>${escape(node.name)}</b>`;
     const desc = node.description ? `<br/>${escape(node.description)}` : '';
     const content = `"${name}${desc}"`;
 
-    const children = props.filter(p => p.parent === node.id);
+    const children = props.filter(p => p.parent == node.id);
     if (children.length > 0) {
-      output += `    subgraph ${node.id} [${content}]\n`;
-      output += renderRecursive(node.id, 1);
+      output += `    subgraph ${node.id}[${content}]\n`; // subgraphs are always rectangular
+      output += `    ${renderRecursive(node.id, 1)}`;
       output += `    end\n`;
     } else {
-      const shape =
-        node.propType === 'out' ? `(["${name}${desc}"])` : `["${name}${desc}"]`;
-      output += `    ${node.id}${shape}\n`;
+      output += `    ${node.id}${getShape(node.propType, content)}\n`;
     }
   });
 

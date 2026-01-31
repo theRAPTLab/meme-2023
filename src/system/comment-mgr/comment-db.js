@@ -79,9 +79,8 @@ function DBUnlockComment(lokiObjID, cb) {
  * @param {function} cb
  */
 function DBUpdateComment(cobj, cb) {
-  console.log('DBUpdateComment', cobj)
-  const comment = { // TComment
-    // id: xxxx // don't inject `id` here yet!  Rely on pmc-objects to auto-add an id
+  const comment = {
+    id: cobj.id, // an existing pmcData object will have an id, so use that, otherwise a new comment object will be created
     collection_ref: cobj.collection_ref,
     comment_id: cobj.comment_id,
     comment_id_parent: cobj.comment_id_parent,

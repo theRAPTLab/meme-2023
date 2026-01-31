@@ -42,7 +42,7 @@ function GetCommentData() {
 function PromiseNewCommentID() {
   return new Promise((resolve, reject) => {
     resolve(uuidv4()); // use uuid
-  })
+  });
 }
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -134,12 +134,13 @@ function DBRemoveComment(queuedActions, cb) {
   const ids = queuedActions
     .filter(item => {
       return (
-        Object.hasOwn(item, 'id')
-        && item.id !== undefined // A newly created unsaved comment will not have an id,
+        Object.hasOwn(item, 'id') && item.id !== undefined // A newly created unsaved comment will not have an id,
         // so don't bother to try remove it from the database
-      )
+      );
     })
-    .map(item => { return { id: item.id } });
+    .map(item => {
+      return { id: item.id };
+    });
   // FIXME: Need to add LOCK before DB update???
   PMC.UR_CommentsDelete(ids);
 

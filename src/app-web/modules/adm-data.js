@@ -2183,7 +2183,11 @@ ADMData.ConvertPMCToMermaid = pmcData => {
   const props = entities.filter(e => e.type === 'prop');
   const mechs = entities.filter(e => e.type === 'mech');
 
-  let output = 'flowchart TD\n';
+  let output = `---\n`;
+  output += `config:\n`;
+  output += `   layout: elk\n`;
+  output += `---\n\n`;
+  output += 'flowchart TD\n';
   const visited = new Set();
   const path = new Set();
 

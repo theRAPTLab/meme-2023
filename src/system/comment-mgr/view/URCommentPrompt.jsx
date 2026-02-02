@@ -81,30 +81,37 @@ function URCommentPrompt({
 
   useEffect(() => {
     if (viewMode === CMTMGR.VIEWMODE.EDIT) {
-      // find the first empty `text` prompt or the first `dropdown`
-      let foundIndex = -1;
-      const prompts = commentTypes.get(commentType).prompts;
-      prompts.find((prompt, promptIndex) => {
-        const isText = prompt.format === 'text';
-        const isDropdown = prompt.format === 'dropdown';
-        if ((isText && !commenterText[promptIndex]) || isDropdown) {
-          foundIndex = promptIndex;
+      const promptList = commentTypes.get(commentType).prompts;
+      // find the first empty prompt
+      let focusIndex = -1;
+      promptList.find((prompt, promptIndex) => {
+        if (u_IsEmpty(commenterText[promptIndex])) {
+          focusIndex = promptIndex;
           return true;
         }
       });
+
+      // if everything is filled, focus the first prompt
+      if (focusIndex === -1) focusIndex = 0;
+
       // set focus to the found element
-      const element = document.getElementById(u_PromptElementId(cref, foundIndex));
+      const element = document.getElementById(u_PromptElementId(cref, focusIndex));
       if (element) {
         element.focus();
-        // if it's a select element, try to trigger the picker
-        if (
-          element.tagName === 'SELECT' &&
-          typeof element.showPicker === 'function'
-        ) {
-          try {
-            element.showPicker();
-          } catch (e) {
-            console.warn(`${PR}: showPicker() failed`, e);
+        // if it's an empty select element, set default and try to trigger picker
+        if (element.tagName === 'SELECT' && u_IsEmpty(commenterText[focusIndex])) {
+          const prompt = promptList[focusIndex];
+          if (prompt.options && prompt.options.length > 0) {
+            // trigger onChange to set the default value in parent state
+            onChange(focusIndex, { target: { value: prompt.options[0] } });
+            // try to show picker
+            if (typeof element.showPicker === 'function') {
+              try {
+                element.showPicker();
+              } catch (e) {
+                console.warn(`${PR}: showPicker() failed`, e);
+              }
+            }
           }
         }
       }
@@ -202,23 +209,23 @@ function URCommentPrompt({
             />
           );
           break;
-        case 'dropdown':
-          if (!prompt.options.includes(commenterText[promptIndex])) {
+        case 'dropdown': {
+          let selectedValue = commenterText[promptIndex];
+          if (!prompt.options.includes(selectedValue)) {
             // currently selected value does not match an item in the dropdown
-            // fall back to the first item in the dropdown
-            if (prompt.options.length > 0)
-              commenterText[promptIndex] = prompt.options[0];
+            // fall back to the first item for display only (don't mutate props!)
+            if (prompt.options.length > 0) selectedValue = prompt.options[0];
             else {
               console.warn(
-                `Dropdown for ${commentType} has no options!  Check definition!`
+                `Dropdown for ${commentType} has no options! Check definition!`
               );
-              commenterText[promptIndex] = ''; // fall back to an empty string
+              selectedValue = '';
             }
           }
           inputJSX = (
             <select
               id={u_PromptElementId(cref, promptIndex)}
-              value={commenterText[promptIndex] || ''}
+              value={selectedValue || ''}
               onChange={event => onChange(promptIndex, event)}
             >
               {prompt.options.map((option, index) => (
@@ -229,6 +236,7 @@ function URCommentPrompt({
             </select>
           );
           break;
+        }
         case 'checkbox': {
           // converts commment text into ["Apple", "Banana"]
           const selectedCheckboxes = u_SplitCheckboxCommentText(

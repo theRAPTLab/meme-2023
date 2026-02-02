@@ -26,6 +26,7 @@ import WModelsList from './components/WAdmModelsList';
 // import WResourcesList from './components/WAdmResourcesList';
 // import WRatingsView from './components/WAdmRatingsView';
 import WInfoDialog from '../../components/WInfoDialog';
+import WAdmDownload from './components/WAdmDownload';
 /// MODULES ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import ADM from '../../modules/data';
@@ -78,6 +79,7 @@ class ViewAdmin extends React.Component {
         <div>
           <WTeacherSelector />
           <WClassroomsSelector />
+          <WAdmDownload />
           {/* Moved to Units
           <WRatingsView />
           <WCriteriaView />

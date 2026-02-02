@@ -1,4 +1,5 @@
 import DEFAULTS from './defaults';
+import JSZip from 'jszip';
 import UR from '../../system/ursys';
 import SESSION from '../../system/common-session';
 import UTILS from './utils';
@@ -1809,6 +1810,457 @@ ADMData.GetRatings = (unitId = ASET.selectedUnitId) => {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetCommentTypes = (unitId = ASET.selectedUnitId) => {
   return ADMUnits.GetCommentTypes(unitId);
+};
+
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// DOWNLOADS /////////////////////////////////////////////////////////////////
+///
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Downloads the entire adm_db as a JSON file
+ADMData.DownloadDatabase = () => {
+  if (!adm_db) {
+    console.error('ADMData.DownloadDatabase: adm_db is not initialized');
+    return;
+  }
+  const data = JSON.stringify(adm_db, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  a.href = url;
+  a.download = `meme-db-${timestamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Download all data with each model saved as an individual file
+/// and zipped to a single file
+ADMData.DownloadModels = () => {
+  if (!adm_db) {
+    console.error('ADMData.DownloadModels: adm_db is not initialized');
+    return;
+  }
+
+  const zip = new JSZip();
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  const timestamp = new Date(now - offset)
+    .toISOString()
+    .slice(0, 19)
+    .replace('T', '_')
+    .replace(/[:]/g, '');
+  const usedNames = new Set();
+
+  adm_db.models.forEach(model => {
+    const group = ADMData.GetGroup(model.groupId);
+    const classroom = group ? ADMData.GetClassroom(group.classroomId) : undefined;
+    const teacher = classroom ? ADMData.GetTeacher(classroom.teacherId) : undefined;
+    const unitLabel = classroom ? ADMData.GetUnitLabel(classroom.unitId) : '';
+    const pmcData = adm_db.pmcData.find(p => p.id === model.pmcDataId);
+
+    const modelExport = {
+      modelName: model.title,
+      unitName: unitLabel,
+      classroomName: classroom ? classroom.name : '',
+      teacherName: teacher ? teacher.name : '',
+      groupName: group ? group.name : '',
+      students: group ? group.students : [],
+      dateModified: model.dateModified,
+      data: pmcData
+        ? {
+            entities: pmcData.entities || [],
+            visuals: pmcData.visuals || [],
+            comments: pmcData.urcomments || [],
+            markedread: pmcData.urcomments_readby || []
+          }
+        : null
+      // These are not really necessary, but we can include them if we want
+      // since they are the same for all models in a classroom
+      // resources: classroom ? ADMData.GetResources(classroom.unitId) : [],
+      // ratings: classroom ? ADMData.GetRatings(classroom.unitId) : []
+    };
+
+    const mmdContent = pmcData ? ADMData.ConvertPMCToMermaid(pmcData) : '%% No data';
+
+    // Construct filenames
+    const clean = s => s.replace(/[/\\?%*:|"<>]/g, '-');
+    const truncate = (s, max = 30) => (s.length > max ? s.substring(0, max) : s);
+    const ct = (s, max) => clean(truncate(s, max));
+
+    const filenameBase = `${timestamp}-${ct(modelExport.teacherName)}-${ct(modelExport.classroomName)}-${ct(modelExport.groupName)}-${ct(modelExport.modelName, 60)}`;
+    let filenameJSON = `${filenameBase}.json`;
+    let filenameMD = `${filenameBase}.md`;
+    let filenameMMD = `${filenameBase}.mmd`;
+
+    // Deduplicate filenames
+    let counter = 1;
+    while (usedNames.has(filenameJSON)) {
+      filenameJSON = `${filenameBase} (${counter}).json`;
+      filenameMD = `${filenameBase} (${counter}).md`;
+      filenameMMD = `${filenameBase} (${counter}).mmd`;
+      counter++;
+    }
+    usedNames.add(filenameJSON);
+
+    zip.file(filenameJSON, JSON.stringify(modelExport, null, 2));
+    zip.file(filenameMD, ADMData.FormatModelForMarkdown(modelExport));
+    zip.file(filenameMMD, mmdContent);
+  });
+
+  zip.generateAsync({ type: 'blob' }).then(content => {
+    const url = URL.createObjectURL(content);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `meme-models-${timestamp}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Download Formatting Utilities
+ADMData.FormatModelForMarkdown = model => {
+  if (!model) return 'No model data';
+  if (!model.data)
+    model.data = { entities: [], visuals: [], comments: [], markedread: [] };
+  return (
+    `# Model: ${model.modelName}\n` +
+    `Unit: ${model.unitName}\n` +
+    `Classroom: ${model.classroomName}\n` +
+    `Teacher: ${model.teacherName}\n` +
+    `Group: ${model.groupName}\n` +
+    `Students: ${model.students.join(', ')}\n` +
+    `Date Modified: ${model.dateModified}\n` +
+    `\n\n` +
+    `${ADMData.FormatEntitiesMD(model.data.entities)}\n\n` +
+    `${ADMData.FormatEntitiesMMD(model.data.entities)}\n\n` +
+    // Visuals are not included in the export -- they just display placement info that is better viewed in the app
+    // `## Visuals:\n` + `${JSON.stringify(model.data.visuals, null, 2)}\n\n` +
+    `${ADMData.FormatCommentsMD(model.data.comments, model.data.entities, model.data.markedread)}\n\n`
+  );
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Format Entities for Markdown
+/// For historical reasons, the database table is called "entities" but it
+/// contains three types of objects: entities, outcomes, and mechanisms
+ADMData.FormatEntitiesMD = entities => {
+  if (!entities || entities.length === 0) return 'None';
+  // Note: Wrap entities in a dummy pmcData object for ConvertPMCToMermaid
+  const md = ADMData.ConvertPMCToMarkdown({ entities });
+  return `## Objects\n\n${md}\n\n`;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Format Entities for Mermaid
+ADMData.FormatEntitiesMMD = entities => {
+  if (!entities || entities.length === 0) return 'None';
+  // Note: Wrap entities in a dummy pmcData object for ConvertPMCToMermaid
+  const mmd = ADMData.ConvertPMCToMermaid({ entities });
+  return `## Mermaid Flowchart\n\n\`\`\`mermaid\n${mmd}\n\`\`\`\n`;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// Format Comments for Markdown
+ADMData.FormatCommentsMD = (comments, entities, markedread) => {
+  if (!comments || comments.length === 0) return '## Comments\n\nNone\n\n';
+  const md = ADMData.ConvertCommentsToMarkdown(comments, entities, markedread);
+  return (
+    `## Comments\n\n` +
+    `*Comments marked as "Read" are shown as [x] in the comments below.*\n\n` +
+    `${md}\n\n`
+  );
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Converts PMC data to a text-based Markdown list.
+ * @param {Object} pmcData - The data containing entities and mechanisms.
+ * @returns {String} Markdown list string.
+ */
+ADMData.ConvertPMCToMarkdown = pmcData => {
+  if (!pmcData || !pmcData.entities) return 'No entities found';
+
+  const entities = pmcData.entities;
+  const props = entities.filter(e => e.type === 'prop');
+  const mechs = entities.filter(e => e.type === 'mech');
+  const evidence = entities.filter(e => e.type === 'evidence');
+
+  let output = '';
+  const path = new Set();
+
+  const renderRecursive = (parentId, depth) => {
+    if (depth > 10)
+      return `${'  '.repeat(depth)}- [Error: Nesting depth exceeded limit (10)]\n`;
+    if (path.has(parentId))
+      return `${'  '.repeat(depth)}- [Error: Circular parent-child relationship detected at ${parentId}]\n`;
+
+    path.add(parentId);
+    let result = '';
+    const children = props.filter(p => p.parent == parentId);
+
+    children.forEach(child => {
+      const indent = '  '.repeat(depth);
+      result += `${indent}- ${child.name}: ${child.description || ''}\n`;
+      result += renderRecursive(child.id, depth + 1);
+    });
+
+    path.delete(parentId);
+    return result;
+  };
+
+  // 1. Components
+  output += '### ENTITIES\n';
+  const topCmp = props.filter(
+    p =>
+      p.propType === 'cmp' &&
+      (!p.parent || !props.find(parent => parent.id == p.parent))
+  );
+  if (topCmp.length === 0) output += 'None\n';
+  topCmp.forEach(node => {
+    output += `- ${node.name}: ${node.description || ''}\n`;
+    output += renderRecursive(node.id, 1);
+  });
+  output += '\n';
+
+  // 2. Outcomes
+  output += '### OUTCOMES\n';
+  const topOut = props.filter(
+    p =>
+      p.propType === 'out' &&
+      (!p.parent || !props.find(parent => parent.id == p.parent))
+  );
+  if (topOut.length === 0) output += 'None\n';
+  topOut.forEach(node => {
+    output += `- ${node.name}: ${node.description || ''}\n`;
+    output += renderRecursive(node.id, 1);
+  });
+  output += '\n';
+
+  // 3. Mechanisms
+  output += '### PROCESSES\n';
+  if (mechs.length === 0) output += 'None\n';
+  mechs.forEach(mech => {
+    const source = props.find(p => p.id == mech.source);
+    const target = props.find(p => p.id == mech.target);
+    const sName = source ? source.name : `[${mech.source}]`;
+    const tName = target ? target.name : `[${mech.target}]`;
+    const arrow = mech.bidirectional ? '<-->' : '-->';
+    output += `- ${sName} ${arrow} ${tName}: ${mech.name}${mech.description ? ` (${mech.description})` : ''}\n`;
+  });
+  output += '\n';
+
+  // 4. Evidence
+  output += '### EVIDENCE\n';
+  if (evidence.length === 0) output += 'None\n';
+  evidence.forEach(ev => {
+    const ref =
+      props.find(p => p.id == ev.propId) || mechs.find(m => m.id == ev.mechId);
+    const refName = ref ? ref.name : `[ref:${ev.propId || ev.mechId}]`;
+    output += `- ${refName} [Resource: ${ev.rsrcId}]: ${ev.note || ''}\n`;
+  });
+
+  return output;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Converts comments to a text-based Markdown list.
+ * Groups by collection_ref, nests by parent, and orders by sequence/time.
+ * @param {Array} comments - The list of urcomment objects.
+ * @param {Array} entities - The list of entity objects for lookup.
+ * @param {Array} markedread - The list of markedread objects for status.
+ * @returns {String} Markdown list string.
+ */
+ADMData.ConvertCommentsToMarkdown = (comments, entities, markedread) => {
+  if (!comments || comments.length === 0) return 'No comments found';
+
+  // Group by collection_ref
+  const groups = {};
+  comments.forEach(c => {
+    if (!groups[c.collection_ref]) groups[c.collection_ref] = [];
+    groups[c.collection_ref].push(c);
+  });
+
+  // Create a map for easy read status lookup
+  const readMap = new Set();
+  if (markedread) {
+    markedread.forEach(mr => {
+      if (mr.comment_id) readMap.add(mr.comment_id);
+    });
+  }
+
+  let output = '';
+
+  Object.keys(groups)
+    .sort()
+    .forEach(ref => {
+      let refLabel = ref;
+      if (ref === 'projectcmt') {
+        refLabel = 'Project';
+      } else if (entities) {
+        // collection_ref format is prefix + id, e.g. "e2" or "m1"
+        const match = ref.match(/^([a-z]+)(\d+)$/i);
+        if (match) {
+          const id = parseInt(match[2], 10);
+          const ent = entities.find(e => e.id == id);
+          if (ent) refLabel = `${ent.name} (${ref})`;
+        }
+      }
+      output += `### REF: ${refLabel}\n`;
+      const groupComments = groups[ref];
+
+      // Separate into parent map for nesting
+      const byParent = {};
+      groupComments.forEach(c => {
+        const pId = c.comment_id_parent || 'root';
+        if (!byParent[pId]) byParent[pId] = [];
+        byParent[pId].push(c);
+      });
+
+      // Helper to render a chain
+      const renderChain = (parentId, depth) => {
+        const children = byParent[parentId] || [];
+        if (children.length === 0) return '';
+
+        // Order children by comment_id_previous
+        const childIds = children.map(c => c.comment_id);
+        const ordered = [];
+        const processed = new Set();
+
+        // Find potential heads (no previous, or previous not in this group)
+        let heads = children.filter(
+          c => !c.comment_id_previous || !childIds.includes(c.comment_id_previous)
+        );
+        // Sort heads by time to have a consistent starting point for multiple threads
+        heads.sort(
+          (a, b) => new Date(a.comment_createtime) - new Date(b.comment_createtime)
+        );
+
+        heads.forEach(head => {
+          let curr = head;
+          while (curr && !processed.has(curr.comment_id)) {
+            ordered.push(curr);
+            processed.add(curr.comment_id);
+            const prevId = curr.comment_id;
+            curr = children.find(c => c.comment_id_previous === prevId);
+          }
+        });
+
+        // If there are leftovers due to broken chains, append them sorted by time
+        const leftovers = children.filter(c => !processed.has(c.comment_id));
+        leftovers.sort(
+          (a, b) => new Date(a.comment_createtime) - new Date(b.comment_createtime)
+        );
+        const finalOrder = [...ordered, ...leftovers];
+
+        let chainOutput = '';
+        finalOrder.forEach(c => {
+          const indent = '  '.repeat(depth);
+          const time = new Date(c.comment_createtime).toLocaleString();
+          const isRead = readMap.has(c.comment_id);
+          const checkbox = isRead ? '[x]' : '[ ]';
+          chainOutput += `${indent}- ${checkbox} [${time}] ${c.commenter_id} (${c.comment_type}): ${JSON.stringify(c.commenter_text)}\n`;
+          chainOutput += renderChain(c.comment_id, depth + 1);
+        });
+        return chainOutput;
+      };
+
+      output += renderChain('root', 0);
+      output += '\n';
+    });
+
+  return output;
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * Converts PMC data to a Mermaid flowchart string.
+ * @param {Object} pmcData - The data containing entities and mechanisms.
+ * @returns {String} Mermaid diagram string or error message.
+ */
+ADMData.ConvertPMCToMermaid = pmcData => {
+  if (!pmcData || !pmcData.entities) return '%% No entities found';
+
+  const entities = pmcData.entities;
+  const props = entities.filter(e => e.type === 'prop');
+  const mechs = entities.filter(e => e.type === 'mech');
+
+  let output = `---\n`;
+  output += `config:\n`;
+  output += `   layout: elk\n`;
+  output += `---\n\n`;
+  output += 'flowchart TD\n';
+  const visited = new Set();
+  const path = new Set();
+
+  const escape = s => s.replace(/"/g, "'").replace(/\n/g, '<br/>');
+
+  const getShape = (propType, str) => {
+    switch (propType) {
+      case 'cmp': // entity
+        return `([${str}])`;
+      case 'out': // outcome
+      default:
+        return `(${str})`;
+    }
+  };
+
+  const renderRecursive = (parentId, depth) => {
+    if (depth > 10) return `    %% [Error: Nesting depth exceeded limit (10)]\n`;
+    if (path.has(parentId))
+      return `    %% [Error: Circular parent-child relationship detected at ${parentId}]\n`;
+
+    path.add(parentId);
+    let result = '';
+    const children = props.filter(p => p.parent == parentId);
+
+    children.forEach(child => {
+      const name = `<b>${escape(child.name)}</b>`;
+      const desc = child.description ? `<br/>${escape(child.description)}` : '';
+      const content = `"${name}${desc}"`;
+
+      const subChildren = props.filter(p => p.parent == child.id);
+      if (subChildren.length > 0) {
+        result += `    subgraph ${child.id}[${content}]\n`; // subgraphs are always rectangular
+        result += `        ${renderRecursive(child.id, depth + 1)}`;
+        result += `        end\n`;
+      } else {
+        result += `        ${child.id}${getShape(child.propType, content)}\n`;
+      }
+    });
+
+    path.delete(parentId);
+    return result;
+  };
+
+  // Render top-level (no parent or parent not in props)
+  const topLevel = props.filter(p => {
+    return !p.parent || !props.find(parent => parent.id == p.parent);
+  });
+
+  topLevel.forEach(node => {
+    const name = `<b>${escape(node.name)}</b>`;
+    const desc = node.description ? `<br/>${escape(node.description)}` : '';
+    const content = `"${name}${desc}"`;
+
+    const children = props.filter(p => p.parent == node.id);
+    if (children.length > 0) {
+      output += `    subgraph ${node.id}[${content}]\n`; // subgraphs are always rectangular
+      output += `    ${renderRecursive(node.id, 1)}`;
+      output += `    end\n`;
+    } else {
+      output += `    ${node.id}${getShape(node.propType, content)}\n`;
+    }
+  });
+
+  // Render Mechanisms
+  mechs.forEach(mech => {
+    const arrow = mech.bidirectional ? '<-->' : '-->';
+    const name = mech.name ? `<b>${escape(mech.name)}</b>` : '';
+    const desc = mech.description ? `<br/>${escape(mech.description)}` : '';
+    const label = name || desc ? `|"${name}${desc}"| ` : '';
+    output += `    ${mech.source} ${arrow}${label}${mech.target}\n`;
+  });
+
+  return output;
 };
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////

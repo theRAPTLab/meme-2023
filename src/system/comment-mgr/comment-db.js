@@ -42,7 +42,7 @@ function GetCommentData() {
 function PromiseNewCommentID() {
   return new Promise((resolve, reject) => {
     resolve(uuidv4()); // use uuid
-  })
+  });
 }
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -79,9 +79,8 @@ function DBUnlockComment(lokiObjID, cb) {
  * @param {function} cb
  */
 function DBUpdateComment(cobj, cb) {
-  console.log('DBUpdateComment', cobj)
-  const comment = { // TComment
-    // id: xxxx // don't inject `id` here yet!  Rely on pmc-objects to auto-add an id
+  const comment = {
+    id: cobj.id, // an existing pmcData object will have an id, so use that, otherwise a new comment object will be created
     collection_ref: cobj.collection_ref,
     comment_id: cobj.comment_id,
     comment_id_parent: cobj.comment_id_parent,
@@ -135,12 +134,13 @@ function DBRemoveComment(queuedActions, cb) {
   const ids = queuedActions
     .filter(item => {
       return (
-        Object.hasOwn(item, 'id')
-        && item.id !== undefined // A newly created unsaved comment will not have an id,
+        Object.hasOwn(item, 'id') && item.id !== undefined // A newly created unsaved comment will not have an id,
         // so don't bother to try remove it from the database
-      )
+      );
     })
-    .map(item => { return { id: item.id } });
+    .map(item => {
+      return { id: item.id };
+    });
   // FIXME: Need to add LOCK before DB update???
   PMC.UR_CommentsDelete(ids);
 

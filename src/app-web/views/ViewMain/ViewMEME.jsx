@@ -53,6 +53,7 @@ import RATINGS from '../../modules/class-ratings';
 import CMTMGR from '../../../system/comment-mgr/comment-mgr';
 import URCommentStatus from '../../../system/comment-mgr/view/URCommentStatus';
 import URCommentVBtn from '../../../system/comment-mgr/view/URCommentVBtn';
+import URDialog from '../../../system/comment-mgr/view/URDialog';
 
 /// CONSTANTS /////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -382,28 +383,94 @@ class ViewMEME extends React.Component {
     if (selectedPropIds.length > 0) {
       const pmcDataId = ASET.selectedPMCDataId;
       const propId = Number(selectedPropIds[0]);
-      UR.DBTryLock('pmcData.entities', [pmcDataId, propId]).then(rdata => {
-        const { success, semaphore, uaddr, lockedBy } = rdata;
-        status += success
-          ? `${semaphore} lock acquired by ${uaddr} `
-          : `failed to acquired ${semaphore} lock `;
-        if (rdata.success) {
-          DATA.PMC_PropDelete(propId);
-          if (this.state.addEdgeSource === propId) {
+
+      // Delete Confirmation Dialog
+      const prop = DATA.Prop(propId);
+      const label = DATAMAP.ModelTypeLabel(prop.propType); // returns "entity" or "outcome"
+      const confirmMessage = `Are you sure you want to delete this ${label}?`;
+      const okmessage = 'Delete';
+      const cancelmessage = 'Cancel';
+
+      const onOK = event => {
+        UR.DBTryLock('pmcData.entities', [pmcDataId, propId]).then(rdata => {
+          const { success, semaphore, uaddr, lockedBy } = rdata;
+          status += success
+            ? `${semaphore} lock acquired by ${uaddr} `
+            : `failed to acquired ${semaphore} lock `;
+          if (rdata.success) {
+            DATA.PMC_PropDelete(propId);
+            if (this.state.addEdgeSource === propId) {
+              this.setState({
+                addEdgeSource: '',
+                componentIsSelected: false,
+                deleteDialogState: {
+                  isOpen: false
+                }
+              });
+            } else {
+              this.setState({
+                componentIsSelected: false,
+                deleteDialogState: {
+                  isOpen: false
+                }
+              });
+            }
+          } else {
+            alert(
+              `Sorry, someone else (${rdata.lockedBy}) is editing this Component / Property right now.  Please try again later.`
+            );
             this.setState({
-              addEdgeSource: ''
+              deleteDialogState: {
+                isOpen: false
+              }
             });
           }
-        } else {
-          alert(
-            `Sorry, someone else (${rdata.lockedBy}) is editing this Component / Property right now.  Please try again later.`
-          );
+        });
+      };
+
+      const onCancel = event => {
+        this.setState({
+          componentIsSelected: false,
+          deleteDialogState: {
+            isOpen: false
+          }
+        });
+      };
+
+      this.setState({
+        deleteDialogState: {
+          isOpen: true,
+          message: confirmMessage,
+          okmessage,
+          onOK: onOK,
+          cancelmessage,
+          onCancel: onCancel
         }
       });
+
+      // UR.DBTryLock('pmcData.entities', [pmcDataId, propId]).then(rdata => {
+      //   const { success, semaphore, uaddr, lockedBy } = rdata;
+      //   status += success
+      //     ? `${semaphore} lock acquired by ${uaddr} `
+      //     : `failed to acquired ${semaphore} lock `;
+      //   if (rdata.success) {
+      //     DATA.PMC_PropDelete(propId);
+      //     if (this.state.addEdgeSource === propId) {
+      //       this.setState({
+      //         addEdgeSource: ''
+      //       });
+      //     }
+      //   } else {
+      //     alert(
+      //       `Sorry, someone else (${rdata.lockedBy}) is editing this Component / Property right now.  Please try again later.`
+      //     );
+      //   }
+      // });
     }
-    this.setState({
-      componentIsSelected: false
-    });
+
+    // this.setState({
+    //   componentIsSelected: false
+    // });
   }
 
   OnAddEntityComment() {
@@ -698,6 +765,8 @@ class ViewMEME extends React.Component {
         <WRatingsDialog />
         <WMechDialog />
         <WScreenshotView />
+        {/* Delete Confirmation Dialog */}
+        <URDialog info={this.state.deleteDialogState} />
       </>
     );
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

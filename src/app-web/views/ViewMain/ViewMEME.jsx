@@ -137,6 +137,8 @@ class ViewMEME extends React.Component {
     this.OnCloseModel = this.OnCloseModel.bind(this);
     this.OnLogout = this.OnLogout.bind(this);
     this.OnHelp = this.OnHelp.bind(this);
+    this.HandleDeleteConfirm = this.HandleDeleteConfirm.bind(this);
+    this.DoCloseDeleteDialog = this.DoCloseDeleteDialog.bind(this);
     UR.Subscribe('WINDOW_SIZE', this.UpdateDimensions);
     UR.Subscribe('DATA_UPDATED', this.DoDataUpdate);
     UR.Subscribe('ADM_DATA_UPDATED', this.DoADMDataUpdate);
@@ -172,7 +174,11 @@ class ViewMEME extends React.Component {
       componentIsSelected: false, // A component or component property has been selected by user.  Used for pro-centric actions.
       outcomeIsSelected: false, // A outcome or outcome property has been selected by user.  Used for pro-centric actions.
       mechIsSelected: false, // A mechanism is slected by user.  Used for mech-centric actions.
-      suppressControlBar: false // used to hide Add/Edit buttons when dialogs are open
+      suppressControlBar: false, // used to hide Add/Edit buttons when dialogs are open
+      deleteConfirmOpen: false,
+      deleteTargetId: null,
+      deleteTargetType: null,
+      deleteTargetLabel: ''
     };
   }
 
@@ -381,96 +387,78 @@ class ViewMEME extends React.Component {
   OnPropDelete() {
     const selectedPropIds = DATA.VM_SelectedPropsIds();
     if (selectedPropIds.length > 0) {
-      const pmcDataId = ASET.selectedPMCDataId;
       const propId = Number(selectedPropIds[0]);
-
-      // Delete Confirmation Dialog
       const prop = DATA.Prop(propId);
-      const label = DATAMAP.ModelTypeLabel(prop.propType); // returns "entity" or "outcome"
-      const confirmMessage = `Are you sure you want to delete this ${label}?`;
-      const okmessage = 'Delete';
-      const cancelmessage = 'Cancel';
-
-      const onOK = event => {
-        UR.DBTryLock('pmcData.entities', [pmcDataId, propId]).then(rdata => {
-          const { success, semaphore, uaddr, lockedBy } = rdata;
-          status += success
-            ? `${semaphore} lock acquired by ${uaddr} `
-            : `failed to acquired ${semaphore} lock `;
-          if (rdata.success) {
-            DATA.PMC_PropDelete(propId);
-            if (this.state.addEdgeSource === propId) {
-              this.setState({
-                addEdgeSource: '',
-                componentIsSelected: false,
-                deleteDialogState: {
-                  isOpen: false
-                }
-              });
-            } else {
-              this.setState({
-                componentIsSelected: false,
-                deleteDialogState: {
-                  isOpen: false
-                }
-              });
-            }
-          } else {
-            alert(
-              `Sorry, someone else (${rdata.lockedBy}) is editing this Component / Property right now.  Please try again later.`
-            );
-            this.setState({
-              deleteDialogState: {
-                isOpen: false
-              }
-            });
-          }
-        });
-      };
-
-      const onCancel = event => {
-        this.setState({
-          componentIsSelected: false,
-          deleteDialogState: {
-            isOpen: false
-          }
-        });
-      };
-
+      const label = DATAMAP.ModelTypeLabel(prop.propType);
       this.setState({
-        deleteDialogState: {
-          isOpen: true,
-          message: confirmMessage,
-          okmessage,
-          onOK: onOK,
-          cancelmessage,
-          onCancel: onCancel
+        deleteConfirmOpen: true,
+        deleteTargetId: propId,
+        deleteTargetType: 'prop',
+        deleteTargetLabel: label
+      });
+    }
+  }
+
+  HandleDeleteConfirm() {
+    const { deleteTargetId, deleteTargetType } = this.state;
+    const pmcDataId = ASET.selectedPMCDataId;
+
+    if (deleteTargetType === 'prop') {
+      UR.DBTryLock('pmcData.entities', [pmcDataId, deleteTargetId]).then(rdata => {
+        const { success, semaphore, uaddr, lockedBy } = rdata;
+        const status = success
+          ? `${semaphore} lock acquired by ${uaddr} `
+          : `failed to acquired ${semaphore} lock `;
+        if (DBG) console.log('HandleDeleteConfirm', 'status', status);
+        if (success) {
+          DATA.PMC_PropDelete(deleteTargetId);
+          this.DoCloseDeleteDialog();
+          this.setState({
+            componentIsSelected: false,
+            outcomeIsSelected: false
+          });
+          if (this.state.addEdgeSource === deleteTargetId) {
+            this.setState({ addEdgeSource: '' });
+          }
+        } else {
+          alert(
+            `Sorry, someone else (${lockedBy}) is editing this right now. Please try again later.`
+          );
+          this.DoCloseDeleteDialog();
         }
       });
-
-      // UR.DBTryLock('pmcData.entities', [pmcDataId, propId]).then(rdata => {
-      //   const { success, semaphore, uaddr, lockedBy } = rdata;
-      //   status += success
-      //     ? `${semaphore} lock acquired by ${uaddr} `
-      //     : `failed to acquired ${semaphore} lock `;
-      //   if (rdata.success) {
-      //     DATA.PMC_PropDelete(propId);
-      //     if (this.state.addEdgeSource === propId) {
-      //       this.setState({
-      //         addEdgeSource: ''
-      //       });
-      //     }
-      //   } else {
-      //     alert(
-      //       `Sorry, someone else (${rdata.lockedBy}) is editing this Component / Property right now.  Please try again later.`
-      //     );
-      //   }
-      // });
+    } else if (deleteTargetType === 'mech') {
+      const mech = DATA.Mech(deleteTargetId);
+      const intMechId = Number(mech.id);
+      UR.DBTryLock('pmcData.entities', [pmcDataId, intMechId]).then(rdata => {
+        const { success, semaphore, uaddr, lockedBy } = rdata;
+        const status = success
+          ? `${semaphore} lock acquired by ${uaddr} `
+          : `failed to acquired ${semaphore} lock `;
+        if (DBG) console.log('HandleDeleteConfirm', 'status', status);
+        if (success) {
+          DATA.PMC_MechDelete(deleteTargetId);
+          this.DoCloseDeleteDialog();
+          this.setState({
+            mechIsSelected: false
+          });
+        } else {
+          alert(
+            `Sorry, someone else (${lockedBy}) is editing this right now. Please try again later.`
+          );
+          this.DoCloseDeleteDialog();
+        }
+      });
     }
+  }
 
-    // this.setState({
-    //   componentIsSelected: false
-    // });
+  DoCloseDeleteDialog() {
+    this.setState({
+      deleteConfirmOpen: false,
+      deleteTargetId: null,
+      deleteTargetType: null,
+      deleteTargetLabel: ''
+    });
   }
 
   OnAddEntityComment() {
@@ -569,26 +557,14 @@ class ViewMEME extends React.Component {
     let selectedMechIds = DATA.VM_SelectedMechIds();
     if (selectedMechIds.length > 0) {
       const mechId = selectedMechIds[0];
-      const pmcDataId = ASET.selectedPMCDataId;
-      const mech = DATA.Mech(mechId);
-      const intMechId = Number(mech.id);
-      UR.DBTryLock('pmcData.entities', [pmcDataId, intMechId]).then(rdata => {
-        const { success, semaphore, uaddr, lockedBy } = rdata;
-        status += success
-          ? `${semaphore} lock acquired by ${uaddr} `
-          : `failed to acquired ${semaphore} lock `;
-        if (rdata.success) {
-          DATA.PMC_MechDelete(mechId);
-        } else {
-          alert(
-            `Sorry, someone else (${rdata.lockedBy}) is editing this Mechanism right now.  Please try again later.`
-          );
-        }
+      const label = DATAMAP.ModelTypeLabel('mch');
+      this.setState({
+        deleteConfirmOpen: true,
+        deleteTargetId: mechId,
+        deleteTargetType: 'mech',
+        deleteTargetLabel: label
       });
     }
-    this.setState({
-      mechIsSelected: false
-    });
   }
 
   OnPropDialogCreateClick(e) {
@@ -766,7 +742,16 @@ class ViewMEME extends React.Component {
         <WMechDialog />
         <WScreenshotView />
         {/* Delete Confirmation Dialog */}
-        <URDialog info={this.state.deleteDialogState} />
+        <URDialog
+          info={{
+            isOpen: this.state.deleteConfirmOpen,
+            message: `Are you sure you want to delete this ${this.state.deleteTargetLabel}?`,
+            okmessage: 'Delete',
+            cancelmessage: 'Cancel',
+            onOK: this.HandleDeleteConfirm,
+            onCancel: this.DoCloseDeleteDialog
+          }}
+        />
       </>
     );
     /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

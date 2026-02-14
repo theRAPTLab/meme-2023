@@ -169,6 +169,15 @@ class WPropDialog extends React.Component {
       (isProperty ? ' property' : '');
     const propTypeDescription = DATAMAP.ModelTypeDescription(propType);
 
+    const prefs = DATA.GetPreferences();
+    const wordLimit = prefs.entityLabelWordLimit || 0;
+    const wordLimitWarning = prefs.entityLabelWordLimitWarning || '';
+    const words = label
+      .trim()
+      .split(/\s+/)
+      .filter(w => w.length > 0);
+    const showWarning = wordLimit > 0 && words.length > wordLimit;
+
     return (
       isOpen && (
         <div className="WPropDialog dialog-container">
@@ -184,6 +193,10 @@ class WPropDialog extends React.Component {
                   onChange={this.OnLabelChange}
                   autoFocus
                 />
+                {showWarning && <div></div>}
+                {showWarning && (
+                  <div className="help danger ">{wordLimitWarning}</div>
+                )}
               </label>
               <label>
                 <span>Description:</span>

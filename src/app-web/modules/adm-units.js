@@ -84,6 +84,12 @@ ADMUnits.GetCommentTypes = unitId => {
   if (!unit) throw Error(`GetCommentTypes: unknown unitId '${unitId}'`);
   return rfdc(unit.commentTypes || []);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMUnits.GetPreferences = unitId => {
+  if (!unitId || !ADMUnits.HasUnit(unitId)) return { noValidUnitId: true };
+  const unit = ADMUnits.GetUnit(unitId);
+  return rfdc(unit.preferences || { noPreferences: true });
+};
 
 /// EXPORTS ///////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

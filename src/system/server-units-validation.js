@@ -57,7 +57,6 @@ const { CCRIT: CC, CR } = PROMPTS;
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 
-
 /// SCHEMA DEFINITIONS ////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -139,6 +138,10 @@ const unitSchema = {
     commentTypes: {
       type: 'array',
       items: commentTypeSchema
+    },
+    preferences: {
+      type: 'object',
+      additionalProperties: true
     }
   },
   required: ['label'],
@@ -153,15 +156,12 @@ const validateRating = ajv.compile(ratingSchema);
 const validateCommentType = ajv.compile(commentTypeSchema);
 const validateUnit = ajv.compile(unitSchema);
 
-
-
 /// API MODULE ////////////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 const VALIDATION = {};
 
 VALIDATION.ValidateUnit = function (unitData, unitId = 'unknown') {
-
   const isValid = validateUnit(unitData);
 
   if (!isValid) {

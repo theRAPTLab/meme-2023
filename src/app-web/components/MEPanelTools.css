@@ -15,7 +15,6 @@
   row-gap: 16px;
   padding: 8px;
   overflow: auto;
-  background-image: url('/static/background_science.png');
   background-repeat: no-repeat;
   background-position: bottom;
 }

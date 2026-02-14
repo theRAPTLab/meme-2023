@@ -133,6 +133,7 @@ class ViewMEME extends React.Component {
     this.OnPropDialogClose = this.OnPropDialogClose.bind(this);
     this.handleEvLinkSourceSelectRequest =
       this.handleEvLinkSourceSelectRequest.bind(this);
+    this.OnEVLinkDelete = this.OnEVLinkDelete.bind(this);
     this.DoSelectionChange = this.DoSelectionChange.bind(this);
     this.OnCloseModel = this.OnCloseModel.bind(this);
     this.OnLogout = this.OnLogout.bind(this);
@@ -153,6 +154,7 @@ class ViewMEME extends React.Component {
       'REQUEST_SELECT_EVLINK_SOURCE',
       this.handleEvLinkSourceSelectRequest
     );
+    UR.Subscribe('EVLINK_DELETE', this.OnEVLinkDelete);
     UR.Subscribe('MECHDIALOG_CLOSED', this.DoMechClosed);
     this.state = {
       title: '',
@@ -207,6 +209,7 @@ class ViewMEME extends React.Component {
       'REQUEST_SELECT_EVLINK_SOURCE',
       this.handleEvLinkSourceSelectRequest
     );
+    UR.Unsubscribe('EVLINK_DELETE', this.OnEVLinkDelete);
     UR.Unsubscribe('MECHDIALOG_CLOSED', this.DoMechClosed);
   }
 
@@ -449,6 +452,24 @@ class ViewMEME extends React.Component {
           this.DoCloseDeleteDialog();
         }
       });
+    } else if (deleteTargetType === 'evlink') {
+      const intEvId = Number(deleteTargetId);
+      UR.DBTryLock('pmcData.entities', [pmcDataId, intEvId]).then(rdata => {
+        const { success, semaphore, uaddr, lockedBy } = rdata;
+        const status = success
+          ? `${semaphore} lock acquired by ${uaddr} `
+          : `failed to acquired ${semaphore} lock `;
+        if (DBG) console.log('HandleDeleteConfirm', 'status', status);
+        if (success) {
+          DATA.PMC_DeleteEvidenceLink(intEvId);
+          this.DoCloseDeleteDialog();
+        } else {
+          alert(
+            `Sorry, someone else (${lockedBy}) is editing this right now. Please try again later.`
+          );
+          this.DoCloseDeleteDialog();
+        }
+      });
     }
   }
 
@@ -458,6 +479,15 @@ class ViewMEME extends React.Component {
       deleteTargetId: null,
       deleteTargetType: null,
       deleteTargetLabel: ''
+    });
+  }
+
+  OnEVLinkDelete(data) {
+    this.setState({
+      deleteConfirmOpen: true,
+      deleteTargetId: data.evId,
+      deleteTargetType: 'evlink',
+      deleteTargetLabel: 'Evidence Link'
     });
   }
 

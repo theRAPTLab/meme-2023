@@ -339,25 +339,13 @@ class EVLink extends React.Component {
     });
   }
 
-  OnDeleteButtonClick() {
-    const pmcDataId = ASET.selectedPMCDataId;
-    const intEvId = Number(this.props.evlink.id);
-    UR.DBTryLock('pmcData.entities', [pmcDataId, intEvId]).then(rdata => {
-      const { success, semaphore, uaddr, lockedBy } = rdata;
-      status += success
-        ? `${semaphore} lock acquired by ${uaddr} `
-        : `failed to acquired ${semaphore} lock `;
-      if (rdata.success) {
-        DATA.PMC_DeleteEvidenceLink(this.props.evlink.id);
-      } else {
-        alert(
-          `Sorry, someone else (${rdata.lockedBy}) is editing this Evidence Link right now.  Please try again later.`
-        );
-      }
-    });
+  OnDeleteButtonClick(e) {
+    if (e) e.stopPropagation();
+    UR.Publish('EVLINK_DELETE', { evId: this.props.evlink.id });
   }
 
-  OnDuplicateButtonClick() {
+  OnDuplicateButtonClick(e) {
+    if (e) e.stopPropagation();
     DATA.PMC_DuplicateEvidenceLink(this.props.evlink.id, id => {
       const newEvLink = DATA.PMC_GetEvLinkByEvId(id);
       UR.Publish('SHOW_EVIDENCE_LINK', {
@@ -470,6 +458,7 @@ class EVLink extends React.Component {
      the evLink
   */
   OnLinkButtonClick(e) {
+    if (e) e.stopPropagation();
     if (this.state.isBeingEdited) {
       this.setState({ listenForSourceSelection: true }, () => {
         // Deselect the prop first, otherwise the deleted prop will remain selected
@@ -543,7 +532,8 @@ class EVLink extends React.Component {
     }
   }
 
-  OnRatingButtonClick() {
+  OnRatingButtonClick(e) {
+    if (e) e.stopPropagation();
     if (ADM.IsViewOnly()) return;
     const data = { evId: this.props.evlink.id, rating: this.props.evlink.rating };
     this.setState(

@@ -22,14 +22,15 @@ Units are defined as a folder.
 
 ## Units YAML Data Structure
 
-The basic unit yaml file consists of four objects: `label`, `resources`, `ratings`, and `commentTypes`.
+The basic unit yaml file consists of five objects: `label`, `resources`, `ratings`, `commentTypes`, and `preferences`.
 
 `units/exampleUnit/example.yaml`
 ```yaml
 label: 'Example Unit'
 resources: [...]
 ratings: [...]
-commentTypes: [...] 
+commentTypes: [...]
+preferences: {...}
 ```
 
 > [!TIP]
@@ -141,6 +142,20 @@ commentTypes:
         prompt: 'What would you change?'
         help: "Please list specific evidence or facts, and how you'd change the model."
         feedback: ''
+```
+
+#### `preferences`
+Preferences are an object used to configure unit-specific application behavior. 
+
+Supported properties:
+- `entityLabelWordLimit` -- An integer defining the maximum number of words for a property label before a warning is displayed.
+- `entityLabelWordLimitWarning` -- A string containing the warning message to display in the UI when the word limit is exceeded.
+
+Example `preferences.yaml`:
+```yaml
+preferences:
+  entityLabelWordLimit: 5
+  entityLabelWordLimitWarning: 'This is getting a bit long. Consider splitting it up.'
 ```
 
 

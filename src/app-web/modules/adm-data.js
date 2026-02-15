@@ -1811,6 +1811,11 @@ ADMData.GetRatings = (unitId = ASET.selectedUnitId) => {
 ADMData.GetCommentTypes = (unitId = ASET.selectedUnitId) => {
   return ADMUnits.GetCommentTypes(unitId);
 };
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ADMData.GetPreferences = (unitId = ASET.selectedUnitId) => {
+  if (!unitId) return {};
+  return ADMUnits.GetPreferences(unitId);
+};
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// DOWNLOADS /////////////////////////////////////////////////////////////////

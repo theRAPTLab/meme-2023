@@ -1,3 +1,3 @@
 preferences:
   entityLabelWordLimit: 5
-  entityLabelWordLimitWarning: 'This seems like a lot of information, would it be clearer if you split this into multiple entities, outcomes and processes'
+  entityLabelWordLimitWarning: 'This seems like a lot of information, would it be clearer if you split this into multiple entities, outcomes and processes?'

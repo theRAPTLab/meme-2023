@@ -41,6 +41,7 @@ preferences: {...}
 > - `units/demo/baseunit.yaml` -- with main `label` and `ratings`
 > - `units/demo/resources.yaml` -- with only the `resources` object
 > - `units/demo/commentTypes.yaml` -- with only the `commentTypes` object
+> - `units/demo/preferences.yaml` -- with only the `preferences` object
 >
 > And then you can easily copy the files to other units.
 > Use caution though because if you re-define one of the objects, they can clobber each other.

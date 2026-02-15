@@ -22,6 +22,7 @@ import UR from '../../system/ursys';
 import DEFAULTS from '../modules/defaults';
 import DATA from '../modules/data';
 import ADM from '../modules/data';
+import ASET from '../modules/adm-settings';
 import DATAMAP from '../../system/common-datamap';
 import UTILS from '../modules/utils';
 
@@ -56,7 +57,9 @@ class MEPanelTools extends React.Component {
       selectedMechId: '', // edgeObj e.g. {w,v}
       hoveredPropId: '',
       hoveredMechId: '', // edgeObj e.g. {w,v}
-      propOrMechDialogIsOpen: false
+      propOrMechDialogIsOpen: false,
+      themeLoaded: false,
+      themeUrl: ''
     };
 
     UR.Subscribe('SELECTION_CHANGED', this.DoSelectionChange);
@@ -315,6 +318,21 @@ class MEPanelTools extends React.Component {
 
     const isViewOnly = ADM.IsViewOnly();
 
+    const unitId = ASET.selectedUnitId;
+    const themeUrl = unitId ? `/units/${unitId}/resources/theme.png` : '';
+
+    // If unit changed, reset themeLoaded
+    if (themeUrl !== this.state.themeUrl) {
+      this.setState({ themeUrl, themeLoaded: false });
+    }
+
+    const backgroundUrl =
+      this.state.themeLoaded && unitId ? themeUrl : '/static/background_science.png';
+
+    const listStyle = {
+      backgroundImage: `url('${backgroundUrl}')`
+    };
+
     const ENTITIESPANEL = (
       <div className="entitiesPanel">
         <WDisclosure
@@ -363,7 +381,15 @@ class MEPanelTools extends React.Component {
           </button>
           Elements
         </div>
-        <div className="list">
+        <div className="list" style={listStyle}>
+          {themeUrl && (
+            <img
+              src={themeUrl}
+              style={{ display: 'none' }}
+              onLoad={() => this.setState({ themeLoaded: true })}
+              onError={() => this.setState({ themeLoaded: false })}
+            />
+          )}
           {ENTITIESPANEL}
           {PROCESSESPANEL}
           {OUTCOMESPANEL}

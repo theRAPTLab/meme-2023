@@ -174,7 +174,13 @@ PMCData.InitializeModel = (model, admdb, resources) => {
             description: obj.description
           });
           if (obj.parent) {
-            g.setParent(obj.id, obj.parent);
+            try {
+              g.setParent(obj.id, obj.parent);
+            } catch (e) {
+              console.error(
+                `InitializeModel: Error setting parent ${obj.parent} for ${obj.id}: ${e.message}`
+              );
+            }
           }
           break;
         case 'mech':
@@ -249,7 +255,7 @@ PMCData.InitializeModel = (model, admdb, resources) => {
       const vprop = VM.VM_VProp(id);
       // only position components, not props
       // because visuals array doesn't remove stuff
-      if (PMCData.PropParent()) {
+      if (PMCData.PropParent(id)) {
         if (DBG) console.warn(`vprop ${id} has a parent: skipping`);
         return;
       }
@@ -567,7 +573,13 @@ function f_NodeSetParent(nodeId, parent) {
   let value = parent;
   if (value === null) value = undefined;
   if (typeof value === 'string') value = Number(value);
-  m_graph.setParent(nodeId, value);
+  try {
+    m_graph.setParent(nodeId, value);
+  } catch (e) {
+    console.error(
+      `f_NodeSetParent: Error setting parent ${value} for ${nodeId}: ${e.message}`
+    );
+  }
 }
 
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -971,20 +983,36 @@ PMCData.PMC_PropDelete = propId => {
  *  different than newParentId
  */
 PMCData.PMC_IsDifferentPropParent = (propId, newParentId) => {
-  return PMCData.PropParent(propId) !== newParentId;
+  const pid = propId !== undefined ? Number(propId) : undefined;
+  const npid = newParentId !== undefined ? Number(newParentId) : undefined;
+  return PMCData.PropParent(pid) !== npid;
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PMCData.PMC_SetPropParent = (nodeId, parentId) => {
   // NOTE: a parentId of value of 'undefined' because that's how
   // graphlib removes a parent from a node
   if (!PMCData.PMC_IsDifferentPropParent(nodeId, parentId)) {
-    // only write to the database (and roundtrip) if the propparent
-    // is different from last time
     return false;
   }
-  // REVIEW/FIXME: Is this coercion necessary once we convert to ints?
   const id = Number(nodeId);
-  const pid = Number(parentId);
+  const pid =
+    parentId !== undefined && parentId !== null ? Number(parentId) : undefined;
+
+  // Check for circular reference
+  if (pid !== undefined) {
+    const ancestors = [];
+    let curr = pid;
+    while (curr !== undefined) {
+      if (curr === id) {
+        console.error(
+          `PMC_SetPropParent: Circular reference detected! Cannot set ${id} as child of ${pid}`
+        );
+        return false;
+      }
+      curr = PMCData.PropParent(curr);
+    }
+  }
+
   UTILS.RLog('PropertySetParent', `id: ${id} parentId: ${pid}`);
   return PMCData.PMC_PropUpdate(id, { parent: pid }).then(rdata => {
     if (DBG) console.log('PropUpdate', JSON.stringify(rdata['pmcData.entities']));

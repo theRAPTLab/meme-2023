@@ -101,7 +101,8 @@ const AddDragDropHandlers = vprop => {
   if (!vprop.gRoot.root()) throw Error('arg1 must be a VProp');
   /* add storage */
   if (!vprop._extend) vprop._extend = {};
-  if (vprop._extend.dragdrop) throw Error(`vprop ${vprop.Id()} already has been extended`);
+  if (vprop._extend.dragdrop)
+    throw Error(`vprop ${vprop.Id()} already has been extended`);
   vprop._extend.dragdrop = {
     startPt: { x: 0, y: 0 },
     movePt: { x: 0, y: 0 },
@@ -117,12 +118,12 @@ const AddDragDropHandlers = vprop => {
   // This is necessary for the click handlers to register.  Otherwise
   // clicks are missed.
   vprop.visBG.mouseenter(event => {
-    if (DBG) console.log('mouseenter')
+    if (DBG) console.log('mouseenter');
     event.stopPropagation();
     DATA.VM_PropMouseEnter(vprop);
   });
   vprop.gRoot.mouseleave(event => {
-    if (DBG) console.log('mouseleave')
+    if (DBG) console.log('mouseleave');
     event.stopPropagation();
     DATA.VM_PropMouseExit(vprop);
   });
@@ -133,7 +134,7 @@ const AddDragDropHandlers = vprop => {
   // handle start of drag
   vprop.gRoot.on('dragstart.propmove', event => {
     event.stopPropagation();
-    if (DBG) console.log('dragstart')
+    if (DBG) console.log('dragstart');
     vprop.gRoot.attr('pointer-events', 'none');
     // REVIEW: mouse leave should not be necessary during drag?
     // DATA.VM_PropMouseExit(vprop);
@@ -147,7 +148,7 @@ const AddDragDropHandlers = vprop => {
 
   // handle drag while moving
   vprop.gRoot.on('dragmove.propmove', event => {
-    if (DBG) console.log('dragmove')
+    if (DBG) console.log('dragmove');
     // do not stopPropagation because mouse events need to update drop targets
     SaveEventCoordsToBox(event, vprop._extend.dragdrop.movePt);
     // this is necessary to update vmech during a drag
@@ -159,7 +160,7 @@ const AddDragDropHandlers = vprop => {
     event.detail.event.preventDefault();
     event.detail.event.stopPropagation();
 
-    if (DBG) console.log('dragend')
+    if (DBG) console.log('dragend');
     vprop.gRoot.attr('pointer-events', 'all');
     SaveEventCoordsToBox(event, vprop._extend.dragdrop.endPt);
     if (vprop.DragEnd) vprop.DragEnd(event);
@@ -227,7 +228,10 @@ const AddDragDropHandlers = vprop => {
       vprop.ToRoot();
       DATA.VM_ClearVPropPosition(vprop);
       if (DBG) console.log(`[${vpropId}] moved to [${dropId}]`);
-      UTILS.RLog('PropertyDrag', `Drag property id=${vprop.id} onto id=${dropId} at ${dropXY}`);
+      UTILS.RLog(
+        'PropertyDrag',
+        `Drag property id=${vprop.id} onto id=${dropId} at ${dropXY}`
+      );
     } else {
       // dropped on the desktop, no parent
       vprop.ToRoot();
@@ -237,7 +241,10 @@ const AddDragDropHandlers = vprop => {
         vprop.LayoutDisabled(true);
         const { x, y } = DragState(vprop).gRootXY;
         vprop.Move(x + dx, y + dy);
-        UTILS.RLog('PropertyDrag', `Drag property id=${vprop.id} from id=${parent} to ${dropXY}`);
+        UTILS.RLog(
+          'PropertyDrag',
+          `Drag property id=${vprop.id} from id=${parent} to ${dropXY}`
+        );
       } else {
         if (DBG) console.log(`[${vpropId}] moved on desktop`);
         vprop.LayoutDisabled(true);

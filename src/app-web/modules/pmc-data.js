@@ -126,6 +126,22 @@ PMCData.ClearModel = () => {
  * This should be only be called by ADMData.InitializeModel().
  * NEVER CALL THIS FUNCTION DIRECTLY
  */
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ *  Check if setting parentId as parent of nodeId would create a cycle.
+ *  Returns true if nodeId is an ancestor of parentId in the designated graph.
+ */
+function m_IsRecursive(graph, nodeId, parentId) {
+  if (parentId === undefined || parentId === null) return false;
+  const id = Number(nodeId);
+  let curr = parentId;
+  while (curr !== undefined && curr !== null) {
+    if (Number(curr) === id) return true;
+    curr = graph.parent(curr);
+  }
+  return false;
+}
+
 PMCData.InitializeModel = (model, admdb, resources) => {
   const g = new Graph({ directed: true, compound: true, multigraph: true });
   if (!admdb)
@@ -174,12 +190,18 @@ PMCData.InitializeModel = (model, admdb, resources) => {
             description: obj.description
           });
           if (obj.parent) {
-            try {
-              g.setParent(obj.id, obj.parent);
-            } catch (e) {
-              console.error(
-                `InitializeModel: Error setting parent ${obj.parent} for ${obj.id}: ${e.message}`
-              );
+            if (m_IsRecursive(g, obj.id, obj.parent)) {
+              const msg = `Cycle detected: removing parent ${obj.parent} for prop ${obj.id}`;
+              console.warn(`InitializeModel: ${msg}`);
+              UTILS.RLog('ERROR', `InitializeModel: ${msg}`);
+            } else {
+              try {
+                g.setParent(obj.id, obj.parent);
+              } catch (e) {
+                console.error(
+                  `InitializeModel: Error setting parent ${obj.parent} for ${obj.id}: ${e.message}`
+                );
+              }
             }
           }
           break;
@@ -573,6 +595,11 @@ function f_NodeSetParent(nodeId, parent) {
   let value = parent;
   if (value === null) value = undefined;
   if (typeof value === 'string') value = Number(value);
+  if (m_IsRecursive(m_graph, nodeId, value)) {
+    const msg = `Cycle detected: removing parent ${value} for prop ${nodeId}`;
+    console.warn(`f_NodeSetParent: ${msg}`);
+    return;
+  }
   try {
     m_graph.setParent(nodeId, value);
   } catch (e) {
@@ -999,18 +1026,11 @@ PMCData.PMC_SetPropParent = (nodeId, parentId) => {
     parentId !== undefined && parentId !== null ? Number(parentId) : undefined;
 
   // Check for circular reference
-  if (pid !== undefined) {
-    const ancestors = [];
-    let curr = pid;
-    while (curr !== undefined) {
-      if (curr === id) {
-        console.error(
-          `PMC_SetPropParent: Circular reference detected! Cannot set ${id} as child of ${pid}`
-        );
-        return false;
-      }
-      curr = PMCData.PropParent(curr);
-    }
+  if (pid !== undefined && m_IsRecursive(m_graph, id, pid)) {
+    console.error(
+      `PMC_SetPropParent: Circular reference detected! Cannot set ${id} as child of ${pid}`
+    );
+    return false;
   }
 
   UTILS.RLog('PropertySetParent', `id: ${id} parentId: ${pid}`);

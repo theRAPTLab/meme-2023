@@ -931,7 +931,7 @@ PMCData.PMC_PropUpdate = (propId, newData) => {
   const prop = m_graph.node(numericId);
   // make a copy of the prop with overwritten new data
   // local data will be updated on DBSYNC event, so don't write it here
-  const propData = Object.assign(prop, newData, { id: numericId }); // id last to make sure we're using a cleaned one
+  const propData = Object.assign({}, prop, newData, { id: numericId }); // id last to make sure we're using a cleaned one
   propData.propType = propData.propType || DATAMAP.PMC_MODELTYPES.COMPONENT.id; // default to component
   const pmcDataId = ASET.selectedPMCDataId;
   UTILS.RLog(
@@ -1022,8 +1022,7 @@ PMCData.PMC_SetPropParent = (nodeId, parentId) => {
     return false;
   }
   const id = Number(nodeId);
-  const pid =
-    parentId !== undefined && parentId !== null ? Number(parentId) : undefined;
+  const pid = parentId !== undefined && parentId !== null ? Number(parentId) : null;
 
   // Check for circular reference
   if (pid !== undefined && m_IsRecursive(m_graph, id, pid)) {

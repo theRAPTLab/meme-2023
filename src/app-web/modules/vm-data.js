@@ -412,7 +412,9 @@ VM.VM_DeselectAllMechs = () => {
  *  broad.
  */
 VM.VM_DeselectAll = () => {
-  console.warn(`VM_DeselectAll() is deprecated. Use more specific selection manager calls.`);
+  console.warn(
+    `VM_DeselectAll() is deprecated. Use more specific selection manager calls.`
+  );
   DeselectAllProps();
   DeselectAllMechs();
   UR.Publish('SELECTION_CHANGED');

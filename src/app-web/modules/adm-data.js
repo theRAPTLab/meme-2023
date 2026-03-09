@@ -784,7 +784,8 @@ ADMData.Logout = () => {
         urs.SESSION_Key = '';
         SESSION.Clear();
         ASET.selectedStudentId = '';
-        ADMData.SelectClassroom('');
+        ASET.selectedModelId = ''; // clear model so DoDataUpdate skips GetRatings
+        ADMData.SelectClassroom(''); // clears selectedUnitId
         UR.Publish('ADM_DATA_UPDATED');
         return rdata;
       }

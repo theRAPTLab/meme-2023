@@ -229,6 +229,19 @@ const AddDragDropHandlers = vprop => {
     if (DATA.IsViewOnly()) return;
 
     // it did move, so do drop target magic
+    // Before reading the drop target, purge the dragged vprop and ALL of its
+    // descendants from the rollover map. When a parent is dragged, its children
+    // and grandchildren may have received mouseenter events before pointer-events:none
+    // took effect, leaving stale entries that .pop() would misidentify as the drop target.
+    const collectDescendants = (propId, acc) => {
+      acc.push(propId);
+      (DATA.Children(propId) || []).forEach(childId =>
+        collectDescendants(childId, acc)
+      );
+      return acc;
+    };
+    DATA.VM_ClearRolloverForVPropIds(collectDescendants(vpropId, []));
+
     const dropId = DATA.VM_PropsMouseOver().pop();
     const dropXY = `(${DragState(vprop).gRootXY.x}, ${DragState(vprop).gRootXY.y})`;
 

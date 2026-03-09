@@ -286,6 +286,16 @@ VM.VM_PropsMouseOver = () => {
   return [...map_rollover.keys()];
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** API.UI:
+ *  Remove the given prop IDs from the rollover tracking map.
+ *  Called before reading the drop target so that the dragged vprop and its
+ *  nested descendants are not mistakenly identified as drop targets.
+ *  @param {string[]} propIds - array of prop ID strings to remove
+ */
+VM.VM_ClearRolloverForVPropIds = propIds => {
+  propIds.forEach(id => map_rollover.delete(id));
+};
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** API.VIEWMODEL:
  *  Set the maximum number of objects the user can select.
  *  After the limit is reached, users can not select any additional objects

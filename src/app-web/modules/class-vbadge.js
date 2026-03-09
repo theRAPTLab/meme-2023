@@ -261,14 +261,8 @@ class VBadge {
       baseY = y + yOffset + m_pad * 2;
     }
 
-    const badgeOffsetX = 4;
-    const badgeOffsetY = 4; // was -7
-
     // first reset positions
-    this.gStickyButtons.transform({
-      translateX: badgeOffsetX,
-      translateY: badgeOffsetY
-    });
+    this.gStickyButtons.move(0, -7);
 
     // draw evidence link badges
     // -- Clear the group in case objects have changed
@@ -282,17 +276,11 @@ class VBadge {
       evlinks.forEach((evlink, i) => {
         const badge = VBadge.SVGEvLink(evlink, vparent);
         this.oldRating = evlink.rating;
-        badge.transform({
-          translateX: badgeOffsetX + i * evlinkBadgeXOffset,
-          translateY: badgeOffsetY
-        });
+        badge.move(i * evlinkBadgeXOffset, -7);
         this.gEvLinkBadges.add(badge);
       });
       // -- Move evlink badges to the right of stickynote button
-      this.gEvLinkBadges.transform({
-        translateX: badgeOffsetX + badgeItemRadius + m_pad,
-        translateY: badgeOffsetY
-      });
+      this.gEvLinkBadges.move(badgeItemRadius + m_pad, -7);
     }
 
     // set initial position of sticky note buttons and evlink badges
@@ -301,16 +289,13 @@ class VBadge {
       : 0;
     if (this.isVMech) {
       // VMech is left-justified
-      this.gBadges.transform({
-        translateX: baseX + badgeItemRadius,
-        translateY: baseY
-      });
+      this.gBadges.move(baseX + badgeItemRadius, baseY);
     } else {
       // VProp is right-justified
-      this.gBadges.transform({
-        translateX: baseX - evlinkBadgesOffsetX - badgeItemRadius - m_pad,
-        translateY: baseY + 4
-      });
+      this.gBadges.move(
+        baseX - evlinkBadgesOffsetX - badgeItemRadius - m_pad,
+        baseY + 4
+      );
     }
 
     this.baseRedrawNeeded = false;

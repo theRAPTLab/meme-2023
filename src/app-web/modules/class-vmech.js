@@ -313,7 +313,7 @@ class VMech {
         this.UpdateArrowStates();
 
         // VBadge hack position of horizText
-        this.pathLabelGroup.show();
+        this.pathLabelGroup.opacity(1);
         this.pathLabelGroup.x(this.pathLabel.x() - this.pathLabelBox.width() / 2); // center it on the path
         this.pathLabelGroup.y(this.pathLabel.y());
 
@@ -322,7 +322,7 @@ class VMech {
       // no srcPt or tgtPt, so hide path if it exists
       if (this.path) this.path.hide();
       // also hide the pathlabelGroup
-      this.pathLabelGroup.hide();
+      this.pathLabelGroup.opacity(0);
     }
   }
 

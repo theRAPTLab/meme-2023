@@ -24,6 +24,13 @@ import UTILS from './utils';
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const DBG = false;
 
+/**
+ * Module-level lock: tracks which vprop initiated the current drag.
+ * SVG.js fires dragend on ALL draggable descendants when a parent is dragged,
+ * so we only allow the actual drag initiator to process the drop.
+ */
+let activeDragId = null;
+
 /// PRIVATE HELPERS ///////////////////////////////////////////////////////////
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
@@ -135,6 +142,10 @@ const AddDragDropHandlers = vprop => {
   vprop.gRoot.on('dragstart.propmove', event => {
     event.stopPropagation();
     if (DBG) console.log('dragstart');
+    // Only claim the drag if no other vprop has already started one.
+    // This prevents child vprops from stealing the drag when a parent is moved.
+    if (activeDragId !== null) return;
+    activeDragId = vprop.Id();
     vprop.gRoot.attr('pointer-events', 'none');
     // REVIEW: mouse leave should not be necessary during drag?
     // DATA.VM_PropMouseExit(vprop);
@@ -161,6 +172,15 @@ const AddDragDropHandlers = vprop => {
     event.detail.event.stopPropagation();
 
     if (DBG) console.log('dragend');
+
+    // Only the vprop that initiated the drag should process the drop.
+    if (activeDragId !== vprop.Id()) {
+      if (DBG)
+        console.log(`dragend ignored for ${vprop.Id()} (active: ${activeDragId})`);
+      return;
+    }
+    activeDragId = null;
+
     vprop.gRoot.attr('pointer-events', 'all');
     SaveEventCoordsToBox(event, vprop._extend.dragdrop.endPt);
     if (vprop.DragEnd) vprop.DragEnd(event);

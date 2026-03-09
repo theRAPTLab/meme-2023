@@ -71,6 +71,16 @@ class MEPanelTools extends React.Component {
 
   componentDidMount() {}
 
+  componentDidUpdate() {
+    // update theme URL state when unit changes
+    const unitId = ASET.selectedUnitId;
+    const themeUrl = unitId ? `/units/${unitId}/resources/theme.png` : '';
+    if (themeUrl !== this.state.themeUrl) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ themeUrl, themeLoaded: false });
+    }
+  }
+
   componentWillUnmount() {
     UR.Unsubscribe('SELECTION_CHANGED', this.DoSelectionChange);
     UR.Unsubscribe('PROP_HOVER_START', this.DoPropHoverStart);
@@ -319,12 +329,8 @@ class MEPanelTools extends React.Component {
     const isViewOnly = ADM.IsViewOnly();
 
     const unitId = ASET.selectedUnitId;
-    const themeUrl = unitId ? `/units/${unitId}/resources/theme.png` : '';
-
-    // If unit changed, reset themeLoaded
-    if (themeUrl !== this.state.themeUrl) {
-      this.setState({ themeUrl, themeLoaded: false });
-    }
+    const themeUrl =
+      this.state.themeUrl || (unitId ? `/units/${unitId}/resources/theme.png` : '');
 
     const backgroundUrl =
       this.state.themeLoaded && unitId ? themeUrl : '/static/background_science.png';

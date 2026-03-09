@@ -1801,14 +1801,17 @@ ADMData.GetUnitLabel = (unitId = ASET.selectedUnitId) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetResources = (unitId = ASET.selectedUnitId) => {
+  if (!unitId || !ADMUnits.HasUnit(unitId)) return [];
   return ADMUnits.GetResources(unitId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetRatings = (unitId = ASET.selectedUnitId) => {
+  if (!unitId || !ADMUnits.HasUnit(unitId)) return [];
   return ADMUnits.GetRatings(unitId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetCommentTypes = (unitId = ASET.selectedUnitId) => {
+  if (!unitId || !ADMUnits.HasUnit(unitId)) return [];
   return ADMUnits.GetCommentTypes(unitId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

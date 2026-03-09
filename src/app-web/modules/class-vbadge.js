@@ -58,11 +58,10 @@ class VBadge {
     this.cref = '';
     this.hover = false;
     if (this.isVMech)
-      this.cref = CREF_PREFIX.PROCESS + vparent.data.id;  // CMTMGR.GetCREF('PROCESS', id);
+      this.cref = CREF_PREFIX.PROCESS + vparent.data.id; // CMTMGR.GetCREF('PROCESS', id);
     else if (vparent.isOutcome)
-      this.cref = CREF_PREFIX.OUTCOME + vparent.id;  // CMTMGR.GetCREF('OUTCOME', id);
-    else
-      this.cref = CREF_PREFIX.ENTITY + vparent.id;  // CMTMGR.GetCREF('ENTITY', id);
+      this.cref = CREF_PREFIX.OUTCOME + vparent.id; // CMTMGR.GetCREF('OUTCOME', id);
+    else this.cref = CREF_PREFIX.ENTITY + vparent.id; // CMTMGR.GetCREF('ENTITY', id);
 
     // Bind Methods
     this.Refresh = this.Refresh.bind(this);
@@ -78,16 +77,21 @@ class VBadge {
      *           +-- gEvLinkBadges (group)
      */
     this.gBadges = vparent.GetVBadgeParent().group().attr('class', 'gBadges');
-    this.gStickyButtons = VBadge.SVGStickyButton(this.gBadges, this.cref, this.isVMech);
+    this.gStickyButtons = VBadge.SVGStickyButton(
+      this.gBadges,
+      this.cref,
+      this.isVMech
+    );
     this.gEvLinkBadges = this.gBadges.group().attr('class', 'gEvLinkBadges');
 
-    this.gBadges.click(e => { this.OnClick(e); });
+    this.gBadges.click(e => {
+      this.OnClick(e);
+    });
 
     STATE.OnStateChange('COMMENTCOLLECTION', () => this.Refresh(vparent), UDATAOwner);
 
     this.Update(vparent);
     this.DrawBase(vparent);
-
   }
 
   /**
@@ -131,7 +135,7 @@ class VBadge {
       // An Evidence Link Badge got the click
       // Figure out which badge
       this.gEvLinkBadges.children().forEach(gBadge => {
-        console.log('checking', offsetX, svgPt.x, offsetY, svgPt.y, gBadge)
+        console.log('checking', offsetX, svgPt.x, offsetY, svgPt.y, gBadge);
         if (gBadge.inside(svgPt.x, svgPt.y)) {
           gBadge.fire('click', { event: mouseEvent });
         }
@@ -182,8 +186,10 @@ class VBadge {
     }
 
     // if the number of links have changed or been removed, then we need to redraw
-    if (oldEvlinks && updatedEvlinks && (oldEvlinks.length !== updatedEvlinks.length) ||
-      (oldEvlinks && !updatedEvlinks)) {
+    if (
+      (oldEvlinks && updatedEvlinks && oldEvlinks.length !== updatedEvlinks.length) ||
+      (oldEvlinks && !updatedEvlinks)
+    ) {
       redrawNeeded = true;
     }
 
@@ -278,13 +284,18 @@ class VBadge {
     }
 
     // set initial position of sticky note buttons and evlink badges
-    const evlinkBadgesOffsetX = this.evlinks ? this.evlinks.length * evlinkBadgeXOffset : 0;
+    const evlinkBadgesOffsetX = this.evlinks
+      ? this.evlinks.length * evlinkBadgeXOffset
+      : 0;
     if (this.isVMech) {
       // VMech is left-justified
       this.gBadges.move(baseX + badgeItemRadius, baseY);
     } else {
       // VProp is right-justified
-      this.gBadges.move(baseX - evlinkBadgesOffsetX - badgeItemRadius - m_pad, baseY + 4);
+      this.gBadges.move(
+        baseX - evlinkBadgesOffsetX - badgeItemRadius - m_pad,
+        baseY + 4
+      );
     }
 
     this.baseRedrawNeeded = false;
@@ -318,14 +329,19 @@ class VBadge {
     const commentThreadIsOpen = uistate && uistate.isOpen;
 
     // update count on draw b/c number of comments might change
-    if (Array.isArray(comments)) this.commentCount = comments.filter(c => !c.comment_isMarkedDeleted).length;
+    if (Array.isArray(comments))
+      this.commentCount = comments.filter(c => !c.comment_isMarkedDeleted).length;
 
-    this.gStickyButtons.gLabel
-      .text(this.commentCount) // BUG: If text is empty, dragging seeems to lead to a race condition
+    this.gStickyButtons.gLabel.text(this.commentCount); // BUG: If text is empty, dragging seeems to lead to a race condition
 
     // update sticky button icons and comment count label
     // this replicates what URCommentBtn usually handles
-    if (!hasComments && !this.hover && !commentThreadIsOpen && !vparent.visualState.IsSelected()) {
+    if (
+      !hasComments &&
+      !this.hover &&
+      !commentThreadIsOpen &&
+      !vparent.visualState.IsSelected()
+    ) {
       // no sticky buttons
       this.gStickyButtons.attr({ visibility: 'hidden' });
     } else {
@@ -346,7 +362,10 @@ class VBadge {
           this.gStickyButtons.gIcon.attr('class', 'svgcmt-readSelected');
           this.gStickyButtons.gLabel.font({ fill: '#fff' });
         } else {
-          this.gStickyButtons.gIcon.attr('class', this.isVMech ? 'svgcmt-read-outlined' : 'svgcmt-read');
+          this.gStickyButtons.gIcon.attr(
+            'class',
+            this.isVMech ? 'svgcmt-read-outlined' : 'svgcmt-read'
+          );
           this.gStickyButtons.gLabel.font({ fill: COLOR.COMMENT_READ });
         }
       }
@@ -408,7 +427,10 @@ VBadge.SVGEvLink = (evlink, vparent) => {
 
   // create vbadge sub elements
   const gEvLink = root.group().attr({ id: 'gEvLink' }).click(onClick);
-  gEvLink.gRect = gEvLink.rect(badgeItemRadius * 1.75, badgeItemRadius).radius(badgeItemRadius / 2).fill('#4db6ac');
+  gEvLink.gRect = gEvLink
+    .rect(badgeItemRadius * 1.75, badgeItemRadius)
+    .radius(badgeItemRadius / 2)
+    .fill('#4db6ac');
   gEvLink.gRect.attr({ cursor: 'pointer' });
 
   gEvLink.gLabel = gEvLink
@@ -417,8 +439,10 @@ VBadge.SVGEvLink = (evlink, vparent) => {
     .dmove(badgeItemRadius / 2, badgeItemRadius / 2 + 4)
     .attr({ cursor: 'pointer' });
 
-  gEvLink.gRating = new VBadge.SVGRating(evlink, gEvLink)
-    .dmove(badgeItemRadius * 0.9, 4.5);
+  gEvLink.gRating = new VBadge.SVGRating(evlink, gEvLink).dmove(
+    badgeItemRadius * 0.9,
+    4.5
+  );
   return gEvLink;
 };
 
@@ -434,9 +458,7 @@ VBadge.SVGRating = (evlink, gEvLink) => {
     .attr({ id: 'gRatings' })
     .move(badgeItemRadius * 0.9, 4.5);
   gRatings.group().circle(18).fill('#fff');
-  gRatings.group()
-    .add(RATINGS.getSVGIcon(rating))
-    .move(1, 1);
+  gRatings.group().add(RATINGS.getSVGIcon(rating)).move(1, 1);
   return gRatings;
 };
 
@@ -461,13 +483,16 @@ VBadge.SVGStickyButton = (gbadges, cref) => {
   // create vbadge sub elements
   // 1. main gStickyButtons group
   let gStickyButton = gbadges
-    .group().addClass('gStickyNoteBtn')
+    .group()
+    .addClass('gStickyNoteBtn')
     .attr({ cursor: 'pointer' })
     .click(onClick);
   // Using the svg defs requires using `clone`
-  gStickyButton.gIcon = gStickyButton.group()
+  gStickyButton.gIcon = gStickyButton
+    .group()
     .attr('class', 'svgcmt-read')
-    .add(SVGDEFS.get('comment').clone()).scale(1.6);
+    .add(SVGDEFS.get('comment').clone())
+    .scale(1.6);
 
   // 3. comment count label group
   gStickyButton.gLabel = gStickyButton

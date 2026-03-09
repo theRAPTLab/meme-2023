@@ -1,6 +1,13 @@
 import ADM from './data';
 import DATA from './data';
-import { cssinfo, cssdraw, csstab, csstab2, cssblue, cssdata } from './console-styles';
+import {
+  cssinfo,
+  cssdraw,
+  csstab,
+  csstab2,
+  cssblue,
+  cssdata
+} from './console-styles';
 import UR from '../../system/ursys';
 import DEFAULTS from './defaults';
 import { VisualState } from './classes-visual';
@@ -102,10 +109,7 @@ class VMech {
     this.horizText = this.pathLabelGroup.text(add => {
       add.tspan(this.data.name);
     });
-    this.horizText
-      .fill(COL_MECH_LABEL)
-      .move(5, 3)
-      .attr({ cursor: 'pointer' }); // offset in pathLabelBox for padding
+    this.horizText.fill(COL_MECH_LABEL).move(5, 3).attr({ cursor: 'pointer' }); // offset in pathLabelBox for padding
 
     // Add VBadge group -- this needs to be added here for layering purposes
     this.vBadge = VBadge.New(this);
@@ -116,7 +120,9 @@ class VMech {
     // .attr('dy', -6) // Original offset to move text off the pathline
     // These initial 'pathLabel' and 'textpath' settings are overriden by Update, below.
     this.pathLabel.attr('text-anchor', 'end');
-    this.textpath = this.pathLabel.path(this.path).attr('startOffset', this.path.length() - m_blen);
+    this.textpath = this.pathLabel
+      .path(this.path)
+      .attr('startOffset', this.path.length() - m_blen);
 
     // shared modes
     this.visualState = new VisualState(this.id);
@@ -204,11 +210,13 @@ class VMech {
     if (visible) {
       this.visualState.Select('hover');
       this.vBadge.hover = true;
-      if (publishEvent) UR.Publish('MECH_HOVER_START', { mechId: CoerceToEdgeObj(this.id) });
+      if (publishEvent)
+        UR.Publish('MECH_HOVER_START', { mechId: CoerceToEdgeObj(this.id) });
     } else {
       this.visualState.Deselect('hover');
       this.vBadge.hover = false;
-      if (publishEvent) UR.Publish('MECH_HOVER_END', { mechId: CoerceToEdgeObj(this.id) });
+      if (publishEvent)
+        UR.Publish('MECH_HOVER_END', { mechId: CoerceToEdgeObj(this.id) });
     }
     this.Draw();
   }
@@ -272,7 +280,9 @@ class VMech {
             this.path.marker('start', SVGDEFS.get('arrowStartHead'));
             this.path.marker('end', SVGDEFS.get('arrowEndHead'));
           } else {
-            this.path.marker('end', SVGDEFS.get('arrowEndHead')).attr('marker-start', '');
+            this.path
+              .marker('end', SVGDEFS.get('arrowEndHead'))
+              .attr('marker-start', '');
           }
           this.path.plot(m_MakeQuadraticDrawingString(srcPt, tgtPt));
           // text-anchor is like justification setting the alignment
@@ -287,7 +297,9 @@ class VMech {
             this.path.marker('start', SVGDEFS.get('arrowStartHead'));
             this.path.marker('end', SVGDEFS.get('arrowEndHead'));
           } else {
-            this.path.marker('start', SVGDEFS.get('arrowStartHead')).attr('marker-end', '');
+            this.path
+              .marker('start', SVGDEFS.get('arrowStartHead'))
+              .attr('marker-end', '');
           }
           this.path.plot(m_MakeQuadraticDrawingString(tgtPt, srcPt));
           this.pathLabel.attr('text-anchor', 'middle'); // originally was 'start'
@@ -301,7 +313,7 @@ class VMech {
         this.UpdateArrowStates();
 
         // VBadge hack position of horizText
-        this.pathLabelGroup.show();
+        this.pathLabelGroup.opacity(1);
         this.pathLabelGroup.x(this.pathLabel.x() - this.pathLabelBox.width() / 2); // center it on the path
         this.pathLabelGroup.y(this.pathLabel.y());
 
@@ -310,7 +322,7 @@ class VMech {
       // no srcPt or tgtPt, so hide path if it exists
       if (this.path) this.path.hide();
       // also hide the pathlabelGroup
-      this.pathLabelGroup.hide();
+      this.pathLabelGroup.opacity(0);
     }
   }
 
@@ -341,7 +353,8 @@ class VMech {
     } else {
       if (this.path.reference('marker-start'))
         this.path.marker('start', SVGDEFS.get('arrowStartHead'));
-      if (this.path.reference('marker-end')) this.path.marker('end', SVGDEFS.get('arrowEndHead'));
+      if (this.path.reference('marker-end'))
+        this.path.marker('end', SVGDEFS.get('arrowEndHead'));
     }
   }
 
@@ -390,7 +403,8 @@ class VMech {
  */
 VMech.New = (pathId, svgRoot) => {
   if (DATA.VM_VMechExists(pathId)) throw Error(`${pathId} is already allocated`);
-  if (svgRoot.constructor.name !== 'Svg') throw Error(`arg2 must be SVGJS draw instance`);
+  if (svgRoot.constructor.name !== 'Svg')
+    throw Error(`arg2 must be SVGJS draw instance`);
   const vmech = new VMech(pathId, svgRoot);
   if (DBG) console.log('created vmech', vmech.id);
   DATA.VM_VMechSet(vmech, pathId);

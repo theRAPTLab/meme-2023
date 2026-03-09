@@ -784,7 +784,8 @@ ADMData.Logout = () => {
         urs.SESSION_Key = '';
         SESSION.Clear();
         ASET.selectedStudentId = '';
-        ADMData.SelectClassroom('');
+        ASET.selectedModelId = ''; // clear model so DoDataUpdate skips GetRatings
+        ADMData.SelectClassroom(''); // clears selectedUnitId
         UR.Publish('ADM_DATA_UPDATED');
         return rdata;
       }
@@ -1801,14 +1802,17 @@ ADMData.GetUnitLabel = (unitId = ASET.selectedUnitId) => {
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetResources = (unitId = ASET.selectedUnitId) => {
+  if (!unitId || !ADMUnits.HasUnit(unitId)) return [];
   return ADMUnits.GetResources(unitId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetRatings = (unitId = ASET.selectedUnitId) => {
+  if (!unitId || !ADMUnits.HasUnit(unitId)) return [];
   return ADMUnits.GetRatings(unitId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ADMData.GetCommentTypes = (unitId = ASET.selectedUnitId) => {
+  if (!unitId || !ADMUnits.HasUnit(unitId)) return [];
   return ADMUnits.GetCommentTypes(unitId);
 };
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
